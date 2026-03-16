@@ -126,6 +126,40 @@ export interface BundesratLand {
   votes: number;
 }
 
+/** KPI-Delta für Tradeoff-Effekte (hh, zf, gi, al) */
+export interface KpiDelta {
+  hh?: number;
+  zf?: number;
+  gi?: number;
+  al?: number;
+}
+
+export interface Tradeoff {
+  id: string;
+  label: string;
+  desc: string;
+  effect: Partial<KpiDelta>;
+  charMood?: Record<string, number>;
+}
+
+export interface BundesratFraktion {
+  id: string;
+  name: string;
+  sprecher: {
+    name: string;
+    partei: string;
+    land: string;
+    initials: string;
+    color: string;
+    bio: string;
+  };
+  laender: string[];
+  basisBereitschaft: number;
+  beziehung: number;
+  tradeoffPool: Tradeoff[];
+  sonderregel?: string;
+}
+
 export interface GameState {
   month: number;
   speed: SpeedLevel;
@@ -140,6 +174,7 @@ export interface GameState {
   chars: Character[];
   gesetze: Law[];
   bundesrat: BundesratLand[];
+  bundesratFraktionen: BundesratFraktion[];
 
   activeEvent: GameEvent | null;
   firedEvents: string[];
@@ -160,6 +195,7 @@ export interface ContentBundle {
   charEvents: Record<string, GameEvent>;
   laws: Law[];
   bundesrat: BundesratLand[];
+  bundesratFraktionen?: BundesratFraktion[];
   scenario: {
     id: string;
     name: string;

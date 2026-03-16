@@ -1,5 +1,30 @@
-import type { GameState, BundesratLand } from '../types';
+import type { GameState, BundesratLand, BundesratFraktion } from '../types';
 import { addLog } from '../engine';
+
+/**
+ * Berechnet die Bundesrat-Mehrheit für ein Gesetz.
+ * Jede Fraktion stimmt als Block; Mehrheit ab 9 von 16 Ländern.
+ */
+export function calcBundesratMehrheit(
+  fraktionen: BundesratFraktion[],
+  _gesetzeId?: string,
+): { ja: number; nein: number; mehrheit: boolean } {
+  let ja = 0;
+  let nein = 0;
+
+  for (const f of fraktionen) {
+    const effBereitschaft = f.basisBereitschaft + f.beziehung * 0.2;
+    const stimmtJa = effBereitschaft > 50;
+    const laenderCount = f.laender.length;
+    if (stimmtJa) {
+      ja += laenderCount;
+    } else {
+      nein += laenderCount;
+    }
+  }
+
+  return { ja, nein, mehrheit: ja >= 9 };
+}
 
 export function lobbyLand(state: GameState, landId: string): GameState {
   if (state.pk < 15) return state;

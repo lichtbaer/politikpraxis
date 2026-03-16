@@ -80,5 +80,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       },
     })),
 
-  loadSave: (savedState) => set({ state: savedState }),
+  loadSave: (savedState) => {
+    const state = savedState.bundesratFraktionen
+      ? savedState
+      : { ...savedState, bundesratFraktionen: createInitialState(DEFAULT_CONTENT).bundesratFraktionen };
+    set({ state });
+  },
 }));

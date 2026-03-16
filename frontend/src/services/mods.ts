@@ -48,6 +48,7 @@ export function mergeModContent(base: ContentBundle, mod: Partial<ContentBundle>
     charEvents: mod.charEvents ? { ...base.charEvents, ...mod.charEvents } : base.charEvents,
     laws: mod.laws ? [...base.laws, ...mod.laws] : base.laws,
     bundesrat: mod.bundesrat ?? base.bundesrat,
+    bundesratFraktionen: mod.bundesratFraktionen ?? base.bundesratFraktionen,
     scenario: mod.scenario ?? base.scenario,
   };
 }
