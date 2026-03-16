@@ -1,0 +1,187 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.sheet {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  max-width: 420px;
+  width: 100%;
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.closeBtn:hover {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.portrait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.zitat {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-style: italic;
+  color: var(--text2);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.countdown {
+  display: inline-block;
+  padding: 6px 12px;
+  background: var(--bg3);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 20px;
+}
+
+.gesperrt {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gesperrtHinweis {
+  font-size: 13px;
+  color: var(--warn);
+  margin: 0;
+}
+
+.btnReparatur {
+  padding: 10px 16px;
+  font-size: 13px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btnReparatur:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btnReparatur:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.forderung {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: var(--bg3);
+  border-radius: 8px;
+}
+
+.forderungTitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text3);
+  margin: 0 0 8px 0;
+}
+
+.forderungLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 4px 0;
+}
+
+.forderungDesc {
+  font-size: 12px;
+  color: var(--text2);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.aktionen {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn,
+.btnPrimary,
+.btnSecondary {
+  padding: 10px 16px;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.btnPrimary {
+  background: var(--green);
+  color: var(--bg);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.btn:hover:not(:disabled),
+.btnPrimary:hover,
+.btnSecondary:hover {
+  opacity: 0.9;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

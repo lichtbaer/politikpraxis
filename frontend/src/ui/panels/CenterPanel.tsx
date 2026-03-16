@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { featureActive } from '../../core/systems/features';
 import { EventCard } from '../components/EventCard/EventCard';
 import { AgendaView } from '../views/AgendaView';
 import { EbeneView } from '../views/EbeneView';
@@ -9,8 +11,14 @@ import type { GameEvent, EventChoice } from '../../core/types';
 import styles from './CenterPanel.module.css';
 
 export function CenterPanel() {
-  const { state } = useGameStore();
+  const { state, setView, complexity } = useGameStore();
   const { resolveEvent } = useGameActions();
+
+  useEffect(() => {
+    if (state.view === 'bundesrat' && !featureActive(complexity, 'bundesrat_simple')) {
+      setView('agenda');
+    }
+  }, [state.view, complexity, setView]);
 
   const handleChoice = (event: GameEvent, choice: EventChoice) => {
     resolveEvent(event, choice);

@@ -181,6 +181,8 @@ export interface BundesratFraktion {
     initials: string;
     color: string;
     bio: string;
+    /** Fiktives Zitat für Lobbying-Overlay */
+    quote?: string;
   };
   laender: string[];
   basisBereitschaft: number;
