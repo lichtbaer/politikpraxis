@@ -1,0 +1,65 @@
+{
+  "app": {
+    "title": "Bundesrepublik",
+    "subtitle": "A politics simulation"
+  },
+  "header": {
+    "monthFormat": "Month {{month}}/48 · {{year}}"
+  },
+  "menu": {
+    "newGame": "New Game",
+    "loadGame": "Load Game",
+    "settings": "Settings",
+    "credits": "Credits"
+  },
+  "game": {
+    "month": "Month",
+    "pk": "PK",
+    "speed": {
+      "pause": "Pause",
+      "slow": "1×",
+      "fast": "3×"
+    },
+    "actions": {
+      "introduce": "Introduce",
+      "vote": "Call vote",
+      "lobbying": "Lobbying",
+      "startRoute": "Start detour",
+      "mediaKampagne": "Launch campaign"
+    },
+    "kpi": {
+      "unemployment": "Unemployment",
+      "budget": "Budget balance",
+      "gini": "Gini index",
+      "satisfaction": "Satisfaction"
+    },
+    "election": {
+      "goal": "Target: ≥ {{target}}% at election (Month 48)",
+      "won": "Re-elected",
+      "lost": "Voted out"
+    },
+    "status": {
+      "entwurf": "Draft",
+      "aktiv": "In parliament",
+      "bt_passed": "Parliament passed",
+      "blockiert": "Blocked",
+      "beschlossen": "Passed",
+      "ausweich": "Detour active"
+    },
+    "ebenen": {
+      "eu": "EU level",
+      "land": "Federal States level",
+      "kommune": "Municipal level",
+      "bundesrat": "Bundesrat (Federal Council)",
+      "agenda": "Agenda",
+      "medien": "Media & Milieus"
+    },
+    "tags": {
+      "bund": "Federal",
+      "eu": "EU",
+      "land": "State",
+      "kommune": "Municipal"
+    },
+    "gratis": "free"
+  }
+}

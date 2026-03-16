@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import {
@@ -33,6 +34,7 @@ interface FraktionskarteProps {
 }
 
 function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexity }: FraktionskarteProps) {
+  const { t } = useTranslation('game');
   const state = useGameStore((s) => s.state);
 
   const fullView = featureActive(complexity, 'bundesrat_full');
@@ -64,7 +66,7 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
       </div>
       <div className={styles.beziehungsBalken}>
         <div className={styles.balkenLabel}>
-          <span>Beziehung</span>
+          <span>{t('game:bundesrat.beziehung')}</span>
           <span>{fraktion.beziehung}</span>
         </div>
         <div className={styles.balkenTrack}>
@@ -78,12 +80,12 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
         </div>
       </div>
       <div className={styles.bereitschaft}>
-        <span>Abstimmungsbereitschaft</span>
+        <span>{t('game:bundesrat.abstimmungsbereitschaft')}</span>
         <span className={styles.bereitschaftValue}>{bereitschaft}%</span>
       </div>
       {showGespraechBtn && (
         <button type="button" className={styles.btnGespraech} onClick={onGespraechSuchen}>
-          Gespräch suchen
+          {t('game:bundesrat.gespraechSuchen')}
         </button>
       )}
     </article>
@@ -99,20 +101,21 @@ interface AbstimmungsbalkenProps {
 }
 
 function Abstimmungsbalken({ law, felder, ja, nein, mehrheit }: AbstimmungsbalkenProps) {
+  const { t } = useTranslation('game');
   const fraktionen = useGameStore((s) => s.state.bundesratFraktionen);
   const showToast = useUIStore((s) => s.showToast);
 
   const handleFeldClick = (fraktionId: string) => {
     const f = fraktionen.find((x) => x.id === fraktionId);
-    if (f) showToast(`${f.name}: ${f.sprecher.name} (${f.sprecher.partei})`);
+    if (f) showToast(`${t(`game:bundesratFraktionen.${f.id}.name`)}: ${f.sprecher.name} (${f.sprecher.partei})`);
   };
 
   return (
     <div className={styles.abstimmungsBalken}>
       <div className={styles.abstimmungsHeader}>
-        <span className={styles.abstimmungsLaw}>{law.kurz}</span>
+        <span className={styles.abstimmungsLaw}>{t(`game:laws.${law.id}.kurz`)}</span>
         <span className={styles.abstimmungsErgebnis}>
-          {ja} Ja · {nein} Nein {mehrheit ? '✓ Mehrheit' : '✗ Keine Mehrheit'}
+          {t('game:bundesrat.jaNein', { ja, nein, mehrheit: mehrheit ? t('game:bundesrat.mehrheitJa') : t('game:bundesrat.mehrheitNein') })}
         </span>
       </div>
       <div className={styles.felderContainer}>
@@ -129,14 +132,15 @@ function Abstimmungsbalken({ law, felder, ja, nein, mehrheit }: Abstimmungsbalke
             title={`${f.landId}: ${f.stimmtJa ? 'Ja' : 'Nein'}`}
           />
         ))}
-        <div className={styles.mehrheitsLinie} title="Mehrheit bei 9 Stimmen" />
+        <div className={styles.mehrheitsLinie} title={t('game:bundesrat.mehrheitTitle')} />
       </div>
-      <span className={styles.mehrheitsLabel}>Mehrheit (9)</span>
+      <span className={styles.mehrheitsLabel}>{t('game:bundesrat.mehrheitBei')}</span>
     </div>
   );
 }
 
 export function BundesratView() {
+  const { t } = useTranslation('game');
   const state = useGameStore((s) => s.state);
   const complexity = useGameStore((s) => s.complexity);
   const [lobbyingFraktion, setLobbyingFraktion] = useState<BundesratFraktion | null>(null);
@@ -158,9 +162,9 @@ export function BundesratView() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Bundesrat</h2>
+        <h2 className={styles.title}>{t('game:bundesrat.title')}</h2>
         <p className={styles.subtitle}>
-          4 Fraktionen vertreten 16 Bundesländer. Lobbying beeinflusst die Abstimmungsbereitschaft.
+          {t('game:bundesrat.subtitle')}
         </p>
       </div>
 
@@ -194,7 +198,7 @@ export function BundesratView() {
 
       {!displayLaw && (
         <p className={styles.keineAbstimmung}>
-          Keine Bundesratsabstimmung in den nächsten Monaten.
+          {t('game:bundesrat.keineAbstimmung')}
         </p>
       )}
 

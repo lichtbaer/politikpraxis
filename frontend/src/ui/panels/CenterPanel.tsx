@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { EventCard } from '../components/EventCard/EventCard';
@@ -11,6 +12,7 @@ import type { GameEvent, EventChoice } from '../../core/types';
 import styles from './CenterPanel.module.css';
 
 export function CenterPanel() {
+  const { t } = useTranslation('game');
   const { state, setView, complexity } = useGameStore();
   const { resolveEvent } = useGameActions();
 
@@ -27,7 +29,7 @@ export function CenterPanel() {
   return (
     <div className={styles.panel}>
       <div className={styles.ticker}>
-        <span className={styles.tickerLabel}>NACHRICHTEN</span>
+        <span className={styles.tickerLabel}>{t('game:ticker.label')}</span>
         <span className={styles.tickerMessage}>{state.ticker || '—'}</span>
       </div>
       <div className={styles.content}>

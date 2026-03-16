@@ -1,17 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
-import { routeLabel } from '../../core/systems/levels';
 import type { RouteType } from '../../core/types';
 import styles from './EbeneView.module.css';
 
 interface EbeneViewProps {
   type: 'eu' | 'land' | 'kommune';
 }
-
-const DESCRIPTIONS: Record<RouteType, string> = {
-  eu: 'Gesetze über die EU-Ebene vorantreiben. Längere Laufzeit, aber umgeht den Bundesrat.',
-  land: 'Länder-Pilotprojekte starten. Mittlere Laufzeit und Kosten.',
-  kommune: 'Städtebündnisse nutzen. Schnellste Alternative mit geringeren Kosten.',
-};
 
 const COLOR_VAR: Record<RouteType, string> = {
   eu: 'var(--eu-c)',
@@ -20,6 +14,7 @@ const COLOR_VAR: Record<RouteType, string> = {
 };
 
 export function EbeneView({ type }: EbeneViewProps) {
+  const { t } = useTranslation('game');
   const { state } = useGameStore();
   const activeLaws = state.gesetze.filter(
     (g) => g.status === 'ausweich' && g.route === type
@@ -29,19 +24,19 @@ export function EbeneView({ type }: EbeneViewProps) {
   return (
     <div className={styles.root}>
       <h1 className={styles.title} style={{ color }}>
-        {routeLabel(type)}
+        {t(`game:routes.${type}`)}
       </h1>
-      <p className={styles.desc}>{DESCRIPTIONS[type]}</p>
+      <p className={styles.desc}>{t(`game:ebene.${type}`)}</p>
       <div className={styles.list}>
         {activeLaws.length === 0 ? (
-          <p className={styles.empty}>Keine Gesetze auf dieser Route.</p>
+          <p className={styles.empty}>{t('game:ebene.empty')}</p>
         ) : (
           activeLaws.map((law) => (
             <div key={law.id} className={styles.lawCard}>
               <div className={styles.lawHeader}>
-                <span className={styles.lawTitle}>{law.kurz}</span>
+                <span className={styles.lawTitle}>{t(`game:laws.${law.id}.kurz`)}</span>
                 <span className={styles.lawProgress}>
-                  {law.rprog}/{law.rdur} Monate
+                  {t('game:ebene.monate', { progress: law.rprog, duration: law.rdur })}
                 </span>
               </div>
               <div className={styles.progressTrack}>

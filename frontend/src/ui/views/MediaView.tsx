@@ -1,15 +1,18 @@
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import type { MilieuKey } from '../../core/systems/media';
 import styles from './MediaView.module.css';
 
-const MILIEU_CONFIG: { key: MilieuKey; name: string; desc: string; color: string }[] = [
-  { key: 'arbeit', name: 'Arbeitsmilieu', desc: 'Gewerkschaftsnahe Wähler, Fokus auf soziale Gerechtigkeit.', color: 'var(--land-c)' },
-  { key: 'mitte', name: 'Mitte', desc: 'Bürgerliche Mitte, wirtschaftsorientiert.', color: 'var(--eu-c)' },
-  { key: 'prog', name: 'Progressive', desc: 'Urban, klimabewusst, diversitätsorientiert.', color: 'var(--blue)' },
-];
+const MILIEU_KEYS: MilieuKey[] = ['arbeit', 'mitte', 'prog'];
+const MILIEU_COLORS: Record<MilieuKey, string> = {
+  arbeit: 'var(--land-c)',
+  mitte: 'var(--eu-c)',
+  prog: 'var(--blue)',
+};
 
 export function MediaView() {
+  const { t } = useTranslation('game');
   const { state } = useGameStore();
   const { medienkampagne } = useGameActions();
   const pk = state.pk;
@@ -17,27 +20,27 @@ export function MediaView() {
 
   return (
     <div className={styles.root}>
-      <h1 className={styles.title}>Medien & Milieus</h1>
+      <h1 className={styles.title}>{t('game:media.title')}</h1>
       <p className={styles.desc}>
-        Beeinflussen Sie die öffentliche Meinung durch gezielte Medienkampagnen.
+        {t('game:media.desc')}
       </p>
       <div className={styles.cards}>
-        {MILIEU_CONFIG.map(({ key, name, desc, color }) => (
+        {MILIEU_KEYS.map((key) => (
           <div key={key} className={styles.card}>
             <div className={styles.cardHeader}>
-              <h3 className={styles.cardTitle} style={{ color }}>
-                {name}
+              <h3 className={styles.cardTitle} style={{ color: MILIEU_COLORS[key] }}>
+                {t(`game:media.${key}.name`)}
               </h3>
               <span className={styles.percentage}>{Math.round(state.zust[key])}%</span>
             </div>
-            <p className={styles.cardDesc}>{desc}</p>
+            <p className={styles.cardDesc}>{t(`game:media.${key}.desc`)}</p>
             <button
               type="button"
               className={styles.btn}
               disabled={!canCampaign}
               onClick={() => medienkampagne(key)}
             >
-              Kampagne (10 PK)
+              {t('game:media.kampagne')}
             </button>
           </div>
         ))}

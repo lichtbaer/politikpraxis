@@ -1,6 +1,7 @@
 import type { GameState, GameEvent, EventChoice } from '../types';
 import { addLog } from '../engine';
 import { applyMoodChange } from './characters';
+import i18n from '../../i18n';
 
 /** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
 function applyLandtagswahlEffect(state: GameState, event: GameEvent): GameState {
@@ -234,8 +235,14 @@ export function resolveEvent(state: GameState, event: GameEvent, choice: EventCh
   }
 
   const logType = choice.type === 'danger' ? 'r' : 'g';
-  newState = addLog(newState, choice.log, logType);
-  newState.ticker = event.ticker;
+  const choiceIdx = event.choices.indexOf(choice);
+  const BR_IDS = new Set(['laenderfinanzausgleich', 'landtagswahl', 'kohl_eskaliert', 'sprecher_wechsel', 'bundesrat_initiative', 'foederalismusgipfel']);
+  const CHAR_IDS = new Set(['fm_ultimatum', 'braun_ultimatum', 'wolf_ultimatum', 'kern_ultimatum', 'kanzler_ultimatum', 'kohl_bundesrat_sabotage', 'wm_ultimatum']);
+  const eventNs = event.charId || CHAR_IDS.has(event.id) ? 'charEvents' : BR_IDS.has(event.id) ? 'bundesratEvents' : 'events';
+  const logKey = `game:${eventNs}.${event.id}.choices.${choiceIdx}.log`;
+  newState = addLog(newState, logKey, logType);
+  const tickerKey = `game:${eventNs}.${event.id}.ticker`;
+  newState.ticker = i18n.exists(tickerKey) ? i18n.t(tickerKey) : event.ticker;
   newState.activeEvent = null;
 
   return newState;

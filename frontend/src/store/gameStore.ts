@@ -51,10 +51,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const initial = createInitialState(c);
     const withLogs = addLog(
       addLog(
-        addLog(initial, 'Neue Legislaturperiode begonnen', 'hi'),
-        'Koalitionsvertrag unterzeichnet', 'g',
+        addLog(initial, 'game:logs.legislaturBegonnen', 'hi'),
+        'game:logs.koalitionsvertrag', 'g',
       ),
-      `${c.laws.length} Gesetzentwürfe in Vorbereitung`, '',
+      'game:logs.gesetzeVorbereitung', '',
+      { count: c.laws.length },
     );
     const withExpanded = {
       ...withLogs,

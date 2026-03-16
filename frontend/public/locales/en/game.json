@@ -1,0 +1,506 @@
+{
+  "_institutionConvention": "Bundesrat → Bundesrat (Federal Council); Bundestag → Bundestag (Federal Parliament); Bundesland/Länder → Federal States",
+  "chars": {
+    "kanzler": {
+      "name": "Anna Hoffmann",
+      "role": "Chancellor",
+      "bio": "Leads the coalition with a pragmatic course. Holds the threads together — but expects loyalty in return.",
+      "tag": "Stability",
+      "interests": ["Coalition stability", "Re-election"],
+      "bonus": { "desc": "Gives +5 parliament votes for all laws" }
+    },
+    "fm": {
+      "name": "Robert Lehmann",
+      "role": "Finance Minister",
+      "bio": "Strict budget guardian of the CDU. Consistently opposes expensive reforms — but is usually right.",
+      "tag": "Budget",
+      "interests": ["Fiscal discipline", "Debt brake"],
+      "bonus": { "desc": "Accelerates laws without budget costs" }
+    },
+    "wm": {
+      "name": "Petra Maier",
+      "role": "Economics Minister",
+      "bio": "Pragmatic and solution-oriented. Important ally — maintains contacts with industry and state premiers.",
+      "tag": "Business location",
+      "interests": ["Business location policy", "Industrial transformation"],
+      "bonus": { "desc": "+3% parliament votes for economic laws" }
+    },
+    "im": {
+      "name": "Klaus Braun",
+      "role": "Interior Minister",
+      "bio": "Conservative maverick. Fundamentally distrusts the coalition — actively seeks reasons to torpedo it.",
+      "tag": "Security",
+      "interests": ["Domestic security", "Migration limits"],
+      "bonus": { "desc": "Stabilises Bundesrat (Federal Council) votes in 3 states" }
+    },
+    "jm": {
+      "name": "Sara Kern",
+      "role": "Justice Minister",
+      "bio": "Lawyer with uncompromising principles. Blocks unconstitutional projects — but also protects the coalition from costly mistakes.",
+      "tag": "Rule of law",
+      "interests": ["Rule of law", "Fundamental rights"],
+      "bonus": { "desc": "Prevents constitutional challenges against laws" }
+    },
+    "um": {
+      "name": "Jonas Wolf",
+      "role": "Environment Minister",
+      "bio": "Drives climate policy forward, sometimes against the rest of the cabinet. Strong network among progressive voters.",
+      "tag": "Climate",
+      "interests": ["Climate protection", "Energy transition"],
+      "bonus": { "desc": "+4% approval in progressive milieu" }
+    }
+  },
+  "mood": {
+    "0": "Very dissatisfied",
+    "1": "Dissatisfied",
+    "2": "Neutral",
+    "3": "Satisfied",
+    "4": "Very satisfied"
+  },
+  "events": {
+    "haushalt": {
+      "typeLabel": "Budget crisis",
+      "title": "Billion-euro hole in federal budget",
+      "quote": "\"Unexpected tax shortfalls tear a hole of 14 billion euros.\"",
+      "context": "The Finance Ministry has revised estimates downward. Finance Minister Lehmann demands immediate countermeasures.",
+      "ticker": "Budget hole: Government under pressure — Lehmann demands austerity package",
+      "choices": {
+        "0": { "label": "Push through austerity package", "desc": "Short-term consolidation, lowers popularity", "log": "Austerity package passed. Budget stabilised, popularity drops." },
+        "1": { "label": "Take on new debt", "desc": "Violates debt brake — legal risk", "log": "Debt brake stretched. Constitutional challenge threatens." },
+        "2": { "label": "Announce tax increase", "desc": "Burdens centre milieu, stabilises budget", "log": "Tax increase announced. Business association protests." }
+      }
+    },
+    "skandal": {
+      "typeLabel": "Political scandal",
+      "title": "Media reports on ministry waste",
+      "quote": "\"Der Spiegel reports on questionable consultancy contracts in the federal ministry.\"",
+      "context": "The opposition demands resignation. Braun uses the opportunity to destabilise the coalition.",
+      "ticker": "Spiegel report shakes coalition — opposition smells blood",
+      "choices": {
+        "0": { "label": "Full transparency", "desc": "Disclose everything, short-term damage", "log": "Full disclosure. Short-term damage, long-term trust." },
+        "1": { "label": "Distraction offensive", "desc": "Divert media with new topic", "log": "Distraction manoeuvre launched. Media sceptical." },
+        "2": { "label": "Dismiss minister", "desc": "Clear signal, costs coalition stability", "log": "Minister dismissed. Coalition partners angered." }
+      }
+    },
+    "euklage": {
+      "typeLabel": "EU treaty violation",
+      "title": "Brussels initiates proceedings against Germany",
+      "quote": "\"The European Commission criticises the sluggish implementation of EU directives.\"",
+      "context": "Three directives have not yet been transposed into national law. A fine of up to 500 million euros looms.",
+      "ticker": "EU infringement proceedings against Germany opened",
+      "choices": {
+        "0": { "label": "Rapid implementation", "desc": "Emergency legislation, ignores Bundesrat (Federal Council)", "log": "EU directives quickly implemented. Constitutional concerns remain." },
+        "1": { "label": "Open EU negotiations", "desc": "Gain time, no immediate costs", "log": "Negotiations with Brussels opened. Outcome open." },
+        "2": { "label": "Include Bundesrat (Federal Council)", "desc": "Correct but slow, fine risk", "log": "Regular procedure chosen. Fine risk remains." }
+      }
+    },
+    "konjunktur": {
+      "typeLabel": "Economic downturn",
+      "title": "ECB rate hike hits German economy",
+      "quote": "\"Investment collapses, short-time work rises — recession risk grows.\"",
+      "context": "Maier warns against hasty spending cuts. Lehmann insists on fiscal discipline.",
+      "ticker": "Economic downturn: Recession risk rises to 35%",
+      "choices": {
+        "0": { "label": "Launch stimulus package", "desc": "Expensive but effective", "log": "Stimulus package passed. Budget burdened, economy stabilised." },
+        "1": { "label": "Wait and see", "desc": "Cheap but risky", "log": "Wait-and-see stance. Economy worsens further." },
+        "2": { "label": "Announce structural reforms", "desc": "Right long-term, ineffective short-term", "log": "Structural reforms announced. Markets react positively." }
+      }
+    },
+    "koalition_krise": {
+      "typeLabel": "Coalition crisis",
+      "title": "Coalition partner threatens to leave",
+      "quote": "\"We can no longer support this policy\", warns the coalition partner.",
+      "context": "Dispute over energy law escalates. The junior partner demands renegotiation of the coalition agreement.",
+      "ticker": "COALITION CRISIS: Junior partner issues ultimatum to Chancellery",
+      "choices": {
+        "0": { "label": "Renegotiate", "desc": "Stability gain, reform loss", "log": "Coalition agreement renegotiated. Reform watered down." },
+        "1": { "label": "Risk confrontation", "desc": "Principled but destabilising", "log": "Coalition crisis escalates. Early elections discussed." },
+        "2": { "label": "Offer trade-off", "desc": "Sacrifice another project, save coalition", "log": "Trade-off agreed. Coalition temporarily saved." }
+      }
+    },
+    "demo": {
+      "typeLabel": "Society",
+      "title": "Major demonstration shakes Berlin",
+      "quote": "\"500,000 people on the streets — the largest demo in years.\"",
+      "context": "The protest targets social inequality. Progressives are mobilised but also dissatisfied with the government.",
+      "ticker": "Berlin: Historic demonstration for social justice",
+      "choices": {
+        "0": { "label": "Offer dialogue", "desc": "Signal of openness", "log": "Dialogue with demonstrators offered. Progressive milieu calmed." },
+        "1": { "label": "Reject demands", "desc": "Clear position but polarisation", "log": "Demands rejected. Progressives disappointed." },
+        "2": { "label": "Announce emergency programme", "desc": "Expensive, high sympathy gain", "log": "Emergency programme announced. Broad approval." }
+      }
+    },
+    "eufoerder": {
+      "typeLabel": "EU funding",
+      "title": "EU releases billion-euro structural funds",
+      "quote": "\"Brussels provides 4.8 billion euros for German climate investments.\"",
+      "context": "A rare piece of good news: EU funds arrive earlier than expected. How will they be used?",
+      "ticker": "EU releases 4.8 bn euros for Germany — government decides use",
+      "choices": {
+        "0": { "label": "Climate & infrastructure", "desc": "Effective long-term", "log": "EU funds used for climate investments." },
+        "1": { "label": "Prioritise housing", "desc": "Popular, quickly visible", "log": "EU funds strengthen housing offensive." },
+        "2": { "label": "Debt repayment", "desc": "Finance Ministry delighted", "log": "Debt repaid. Budget improved, room for reforms." }
+      }
+    }
+  },
+  "charEvents": {
+    "fm_ultimatum": {
+      "typeLabel": "Cabinet crisis",
+      "title": "Lehmann issues budget ultimatum",
+      "quote": "\"Not a single law without full funding proof — or I resign.\"",
+      "context": "Finance Minister Lehmann is at the end of his patience. Too many expensive projects without funding.",
+      "ticker": "CABINET CRISIS: Finance Minister Lehmann threatens resignation",
+      "choices": {
+        "0": { "label": "Promise funding proof", "desc": "Dilutes expensive laws, calms Lehmann", "log": "Funding pledge made. Lehmann appeased, reforms restricted." },
+        "1": { "label": "Publicly contradict", "desc": "Clear course but coalition risk", "log": "Public dispute with Lehmann. Coalition destabilised." },
+        "2": { "label": "Call special meeting", "desc": "Gain time, costs political capital", "log": "Coalition summit at Chancellery. Compromise found." }
+      }
+    },
+    "braun_ultimatum": {
+      "typeLabel": "Coalition conflict",
+      "title": "Braun sabotages Bundesrat (Federal Council) vote",
+      "quote": "\"I have advised the state interior ministers to vote against this law.\"",
+      "context": "Braun has acted behind the coalition's back and influenced three state interior ministers.",
+      "ticker": "Interior Minister Braun sabotages coalition partner in Bundesrat (Federal Council)",
+      "choices": {
+        "0": { "label": "Publicly reprimand Braun", "desc": "Clear signal, Braun becomes enemy", "log": "Braun officially reprimanded. Internal tension at maximum." },
+        "1": { "label": "Include Braun", "desc": "Gives him influence, costs reform substance", "log": "Braun receives concessions. Coalition stabilised, reform watered down." },
+        "2": { "label": "Dismiss Braun", "desc": "Clean solution, needs coalition partner", "log": "Braun dismissed. Cabinet reshuffled." }
+      }
+    },
+    "wolf_ultimatum": {
+      "typeLabel": "Climate dispute",
+      "title": "Wolf threatens resignation over climate policy",
+      "quote": "\"If the energy law is watered down further, I can no longer represent this cabinet.\"",
+      "context": "Wolf is frustrated with sluggish climate policy.",
+      "ticker": "Environment Minister Wolf issues climate ultimatum to Chancellery",
+      "choices": {
+        "0": { "label": "Prioritise energy law", "desc": "Wolf satisfied, progressive votes rise", "log": "Energy law put on priority list. Wolf stays." },
+        "1": { "label": "Persuade Wolf to stay", "desc": "Symbolic concession", "log": "Personal talk with Wolf. Provisional agreement." },
+        "2": { "label": "Accept resignation", "desc": "Wolf leaves, progressive milieu collapses", "log": "Wolf resigns. Progressive voters feel betrayed." }
+      }
+    },
+    "kern_ultimatum": {
+      "typeLabel": "Constitutional conflict",
+      "title": "Kern blocks law over constitutional concerns",
+      "quote": "\"I will not sign any law that cannot withstand the Federal Constitutional Court.\"",
+      "context": "Kern has stopped the emergency law on the EU directive. She is substantively right — but time is running out.",
+      "ticker": "Justice Minister stops emergency law — constitutional concerns in cabinet",
+      "choices": {
+        "0": { "label": "Adapt law to constitution", "desc": "Delay but legally secure", "log": "Law revised. Constitutionally sound but delayed." },
+        "1": { "label": "Appoint expert commission", "desc": "Further time gain", "log": "Constitutional commission appointed. Kern cooperates." },
+        "2": { "label": "Apply political pressure", "desc": "Risky — Kern could sue", "log": "Kern feels overruled. Constitutional challenge threatens." }
+      }
+    },
+    "kanzler_ultimatum": {
+      "typeLabel": "Vote of confidence",
+      "title": "Hoffmann considers vote of confidence",
+      "quote": "\"If the coalition cannot find a common line, I will call a vote of confidence.\"",
+      "context": "Internal divisions have become public. Hoffmann wants a clear commitment.",
+      "ticker": "Chancellor Hoffmann considers vote of confidence — coalition under pressure",
+      "choices": {
+        "0": { "label": "Call coalition summit", "desc": "All conflicts on the table", "log": "Coalition summit creates new unity." },
+        "1": { "label": "Risk vote of confidence", "desc": "Gamble — win or early election", "log": "Vote of confidence called. Coalition holds narrowly." }
+      }
+    },
+    "kohl_bundesrat_sabotage": {
+      "typeLabel": "Bundesrat (Federal Council) sabotage",
+      "title": "Kohl requests mediation committee",
+      "quote": "\"Without concessions to the East I will request every mediation committee.\"",
+      "context": "Matthias Kohl (Ostblock) has independently filed a mediation committee request. The law will be delayed by at least 2 months.",
+      "ticker": "Kohl requests mediation committee — law delayed",
+      "choices": {
+        "0": { "label": "Accept delay", "desc": "Law voted 2 months later", "log": "Mediation committee procedure running. Vote delayed." },
+        "1": { "label": "Address Kohl directly", "desc": "Relationship building, costs 15 PK", "log": "Talk with Kohl. Relationship improved, delay remains." },
+        "2": { "label": "Publicly criticise", "desc": "Relationship with Kohl drops further", "log": "Kohl publicly criticised. Ostblock hardens position." }
+      }
+    },
+    "wm_ultimatum": {
+      "typeLabel": "Economic dispute",
+      "title": "Maier threatens resignation over business location policy",
+      "quote": "\"The combination of tax increase and regulation drives companies abroad.\"",
+      "context": "Maier sees economic policy on the wrong track.",
+      "ticker": "Economics Minister Maier issues business location ultimatum",
+      "choices": {
+        "0": { "label": "Accelerate tax reform", "desc": "Maier stays, budget suffers", "log": "Tax reform brought forward. Economy stabilised, budget burdened." },
+        "1": { "label": "Roll back regulation", "desc": "Popular with industry, unpopular with progressives", "log": "Regulation pause decided. Industry relieved." },
+        "2": { "label": "Outvote Maier", "desc": "Coalition discipline, Maier loses influence", "log": "Coalition discipline enforced. Maier complies." }
+      }
+    }
+  },
+  "laws": {
+    "ee": {
+      "titel": "Renewable Energy Acceleration Act",
+      "kurz": "EE-BeschG",
+      "desc": "Doubling of expansion targets, simplified permitting."
+    },
+    "wb": {
+      "titel": "Federal Housing Construction Offensive",
+      "kurz": "BWO",
+      "desc": "400,000 new apartments p.a., building law reform."
+    },
+    "sr": {
+      "titel": "Corporate Tax Reform",
+      "kurz": "USR",
+      "desc": "Corporate tax 15%, digital tax financing."
+    },
+    "bp": {
+      "titel": "National Education Package",
+      "kurz": "NBP",
+      "desc": "Federal school funding via cooperation article."
+    }
+  },
+  "bundesratFraktionen": {
+    "koalitionstreue": {
+      "name": "Coalition-loyal",
+      "sprecher": {
+        "name": "Petra Schulz",
+        "bio": "Pragmatic and cooperative. Reliable base but sensitive when federal policy overrides state competencies.",
+        "quote": "The North needs reliable partners in Berlin — we are ready."
+      },
+      "tradeoffPool": {
+        "koal_hafen": { "label": "Port infrastructure in stimulus package", "desc": "Northern German ports receive additional funds — burdens budget." },
+        "koal_bildung_veto": { "label": "Education package with state veto rights", "desc": "Federal States receive extended veto rights on education decisions." },
+        "koal_strukturfonds": { "label": "Increase structural fund allocations", "desc": "More EU structural funds for northern German regions." }
+      }
+    },
+    "pragmatische_mitte": {
+      "name": "Pragmatic Centre",
+      "sprecher": {
+        "name": "Hans Brenner",
+        "bio": "The decisive swing voter. Open to deals but always negotiates. Unpredictable without quid pro quo.",
+        "quote": "Nothing goes without something in return — you know that."
+      },
+      "tradeoffPool": {
+        "mitte_digitalsteuer": { "label": "No digital tax on SMEs", "desc": "Exempt medium-sized companies from digital tax." },
+        "mitte_weinbau": { "label": "Wine-growing exception in energy law", "desc": "Wine-growing receives special rules on energy requirements." },
+        "mitte_kommune": { "label": "Double municipal infrastructure funds", "desc": "Doubling of federal funds for municipal infrastructure." }
+      }
+    },
+    "konservativer_block": {
+      "name": "Conservative Block",
+      "sprecher": {
+        "name": "Edmund Huber",
+        "bio": "Ideological opponent of the coalition. Fundamentally votes against Red-Green — exception: when a law strengthens state rights.",
+        "quote": "Federalism first — everything else is negotiable."
+      },
+      "tradeoffPool": {
+        "kons_foederal": { "label": "Constitutional federalism guarantee", "desc": "Anchor federalism more strongly in constitution." },
+        "kons_bildung": { "label": "No federal competence for education", "desc": "Education remains exclusively state matter." },
+        "kons_auto": { "label": "Automotive industry exception in EE law", "desc": "Automotive industry receives transition periods." }
+      }
+    },
+    "ostblock": {
+      "name": "Ostblock",
+      "sprecher": {
+        "name": "Matthias Kohl",
+        "bio": "The unpredictable one. Structural change trauma shapes all decisions. Eastern investments open him — ignore him and he becomes an active saboteur.",
+        "quote": "The East was forgotten too often — that changes now."
+      },
+      "tradeoffPool": {
+        "ost_invest": { "label": "Eastern Germany investment programme (€3 bn)", "desc": "Special programme for eastern German structural support." },
+        "ost_kohle": { "label": "Delay coal phase-out by 3 years", "desc": "Longer transition periods for eastern German coal regions." },
+        "ost_abschreibung": { "label": "Special depreciation for eastern German companies", "desc": "Tax incentives for investments in the East." }
+      }
+    }
+  },
+  "sprecherErsatz": {
+    "koalitionstreue": { "name": "Stefan Möller", "bio": "Pragmatic port politician. Focus on infrastructure and trade.", "quote": "The North needs investments — we negotiate." },
+    "pragmatische_mitte": { "name": "Claudia Vogt", "bio": "Negotiation expert. Always seeks compromise.", "quote": "Nothing works without us — everyone knows that." },
+    "konservativer_block": { "name": "Franz Bauer", "bio": "Federalism purist. State rights above all.", "quote": "The federation should mind its own business." },
+    "ostblock": { "name": "Ingrid Weber", "bio": "Structural change expert. Demands equivalent living conditions.", "quote": "The East deserves more attention." }
+  },
+  "bundesratEvents": {
+    "laenderfinanzausgleich": {
+      "typeLabel": "State financial equalisation",
+      "title": "State financial equalisation dispute escalates",
+      "quote": "\"Pragmatic Centre and Ostblock demand redistribution of financial flows — or blockade.\"",
+      "context": "Factions Brenner and Kohl have allied. They demand a revision of state financial equalisation. Without concessions, blockade threatens in all consent-required laws.",
+      "ticker": "State financial equalisation: Brenner and Kohl demand redistribution",
+      "choices": {
+        "0": { "label": "Make concessions", "desc": "Budget -0.2, Brenner relationship +8", "log": "Concessions on state financial equalisation. Brenner satisfied, budget burdened." },
+        "1": { "label": "Reject", "desc": "Brenner relationship -10, Kohl -8", "log": "Demands rejected. Brenner and Kohl angered." },
+        "2": { "label": "Commission expert report", "desc": "Gain time, costs 15 PK", "log": "Expert report commissioned. Topic postponed for now." }
+      }
+    },
+    "landtagswahl": {
+      "typeLabel": "State election",
+      "title": "State election topples faction",
+      "quote": "\"Surprising change of government — the political map shifts.\"",
+      "context": "A state election has changed the governing party in a federal state. The faction composition in the Bundesrat (Federal Council) changes. The affected faction must renegotiate.",
+      "ticker": "State election: Change of government alters Bundesrat (Federal Council) majorities",
+      "choices": {
+        "0": { "label": "Accept new majorities", "desc": "Acknowledge political reality", "log": "Change of government accepted. Faction composition updated." }
+      }
+    },
+    "kohl_eskaliert": {
+      "typeLabel": "Special session",
+      "title": "Kohl escalates — special session convened",
+      "quote": "\"Without concessions to the East I will request every mediation committee.\"",
+      "context": "Matthias Kohl has filed a mediation committee request for an ongoing law. The law will be delayed by 2 months. How do you respond?",
+      "ticker": "Kohl requests mediation committee — law delayed",
+      "choices": {
+        "0": { "label": "Cooperate", "desc": "Improve Kohl relationship, 15 PK", "log": "Cooperation with Kohl. Relationship improved, delay remains." },
+        "1": { "label": "Block legally", "desc": "Legal steps, costs 20 PK", "log": "Legal review initiated. Delay remains, Kohl angered." },
+        "2": { "label": "Publicly criticise", "desc": "Kohl relationship drops further", "log": "Kohl publicly criticised. Ostblock hardens position." }
+      }
+    },
+    "sprecher_wechsel": {
+      "typeLabel": "Speaker change",
+      "title": "New faction speaker in Bundesrat (Federal Council)",
+      "quote": "\"The faction has elected a new speaker — with different priorities.\"",
+      "context": "A faction speaker has been replaced. The new character has different interests and a new trade-off pool. The relationship must be rebuilt.",
+      "ticker": "Speaker change: Faction with new face",
+      "choices": {
+        "0": { "label": "Include new speaker", "desc": "Begin relationship building", "log": "New speaker acknowledged. Relationship building required." }
+      }
+    },
+    "bundesrat_initiative": {
+      "typeLabel": "Bundesrat (Federal Council) initiative",
+      "title": "Federal States bring own law",
+      "quote": "\"The Federal States want not just to react — they want to shape.\"",
+      "context": "A faction has introduced its own law. You must decide: approval strengthens the relationship, blockade costs sympathy and popularity.",
+      "ticker": "Bundesrat (Federal Council) initiative: Federal States demand say",
+      "choices": {
+        "0": { "label": "Approve", "desc": "Relationship to initiating faction +12", "log": "Bundesrat (Federal Council) initiative approved. Relationship to faction improved." },
+        "1": { "label": "Block", "desc": "Relationship -15, popularity -3", "log": "Bundesrat (Federal Council) initiative blocked. Faction angered, popularity drops." }
+      }
+    },
+    "foederalismusgipfel": {
+      "typeLabel": "Federalism summit",
+      "title": "Federalism summit — all speakers at one table",
+      "quote": "\"Historic opportunity: All four faction speakers received simultaneously.\"",
+      "context": "At the federalism summit you can cultivate all four factions simultaneously — at reduced cost of 8 PK per faction instead of 15.",
+      "ticker": "Federalism summit: All faction speakers in Berlin",
+      "choices": {
+        "0": { "label": "Cultivate all four factions", "desc": "32 PK (8 per faction), relationship +3 for all", "log": "Federalism summit: Relationship to all factions improved." },
+        "1": { "label": "Invite only Centre and Ostblock", "desc": "16 PK, relationship +3 for Brenner and Kohl", "log": "Federalism summit with Brenner and Kohl. Relationship improved." },
+        "2": { "label": "Cancel summit", "desc": "No cost, missed chance", "log": "Federalism summit cancelled. Chance missed." }
+      }
+    }
+  },
+  "routes": {
+    "eu": "EU level",
+    "land": "State pilot",
+    "kommune": "Municipal alliance"
+  },
+  "milieu": {
+    "arbeit": "Working class",
+    "mitte": "Centre",
+    "prog": "Progressive"
+  },
+  "media": {
+    "title": "Media & Milieus",
+    "desc": "Influence public opinion through targeted media campaigns.",
+    "arbeit": { "name": "Working-class milieu", "desc": "Union-aligned voters, focus on social justice." },
+    "mitte": { "name": "Centre", "desc": "Bourgeois centre, economically oriented." },
+    "prog": { "name": "Progressive", "desc": "Urban, climate-conscious, diversity-oriented." },
+    "kampagne": "Campaign (10 PK)"
+  },
+  "ebene": {
+    "eu": "Advance laws via EU level. Longer duration but bypasses Bundesrat (Federal Council).",
+    "land": "Launch state pilot projects. Medium duration and costs.",
+    "kommune": "Use municipal alliances. Fastest alternative with lower costs.",
+    "empty": "No laws on this route.",
+    "monate": "{{progress}}/{{duration}} months"
+  },
+  "ticker": {
+    "label": "NEWS"
+  },
+  "onboarding": {
+    "headline1": "FEDERAL ELECTION 2025",
+    "headline2": "{{name}} WINS —\nNEW GOVERNMENT POSSIBLE",
+    "headlineMeta": "40.2% · SPD/Greens coalition likely\nTurnout: 76.3% · Historic night in Berlin",
+    "weiter": "Continue",
+    "kabinettText": "Your cabinet. Six personalities, six portfolios.",
+    "memo": "TO: Federal Chancellery\nFROM: Coalition working group\nRE: Coalition agreement — open points\n\nThe draft coalition agreement is ready.\n{{lawCount}} draft laws are prioritised.\nPolitical capital: {{pk}} units available.{{brLine}}\n\nThe work begins now.",
+    "memoBrLine": "\n\nFirst Bundesrat (Federal Council) session: in 3 months.",
+    "cta1": "Congratulations. You have won.",
+    "cta2": "Now the real work begins.",
+    "insKanzleramt": "To the Chancellery",
+    "defaultGovName": "The new government"
+  },
+  "setup": {
+    "title": "Start game",
+    "subtitle": "Configure your government",
+    "playerNameLabel": "Player name (optional)",
+    "playerNamePlaceholder": "Your government",
+    "complexityLabel": "Complexity",
+    "complexity1": "Simple",
+    "complexity2": "Standard",
+    "complexity3": "Full",
+    "start": "Start game",
+    "back": "Back"
+  },
+  "credits": {
+    "title": "Credits",
+    "text": "Bundesrepublik — A politics simulation\npolitikpraxis",
+    "back": "Back"
+  },
+  "agenda": {
+    "title": "Legislative agenda",
+    "einbringen": "Introduce (20 PK)",
+    "lobbying": "Lobbying (12 PK)",
+    "abstimmen": "Call vote",
+    "bundesratLobbying": "Bundesrat (Federal Council) lobbying",
+    "blockiertDurch": "Blocked by: {{blocker}}",
+    "blockerBundestag": "Bundestag (Federal Parliament)",
+    "blockerBundesrat": "Bundesrat (Federal Council)",
+    "brVoteIn": "Bundesrat (Federal Council) vote in {{months}} months — lobbying active",
+    "routeFormat": "{{route}}: {{progress}}/{{duration}} months",
+    "gratis": "free"
+  },
+  "leftPanel": {
+    "wahlprognose": "Election forecast",
+    "target": "Target: ≥ 40% on election day",
+    "koalitionsstabilitaet": "Coalition stability",
+    "milieus": "Milieus",
+    "kabinett": "Cabinet"
+  },
+  "rightPanel": {
+    "wirtschaftslage": "Economic situation",
+    "ereignisprotokoll": "Event log",
+    "logEmpty": "No entries yet."
+  },
+  "bundesrat": {
+    "title": "Bundesrat (Federal Council)",
+    "subtitle": "4 factions represent 16 Federal States. Lobbying influences voting readiness.",
+    "beziehung": "Relationship",
+    "abstimmungsbereitschaft": "Voting readiness",
+    "gespraechSuchen": "Seek conversation",
+    "jaNein": "{{ja}} Yes · {{nein}} No {{mehrheit}}",
+    "mehrheitJa": "✓ Majority",
+    "mehrheitNein": "✗ No majority",
+    "mehrheitBei": "Majority (9)",
+    "mehrheitTitle": "Majority at 9 votes",
+    "keineAbstimmung": "No Bundesrat (Federal Council) vote in the coming months.",
+    "lobbyingGesperrt": "Lobbying blocked: Relationship under 20. Repair required.",
+    "reparatur": "Repair relationship (25 PK)",
+    "forderungTitle": "Current demand",
+    "forderungAnnehmen": "Accept demand",
+    "ablehnen": "Reject",
+    "pkInvestieren": "Invest PK ({{cost}} PK)",
+    "monateBisAbstimmung_one": "{{count}} month until vote",
+    "monateBisAbstimmung_other": "{{count}} months until vote",
+    "close": "Close"
+  },
+  "endScreen": {
+    "won": "Re-elected",
+    "lost": "Voted out",
+    "wonSubtitle": "You won the election with {{percent}}% approval.",
+    "lostSubtitle": "The legislative period ends with {{percent}}% approval — below the required majority.",
+    "beschlosseneGesetze": "Laws passed",
+    "finaleKPIs": "Final KPIs",
+    "milieuZustimmung": "Milieu approval",
+    "neueLegislatur": "New legislative period"
+  },
+  "charDetail": {
+    "close": "Close",
+    "ultimatumWarning": "Near ultimatum threshold (mood ≤ {{threshold}})"
+  },
+  "logs": {
+    "legislaturBegonnen": "New legislative period begun",
+    "koalitionsvertrag": "Coalition agreement signed",
+    "gesetzeVorbereitung": "{{count}} draft laws in preparation"
+  }
+}

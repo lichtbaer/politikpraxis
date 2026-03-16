@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { CharacterRow } from '../components/CharacterRow/CharacterRow';
@@ -5,16 +6,18 @@ import { CoalitionMeter } from '../components/CoalitionMeter/CoalitionMeter';
 import { MilieuBar } from '../components/MilieuBar/MilieuBar';
 import styles from './LeftPanel.module.css';
 
-const ALL_EBENEN: { id: string; label: string; color: string }[] = [
-  { id: 'agenda', label: 'Agenda', color: 'var(--gold)' },
-  { id: 'eu', label: 'EU-Ebene', color: 'var(--eu-c)' },
-  { id: 'land', label: 'Länderebene', color: 'var(--land-c)' },
-  { id: 'kommune', label: 'Kommunen', color: 'var(--kom-c)' },
-  { id: 'medien', label: 'Medien & Milieus', color: 'var(--blue)' },
-  { id: 'bundesrat', label: 'Bundesrat', color: 'var(--warn)' },
-];
+const EBENE_IDS = ['agenda', 'eu', 'land', 'kommune', 'medien', 'bundesrat'] as const;
+const EBENE_COLORS: Record<string, string> = {
+  agenda: 'var(--gold)',
+  eu: 'var(--eu-c)',
+  land: 'var(--land-c)',
+  kommune: 'var(--kom-c)',
+  medien: 'var(--blue)',
+  bundesrat: 'var(--warn)',
+};
 
 export function LeftPanel() {
+  const { t } = useTranslation(['common', 'game']);
   const zustG = useGameStore((s) => s.state.zust.g);
   const coalition = useGameStore((s) => s.state.coalition);
   const zustArbeit = useGameStore((s) => s.state.zust.arbeit);
@@ -25,14 +28,14 @@ export function LeftPanel() {
   const setView = useGameStore((s) => s.setView);
   const complexity = useGameStore((s) => s.complexity);
 
-  const EBENEN = ALL_EBENEN.filter(
-    (e) => e.id !== 'bundesrat' || featureActive(complexity, 'bundesrat_simple'),
-  );
+  const EBENEN = EBENE_IDS.filter(
+    (id) => id !== 'bundesrat' || featureActive(complexity, 'bundesrat_simple'),
+  ).map((id) => ({ id, label: t(`game.ebenen.${id}`, { ns: 'common' }), color: EBENE_COLORS[id] }));
 
   return (
     <aside className={styles.panel}>
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Wahlprognose</h3>
+        <h3 className={styles.sectionTitle}>{t('game:leftPanel.wahlprognose')}</h3>
         <div className={styles.wahlprognose}>
           <span className={styles.wahlprognoseValue}>{Math.round(zustG)}%</span>
           <div className={styles.progressBar}>
@@ -41,26 +44,26 @@ export function LeftPanel() {
               style={{ width: `${Math.min(100, zustG)}%` }}
             />
           </div>
-          <span className={styles.target}>Ziel: ≥ 40% am Wahltag</span>
+          <span className={styles.target}>{t('game:leftPanel.target')}</span>
         </div>
       </section>
 
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Koalitionsstabilität</h3>
+        <h3 className={styles.sectionTitle}>{t('game:leftPanel.koalitionsstabilitaet')}</h3>
         <CoalitionMeter value={coalition} />
       </section>
 
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Milieus</h3>
+        <h3 className={styles.sectionTitle}>{t('game:leftPanel.milieus')}</h3>
         <div className={styles.milieus}>
-          <MilieuBar name="Arbeit" value={zustArbeit} color="var(--land-c)" />
-          <MilieuBar name="Mitte" value={zustMitte} color="var(--eu-c)" />
-          <MilieuBar name="Progressiv" value={zustProg} color="var(--blue)" />
+          <MilieuBar name={t('game:milieu.arbeit')} value={zustArbeit} color="var(--land-c)" />
+          <MilieuBar name={t('game:milieu.mitte')} value={zustMitte} color="var(--eu-c)" />
+          <MilieuBar name={t('game:milieu.prog')} value={zustProg} color="var(--blue)" />
         </div>
       </section>
 
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Kabinett</h3>
+        <h3 className={styles.sectionTitle}>{t('game:leftPanel.kabinett')}</h3>
         <div className={styles.kabinett}>
           {chars.slice(0, 6).map((char) => (
             <CharacterRow key={char.id} character={char} />
@@ -69,7 +72,7 @@ export function LeftPanel() {
       </section>
 
       <nav className={styles.ebenen}>
-        {EBENEN.map(({ id, label, color }) => (
+        {EBENEN.map(({ id, label, color }: { id: string; label: string; color: string }) => (
           <button
             key={id}
             type="button"

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { isLobbyingActive } from '../../../core/systems/bundesrat';
 import type { BundesratFraktion, Law } from '../../../core/types';
@@ -24,6 +25,7 @@ interface LobbyingOverlayProps {
 }
 
 export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps) {
+  const { t } = useTranslation('game');
   const state = useGameStore((s) => s.state);
   const doLobbyFraktion = useGameStore((s) => s.doLobbyFraktion);
 
@@ -77,7 +79,7 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
-        <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Schließen">
+        <button type="button" className={styles.closeBtn} onClick={onClose} aria-label={t('game:bundesrat.close')}>
           ×
         </button>
 
@@ -92,18 +94,18 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
             {fraktion.sprecher.initials}
           </div>
           <blockquote className={styles.zitat}>
-            „{fraktion.sprecher.quote ?? fraktion.sprecher.bio}“
+            „{fraktion.sprecher.quote ? t(`game:bundesratFraktionen.${fraktion.id}.sprecher.quote`) : t(`game:bundesratFraktionen.${fraktion.id}.sprecher.bio`)}“
           </blockquote>
         </div>
 
         <div className={styles.countdown}>
-          Noch {monateBisAbstimmung} Monat{monateBisAbstimmung !== 1 ? 'e' : ''} bis Abstimmung
+          {t('game:bundesrat.monateBisAbstimmung', { count: monateBisAbstimmung })}
         </div>
 
         {lobbyGesperrt ? (
           <div className={styles.gesperrt}>
             <p className={styles.gesperrtHinweis}>
-              Lobbying gesperrt: Beziehung unter 20. Reparatur erforderlich.
+              {t('game:bundesrat.lobbyingGesperrt')}
             </p>
             <button
               type="button"
@@ -111,16 +113,16 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
               onClick={handleReparatur}
               disabled={state.pk < PK_REPARATUR}
             >
-              Beziehung reparieren (25 PK)
+              {t('game:bundesrat.reparatur')}
             </button>
           </div>
         ) : (
           <>
             {tradeoffVerfuegbar && ersterTradeoff && (
               <div className={styles.forderung}>
-                <h4 className={styles.forderungTitle}>Aktuelle Forderung</h4>
-                <p className={styles.forderungLabel}>{ersterTradeoff.label}</p>
-                <p className={styles.forderungDesc}>{ersterTradeoff.desc}</p>
+                <h4 className={styles.forderungTitle}>{t('game:bundesrat.forderungTitle')}</h4>
+                <p className={styles.forderungLabel}>{t(`game:bundesratFraktionen.${fraktion.id}.tradeoffPool.${ersterTradeoff.id}.label`)}</p>
+                <p className={styles.forderungDesc}>{t(`game:bundesratFraktionen.${fraktion.id}.tradeoffPool.${ersterTradeoff.id}.desc`)}</p>
               </div>
             )}
 
@@ -132,13 +134,13 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
                   onClick={handlePkInvestieren}
                   disabled={state.pk < pkCost}
                 >
-                  PK investieren ({pkCost} PK)
+                  {t('game:bundesrat.pkInvestieren', { cost: pkCost })}
                 </button>
               )}
               {tradeoffVerfuegbar && ersterTradeoff && (
                 <>
                   <button type="button" className={styles.btnPrimary} onClick={handleForderungAnnehmen}>
-                    Forderung annehmen
+                    {t('game:bundesrat.forderungAnnehmen')}
                   </button>
                   <button type="button" className={styles.btnSecondary} onClick={handleAblehnen}>
                     Ablehnen

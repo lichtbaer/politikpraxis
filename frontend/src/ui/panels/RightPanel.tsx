@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { KPITile } from '../components/KPITile/KPITile';
 import styles from './RightPanel.module.css';
@@ -34,6 +35,7 @@ function getBarStyle(
 }
 
 export function RightPanel() {
+  const { t } = useTranslation();
   const { state } = useGameStore();
   const { kpi, kpiPrev, log } = state;
 
@@ -47,10 +49,10 @@ export function RightPanel() {
   return (
     <aside className={styles.root}>
       <section className={styles.section}>
-        <h3 className={styles.sectionLabel}>Wirtschaftslage</h3>
+        <h3 className={styles.sectionLabel}>{t('game:rightPanel.wirtschaftslage')}</h3>
         <div className={styles.kpiGrid}>
           <KPITile
-            label="Arbeitslosigkeit"
+            label={t('game.kpi.unemployment', { ns: 'common' })}
             value={kpi.al}
             prevValue={prev.al}
             suffix="%"
@@ -59,7 +61,7 @@ export function RightPanel() {
             barColor={alBar.barColor}
           />
           <KPITile
-            label="Haushaltssaldo"
+            label={t('game.kpi.budget', { ns: 'common' })}
             value={kpi.hh}
             prevValue={prev.hh}
             suffix="%"
@@ -68,7 +70,7 @@ export function RightPanel() {
             barColor={hhBar.barColor}
           />
           <KPITile
-            label="Gini-Index"
+            label={t('game.kpi.gini', { ns: 'common' })}
             value={kpi.gi}
             prevValue={prev.gi}
             suffix=""
@@ -77,7 +79,7 @@ export function RightPanel() {
             barColor={giBar.barColor}
           />
           <KPITile
-            label="Zufriedenheit"
+            label={t('game.kpi.satisfaction', { ns: 'common' })}
             value={kpi.zf}
             prevValue={prev.zf}
             suffix="%"
@@ -89,10 +91,10 @@ export function RightPanel() {
       </section>
 
       <section className={styles.section}>
-        <h3 className={styles.sectionLabel}>Ereignisprotokoll</h3>
+        <h3 className={styles.sectionLabel}>{t('game:rightPanel.ereignisprotokoll')}</h3>
         <div className={styles.log}>
           {log.length === 0 ? (
-            <p className={styles.logEmpty}>Noch keine Einträge.</p>
+            <p className={styles.logEmpty}>{t('game:rightPanel.logEmpty')}</p>
           ) : (
             log
               .slice()
@@ -100,7 +102,9 @@ export function RightPanel() {
               .map((entry, i) => (
                 <div key={`${entry.time}-${i}`} className={styles.logEntry}>
                   <span className={styles.logTime}>{entry.time}</span>
-                  <span className={styles.logMsg}>{entry.msg}</span>
+                  <span className={styles.logMsg}>
+                  {entry.msg.startsWith('game:') ? t(entry.msg, entry.params) : entry.msg}
+                </span>
                 </div>
               ))
           )}
