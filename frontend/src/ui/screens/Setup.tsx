@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import styles from './Setup.module.css';
 
 export function Setup() {
+  const { t } = useTranslation('game');
   const navigate = useNavigate();
   const { init, setPlayerName, setComplexity, playerName, complexity } =
     useGameStore();
@@ -19,12 +21,12 @@ export function Setup() {
   return (
     <div className={styles.root}>
       <div className={styles.content}>
-        <h1 className={styles.title}>Spiel starten</h1>
-        <p className={styles.subtitle}>Konfiguriere deine Regierung</p>
+        <h1 className={styles.title}>{t('setup.title')}</h1>
+        <p className={styles.subtitle}>{t('setup.subtitle')}</p>
 
         <div className={styles.form}>
           <label htmlFor="player-name" className={styles.label}>
-            Spielername (optional)
+            {t('setup.playerNameLabel')}
           </label>
           <input
             id="player-name"
@@ -32,11 +34,11 @@ export function Setup() {
             className={styles.input}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Deine Regierung"
+            placeholder={t('setup.playerNamePlaceholder')}
           />
 
           <label htmlFor="complexity" className={styles.label}>
-            Komplexität
+            {t('setup.complexityLabel')}
           </label>
           <select
             id="complexity"
@@ -44,14 +46,14 @@ export function Setup() {
             value={complexity}
             onChange={(e) => setComplexity(Number(e.target.value))}
           >
-            <option value={1}>Einfach</option>
-            <option value={2}>Standard</option>
-            <option value={3}>Vollständig</option>
+            <option value={1}>{t('setup.complexity1')}</option>
+            <option value={2}>{t('setup.complexity2')}</option>
+            <option value={3}>{t('setup.complexity3')}</option>
           </select>
         </div>
 
         <button type="button" className={styles.primary} onClick={handleStart}>
-          Spiel starten
+          {t('setup.start')}
         </button>
 
         <button
@@ -59,7 +61,7 @@ export function Setup() {
           className={styles.back}
           onClick={() => navigate('/')}
         >
-          Zurück
+          {t('setup.back')}
         </button>
       </div>
     </div>

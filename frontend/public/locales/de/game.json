@@ -1,0 +1,517 @@
+{
+  "chars": {
+    "kanzler": {
+      "name": "Anna Hoffmann",
+      "role": "Kanzlerin",
+      "bio": "Führt die Koalition mit pragmatischem Kurs. Hält die Fäden zusammen — aber erwartet Loyalität zurück.",
+      "tag": "Stabilität",
+      "interests": ["Koalitionsstabilität", "Wiederwahl"],
+      "bonus": { "desc": "Gibt +5 BT-Stimmen für alle Gesetze" }
+    },
+    "fm": {
+      "name": "Robert Lehmann",
+      "role": "Finanzminister",
+      "bio": "Strenger Haushälter der CDU. Widersetzt sich teuren Reformen konsequent — hat aber meistens Recht.",
+      "tag": "Haushalt",
+      "interests": ["Haushaltsdisziplin", "Schuldenbremse"],
+      "bonus": { "desc": "Beschleunigt Gesetze ohne Haushaltskosten" }
+    },
+    "wm": {
+      "name": "Petra Maier",
+      "role": "Wirtschaftsministerin",
+      "bio": "Pragmatisch und lösungsorientiert. Wichtige Verbündete — pflegt Kontakte zur Industrie und zu Länderchefs.",
+      "tag": "Standort",
+      "interests": ["Standortpolitik", "Industrietransformation"],
+      "bonus": { "desc": "+3% BT-Stimmen für Wirtschaftsgesetze" }
+    },
+    "im": {
+      "name": "Klaus Braun",
+      "role": "Innenminister",
+      "bio": "Konservativer Querdenker. Misstraut der Koalition grundsätzlich — sucht aktiv nach Gründen zu torpedieren.",
+      "tag": "Sicherheit",
+      "interests": ["Innere Sicherheit", "Migrationsbegrenzung"],
+      "bonus": { "desc": "Stabilisiert Bundesrat-Stimmen in 3 Ländern" }
+    },
+    "jm": {
+      "name": "Sara Kern",
+      "role": "Justizministerin",
+      "bio": "Juristin mit unbedingten Prinzipien. Blockiert verfassungswidrige Vorhaben — schützt aber auch die Koalition vor teuren Fehlern.",
+      "tag": "Rechtsstaat",
+      "interests": ["Rechtsstaat", "Grundrechte"],
+      "bonus": { "desc": "Verhindert Verfassungsklagen gegen Gesetze" }
+    },
+    "um": {
+      "name": "Jonas Wolf",
+      "role": "Umweltminister",
+      "bio": "Treibt Klimapolitik voran, manchmal gegen den Rest des Kabinetts. Starkes Netzwerk bei progressiven Wählern.",
+      "tag": "Klima",
+      "interests": ["Klimaschutz", "Energiewende"],
+      "bonus": { "desc": "+4% Zustimmung im progressiven Milieu" }
+    }
+  },
+  "mood": {
+    "0": "Sehr unzufrieden",
+    "1": "Unzufrieden",
+    "2": "Neutral",
+    "3": "Zufrieden",
+    "4": "Sehr zufrieden"
+  },
+  "events": {
+    "haushalt": {
+      "typeLabel": "Haushaltskrise",
+      "title": "Milliardenloch im Bundeshaushalt",
+      "quote": "„Überraschende Steuermindereinnahmen reißen ein Loch von 14 Milliarden Euro."",
+      "context": "Das Finanzministerium hat die Schätzungen nach unten korrigiert. Finanzminister Lehmann fordert sofortige Gegenmaßnahmen.",
+      "ticker": "Haushaltsloch: Regierung unter Druck — Lehmann fordert Sparpaket",
+      "choices": {
+        "0": {
+          "label": "Sparpaket durchsetzen",
+          "desc": "Kurzfristige Sanierung, senkt Popularität",
+          "log": "Sparpaket beschlossen. Haushalt stabilisiert, Popularität sinkt."
+        },
+        "1": {
+          "label": "Neue Schulden aufnehmen",
+          "desc": "Verstößt gegen Schuldenbremse — rechtliches Risiko",
+          "log": "Schuldenbremse gedehnt. Verfassungsklage droht."
+        },
+        "2": {
+          "label": "Steuererhöhung ankündigen",
+          "desc": "Belastet Mitte-Milieu, stabilisiert Haushalt",
+          "log": "Steuererhöhung angekündigt. Wirtschaftsverband protestiert."
+        }
+      }
+    },
+    "skandal": {
+      "typeLabel": "Politischer Skandal",
+      "title": "Medienberichte über Ministeriumsverschwendung",
+      "quote": "„Der Spiegel berichtet über fragwürdige Beraterverträge im Bundesministerium."",
+      "context": "Die Opposition fordert Rücktritt. Braun nutzt die Gelegenheit, die Koalition zu destabilisieren.",
+      "ticker": "Spiegel-Bericht erschüttert Koalition — Opposition wittert Morgenluft",
+      "choices": {
+        "0": { "label": "Vollständige Transparenz", "desc": "Alles offenlegen, kurzfristiger Schaden", "log": "Vollständige Offenlegung. Kurzzeitiger Schaden, langfristiges Vertrauen." },
+        "1": { "label": "Ablenkungsoffensive", "desc": "Medien mit neuem Thema überspielen", "log": "Ablenkungsmanöver gestartet. Medien skeptisch." },
+        "2": { "label": "Minister entlassen", "desc": "Klares Signal, kostet Koalitionsstabilität", "log": "Minister entlassen. Koalitionspartner verärgert." }
+      }
+    },
+    "euklage": {
+      "typeLabel": "EU-Vertragsverletzung",
+      "title": "Brüssel leitet Verfahren gegen Deutschland ein",
+      "quote": "„Die Europäische Kommission kritisiert die schleppende Umsetzung von EU-Richtlinien."",
+      "context": "Drei Richtlinien sind noch nicht in nationales Recht überführt. Ein Bußgeld von bis zu 500 Mio. Euro droht.",
+      "ticker": "EU-Vertragsverletzungsverfahren gegen Deutschland eröffnet",
+      "choices": {
+        "0": { "label": "Schnellumsetzung", "desc": "Eilgesetzgebung, ignoriert Bundesrat", "log": "EU-Richtlinien schnell umgesetzt. Verfassungsrechtliche Bedenken bleiben." },
+        "1": { "label": "EU-Verhandlung aufnehmen", "desc": "Zeitgewinn, keine sofortigen Kosten", "log": "Verhandlungen mit Brüssel aufgenommen. Ergebnis offen." },
+        "2": { "label": "Bundesrat einbeziehen", "desc": "Korrekt aber langsam, Bußgeld riskant", "log": "Reguläres Verfahren gewählt. Bußgeld-Risiko bleibt." }
+      }
+    },
+    "konjunktur": {
+      "typeLabel": "Wirtschaftsabschwung",
+      "title": "EZB-Zinserhöhung trifft deutsche Wirtschaft",
+      "quote": "„Investitionen brechen ein, Kurzarbeit steigt — Rezessionsrisiko wächst."",
+      "context": "Maier warnt vor voreiligen Ausgabenkürzungen. Lehmann besteht auf Haushaltsdisziplin.",
+      "ticker": "Wirtschaftsabschwung: Rezessionsrisiko steigt auf 35%",
+      "choices": {
+        "0": { "label": "Konjunkturpaket auflegen", "desc": "Teuer, aber effektiv", "log": "Konjunkturpaket beschlossen. Haushalt belastet, Wirtschaft stabilisiert." },
+        "1": { "label": "Abwarten", "desc": "Günstig, aber riskant", "log": "Abwartende Haltung. Wirtschaft verschlechtert sich weiter." },
+        "2": { "label": "Strukturreformen ankündigen", "desc": "Langfristig richtig, kurzfristig wirkungslos", "log": "Strukturreformen angekündigt. Märkte reagieren positiv." }
+      }
+    },
+    "koalition_krise": {
+      "typeLabel": "Koalitionskrise",
+      "title": "Koalitionspartner droht mit Austritt",
+      "quote": "„Wir können dieser Politik nicht mehr zustimmen", warnt der Koalitionspartner.",
+      "context": "Streit um das Energiegesetz eskaliert. Der Juniorpartner fordert Nachverhandlungen zum Koalitionsvertrag.",
+      "ticker": "KOALITIONSKRISE: Juniorpartner stellt Ultimatum an Kanzleramt",
+      "choices": {
+        "0": { "label": "Nachverhandeln", "desc": "Stabilitätsgewinn, Reformverlust", "log": "Koalitionsvertrag nachverhandelt. Reform verwässert." },
+        "1": { "label": "Konfrontation riskieren", "desc": "Prinzipientreu, aber destabilisierend", "log": "Koalitionskrise eskaliert. Neuwahlen im Gespräch." },
+        "2": { "label": "Tauschgeschäft anbieten", "desc": "Anderes Projekt opfern, Koalition retten", "log": "Tauschgeschäft vereinbart. Koalition vorläufig gerettet." }
+      }
+    },
+    "demo": {
+      "typeLabel": "Gesellschaft",
+      "title": "Großdemonstration erschüttert Berlin",
+      "quote": "„500.000 Menschen auf den Straßen — die größte Demo seit Jahren."",
+      "context": "Der Protest richtet sich gegen soziale Ungleichheit. Progressive sind mobilisiert, aber auch unzufrieden mit der Regierung.",
+      "ticker": "Berlin: Historische Großdemonstration für soziale Gerechtigkeit",
+      "choices": {
+        "0": { "label": "Dialog anbieten", "desc": "Signal der Offenheit", "log": "Dialog mit Demonstranten angeboten. Progressives Milieu beruhigt." },
+        "1": { "label": "Forderungen ablehnen", "desc": "Klare Position, aber Polarisierung", "log": "Forderungen abgelehnt. Progressive enttäuscht." },
+        "2": { "label": "Sofortprogramm ankündigen", "desc": "Teuer, hoher Sympathiegewinn", "log": "Sofortprogramm angekündigt. Breite Zustimmung." }
+      }
+    },
+    "eufoerder": {
+      "typeLabel": "EU-Förderung",
+      "title": "EU gibt Milliarden-Strukturfonds frei",
+      "quote": "„Brüssel stellt 4,8 Milliarden Euro für deutsche Klimainvestitionen bereit."",
+      "context": "Eine seltene gute Nachricht: die EU-Gelder kommen früher als erwartet. Wie werden sie eingesetzt?",
+      "ticker": "EU gibt 4,8 Mrd. Euro für Deutschland frei — Regierung entscheidet Verwendung",
+      "choices": {
+        "0": { "label": "Klimaschutz & Infrastruktur", "desc": "Langfristig wirksam", "log": "EU-Fonds für Klimainvestitionen eingesetzt." },
+        "1": { "label": "Wohnungsbau priorisieren", "desc": "Populär, schnell sichtbar", "log": "EU-Gelder stärken Wohnungsbauoffensive." },
+        "2": { "label": "Schuldentilgung", "desc": "Finanzministerium begeistert", "log": "Schulden getilgt. Haushalt verbessert, Spielraum für Reformen." }
+      }
+    }
+  },
+  "charEvents": {
+    "fm_ultimatum": {
+      "typeLabel": "Kabinettskrise",
+      "title": "Lehmann stellt Haushaltsultimatum",
+      "quote": "„Kein einziges Gesetz ohne vollständigen Deckungsnachweis — sonst trete ich zurück."",
+      "context": "Finanzminister Lehmann ist am Ende seiner Geduld. Zu viele teure Projekte ohne Gegenfinanzierung.",
+      "ticker": "KABINETTSKRISE: Finanzminister Lehmann droht mit Rücktritt",
+      "choices": {
+        "0": { "label": "Deckungsnachweis zusagen", "desc": "Verwässert teure Gesetze, beruhigt Lehmann", "log": "Deckungszusage gemacht. Lehmann besänftigt, Reformen eingeschränkt." },
+        "1": { "label": "Öffentlich widersprechen", "desc": "Klarer Kurs, aber Koalitionsrisiko", "log": "Öffentlicher Streit mit Lehmann. Koalition destabilisiert." },
+        "2": { "label": "Sondergespräch einberufen", "desc": "Zeitgewinn, kostet politisches Kapital", "log": "Koalitionsgipfel im Kanzleramt. Kompromiss gefunden." }
+      }
+    },
+    "braun_ultimatum": {
+      "typeLabel": "Koalitionskonflikt",
+      "title": "Braun sabotiert Abstimmung im Bundesrat",
+      "quote": "„Ich habe den Innenministern der Länder empfohlen, gegen dieses Gesetz zu stimmen."",
+      "context": "Braun hat hinter dem Rücken der Koalition agiert und drei Länder-Innenminister beeinflusst.",
+      "ticker": "Innenminister Braun sabotiert Koalitionspartner im Bundesrat",
+      "choices": {
+        "0": { "label": "Braun öffentlich rügen", "desc": "Klares Signal, Braun wird zum Feind", "log": "Braun offiziell gerügt. Interne Spannung auf Maximum." },
+        "1": { "label": "Braun einbinden", "desc": "Gibt ihm Einfluss, kostet Reform-Substanz", "log": "Braun erhält Zugeständnisse. Koalition stabilisiert, Reform verwässert." },
+        "2": { "label": "Braun entlassen", "desc": "Saubere Lösung, braucht Koalitionspartner", "log": "Braun entlassen. Kabinett umgebildet." }
+      }
+    },
+    "wolf_ultimatum": {
+      "typeLabel": "Klimastreit",
+      "title": "Wolf droht mit Rücktritt über Klimapolitik",
+      "quote": "„Wenn das Energiegesetz weiter verwässert wird, kann ich dieses Kabinett nicht mehr vertreten."",
+      "context": "Wolf ist frustriert über die schleppende Klimapolitik.",
+      "ticker": "Umweltminister Wolf stellt Klimaschutz-Ultimatum an Kanzleramt",
+      "choices": {
+        "0": { "label": "Energiegesetz priorisieren", "desc": "Wolf zufrieden, progressive Stimmen steigen", "log": "Energiegesetz auf die Prioritätsliste gesetzt. Wolf bleibt." },
+        "1": { "label": "Wolf überzeugen zu bleiben", "desc": "Symbolisches Zugeständnis", "log": "Persönliches Gespräch mit Wolf. Vorläufige Einigung." },
+        "2": { "label": "Rücktritt akzeptieren", "desc": "Wolf geht, progressives Milieu bricht ein", "log": "Wolf tritt zurück. Progressive Wähler fühlen sich verraten." }
+      }
+    },
+    "kern_ultimatum": {
+      "typeLabel": "Verfassungskonflikt",
+      "title": "Kern blockiert Gesetz wegen Verfassungsbedenken",
+      "quote": "„Ich werde kein Gesetz unterzeichnen, das vor dem Bundesverfassungsgericht keinen Bestand hat."",
+      "context": "Kern hat das Eilgesetz zur EU-Richtlinie gestoppt. Sie hat inhaltlich recht — aber die Zeit läuft.",
+      "ticker": "Justizministerin stoppt Eilgesetz — Verfassungsbedenken im Kabinett",
+      "choices": {
+        "0": { "label": "Gesetz verfassungskonform anpassen", "desc": "Verzögerung, aber rechtssicher", "log": "Gesetz überarbeitet. Verfassungsrechtlich sauber, aber verzögert." },
+        "1": { "label": "Expertenkommission einsetzen", "desc": "Weiterer Zeitgewinn", "log": "Verfassungskommission eingesetzt. Kern kooperiert." },
+        "2": { "label": "Politischen Druck ausüben", "desc": "Riskant — Kern könnte klagen", "log": "Kern fühlt sich übergangen. Verfassungsklage droht." }
+      }
+    },
+    "kanzler_ultimatum": {
+      "typeLabel": "Vertrauensfrage",
+      "title": "Hoffmann erwägt Vertrauensfrage",
+      "quote": "„Wenn die Koalition keine gemeinsame Linie findet, werde ich die Vertrauensfrage stellen."",
+      "context": "Die interne Zerrissenheit ist öffentlich geworden. Hoffmann will ein klares Bekenntnis.",
+      "ticker": "Kanzlerin Hoffmann erwägt Vertrauensfrage — Koalition unter Druck",
+      "choices": {
+        "0": { "label": "Koalitionsgipfel einberufen", "desc": "Alle Konflikte auf den Tisch", "log": "Koalitionsgipfel schafft neue Einigkeit." },
+        "1": { "label": "Vertrauensfrage riskieren", "desc": "Gamble — gewinnen oder Neuwahl", "log": "Vertrauensfrage gestellt. Koalition hält knapp." }
+      }
+    },
+    "kohl_bundesrat_sabotage": {
+      "typeLabel": "Bundesrat-Sabotage",
+      "title": "Kohl beantragt Vermittlungsausschuss",
+      "quote": "„Ohne Zugeständnisse an den Osten werde ich jeden Vermittlungsausschuss beantragen."",
+      "context": "Matthias Kohl (Ostblock) hat eigenständig einen Vermittlungsausschuss-Antrag gestellt. Das Gesetz wird um mindestens 2 Monate verzögert.",
+      "ticker": "Kohl beantragt Vermittlungsausschuss — Gesetz verzögert",
+      "choices": {
+        "0": { "label": "Verzögerung akzeptieren", "desc": "Gesetz wird 2 Monate später abgestimmt", "log": "Vermittlungsausschuss-Verfahren läuft. Abstimmung verzögert." },
+        "1": { "label": "Kohl direkt ansprechen", "desc": "Beziehungspflege, kostet 15 PK", "log": "Gespräch mit Kohl. Beziehung verbessert, Verzögerung bleibt." },
+        "2": { "label": "Öffentlich kritisieren", "desc": "Beziehung zu Kohl sinkt weiter", "log": "Kohl öffentlich kritisiert. Ostblock verhärtet Position." }
+      }
+    },
+    "wm_ultimatum": {
+      "typeLabel": "Wirtschaftsstreit",
+      "title": "Maier droht mit Rücktritt über Standortpolitik",
+      "quote": "„Die Kombination aus Steuererhöhung und Regulierung treibt Unternehmen ins Ausland."",
+      "context": "Maier sieht die Wirtschaftspolitik auf dem falschen Weg.",
+      "ticker": "Wirtschaftsministerin Maier stellt Ultimatum zur Standortpolitik",
+      "choices": {
+        "0": { "label": "Steuerreform beschleunigen", "desc": "Maier bleibt, Haushalt leidet", "log": "Steuerreform vorgezogen. Wirtschaft stabilisiert, Haushalt belastet." },
+        "1": { "label": "Regulierung zurücknehmen", "desc": "Populär bei Industrie, unpopulär bei Progressiven", "log": "Regulierungspause beschlossen. Industrie erleichtert." },
+        "2": { "label": "Maier überstimmen", "desc": "Koalitionsdisziplin, Maier verliert Einfluss", "log": "Koalitionsdisziplin erzwungen. Maier fügt sich." }
+      }
+    }
+  },
+  "laws": {
+    "ee": {
+      "titel": "Erneuerbare-Energien-Beschleunigungsgesetz",
+      "kurz": "EE-BeschG",
+      "desc": "Verdopplung der Ausbauziele, vereinfachte Genehmigung."
+    },
+    "wb": {
+      "titel": "Bundeswohnungsbauoffensive",
+      "kurz": "BWO",
+      "desc": "400.000 neue Wohnungen p.a., Baurechtsreform."
+    },
+    "sr": {
+      "titel": "Unternehmenssteuerreform",
+      "kurz": "USR",
+      "desc": "Körperschaftsteuer 15%, Gegenfinanzierung Digitalsteuer."
+    },
+    "bp": {
+      "titel": "Nationales Bildungspaket",
+      "kurz": "NBP",
+      "desc": "Bundesfinanzierung Schulen via Kooperationsartikel."
+    }
+  },
+  "bundesratFraktionen": {
+    "koalitionstreue": {
+      "name": "Koalitionstreue",
+      "sprecher": {
+        "name": "Petra Schulz",
+        "bio": "Pragmatisch und kooperativ. Verlässliche Basis, aber empfindlich wenn Bundespolitik Länderzuständigkeiten übergeht.",
+        "quote": "Der Norden braucht verlässliche Partner in Berlin — wir stehen bereit."
+      },
+      "tradeoffPool": {
+        "koal_hafen": { "label": "Hafeninfrastruktur ins Konjunkturpaket", "desc": "Norddeutsche Häfen erhalten zusätzliche Mittel — belastet den Haushalt." },
+        "koal_bildung_veto": { "label": "Bildungspaket mit Länder-Veto-Rechten", "desc": "Länder erhalten erweiterte Vetorechte bei Bildungsentscheidungen." },
+        "koal_strukturfonds": { "label": "Strukturfondsmittel erhöhen", "desc": "Mehr EU-Strukturfondsmittel für norddeutsche Regionen." }
+      }
+    },
+    "pragmatische_mitte": {
+      "name": "Pragmatische Mitte",
+      "sprecher": {
+        "name": "Hans Brenner",
+        "bio": "Der entscheidende Wechselwähler. Offen für Deals, aber verhandelt immer. Ohne Gegenleistung unberechenbar.",
+        "quote": "Ohne Gegenleistung geht hier gar nichts — das wissen Sie."
+      },
+      "tradeoffPool": {
+        "mitte_digitalsteuer": { "label": "Keine Digitalsteuer auf Mittelstand", "desc": "Mittelständische Unternehmen von Digitalsteuer ausnehmen." },
+        "mitte_weinbau": { "label": "Weinbau-Ausnahmeregelung im Energiegesetz", "desc": "Weinbau erhält Sonderregelungen bei Energievorgaben." },
+        "mitte_kommune": { "label": "Kommunale Infrastrukturmittel verdoppeln", "desc": "Verdopplung der Bundesmittel für kommunale Infrastruktur." }
+      }
+    },
+    "konservativer_block": {
+      "name": "Konservativer Block",
+      "sprecher": {
+        "name": "Edmund Huber",
+        "bio": "Ideologischer Gegner der Koalition. Stimmt grundsätzlich gegen Rot-Grün — Ausnahme: wenn ein Gesetz Länderrechte stärkt.",
+        "quote": "Föderalismus first — alles andere ist Verhandlungssache."
+      },
+      "tradeoffPool": {
+        "kons_foederal": { "label": "Verfassungsrechtliche Föderalismusgarantie", "desc": "Föderalismus in Verfassung stärker verankern." },
+        "kons_bildung": { "label": "Keine Bundeskompetenz für Bildung", "desc": "Bildung bleibt ausschließlich Ländersache." },
+        "kons_auto": { "label": "Automobilindustrie-Ausnahme im EE-Gesetz", "desc": "Automobilindustrie erhält Übergangsfristen." }
+      }
+    },
+    "ostblock": {
+      "name": "Ostblock",
+      "sprecher": {
+        "name": "Matthias Kohl",
+        "bio": "Der Unberechenbare. Strukturwandel-Trauma prägt alle Entscheidungen. Investitionen in den Osten öffnen ihn — ignoriert man ihn, wird er aktiver Saboteur.",
+        "quote": "Der Osten wurde zu oft vergessen — das ändert sich jetzt."
+      },
+      "tradeoffPool": {
+        "ost_invest": { "label": "Investitionsprogramm Ostdeutschland (€3 Mrd.)", "desc": "Sonderprogramm für ostdeutsche Strukturförderung." },
+        "ost_kohle": { "label": "Kohleausstieg um 3 Jahre verschieben", "desc": "Längere Übergangsfristen für ostdeutsche Kohleregionen." },
+        "ost_abschreibung": { "label": "Sonderabschreibungen für ostdeutsche Unternehmen", "desc": "Steuerliche Anreize für Investitionen im Osten." }
+      }
+    }
+  },
+  "sprecherErsatz": {
+    "koalitionstreue": { "name": "Stefan Möller", "bio": "Pragmatischer Hafenpolitiker. Fokus auf Infrastruktur und Handel.", "quote": "Der Norden braucht Investitionen — wir verhandeln." },
+    "pragmatische_mitte": { "name": "Claudia Vogt", "bio": "Verhandlungsexpertin. Sucht immer den Kompromiss.", "quote": "Ohne uns geht nichts — das wissen alle." },
+    "konservativer_block": { "name": "Franz Bauer", "bio": "Föderalismus-Purist. Länderrechte über alles.", "quote": "Der Bund soll sich um seine eigenen Angelegenheiten kümmern." },
+    "ostblock": { "name": "Ingrid Weber", "bio": "Strukturwandel-Expertin. Fordert Gleichwertigkeit der Lebensverhältnisse.", "quote": "Der Osten verdient mehr Aufmerksamkeit." }
+  },
+  "bundesratEvents": {
+    "laenderfinanzausgleich": {
+      "typeLabel": "Länderfinanzausgleich",
+      "title": "Länderfinanzausgleich-Streit eskaliert",
+      "quote": "„Pragmatische Mitte und Ostblock fordern Neuverteilung der Finanzströme — sonst Blockade."",
+      "context": "Fraktion Brenner und Kohl haben sich verbündet. Sie fordern eine Überarbeitung des Länderfinanzausgleichs. Ohne Zugeständnisse droht Blockade in allen zustimmungspflichtigen Gesetzen.",
+      "ticker": "Länderfinanzausgleich: Brenner und Kohl fordern Neuverteilung",
+      "choices": {
+        "0": { "label": "Zugeständnisse machen", "desc": "Haushalt -0.2, Beziehung Brenner +8", "log": "Zugeständnisse beim Länderfinanzausgleich. Brenner zufrieden, Haushalt belastet." },
+        "1": { "label": "Ablehnen", "desc": "Beziehung Brenner -10, Kohl -8", "log": "Forderungen abgelehnt. Brenner und Kohl verärgert." },
+        "2": { "label": "Gutachten beauftragen", "desc": "Zeitgewinn, kostet 15 PK", "log": "Wissenschaftliches Gutachten beauftragt. Thema vorerst vertagt." }
+      }
+    },
+    "landtagswahl": {
+      "typeLabel": "Landtagswahl",
+      "title": "Landtagswahl kippt Fraktion",
+      "quote": "„Überraschender Regierungswechsel — die politische Landkarte verschiebt sich."",
+      "context": "Eine Landtagswahl hat die Regierungspartei in einem Bundesland gewechselt. Die Fraktionszusammensetzung im Bundesrat ändert sich. Die betroffene Fraktion muss neu verhandeln.",
+      "ticker": "Landtagswahl: Regierungswechsel verändert Bundesrat-Mehrheiten",
+      "choices": {
+        "0": { "label": "Neue Mehrheiten akzeptieren", "desc": "Politische Realität anerkennen", "log": "Regierungswechsel akzeptiert. Fraktionszusammensetzung aktualisiert." }
+      }
+    },
+    "kohl_eskaliert": {
+      "typeLabel": "Sondersitzung",
+      "title": "Kohl eskaliert — Sondersitzung einberufen",
+      "quote": "„Ohne Zugeständnisse an den Osten werde ich jeden Vermittlungsausschuss beantragen."",
+      "context": "Matthias Kohl hat einen Vermittlungsausschuss-Antrag für ein laufendes Gesetz gestellt. Das Gesetz wird um 2 Monate verzögert. Wie reagieren Sie?",
+      "ticker": "Kohl beantragt Vermittlungsausschuss — Gesetz verzögert",
+      "choices": {
+        "0": { "label": "Kooperieren", "desc": "Beziehung Kohl verbessern, 15 PK", "log": "Kooperation mit Kohl. Beziehung verbessert, Verzögerung bleibt." },
+        "1": { "label": "Juristisch blockieren", "desc": "Rechtliche Schritte, kostet 20 PK", "log": "Juristische Prüfung eingeleitet. Verzögerung bleibt, Kohl verärgert." },
+        "2": { "label": "Öffentlich kritisieren", "desc": "Beziehung Kohl sinkt weiter", "log": "Kohl öffentlich kritisiert. Ostblock verhärtet Position." }
+      }
+    },
+    "sprecher_wechsel": {
+      "typeLabel": "Sprecher-Wechsel",
+      "title": "Neuer Fraktionssprecher im Bundesrat",
+      "quote": "„Die Fraktion hat einen neuen Sprecher gewählt — mit anderen Prioritäten."",
+      "context": "Ein Fraktionssprecher wurde abgelöst. Der neue Charakter hat andere Interessen und einen neuen Tradeoff-Pool. Die Beziehung muss neu aufgebaut werden.",
+      "ticker": "Sprecher-Wechsel: Fraktion mit neuem Gesicht",
+      "choices": {
+        "0": { "label": "Neuen Sprecher einbinden", "desc": "Beziehungspflege beginnen", "log": "Neuer Sprecher anerkannt. Beziehungsaufbau erforderlich." }
+      }
+    },
+    "bundesrat_initiative": {
+      "typeLabel": "Bundesrat-Initiative",
+      "title": "Länder bringen eigenes Gesetz ein",
+      "quote": "„Die Länder wollen nicht nur reagieren — sie wollen gestalten."",
+      "context": "Eine Fraktion hat ein eigenes Gesetz eingebracht. Sie müssen entscheiden: Zustimmung stärkt die Beziehung, Blockade kostet Sympathie und Popularität.",
+      "ticker": "Bundesrat-Initiative: Länder fordern Mitsprache",
+      "choices": {
+        "0": { "label": "Zustimmen", "desc": "Beziehung zur initiierenden Fraktion +12", "log": "Bundesrat-Initiative zugestimmt. Beziehung zur Fraktion verbessert." },
+        "1": { "label": "Blockieren", "desc": "Beziehung -15, Popularität -3", "log": "Bundesrat-Initiative blockiert. Fraktion verärgert, Popularität sinkt." }
+      }
+    },
+    "foederalismusgipfel": {
+      "typeLabel": "Föderalismusgipfel",
+      "title": "Föderalismusgipfel — alle Sprecher an einem Tisch",
+      "quote": "„Historische Gelegenheit: Alle vier Fraktionssprecher gleichzeitig empfangen."",
+      "context": "Beim Föderalismusgipfel können Sie alle vier Fraktionen gleichzeitig pflegen — zu reduzierten Kosten von 8 PK pro Fraktion statt 15.",
+      "ticker": "Föderalismusgipfel: Alle Fraktionssprecher in Berlin",
+      "choices": {
+        "0": { "label": "Alle vier Fraktionen pflegen", "desc": "32 PK (8 pro Fraktion), Beziehung +3 bei allen", "log": "Föderalismusgipfel: Beziehung zu allen Fraktionen verbessert." },
+        "1": { "label": "Nur Mitte und Ostblock einladen", "desc": "16 PK, Beziehung +3 bei Brenner und Kohl", "log": "Föderalismusgipfel mit Brenner und Kohl. Beziehung verbessert." },
+        "2": { "label": "Gipfel absagen", "desc": "Keine Kosten, verpasste Chance", "log": "Föderalismusgipfel abgesagt. Chance verpasst." }
+      }
+    }
+  },
+  "routes": {
+    "eu": "EU-Ebene",
+    "land": "Länder-Pilot",
+    "kommune": "Städtebündnis"
+  },
+  "milieu": {
+    "arbeit": "Arbeit",
+    "mitte": "Mitte",
+    "prog": "Progressiv"
+  },
+  "media": {
+    "title": "Medien & Milieus",
+    "desc": "Beeinflussen Sie die öffentliche Meinung durch gezielte Medienkampagnen.",
+    "arbeit": { "name": "Arbeitsmilieu", "desc": "Gewerkschaftsnahe Wähler, Fokus auf soziale Gerechtigkeit." },
+    "mitte": { "name": "Mitte", "desc": "Bürgerliche Mitte, wirtschaftsorientiert." },
+    "prog": { "name": "Progressive", "desc": "Urban, klimabewusst, diversitätsorientiert." },
+    "kampagne": "Kampagne (10 PK)"
+  },
+  "ebene": {
+    "eu": "Gesetze über die EU-Ebene vorantreiben. Längere Laufzeit, aber umgeht den Bundesrat.",
+    "land": "Länder-Pilotprojekte starten. Mittlere Laufzeit und Kosten.",
+    "kommune": "Städtebündnisse nutzen. Schnellste Alternative mit geringeren Kosten.",
+    "empty": "Keine Gesetze auf dieser Route.",
+    "monate": "{{progress}}/{{duration}} Monate"
+  },
+  "ticker": {
+    "label": "NACHRICHTEN"
+  },
+  "onboarding": {
+    "headline1": "BUNDESTAGSWAHL 2025",
+    "headline2": "{{name}} GEWINNT —\nNEUE REGIERUNG MÖGLICH",
+    "headlineMeta": "40,2% · SPD/Grüne-Koalition wahrscheinlich\nWahlbeteiligung: 76,3% · Historische Nacht in Berlin",
+    "weiter": "Weiter",
+    "kabinettText": "Dein Kabinett. Sechs Persönlichkeiten, sechs Agenden.",
+    "memo": "AN: Bundeskanzleramt\nVON: Koalitionsarbeitsgruppe\nBETREFF: Koalitionsvertrag — offene Punkte\n\nDer Entwurf des Koalitionsvertrags liegt vor.\n{{lawCount}} Gesetzentwürfe sind priorisiert.\nPolitisches Kapital: {{pk}} Einheiten verfügbar.{{brLine}}\n\nDie Arbeit beginnt jetzt.",
+    "memoBrLine": "\n\nErste Bundesratssitzung: in 3 Monaten.",
+    "cta1": "Glückwunsch. Du hast gewonnen.",
+    "cta2": "Jetzt fängt die Arbeit richtig los.",
+    "insKanzleramt": "Ins Kanzleramt",
+    "defaultGovName": "Die neue Regierung"
+  },
+  "setup": {
+    "title": "Spiel starten",
+    "subtitle": "Konfiguriere deine Regierung",
+    "playerNameLabel": "Spielername (optional)",
+    "playerNamePlaceholder": "Deine Regierung",
+    "complexityLabel": "Komplexität",
+    "complexity1": "Einfach",
+    "complexity2": "Standard",
+    "complexity3": "Vollständig",
+    "start": "Spiel starten",
+    "back": "Zurück"
+  },
+  "credits": {
+    "title": "Credits",
+    "text": "Bundesrepublik — Eine Politiksimulation\npolitikpraxis",
+    "back": "Zurück"
+  },
+  "agenda": {
+    "title": "Gesetzliche Agenda",
+    "einbringen": "Einbringen (20 PK)",
+    "lobbying": "Lobbying (12 PK)",
+    "abstimmen": "Abstimmung ansetzen",
+    "bundesratLobbying": "Bundesrat-Lobbying",
+    "blockiertDurch": "Blockiert durch: {{blocker}}",
+    "blockerBundestag": "Bundestag",
+    "blockerBundesrat": "Bundesrat",
+    "brVoteIn": "Bundesratsabstimmung in {{months}} Monaten — Lobbying aktiv",
+    "routeFormat": "{{route}}: {{progress}}/{{duration}} Monate",
+    "gratis": "gratis"
+  },
+  "leftPanel": {
+    "wahlprognose": "Wahlprognose",
+    "target": "Ziel: ≥ 40% am Wahltag",
+    "koalitionsstabilitaet": "Koalitionsstabilität",
+    "milieus": "Milieus",
+    "kabinett": "Kabinett"
+  },
+  "rightPanel": {
+    "wirtschaftslage": "Wirtschaftslage",
+    "ereignisprotokoll": "Ereignisprotokoll",
+    "logEmpty": "Noch keine Einträge."
+  },
+  "bundesrat": {
+    "title": "Bundesrat",
+    "subtitle": "4 Fraktionen vertreten 16 Bundesländer. Lobbying beeinflusst die Abstimmungsbereitschaft.",
+    "beziehung": "Beziehung",
+    "abstimmungsbereitschaft": "Abstimmungsbereitschaft",
+    "gespraechSuchen": "Gespräch suchen",
+    "jaNein": "{{ja}} Ja · {{nein}} Nein {{mehrheit}}",
+    "mehrheitJa": "✓ Mehrheit",
+    "mehrheitNein": "✗ Keine Mehrheit",
+    "mehrheitBei": "Mehrheit (9)",
+    "mehrheitTitle": "Mehrheit bei 9 Stimmen",
+    "keineAbstimmung": "Keine Bundesratsabstimmung in den nächsten Monaten.",
+    "lobbyingGesperrt": "Lobbying gesperrt: Beziehung unter 20. Reparatur erforderlich.",
+    "reparatur": "Beziehung reparieren (25 PK)",
+    "forderungTitle": "Aktuelle Forderung",
+    "forderungAnnehmen": "Forderung annehmen",
+    "ablehnen": "Ablehnen",
+    "pkInvestieren": "PK investieren ({{cost}} PK)",
+    "monateBisAbstimmung_one": "Noch {{count}} Monat bis Abstimmung",
+    "monateBisAbstimmung_other": "Noch {{count}} Monate bis Abstimmung",
+    "close": "Schließen"
+  },
+  "endScreen": {
+    "won": "Wiedergewählt",
+    "lost": "Abgewählt",
+    "wonSubtitle": "Sie haben die Wahl mit {{percent}}% Zustimmung gewonnen.",
+    "lostSubtitle": "Die Legislaturperiode endet mit {{percent}}% Zustimmung — unter der erforderlichen Mehrheit.",
+    "beschlosseneGesetze": "Beschlossene Gesetze",
+    "finaleKPIs": "Finale KPIs",
+    "milieuZustimmung": "Milieu-Zustimmung",
+    "neueLegislatur": "Neue Legislaturperiode"
+  },
+  "charDetail": {
+    "close": "Schließen",
+    "ultimatumWarning": "Nahe Ultimatum-Schwelle (Stimmung ≤ {{threshold}})"
+  },
+  "logs": {
+    "legislaturBegonnen": "Neue Legislaturperiode begonnen",
+    "koalitionsvertrag": "Koalitionsvertrag unterzeichnet",
+    "gesetzeVorbereitung": "{{count}} Gesetzentwürfe in Vorbereitung"
+  }
+}

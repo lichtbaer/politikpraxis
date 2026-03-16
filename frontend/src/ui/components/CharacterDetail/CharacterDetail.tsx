@@ -1,11 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useUIStore } from '../../../store/uiStore';
 import styles from './CharacterDetail.module.css';
 
-const MOOD_TEXTS = ['Sehr unzufrieden', 'Unzufrieden', 'Neutral', 'Zufrieden', 'Sehr zufrieden'];
 const MOOD_EMOJIS = ['😠', '😟', '😐', '🙂', '😊'];
 
 export function CharacterDetail() {
+  const { t } = useTranslation('game');
   const charDetailId = useUIStore((s) => s.charDetailId);
   const closeCharDetail = useUIStore((s) => s.closeCharDetail);
   const { state } = useGameStore();
@@ -14,7 +15,7 @@ export function CharacterDetail() {
   if (!charDetailId || !character) return null;
 
   const moodIdx = Math.min(4, Math.max(0, character.mood));
-  const moodText = MOOD_TEXTS[moodIdx];
+  const moodText = t(`game:mood.${moodIdx}`);
   const moodEmoji = MOOD_EMOJIS[moodIdx];
   const nearUltimatum = character.mood <= character.ultimatum.moodThresh + 1;
 
@@ -36,7 +37,7 @@ export function CharacterDetail() {
           type="button"
           className={styles.close}
           onClick={closeCharDetail}
-          aria-label="Schließen"
+          aria-label={t('game:charDetail.close')}
         >
           ×
         </button>
@@ -52,10 +53,10 @@ export function CharacterDetail() {
         </div>
 
         <h2 id="char-detail-name" className={styles.name}>
-          {character.name}
+          {t(`game:chars.${character.id}.name`)}
         </h2>
-        <p className={styles.role}>{character.role}</p>
-        <p className={styles.bio}>{character.bio}</p>
+        <p className={styles.role}>{t(`game:chars.${character.id}.role`)}</p>
+        <p className={styles.bio}>{t(`game:chars.${character.id}.bio`)}</p>
 
         <div className={styles.mood}>
           <span className={styles.moodEmoji}>{moodEmoji}</span>
@@ -74,19 +75,19 @@ export function CharacterDetail() {
         </div>
 
         <div className={styles.bonus}>
-          {character.bonus.desc}
+          {t(`game:chars.${character.id}.bonus.desc`)}
         </div>
 
         {nearUltimatum && (
           <div className={styles.warning}>
-            Nahe Ultimatum-Schwelle (Stimmung ≤ {character.ultimatum.moodThresh + 1})
+            {t('game:charDetail.ultimatumWarning', { threshold: character.ultimatum.moodThresh + 1 })}
           </div>
         )}
 
         <div className={styles.interests}>
-          {character.interests.map((interest) => (
-            <span key={interest} className={styles.pill}>
-              {interest}
+          {character.interests.map((_, i) => (
+            <span key={i} className={styles.pill}>
+              {t(`game:chars.${character.id}.interests.${i}`)}
             </span>
           ))}
         </div>

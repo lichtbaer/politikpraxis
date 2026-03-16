@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
-import { routeLabel, ROUTE_INFO } from '../../../core/systems/levels';
+import { ROUTE_INFO } from '../../../core/systems/levels';
 import type { Law, LawStatus, RouteType } from '../../../core/types';
 import styles from './AgendaCard.module.css';
 
@@ -8,13 +9,13 @@ interface AgendaCardProps {
   law: Law;
 }
 
-const STATUS_LABELS: Record<LawStatus, string> = {
-  entwurf: 'Entwurf',
-  aktiv: 'Aktiv',
-  bt_passed: 'Bundestag beschlossen',
-  blockiert: 'Blockiert',
-  beschlossen: 'Beschlossen',
-  ausweich: 'Ausweichroute',
+const STATUS_KEYS: Record<LawStatus, string> = {
+  entwurf: 'game.status.entwurf',
+  aktiv: 'game.status.aktiv',
+  bt_passed: 'game.status.bt_passed',
+  blockiert: 'game.status.blockiert',
+  beschlossen: 'game.status.beschlossen',
+  ausweich: 'game.status.ausweich',
 };
 
 const STATUS_CLASS: Record<LawStatus, string> = {
@@ -26,14 +27,8 @@ const STATUS_CLASS: Record<LawStatus, string> = {
   ausweich: styles.statusAusweich,
 };
 
-const TAG_LABELS: Record<string, string> = {
-  bund: 'Bund',
-  eu: 'EU',
-  land: 'Land',
-  kommune: 'Kommune',
-};
-
 export function AgendaCard({ law }: AgendaCardProps) {
+  const { t } = useTranslation(['common', 'game']);
   const { state } = useGameStore();
   const actions = useGameActions();
   const expanded = law.expanded;
@@ -51,20 +46,20 @@ export function AgendaCard({ law }: AgendaCardProps) {
     <div className={styles.card}>
       <header className={styles.header} onClick={handleHeaderClick}>
         <span className={`${styles.badge} ${STATUS_CLASS[law.status]}`}>
-          {STATUS_LABELS[law.status]}
+          {t(STATUS_KEYS[law.status], { ns: 'common' })}
         </span>
-        <h3 className={styles.title}>{law.titel}</h3>
+        <h3 className={styles.title}>{t(`game:laws.${law.id}.titel`)}</h3>
         <span className={styles.arrow}>{expanded ? '▲' : '▼'}</span>
       </header>
 
       {expanded && (
         <div className={styles.body}>
-          <p className={styles.desc}>{law.desc}</p>
+          <p className={styles.desc}>{t(`game:laws.${law.id}.desc`)}</p>
 
           <div className={styles.tags}>
             {law.tags.map((tag) => (
               <span key={tag} className={styles.tag}>
-                {TAG_LABELS[tag] ?? tag}
+                {t(`game.tags.${tag}`, { ns: 'common' }) ?? tag}
               </span>
             ))}
           </div>
@@ -94,21 +89,21 @@ export function AgendaCard({ law }: AgendaCardProps) {
                 />
               </div>
               <span className={styles.progressLabel}>
-                {routeLabel(law.route)}: {law.rprog}/{law.rdur} Monate
+                {t('game:agenda.routeFormat', { route: t(`game:routes.${law.route}`), progress: law.rprog, duration: law.rdur })}
               </span>
             </div>
           )}
 
           {law.status === 'blockiert' && law.blockiert && (
             <div className={styles.blockiertPanel}>
-              Blockiert durch: {law.blockiert === 'bundestag' ? 'Bundestag' : 'Bundesrat'}
+              {t('game:agenda.blockiertDurch', { blocker: law.blockiert === 'bundestag' ? t('game:agenda.blockerBundestag') : t('game:agenda.blockerBundesrat') })}
             </div>
           )}
 
           {law.status === 'bt_passed' && law.brVoteMonth != null && (
             <div className={styles.progressBar}>
               <span className={styles.progressLabel}>
-                Bundesratsabstimmung in {law.brVoteMonth - state.month} Monaten — Lobbying aktiv
+                {t('game:agenda.brVoteIn', { months: law.brVoteMonth - state.month })}
               </span>
             </div>
           )}
@@ -121,7 +116,7 @@ export function AgendaCard({ law }: AgendaCardProps) {
                 disabled={!canEinbringen}
                 onClick={() => actions.einbringen(law.id)}
               >
-                Einbringen (20 PK)
+                {t('game:agenda.einbringen')}
               </button>
             )}
             {(law.status === 'entwurf' || law.status === 'aktiv') && (
@@ -131,7 +126,7 @@ export function AgendaCard({ law }: AgendaCardProps) {
                 disabled={!canLobbying}
                 onClick={() => actions.lobbying(law.id)}
               >
-                Lobbying (12 PK)
+                {t('game:agenda.lobbying')}
               </button>
             )}
             {law.status === 'aktiv' && (
@@ -140,7 +135,7 @@ export function AgendaCard({ law }: AgendaCardProps) {
                 className={styles.btn}
                 onClick={() => actions.abstimmen(law.id)}
               >
-                Abstimmung ansetzen
+                {t('game:agenda.abstimmen')}
               </button>
             )}
             {law.status === 'bt_passed' && (
@@ -149,7 +144,7 @@ export function AgendaCard({ law }: AgendaCardProps) {
                 className={styles.btn}
                 onClick={() => actions.setView('bundesrat')}
               >
-                Bundesrat-Lobbying
+                {t('game:agenda.bundesratLobbying')}
               </button>
             )}
             {law.status === 'blockiert' && law.blockiert === 'bundesrat' && (
@@ -165,7 +160,7 @@ export function AgendaCard({ law }: AgendaCardProps) {
                       disabled={!canRoute}
                       onClick={() => actions.startRoute(law.id, route)}
                     >
-                      {routeLabel(route)} ({info.cost} PK, {info.dur} Mo)
+                      {t(`game:routes.${route}`)} ({info.cost} PK, {info.dur} Mo)
                     </button>
                   );
                 })}

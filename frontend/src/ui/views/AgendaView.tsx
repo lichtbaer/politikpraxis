@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { AgendaCard } from '../components/AgendaCard/AgendaCard';
 import type { Law, LawStatus } from '../../core/types';
@@ -21,12 +22,13 @@ function orderLaws(laws: Law[]): Law[] {
 }
 
 export function AgendaView() {
+  const { t } = useTranslation('game');
   const { state } = useGameStore();
   const ordered = orderLaws(state.gesetze);
 
   return (
     <div className={styles.root}>
-      <h1 className={styles.title}>Gesetzliche Agenda</h1>
+      <h1 className={styles.title}>{t('agenda.title')}</h1>
       <div className={styles.list}>
         {ordered.map((law) => (
           <AgendaCard key={law.id} law={law} />

@@ -1,0 +1,65 @@
+{
+  "app": {
+    "title": "Bundesrepublik",
+    "subtitle": "Eine Politiksimulation"
+  },
+  "header": {
+    "monthFormat": "Monat {{month}}/48 · {{year}}"
+  },
+  "menu": {
+    "newGame": "Neues Spiel",
+    "loadGame": "Spiel laden",
+    "settings": "Einstellungen",
+    "credits": "Credits"
+  },
+  "game": {
+    "month": "Monat",
+    "pk": "PK",
+    "speed": {
+      "pause": "Pause",
+      "slow": "1×",
+      "fast": "3×"
+    },
+    "actions": {
+      "introduce": "Einbringen",
+      "vote": "Abstimmung ansetzen",
+      "lobbying": "Lobbying",
+      "startRoute": "Umweg starten",
+      "mediaKampagne": "Kampagne starten"
+    },
+    "kpi": {
+      "unemployment": "Arbeitslosigkeit",
+      "budget": "Haushaltssaldo",
+      "gini": "Gini-Index",
+      "satisfaction": "Zufriedenheit"
+    },
+    "election": {
+      "goal": "Ziel: ≥ {{target}}% bei Wahl (Monat 48)",
+      "won": "Wiedergewählt",
+      "lost": "Abgewählt"
+    },
+    "status": {
+      "entwurf": "Entwurf",
+      "aktiv": "Im Bundestag",
+      "bt_passed": "Bundestag beschlossen",
+      "blockiert": "Blockiert",
+      "beschlossen": "Beschlossen",
+      "ausweich": "Umweg läuft"
+    },
+    "ebenen": {
+      "eu": "EU-Ebene",
+      "land": "Länderebene",
+      "kommune": "Kommunalebene",
+      "bundesrat": "Bundesrat",
+      "agenda": "Agenda",
+      "medien": "Medien & Milieus"
+    },
+    "tags": {
+      "bund": "Bund",
+      "eu": "EU",
+      "land": "Land",
+      "kommune": "Kommune"
+    },
+    "gratis": "gratis"
+  }
+}

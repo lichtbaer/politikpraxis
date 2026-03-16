@@ -141,6 +141,8 @@ export interface LogEntry {
   time: string;
   msg: string;
   type: string;
+  /** Optional params for i18n interpolation when msg is a translation key */
+  params?: Record<string, string | number>;
 }
 
 export type ViewName = 'agenda' | 'eu' | 'land' | 'kommune' | 'medien' | 'bundesrat';

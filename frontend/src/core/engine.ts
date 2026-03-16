@@ -1,4 +1,4 @@
-import type { GameState, ContentBundle } from './types';
+import type { GameState, ContentBundle, LogEntry } from './types';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
 import { applyCharBonuses, checkUltimatums } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
@@ -8,11 +8,12 @@ import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
 import { BUNDESRAT_EVENTS, SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bundesratEvents';
 
-export function addLog(state: GameState, msg: string, type: string): GameState {
+export function addLog(state: GameState, msg: string, type: string, params?: Record<string, string | number>): GameState {
   const yr = 2025 + Math.floor((state.month - 1) / 12);
   const mo = ((state.month - 1) % 12) + 1;
   const time = `${String(mo).padStart(2, '0')}/${yr}`;
-  const log = [{ time, msg, type }, ...state.log].slice(0, 60);
+  const entry: LogEntry = params ? { time, msg, type, params } : { time, msg, type };
+  const log = [entry, ...state.log].slice(0, 60);
   return { ...state, log };
 }
 

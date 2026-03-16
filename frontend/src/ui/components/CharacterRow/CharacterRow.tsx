@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { Character } from '../../../core/types';
 import { useUIStore } from '../../../store/uiStore';
 import styles from './CharacterRow.module.css';
@@ -21,8 +22,9 @@ function getRoleColor(loyalty: number): string {
 }
 
 export function CharacterRow({ character }: CharacterRowProps) {
+  const { t } = useTranslation('game');
   const showCharDetail = useUIStore((s) => s.showCharDetail);
-  const { id, name, role, initials, color, mood, loyalty } = character;
+  const { id, initials, color, mood, loyalty } = character;
   const emoji = MOOD_EMOJI[Math.min(4, Math.max(0, mood))] ?? '😐';
 
   return (
@@ -41,12 +43,12 @@ export function CharacterRow({ character }: CharacterRowProps) {
         {initials}
       </div>
       <div className={styles.info}>
-        <span className={styles.name}>{name}</span>
+        <span className={styles.name}>{t(`game:chars.${id}.name`)}</span>
         <span
           className={styles.role}
           style={{ color: getRoleColor(loyalty) }}
         >
-          {role}
+          {t(`game:chars.${id}.role`)}
         </span>
       </div>
       <span className={styles.mood}>{emoji}</span>

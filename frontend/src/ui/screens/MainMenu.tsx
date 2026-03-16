@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { useGameStore } from '../../store/gameStore';
 import type { GameState } from '../../core/types';
 import styles from './MainMenu.module.css';
@@ -26,7 +28,14 @@ function loadFromLocalStorage(): GameState | null {
   return null;
 }
 
+function toggleLang() {
+  const next = i18n.language === 'de' ? 'en' : 'de';
+  i18n.changeLanguage(next);
+  localStorage.setItem('politikpraxis_lang', next);
+}
+
 export function MainMenu() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const loadSave = useGameStore((s) => s.loadSave);
   const startGame = useGameStore((s) => s.startGame);
@@ -55,9 +64,17 @@ export function MainMenu() {
 
   return (
     <div className={styles.root}>
+      <button
+        type="button"
+        className={styles.langToggle}
+        onClick={toggleLang}
+        aria-label={i18n.language === 'de' ? 'Switch to English' : 'Auf Deutsch wechseln'}
+      >
+        {i18n.language === 'de' ? 'EN' : 'DE'}
+      </button>
       <div className={styles.content}>
-        <h1 className={styles.title}>Bundesrepublik</h1>
-        <p className={styles.subtitle}>Eine Politiksimulation</p>
+        <h1 className={styles.title}>{t('app.title')}</h1>
+        <p className={styles.subtitle}>{t('app.subtitle')}</p>
 
         <nav className={styles.buttons}>
           <button
@@ -65,7 +82,7 @@ export function MainMenu() {
             className={styles.primary}
             onClick={handleNewGame}
           >
-            Neues Spiel
+            {t('menu.newGame')}
           </button>
           {saveAvailable && (
             <button
@@ -73,18 +90,18 @@ export function MainMenu() {
               className={styles.secondary}
               onClick={handleLoadGame}
             >
-              Spiel laden
+              {t('menu.loadGame')}
             </button>
           )}
           <button type="button" className={styles.secondary} disabled>
-            Einstellungen
+            {t('menu.settings')}
           </button>
           <button
             type="button"
             className={styles.secondary}
             onClick={handleCredits}
           >
-            Credits
+            {t('menu.credits')}
           </button>
         </nav>
       </div>
