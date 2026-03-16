@@ -1,14 +1,13 @@
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import type { SpeedLevel } from '../../core/types';
 import styles from './Header.module.css';
 
 export function Header() {
-  const { month, speed, pk } = useGameStore(s => ({
-    month: s.state.month,
-    speed: s.state.speed,
-    pk: s.state.pk,
-  }));
+  const { month, speed, pk } = useGameStore(
+    useShallow(s => ({ month: s.state.month, speed: s.state.speed, pk: s.state.pk })),
+  );
   const { setSpeed } = useGameActions();
   const year = 2025 + Math.floor((month - 1) / 12);
 
