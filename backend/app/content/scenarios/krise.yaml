@@ -1,0 +1,11 @@
+id: krise
+name: Krisenszenario
+description: "Wirtschaftsabschwung und innere Spannungen. Die Koalition steht unter Druck."
+startMonth: 1
+startPK: 70
+startKPI:
+  al: 8.1
+  hh: -1.2
+  gi: 34.5
+  zf: 45
+startCoalition: 52

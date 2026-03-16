@@ -1,0 +1,85 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  text-align: center;
+  max-width: 480px;
+  padding: 32px;
+}
+
+.titleWon {
+  font-family: var(--serif);
+  font-size: 42px;
+  font-weight: 600;
+  color: var(--green);
+  margin: 0 0 16px 0;
+}
+
+.titleLost {
+  font-family: var(--serif);
+  font-size: 42px;
+  font-weight: 600;
+  color: var(--red);
+  margin: 0 0 16px 0;
+}
+
+.subtitle {
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin: 0 0 32px 0;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text3);
+}
+
+.statValue {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.restart {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.restart:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}

@@ -1,0 +1,293 @@
+- id: haushalt
+  type: danger
+  icon: "\U0001F4B0"
+  typeLabel: Haushaltskrise
+  title: Milliardenloch im Bundeshaushalt
+  quote: >-
+    Überraschende Steuermindereinnahmen reißen ein Loch von 14 Milliarden Euro.
+  context: >-
+    Das Finanzministerium hat die Schätzungen nach unten korrigiert.
+    Finanzminister Lehmann fordert sofortige Gegenmaßnahmen.
+  ticker: 'Haushaltsloch: Regierung unter Druck'
+  choices:
+    - label: Sparpaket durchsetzen
+      desc: 'Kurzfristige Sanierung, senkt Popularität'
+      cost: 10
+      type: primary
+      effect:
+        hh: 0.4
+        zf: -5
+      charMood:
+        fm: 1
+      log: 'Sparpaket beschlossen. Haushalt stabilisiert, Popularität sinkt.'
+    - label: Neue Schulden aufnehmen
+      desc: 'Verstößt gegen Schuldenbremse — rechtliches Risiko'
+      cost: 0
+      type: danger
+      effect:
+        hh: -0.2
+        zf: -2
+      charMood:
+        jm: -1
+      log: 'Schuldenbremse gedehnt. Verfassungsklage droht.'
+    - label: Steuererhöhung ankündigen
+      desc: 'Belastet Mitte-Milieu, stabilisiert Haushalt'
+      cost: 5
+      type: safe
+      effect:
+        hh: 0.3
+        zf: -3
+        gi: -0.3
+      charMood:
+        fm: 1
+        im: -1
+      log: 'Steuererhöhung angekündigt. Wirtschaftsverband protestiert.'
+
+- id: skandal
+  type: danger
+  icon: "\U0001F4F0"
+  typeLabel: Politischer Skandal
+  title: Medienberichte über Ministeriumsverschwendung
+  quote: >-
+    Der Spiegel berichtet über fragwürdige Beraterverträge im Bundesministerium.
+  context: >-
+    Die Opposition fordert Rücktritt. Braun nutzt die Gelegenheit, die Koalition zu destabilisieren.
+  ticker: 'Spiegel-Bericht erschüttert Koalition'
+  choices:
+    - label: Vollständige Transparenz
+      desc: 'Alles offenlegen, kurzfristiger Schaden'
+      cost: 0
+      type: safe
+      effect:
+        zf: -4
+      charMood:
+        im: -1
+        jm: 1
+      log: 'Vollständige Offenlegung. Kurzzeitiger Schaden, langfristiges Vertrauen.'
+    - label: Ablenkungsoffensive
+      desc: 'Medien mit neuem Thema überspielen'
+      cost: 15
+      type: danger
+      effect:
+        zf: -2
+      charMood: {}
+      log: 'Ablenkungsmanöver gestartet. Medien skeptisch.'
+    - label: Minister entlassen
+      desc: 'Klares Signal, kostet Koalitionsstabilität'
+      cost: 5
+      type: primary
+      effect:
+        zf: -1
+      charMood:
+        im: -2
+      log: 'Minister entlassen. Koalitionspartner verärgert.'
+
+- id: euklage
+  type: warn
+  icon: "\U0001F1EA\U0001F1FA"
+  typeLabel: EU-Vertragsverletzung
+  title: Brüssel leitet Verfahren gegen Deutschland ein
+  quote: >-
+    Die Europäische Kommission kritisiert die schleppende Umsetzung von EU-Richtlinien.
+  context: >-
+    Drei Richtlinien sind noch nicht in nationales Recht überführt. Ein Bußgeld von bis zu 500 Mio. Euro droht.
+  ticker: 'EU-Vertragsverletzungsverfahren gegen Deutschland eröffnet'
+  choices:
+    - label: Schnellumsetzung
+      desc: 'Eilgesetzgebung, ignoriert Bundesrat'
+      cost: 20
+      type: primary
+      effect:
+        hh: -0.1
+        zf: 2
+      charMood:
+        jm: -1
+      log: 'EU-Richtlinien schnell umgesetzt. Verfassungsrechtliche Bedenken bleiben.'
+    - label: EU-Verhandlung aufnehmen
+      desc: 'Zeitgewinn, keine sofortigen Kosten'
+      cost: 8
+      type: safe
+      effect: {}
+      charMood: {}
+      log: 'Verhandlungen mit Brüssel aufgenommen. Ergebnis offen.'
+    - label: Bundesrat einbeziehen
+      desc: 'Korrekt aber langsam, Bußgeld riskant'
+      cost: 5
+      type: safe
+      effect:
+        hh: -0.3
+      charMood:
+        fm: -1
+      log: 'Reguläres Verfahren gewählt. Bußgeld-Risiko bleibt.'
+
+- id: konjunktur
+  type: warn
+  icon: "\U0001F4C9"
+  typeLabel: Wirtschaftsabschwung
+  title: EZB-Zinserhöhung trifft deutsche Wirtschaft
+  quote: >-
+    Investitionen brechen ein, Kurzarbeit steigt — Rezessionsrisiko wächst.
+  context: >-
+    Maier warnt vor voreiligen Ausgabenkürzungen. Lehmann besteht auf Haushaltsdisziplin.
+  ticker: 'Wirtschaftsabschwung: Rezessionsrisiko steigt auf 35%'
+  choices:
+    - label: Konjunkturpaket auflegen
+      desc: 'Teuer, aber effektiv'
+      cost: 0
+      type: primary
+      effect:
+        hh: -0.5
+        zf: 4
+        al: -0.3
+      charMood:
+        wm: 1
+        fm: -1
+      log: 'Konjunkturpaket beschlossen. Haushalt belastet, Wirtschaft stabilisiert.'
+    - label: Abwarten
+      desc: 'Günstig, aber riskant'
+      cost: 0
+      type: safe
+      effect:
+        al: 0.5
+        zf: -3
+      charMood:
+        wm: -1
+      log: 'Abwartende Haltung. Wirtschaft verschlechtert sich weiter.'
+    - label: Strukturreformen ankündigen
+      desc: 'Langfristig richtig, kurzfristig wirkungslos'
+      cost: 10
+      type: safe
+      effect:
+        zf: 1
+      charMood:
+        wm: 1
+        fm: 1
+      log: 'Strukturreformen angekündigt. Märkte reagieren positiv.'
+
+- id: koalition_krise
+  type: danger
+  icon: "\U0001F91D"
+  typeLabel: Koalitionskrise
+  title: Koalitionspartner droht mit Austritt
+  quote: >-
+    Wir können dieser Politik nicht mehr zustimmen, warnt der Koalitionspartner.
+  context: >-
+    Streit um das Energiegesetz eskaliert. Der Juniorpartner fordert Nachverhandlungen zum Koalitionsvertrag.
+  ticker: 'KOALITIONSKRISE: Juniorpartner stellt Ultimatum an Kanzleramt'
+  choices:
+    - label: Nachverhandeln
+      desc: 'Stabilitätsgewinn, Reformverlust'
+      cost: 15
+      type: safe
+      effect:
+        zf: -2
+      charMood:
+        fm: 1
+      log: 'Koalitionsvertrag nachverhandelt. Reform verwässert.'
+    - label: Konfrontation riskieren
+      desc: 'Prinzipientreu, aber destabilisierend'
+      cost: 0
+      type: danger
+      effect:
+        zf: -6
+      charMood:
+        im: -2
+      log: 'Koalitionskrise eskaliert. Neuwahlen im Gespräch.'
+    - label: Tauschgeschäft anbieten
+      desc: 'Anderes Projekt opfern, Koalition retten'
+      cost: 20
+      type: primary
+      effect:
+        zf: -1
+      charMood: {}
+      log: 'Tauschgeschäft vereinbart. Koalition vorläufig gerettet.'
+
+- id: demo
+  type: info
+  icon: "\U0001F4E2"
+  typeLabel: Gesellschaft
+  title: Großdemonstration erschüttert Berlin
+  quote: >-
+    500.000 Menschen auf den Straßen — die größte Demo seit Jahren.
+  context: >-
+    Der Protest richtet sich gegen soziale Ungleichheit.
+    Progressive sind mobilisiert, aber auch unzufrieden mit der Regierung.
+  ticker: 'Berlin: Historische Großdemonstration für soziale Gerechtigkeit'
+  choices:
+    - label: Dialog anbieten
+      desc: 'Signal der Offenheit'
+      cost: 5
+      type: safe
+      effect:
+        zf: 2
+        gi: -0.2
+      charMood:
+        um: 1
+        jm: 1
+      log: 'Dialog mit Demonstranten angeboten. Progressives Milieu beruhigt.'
+    - label: Forderungen ablehnen
+      desc: 'Klare Position, aber Polarisierung'
+      cost: 0
+      type: danger
+      effect:
+        zf: -3
+      charMood:
+        im: 1
+        um: -1
+      log: 'Forderungen abgelehnt. Progressive enttäuscht.'
+    - label: Sofortprogramm ankündigen
+      desc: 'Teuer, hoher Sympathiegewinn'
+      cost: 0
+      type: primary
+      effect:
+        hh: -0.2
+        zf: 4
+        gi: -0.5
+      charMood:
+        um: 2
+      log: 'Sofortprogramm angekündigt. Breite Zustimmung.'
+
+- id: eufoerder
+  type: good
+  icon: "\U0001F1EA\U0001F1FA"
+  typeLabel: EU-Förderung
+  title: EU gibt Milliarden-Strukturfonds frei
+  quote: >-
+    Brüssel stellt 4,8 Milliarden Euro für deutsche Klimainvestitionen bereit.
+  context: >-
+    Eine seltene gute Nachricht: die EU-Gelder kommen früher als erwartet. Wie werden sie eingesetzt?
+  ticker: 'EU gibt 4,8 Mrd. Euro für Deutschland frei'
+  choices:
+    - label: Klimaschutz & Infrastruktur
+      desc: 'Langfristig wirksam'
+      cost: 0
+      type: primary
+      effect:
+        hh: 0.3
+        zf: 3
+        gi: -0.3
+      charMood:
+        um: 2
+        fm: 1
+      log: 'EU-Fonds für Klimainvestitionen eingesetzt.'
+    - label: Wohnungsbau priorisieren
+      desc: 'Populär, schnell sichtbar'
+      cost: 0
+      type: safe
+      effect:
+        hh: 0.2
+        zf: 5
+        gi: -0.6
+      charMood:
+        wm: 1
+      log: 'EU-Gelder stärken Wohnungsbauoffensive.'
+    - label: Schuldentilgung
+      desc: 'Finanzministerium begeistert'
+      cost: 0
+      type: safe
+      effect:
+        hh: 0.5
+        zf: 1
+      charMood:
+        fm: 2
+      log: 'Schulden getilgt. Haushalt verbessert, Spielraum für Reformen.'

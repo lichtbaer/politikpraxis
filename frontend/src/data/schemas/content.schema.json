@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bundesrepublik Content Bundle",
+  "type": "object",
+  "properties": {
+    "characters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "role", "initials", "color", "mood", "loyalty", "bio", "interests", "bonus", "ultimatum"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "role": { "type": "string" },
+          "initials": { "type": "string", "maxLength": 3 },
+          "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+          "mood": { "type": "integer", "minimum": 0, "maximum": 4 },
+          "loyalty": { "type": "integer", "minimum": 0, "maximum": 5 },
+          "bio": { "type": "string" },
+          "interests": { "type": "array", "items": { "type": "string" } },
+          "bonus": {
+            "type": "object",
+            "required": ["trigger", "desc", "applies"],
+            "properties": {
+              "trigger": { "type": "string" },
+              "desc": { "type": "string" },
+              "applies": { "type": "string" }
+            }
+          },
+          "ultimatum": {
+            "type": "object",
+            "required": ["moodThresh", "event"],
+            "properties": {
+              "moodThresh": { "type": "integer", "minimum": 0, "maximum": 4 },
+              "event": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "icon", "typeLabel", "title", "quote", "context", "choices", "ticker"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string", "enum": ["danger", "warn", "good", "info"] },
+          "icon": { "type": "string" },
+          "typeLabel": { "type": "string" },
+          "title": { "type": "string" },
+          "quote": { "type": "string" },
+          "context": { "type": "string" },
+          "ticker": { "type": "string" },
+          "charId": { "type": "string" },
+          "choices": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 4,
+            "items": {
+              "type": "object",
+              "required": ["label", "desc", "cost", "type", "effect", "log"],
+              "properties": {
+                "label": { "type": "string" },
+                "desc": { "type": "string" },
+                "cost": { "type": "integer", "minimum": 0 },
+                "type": { "type": "string", "enum": ["safe", "primary", "danger"] },
+                "effect": { "type": "object" },
+                "charMood": { "type": "object" },
+                "loyalty": { "type": "object" },
+                "log": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "laws": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "titel", "kurz", "desc", "tags", "ja", "nein", "effekte", "lag"],
+        "properties": {
+          "id": { "type": "string" },
+          "titel": { "type": "string" },
+          "kurz": { "type": "string" },
+          "desc": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string", "enum": ["bund", "eu", "land", "kommune"] } },
+          "ja": { "type": "number", "minimum": 0, "maximum": 100 },
+          "nein": { "type": "number", "minimum": 0, "maximum": 100 },
+          "effekte": { "type": "object" },
+          "lag": { "type": "integer", "minimum": 1, "maximum": 24 }
+        }
+      }
+    }
+  }
+}

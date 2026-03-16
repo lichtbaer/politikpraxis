@@ -1,0 +1,26 @@
+:root {
+  --bg:       #1a1712;
+  --bg2:      #211f19;
+  --bg3:      #2a271f;
+  --bg4:      #322f26;
+  --border:   #38342a;
+  --border2:  #4a4538;
+  --text:     #e8e0cc;
+  --text2:    #9a9080;
+  --text3:    #5a5448;
+  --gold:     #c8a84a;
+  --gold2:    #8a7030;
+  --red:      #c05848;
+  --red2:     #7a3028;
+  --green:    #5a9870;
+  --green2:   #2a5838;
+  --blue:     #5888b8;
+  --blue2:    #28486a;
+  --warn:     #c8783a;
+  --eu-c:     #6880b8;
+  --land-c:   #5a9870;
+  --kom-c:    #9a8848;
+  --serif:    'Playfair Display', Georgia, serif;
+  --sans:     'DM Sans', system-ui, sans-serif;
+  --mono:     'DM Mono', monospace;
+}

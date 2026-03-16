@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bundesrepublik</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #1a1712;
+  --bg2:      #211f19;
+  --bg3:      #2a271f;
+  --bg4:      #322f26;
+  --border:   #38342a;
+  --border2:  #4a4538;
+  --text:     #e8e0cc;
+  --text2:    #9a9080;
+  --text3:    #5a5448;
+  --gold:     #c8a84a;
+  --gold2:    #8a7030;
+  --red:      #c05848;
+  --red2:     #7a3028;
+  --green:    #5a9870;
+  --green2:   #2a5838;
+  --blue:     #5888b8;
+  --blue2:    #28486a;
+  --warn:     #c8783a;
+  --eu-c:     #6880b8;
+  --land-c:   #5a9870;
+  --kom-c:    #9a8848;
+  --serif:    'Playfair Display', Georgia, serif;
+  --sans:     'DM Sans', system-ui, sans-serif;
+  --mono:     'DM Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+
+/* ── HEADER ── */
+#hdr{
+  height:48px;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;position:sticky;top:0;z-index:200;
+}
+#hdr-title{font-family:var(--serif);font-size:18px;letter-spacing:0.02em;color:var(--gold)}
+#hdr-meta{font-family:var(--mono);font-size:11px;color:var(--text2);display:flex;gap:20px;align-items:center}
+#hdr-meta b{color:var(--text);font-weight:500}
+.speed-row{display:flex;gap:3px}
+.spd{background:none;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:11px;padding:3px 9px;cursor:pointer;border-radius:2px;transition:.15s all}
+.spd:hover{border-color:var(--border2);color:var(--text)}
+.spd.on{border-color:var(--gold);color:var(--gold)}
+#pk-hdr{font-family:var(--mono);font-size:12px;color:var(--text2)}
+#pk-hdr span{color:var(--gold);font-size:15px;font-weight:500}
+
+/* ── SHELL ── */
+#shell{display:grid;grid-template-columns:260px 1fr 300px;height:calc(100vh - 48px)}
+
+/* ── LEFT PANEL ── */
+#left{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+
+/* Wahlkompasse */
+#wahl-box{padding:16px;border-bottom:1px solid var(--border)}
+.wahl-label{font-size:11px;color:var(--text2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.wahl-pct{font-family:var(--serif);font-size:36px;line-height:1;margin-bottom:2px}
+.wahl-sub{font-size:11px;color:var(--text2);margin-bottom:10px}
+.wahl-bar{height:5px;background:var(--border);border-radius:3px;margin-bottom:12px;overflow:hidden}
+.wahl-fill{height:5px;border-radius:3px;transition:width .8s ease}
+.mil-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.mil-name{font-size:11px;color:var(--text2);width:72px;flex-shrink:0}
+.mil-track{flex:1;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.mil-fill{height:3px;border-radius:2px;transition:width .6s}
+.mil-val{font-size:11px;color:var(--text2);width:28px;text-align:right;font-family:var(--mono)}
+
+/* Charakter-Kabinett */
+#kabinett{padding:14px 16px;border-bottom:1px solid var(--border)}
+.sec-label{font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.char-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:.12s}
+.char-row:hover{background:var(--bg3);margin:0 -16px;padding:6px 16px}
+.char-row:last-child{border-bottom:none}
+.char-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:500;flex-shrink:0;border:2px solid transparent;transition:.2s}
+.char-info{flex:1;min-width:0}
+.char-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.char-role{font-size:11px;color:var(--text2)}
+.char-mood{font-size:16px;flex-shrink:0}
+
+/* Ebenen-Nav */
+#ebenen{padding:14px 16px}
+.ebene-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:4px;cursor:pointer;transition:.12s;margin-bottom:2px;border:1px solid transparent}
+.ebene-item:hover{background:var(--bg3)}
+.ebene-item.act{background:var(--bg3);border-color:var(--border2)}
+.ebene-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ebene-name{font-size:12px;font-weight:500;color:var(--text)}
+.ebene-status{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:2px;font-weight:500}
+
+/* ── CENTER ── */
+#center{overflow-y:auto;background:var(--bg);display:flex;flex-direction:column}
+
+/* Ticker */
+#ticker{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 20px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:10px;overflow:hidden}
+#ticker-label{font-family:var(--mono);color:var(--gold);letter-spacing:.05em;flex-shrink:0}
+#ticker-text{color:var(--text2);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Event Stage */
+#event-stage{padding:20px;display:flex;flex-direction:column;gap:14px}
+
+/* Event Card */
+.ev-card{
+  border-radius:6px;overflow:hidden;
+  border:1px solid var(--border);
+  animation:slideIn .3s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.ev-header{padding:12px 16px 10px;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--border)}
+.ev-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ev-titles{flex:1}
+.ev-type{font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;font-weight:500}
+.ev-title{font-family:var(--serif);font-size:16px;line-height:1.2;color:var(--text)}
+.ev-dismiss{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:0;transition:.15s}
+.ev-dismiss:hover{color:var(--text2)}
+
+.ev-body{padding:14px 16px}
+.ev-quote{
+  font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.6;
+  color:var(--text2);border-left:2px solid var(--gold2);padding-left:12px;
+  margin-bottom:12px;
+}
+.ev-context{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:14px}
+
+.ev-choices{display:flex;flex-direction:column;gap:6px}
+.ev-choice{
+  background:var(--bg3);border:1px solid var(--border);border-radius:4px;
+  padding:10px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;
+  transition:.15s;text-align:left;width:100%;font-family:var(--sans);
+}
+.ev-choice:hover{border-color:var(--border2);background:var(--bg4)}
+.ev-choice.primary:hover{border-color:var(--gold)}
+.ev-choice.danger:hover{border-color:var(--red)}
+.ev-choice.safe:hover{border-color:var(--green)}
+.choice-left{flex:1}
+.choice-action{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.choice-desc{font-size:11px;color:var(--text2);line-height:1.4}
+.choice-cost{font-family:var(--mono);font-size:11px;font-weight:500;flex-shrink:0;padding-top:1px}
+
+/* Consequence flash */
+.consequence{
+  background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+  padding:12px 16px;font-size:13px;line-height:1.5;color:var(--text2);
+  border-left:3px solid var(--gold);
+}
+.consequence b{color:var(--text);font-weight:500}
+
+/* Agenda */
+.agenda-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:6px;
+  overflow:hidden;transition:.15s;
+}
+.agenda-head{padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.agenda-head:hover{background:var(--bg3)}
+.agenda-badge{font-size:10px;padding:2px 7px;border-radius:2px;font-weight:500;letter-spacing:.06em;flex-shrink:0}
+.agenda-title{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.agenda-status{font-size:10px;color:var(--text2)}
+.agenda-expanded{border-top:1px solid var(--border);padding:12px 16px}
+.stim-label{font-size:10px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between}
+.stim-track{height:8px;background:var(--border);border-radius:2px;overflow:hidden;display:flex;margin-bottom:10px}
+.stim-ja{transition:width .5s}
+.stim-nein{background:var(--red2)}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+.act-btn{
+  padding:7px 14px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-family:var(--sans);font-size:12px;font-weight:500;
+  cursor:pointer;border-radius:3px;transition:.15s;display:flex;gap:6px;align-items:center
+}
+.act-btn:hover:not(:disabled){border-color:var(--border2);background:var(--bg4)}
+.act-btn.gold:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.act-btn.eu:hover:not(:disabled){border-color:var(--eu-c);color:var(--eu-c)}
+.act-btn.land:hover:not(:disabled){border-color:var(--land-c);color:var(--land-c)}
+.act-btn.kom:hover:not(:disabled){border-color:var(--kom-c);color:var(--kom-c)}
+.act-btn:disabled{opacity:.35;cursor:not-allowed}
+.cost-pill{font-family:var(--mono);font-size:10px;padding:1px 5px;background:var(--bg);border-radius:2px;color:var(--gold)}
+
+/* Ausweich Hinweis */
+.ausweich-box{
+  background:rgba(192,88,72,.07);border:1px solid var(--red2);border-radius:4px;
+  padding:10px 14px;margin-top:8px;
+}
+.ausweich-title{font-size:11px;color:var(--red);font-weight:500;margin-bottom:8px;letter-spacing:.04em}
+.ausweich-btns{display:flex;gap:6px;flex-wrap:wrap}
+
+/* Progress stripe */
+.prog-wrap{margin-top:8px}
+.prog-label{font-size:10px;color:var(--text2);display:flex;justify-content:space-between;margin-bottom:3px}
+.prog-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:3px;border-radius:2px;background:var(--blue);transition:width .4s}
+
+/* Empty stage */
+.stage-empty{padding:40px 20px;text-align:center;color:var(--text3);font-size:13px}
+.stage-empty-title{font-family:var(--serif);font-size:20px;color:var(--text2);margin-bottom:8px}
+
+/* ── RIGHT ── */
+#right{background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+
+/* KPI Block */
+#kpi-block{padding:14px 16px;border-bottom:1px solid var(--border)}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi-tile{background:var(--bg3);border-radius:4px;padding:10px 12px}
+.kpi-lbl{font-size:10px;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.kpi-num{font-family:var(--mono);font-size:20px;font-weight:500;line-height:1}
+.kpi-d{font-size:10px;margin-top:2px}
+.kpi-d.pos{color:var(--green)}.kpi-d.neg{color:var(--red)}.kpi-d.neu{color:var(--text3)}
+.kpi-bar{height:2px;border-radius:1px;margin-top:6px;transition:width .6s}
+
+/* Log */
+#log-box{flex:1;padding:14px 16px;overflow-y:auto}
+.log-item{padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start}
+.log-item:last-child{border-bottom:none}
+.log-time{font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;padding-top:1px}
+.log-msg{font-size:12px;line-height:1.4;color:var(--text2)}
+.log-msg.hi{color:var(--text)}.log-msg.g{color:var(--green)}.log-msg.r{color:var(--red)}.log-msg.w{color:var(--warn)}.log-msg.b{color:var(--blue)}
+
+/* Char detail overlay */
+#char-detail{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;
+  align-items:center;justify-content:center;
+}
+#char-detail.show{display:flex}
+#char-detail-inner{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;width:380px;max-width:94vw;overflow:hidden}
+#char-detail-head{padding:20px;display:flex;gap:14px;align-items:center;border-bottom:1px solid var(--border)}
+#char-detail-body{padding:18px 20px}
+#char-detail-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer}
+
+/* End Screen */
+#end-screen{
+  display:none;position:fixed;inset:0;background:var(--bg);z-index:400;
+  flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;
+  padding:40px;
+}
+#end-screen.show{display:flex}
+#end-title{font-family:var(--serif);font-size:42px;line-height:1.1}
+#end-sub{color:var(--text2);font-size:15px;max-width:440px;line-height:1.7}
+#end-stats{font-family:var(--mono);font-size:12px;color:var(--text2);line-height:2;margin-top:4px}
+#end-restart{
+  margin-top:16px;padding:11px 28px;background:none;
+  border:1px solid var(--border2);color:var(--text);
+  font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;
+  border-radius:3px;transition:.2s
+}
+#end-restart:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--bg3);border:1px solid var(--border2);color:var(--text);
+  font-size:12px;padding:8px 18px;border-radius:3px;z-index:500;
+  opacity:0;transition:opacity .2s;pointer-events:none;font-family:var(--mono)
+}
+#toast.show{opacity:1}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div id="hdr-title">Bundesrepublik</div>
+  <div id="hdr-meta">
+    <div>Monat <b id="hm">1</b>/48 · <b id="hy">2025</b></div>
+    <div class="speed-row">
+      <button class="spd on" onclick="setSpd(0)" id="s0">⏸</button>
+      <button class="spd" onclick="setSpd(1)" id="s1">1×</button>
+      <button class="spd" onclick="setSpd(2)" id="s2">3×</button>
+    </div>
+    <div id="pk-hdr">PK <span id="pk-v">100</span></div>
+  </div>
+</div>
+
+<div id="shell">
+
+<!-- LEFT -->
+<div id="left">
+  <div id="wahl-box">
+    <div class="wahl-label">Wahlprognose</div>
+    <div class="wahl-pct" id="w-pct">52<span style="font-size:18px;color:var(--text2)">%</span></div>
+    <div class="wahl-sub" id="w-sub">Monat 1 von 48 — Wahl in 47 Monaten</div>
+    <div class="wahl-bar"><div class="wahl-fill" id="w-fill" style="width:52%"></div></div>
+    <div style="font-size:11px;color:var(--text3)">Ziel: ≥ 40% am Wahltag</div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Koalitionsstabilität</span>
+        <span style="font-family:var(--mono);font-size:12px" id="coal-val">78%</span>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+        <div id="coal-bar" style="height:4px;border-radius:2px;width:78%;background:var(--green);transition:width .6s,background .4s"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:3px" id="coal-label">Koalition stabil</div>
+    </div>
+    <div style="margin-top:10px">
+      <div class="mil-row"><span class="mil-name">Arbeit</span><div class="mil-track"><div class="mil-fill" id="ma" style="width:58%;background:var(--land-c)"></div></div><span class="mil-val" id="ma-v">58%</span></div>
+      <div class="mil-row"><span class="mil-name">Mitte</span><div class="mil-track"><div class="mil-fill" id="mm" style="width:54%;background:var(--eu-c)"></div></div><span class="mil-val" id="mm-v">54%</span></div>
+      <div class="mil-row"><span class="mil-name">Progressiv</span><div class="mil-track"><div class="mil-fill" id="mp" style="width:44%;background:var(--blue)"></div></div><span class="mil-val" id="mp-v">44%</span></div>
+    </div>
+  </div>
+
+  <div id="kabinett">
+    <div class="sec-label">Kabinett</div>
+    <div id="char-list"></div>
+  </div>
+
+  <div id="ebenen">
+    <div class="sec-label">Ebenen</div>
+    <div class="ebene-item act" onclick="switchView('agenda')" id="nav-agenda">
+      <span class="ebene-dot" style="background:var(--gold)"></span>
+      <span class="ebene-name">Agenda</span>
+      <span class="ebene-status" id="eb-agenda" style="background:rgba(200,168,74,.15);color:var(--gold)"></span>
+    </div>
+    <div class="ebene-item" onclick="switchView('eu')" id="nav-eu">
+      <span class="ebene-dot" style="background:var(--eu-c)"></span>
+      <span class="ebene-name">EU-Ebene</span>
+      <span class="ebene-status" id="eb-eu" style="display:none;background:rgba(104,128,184,.15);color:var(--eu-c)"></span>
+    </div>
+    <div class="ebene-item" onclick="switchView('land')" id="nav-land">
+      <span class="ebene-dot" style="background:var(--land-c)"></span>
+      <span class="ebene-name">Länderebene</span>
+      <span class="ebene-status" id="eb-land" style="display:none;background:rgba(90,152,112,.15);color:var(--land-c)"></span>
+    </div>
+    <div class="ebene-item" onclick="switchView('kommune')" id="nav-kom">
+      <span class="ebene-dot" style="background:var(--kom-c)"></span>
+      <span class="ebene-name">Kommunen</span>
+      <span class="ebene-status" id="eb-kom" style="display:none;background:rgba(154,136,72,.15);color:var(--kom-c)"></span>
+    </div>
+    <div class="ebene-item" onclick="switchView('medien')" id="nav-medien">
+      <span class="ebene-dot" style="background:var(--text3)"></span>
+      <span class="ebene-name">Medien & Milieus</span>
+    </div>
+  </div>
+</div>
+
+<!-- CENTER -->
+<div id="center">
+  <div id="ticker">
+    <span id="ticker-label">NACHRICHTEN</span>
+    <span id="ticker-text">Neue Legislaturperiode. Die Koalition hat den Koalitionsvertrag unterzeichnet.</span>
+  </div>
+  <div id="event-stage"></div>
+</div>
+
+<!-- RIGHT -->
+<div id="right">
+  <div id="kpi-block">
+    <div class="sec-label" style="margin-bottom:10px">Wirtschaftslage</div>
+    <div class="kpi-grid">
+      <div class="kpi-tile">
+        <div class="kpi-lbl">Arbeitslosigkeit</div>
+        <div class="kpi-num" id="k-al">5.2<span style="font-size:12px">%</span></div>
+        <div class="kpi-d neu" id="k-al-d">—</div>
+        <div class="kpi-bar" id="k-al-b" style="width:42%;background:var(--blue)"></div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-lbl">Haushaltssaldo</div>
+        <div class="kpi-num" id="k-hh">+0.3<span style="font-size:12px">%</span></div>
+        <div class="kpi-d neu" id="k-hh-d">—</div>
+        <div class="kpi-bar" id="k-hh-b" style="width:56%;background:var(--green)"></div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-lbl">Gini-Index</div>
+        <div class="kpi-num" id="k-gi">31.2</div>
+        <div class="kpi-d neu" id="k-gi-d">—</div>
+        <div class="kpi-bar" id="k-gi-b" style="width:31%;background:var(--warn)"></div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-lbl">Zufriedenheit</div>
+        <div class="kpi-num" id="k-zf">62<span style="font-size:12px">%</span></div>
+        <div class="kpi-d neu" id="k-zf-d">—</div>
+        <div class="kpi-bar" id="k-zf-b" style="width:62%;background:var(--green)"></div>
+      </div>
+    </div>
+  </div>
+  <div id="log-box">
+    <div class="sec-label" style="margin-bottom:8px">Ereignisprotokoll</div>
+    <div id="log-list"></div>
+  </div>
+</div>
+
+</div>
+
+<!-- CHAR DETAIL OVERLAY -->
+<div id="char-detail">
+  <div id="char-detail-inner" style="position:relative">
+    <button id="char-detail-close" onclick="closeChar()">×</button>
+    <div id="char-detail-head"></div>
+    <div id="char-detail-body"></div>
+  </div>
+</div>
+
+<!-- END SCREEN -->
+<div id="end-screen">
+  <div id="end-title"></div>
+  <div id="end-sub"></div>
+  <div id="end-stats"></div>
+  <button id="end-restart" onclick="location.reload()">Neue Legislaturperiode</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════
+//  CHARAKTERE
+// ══════════════════════════════
+const CHARS = [
+  { id:'kanzler', name:'Anna Hoffmann', role:'Kanzlerin', initials:'AH', color:'#8a7030', mood:3, loyalty:5,
+    bio:'Führt die Koalition mit pragmatischem Kurs. Hält die Fäden zusammen — aber erwartet Loyalität zurück.',
+    interests:['Koalitionsstabilität','Wiederwahl'],
+    bonus: { trigger:'mood>=3', desc:'Gibt +5 BT-Stimmen für alle Gesetze', applies:'bt_bonus' },
+    ultimatum: { mood_thresh:1, event:'kanzler_ultimatum' } },
+  { id:'fm', name:'Robert Lehmann', role:'Finanzminister', initials:'RL', color:'#5888b8', mood:2, loyalty:3,
+    bio:'Strenger Haushälter der CDU. Widersetzt sich teuren Reformen konsequent — hat aber meistens Recht.',
+    interests:['Haushaltsdisziplin','Schuldenbremse'],
+    bonus: { trigger:'mood>=4', desc:'Beschleunigt Gesetze ohne Haushaltskosten', applies:'hh_boost' },
+    ultimatum: { mood_thresh:0, event:'fm_ultimatum' } },
+  { id:'wm', name:'Petra Maier', role:'Wirtschaftsministerin', initials:'PM', color:'#5a9870', mood:4, loyalty:4,
+    bio:'Pragmatisch und lösungsorientiert. Wichtige Verbündete — pflegt Kontakte zur Industrie und zu Länderchefs.',
+    interests:['Standortpolitik','Industrietransformation'],
+    bonus: { trigger:'mood>=3', desc:'+3% BT-Stimmen für Wirtschaftsgesetze', applies:'wirt_bonus' },
+    ultimatum: { mood_thresh:0, event:'wm_ultimatum' } },
+  { id:'im', name:'Klaus Braun', role:'Innenminister', initials:'KB', color:'#c05848', mood:1, loyalty:2,
+    bio:'Konservativer Querdenker. Misstraut der Koalition grundsätzlich — sucht aktiv nach Gründen zu torpedieren.',
+    interests:['Innere Sicherheit','Migrationsbegrenzung'],
+    bonus: { trigger:'mood>=4', desc:'Stabilisiert Bundesrat-Stimmen in 3 Ländern', applies:'br_bonus' },
+    ultimatum: { mood_thresh:0, event:'braun_ultimatum' } },
+  { id:'jm', name:'Sara Kern', role:'Justizministerin', initials:'SK', color:'#9a8848', mood:4, loyalty:4,
+    bio:'Juristin mit unbedingten Prinzipien. Blockiert verfassungswidrige Vorhaben — schützt aber auch die Koalition vor teuren Fehlern.',
+    interests:['Rechtsstaat','Grundrechte'],
+    bonus: { trigger:'mood>=3', desc:'Verhindert Verfassungsklagen gegen Gesetze', applies:'jm_shield' },
+    ultimatum: { mood_thresh:1, event:'kern_ultimatum' } },
+  { id:'um', name:'Jonas Wolf', role:'Umweltminister', initials:'JW', color:'#6880b8', mood:3, loyalty:3,
+    bio:'Treibt Klimapolitik voran, manchmal gegen den Rest des Kabinetts. Starkes Netzwerk bei progressiven Wählern.',
+    interests:['Klimaschutz','Energiewende'],
+    bonus: { trigger:'mood>=4', desc:'+4% Zustimmung im progressiven Milieu', applies:'prog_boost' },
+    ultimatum: { mood_thresh:1, event:'wolf_ultimatum' } },
+];
+
+const MOODS = ['😠','😟','😐','🙂','😊'];
+
+// ══════════════════════════════
+//  STATE
+// ══════════════════════════════
+const G = {
+  month: 1, speed: 0, pk: 100, view: 'agenda',
+  kpi: { al: 5.2, hh: 0.3, gi: 31.2, zf: 62 },
+  kpi_prev: null,
+  zust: { g: 52, arbeit: 58, mitte: 54, prog: 44 },
+  pending: [], // [{month, key, delta, label}]
+  chars: JSON.parse(JSON.stringify(CHARS)),
+  activeEvent: null,
+  coalition: 78, // Koalitionsstabilität 0-100
+  firedCharEvents: [],
+  gesetze: [
+    { id:'ee', titel:'Erneuerbare-Energien-Beschleunigungsgesetz', kurz:'EE-BeschG',
+      desc:'Verdopplung der Ausbauziele, vereinfachte Genehmigung.',
+      tags:['bund','eu'], status:'entwurf', ja:48, nein:52,
+      effekte:{hh:-.4, zf:5, gi:-.5, al:-.3}, lag:4, expanded:false,
+      route:null, rprog:0, rdur:0,
+      blockiert:null },
+    { id:'wb', titel:'Bundeswohnungsbauoffensive', kurz:'BWO',
+      desc:'400.000 neue Wohnungen p.a., Baurechtsreform.',
+      tags:['bund','land','kommune'], status:'entwurf', ja:55, nein:45,
+      effekte:{hh:-.6, zf:8, gi:-1.2, al:-.5}, lag:6, expanded:false,
+      route:null, rprog:0, rdur:0,
+      blockiert:null },
+    { id:'sr', titel:'Unternehmenssteuerreform', kurz:'USR',
+      desc:'Körperschaftsteuer 15%, Gegenfinanzierung Digitalsteuer.',
+      tags:['bund','eu'], status:'entwurf', ja:51, nein:49,
+      effekte:{hh:-.2, zf:3, gi:1.5, al:-.8}, lag:5, expanded:false,
+      route:null, rprog:0, rdur:0,
+      blockiert:null },
+    { id:'bp', titel:'Nationales Bildungspaket', kurz:'NBP',
+      desc:'Bundesfinanzierung Schulen via Kooperationsartikel.',
+      tags:['land','bund'], status:'entwurf', ja:53, nein:47,
+      effekte:{hh:-.5, zf:6, gi:-.8, al:-.1}, lag:8, expanded:false,
+      route:null, rprog:0, rdur:0,
+      blockiert:null },
+  ],
+  log: [],
+  firedEvents: [],
+  ticker: 'Neue Legislaturperiode. Koalitionsvertrag unterzeichnet.',
+};
+
+// ══════════════════════════════
+//  CHAR ULTIMATUM EVENTS
+// ══════════════════════════════
+const CHAR_EVENTS = {
+  fm_ultimatum: {
+    id:'fm_ultimatum', type:'danger', icon:'💼', typeLabel:'Kabinettskrise',
+    title:'Lehmann stellt Haushaltsu ltimatum',
+    quote:'"Kein einziges Gesetz ohne vollständigen Deckungsnachweis — sonst trete ich zurück."',
+    context:'Finanzminister Lehmann ist am Ende seiner Geduld. Zu viele teure Projekte ohne Gegenfinanzierung. Er fordert ein klares Signal.',
+    charId:'fm',
+    choices:[
+      { label:'Deckungsnachweis zusagen', desc:'Verwässert teure Gesetze, beruhigt Lehmann', cost:0, type:'safe',
+        effect:{hh:.2}, charMood:{fm:2}, log:'Deckungszusage gemacht. Lehmann besänftigt, Reformen eingeschränkt.', loyalty:{fm:1} },
+      { label:'Öffentlich widersprechen', desc:'Klarer Kurs, aber Koalitionsrisiko', cost:0, type:'danger',
+        effect:{zf:-4}, charMood:{fm:-1, kanzler:-1}, log:'Öffentlicher Streit mit Lehmann. Koalition destabilisiert.', loyalty:{fm:-2} },
+      { label:'Sondergespräch einberufen', desc:'Zeitgewinn, kostet politisches Kapital', cost:20, type:'primary',
+        effect:{}, charMood:{fm:1}, log:'Koalitionsgipfel im Kanzleramt. Kompromiss gefunden.', loyalty:{fm:0} },
+    ],
+    ticker:'KABINETTSKRISE: Finanzminister Lehmann droht mit Rücktritt'
+  },
+  braun_ultimatum: {
+    id:'braun_ultimatum', type:'danger', icon:'🔴', typeLabel:'Koalitionskonflikt',
+    title:'Braun sabotiert Abstimmung im Bundesrat',
+    quote:'"Ich habe den Innenministern der Länder empfohlen, gegen dieses Gesetz zu stimmen."',
+    context:'Braun hat hinter dem Rücken der Koalition agiert und drei Länder-Innenminister beeinflusst. Eine direkte Herausforderung.',
+    charId:'im',
+    choices:[
+      { label:'Braun öffentlich rügen', desc:'Klares Signal, Braun wird zum Feind', cost:5, type:'danger',
+        effect:{zf:2}, charMood:{im:-2, kanzler:1}, log:'Braun offiziell gerügt. Interne Spannung auf Maximum.', loyalty:{im:-2} },
+      { label:'Braun einbinden', desc:'Gibt ihm Einfluss, kostet Reform-Substanz', cost:15, type:'safe',
+        effect:{}, charMood:{im:2}, log:'Braun erhält Zugeständnisse. Koalition stabilisiert, Reform verwässert.', loyalty:{im:1} },
+      { label:'Braun entlassen', desc:'Saubere Lösung, braucht Koalitionspartner', cost:30, type:'primary',
+        effect:{zf:3}, charMood:{kanzler:1, wm:1, im:-3}, log:'Braun entlassen. Kabinett umgebildet. Koalitionspartner erleichtert.', loyalty:{im:-3} },
+    ],
+    ticker:'Innenminister Braun sabotiert Koalitionspartner im Bundesrat'
+  },
+  wolf_ultimatum: {
+    id:'wolf_ultimatum', type:'warn', icon:'🌿', typeLabel:'Klimastreit',
+    title:'Wolf droht mit Rücktritt über Klimapolitik',
+    quote:'"Wenn das Energiegesetz weiter verwässert wird, kann ich dieses Kabinett nicht mehr vertreten."',
+    context:'Wolf ist frustriert über die schleppende Klimapolitik. Er fordert ein konkretes Bekenntnis zum Energiegesetz.',
+    charId:'um',
+    choices:[
+      { label:'Energiegesetz priorisieren', desc:'Wolf zufrieden, progressive Stimmen steigen', cost:10, type:'safe',
+        effect:{zf:3}, charMood:{um:2, fm:-1}, log:'Energiegesetz auf die Prioritätsliste gesetzt. Wolf bleibt.', loyalty:{um:1} },
+      { label:'Wolf überzeugen zu bleiben', desc:'Symbolisches Zugeständnis', cost:15, type:'primary',
+        effect:{}, charMood:{um:1}, log:'Persönliches Gespräch mit Wolf. Vorläufige Einigung.', loyalty:{um:0} },
+      { label:'Rücktritt akzeptieren', desc:'Wolf geht, progressives Milieu bricht ein', cost:0, type:'danger',
+        effect:{zf:-8}, charMood:{}, log:'Wolf tritt zurück. Progressive Wähler fühlen sich verraten.', loyalty:{um:-3} },
+    ],
+    ticker:'Umweltminister Wolf stellt Klimaschutz-Ultimatum an Kanzleramt'
+  },
+  kern_ultimatum: {
+    id:'kern_ultimatum', type:'warn', icon:'⚖️', typeLabel:'Verfassungskonflikt',
+    title:'Kern blockiert Gesetz wegen Verfassungsbedenken',
+    quote:'"Ich werde kein Gesetz unterzeichnen, das vor dem Bundesverfassungsgericht keinen Bestand hat."',
+    context:'Kern hat das Eilgesetz zur EU-Richtlinie gestoppt. Sie hat inhaltlich recht — aber die Zeit läuft.',
+    charId:'jm',
+    choices:[
+      { label:'Gesetz verfassungskonform anpassen', desc:'Verzögerung, aber rechtssicher', cost:10, type:'safe',
+        effect:{}, charMood:{jm:2}, log:'Gesetz überarbeitet. Verfassungsrechtlich sauber, aber verzögert.', loyalty:{jm:1} },
+      { label:'Expertenkommission einsetzen', desc:'Weiterer Zeitgewinn', cost:8, type:'safe',
+        effect:{}, charMood:{jm:1}, log:'Verfassungskommission eingesetzt. Kern kooperiert.', loyalty:{jm:0} },
+      { label:'Politischen Druck ausüben', desc:'Riskant — Kern könnte klagen', cost:0, type:'danger',
+        effect:{zf:-3}, charMood:{jm:-2}, log:'Kern fühlt sich übergangen. Verfassungsklage droht.', loyalty:{jm:-2} },
+    ],
+    ticker:'Justizministerin stoppt Eilgesetz — Verfassungsbedenken im Kabinett'
+  },
+  kanzler_ultimatum: {
+    id:'kanzler_ultimatum', type:'danger', icon:'🏛️', typeLabel:'Vertrauensfrage',
+    title:'Hoffmann erwägt Vertrauensfrage',
+    quote:'"Wenn die Koalition keine gemeinsame Linie findet, werde ich die Vertrauensfrage stellen."',
+    context:'Die interne Zerissenheit ist öffentlich geworden. Hoffmann will ein klares Bekenntnis aller Koalitionspartner.',
+    charId:'kanzler',
+    choices:[
+      { label:'Koalitionsgipfel einberufen', desc:'Alle Konflikte auf den Tisch', cost:20, type:'primary',
+        effect:{zf:2}, charMood:{kanzler:2, fm:1, wm:1}, log:'Koalitionsgipfel schafft neue Einigkeit. Kurzzeitiger Popularitätsgewinn.', loyalty:{kanzler:1} },
+      { label:'Vertrauensfrage riskieren', desc:'Gamble — gewinnen oder Neuwahl', cost:0, type:'danger',
+        effect:{zf:-5}, charMood:{}, log:'Vertrauensfrage gestellt. Koalition hält knapp. Signalwirkung gemischt.', loyalty:{} },
+    ],
+    ticker:'Kanzlerin Hoffmann erwägt Vertrauensfrage — Koalition unter Druck'
+  },
+  wm_ultimatum: {
+    id:'wm_ultimatum', type:'warn', icon:'🏭', typeLabel:'Wirtschaftsstreit',
+    title:'Maier droht mit Rücktritt über Standortpolitik',
+    quote:'"Die Kombination aus Steuererhöhung und Regulierung treibt Unternehmen ins Ausland."',
+    context:'Maier sieht die Wirtschaftspolitik auf dem falschen Weg. Sie fordert eine Kurskorrektur.',
+    charId:'wm',
+    choices:[
+      { label:'Steuerreform beschleunigen', desc:'Maier bleibt, Haushalt leidet', cost:0, type:'safe',
+        effect:{hh:-.3, al:-.3}, charMood:{wm:2, fm:-1}, log:'Steuerreform vorgezogen. Wirtschaft stabilisiert, Haushalt belastet.', loyalty:{wm:1} },
+      { label:'Regulierung zurücknehmen', desc:'Populär bei Industrie, unpopulär bei Progressiven', cost:0, type:'primary',
+        effect:{zf:-2, gi:.5, al:-.4}, charMood:{wm:2, um:-1}, log:'Regulierungspause beschlossen. Industrie erleichtert, Grüne verärgert.', loyalty:{wm:1} },
+      { label:'Maier überstimmen', desc:'Koalitionsdisziplin, Maier verliert Einfluss', cost:10, type:'danger',
+        effect:{}, charMood:{wm:-2}, log:'Koalitionsdisziplin erzwungen. Maier fügt sich, blüht aber nicht mehr.', loyalty:{wm:-1} },
+    ],
+    ticker:'Wirtschaftsministerin Maier stellt Ultimatum zur Standortpolitik'
+  },
+};
+
+
+const EVENTS = [
+  {
+    id:'haushalt', type:'danger', icon:'💰', typeLabel:'Haushaltskrise',
+    title:'Milliardenloch im Bundeshaushalt',
+    quote:'"Überraschende Steuermindereinnahmen reißen ein Loch von 14 Milliarden Euro."',
+    context:'Das Finanzministerium hat die Schätzungen nach unten korrigiert. Finanzminister Lehmann fordert sofortige Gegenmaßnahmen.',
+    choices:[
+      { label:'Sparpaket durchsetzen', desc:'Kurzfristige Sanierung, senkt Popularität', cost:10, type:'primary',
+        effect:{hh:.4, zf:-5}, charMood:{fm:1}, log:'Sparpaket beschlossen. Haushalt stabilisiert, Popularität sinkt.' },
+      { label:'Neue Schulden aufnehmen', desc:'Verstößt gegen Schuldenbremse — rechtliches Risiko', cost:0, type:'danger',
+        effect:{hh:-.2, zf:-2}, charMood:{jm:-1}, log:'Schuldenbremse gedehnt. Verfassungsklage droht.' },
+      { label:'Steuererhöhung ankündigen', desc:'Belastet Mitte-Milieu, stabilisiert Haushalt', cost:5, type:'safe',
+        effect:{hh:.3, zf:-3, gi:-.3}, charMood:{fm:1, im:-1}, log:'Steuererhöhung angekündigt. Wirtschaftsverband protestiert.' },
+    ],
+    ticker:'Haushaltsloch: Regierung unter Druck — Lehmann fordert Sparpaket'
+  },
+  {
+    id:'skandal', type:'danger', icon:'📰', typeLabel:'Politischer Skandal',
+    title:'Medienberichte über Ministeriumsverschwendung',
+    quote:'"Der Spiegel berichtet über fragwürdige Beraterverträge im Bundesministerium."',
+    context:'Die Opposition fordert Rücktritt. Braun nutzt die Gelegenheit, die Koalition zu destabilisieren.',
+    choices:[
+      { label:'Vollständige Transparenz', desc:'Alles offenlegen, kurzfristiger Schaden', cost:0, type:'safe',
+        effect:{zf:-4}, charMood:{im:-1, jm:1}, log:'Vollständige Offenlegung. Kurzzeitiger Schaden, langfristiges Vertrauen.' },
+      { label:'Ablenkungsoffensive', desc:'Medien mit neuem Thema überspielen', cost:15, type:'danger',
+        effect:{zf:-2}, charMood:{}, log:'Ablenkungsmanöver gestartet. Medien skeptisch.' },
+      { label:'Minister entlassen', desc:'Klares Signal, kostet Koalitionsstabilität', cost:5, type:'primary',
+        effect:{zf:-1}, charMood:{im:-2}, log:'Minister entlassen. Koalitionspartner verärgert.' },
+    ],
+    ticker:'Spiegel-Bericht erschüttert Koalition — Opposition wittert Morgenluft'
+  },
+  {
+    id:'euklage', type:'warn', icon:'🇪🇺', typeLabel:'EU-Vertragsverletzung',
+    title:'Brüssel leitet Verfahren gegen Deutschland ein',
+    quote:'"Die Europäische Kommission kritisiert die schleppende Umsetzung von EU-Richtlinien."',
+    context:'Drei Richtlinien sind noch nicht in nationales Recht überführt. Ein Bußgeld von bis zu 500 Mio. Euro droht.',
+    choices:[
+      { label:'Schnellumsetzung', desc:'Eilgesetzgebung, ignoriert Bundesrat', cost:20, type:'primary',
+        effect:{hh:-.1, zf:2}, charMood:{jm:-1}, log:'EU-Richtlinien schnell umgesetzt. Verfassungsrechtliche Bedenken bleiben.' },
+      { label:'EU-Verhandlung aufnehmen', desc:'Zeitgewinn, keine sofortigen Kosten', cost:8, type:'safe',
+        effect:{}, charMood:{}, log:'Verhandlungen mit Brüssel aufgenommen. Ergebnis offen.' },
+      { label:'Bundesrat einbeziehen', desc:'Korrekt aber langsam, Bußgeld riskant', cost:5, type:'safe',
+        effect:{hh:-.3}, charMood:{fm:-1}, log:'Reguläres Verfahren gewählt. Bußgeld-Risiko bleibt.' },
+    ],
+    ticker:'EU-Vertragsverletzungsverfahren gegen Deutschland eröffnet'
+  },
+  {
+    id:'konjunktur', type:'warn', icon:'📉', typeLabel:'Wirtschaftsabschwung',
+    title:'EZB-Zinserhöhung trifft deutsche Wirtschaft',
+    quote:'"Investitionen brechen ein, Kurzarbeit steigt — Rezessionsrisiko wächst."',
+    context:'Maier warnt vor voreiligen Ausgabenkürzungen. Lehmann besteht auf Haushaltsdisziplin.',
+    choices:[
+      { label:'Konjunkturpaket auflegen', desc:'Teuer, aber effektiv', cost:0, type:'primary',
+        effect:{hh:-.5, zf:4, al:-.3}, charMood:{wm:1, fm:-1}, log:'Konjunkturpaket beschlossen. Haushalt belastet, Wirtschaft stabilisiert.' },
+      { label:'Abwarten', desc:'Günstig, aber riskant', cost:0, type:'safe',
+        effect:{al:.5, zf:-3}, charMood:{wm:-1}, log:'Abwartende Haltung. Wirtschaft verschlechtert sich weiter.' },
+      { label:'Strukturreformen ankündigen', desc:'Langfristig richtig, kurzfristig wirkungslos', cost:10, type:'safe',
+        effect:{zf:1}, charMood:{wm:1, fm:1}, log:'Strukturreformen angekündigt. Märkte reagieren positiv.' },
+    ],
+    ticker:'Wirtschaftsabschwung: Rezessionsrisiko steigt auf 35%'
+  },
+  {
+    id:'koalition_krise', type:'danger', icon:'🤝', typeLabel:'Koalitionskrise',
+    title:'Koalitionspartner droht mit Austritt',
+    quote:'"Wir können dieser Politik nicht mehr zustimmen", warnt der Koalitionspartner.',
+    context:'Streit um das Energiegesetz eskaliert. Der Juniorpartner fordert Nachverhandlungen zum Koalitionsvertrag.',
+    choices:[
+      { label:'Nachverhandeln', desc:'Stabilitätsgewinn, Reformverlust', cost:15, type:'safe',
+        effect:{zf:-2}, charMood:{fm:1}, log:'Koalitionsvertrag nachverhandelt. Reform verwässert.' },
+      { label:'Konfrontation riskieren', desc:'Prinzipientreu, aber destabilisierend', cost:0, type:'danger',
+        effect:{zf:-6}, charMood:{im:-2}, log:'Koalitionskrise eskaliert. Neuwahlen im Gespräch.' },
+      { label:'Tauschgeschäft anbieten', desc:'Anderes Projekt opfern, Koalition retten', cost:20, type:'primary',
+        effect:{zf:-1}, charMood:{}, log:'Tauschgeschäft vereinbart. Koalition vorläufig gerettet.' },
+    ],
+    ticker:'KOALITIONSKRISE: Juniorpartner stellt Ultimatum an Kanzleramt'
+  },
+  {
+    id:'demo', type:'info', icon:'📢', typeLabel:'Gesellschaft',
+    title:'Großdemonstration erschüttert Berlin',
+    quote:'"500.000 Menschen auf den Straßen — die größte Demo seit Jahren."',
+    context:'Der Protest richtet sich gegen soziale Ungleichheit. Progressive sind mobilisiert, aber auch unzufrieden mit der Regierung.',
+    choices:[
+      { label:'Dialog anbieten', desc:'Signal der Offenheit', cost:5, type:'safe',
+        effect:{zf:2, gi:-.2}, charMood:{um:1, jm:1}, log:'Dialog mit Demonstranten angeboten. Progressives Milieu beruhigt.' },
+      { label:'Forderungen ablehnen', desc:'Klare Position, aber Polarisierung', cost:0, type:'danger',
+        effect:{zf:-3}, charMood:{im:1, um:-1}, log:'Forderungen abgelehnt. Progressive enttäuscht.' },
+      { label:'Sofortprogramm ankündigen', desc:'Teuer, hoher Sympathiegewinn', cost:0, type:'primary',
+        effect:{hh:-.2, zf:4, gi:-.5}, charMood:{um:2}, log:'Sofortprogramm angekündigt. Breite Zustimmung.' },
+    ],
+    ticker:'Berlin: Historische Großdemonstration für soziale Gerechtigkeit'
+  },
+  {
+    id:'eufoerder', type:'good', icon:'🇪🇺', typeLabel:'EU-Förderung',
+    title:'EU gibt Milliarden-Strukturfonds frei',
+    quote:'"Brüssel stellt 4,8 Milliarden Euro für deutsche Klimainvestitionen bereit."',
+    context:'Eine seltene gute Nachricht: die EU-Gelder kommen früher als erwartet. Wie werden sie eingesetzt?',
+    choices:[
+      { label:'Klimaschutz & Infrastruktur', desc:'Langfristig wirksam', cost:0, type:'primary',
+        effect:{hh:.3, zf:3, gi:-.3}, charMood:{um:2, fm:1}, log:'EU-Fonds für Klimainvestitionen eingesetzt.' },
+      { label:'Wohnungsbau priorisieren', desc:'Populär, schnell sichtbar', cost:0, type:'safe',
+        effect:{hh:.2, zf:5, gi:-.6}, charMood:{wm:1}, log:'EU-Gelder stärken Wohnungsbauoffensive.' },
+      { label:'Schuldentilgung', desc:'Finanzministerium begeistert', cost:0, type:'safe',
+        effect:{hh:.5, zf:1}, charMood:{fm:2}, log:'Schulden getilgt. Haushalt verbessert, Spielraum für Reformen.' },
+    ],
+    ticker:'EU gibt 4,8 Mrd. Euro für Deutschland frei — Regierung entscheidet Verwendung'
+  },
+];
+
+// ══════════════════════════════
+//  ENGINE
+// ══════════════════════════════
+let tickT = null;
+const SPEEDS = [0, 2000, 700];
+
+function setSpd(s) {
+  G.speed = s;
+  clearInterval(tickT);
+  if (s > 0) tickT = setInterval(tick, SPEEDS[s]);
+  ['s0','s1','s2'].forEach((id,i) => document.getElementById(id).classList.toggle('on', i===s));
+}
+
+function tick() {
+  G.month++;
+  if (G.month > 48) { endGame(); return; }
+
+  // Pending effects
+  G.pending = G.pending.filter(p => {
+    if (p.month <= G.month) {
+      G.kpi[p.key] = +Math.max(0, G.kpi[p.key] + p.delta).toFixed(2);
+      if (p.key === 'zf') G.kpi.zf = Math.min(100, G.kpi.zf);
+      addLog(G.month, `Wirkung spürbar: ${p.label}`, 'g');
+      return false;
+    }
+    return true;
+  });
+
+  // Ausweich progress
+  G.gesetze.forEach(g => {
+    if (g.route && g.status === 'ausweich') {
+      g.rprog++;
+      if (g.rprog >= g.rdur) {
+        g.status = 'beschlossen';
+        scheduleEffects(g);
+        addLog(G.month, `${g.kurz} via ${routeLabel(g.route)} beschlossen`, 'g');
+        showToast(`✓ ${g.kurz} beschlossen`);
+      }
+    }
+  });
+
+  // PK regen
+  G.pk = Math.min(150, G.pk + Math.max(1, Math.floor(G.zust.g / 25)));
+
+  // Char bonuses passiv anwenden
+  applyCharBonuses();
+
+  // Koalitionsstabilität aus Char-Stimmungen
+  const avgMood = G.chars.reduce((s,c)=>s+c.mood,0) / G.chars.length;
+  const avgLoy  = G.chars.reduce((s,c)=>s+c.loyalty,0) / G.chars.length;
+  G.coalition = Math.round(Math.min(100, Math.max(0, (avgMood/4)*50 + (avgLoy/5)*50)));
+
+  // Char Ultimatums prüfen (nur wenn kein aktives Event)
+  if (!G.activeEvent) {
+    for (const c of G.chars) {
+      const thresh = c.ultimatum?.mood_thresh ?? -1;
+      const evId = c.ultimatum?.event;
+      if (evId && c.mood <= thresh && !G.firedCharEvents.includes(evId)) {
+        const ev = CHAR_EVENTS[evId];
+        if (ev) {
+          G.firedCharEvents.push(evId);
+          G.activeEvent = ev;
+          setSpd(0);
+          break;
+        }
+      }
+    }
+  }
+
+  // Random event (22% chance, no active event)
+  if (!G.activeEvent && Math.random() < .22) {
+    const pool = EVENTS.filter(e => !G.firedEvents.includes(e.id));
+    if (pool.length) {
+      const ev = pool[Math.floor(Math.random() * pool.length)];
+      G.firedEvents.push(ev.id);
+      G.activeEvent = ev;
+      setSpd(0);
+    }
+  }
+
+  recalcZust();
+  updateUI();
+  renderCenter();
+}
+
+function applyCharBonuses() {
+  // KPI natural drift
+  if (Math.random() < .25) G.kpi.al = +Math.max(2, Math.min(15, G.kpi.al + (Math.random()-.53)*.2)).toFixed(2);
+
+  // Wolf Bonus: progressives Milieu
+  const wolf = G.chars.find(c=>c.id==='um');
+  if (wolf && wolf.mood >= 4) {
+    G.zust.prog = Math.min(90, G.zust.prog + 0.3);
+  }
+  // Lehmann Bonus: keine negativen Haushaltsdrifts wenn mood hoch
+  const lehmann = G.chars.find(c=>c.id==='fm');
+  if (lehmann && lehmann.mood >= 4 && G.kpi.hh < 0) {
+    G.kpi.hh = +Math.min(0, G.kpi.hh + 0.05).toFixed(2);
+  }
+  // Braun Malus: wenn mood 0-1, torpediert er BT-Stimmen passiv
+  const braun = G.chars.find(c=>c.id==='im');
+  if (braun && braun.mood <= 1 && Math.random() < .3) {
+    G.gesetze.filter(g=>g.status==='aktiv'||g.status==='entwurf').forEach(g=>{
+      if (Math.random()<.4) { g.ja = Math.max(30, g.ja-1); g.nein = 100-g.ja; }
+    });
+  }
+  // Maier Bonus: Arbeitslosigkeit sinkt leicht wenn mood hoch
+  const maier = G.chars.find(c=>c.id==='wm');
+  if (maier && maier.mood >= 4 && Math.random() < .3) {
+    G.kpi.al = +Math.max(2, G.kpi.al - 0.05).toFixed(2);
+  }
+}
+
+
+  return {eu:'EU-Ebene',land:'Länder-Pilot',kommune:'Städtebündnis'}[r]||r;
+}
+
+function scheduleEffects(g) {
+  Object.entries(g.effekte).forEach(([k, v]) => {
+    G.pending.push({month: G.month + g.lag, key: k, delta: v, label: g.kurz});
+  });
+}
+
+function recalcZust() {
+  const w = 30 + (10 - G.kpi.al)*1.3 + G.kpi.hh*2.5 + (50-G.kpi.gi)*.25 + (G.kpi.zf-50)*.4;
+  G.zust.g = Math.min(95, Math.max(15, Math.round(w)));
+  G.zust.arbeit = Math.min(95, Math.max(10, Math.round(G.zust.g + (10-G.kpi.al)*1.5 - (G.kpi.gi-30)*.4)));
+  G.zust.mitte  = Math.min(95, Math.max(10, Math.round(G.zust.g + G.kpi.hh*3)));
+  G.zust.prog   = Math.min(95, Math.max(10, Math.round(G.zust.g - (G.kpi.gi-28)*.5 + (G.kpi.zf-50)*.15)));
+}
+
+function addLog(month, msg, type) {
+  const yr = 2025 + Math.floor((month-1)/12);
+  const mo = ((month-1)%12)+1;
+  G.log.unshift({time:`${String(mo).padStart(2,'0')}/${yr}`, msg, type});
+  if (G.log.length > 60) G.log.pop();
+}
+
+// ══════════════════════════════
+//  EVENT CHOICES
+// ══════════════════════════════
+function chooseEvent(ev, choice) {
+  if (G.pk < (choice.cost||0)) { showToast(`Nicht genug PK (benötigt: ${choice.cost})`); return; }
+  G.pk -= (choice.cost||0);
+
+  Object.entries(choice.effect||{}).forEach(([k,v]) => {
+    G.kpi[k] = +Math.max(0, G.kpi[k] + v).toFixed(2);
+    if (k==='zf') G.kpi.zf = Math.min(100, G.kpi.zf);
+  });
+
+  Object.entries(choice.charMood||{}).forEach(([id, delta]) => {
+    const c = G.chars.find(x => x.id === id);
+    if (c) c.mood = Math.max(0, Math.min(4, c.mood + delta));
+  });
+
+  // Loyalty changes (char events)
+  Object.entries(choice.loyalty||{}).forEach(([id, delta]) => {
+    const c = G.chars.find(x => x.id === id);
+    if (c) c.loyalty = Math.max(0, Math.min(5, c.loyalty + delta));
+  });
+
+  addLog(G.month, choice.log, choice.type==='danger'?'r':'g');
+  G.ticker = ev.ticker;
+  document.getElementById('ticker-text').textContent = ev.ticker;
+  G.activeEvent = null;
+
+  recalcZust();
+  updateUI();
+  renderCenter();
+}
+
+// ══════════════════════════════
+//  GESETZE AKTIONEN
+// ══════════════════════════════
+function einbringen(id) {
+  const g = G.gesetze.find(x=>x.id===id);
+  if (!g || g.status!=='entwurf') return;
+  if (G.pk < 20) { showToast('Nicht genug PK (20)'); return; }
+  G.pk -= 20;
+  g.status = 'aktiv';
+  addLog(G.month, `${g.kurz} in Bundestag eingebracht`, 'hi');
+  updateUI(); renderCenter();
+}
+
+function lobbying(id) {
+  const g = G.gesetze.find(x=>x.id===id);
+  if (G.pk < 12) { showToast('Nicht genug PK (12)'); return; }
+  G.pk -= 12;
+  const gain = Math.floor(Math.random()*5)+2;
+  g.ja = Math.min(63, g.ja + gain);
+  g.nein = 100 - g.ja;
+  // Char: Finanzminister meckert wenn Kosten
+  if (['ee','wb','bp'].includes(id)) {
+    const fm = G.chars.find(c=>c.id==='fm');
+    if (fm && fm.mood > 0) fm.mood--;
+  }
+  addLog(G.month, `Lobbying ${g.kurz}: Zustimmung steigt +${gain}%`, '');
+  updateUI(); renderCenter();
+}
+
+function abstimmen(id) {
+  const g = G.gesetze.find(x=>x.id===id);
+  if (!g || g.status!=='aktiv') return;
+  if (g.ja > 50) {
+    // Check Bundesrat
+    const brOk = !g.tags.includes('land') || Math.random() > .5;
+    if (brOk) {
+      g.status = 'beschlossen';
+      scheduleEffects(g);
+      addLog(G.month, `${g.kurz} beschlossen — Wirkung in ${g.lag} Monaten`, 'g');
+      showToast(`✓ ${g.kurz} vom Bundesrat bestätigt`);
+    } else {
+      g.status = 'blockiert';
+      g.blockiert = 'bundesrat';
+      addLog(G.month, `${g.kurz}: Bundesrat blockiert! Ebenenwechsel möglich.`, 'r');
+      setSpd(0);
+      showToast(`⚠ Bundesrat blockiert ${g.kurz}`);
+    }
+  } else {
+    g.status = 'blockiert';
+    g.blockiert = 'bundestag';
+    addLog(G.month, `${g.kurz}: Bundestag-Mehrheit verfehlt (${g.ja}%)`, 'r');
+    setSpd(0);
+  }
+  updateUI(); renderCenter();
+}
+
+function startRoute(id, route) {
+  const g = G.gesetze.find(x=>x.id===id);
+  const costs = {eu:28, land:18, kommune:10};
+  const durs  = {eu:8, land:5, kommune:4};
+  const c = costs[route];
+  if (G.pk < c) { showToast(`Nicht genug PK (${c})`); return; }
+  G.pk -= c;
+  g.status = 'ausweich';
+  g.route = route;
+  g.rprog = 0;
+  g.rdur = durs[route];
+  g.blockiert = null;
+  addLog(G.month, `${g.kurz}: ${routeLabel(route)} gestartet (${durs[route]} Monate)`, 'b');
+  setSpd(1);
+  updateUI(); renderCenter();
+}
+
+function medienkampagne(milieu) {
+  if (G.pk < 10) { showToast('Nicht genug PK (10)'); return; }
+  G.pk -= 10;
+  const gain = Math.floor(Math.random()*4)+2;
+  G.zust[milieu] = Math.min(90, G.zust[milieu] + gain);
+  const labels = {arbeit:'Arbeitsmilieu', mitte:'Mitte', prog:'Progressive'};
+  addLog(G.month, `Medienkampagne: ${labels[milieu]} +${gain}%`, 'hi');
+  updateUI(); renderCenter();
+}
+
+// ══════════════════════════════
+//  VIEWS
+// ══════════════════════════════
+function switchView(v) {
+  G.view = v;
+  ['agenda','eu','land','kommune','medien'].forEach(n => {
+    const el = document.getElementById('nav-'+n);
+    if (el) el.classList.toggle('act', n===v);
+  });
+  renderCenter();
+}
+
+function renderCenter() {
+  const stage = document.getElementById('event-stage');
+
+  // Always show active event first if present
+  if (G.activeEvent) {
+    stage.innerHTML = renderEventCard(G.activeEvent);
+    return;
+  }
+
+  if (G.view === 'agenda') stage.innerHTML = renderAgenda();
+  else if (G.view === 'eu') stage.innerHTML = renderEbene('eu');
+  else if (G.view === 'land') stage.innerHTML = renderEbene('land');
+  else if (G.view === 'kommune') stage.innerHTML = renderEbene('kommune');
+  else if (G.view === 'medien') stage.innerHTML = renderMedien();
+}
+
+function renderEventCard(ev) {
+  const typeColors = {danger:'var(--red)', warn:'var(--warn)', good:'var(--green)', info:'var(--blue)'};
+  const bgColors   = {danger:'rgba(192,88,72,.08)', warn:'rgba(200,120,58,.08)', good:'rgba(90,152,112,.08)', info:'rgba(88,136,184,.08)'};
+  const color = typeColors[ev.type] || 'var(--text2)';
+  const bg    = bgColors[ev.type] || 'var(--bg3)';
+
+  const choicesHtml = ev.choices.map((ch,i) => `
+    <button class="ev-choice ${ch.type}" onclick="chooseEvent(G.activeEvent, G.activeEvent.choices[${i}])">
+      <div class="choice-left">
+        <div class="choice-action">${ch.label}</div>
+        <div class="choice-desc">${ch.desc}</div>
+      </div>
+      <div class="choice-cost" style="color:${ch.cost > 0 ? 'var(--gold)' : 'var(--text3)'}">
+        ${ch.cost > 0 ? ch.cost+' PK' : 'gratis'}
+      </div>
+    </button>`).join('');
+
+  return `<div class="ev-card" style="background:${bg}">
+    <div class="ev-header" style="border-bottom-color:${color}22">
+      <div class="ev-icon" style="background:${color}22;font-size:20px">${ev.icon}</div>
+      <div class="ev-titles">
+        <div class="ev-type" style="color:${color}">${ev.typeLabel}</div>
+        <div class="ev-title">${ev.title}</div>
+      </div>
+    </div>
+    <div class="ev-body">
+      <div class="ev-quote">${ev.quote}</div>
+      <div class="ev-context">${ev.context}</div>
+      <div class="ev-choices">${choicesHtml}</div>
+    </div>
+  </div>`;
+}
+
+function renderAgenda() {
+  const ordered = [
+    ...G.gesetze.filter(g=>g.status==='blockiert'),
+    ...G.gesetze.filter(g=>g.status==='aktiv'),
+    ...G.gesetze.filter(g=>g.status==='ausweich'),
+    ...G.gesetze.filter(g=>g.status==='entwurf'),
+    ...G.gesetze.filter(g=>g.status==='beschlossen'),
+  ];
+
+  if (!ordered.length) return `<div class="stage-empty"><div class="stage-empty-title">Agenda leer</div>Keine Gesetzentwürfe</div>`;
+
+  return ordered.map(g => {
+    const statusLabels = {entwurf:'Entwurf',aktiv:'Im Bundestag',blockiert:'Blockiert',beschlossen:'Beschlossen',ausweich:'Umweg läuft'};
+    const statusColors = {
+      entwurf:'color:var(--text2);background:var(--bg4)',
+      aktiv:'color:var(--gold);background:rgba(200,168,74,.12)',
+      blockiert:'color:var(--red);background:rgba(192,88,72,.12)',
+      beschlossen:'color:var(--green);background:rgba(90,152,112,.12)',
+      ausweich:'color:var(--blue);background:rgba(88,136,184,.12)'
+    };
+
+    const tagColors = {bund:'var(--eu-c)',eu:'var(--eu-c)',land:'var(--land-c)',kommune:'var(--kom-c)'};
+    const tags = g.tags.map(t=>`<span style="font-size:10px;padding:1px 6px;border-radius:2px;font-weight:500;background:${tagColors[t]}22;color:${tagColors[t]};border:1px solid ${tagColors[t]}44">${t.toUpperCase()}</span>`).join('');
+
+    let inner = '';
+
+    // Stimmen bar
+    if (g.status==='entwurf'||g.status==='aktiv') {
+      const color = g.ja>50?'var(--green)':'var(--red)';
+      inner += `<div class="stim-label"><span>BT: ${g.ja}% Ja</span><span>${g.nein}% Nein</span></div>
+      <div class="stim-track"><div class="stim-ja" style="width:${g.ja}%;background:${color}"></div><div class="stim-nein" style="width:${g.nein}%"></div></div>`;
+    }
+
+    // Progress bar for ausweich
+    if (g.status==='ausweich') {
+      const pct = Math.round(g.rprog/g.rdur*100);
+      const rc = {eu:'var(--eu-c)',land:'var(--land-c)',kommune:'var(--kom-c)'}[g.route];
+      inner += `<div class="prog-wrap"><div class="prog-label"><span>${routeLabel(g.route)}</span><span>${g.rprog}/${g.rdur} Monate</span></div>
+      <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${rc}"></div></div></div>`;
+    }
+
+    // Buttons
+    let btns = '';
+    if (g.status==='entwurf') {
+      btns = `<div class="btn-row" style="margin-top:10px">
+        <button class="act-btn gold" onclick="einbringen('${g.id}')">Einbringen <span class="cost-pill">20 PK</span></button>
+        <button class="act-btn" onclick="lobbying('${g.id}')">Lobbying <span class="cost-pill">12 PK</span></button>
+      </div>`;
+    }
+    if (g.status==='aktiv') {
+      btns = `<div class="btn-row" style="margin-top:10px">
+        <button class="act-btn gold" onclick="abstimmen('${g.id}')">Abstimmung ansetzen</button>
+        <button class="act-btn" onclick="lobbying('${g.id}')">Lobbying <span class="cost-pill">12 PK</span></button>
+      </div>`;
+    }
+
+    // Ausweich panel
+    let ausweich = '';
+    if (g.status==='blockiert') {
+      ausweich = `<div class="ausweich-box">
+        <div class="ausweich-title">⚠ Blockiert durch ${g.blockiert==='bundesrat'?'Bundesrat':'Bundestag'} — Ebenenwechsel</div>
+        <div class="ausweich-btns">
+          <button class="act-btn eu" onclick="startRoute('${g.id}','eu')">EU-Lobbyismus <span class="cost-pill" style="color:var(--eu-c)">28 PK · 8 Mo</span></button>
+          <button class="act-btn land" onclick="startRoute('${g.id}','land')">Länder-Pilot <span class="cost-pill" style="color:var(--land-c)">18 PK · 5 Mo</span></button>
+          <button class="act-btn kom" onclick="startRoute('${g.id}','kommune')">Städtebündnis <span class="cost-pill" style="color:var(--kom-c)">10 PK · 4 Mo</span></button>
+        </div>
+      </div>`;
+    }
+
+    const expanded = g.expanded;
+    return `<div class="agenda-card">
+      <div class="agenda-head" onclick="toggleAgenda('${g.id}')">
+        <span class="agenda-badge" style="${statusColors[g.status]}">${statusLabels[g.status]}</span>
+        <span class="agenda-title">${g.titel}</span>
+        <span class="agenda-status">${expanded?'▲':'▼'}</span>
+      </div>
+      ${expanded ? `<div class="agenda-expanded">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5">${g.desc}</div>
+        <div style="display:flex;gap:4px;margin-bottom:10px">${tags}</div>
+        ${inner}${btns}${ausweich}
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleAgenda(id) {
+  const g = G.gesetze.find(x=>x.id===id);
+  if (g) g.expanded = !g.expanded;
+  renderCenter();
+}
+
+function renderEbene(type) {
+  const active = G.gesetze.filter(g=>g.route===type && g.status==='ausweich');
+  const colors = {eu:'var(--eu-c)',land:'var(--land-c)',kommune:'var(--kom-c)'};
+  const titles = {eu:'EU-Ebene',land:'Länderebene',kommune:'Kommunalebene'};
+  const descs = {
+    eu:'EU-Richtlinien gelten direkt — umgehen den Bundesrat. EU-Lobbyismus dauert 8 Monate und kostet politisches Kapital, aber Brüssel macht daraus manchmal etwas anderes als geplant.',
+    land:'Kooperationswillige Länder können als Piloten vorangehen. Erfolgreiche Piloten setzen Bundesstandards de facto außer Kraft und erhöhen den Druck auf blockierende Länder.',
+    kommune:'Städtebündnisse erzeugen bottom-up Druck — günstig und schnell, aber die Reichweite ist begrenzt. Ideal für lokale Experimentierräume.'
+  };
+  const c = colors[type];
+  return `<div style="padding:4px 0">
+    <div style="font-family:var(--serif);font-size:20px;color:${c};margin-bottom:8px">${titles[type]}</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">${descs[type]}</div>
+    ${active.length ? active.map(g=>`
+      <div class="agenda-card"><div class="agenda-head">
+        <span class="agenda-badge" style="color:${c};background:${c}22">${routeLabel(type)}</span>
+        <span class="agenda-title">${g.titel}</span>
+      </div>
+      <div class="agenda-expanded">
+        <div class="prog-wrap"><div class="prog-label"><span>Fortschritt</span><span>${g.rprog}/${g.rdur} Monate</span></div>
+        <div class="prog-track"><div class="prog-fill" style="width:${Math.round(g.rprog/g.rdur*100)}%;background:${c}"></div></div></div>
+      </div></div>`).join('') :
+    `<div style="color:var(--text3);font-size:13px;padding:16px 0">Keine aktiven Prozesse auf dieser Ebene.<br>Gesetze die scheitern können hier eingespeist werden.</div>`}
+  </div>`;
+}
+
+function renderMedien() {
+  return `<div style="padding:4px 0">
+    <div style="font-family:var(--serif);font-size:20px;color:var(--text);margin-bottom:8px">Medien & Milieus</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px">Gezielte Medienkampagnen stärken einzelne Wählermilieus. Jede Kampagne kostet 10 PK und bringt +2 bis +5% Zustimmung im Zielmilieu.</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${[['arbeit','Arbeitsmilieu','Botschaft: Beschäftigung, Löhne, soziale Sicherheit','var(--land-c)'],
+         ['mitte','Mitte','Botschaft: Haushalt, Stabilität, Verlässlichkeit','var(--eu-c)'],
+         ['prog','Progressive','Botschaft: Klima, Gerechtigkeit, Modernisierung','var(--blue)']].map(([key,name,desc,color])=>`
+      <div class="agenda-card">
+        <div class="agenda-head" style="cursor:default">
+          <span class="ebene-dot" style="background:${color};width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500;color:var(--text)">${name}</div>
+            <div style="font-size:11px;color:var(--text2)">${desc}</div>
+          </div>
+          <span style="font-family:var(--mono);font-size:16px;font-weight:500;color:${G.zust[key]>=40?'var(--green)':'var(--red)'}">${G.zust[key]}%</span>
+        </div>
+        <div class="agenda-expanded">
+          <button class="act-btn" style="border-color:${color}44" onclick="medienkampagne('${key}')">
+            Kampagne starten <span class="cost-pill">10 PK</span>
+          </button>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════
+//  CHARAKTERE
+// ══════════════════════════════
+function renderChars() {
+  const list = document.getElementById('char-list');
+  list.innerHTML = G.chars.map(c => {
+    const moodEmoji = MOODS[c.mood];
+    const loyColor = c.loyalty >= 4 ? 'var(--green)' : c.loyalty <= 1 ? 'var(--red)' : 'var(--text2)';
+    return `<div class="char-row" onclick="showChar('${c.id}')">
+      <div class="char-avatar" style="background:${c.color}22;color:${c.color};border-color:${c.color}44">${c.initials}</div>
+      <div class="char-info">
+        <div class="char-name">${c.name}</div>
+        <div class="char-role" style="color:${loyColor}">${c.role}</div>
+      </div>
+      <div class="char-mood">${moodEmoji}</div>
+    </div>`;
+  }).join('');
+}
+
+function showChar(id) {
+  const c = G.chars.find(x=>x.id===id);
+  if (!c) return;
+  const moodEmoji = MOODS[c.mood];
+  const moodText = ['Sehr unzufrieden','Unzufrieden','Neutral','Zufrieden','Sehr zufrieden'][c.mood];
+  const loyBars = '●'.repeat(c.loyalty) + '○'.repeat(5-c.loyalty);
+  document.getElementById('char-detail-head').innerHTML = `
+    <div class="char-avatar" style="background:${c.color}22;color:${c.color};border-color:${c.color}44;width:52px;height:52px;font-size:16px">${c.initials}</div>
+    <div>
+      <div style="font-family:var(--serif);font-size:18px;color:var(--text)">${c.name}</div>
+      <div style="font-size:12px;color:var(--text2)">${c.role}</div>
+    </div>`;
+  document.getElementById('char-detail-body').innerHTML = `
+    <div style="margin-bottom:12px;font-size:13px;color:var(--text2);line-height:1.6">${c.bio}</div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">Stimmung</div>
+        <div style="font-size:13px">${moodEmoji} ${moodText}</div></div>
+      <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px">Loyalität</div>
+        <div style="font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--gold)">${loyBars}</div></div>
+    </div>
+    ${c.bonus ? `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:8px 10px;margin-bottom:10px">
+      <div style="font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Bonus (wenn zufrieden)</div>
+      <div style="font-size:12px;color:var(--text2)">${c.bonus.desc}</div>
+    </div>` : ''}
+    ${c.mood <= c.ultimatum?.mood_thresh + 1 && !G.firedCharEvents.includes(c.ultimatum?.event) ? `
+    <div style="background:rgba(192,88,72,.08);border:1px solid var(--red2);border-radius:4px;padding:8px 10px;margin-bottom:10px">
+      <div style="font-size:11px;color:var(--red);font-weight:500">⚠ Unzufriedenheit wächst</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px">Weiterer Stimmungsabfall kann ein Ultimatum auslösen.</div>
+    </div>` : ''}
+    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px">Interessen</div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap">${c.interests.map(i=>`<span style="font-size:11px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:2px;color:var(--text2)">${i}</span>`).join('')}</div>`;
+  document.getElementById('char-detail').classList.add('show');
+}
+function closeChar() { document.getElementById('char-detail').classList.remove('show'); }
+
+// ══════════════════════════════
+//  UI UPDATE
+// ══════════════════════════════
+function updateUI() {
+  const m = G.month;
+  const yr = 2025 + Math.floor((m-1)/12);
+  const mo = ((m-1)%12)+1;
+  document.getElementById('hm').textContent = m;
+  document.getElementById('hy').textContent = yr;
+  document.getElementById('pk-v').textContent = G.pk;
+
+  // Koalitionsstabilität
+  const coalC = G.coalition >= 60 ? 'var(--green)' : G.coalition >= 35 ? 'var(--warn)' : 'var(--red)';
+  const coalLbl = G.coalition >= 70 ? 'Koalition stabil' : G.coalition >= 50 ? 'Spannungen erkennbar' : G.coalition >= 30 ? 'Koalitionskrise droht' : '⚠ Koalition am Limit';
+  document.getElementById('coal-val').textContent = G.coalition + '%';
+  document.getElementById('coal-val').style.color = coalC;
+  document.getElementById('coal-bar').style.width = G.coalition + '%';
+  document.getElementById('coal-bar').style.background = coalC;
+  document.getElementById('coal-label').textContent = coalLbl;
+  document.getElementById('coal-label').style.color = G.coalition < 40 ? 'var(--red)' : 'var(--text3)';
+
+  // Zustimmung
+  const z = G.zust;
+  const zc = z.g >= 40 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('w-pct').innerHTML = z.g + `<span style="font-size:18px;color:var(--text2)">%</span>`;
+  document.getElementById('w-pct').style.color = zc;
+  document.getElementById('w-sub').textContent = `Monat ${m} von 48 — Wahl in ${48-m} Monaten`;
+  document.getElementById('w-fill').style.width = z.g + '%';
+  document.getElementById('w-fill').style.background = zc;
+  ['arbeit','mitte','prog'].forEach((k,i)=>{
+    const ids = ['ma','mm','mp'];
+    const vids = ['ma-v','mm-v','mp-v'];
+    document.getElementById(ids[i]).style.width = z[k]+'%';
+    document.getElementById(vids[i]).textContent = z[k]+'%';
+  });
+
+  // KPIs
+  const kp = G.kpi_prev || G.kpi;
+  function setKpi(valId, deltaId, barId, val, prev, invert, suffix, barPct, barColor) {
+    document.getElementById(valId).innerHTML = val.toFixed(1)+`<span style="font-size:12px">${suffix}</span>`;
+    const d = val - prev;
+    const el = document.getElementById(deltaId);
+    const better = invert ? d<0 : d>0;
+    if (Math.abs(d)<0.01) { el.textContent='—'; el.className='kpi-d neu'; }
+    else { el.textContent=(d>0?'+':'')+d.toFixed(2); el.className='kpi-d '+(better?'pos':'neg'); }
+    document.getElementById(barId).style.width = barPct+'%';
+    document.getElementById(barId).style.background = barColor;
+  }
+  setKpi('k-al','k-al-d','k-al-b', G.kpi.al, kp.al, true,'%', Math.min(95,G.kpi.al*7), G.kpi.al<5?'var(--green)':G.kpi.al>8?'var(--red)':'var(--blue)');
+  const hhp = ((G.kpi.hh+3)/5)*100;
+  setKpi('k-hh','k-hh-d','k-hh-b', G.kpi.hh, kp.hh, false,'%', Math.max(5,Math.min(95,hhp)), G.kpi.hh>=0?'var(--green)':'var(--red)');
+  setKpi('k-gi','k-gi-d','k-gi-b', G.kpi.gi, kp.gi, true,'', Math.min(95,G.kpi.gi*2), G.kpi.gi<28?'var(--green)':G.kpi.gi>35?'var(--red)':'var(--warn)');
+  setKpi('k-zf','k-zf-d','k-zf-b', G.kpi.zf, kp.zf, false,'%', G.kpi.zf, G.kpi.zf>60?'var(--green)':G.kpi.zf<40?'var(--red)':'var(--warn)');
+  G.kpi_prev = {...G.kpi};
+
+  // Ebenen badges
+  const euN = G.gesetze.filter(g=>g.route==='eu'&&g.status==='ausweich').length;
+  const laN = G.gesetze.filter(g=>g.route==='land'&&g.status==='ausweich').length;
+  const koN = G.gesetze.filter(g=>g.route==='kommune'&&g.status==='ausweich').length;
+  const blN = G.gesetze.filter(g=>g.status==='blockiert').length;
+  ['eu','land','kom'].forEach((k,i)=>{
+    const el = document.getElementById('eb-'+k);
+    const n = [euN,laN,koN][i];
+    el.style.display = n>0?'':'none';
+    el.textContent = n;
+  });
+  const ba = document.getElementById('eb-agenda');
+  if (blN>0) { ba.style.display=''; ba.textContent=blN+'⚠'; ba.style.color='var(--red)'; ba.style.background='rgba(192,88,72,.15)'; }
+  else { ba.style.display=''; ba.textContent='▶'; ba.style.color='var(--gold)'; ba.style.background='rgba(200,168,74,.12)'; }
+
+  // Log
+  const logList = document.getElementById('log-list');
+  logList.innerHTML = G.log.slice(0,30).map(e=>`
+    <div class="log-item">
+      <span class="log-time">${e.time}</span>
+      <span class="log-msg ${e.type||''}">${e.msg}</span>
+    </div>`).join('');
+
+  // Chars
+  renderChars();
+}
+
+// ══════════════════════════════
+//  END GAME
+// ══════════════════════════════
+function endGame() {
+  setSpd(0);
+  const z = G.zust.g;
+  const won = z >= 40;
+  const beschlossen = G.gesetze.filter(g=>g.status==='beschlossen').map(g=>g.kurz).join(', ');
+  document.getElementById('end-title').textContent = won ? 'Wiedergewählt' : 'Abgewählt';
+  document.getElementById('end-title').style.color = won ? 'var(--green)' : 'var(--red)';
+  document.getElementById('end-sub').textContent = won
+    ? `Die Bevölkerung hat Ihrer Regierung das Vertrauen ausgesprochen. ${z}% Zustimmung am Wahltag.`
+    : `Nach vier Jahren verlor die Koalition das Vertrauen der Bevölkerung. Nur ${z}% Zustimmung.`;
+  document.getElementById('end-stats').innerHTML =
+    `Beschlossene Gesetze: ${beschlossen||'keine'}<br>
+     Arbeitslosigkeit: ${G.kpi.al.toFixed(1)}%  ·  Haushalt: ${G.kpi.hh.toFixed(1)}%  ·  Gini: ${G.kpi.gi.toFixed(1)}<br>
+     Endprognose: Arbeit ${G.zust.arbeit}%  ·  Mitte ${G.zust.mitte}%  ·  Progressiv ${G.zust.prog}%`;
+  document.getElementById('end-screen').classList.add('show');
+}
+
+// ══════════════════════════════
+//  TOAST
+// ══════════════════════════════
+let toastT;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════
+//  INIT
+// ══════════════════════════════
+addLog(1, 'Neue Legislaturperiode begonnen', 'hi');
+addLog(1, 'Koalitionsvertrag unterzeichnet', 'g');
+addLog(1, '4 Gesetzentwürfe in Vorbereitung', '');
+G.gesetze[0].expanded = true; // Erstes Gesetz aufgeklappt
+updateUI();
+renderCenter();
+</script>
+</body>
+</html>

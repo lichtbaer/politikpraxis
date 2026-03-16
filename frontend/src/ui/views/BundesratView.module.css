@@ -1,0 +1,47 @@
+.container {
+  padding: 4px 0;
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.map {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}

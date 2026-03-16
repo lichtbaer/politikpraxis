@@ -1,0 +1,111 @@
+import { useGameStore } from '../../store/gameStore';
+import { KPITile } from '../components/KPITile/KPITile';
+import styles from './RightPanel.module.css';
+
+function getBarStyle(
+  key: 'al' | 'hh' | 'gi' | 'zf',
+  value: number
+): { barPercent: number; barColor: string } {
+  const v = value;
+  switch (key) {
+    case 'al':
+      return {
+        barPercent: Math.min(100, v * 5),
+        barColor: v < 5 ? 'var(--green)' : v < 10 ? 'var(--warn)' : 'var(--red)',
+      };
+    case 'hh':
+      return {
+        barPercent: Math.max(0, Math.min(100, 50 + v)),
+        barColor: v > 0 ? 'var(--green)' : v > -5 ? 'var(--warn)' : 'var(--red)',
+      };
+    case 'gi':
+      return {
+        barPercent: Math.min(100, v),
+        barColor: v < 30 ? 'var(--green)' : v < 50 ? 'var(--warn)' : 'var(--red)',
+      };
+    case 'zf':
+      return {
+        barPercent: Math.min(100, v),
+        barColor: v > 50 ? 'var(--green)' : v > 25 ? 'var(--warn)' : 'var(--red)',
+      };
+    default:
+      return { barPercent: 50, barColor: 'var(--blue)' };
+  }
+}
+
+export function RightPanel() {
+  const { state } = useGameStore();
+  const { kpi, kpiPrev, log } = state;
+
+  const prev = kpiPrev ?? { al: null, hh: null, gi: null, zf: null };
+
+  const alBar = getBarStyle('al', kpi.al);
+  const hhBar = getBarStyle('hh', kpi.hh);
+  const giBar = getBarStyle('gi', kpi.gi);
+  const zfBar = getBarStyle('zf', kpi.zf);
+
+  return (
+    <aside className={styles.root}>
+      <section className={styles.section}>
+        <h3 className={styles.sectionLabel}>Wirtschaftslage</h3>
+        <div className={styles.kpiGrid}>
+          <KPITile
+            label="Arbeitslosigkeit"
+            value={kpi.al}
+            prevValue={prev.al}
+            suffix="%"
+            inverted
+            barPercent={alBar.barPercent}
+            barColor={alBar.barColor}
+          />
+          <KPITile
+            label="Haushaltssaldo"
+            value={kpi.hh}
+            prevValue={prev.hh}
+            suffix="%"
+            inverted={false}
+            barPercent={hhBar.barPercent}
+            barColor={hhBar.barColor}
+          />
+          <KPITile
+            label="Gini-Index"
+            value={kpi.gi}
+            prevValue={prev.gi}
+            suffix=""
+            inverted
+            barPercent={giBar.barPercent}
+            barColor={giBar.barColor}
+          />
+          <KPITile
+            label="Zufriedenheit"
+            value={kpi.zf}
+            prevValue={prev.zf}
+            suffix="%"
+            inverted={false}
+            barPercent={zfBar.barPercent}
+            barColor={zfBar.barColor}
+          />
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <h3 className={styles.sectionLabel}>Ereignisprotokoll</h3>
+        <div className={styles.log}>
+          {log.length === 0 ? (
+            <p className={styles.logEmpty}>Noch keine Einträge.</p>
+          ) : (
+            log
+              .slice()
+              .reverse()
+              .map((entry, i) => (
+                <div key={`${entry.time}-${i}`} className={styles.logEntry}>
+                  <span className={styles.logTime}>{entry.time}</span>
+                  <span className={styles.logMsg}>{entry.msg}</span>
+                </div>
+              ))
+          )}
+        </div>
+      </section>
+    </aside>
+  );
+}

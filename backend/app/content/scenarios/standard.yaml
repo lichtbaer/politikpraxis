@@ -1,0 +1,11 @@
+id: standard
+name: Standardszenario
+description: "Neue Legislaturperiode mit stabiler Koalition. Standardmäßige Ausgangslage."
+startMonth: 1
+startPK: 100
+startKPI:
+  al: 5.2
+  hh: 0.3
+  gi: 31.2
+  zf: 62
+startCoalition: 78

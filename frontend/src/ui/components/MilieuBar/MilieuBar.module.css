@@ -1,0 +1,36 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.name {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.value {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+}
+
+.track {
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}

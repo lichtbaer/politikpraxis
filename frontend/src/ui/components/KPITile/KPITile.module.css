@@ -1,0 +1,56 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text2);
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.value {
+  font-family: var(--mono);
+  font-size: 20px;
+  color: var(--text);
+}
+
+.better {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--green);
+}
+
+.worse {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--red);
+}
+
+.same {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.track {
+  height: 4px;
+  background: var(--bg4);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.2s ease;
+}

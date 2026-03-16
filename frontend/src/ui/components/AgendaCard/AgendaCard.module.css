@@ -1,0 +1,164 @@
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.header:hover {
+  background: var(--bg3);
+}
+
+.badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.statusEntwurf {
+  background: var(--bg4);
+  color: var(--text2);
+}
+
+.statusAktiv {
+  background: var(--gold2);
+  color: var(--gold);
+}
+
+.statusBlockiert {
+  background: var(--red2);
+  color: var(--red);
+}
+
+.statusBeschlossen {
+  background: var(--green2);
+  color: var(--green);
+}
+
+.statusAusweich {
+  background: var(--blue2);
+  color: var(--blue);
+}
+
+.title {
+  flex: 1;
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.arrow {
+  color: var(--text2);
+  font-size: 0.7rem;
+}
+
+.body {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.desc {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.tag {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: var(--bg4);
+  color: var(--text2);
+}
+
+.voteBar,
+.progressBar {
+  margin-top: 0.75rem;
+}
+
+.voteTrack,
+.progressTrack {
+  height: 6px;
+  background: var(--bg4);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.voteFill,
+.progressFill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.progressFill {
+  background: var(--blue);
+}
+
+.voteLabel,
+.progressLabel {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text2);
+  margin-top: 0.25rem;
+}
+
+.blockiertPanel {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg4);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: var(--red);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--bg4);
+  border-color: var(--gold);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

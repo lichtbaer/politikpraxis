@@ -1,0 +1,153 @@
+.card {
+  animation: slideIn 0.3s ease-out;
+  background: var(--bg2);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.headerDanger {
+  background: var(--red);
+  color: white;
+}
+
+.headerWarn {
+  background: var(--warn);
+  color: white;
+}
+
+.headerGood {
+  background: var(--green);
+  color: white;
+}
+
+.headerInfo {
+  background: var(--blue);
+  color: white;
+}
+
+.icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.headerText {
+  flex: 1;
+}
+
+.typeLabel {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  opacity: 0.9;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.25rem 0 0;
+}
+
+.body {
+  padding: 1.25rem;
+}
+
+.quote {
+  font-family: var(--serif);
+  font-style: italic;
+  border-left: 4px solid var(--gold);
+  margin: 0 0 1rem;
+  padding: 0.5rem 0 0.5rem 1rem;
+  color: var(--text2);
+}
+
+.context {
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 1.25rem;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.choice:hover {
+  background: var(--bg4);
+}
+
+.choicePrimary:hover {
+  border-color: var(--gold);
+}
+
+.choiceDanger:hover {
+  border-color: var(--red);
+}
+
+.choiceSafe:hover {
+  border-color: var(--green);
+}
+
+.choiceMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.choiceLabel {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.choiceCost {
+  font-size: 0.85rem;
+  color: var(--gold);
+}
+
+.choiceDesc {
+  font-size: 0.85rem;
+  color: var(--text2);
+}
