@@ -1,0 +1,44 @@
+site_name: politikpraxis — Dokumentation
+site_description: Dokumentation für das Projekt politikpraxis und das Spiel Bundesrepublik (Design + Entwicklung).
+site_url: https://github.com/your-org/politikpraxis
+repo_url: https://github.com/your-org/politikpraxis
+repo_name: politikpraxis
+
+theme:
+  name: material
+  language: de
+  palette:
+    - scheme: default
+      primary: amber
+      accent: brown
+      toggle:
+        icon: material/brightness-7
+        name: Dunkelmodus
+    - scheme: slate
+      primary: amber
+      accent: brown
+      toggle:
+        icon: material/brightness-4
+        name: Hellmodus
+
+plugins:
+  - search
+
+docs_dir: docs
+strict: true
+
+nav:
+  - Start: index.md
+  - Game Design:
+    - Konzept & Vision: game-design/konzept.md
+    - Core Loop: game-design/core-loop.md
+    - Spielsysteme: game-design/spielsysteme.md
+    - Komplexitätsstufen: game-design/komplexitaet.md
+    - UI-Architektur: game-design/ui-architektur.md
+    - Technischer Stack (Spiel): game-design/tech-stack.md
+    - Roadmap: game-design/roadmap.md
+    - Offene Designfragen: game-design/designfragen.md
+  - Entwicklung:
+    - Lokales Setup: entwicklung/setup.md
+    - Projektstruktur: entwicklung/projektstruktur.md
+    - Architektur: entwicklung/architektur.md
