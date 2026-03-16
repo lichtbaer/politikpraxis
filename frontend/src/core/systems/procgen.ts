@@ -1,4 +1,4 @@
-import type { Character, GameEvent, KPI } from '../types';
+import type { Character, KPI } from '../types';
 
 export interface ProcgenSeed {
   seed: number;

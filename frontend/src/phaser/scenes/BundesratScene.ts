@@ -42,13 +42,13 @@ export class BundesratScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor(0x1a1712);
 
-    const title = this.add.text(20, 10, 'Bundesrat', {
+    this.add.text(20, 10, 'Bundesrat', {
       fontFamily: 'Playfair Display, Georgia, serif',
       fontSize: '18px',
       color: '#c8a84a',
     });
 
-    const subtitle = this.add.text(20, 34, '16 Länder · 69 Stimmen', {
+    this.add.text(20, 34, '16 Länder · 69 Stimmen', {
       fontFamily: 'DM Sans, sans-serif',
       fontSize: '11px',
       color: '#9a9080',

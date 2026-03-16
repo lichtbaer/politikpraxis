@@ -12,6 +12,7 @@ export function useGameActions() {
     resolveEvent: (event: GameEvent, choice: EventChoice) => store.doResolveEvent(event, choice),
     medienkampagne: (milieu: MilieuKey) => store.doMedienkampagne(milieu),
     lobbyLand: store.doLobbyLand,
+    lobbyFraktion: store.doLobbyFraktion,
     toggleAgenda: store.toggleAgenda,
     setSpeed: store.setSpeed,
     setView: store.setView,

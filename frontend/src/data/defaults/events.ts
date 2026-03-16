@@ -147,6 +147,18 @@ export const DEFAULT_CHAR_EVENTS: Record<string, GameEvent> = {
     ],
     ticker: 'Kanzlerin Hoffmann erwägt Vertrauensfrage — Koalition unter Druck',
   },
+  kohl_bundesrat_sabotage: {
+    id: 'kohl_bundesrat_sabotage', type: 'danger', icon: '🏛️', typeLabel: 'Bundesrat-Sabotage',
+    title: 'Kohl beantragt Vermittlungsausschuss',
+    quote: '„Ohne Zugeständnisse an den Osten werde ich jeden Vermittlungsausschuss beantragen."',
+    context: 'Matthias Kohl (Ostblock) hat eigenständig einen Vermittlungsausschuss-Antrag gestellt. Das Gesetz wird um mindestens 2 Monate verzögert.',
+    choices: [
+      { label: 'Verzögerung akzeptieren', desc: 'Gesetz wird 2 Monate später abgestimmt', cost: 0, type: 'safe', effect: {}, log: 'Vermittlungsausschuss-Verfahren läuft. Abstimmung verzögert.' },
+      { label: 'Kohl direkt ansprechen', desc: 'Beziehungspflege, kostet 15 PK', cost: 15, type: 'primary', effect: {}, brRelation: { ostblock: 5 }, log: 'Gespräch mit Kohl. Beziehung verbessert, Verzögerung bleibt.' },
+      { label: 'Öffentlich kritisieren', desc: 'Beziehung zu Kohl sinkt weiter', cost: 0, type: 'danger', effect: { zf: -2 }, log: 'Kohl öffentlich kritisiert. Ostblock verhärtet Position.' },
+    ],
+    ticker: 'Kohl beantragt Vermittlungsausschuss — Gesetz verzögert',
+  },
   wm_ultimatum: {
     id: 'wm_ultimatum', type: 'warn', icon: '🏭', typeLabel: 'Wirtschaftsstreit',
     title: 'Maier droht mit Rücktritt über Standortpolitik', charId: 'wm',
