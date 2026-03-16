@@ -21,6 +21,8 @@ export interface Character {
   interests: string[];
   bonus: CharacterBonus;
   ultimatum: CharacterUltimatum;
+  /** Ein-Wort-Charakterisierung für Onboarding */
+  tag?: string;
 }
 
 export interface LawEffects {
