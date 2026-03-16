@@ -1,6 +1,9 @@
 import type { GameState, ContentBundle } from './types';
+import { BUNDESRAT_FRAKTIONEN } from '../data/defaults/bundesratFraktionen';
 
 export function createInitialState(content: ContentBundle): GameState {
+  const fraktionen = content.bundesratFraktionen ?? BUNDESRAT_FRAKTIONEN;
+
   return {
     month: content.scenario.startMonth,
     speed: 0,
@@ -15,6 +18,10 @@ export function createInitialState(content: ContentBundle): GameState {
     chars: content.characters.map(c => ({ ...c })),
     gesetze: content.laws.map(g => ({ ...g, expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null })),
     bundesrat: content.bundesrat.map(b => ({ ...b })),
+    bundesratFraktionen: fraktionen.map(f => ({
+      ...f,
+      tradeoffPool: f.tradeoffPool.map(t => ({ ...t })),
+    })),
 
     activeEvent: null,
     firedEvents: [],

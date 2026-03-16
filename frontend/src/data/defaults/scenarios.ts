@@ -2,6 +2,7 @@ import type { ContentBundle, BundesratLand } from '../../core/types';
 import { DEFAULT_CHARACTERS } from './characters';
 import { DEFAULT_EVENTS, DEFAULT_CHAR_EVENTS } from './events';
 import { DEFAULT_LAWS } from './laws';
+import { BUNDESRAT_FRAKTIONEN } from './bundesratFraktionen';
 
 const DEFAULT_BUNDESRAT: BundesratLand[] = [
   { id: 'BY', name: 'Bayern', mp: 'Edmund Huber', party: 'CSU', alignment: 'koalition', mood: 2, interests: ['Wirtschaft', 'EU-Skepsis'], votes: 6 },
@@ -28,6 +29,7 @@ export const DEFAULT_CONTENT: ContentBundle = {
   charEvents: DEFAULT_CHAR_EVENTS,
   laws: DEFAULT_LAWS,
   bundesrat: DEFAULT_BUNDESRAT,
+  bundesratFraktionen: BUNDESRAT_FRAKTIONEN,
   scenario: {
     id: 'standard',
     name: 'Standardszenario',
