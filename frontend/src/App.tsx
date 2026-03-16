@@ -1,21 +1,18 @@
-import { useEffect } from 'react';
-import { Shell } from './ui/layout/Shell';
-import { WahlnachtOnboarding } from './ui/screens/WahlnachtOnboarding';
-import { useGameStore } from './store/gameStore';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { MainMenu } from './ui/screens/MainMenu';
+import { Setup } from './ui/screens/Setup';
+import { GameView } from './ui/screens/GameView';
+import { Credits } from './ui/screens/Credits';
 
 export default function App() {
-  const init = useGameStore((s) => s.init);
-  const phase = useGameStore((s) => s.phase);
-
-  useEffect(() => {
-    init();
-    // Nur einmal beim Mount; leere Deps verhindern Re-Run bei Store-Updates (React #185).
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (phase === 'onboarding') {
-    return <WahlnachtOnboarding />;
-  }
-
-  return <Shell />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainMenu />} />
+        <Route path="/setup" element={<Setup />} />
+        <Route path="/game" element={<GameView />} />
+        <Route path="/credits" element={<Credits />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
