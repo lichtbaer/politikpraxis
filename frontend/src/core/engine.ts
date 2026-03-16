@@ -3,9 +3,10 @@ import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/ec
 import { applyCharBonuses, checkUltimatums } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
-import { checkRandomEvents } from './systems/events';
+import { checkRandomEvents, checkBundesratEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
-import { executeBundesratVote, checkKohlSabotage } from './systems/bundesrat';
+import { executeBundesratVote } from './systems/bundesrat';
+import { BUNDESRAT_EVENTS, SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bundesratEvents';
 
 export function addLog(state: GameState, msg: string, type: string): GameState {
   const yr = 2025 + Math.floor((state.month - 1) / 12);
@@ -34,48 +35,17 @@ export function tick(state: GameState, content: ContentBundle): GameState {
   s = updateCoalitionStability(s);
 
   s = checkUltimatums(s, content.charEvents);
-  s = checkKohlSabotageEvent(s, content);
   s = processBundesratVotes(s);
+  s = checkBundesratEvents(s, {
+    bundesratEvents: content.bundesratEvents ?? BUNDESRAT_EVENTS,
+    sprecherErsatz: SPRECHER_ERSATZ,
+    landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
+  });
   s = checkRandomEvents(s, content.events);
 
   s = { ...s, zust: recalcApproval(s.kpi, s.zust) };
 
   return s;
-}
-
-/** Kohl-Sonderregel: Beziehung < 15 → Vermittlungsausschuss-Event, Gesetz +2 Monate verzögert */
-function checkKohlSabotageEvent(state: GameState, content: ContentBundle): GameState {
-  if (state.activeEvent) return state;
-  const { triggered, lawId } = checkKohlSabotage(state);
-  if (!triggered || !lawId) return state;
-
-  const kohlEvent = content.charEvents?.['kohl_bundesrat_sabotage'];
-  if (!kohlEvent) {
-    // Fallback: Gesetz um 2 Monate verzögern
-    const idx = state.gesetze.findIndex(g => g.id === lawId);
-    if (idx !== -1) {
-      const gesetze = state.gesetze.map((g, i) =>
-        i === idx
-          ? { ...g, brVoteMonth: (g.brVoteMonth ?? state.month) + 2, kohlSabotageTriggered: true }
-          : g,
-      );
-      return { ...state, gesetze };
-    }
-    return state;
-  }
-
-  const idx = state.gesetze.findIndex(g => g.id === lawId);
-  if (idx === -1) return state;
-  const gesetze = state.gesetze.map((g, i) =>
-    i === idx ? { ...g, kohlSabotageTriggered: true, brVoteMonth: (g.brVoteMonth ?? state.month) + 2 } : g,
-  );
-  return {
-    ...state,
-    gesetze,
-    activeEvent: { ...kohlEvent, lawId },
-    firedCharEvents: [...state.firedCharEvents, kohlEvent.id],
-    speed: 0,
-  };
 }
 
 /** Führt Bundesratsabstimmungen durch, wenn brVoteMonth erreicht */

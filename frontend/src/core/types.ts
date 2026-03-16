@@ -87,6 +87,8 @@ export interface EventChoice {
   loyalty?: Record<string, number>;
   /** Bundesrat-Fraktion Beziehung: fraktionId -> Delta */
   brRelation?: Record<string, number>;
+  /** Bei Bundesrat-Initiative: Delta für initiierende Fraktion (event.fraktionId) */
+  brRelationInitiator?: number;
   log: string;
 }
 
@@ -103,6 +105,15 @@ export interface GameEvent {
   charId?: string;
   /** Bei Bundesrat-Events: betroffenes Gesetz */
   lawId?: string;
+  /** Bei Bundesrat-Events: betroffene Fraktion (z.B. Landtagswahl, Sprecher-Wechsel, Initiative) */
+  fraktionId?: string;
+  /** Bei Landtagswahl: welches Land wechselt */
+  landId?: string;
+  landName?: string;
+  /** Bei Landtagswahl: Ziel-Fraktion (Land wechselt zu) */
+  landtagswahlToFraktion?: string;
+  /** Bei Sprecher-Wechsel: neuer Sprecher */
+  sprecherErsatz?: { name: string; partei: string; land: string; initials: string; color: string; bio: string; quote?: string };
 }
 
 export interface KPI {
@@ -212,6 +223,7 @@ export interface GameState {
   activeEvent: GameEvent | null;
   firedEvents: string[];
   firedCharEvents: string[];
+  firedBundesratEvents: string[];
 
   pending: PendingEffect[];
 
@@ -226,6 +238,7 @@ export interface ContentBundle {
   characters: Character[];
   events: GameEvent[];
   charEvents: Record<string, GameEvent>;
+  bundesratEvents?: GameEvent[];
   laws: Law[];
   bundesrat: BundesratLand[];
   bundesratFraktionen?: BundesratFraktion[];
