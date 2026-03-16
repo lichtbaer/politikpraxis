@@ -7,10 +7,13 @@ import { startRoute } from '../core/systems/levels';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/media';
 import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
+import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 
 export type GamePhase = 'onboarding' | 'playing';
+
+const DEFAULT_AUSRICHTUNG: Ausrichtung = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 
 interface GameStore {
   state: GameState;
@@ -18,11 +21,14 @@ interface GameStore {
   phase: GamePhase;
   playerName: string;
   complexity: number;
+  ausrichtung: Ausrichtung;
+  ausrichtungApplied: boolean;
 
   init: (content?: ContentBundle) => void;
   startGame: () => void;
   setPlayerName: (name: string) => void;
   setComplexity: (c: number) => void;
+  setAusrichtung: (a: Ausrichtung) => void;
   gameTick: () => void;
   setSpeed: (speed: SpeedLevel) => void;
   setView: (view: ViewName) => void;
@@ -45,10 +51,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
   phase: 'onboarding',
   playerName: '',
   complexity: 2,
+  ausrichtung: DEFAULT_AUSRICHTUNG,
+  ausrichtungApplied: false,
 
   init: (content?: ContentBundle) => {
+    const { ausrichtung, ausrichtungApplied } = get();
     const c = content || DEFAULT_CONTENT;
-    const initial = createInitialState(c);
+    let initial = createInitialState(c);
+    if (!ausrichtungApplied && (ausrichtung.wirtschaft !== 0 || ausrichtung.gesellschaft !== 0 || ausrichtung.staat !== 0)) {
+      initial = applyAusrichtung(initial, ausrichtung);
+      set({ ausrichtungApplied: true });
+    }
     const withLogs = addLog(
       addLog(
         addLog(initial, 'game:logs.legislaturBegonnen', 'hi'),
@@ -57,9 +70,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       'game:logs.gesetzeVorbereitung', '',
       { count: c.laws.length },
     );
+    const ELECTION_THRESHOLDS: Record<number, number> = { 1: 35, 2: 38, 3: 40, 4: 42 };
+    const electionThreshold = ELECTION_THRESHOLDS[get().complexity] ?? 40;
     const withExpanded = {
       ...withLogs,
       gesetze: withLogs.gesetze.map((g, i) => i === 0 ? { ...g, expanded: true } : g),
+      electionThreshold,
     };
     set({ state: withExpanded, content: c });
   },
@@ -69,6 +85,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setPlayerName: (playerName) => set({ playerName }),
 
   setComplexity: (complexity) => set({ complexity }),
+
+  setAusrichtung: (ausrichtung) => set({ ausrichtung, ausrichtungApplied: false }),
 
   gameTick: () => {
     const { state: s, content } = get();
@@ -108,6 +126,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ...savedState,
       bundesratFraktionen: savedState.bundesratFraktionen ?? initial.bundesratFraktionen,
       firedBundesratEvents: savedState.firedBundesratEvents ?? [],
+      electionThreshold: savedState.electionThreshold ?? 40,
     };
     set({ state });
   },

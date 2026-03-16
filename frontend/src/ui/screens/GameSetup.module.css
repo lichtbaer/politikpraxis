@@ -1,0 +1,265 @@
+.root {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  max-width: 560px;
+  width: 100%;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: clamp(28px, 5vw, 36px);
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  margin: 0;
+}
+
+.subtitle {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text3);
+  margin: -8px 0 0 0;
+}
+
+.block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.blockTitle {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text2);
+  margin: 0 0 4px 0;
+}
+
+.label {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+}
+
+.input {
+  font-family: var(--sans);
+  font-size: 14px;
+  padding: 12px 16px;
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+}
+
+.input::placeholder {
+  color: var(--text3);
+}
+
+/* ─── Slider ──────────────────────────────────────────────────────────────── */
+
+.sliderGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sliderLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text3);
+}
+
+.sliderDim {
+  font-weight: 600;
+  color: var(--text2);
+}
+
+.sliderPole {
+  font-size: 11px;
+  max-width: 90px;
+  text-align: left;
+}
+
+.sliderPole:last-child {
+  text-align: right;
+}
+
+.slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--bg3);
+  border-radius: 4px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.ausrichtungSatz {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text2);
+  margin: 8px 0 0 0;
+  padding: 10px 14px;
+  background: var(--bg2);
+  border-radius: 6px;
+  border-left: 3px solid var(--gold);
+}
+
+/* ─── Komplexitäts-Kacheln ─────────────────────────────────────────────────── */
+
+.complexityGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.complexityTile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  text-align: left;
+}
+
+.complexityTile:hover {
+  background: var(--bg3);
+  border-color: var(--border2);
+}
+
+.complexityTileSelected {
+  border-color: var(--gold);
+  background: var(--bg3);
+  box-shadow: 0 0 0 2px var(--gold);
+}
+
+.complexityNum {
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.complexityTitle {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.complexityBullets {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--text3);
+  margin: 0;
+  padding-left: 14px;
+  line-height: 1.4;
+}
+
+.complexityBullets li {
+  margin-bottom: 2px;
+}
+
+.complexityThreshold {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  margin-top: auto;
+}
+
+/* ─── Buttons ──────────────────────────────────────────────────────────────── */
+
+.primary {
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px 40px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--gold) 30%, transparent);
+}
+
+.primary:hover {
+  opacity: 0.95;
+  transform: scale(1.02);
+}
+
+.back {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: color 0.15s;
+}
+
+.back:hover {
+  color: var(--text2);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (max-width: 640px) {
+  .complexityGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,8 +1,11 @@
 import type { GameState } from '../types';
 
+const DEFAULT_ELECTION_THRESHOLD = 40;
+
 export function checkGameEnd(state: GameState): GameState {
   if (state.month > 48) {
-    const won = state.zust.g >= 40;
+    const threshold = state.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD;
+    const won = state.zust.g >= threshold;
     return { ...state, gameOver: true, won, speed: 0 };
   }
 
