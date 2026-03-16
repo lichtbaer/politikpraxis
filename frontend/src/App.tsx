@@ -9,7 +9,9 @@ export default function App() {
 
   useEffect(() => {
     init();
-  }, [init]);
+    // Nur einmal beim Mount; leere Deps verhindern Re-Run bei Store-Updates (React #185).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (phase === 'onboarding') {
     return <WahlnachtOnboarding />;
