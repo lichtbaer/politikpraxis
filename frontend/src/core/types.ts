@@ -234,6 +234,8 @@ export interface GameState {
 
   gameOver: boolean;
   won: boolean;
+  /** Wahlhürde in % (35/38/40/42 je nach Komplexitätsstufe) */
+  electionThreshold?: number;
 }
 
 export interface ContentBundle {

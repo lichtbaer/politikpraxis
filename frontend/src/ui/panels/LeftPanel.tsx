@@ -19,6 +19,7 @@ const EBENE_COLORS: Record<string, string> = {
 export function LeftPanel() {
   const { t } = useTranslation(['common', 'game']);
   const zustG = useGameStore((s) => s.state.zust.g);
+  const electionThreshold = useGameStore((s) => s.state.electionThreshold ?? 40);
   const coalition = useGameStore((s) => s.state.coalition);
   const zustArbeit = useGameStore((s) => s.state.zust.arbeit);
   const zustMitte = useGameStore((s) => s.state.zust.mitte);
@@ -44,7 +45,7 @@ export function LeftPanel() {
               style={{ width: `${Math.min(100, zustG)}%` }}
             />
           </div>
-          <span className={styles.target}>{t('game:leftPanel.target')}</span>
+          <span className={styles.target}>{t('game:leftPanel.target', { percent: electionThreshold })}</span>
         </div>
       </section>
 

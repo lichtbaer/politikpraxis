@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import { MainMenu } from './ui/screens/MainMenu';
-import { Setup } from './ui/screens/Setup';
+import { GameSetup } from './ui/screens/GameSetup';
 import { GameView } from './ui/screens/GameView';
 import { Credits } from './ui/screens/Credits';
 import { useUIStore } from './store/uiStore';
@@ -17,7 +17,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainMenu />} />
-        <Route path="/setup" element={<Setup />} />
+        <Route path="/setup" element={<GameSetup />} />
         <Route path="/game" element={<GameView />} />
         <Route path="/credits" element={<Credits />} />
       </Routes>
