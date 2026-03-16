@@ -441,7 +441,16 @@
     "complexity2": "Standard",
     "complexity3": "Vollständig",
     "start": "Spiel starten",
-    "back": "Zurück"
+    "back": "Zurück",
+    "themeLabel": "Spielstil",
+    "theme_amtsstube": "Amtsstube",
+    "theme_amtsstube_desc": "Warm, institutionell",
+    "theme_bruessel": "Brüssel",
+    "theme_bruessel_desc": "EU-Institutionsblau",
+    "theme_redaktion": "Redaktion",
+    "theme_redaktion_desc": "Hoher Kontrast",
+    "theme_lageraum": "Lageraum",
+    "theme_lageraum_desc": "Dashboard, Terminal"
   },
   "credits": {
     "title": "Credits",
