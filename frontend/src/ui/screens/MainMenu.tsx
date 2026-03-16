@@ -1,32 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { useGameStore } from '../../store/gameStore';
-import type { GameState } from '../../core/types';
+import { hasSaveAvailable, loadGame } from '../../services/localStorageSave';
 import styles from './MainMenu.module.css';
-
-const SAVE_KEYS = ['politikpraxis_save', 'bundesrepublik_autosave'] as const;
-
-function hasSave(): boolean {
-  try {
-    return SAVE_KEYS.some((key) => !!localStorage.getItem(key));
-  } catch {
-    return false;
-  }
-}
-
-function loadFromLocalStorage(): GameState | null {
-  for (const key of SAVE_KEYS) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw) return JSON.parse(raw) as GameState;
-    } catch {
-      // Corrupt or invalid
-    }
-  }
-  return null;
-}
 
 function toggleLang() {
   const next = i18n.language === 'de' ? 'en' : 'de';
@@ -37,24 +15,20 @@ function toggleLang() {
 export function MainMenu() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const loadSave = useGameStore((s) => s.loadSave);
-  const startGame = useGameStore((s) => s.startGame);
-  const [saveAvailable, setSaveAvailable] = useState(hasSave);
-
-  useEffect(() => {
-    setSaveAvailable(hasSave());
-  }, []);
+  const loadSaveFromFile = useGameStore((s) => s.loadSaveFromFile);
+  const [saveAvailable] = useState(hasSaveAvailable);
 
   const handleNewGame = () => {
     navigate('/setup');
   };
 
   const handleLoadGame = () => {
-    const saved = loadFromLocalStorage();
-    if (saved) {
-      loadSave(saved);
-      startGame();
+    const result = loadGame();
+    if (result.ok) {
+      loadSaveFromFile(result.data);
       navigate('/game');
+    } else if (result.reason === 'version_mismatch') {
+      console.warn('[politikpraxis] Save-Version inkompatibel – Laden übersprungen');
     }
   };
 
