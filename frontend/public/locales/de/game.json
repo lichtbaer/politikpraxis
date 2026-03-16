@@ -60,7 +60,7 @@
     "haushalt": {
       "typeLabel": "Haushaltskrise",
       "title": "Milliardenloch im Bundeshaushalt",
-      "quote": "„Überraschende Steuermindereinnahmen reißen ein Loch von 14 Milliarden Euro."",
+      "quote": "„Überraschende Steuermindereinnahmen reißen ein Loch von 14 Milliarden Euro.“",
       "context": "Das Finanzministerium hat die Schätzungen nach unten korrigiert. Finanzminister Lehmann fordert sofortige Gegenmaßnahmen.",
       "ticker": "Haushaltsloch: Regierung unter Druck — Lehmann fordert Sparpaket",
       "choices": {
@@ -84,7 +84,7 @@
     "skandal": {
       "typeLabel": "Politischer Skandal",
       "title": "Medienberichte über Ministeriumsverschwendung",
-      "quote": "„Der Spiegel berichtet über fragwürdige Beraterverträge im Bundesministerium."",
+      "quote": "„Der Spiegel berichtet über fragwürdige Beraterverträge im Bundesministerium.“",
       "context": "Die Opposition fordert Rücktritt. Braun nutzt die Gelegenheit, die Koalition zu destabilisieren.",
       "ticker": "Spiegel-Bericht erschüttert Koalition — Opposition wittert Morgenluft",
       "choices": {
@@ -96,7 +96,7 @@
     "euklage": {
       "typeLabel": "EU-Vertragsverletzung",
       "title": "Brüssel leitet Verfahren gegen Deutschland ein",
-      "quote": "„Die Europäische Kommission kritisiert die schleppende Umsetzung von EU-Richtlinien."",
+      "quote": "„Die Europäische Kommission kritisiert die schleppende Umsetzung von EU-Richtlinien.“",
       "context": "Drei Richtlinien sind noch nicht in nationales Recht überführt. Ein Bußgeld von bis zu 500 Mio. Euro droht.",
       "ticker": "EU-Vertragsverletzungsverfahren gegen Deutschland eröffnet",
       "choices": {
@@ -108,7 +108,7 @@
     "konjunktur": {
       "typeLabel": "Wirtschaftsabschwung",
       "title": "EZB-Zinserhöhung trifft deutsche Wirtschaft",
-      "quote": "„Investitionen brechen ein, Kurzarbeit steigt — Rezessionsrisiko wächst."",
+      "quote": "„Investitionen brechen ein, Kurzarbeit steigt — Rezessionsrisiko wächst.“",
       "context": "Maier warnt vor voreiligen Ausgabenkürzungen. Lehmann besteht auf Haushaltsdisziplin.",
       "ticker": "Wirtschaftsabschwung: Rezessionsrisiko steigt auf 35%",
       "choices": {
@@ -120,7 +120,7 @@
     "koalition_krise": {
       "typeLabel": "Koalitionskrise",
       "title": "Koalitionspartner droht mit Austritt",
-      "quote": "„Wir können dieser Politik nicht mehr zustimmen", warnt der Koalitionspartner.",
+      "quote": "„Wir können dieser Politik nicht mehr zustimmen“, warnt der Koalitionspartner.",
       "context": "Streit um das Energiegesetz eskaliert. Der Juniorpartner fordert Nachverhandlungen zum Koalitionsvertrag.",
       "ticker": "KOALITIONSKRISE: Juniorpartner stellt Ultimatum an Kanzleramt",
       "choices": {
@@ -132,7 +132,7 @@
     "demo": {
       "typeLabel": "Gesellschaft",
       "title": "Großdemonstration erschüttert Berlin",
-      "quote": "„500.000 Menschen auf den Straßen — die größte Demo seit Jahren."",
+      "quote": "„500.000 Menschen auf den Straßen — die größte Demo seit Jahren.“",
       "context": "Der Protest richtet sich gegen soziale Ungleichheit. Progressive sind mobilisiert, aber auch unzufrieden mit der Regierung.",
       "ticker": "Berlin: Historische Großdemonstration für soziale Gerechtigkeit",
       "choices": {
@@ -144,7 +144,7 @@
     "eufoerder": {
       "typeLabel": "EU-Förderung",
       "title": "EU gibt Milliarden-Strukturfonds frei",
-      "quote": "„Brüssel stellt 4,8 Milliarden Euro für deutsche Klimainvestitionen bereit."",
+      "quote": "„Brüssel stellt 4,8 Milliarden Euro für deutsche Klimainvestitionen bereit.“",
       "context": "Eine seltene gute Nachricht: die EU-Gelder kommen früher als erwartet. Wie werden sie eingesetzt?",
       "ticker": "EU gibt 4,8 Mrd. Euro für Deutschland frei — Regierung entscheidet Verwendung",
       "choices": {
@@ -158,7 +158,7 @@
     "fm_ultimatum": {
       "typeLabel": "Kabinettskrise",
       "title": "Lehmann stellt Haushaltsultimatum",
-      "quote": "„Kein einziges Gesetz ohne vollständigen Deckungsnachweis — sonst trete ich zurück."",
+      "quote": "„Kein einziges Gesetz ohne vollständigen Deckungsnachweis — sonst trete ich zurück.“",
       "context": "Finanzminister Lehmann ist am Ende seiner Geduld. Zu viele teure Projekte ohne Gegenfinanzierung.",
       "ticker": "KABINETTSKRISE: Finanzminister Lehmann droht mit Rücktritt",
       "choices": {
@@ -170,7 +170,7 @@
     "braun_ultimatum": {
       "typeLabel": "Koalitionskonflikt",
       "title": "Braun sabotiert Abstimmung im Bundesrat",
-      "quote": "„Ich habe den Innenministern der Länder empfohlen, gegen dieses Gesetz zu stimmen."",
+      "quote": "„Ich habe den Innenministern der Länder empfohlen, gegen dieses Gesetz zu stimmen.“",
       "context": "Braun hat hinter dem Rücken der Koalition agiert und drei Länder-Innenminister beeinflusst.",
       "ticker": "Innenminister Braun sabotiert Koalitionspartner im Bundesrat",
       "choices": {
@@ -182,7 +182,7 @@
     "wolf_ultimatum": {
       "typeLabel": "Klimastreit",
       "title": "Wolf droht mit Rücktritt über Klimapolitik",
-      "quote": "„Wenn das Energiegesetz weiter verwässert wird, kann ich dieses Kabinett nicht mehr vertreten."",
+      "quote": "„Wenn das Energiegesetz weiter verwässert wird, kann ich dieses Kabinett nicht mehr vertreten.“",
       "context": "Wolf ist frustriert über die schleppende Klimapolitik.",
       "ticker": "Umweltminister Wolf stellt Klimaschutz-Ultimatum an Kanzleramt",
       "choices": {
@@ -194,7 +194,7 @@
     "kern_ultimatum": {
       "typeLabel": "Verfassungskonflikt",
       "title": "Kern blockiert Gesetz wegen Verfassungsbedenken",
-      "quote": "„Ich werde kein Gesetz unterzeichnen, das vor dem Bundesverfassungsgericht keinen Bestand hat."",
+      "quote": "„Ich werde kein Gesetz unterzeichnen, das vor dem Bundesverfassungsgericht keinen Bestand hat.“",
       "context": "Kern hat das Eilgesetz zur EU-Richtlinie gestoppt. Sie hat inhaltlich recht — aber die Zeit läuft.",
       "ticker": "Justizministerin stoppt Eilgesetz — Verfassungsbedenken im Kabinett",
       "choices": {
@@ -206,7 +206,7 @@
     "kanzler_ultimatum": {
       "typeLabel": "Vertrauensfrage",
       "title": "Hoffmann erwägt Vertrauensfrage",
-      "quote": "„Wenn die Koalition keine gemeinsame Linie findet, werde ich die Vertrauensfrage stellen."",
+      "quote": "„Wenn die Koalition keine gemeinsame Linie findet, werde ich die Vertrauensfrage stellen.“",
       "context": "Die interne Zerrissenheit ist öffentlich geworden. Hoffmann will ein klares Bekenntnis.",
       "ticker": "Kanzlerin Hoffmann erwägt Vertrauensfrage — Koalition unter Druck",
       "choices": {
@@ -217,7 +217,7 @@
     "kohl_bundesrat_sabotage": {
       "typeLabel": "Bundesrat-Sabotage",
       "title": "Kohl beantragt Vermittlungsausschuss",
-      "quote": "„Ohne Zugeständnisse an den Osten werde ich jeden Vermittlungsausschuss beantragen."",
+      "quote": "„Ohne Zugeständnisse an den Osten werde ich jeden Vermittlungsausschuss beantragen.“",
       "context": "Matthias Kohl (Ostblock) hat eigenständig einen Vermittlungsausschuss-Antrag gestellt. Das Gesetz wird um mindestens 2 Monate verzögert.",
       "ticker": "Kohl beantragt Vermittlungsausschuss — Gesetz verzögert",
       "choices": {
@@ -229,7 +229,7 @@
     "wm_ultimatum": {
       "typeLabel": "Wirtschaftsstreit",
       "title": "Maier droht mit Rücktritt über Standortpolitik",
-      "quote": "„Die Kombination aus Steuererhöhung und Regulierung treibt Unternehmen ins Ausland."",
+      "quote": "„Die Kombination aus Steuererhöhung und Regulierung treibt Unternehmen ins Ausland.“",
       "context": "Maier sieht die Wirtschaftspolitik auf dem falschen Weg.",
       "ticker": "Wirtschaftsministerin Maier stellt Ultimatum zur Standortpolitik",
       "choices": {
@@ -325,7 +325,7 @@
     "laenderfinanzausgleich": {
       "typeLabel": "Länderfinanzausgleich",
       "title": "Länderfinanzausgleich-Streit eskaliert",
-      "quote": "„Pragmatische Mitte und Ostblock fordern Neuverteilung der Finanzströme — sonst Blockade."",
+      "quote": "„Pragmatische Mitte und Ostblock fordern Neuverteilung der Finanzströme — sonst Blockade.“",
       "context": "Fraktion Brenner und Kohl haben sich verbündet. Sie fordern eine Überarbeitung des Länderfinanzausgleichs. Ohne Zugeständnisse droht Blockade in allen zustimmungspflichtigen Gesetzen.",
       "ticker": "Länderfinanzausgleich: Brenner und Kohl fordern Neuverteilung",
       "choices": {
@@ -337,7 +337,7 @@
     "landtagswahl": {
       "typeLabel": "Landtagswahl",
       "title": "Landtagswahl kippt Fraktion",
-      "quote": "„Überraschender Regierungswechsel — die politische Landkarte verschiebt sich."",
+      "quote": "„Überraschender Regierungswechsel — die politische Landkarte verschiebt sich.“",
       "context": "Eine Landtagswahl hat die Regierungspartei in einem Bundesland gewechselt. Die Fraktionszusammensetzung im Bundesrat ändert sich. Die betroffene Fraktion muss neu verhandeln.",
       "ticker": "Landtagswahl: Regierungswechsel verändert Bundesrat-Mehrheiten",
       "choices": {
@@ -347,7 +347,7 @@
     "kohl_eskaliert": {
       "typeLabel": "Sondersitzung",
       "title": "Kohl eskaliert — Sondersitzung einberufen",
-      "quote": "„Ohne Zugeständnisse an den Osten werde ich jeden Vermittlungsausschuss beantragen."",
+      "quote": "„Ohne Zugeständnisse an den Osten werde ich jeden Vermittlungsausschuss beantragen.“",
       "context": "Matthias Kohl hat einen Vermittlungsausschuss-Antrag für ein laufendes Gesetz gestellt. Das Gesetz wird um 2 Monate verzögert. Wie reagieren Sie?",
       "ticker": "Kohl beantragt Vermittlungsausschuss — Gesetz verzögert",
       "choices": {
@@ -359,7 +359,7 @@
     "sprecher_wechsel": {
       "typeLabel": "Sprecher-Wechsel",
       "title": "Neuer Fraktionssprecher im Bundesrat",
-      "quote": "„Die Fraktion hat einen neuen Sprecher gewählt — mit anderen Prioritäten."",
+      "quote": "„Die Fraktion hat einen neuen Sprecher gewählt — mit anderen Prioritäten.“",
       "context": "Ein Fraktionssprecher wurde abgelöst. Der neue Charakter hat andere Interessen und einen neuen Tradeoff-Pool. Die Beziehung muss neu aufgebaut werden.",
       "ticker": "Sprecher-Wechsel: Fraktion mit neuem Gesicht",
       "choices": {
@@ -369,7 +369,7 @@
     "bundesrat_initiative": {
       "typeLabel": "Bundesrat-Initiative",
       "title": "Länder bringen eigenes Gesetz ein",
-      "quote": "„Die Länder wollen nicht nur reagieren — sie wollen gestalten."",
+      "quote": "„Die Länder wollen nicht nur reagieren — sie wollen gestalten.“",
       "context": "Eine Fraktion hat ein eigenes Gesetz eingebracht. Sie müssen entscheiden: Zustimmung stärkt die Beziehung, Blockade kostet Sympathie und Popularität.",
       "ticker": "Bundesrat-Initiative: Länder fordern Mitsprache",
       "choices": {
@@ -380,7 +380,7 @@
     "foederalismusgipfel": {
       "typeLabel": "Föderalismusgipfel",
       "title": "Föderalismusgipfel — alle Sprecher an einem Tisch",
-      "quote": "„Historische Gelegenheit: Alle vier Fraktionssprecher gleichzeitig empfangen."",
+      "quote": "„Historische Gelegenheit: Alle vier Fraktionssprecher gleichzeitig empfangen.“",
       "context": "Beim Föderalismusgipfel können Sie alle vier Fraktionen gleichzeitig pflegen — zu reduzierten Kosten von 8 PK pro Fraktion statt 15.",
       "ticker": "Föderalismusgipfel: Alle Fraktionssprecher in Berlin",
       "choices": {
