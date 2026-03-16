@@ -3,7 +3,7 @@
 }
 
 .header {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .title {
@@ -19,99 +19,203 @@
   line-height: 1.6;
 }
 
-.map {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-
-.legend {
-  display: flex;
+.fraktionskarten {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  font-size: 11px;
-  color: var(--text2);
+  margin-bottom: 24px;
 }
 
-.legendItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+@media (max-width: 900px) {
+  .fraktionskarten {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.lobbyPanel {
-  margin-top: 16px;
-  padding: 12px;
+.karte {
+  padding: 14px;
+  background: var(--bg3);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.lobbyTitle {
-  font-size: 14px;
-  color: var(--gold);
-  margin-bottom: 10px;
-}
-
-.lobbyLaw {
-  margin-bottom: 12px;
-}
-
-.lobbyLawName {
-  font-weight: 600;
-  margin-right: 8px;
-}
-
-.lobbyLawCountdown {
-  font-size: 12px;
-  color: var(--text2);
-}
-
-.fraktionen {
-  margin-top: 8px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
 
-.fraktionRow {
+.karteHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
 }
 
-.fraktionName {
-  min-width: 140px;
+.karteMeta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.lobbyPanel .btn {
-  padding: 4px 10px;
+.sprecherName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.parteiLand {
   font-size: 11px;
+  color: var(--text2);
+}
+
+.laenderListe {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+.beziehungsBalken {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.balkenLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.balkenTrack {
+  height: 6px;
+  background: var(--bg2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.balkenFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+.bereitschaft {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.bereitschaftValue {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.btnGespraech {
+  padding: 8px 12px;
+  font-size: 12px;
   background: var(--gold);
   color: var(--bg);
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 500;
+  margin-top: 4px;
 }
 
-.lobbyPanel .btn:hover:not(:disabled) {
+.btnGespraech:hover {
   opacity: 0.9;
 }
 
-.lobbyPanel .btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.abstimmung {
+  margin-top: 16px;
 }
 
-.done {
-  font-size: 11px;
+.abstimmungsBalken {
+  padding: 14px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.abstimmungsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.abstimmungsLaw {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.abstimmungsErgebnis {
+  font-size: 12px;
   color: var(--text2);
+}
+
+.felderContainer {
+  display: flex;
+  gap: 2px;
+  position: relative;
+  margin-bottom: 4px;
+}
+
+.feld {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  border: 1px solid;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.feld:hover {
+  opacity: 0.85;
+}
+
+.feldJa {
+  opacity: 1;
+}
+
+.feldNein {
+  opacity: 0.6;
+}
+
+.mehrheitsLinie {
+  position: absolute;
+  left: 56.25%; /* 9/16 - Mehrheit bei 9 Stimmen */
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px dashed var(--gold);
+  pointer-events: none;
+}
+
+.mehrheitsLabel {
+  font-size: 10px;
+  color: var(--text3);
+}
+
+.keineAbstimmung {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 16px;
 }

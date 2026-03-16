@@ -17,6 +17,7 @@ export const BUNDESRAT_FRAKTIONEN: BundesratFraktion[] = [
       initials: 'PS',
       color: '#e03030',
       bio: 'Pragmatisch und kooperativ. Verlässliche Basis, aber empfindlich wenn Bundespolitik Länderzuständigkeiten übergeht.',
+      quote: 'Der Norden braucht verlässliche Partner in Berlin — wir stehen bereit.',
     },
     laender: ['NW', 'NI', 'HH', 'HB', 'SH'],
     basisBereitschaft: 85,
@@ -53,6 +54,7 @@ export const BUNDESRAT_FRAKTIONEN: BundesratFraktion[] = [
       initials: 'HB',
       color: '#9a8848',
       bio: 'Der entscheidende Wechselwähler. Offen für Deals, aber verhandelt immer. Ohne Gegenleistung unberechenbar.',
+      quote: 'Ohne Gegenleistung geht hier gar nichts — das wissen Sie.',
     },
     laender: ['RP', 'SL', 'BE', 'HE'], // 4 Länder (TH, SN anteilig bei Ostblock)
     basisBereitschaft: 55,
@@ -89,6 +91,7 @@ export const BUNDESRAT_FRAKTIONEN: BundesratFraktion[] = [
       initials: 'EH',
       color: '#2a5090',
       bio: 'Ideologischer Gegner der Koalition. Stimmt grundsätzlich gegen Rot-Grün — Ausnahme: wenn ein Gesetz Länderrechte stärkt.',
+      quote: 'Föderalismus first — alles andere ist Verhandlungssache.',
     },
     laender: ['BY', 'BW', 'ST'],
     basisBereitschaft: 20,
@@ -126,6 +129,7 @@ export const BUNDESRAT_FRAKTIONEN: BundesratFraktion[] = [
       initials: 'MK',
       color: '#5a5a5a',
       bio: 'Der Unberechenbare. Strukturwandel-Trauma prägt alle Entscheidungen. Investitionen in den Osten öffnen ihn — ignoriert man ihn, wird er aktiver Saboteur.',
+      quote: 'Der Osten wurde zu oft vergessen — das ändert sich jetzt.',
     },
     laender: ['BB', 'SN', 'TH', 'MV'], // 4 Ost-Länder (ST bei Konservativem Block)
     basisBereitschaft: 30,
