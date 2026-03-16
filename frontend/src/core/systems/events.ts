@@ -33,6 +33,17 @@ export function resolveEvent(state: GameState, event: GameEvent, choice: EventCh
     newState = applyMoodChange(newState, choice.charMood, choice.loyalty);
   }
 
+  if (choice.brRelation && newState.bundesratFraktionen) {
+    newState = {
+      ...newState,
+      bundesratFraktionen: newState.bundesratFraktionen.map(f => {
+        const delta = choice.brRelation![f.id];
+        if (delta == null) return f;
+        return { ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + delta)) };
+      }),
+    };
+  }
+
   const logType = choice.type === 'danger' ? 'r' : 'g';
   newState = addLog(newState, choice.log, logType);
   newState.ticker = event.ticker;

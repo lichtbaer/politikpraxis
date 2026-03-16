@@ -52,23 +52,25 @@ export function abstimmen(state: GameState, lawId: string): GameState {
   if (law.status !== 'aktiv') return state;
 
   if (law.ja > 50) {
-    const brOk = !law.tags.includes('land') || Math.random() > 0.5;
-    if (brOk) {
+    if (!law.tags.includes('land')) {
       const gesetze = state.gesetze.map((g, i) =>
         i === idx ? { ...g, status: 'beschlossen' as const } : g,
       );
-      let newState = scheduleEffects({ ...state, gesetze }, law);
+      const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
+      let newState = scheduleEffects({ ...state, gesetze }, lawForEffects);
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
-    } else {
-      const gesetze = state.gesetze.map((g, i) =>
-        i === idx ? { ...g, status: 'blockiert' as const, blockiert: 'bundesrat' as const } : g,
-      );
-      return addLog(
-        { ...state, gesetze, speed: 0 },
-        `${law.kurz}: Bundesrat blockiert! Ebenenwechsel möglich.`,
-        'r',
-      );
     }
+    // Land-Gesetz: BT passed → 3 Monate bis BR-Abstimmung, Lobbying-Fenster
+    const gesetze = state.gesetze.map((g, i) =>
+      i === idx
+        ? { ...g, status: 'bt_passed' as const, brVoteMonth: state.month + 3, lobbyFraktionen: {} }
+        : g,
+    );
+    return addLog(
+      { ...state, gesetze },
+      `${law.kurz} durch Bundestag — Bundesratsabstimmung in 3 Monaten. Lobbying möglich.`,
+      'g',
+    );
   } else {
     const gesetze = state.gesetze.map((g, i) =>
       i === idx ? { ...g, status: 'blockiert' as const, blockiert: 'bundestag' as const } : g,

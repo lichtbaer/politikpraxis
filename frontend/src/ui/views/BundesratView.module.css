@@ -45,3 +45,73 @@
   border-radius: 50%;
   display: inline-block;
 }
+
+.lobbyPanel {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.lobbyTitle {
+  font-size: 14px;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.lobbyLaw {
+  margin-bottom: 12px;
+}
+
+.lobbyLawName {
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.lobbyLawCountdown {
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.fraktionen {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fraktionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.fraktionName {
+  min-width: 140px;
+}
+
+.lobbyPanel .btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.lobbyPanel .btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.lobbyPanel .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.done {
+  font-size: 11px;
+  color: var(--text2);
+}

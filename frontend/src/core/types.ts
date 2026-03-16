@@ -30,9 +30,17 @@ export interface LawEffects {
   al?: number;
 }
 
-export type LawStatus = 'entwurf' | 'aktiv' | 'blockiert' | 'beschlossen' | 'ausweich';
+export type LawStatus = 'entwurf' | 'aktiv' | 'blockiert' | 'beschlossen' | 'ausweich' | 'bt_passed';
 export type RouteType = 'eu' | 'land' | 'kommune';
 export type LawTag = 'bund' | 'eu' | 'land' | 'kommune';
+
+/** Lobby-Status pro Fraktion pro Gesetz */
+export interface LawLobbyFraktion {
+  pkInvestiert: boolean;
+  tradeoffAngenommen?: boolean;
+  tradeoffAblehnen?: boolean;
+  tradeoffGegenvorschlag?: boolean;
+}
 
 export interface Law {
   id: string;
@@ -50,6 +58,12 @@ export interface Law {
   rprog: number;
   rdur: number;
   blockiert: 'bundestag' | 'bundesrat' | null;
+  /** Monat der geplanten Bundesratsabstimmung (nur bei land-Tag) */
+  brVoteMonth?: number;
+  /** Lobby-State pro Fraktion: fraktionId -> State */
+  lobbyFraktionen?: Record<string, LawLobbyFraktion>;
+  /** Kohl-Sonderregel: Sabotage bereits ausgelöst für dieses Gesetz */
+  kohlSabotageTriggered?: boolean;
 }
 
 export type EventType = 'danger' | 'warn' | 'good' | 'info';
@@ -69,6 +83,8 @@ export interface EventChoice {
   effect: EventChoiceEffect;
   charMood?: Record<string, number>;
   loyalty?: Record<string, number>;
+  /** Bundesrat-Fraktion Beziehung: fraktionId -> Delta */
+  brRelation?: Record<string, number>;
   log: string;
 }
 
@@ -83,6 +99,8 @@ export interface GameEvent {
   choices: EventChoice[];
   ticker: string;
   charId?: string;
+  /** Bei Bundesrat-Events: betroffenes Gesetz */
+  lawId?: string;
 }
 
 export interface KPI {
@@ -142,6 +160,15 @@ export interface Tradeoff {
   charMood?: Record<string, number>;
 }
 
+/** Schicht 1 = PK-Investition, 2 = Trade-off, beziehungspflege = außerhalb Fenster, reparatur = bei Beziehung 0-19 */
+export type LobbySchicht = 1 | 2 | 'beziehungspflege' | 'reparatur';
+
+/** Optionen für Schicht 2 (Trade-off) */
+export interface LobbyTradeoffOptions {
+  action: 'annehmen' | 'ablehnen' | 'gegenvorschlag';
+  tradeoffId: string;
+}
+
 export interface BundesratFraktion {
   id: string;
   name: string;
@@ -158,6 +185,8 @@ export interface BundesratFraktion {
   beziehung: number;
   tradeoffPool: Tradeoff[];
   sonderregel?: string;
+  /** Monat bis zu dem Reparatur läuft (bei Beziehung 0-19) */
+  reparaturEndMonth?: number;
 }
 
 export interface GameState {

@@ -54,7 +54,8 @@ export function advanceRoutes(state: GameState): GameState {
     if (g.status === 'beschlossen' && g.rprog >= g.rdur && g.route) {
       const orig = state.gesetze.find(og => og.id === g.id);
       if (orig && orig.status === 'ausweich') {
-        newState = scheduleEffects(newState, g);
+        const lawForEffects = { effekte: g.effekte as Record<string, number>, lag: g.lag, kurz: g.kurz };
+        newState = scheduleEffects(newState, lawForEffects);
         newState = addLog(newState, `${g.kurz} via ${routeLabel(g.route)} beschlossen`, 'g');
       }
     }

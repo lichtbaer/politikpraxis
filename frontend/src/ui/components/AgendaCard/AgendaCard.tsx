@@ -11,6 +11,7 @@ interface AgendaCardProps {
 const STATUS_LABELS: Record<LawStatus, string> = {
   entwurf: 'Entwurf',
   aktiv: 'Aktiv',
+  bt_passed: 'Bundestag beschlossen',
   blockiert: 'Blockiert',
   beschlossen: 'Beschlossen',
   ausweich: 'Ausweichroute',
@@ -19,6 +20,7 @@ const STATUS_LABELS: Record<LawStatus, string> = {
 const STATUS_CLASS: Record<LawStatus, string> = {
   entwurf: styles.statusEntwurf,
   aktiv: styles.statusAktiv,
+  bt_passed: styles.statusAktiv,
   blockiert: styles.statusBlockiert,
   beschlossen: styles.statusBeschlossen,
   ausweich: styles.statusAusweich,
@@ -103,6 +105,14 @@ export function AgendaCard({ law }: AgendaCardProps) {
             </div>
           )}
 
+          {law.status === 'bt_passed' && law.brVoteMonth != null && (
+            <div className={styles.progressBar}>
+              <span className={styles.progressLabel}>
+                Bundesratsabstimmung in {law.brVoteMonth - state.month} Monaten — Lobbying aktiv
+              </span>
+            </div>
+          )}
+
           <div className={styles.actions}>
             {law.status === 'entwurf' && (
               <button
@@ -131,6 +141,15 @@ export function AgendaCard({ law }: AgendaCardProps) {
                 onClick={() => actions.abstimmen(law.id)}
               >
                 Abstimmung ansetzen
+              </button>
+            )}
+            {law.status === 'bt_passed' && (
+              <button
+                type="button"
+                className={styles.btn}
+                onClick={() => actions.setView('bundesrat')}
+              >
+                Bundesrat-Lobbying
               </button>
             )}
             {law.status === 'blockiert' && law.blockiert === 'bundesrat' && (

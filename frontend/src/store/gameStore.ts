@@ -6,7 +6,8 @@ import { einbringen, lobbying, abstimmen } from '../core/systems/parliament';
 import { startRoute } from '../core/systems/levels';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/media';
-import { lobbyLand } from '../core/systems/bundesrat';
+import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
+import type { LobbyTradeoffOptions } from '../core/types';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 
 interface GameStore {
@@ -25,6 +26,7 @@ interface GameStore {
   doResolveEvent: (event: GameEvent, choice: EventChoice) => void;
   doMedienkampagne: (milieu: MilieuKey) => void;
   doLobbyLand: (landId: string) => void;
+  doLobbyFraktion: (fraktionId: string, gesetzeId: string, schicht: 1 | 2 | 'beziehungspflege' | 'reparatur', tradeoffOptions?: LobbyTradeoffOptions) => void;
   toggleAgenda: (lawId: string) => void;
   loadSave: (savedState: GameState) => void;
 }
@@ -69,6 +71,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   doMedienkampagne: (milieu) => set(prev => ({ state: medienkampagne(prev.state, milieu) })),
   doLobbyLand: (landId) => set(prev => ({ state: lobbyLand(prev.state, landId) })),
+  doLobbyFraktion: (fraktionId, gesetzeId, schicht, tradeoffOptions) =>
+    set(prev => ({ state: lobbyFraktion(prev.state, fraktionId, gesetzeId, schicht, tradeoffOptions) })),
 
   toggleAgenda: (lawId) =>
     set(prev => ({
