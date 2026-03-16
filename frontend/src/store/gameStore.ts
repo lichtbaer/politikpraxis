@@ -10,11 +10,19 @@ import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
 import type { LobbyTradeoffOptions } from '../core/types';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 
+export type GamePhase = 'onboarding' | 'playing';
+
 interface GameStore {
   state: GameState;
   content: ContentBundle;
+  phase: GamePhase;
+  playerName: string;
+  complexity: number;
 
   init: (content?: ContentBundle) => void;
+  startGame: () => void;
+  setPlayerName: (name: string) => void;
+  setComplexity: (c: number) => void;
   gameTick: () => void;
   setSpeed: (speed: SpeedLevel) => void;
   setView: (view: ViewName) => void;
@@ -34,6 +42,9 @@ interface GameStore {
 export const useGameStore = create<GameStore>((set, get) => ({
   state: createInitialState(DEFAULT_CONTENT),
   content: DEFAULT_CONTENT,
+  phase: 'onboarding',
+  playerName: '',
+  complexity: 2,
 
   init: (content?: ContentBundle) => {
     const c = content || DEFAULT_CONTENT;
@@ -51,6 +62,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     };
     set({ state: withExpanded, content: c });
   },
+
+  startGame: () => set({ phase: 'playing' }),
+
+  setPlayerName: (playerName) => set({ playerName }),
+
+  setComplexity: (complexity) => set({ complexity }),
 
   gameTick: () => {
     const { state: s, content } = get();
