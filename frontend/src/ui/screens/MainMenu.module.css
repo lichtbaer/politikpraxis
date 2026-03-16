@@ -143,15 +143,6 @@
   color: var(--text3);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 @media (min-width: 768px) {
   .content {
     gap: 56px;

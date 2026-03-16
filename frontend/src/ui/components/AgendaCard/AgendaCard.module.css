@@ -8,8 +8,8 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 12px;
+  padding: 12px 16px;
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -20,9 +20,9 @@
 
 .badge {
   flex-shrink: 0;
-  font-size: 0.7rem;
+  font-size: 10px;
   font-weight: 600;
-  padding: 0.2rem 0.5rem;
+  padding: 3px 8px;
   border-radius: 4px;
   text-transform: uppercase;
 }
@@ -55,7 +55,7 @@
 .title {
   flex: 1;
   font-family: var(--serif);
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text);
   margin: 0;
@@ -63,17 +63,17 @@
 
 .arrow {
   color: var(--text2);
-  font-size: 0.7rem;
+  font-size: 10px;
 }
 
 .body {
-  padding: 0 1rem 1rem;
+  padding: 0 16px 16px;
   border-top: 1px solid var(--border);
 }
 
 .desc {
-  margin: 0.75rem 0 0;
-  font-size: 0.9rem;
+  margin: 12px 0 0;
+  font-size: 13px;
   color: var(--text2);
   line-height: 1.5;
 }
@@ -81,13 +81,13 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: 0.75rem;
+  gap: 5px;
+  margin-top: 12px;
 }
 
 .tag {
-  font-size: 0.7rem;
-  padding: 0.2rem 0.5rem;
+  font-size: 10px;
+  padding: 3px 8px;
   border-radius: 4px;
   background: var(--bg4);
   color: var(--text2);
@@ -95,7 +95,7 @@
 
 .voteBar,
 .progressBar {
-  margin-top: 0.75rem;
+  margin-top: 12px;
 }
 
 .voteTrack,
@@ -121,30 +121,30 @@
 .voteLabel,
 .progressLabel {
   display: block;
-  font-size: 0.75rem;
+  font-size: 11px;
   color: var(--text2);
-  margin-top: 0.25rem;
+  margin-top: 4px;
 }
 
 .blockiertPanel {
-  margin-top: 0.75rem;
-  padding: 0.5rem 0.75rem;
+  margin-top: 12px;
+  padding: 8px 12px;
   background: var(--bg4);
   border-radius: 4px;
-  font-size: 0.85rem;
+  font-size: 12px;
   color: var(--red);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .btn {
-  padding: 0.4rem 0.75rem;
-  font-size: 0.85rem;
+  padding: 6px 12px;
+  font-size: 12px;
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: 4px;

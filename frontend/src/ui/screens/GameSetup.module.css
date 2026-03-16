@@ -135,6 +135,13 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
+.slider::-moz-range-track {
+  height: 8px;
+  background: var(--bg3);
+  border-radius: 4px;
+  border: none;
+}
+
 .ausrichtungSatz {
   font-family: var(--serif);
   font-size: 14px;
@@ -251,11 +258,6 @@
 
 .back:hover {
   color: var(--text2);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
 }
 
 @media (max-width: 640px) {
