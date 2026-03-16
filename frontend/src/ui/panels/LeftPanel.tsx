@@ -1,10 +1,11 @@
 import { useGameStore } from '../../store/gameStore';
+import { featureActive } from '../../core/systems/features';
 import { CharacterRow } from '../components/CharacterRow/CharacterRow';
 import { CoalitionMeter } from '../components/CoalitionMeter/CoalitionMeter';
 import { MilieuBar } from '../components/MilieuBar/MilieuBar';
 import styles from './LeftPanel.module.css';
 
-const EBENEN: { id: string; label: string; color: string }[] = [
+const ALL_EBENEN: { id: string; label: string; color: string }[] = [
   { id: 'agenda', label: 'Agenda', color: 'var(--gold)' },
   { id: 'eu', label: 'EU-Ebene', color: 'var(--eu-c)' },
   { id: 'land', label: 'Länderebene', color: 'var(--land-c)' },
@@ -22,6 +23,11 @@ export function LeftPanel() {
   const chars = useGameStore((s) => s.state.chars);
   const view = useGameStore((s) => s.state.view);
   const setView = useGameStore((s) => s.setView);
+  const complexity = useGameStore((s) => s.complexity);
+
+  const EBENEN = ALL_EBENEN.filter(
+    (e) => e.id !== 'bundesrat' || featureActive(complexity, 'bundesrat_simple'),
+  );
 
   return (
     <aside className={styles.panel}>

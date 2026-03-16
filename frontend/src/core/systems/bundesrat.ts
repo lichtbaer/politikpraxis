@@ -125,6 +125,64 @@ export function calcBundesratMehrheit(
   };
 }
 
+/** Vote-Details pro Fraktion für UI (Abstimmungsbalken, Fraktionskarten) */
+export function getBundesratVoteDetails(
+  state: GameState,
+  gesetzeId: string,
+): { fraktionId: string; bereitschaft: number; stimmtJa: boolean; laender: string[] }[] {
+  const law = state.gesetze.find(g => g.id === gesetzeId);
+  if (!law) return [];
+
+  return state.bundesratFraktionen.map((f) => {
+    const lobby: LawLobbyFraktion = law.lobbyFraktionen?.[f.id] ?? { pkInvestiert: false };
+    const effMult = getLobbyEffektMultiplikator(f.beziehung);
+    const reparaturAktiv = f.beziehung < 20 && (f.reparaturEndMonth == null || state.month < f.reparaturEndMonth);
+
+    let bereitschaft = f.basisBereitschaft;
+
+    if (f.beziehung >= 80 && !isIdeologisch(gesetzeId, f.id)) {
+      bereitschaft = 100;
+    } else if (reparaturAktiv) {
+      bereitschaft = 0;
+    } else {
+      if (lobby.pkInvestiert) bereitschaft += BEREITSCHAFT_PK_BONUS * effMult;
+      if (lobby.tradeoffAngenommen) bereitschaft += BEREITSCHAFT_TRADEOFF_BONUS * effMult;
+      bereitschaft += Math.min(15, Math.floor(f.beziehung / 7));
+    }
+
+    return {
+      fraktionId: f.id,
+      bereitschaft: Math.min(100, Math.max(0, bereitschaft)),
+      stimmtJa: bereitschaft > 50,
+      laender: f.laender,
+    };
+  });
+}
+
+/** 16 Felder für Abstimmungsbalken: { landId, fraktionId, color, stimmtJa } */
+export function getBundesratAbstimmungsFelder(
+  state: GameState,
+  gesetzeId: string,
+): { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[] {
+  const details = getBundesratVoteDetails(state, gesetzeId);
+  const fraktionen = state.bundesratFraktionen;
+  const result: { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[] = [];
+
+  for (const d of details) {
+    const f = fraktionen.find(x => x.id === d.fraktionId);
+    if (!f) continue;
+    for (const landId of d.laender) {
+      result.push({
+        landId,
+        fraktionId: f.id,
+        color: f.sprecher.color,
+        stimmtJa: d.stimmtJa,
+      });
+    }
+  }
+  return result;
+}
+
 /** Vereinfachte Mehrheit für Kompatibilität (16 Länder, 9 Mehrheit) */
 export function calcBundesratMehrheitSimple(
   fraktionen: BundesratFraktion[],

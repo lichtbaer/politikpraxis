@@ -1,105 +1,209 @@
-import { useEffect, useRef } from 'react';
-import Phaser from 'phaser';
-import { PhaserContainer, type PhaserContainerHandle } from '../../phaser/PhaserContainer';
-import { BundesratScene } from '../../phaser/scenes/BundesratScene';
+import { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { featureActive } from '../../core/systems/features';
+import {
+  isLobbyingActive,
+  calcBundesratMehrheit,
+  getBundesratVoteDetails,
+  getBundesratAbstimmungsFelder,
+} from '../../core/systems/bundesrat';
+import type { BundesratFraktion, Law } from '../../core/types';
 import { useUIStore } from '../../store/uiStore';
-import { isLobbyingActive } from '../../core/systems/bundesrat';
+import { LobbyingOverlay } from '../components/LobbyingOverlay/LobbyingOverlay';
 import styles from './BundesratView.module.css';
 
-const PK_SCHICHT_1 = 15;
-const PK_SCHICHT_1_REDUZIERT = 10;
+function getBeziehungsFarbe(beziehung: number): string {
+  if (beziehung >= 60) return 'var(--green)';
+  if (beziehung >= 30) return 'var(--warn)';
+  return 'var(--red)';
+}
 
-function getPkCost(beziehung: number): number {
-  return beziehung >= 60 && beziehung <= 79 ? PK_SCHICHT_1_REDUZIERT : PK_SCHICHT_1;
+function canLobby(fraktion: BundesratFraktion, state: { month: number }): boolean {
+  if (fraktion.beziehung >= 20) return true;
+  if (fraktion.reparaturEndMonth != null && state.month >= fraktion.reparaturEndMonth) return true;
+  return false;
+}
+
+interface FraktionskarteProps {
+  fraktion: BundesratFraktion;
+  law: Law | null;
+  voteDetail: { bereitschaft: number } | null;
+  onGespraechSuchen: () => void;
+  complexity: number;
+}
+
+function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexity }: FraktionskarteProps) {
+  const state = useGameStore((s) => s.state);
+
+  const fullView = featureActive(complexity, 'bundesrat_full');
+  const lobbyingActive = law && isLobbyingActive(state, law.id);
+  const lobbyGesperrt = !canLobby(fraktion, state);
+  const showGespraechBtn = fullView && lobbyingActive && !lobbyGesperrt;
+
+  const bereitschaft = voteDetail?.bereitschaft ?? fraktion.basisBereitschaft;
+
+  return (
+    <article className={styles.karte}>
+      <div className={styles.karteHeader}>
+        <div
+          className={styles.avatar}
+          style={{
+            backgroundColor: `${fraktion.sprecher.color}33`,
+            borderColor: fraktion.sprecher.color,
+          }}
+        >
+          {fraktion.sprecher.initials}
+        </div>
+        <div className={styles.karteMeta}>
+          <span className={styles.sprecherName}>{fraktion.sprecher.name}</span>
+          <span className={styles.parteiLand}>
+            {fraktion.sprecher.partei} · {fraktion.sprecher.land}
+          </span>
+          <span className={styles.laenderListe}>{fraktion.laender.join(', ')}</span>
+        </div>
+      </div>
+      <div className={styles.beziehungsBalken}>
+        <div className={styles.balkenLabel}>
+          <span>Beziehung</span>
+          <span>{fraktion.beziehung}</span>
+        </div>
+        <div className={styles.balkenTrack}>
+          <div
+            className={styles.balkenFill}
+            style={{
+              width: `${fraktion.beziehung}%`,
+              backgroundColor: getBeziehungsFarbe(fraktion.beziehung),
+            }}
+          />
+        </div>
+      </div>
+      <div className={styles.bereitschaft}>
+        <span>Abstimmungsbereitschaft</span>
+        <span className={styles.bereitschaftValue}>{bereitschaft}%</span>
+      </div>
+      {showGespraechBtn && (
+        <button type="button" className={styles.btnGespraech} onClick={onGespraechSuchen}>
+          Gespräch suchen
+        </button>
+      )}
+    </article>
+  );
+}
+
+interface AbstimmungsbalkenProps {
+  law: Law;
+  felder: { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[];
+  ja: number;
+  nein: number;
+  mehrheit: boolean;
+}
+
+function Abstimmungsbalken({ law, felder, ja, nein, mehrheit }: AbstimmungsbalkenProps) {
+  const fraktionen = useGameStore((s) => s.state.bundesratFraktionen);
+  const showToast = useUIStore((s) => s.showToast);
+
+  const handleFeldClick = (fraktionId: string) => {
+    const f = fraktionen.find((x) => x.id === fraktionId);
+    if (f) showToast(`${f.name}: ${f.sprecher.name} (${f.sprecher.partei})`);
+  };
+
+  return (
+    <div className={styles.abstimmungsBalken}>
+      <div className={styles.abstimmungsHeader}>
+        <span className={styles.abstimmungsLaw}>{law.kurz}</span>
+        <span className={styles.abstimmungsErgebnis}>
+          {ja} Ja · {nein} Nein {mehrheit ? '✓ Mehrheit' : '✗ Keine Mehrheit'}
+        </span>
+      </div>
+      <div className={styles.felderContainer}>
+        {felder.map((f, i) => (
+          <button
+            key={`${f.landId}-${i}`}
+            type="button"
+            className={`${styles.feld} ${f.stimmtJa ? styles.feldJa : styles.feldNein}`}
+            style={{
+              backgroundColor: f.stimmtJa ? f.color : `${f.color}44`,
+              borderColor: f.color,
+            }}
+            onClick={() => handleFeldClick(f.fraktionId)}
+            title={`${f.landId}: ${f.stimmtJa ? 'Ja' : 'Nein'}`}
+          />
+        ))}
+        <div className={styles.mehrheitsLinie} title="Mehrheit bei 9 Stimmen" />
+      </div>
+      <span className={styles.mehrheitsLabel}>Mehrheit (9)</span>
+    </div>
+  );
 }
 
 export function BundesratView() {
-  const state = useGameStore(s => s.state);
-  const doLobbyFraktion = useGameStore(s => s.doLobbyFraktion);
-  const bundesrat = state.bundesrat;
-  const phaserRef = useRef<PhaserContainerHandle>(null);
+  const state = useGameStore((s) => s.state);
+  const complexity = useGameStore((s) => s.complexity);
+  const [lobbyingFraktion, setLobbyingFraktion] = useState<BundesratFraktion | null>(null);
+  const activeLaws = state.gesetze.filter(
+    (g) => g.status === 'bt_passed' && isLobbyingActive(state, g.id),
+  );
+  const displayLaw =
+    activeLaws[0] ?? state.gesetze.find((g) => g.status === 'bt_passed' && g.brVoteMonth);
 
-  const activeLaws = state.gesetze.filter(g => g.status === 'bt_passed' && isLobbyingActive(state, g.id));
+  const voteDetails = displayLaw
+    ? getBundesratVoteDetails(state, displayLaw.id)
+    : [];
+  const felder = displayLaw ? getBundesratAbstimmungsFelder(state, displayLaw.id) : [];
 
-  const phaserConfig: Phaser.Types.Core.GameConfig = {
-    type: Phaser.AUTO,
-    width: 440,
-    height: 380,
-    backgroundColor: '#1a1712',
-    scene: [BundesratScene],
-    banner: false,
-  };
-
-  useEffect(() => {
-    const scene = phaserRef.current?.getScene<BundesratScene>('bundesrat');
-    if (scene) {
-      scene.updateLaender(bundesrat);
-      scene.setClickHandler((landId) => {
-        useUIStore.getState().showToast(`Land: ${landId}`);
-      });
-    }
-  }, [bundesrat]);
+  const voteDetailMap = Object.fromEntries(
+    voteDetails.map((d) => [d.fraktionId, { bereitschaft: d.bereitschaft }]),
+  );
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Bundesrat</h2>
         <p className={styles.subtitle}>
-          16 Bundesländer mit eigenen Ministerpräsidenten. Lobbying beeinflusst Abstimmungsverhalten.
+          4 Fraktionen vertreten 16 Bundesländer. Lobbying beeinflusst die Abstimmungsbereitschaft.
         </p>
       </div>
-      <PhaserContainer ref={phaserRef} config={phaserConfig} className={styles.map} />
-      <div className={styles.legend}>
-        <span className={styles.legendItem}>
-          <span className={styles.dot} style={{ background: '#5a9870' }} /> Koalition
-        </span>
-        <span className={styles.legendItem}>
-          <span className={styles.dot} style={{ background: '#9a9080' }} /> Neutral
-        </span>
-        <span className={styles.legendItem}>
-          <span className={styles.dot} style={{ background: '#c05848' }} /> Opposition
-        </span>
-      </div>
 
-      {activeLaws.length > 0 && (
-        <div className={styles.lobbyPanel}>
-          <h3 className={styles.lobbyTitle}>Lobbying (3-Monats-Fenster)</h3>
-          {activeLaws.map((law) => (
-            <div key={law.id} className={styles.lobbyLaw}>
-              <span className={styles.lobbyLawName}>{law.kurz}</span>
-              <span className={styles.lobbyLawCountdown}>
-                Abstimmung in {law.brVoteMonth! - state.month} Monaten
-              </span>
-              <div className={styles.fraktionen}>
-                {state.bundesratFraktionen.map((f) => {
-                  const lobby = law.lobbyFraktionen?.[f.id];
-                  const pkCost = getPkCost(f.beziehung);
-                  const canPk = !lobby?.pkInvestiert && state.pk >= pkCost && f.beziehung >= 20;
-                  return (
-                    <div key={f.id} className={styles.fraktionRow}>
-                      <span className={styles.fraktionName} style={{ color: f.sprecher.color }}>
-                        {f.sprecher.name}: {f.beziehung} Beziehung
-                      </span>
-                      {canPk && (
-                        <button
-                          type="button"
-                          className={styles.btn}
-                          onClick={() => doLobbyFraktion(f.id, law.id, 1)}
-                        >
-                          PK-Investition ({pkCost} PK)
-                        </button>
-                      )}
-                      {lobby?.pkInvestiert && (
-                        <span className={styles.done}>✓ PK investiert</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
+      <section className={styles.fraktionskarten}>
+        {state.bundesratFraktionen.map((f) => (
+          <Fraktionskarte
+            key={f.id}
+            fraktion={f}
+            law={displayLaw ?? null}
+            voteDetail={voteDetailMap[f.id] ?? null}
+            onGespraechSuchen={() => setLobbyingFraktion(f)}
+            complexity={complexity}
+          />
+        ))}
+      </section>
+
+      {displayLaw && (() => {
+        const { ja, nein, mehrheit } = calcBundesratMehrheit(state, displayLaw.id);
+        return (
+          <section className={styles.abstimmung}>
+            <Abstimmungsbalken
+              law={displayLaw}
+              felder={felder}
+              ja={ja}
+              nein={nein}
+              mehrheit={mehrheit}
+            />
+          </section>
+        );
+      })()}
+
+      {!displayLaw && (
+        <p className={styles.keineAbstimmung}>
+          Keine Bundesratsabstimmung in den nächsten Monaten.
+        </p>
+      )}
+
+      {lobbyingFraktion && displayLaw && (
+        <LobbyingOverlay
+          fraktion={lobbyingFraktion}
+          law={displayLaw}
+          onClose={() => setLobbyingFraktion(null)}
+        />
       )}
     </div>
   );
