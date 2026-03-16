@@ -26,6 +26,7 @@ export function createInitialState(content: ContentBundle): GameState {
     activeEvent: null,
     firedEvents: [],
     firedCharEvents: [],
+    firedBundesratEvents: [],
 
     pending: [],
 
