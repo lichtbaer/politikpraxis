@@ -10,6 +10,7 @@ import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
+import { saveGame, type SaveFile } from '../services/localStorageSave';
 
 export type GamePhase = 'onboarding' | 'playing';
 
@@ -43,6 +44,7 @@ interface GameStore {
   doLobbyFraktion: (fraktionId: string, gesetzeId: string, schicht: 1 | 2 | 'beziehungspflege' | 'reparatur', tradeoffOptions?: LobbyTradeoffOptions) => void;
   toggleAgenda: (lawId: string) => void;
   loadSave: (savedState: GameState) => void;
+  loadSaveFromFile: (save: SaveFile) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -89,9 +91,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setAusrichtung: (ausrichtung) => set({ ausrichtung, ausrichtungApplied: false }),
 
   gameTick: () => {
-    const { state: s, content } = get();
+    const { state: s, content, phase, playerName, complexity, ausrichtung } = get();
     if (s.gameOver || s.speed === 0) return;
-    set({ state: tick(s, content) });
+    const nextState = tick(s, content);
+    set({ state: nextState });
+    if (phase === 'playing' && !nextState.gameOver) {
+      saveGame({ gameState: nextState, playerName, complexity, ausrichtung });
+    }
   },
 
   setSpeed: (speed) => set(prev => ({ state: { ...prev.state, speed } })),
@@ -129,5 +135,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
       electionThreshold: savedState.electionThreshold ?? 40,
     };
     set({ state });
+  },
+
+  loadSaveFromFile: (save) => {
+    const initial = createInitialState(DEFAULT_CONTENT);
+    const state = {
+      ...save.gameState,
+      bundesratFraktionen: save.gameState.bundesratFraktionen ?? initial.bundesratFraktionen,
+      firedBundesratEvents: save.gameState.firedBundesratEvents ?? [],
+      electionThreshold: save.gameState.electionThreshold ?? 40,
+    };
+    set({
+      state,
+      playerName: save.playerName,
+      complexity: save.complexity,
+      ausrichtung: save.ausrichtung,
+      ausrichtungApplied: true,
+      phase: 'playing',
+    });
   },
 }));
