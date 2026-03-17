@@ -11,15 +11,6 @@ function getBeziehungsFarbe(beziehung: number): string {
   return 'var(--red)';
 }
 
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-}
-
 export function KoalitionspartnerPanel() {
   const { t } = useTranslation('game');
   const { state, content, complexity } = useGameStore();
@@ -39,13 +30,13 @@ export function KoalitionspartnerPanel() {
 
   return (
     <div className={styles.panel}>
-      <h3 className={styles.title}>{t('game:koalition.partner')}: {partnerContent.sprecher}</h3>
+      <h3 className={styles.title}>{t('game:koalition.partner')}</h3>
       <div className={styles.content}>
         <div
           className={styles.avatar}
           style={{ backgroundColor: '#5a987033', borderColor: '#5a9870' }}
         >
-          {getInitials(partnerContent.sprecher)}
+          KP
         </div>
         <div className={styles.meta}>
           <div className={styles.beziehungsBalken}>
