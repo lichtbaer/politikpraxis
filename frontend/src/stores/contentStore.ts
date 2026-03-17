@@ -54,6 +54,7 @@ function transformChar(api: CharApi): Character {
     bio: api.bio,
     interests: api.interests ?? [],
     tag: api.keyword ?? undefined,
+    min_complexity: api.min_complexity ?? 1,
     bonus: {
       trigger: api.bonus_trigger ?? 'mood>=3',
       desc: api.bonus_desc ?? '',

@@ -13,6 +13,10 @@ const FEATURES: Record<string, { minLevel: number }> = {
   milieu_progressiv: { minLevel: 2 },
   char_ultimatums: { minLevel: 2 },
   coalition_stability: { minLevel: 2 },
+  /** Schulze + Neumann ab Stufe 3 */
+  kabinett_erweiterung: { minLevel: 3 },
+  /** + Becker ab Stufe 4 */
+  kabinett_voll: { minLevel: 4 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {

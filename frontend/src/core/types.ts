@@ -23,6 +23,8 @@ export interface Character {
   ultimatum: CharacterUltimatum;
   /** Ein-Wort-Charakterisierung für Onboarding */
   tag?: string;
+  /** Mindest-Komplexitätsstufe, ab der der Char im Kabinett erscheint (default: 1) */
+  min_complexity?: number;
 }
 
 export interface LawEffects {
