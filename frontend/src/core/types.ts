@@ -91,7 +91,7 @@ export interface Law {
   einnahmeeffekt?: number;
   /** Investitionsgesetz (+2 Mo. Lag) */
   investiv?: boolean;
-  /** SMA-273: Vorstufen möglich (aus API) */
+  /** Kommunal-Pilot möglich (SMA-272), Länder/EU-Vorstufen (SMA-273) */
   kommunal_pilot_moeglich?: boolean;
   laender_pilot_moeglich?: boolean;
   eu_initiative_moeglich?: boolean;
@@ -152,6 +152,8 @@ export interface EventChoice {
   /** Bei Ministerial-Initiative: Aktion für resolveMinisterialInitiative */
   ministerialAction?: 'unterstuetzen' | 'ablehnen' | 'ignorieren';
   log: string;
+  /** Choice-Key aus API (z.B. als_vorbild, koordinieren) */
+  key?: string;
 }
 
 export interface GameEvent {
@@ -176,6 +178,20 @@ export interface GameEvent {
   landtagswahlToFraktion?: string;
   /** Bei Sprecher-Wechsel: neuer Sprecher */
   sprecherErsatz?: { name: string; partei: string; land: string; initials: string; color: string; bio: string; quote?: string };
+  /** Kommunal-Initiative: Politikfeld für Trigger-Check */
+  politikfeldId?: string | null;
+  /** Kommunal-Initiative: min. Druck-Wert */
+  triggerDruckMin?: number | null;
+  /** Kommunal-Initiative: Milieu-Key für Trigger */
+  triggerMilieuKey?: string | null;
+  /** Kommunal-Initiative: Milieu-Vergleich (>, <) */
+  triggerMilieuOp?: string | null;
+  /** Kommunal-Initiative: Milieu-Schwellwert */
+  triggerMilieuVal?: number | null;
+  /** Kommunal-Initiative: passende Gesetze für Pilot */
+  gesetzRef?: string[];
+  /** Mindest-Komplexitätsstufe */
+  min_complexity?: number;
 }
 
 export interface KPI {
@@ -395,6 +411,8 @@ export interface GameState {
   firedEvents: string[];
   firedCharEvents: string[];
   firedBundesratEvents: string[];
+  /** Kommunal-Initiative Events (SMA-275) */
+  firedKommunalEvents?: string[];
 
   pending: PendingEffect[];
 
@@ -417,6 +435,8 @@ export interface GameState {
   verbandsBeziehungen?: Record<string, number>;
   /** Partner priorisiert Gesetz für 3 Monate (+5% BT-Stimmen) */
   partnerPrioGesetz?: { gesetzId: string; bisMonat: number };
+  /** +2% BT-Stimmen-Bonus (z.B. durch „als_vorbild“ bei Kommunal-Initiative), bis Monat */
+  btStimmenBonus?: { pct: number; bisMonat: number };
   /** Monat, in dem Koalitionsbruch-Warnung ausgelöst wurde (für 3-Monats-Frist) */
   koalitionsbruchSeitMonat?: number;
   /** Politikfeld-Druck-Scores (0–100) */
@@ -485,6 +505,10 @@ export interface ContentBundle {
   events: GameEvent[];
   charEvents: Record<string, GameEvent>;
   bundesratEvents?: GameEvent[];
+  /** Kommunal-Initiative Events (SMA-275) */
+  kommunalEvents?: GameEvent[];
+  /** Vorstufen-Erfolg Events (von resolveVorstufe aufgerufen) */
+  vorstufenEvents?: GameEvent[];
   laws: Law[];
   bundesrat: BundesratLand[];
   bundesratFraktionen?: BundesratFraktion[];

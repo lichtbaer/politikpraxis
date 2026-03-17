@@ -15,11 +15,21 @@ export function routeLabel(r: RouteType): string {
   return { eu: 'EU-Ebene', land: 'Länder-Pilot', kommune: 'Städtebündnis' }[r];
 }
 
-export function startRoute(state: GameState, lawId: string, route: RouteType): GameState {
+export interface StartRouteOptions {
+  /** Override cost (z.B. 8 PK bei Kommunal-Initiative koordinieren) */
+  costOverride?: number;
+}
+
+export function startRoute(
+  state: GameState,
+  lawId: string,
+  route: RouteType,
+  options?: StartRouteOptions,
+): GameState {
   const idx = state.gesetze.findIndex(g => g.id === lawId);
   if (idx === -1) return state;
 
-  const cost = ROUTE_COSTS[route];
+  const cost = options?.costOverride ?? ROUTE_COSTS[route];
   if (state.pk < cost) return state;
 
   const dur = ROUTE_DURATIONS[route];
@@ -36,7 +46,13 @@ export function startRoute(state: GameState, lawId: string, route: RouteType): G
   );
 }
 
-export function advanceRoutes(state: GameState): GameState {
+export interface AdvanceRoutesResult {
+  state: GameState;
+  /** Wenn eine Vorstufe abgeschlossen wurde (kommune/land) */
+  completedVorstufe?: { lawId: string; route: 'kommune' | 'land' };
+}
+
+export function advanceRoutes(state: GameState): AdvanceRoutesResult {
   const gesetze = state.gesetze.map(g => {
     if (g.route && g.status === 'ausweich') {
       if (g.route === 'eu' && state.eu?.aktiveRoute?.gesetzId === g.id) {
@@ -51,7 +67,8 @@ export function advanceRoutes(state: GameState): GameState {
     return g;
   });
 
-  let newState = { ...state, gesetze };
+  let newState: GameState = { ...state, gesetze };
+  let completedVorstufe: { lawId: string; route: 'kommune' | 'land' } | undefined;
 
   for (const g of gesetze) {
     if (g.status === 'beschlossen' && g.rprog >= g.rdur && g.route && g.route !== 'eu') {
@@ -60,9 +77,10 @@ export function advanceRoutes(state: GameState): GameState {
         const lawForEffects = { effekte: g.effekte as Record<string, number>, lag: g.lag, kurz: g.kurz };
         newState = scheduleEffects(newState, lawForEffects);
         newState = addLog(newState, `${g.kurz} via ${routeLabel(g.route)} beschlossen`, 'g');
+        completedVorstufe = { lawId: g.id, route: g.route };
       }
     }
   }
 
-  return newState;
+  return { state: newState, completedVorstufe };
 }

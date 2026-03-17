@@ -2,6 +2,7 @@ import type { GameState, GameEvent, EventChoice } from '../types';
 import { addLog } from '../engine';
 import { applyMoodChange } from './characters';
 import { resolveMinisterialInitiative } from './ministerialInitiativen';
+import { startRoute } from './levels';
 import i18n from '../../i18n';
 
 /** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
@@ -190,10 +191,95 @@ export function checkBundesratEvents(
   return state;
 }
 
+export interface KommunalEventContext {
+  kommunalEvents: GameEvent[];
+}
+
+/** Prüft Kommunal-Initiative Events (SMA-275): Trigger bei politikfeldDruck + Milieu-Zustimmung */
+export function checkKommunalEvents(
+  state: GameState,
+  ctx: KommunalEventContext,
+  complexity: number,
+): GameState {
+  if (state.activeEvent) return state;
+
+  const fired = state.firedKommunalEvents ?? [];
+  const { kommunalEvents } = ctx;
+  if (!kommunalEvents.length) return state;
+
+  const milieuZustimmung = state.milieuZustimmung ?? {};
+  const politikfeldDruck = state.politikfeldDruck ?? {};
+
+  for (const ev of kommunalEvents) {
+    if (fired.includes(ev.id)) continue;
+    const evMinC = (ev as GameEvent & { min_complexity?: number }).min_complexity;
+    if (evMinC != null && evMinC > complexity) continue;
+
+    const pfId = ev.politikfeldId;
+    const druckMin = ev.triggerDruckMin ?? 0;
+    const milieuKey = ev.triggerMilieuKey;
+    const milieuOp = ev.triggerMilieuOp;
+    const milieuVal = ev.triggerMilieuVal ?? 0;
+
+    const druck = pfId ? (politikfeldDruck[pfId] ?? 0) : 0;
+    if (druck <= druckMin) continue;
+
+    const milieuZust = milieuKey ? (milieuZustimmung[milieuKey] ?? 50) : 50;
+    const milieuOk = milieuOp === '>'
+      ? milieuZust > milieuVal
+      : milieuOp === '<'
+        ? milieuZust < milieuVal
+        : true;
+    if (!milieuOk) continue;
+
+    // Gesetz-Referenz: passendes Gesetz für Pilot (bei koordinieren)
+    const gesetzRef = ev.gesetzRef ?? [];
+    const passendesGesetz = state.gesetze.find(
+      g => gesetzRef.includes(g.id) && (g.status === 'entwurf' || g.status === 'aktiv') &&
+           g.kommunal_pilot_moeglich !== false,
+    );
+    if (!passendesGesetz && gesetzRef.length > 0) continue;
+
+    return {
+      ...state,
+      firedKommunalEvents: [...fired, ev.id],
+      activeEvent: passendesGesetz ? { ...ev, lawId: passendesGesetz.id } : ev,
+      speed: 0,
+    };
+  }
+
+  return state;
+}
+
 export function resolveEvent(state: GameState, event: GameEvent, choice: EventChoice): GameState {
   // Ministerial-Initiative: eigene Auflösung
   if (choice.ministerialAction && state.aktiveMinisterialInitiative && event.id.startsWith('mi_')) {
     return resolveMinisterialInitiative(state, choice.ministerialAction);
+  }
+
+  // Kommunal-Initiative: als_vorbild — +2% BT-StimmenBonus, 0 PK
+  const kommunalIds = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
+  if (kommunalIds.has(event.id) && choice.key === 'als_vorbild') {
+    if (state.pk < (choice.cost || 0)) return state;
+    const bisMonat = state.month + 12;
+    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0), btStimmenBonus: { pct: 2, bisMonat } };
+    const choiceIdx = event.choices.indexOf(choice);
+    const logKey = `game:kommunalEvents.${event.id}.choices.${choiceIdx}.log`;
+    newState = addLog(newState, logKey, 'g');
+    newState.ticker = i18n.exists(`game:kommunalEvents.${event.id}.ticker`) ? i18n.t(`game:kommunalEvents.${event.id}.ticker`) : event.ticker;
+    newState.activeEvent = null;
+    return newState;
+  }
+
+  // Kommunal-Initiative: koordinieren — startKommunalPilot (8 PK gesamt)
+  if (kommunalIds.has(event.id) && choice.key === 'koordinieren' && event.lawId) {
+    if (state.pk < (choice.cost || 0)) return state;
+    let newState = startRoute(state, event.lawId, 'kommune', { costOverride: 8 });
+    const choiceIdx = event.choices.indexOf(choice);
+    newState = addLog(newState, `game:kommunalEvents.${event.id}.choices.${choiceIdx}.log`, 'g');
+    newState.ticker = event.ticker;
+    newState.activeEvent = null;
+    return newState;
   }
 
   if (state.pk < (choice.cost || 0)) return state;
@@ -254,8 +340,10 @@ export function resolveEvent(state: GameState, event: GameEvent, choice: EventCh
   const logType = choice.type === 'danger' ? 'r' : 'g';
   const choiceIdx = event.choices.indexOf(choice);
   const BR_IDS = new Set(['laenderfinanzausgleich', 'landtagswahl', 'kohl_eskaliert', 'sprecher_wechsel', 'bundesrat_initiative', 'foederalismusgipfel']);
+  const KOMMUNAL_IDS = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
+  const VORSTUFEN_IDS = new Set(['vorstufe_kommunal_erfolg', 'vorstufe_laender_erfolg']);
   const CHAR_IDS = new Set(['fm_ultimatum', 'braun_ultimatum', 'wolf_ultimatum', 'kern_ultimatum', 'kanzler_ultimatum', 'kohl_bundesrat_sabotage', 'wm_ultimatum', 'am_ultimatum', 'gm_ultimatum', 'bm_ultimatum', 'koalitionsbruch', 'koalitionskrise_ultimatum']);
-  const eventNs = event.charId || CHAR_IDS.has(event.id) ? 'charEvents' : BR_IDS.has(event.id) ? 'bundesratEvents' : 'events';
+  const eventNs = event.charId || CHAR_IDS.has(event.id) ? 'charEvents' : BR_IDS.has(event.id) ? 'bundesratEvents' : KOMMUNAL_IDS.has(event.id) ? 'kommunalEvents' : VORSTUFEN_IDS.has(event.id) ? 'vorstufenEvents' : 'events';
   const logKey = `game:${eventNs}.${event.id}.choices.${choiceIdx}.log`;
   newState = addLog(newState, logKey, logType);
   const tickerKey = `game:${eventNs}.${event.id}.ticker`;

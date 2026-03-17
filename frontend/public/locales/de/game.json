@@ -472,6 +472,67 @@
       }
     }
   },
+  "kommunalEvents": {
+    "kommunal_klima_initiative": {
+      "typeLabel": "Kommunal-Initiative",
+      "title": "Hamburg und München starten Klimaschutz-Eigenprogramm",
+      "quote": "„Wir warten nicht länger auf den Bund.“",
+      "context": "Großstädte haben eigenständig Klimaschutzmaßnahmen beschlossen. Der Druck aus der Zivilgesellschaft und postmateriellen Milieus ist hoch.",
+      "ticker": "Hamburg und München: Eigenes Klimaprogramm — Bund unter Druck",
+      "choices": {
+        "0": { "label": "Als Vorbild würdigen", "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.", "log": "Kommunale Initiative als Vorbild gewürdigt. Positive Signalwirkung." },
+        "1": { "label": "Koordinieren und Pilot starten", "desc": "8 PK — voller Kommunal-Pilot mit dem passenden Gesetz.", "log": "Bund koordiniert kommunale Initiative. Pilotprojekt gestartet." },
+        "2": { "label": "Ignorieren", "desc": "Keine Reaktion. Druck könnte steigen.", "log": "Kommunale Initiative ignoriert. Unmut in den Städten." }
+      }
+    },
+    "kommunal_sozial_initiative": {
+      "typeLabel": "Kommunal-Initiative",
+      "title": "Ruhrgebiet-Städte fordern Mindestlohnerhöhung — jetzt",
+      "quote": "„Unsere Bürger können nicht warten.“",
+      "context": "Industriestädte im Ruhrgebiet haben kommunale Mindestlohn-Initiativen gestartet. Die soziale Mitte fühlt sich von der Bundespolitik im Stich gelassen.",
+      "ticker": "Ruhrgebiet: Städte fordern Mindestlohnerhöhung — Regierung unter Beobachtung",
+      "choices": {
+        "0": { "label": "Als Vorbild würdigen", "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.", "log": "Kommunale Initiative als Vorbild gewürdigt." },
+        "1": { "label": "Koordinieren und Pilot starten", "desc": "8 PK — voller Kommunal-Pilot.", "log": "Bund koordiniert. Pilotprojekt gestartet." },
+        "2": { "label": "Ignorieren", "desc": "Keine Reaktion.", "log": "Kommunale Initiative ignoriert." }
+      }
+    },
+    "kommunal_sicherheit_initiative": {
+      "typeLabel": "Kommunal-Initiative",
+      "title": "Städte fordern mehr Polizeipräsenz — eigenständige Maßnahmen",
+      "quote": "„Der Bund handelt nicht — wir müssen es tun.“",
+      "context": "Kommunen haben eigenständig Sicherheitsmaßnahmen angekündigt. Traditionelle Wähler fordern mehr Handlungsfähigkeit vom Bund.",
+      "ticker": "Kommunen starten eigene Sicherheitsinitiativen — Bund reagiert",
+      "choices": {
+        "0": { "label": "Als Vorbild würdigen", "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.", "log": "Kommunale Initiative als Vorbild gewürdigt." },
+        "1": { "label": "Koordinieren und Pilot starten", "desc": "8 PK — voller Kommunal-Pilot.", "log": "Bund koordiniert. Pilotprojekt gestartet." },
+        "2": { "label": "Ignorieren", "desc": "Keine Reaktion.", "log": "Kommunale Initiative ignoriert." }
+      }
+    }
+  },
+  "vorstufenEvents": {
+    "vorstufe_kommunal_erfolg": {
+      "typeLabel": "Vorstufen-Erfolg",
+      "title": "Pilotprojekt [Stadtname]: Erfolg bestätigt",
+      "quote": "„Das Modell funktioniert — Zeit für den Bund.“",
+      "context": "Das kommunale Pilotprojekt war erfolgreich. Die Erfahrungen bestätigen die Wirksamkeit — Zeit für die bundesweite Umsetzung.",
+      "ticker": "Kommunal-Pilot erfolgreich — Signal für Bund",
+      "choices": {
+        "0": { "label": "Zur Kenntnis nehmen", "desc": "Erfolg bestätigt. Bonus wird angewendet.", "log": "Pilotprojekt-Erfolg zur Kenntnis genommen." }
+      }
+    },
+    "vorstufe_laender_erfolg": {
+      "typeLabel": "Vorstufen-Erfolg",
+      "title": "[Bundesland] beschließt [Gesetz] — Signalwirkung für Bund",
+      "quote": "„Andere Länder beobachten das aufmerksam.“",
+      "context": "Ein Bundesland hat das Gesetz als Pilot erfolgreich umgesetzt. Die Signalwirkung für andere Länder und den Bund ist groß.",
+      "ticker": "Länder-Pilot erfolgreich — andere Länder beobachten",
+      "choices": {
+        "0": { "label": "Weitere Länder einladen", "desc": "12 PK — startet zweiten Länder-Pilot mit +10% Erfolgschance.", "log": "Weitere Länder zum Pilot eingeladen." },
+        "1": { "label": "Zur Kenntnis nehmen", "desc": "Erfolg bestätigt.", "log": "Länder-Pilot-Erfolg zur Kenntnis genommen." }
+      }
+    }
+  },
   "routes": {
     "eu": "EU-Ebene",
     "land": "Länder-Pilot",

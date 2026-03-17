@@ -124,8 +124,13 @@ export function abstimmen(
     state.month <= state.partnerPrioGesetz.bisMonat
       ? 5
       : 0;
-  const btStimmenBonus = state.gesetzProjekte?.[lawId]?.boni?.btStimmenBonus ?? 0;
-  const effectiveJa = Math.min(95, law.ja + partnerBonus + btStimmenBonus);
+  const btBonus =
+    state.btStimmenBonus &&
+    state.month <= state.btStimmenBonus.bisMonat
+      ? state.btStimmenBonus.pct
+      : 0;
+  const vorstufenBtBonus = state.gesetzProjekte?.[lawId]?.boni?.btStimmenBonus ?? 0;
+  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus);
 
   if (effectiveJa > 50) {
     if (!law.tags.includes('land')) {
