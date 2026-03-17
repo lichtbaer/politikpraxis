@@ -613,6 +613,36 @@
     "gesellschaft": "Society",
     "staat": "State",
     "korridorHint": "Corridor: {{partei}}-typical",
+    "polWirtschaftLinks": "Redistribution",
+    "polWirtschaftRechts": "Free market",
+    "polGesellschaftLinks": "Progressive",
+    "polGesellschaftRechts": "Conservative",
+    "polStaatLinks": "Community",
+    "polStaatRechts": "Self-reliance",
+    "ideologieLabel": {
+      "wirtschaft": {
+        "starkLinks": "Strong left",
+        "links": "Left",
+        "mitte": "Centre",
+        "rechts": "Right",
+        "starkRechts": "Strong right"
+      },
+      "gesellschaft": {
+        "sehrProgressiv": "Very progressive",
+        "progressiv": "Progressive",
+        "liberal": "Liberal",
+        "konservativ": "Conservative",
+        "sehrKonservativ": "Very conservative"
+      },
+      "staat": {
+        "starkerStaat": "Strong state",
+        "aktiverStaat": "Active state",
+        "gemischtesModell": "Mixed model",
+        "schlankerStaat": "Lean state",
+        "minimalerStaat": "Minimal state"
+      }
+    },
+    "koalitionspartnerVorschau": "Expected coalition partner: {{kuerzel}}",
     "headline1": "FEDERAL ELECTION 2025",
     "headline2": "{{name}} WINS —\nNEW GOVERNMENT POSSIBLE",
     "headlineMeta": "40.2% · SPD/Greens coalition likely\nTurnout: 76.3% · Historic night in Berlin",

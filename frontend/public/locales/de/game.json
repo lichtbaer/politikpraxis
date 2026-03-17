@@ -625,6 +625,36 @@
     "gesellschaft": "Gesellschaft",
     "staat": "Staat",
     "korridorHint": "Korridor: {{partei}}-typisch",
+    "polWirtschaftLinks": "Umverteilung",
+    "polWirtschaftRechts": "Freier Markt",
+    "polGesellschaftLinks": "Progressiv",
+    "polGesellschaftRechts": "Konservativ",
+    "polStaatLinks": "Gemeinschaft",
+    "polStaatRechts": "Eigenverantwortung",
+    "ideologieLabel": {
+      "wirtschaft": {
+        "starkLinks": "Stark links",
+        "links": "Links",
+        "mitte": "Mitte",
+        "rechts": "Rechts",
+        "starkRechts": "Stark rechts"
+      },
+      "gesellschaft": {
+        "sehrProgressiv": "Sehr progressiv",
+        "progressiv": "Progressiv",
+        "liberal": "Liberal",
+        "konservativ": "Konservativ",
+        "sehrKonservativ": "Sehr konservativ"
+      },
+      "staat": {
+        "starkerStaat": "Starker Staat",
+        "aktiverStaat": "Aktiver Staat",
+        "gemischtesModell": "Gemischtes Modell",
+        "schlankerStaat": "Schlanker Staat",
+        "minimalerStaat": "Minimaler Staat"
+      }
+    },
+    "koalitionspartnerVorschau": "Voraussichtlicher Koalitionspartner: {{kuerzel}}",
     "headline1": "BUNDESTAGSWAHL 2025",
     "headline2": "{{name}} GEWINNT —\nNEUE REGIERUNG MÖGLICH",
     "headlineMeta": "40,2% · SPD/Grüne-Koalition wahrscheinlich\nWahlbeteiligung: 76,3% · Historische Nacht in Berlin",
