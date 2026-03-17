@@ -79,6 +79,8 @@ export function createInitialState(
     })(),
     politikfeldDruck: {},
     politikfeldLetzterBeschluss: {},
+    medienKlima: 55,
+    opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 },
   };
 
   if (featureActive(complexity, 'milieus_voll') && (content.milieus?.length ?? 0) > 0) {
@@ -171,6 +173,12 @@ export function migrateGameState(state: GameState): GameState {
   }
   if (!result.haushalt) {
     result = { ...result, haushalt: createInitialHaushalt(result) };
+  }
+  if (result.medienKlima == null) {
+    result = { ...result, medienKlima: 55 };
+  }
+  if (!result.opposition) {
+    result = { ...result, opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 } };
   }
   return result;
 }

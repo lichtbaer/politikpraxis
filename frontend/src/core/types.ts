@@ -95,6 +95,16 @@ export interface Law {
   kommunal_pilot_moeglich?: boolean;
   laender_pilot_moeglich?: boolean;
   eu_initiative_moeglich?: boolean;
+  /** Framing-Optionen beim Einbringen (SMA-276): milieu_effekte, verband_effekte, medienklima_delta */
+  framing_optionen?: FramingOption[];
+}
+
+/** Framing-Option für Gesetz-Einbringen */
+export interface FramingOption {
+  key: string;
+  milieu_effekte: Record<string, number>;
+  verband_effekte?: Record<string, number>;
+  medienklima_delta: number;
 }
 
 /** Koalitionspartner-State im GameState */
@@ -154,6 +164,8 @@ export interface EventChoice {
   log: string;
   /** Choice-Key aus API (z.B. als_vorbild, koordinieren) */
   key?: string;
+  /** Medien-Event-Choice: Delta für Medienklima (SMA-277) */
+  medienklima_delta?: number;
 }
 
 export interface GameEvent {
@@ -365,6 +377,13 @@ export interface EUState {
 /** Schuldenbremsen-Status */
 export type SchuldenbremsenStatus = 'inaktiv' | 'ausgeglichen' | 'grenzwertig' | 'verletzt_mild' | 'verletzt_stark';
 
+/** Opposition als abstrakter Akteur (SMA-277) */
+export interface OppositionState {
+  staerke: number;
+  aktivesThema: string | null;
+  letzterAngriff: number;
+}
+
 /** Haushalt-Objekt im GameState (SMA-268) */
 export interface Haushalt {
   einnahmen: number;
@@ -486,10 +505,16 @@ export interface GameState {
   tvDuellAbgehalten?: boolean;
   /** TV-Duell gewonnen (null = noch nicht abgehalten) */
   tvDuellGewonnen?: boolean | null;
-  /** Medienklima 0–100 (für Wahlkampf, TV-Duell) */
+  /** Medienklima 0–100 (für Wahlkampf, TV-Duell, SMA-277) */
   medienKlima?: number;
   /** Medienklima-Historie für Bilanz-Berechnung */
   medienKlimaHistory?: number[];
+  /** Monat des letzten Skandals (Cooldown) */
+  letzterSkandal?: number;
+  /** Monat der letzten Pressemitteilung (1× pro Monat) */
+  letztesPressemitteilungMonat?: number;
+  /** Opposition als abstrakter Akteur (SMA-277) */
+  opposition?: OppositionState;
   /** Wahlprognose (aktuelle Umfrage) — Basis für Wahlergebnis */
   wahlprognose?: number;
   /** Medienoffensive einmalig pro Legislatur genutzt */
@@ -537,6 +562,31 @@ export interface MinisterialInitiative {
   bedingungen?: Array<{ type: string; value?: number | string }>;
 }
 
+/** Medien-Event (Skandal, positiv) — SMA-277 */
+export interface MedienEventChoice {
+  key: string;
+  cost_pk: number;
+  medienklima_delta: number;
+  label: string;
+  desc: string;
+  log_msg: string;
+}
+
+/** Medien-Event-Content für Skandale und positive Events */
+export interface MedienEventContent {
+  id: string;
+  event_subtype: 'skandal' | 'positiv' | 'opposition';
+  trigger_type: 'random' | 'conditional';
+  medienklima_delta: number;
+  min_complexity: number;
+  trigger_monat_min: number;
+  title: string;
+  quote: string;
+  context: string;
+  ticker: string;
+  choices: MedienEventChoice[];
+}
+
 export interface ContentBundle {
   characters: Character[];
   events: GameEvent[];
@@ -558,6 +608,8 @@ export interface ContentBundle {
   euKlimaStartwerte?: { politikfeld_id: string; startwert: number }[];
   /** EU-Events für reaktive Richtlinien (aus DB eu_events) */
   euEvents?: EUEventContent[];
+  /** Medien-Events (Skandale, positiv) — SMA-277 */
+  medienEvents?: MedienEventContent[];
   scenario: {
     id: string;
     name: string;
