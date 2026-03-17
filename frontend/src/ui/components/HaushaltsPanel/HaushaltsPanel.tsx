@@ -25,6 +25,14 @@ function SchuldenbremsenBadge({ status }: { status: SchuldenbremsenStatus }) {
   );
 }
 
+/** SMA-310: Haushalt-Ampel — saldo > 0 grün, -1 bis -15 gelb, -16 bis -30 rot, < -30 lila (Krise) */
+function getSaldoKlasse(saldo: number): string {
+  if (saldo > 0) return 'saldoAusgeglichen';
+  if (saldo >= -15) return 'saldoDefizit';
+  if (saldo >= -30) return 'saldoKritisch';
+  return 'saldoKrise';
+}
+
 function KonjunkturIndikator({ value }: { value: number }) {
   const { t } = useTranslation('game');
   const pct = ((value + 3) / 6) * 100;
@@ -72,7 +80,7 @@ export function HaushaltsPanel() {
             -{haushalt.laufendeAusgaben.toFixed(1)} Mrd.
           </span>
         </div>
-        <div className={styles.saldo}>
+        <div className={`${styles.saldo} ${styles[getSaldoKlasse(haushalt.saldo)]}`}>
           <span>{t('haushalt.saldo')}</span>
           <span
             className={

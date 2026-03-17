@@ -39,6 +39,28 @@
   font-weight: 600;
 }
 
+/* SMA-310: Haushalt-Ampel — Farbkodierung des Saldos */
+.saldoAusgeglichen {
+  border-left: 3px solid var(--green);
+  padding-left: 8px;
+}
+
+.saldoDefizit {
+  border-left: 3px solid var(--warn);
+  padding-left: 8px;
+}
+
+.saldoKritisch {
+  border-left: 3px solid var(--red);
+  padding-left: 8px;
+}
+
+.saldoKrise {
+  border-left: 3px solid #a855f7;
+  padding-left: 8px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
 .positive {
   color: var(--green);
 }
