@@ -192,6 +192,7 @@ async def fetch_events(
                 "cost_pk": ch.cost_pk or 0,
                 "effekte": _effekte(ch.effekt_al, ch.effekt_hh, ch.effekt_gi, ch.effekt_zf),
                 "char_mood": ch.char_mood or {},
+                "loyalty": ch.loyalty or {},
                 "label": chi18n.label,
                 "desc": chi18n.desc,
                 "log_msg": chi18n.log_msg,

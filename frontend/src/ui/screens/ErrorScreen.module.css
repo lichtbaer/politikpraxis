@@ -1,0 +1,39 @@
+.root {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 32px;
+}
+
+.message {
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--text);
+  text-align: center;
+  margin: 0;
+  max-width: 400px;
+}
+
+.retry {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px 32px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.retry:hover {
+  opacity: 0.95;
+  transform: scale(1.02);
+}

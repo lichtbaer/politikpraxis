@@ -1,11 +1,7 @@
 import type { ContentBundle, BundesratLand } from '../../core/types';
-import { DEFAULT_CHARACTERS } from './characters';
-import { DEFAULT_EVENTS, DEFAULT_CHAR_EVENTS } from './events';
-import { DEFAULT_LAWS } from './laws';
-import { BUNDESRAT_FRAKTIONEN } from './bundesratFraktionen';
-import { BUNDESRAT_EVENTS } from './bundesratEvents';
 
-const DEFAULT_BUNDESRAT: BundesratLand[] = [
+/** 16 Bundesländer für Abstimmungsbalken (strukturelle Daten, nicht i18n) */
+export const DEFAULT_BUNDESRAT: BundesratLand[] = [
   { id: 'BY', name: 'Bayern', mp: 'Edmund Huber', party: 'CSU', alignment: 'koalition', mood: 2, interests: ['Wirtschaft', 'EU-Skepsis'], votes: 6 },
   { id: 'NW', name: 'Nordrhein-Westfalen', mp: 'Claudia Bergmann', party: 'SPD', alignment: 'koalition', mood: 3, interests: ['Industrie', 'Kohleausstieg'], votes: 6 },
   { id: 'BW', name: 'Baden-Württemberg', mp: 'Friedrich Stein', party: 'Grüne', alignment: 'koalition', mood: 3, interests: ['Klimaschutz', 'Technologie'], votes: 6 },
@@ -24,20 +20,24 @@ const DEFAULT_BUNDESRAT: BundesratLand[] = [
   { id: 'ST', name: 'Sachsen-Anhalt', mp: 'Peter Haase', party: 'CDU', alignment: 'opposition', mood: 1, interests: ['Chemie', 'Strukturwandel'], votes: 4 },
 ];
 
+/** Szenario-Konfiguration (Startwerte, nicht i18n) */
+export const DEFAULT_SCENARIO: ContentBundle['scenario'] = {
+  id: 'standard',
+  name: 'Standardszenario',
+  startMonth: 1,
+  startPK: 100,
+  startKPI: { al: 5.2, hh: 0.3, gi: 31.2, zf: 62 },
+  startCoalition: 78,
+};
+
+/** Fallback ContentBundle wenn API nicht erreichbar (nur für init-Fallback) */
 export const DEFAULT_CONTENT: ContentBundle = {
-  characters: DEFAULT_CHARACTERS,
-  events: DEFAULT_EVENTS,
-  charEvents: DEFAULT_CHAR_EVENTS,
-  bundesratEvents: BUNDESRAT_EVENTS,
-  laws: DEFAULT_LAWS,
+  characters: [],
+  events: [],
+  charEvents: {},
+  bundesratEvents: [],
+  laws: [],
   bundesrat: DEFAULT_BUNDESRAT,
-  bundesratFraktionen: BUNDESRAT_FRAKTIONEN,
-  scenario: {
-    id: 'standard',
-    name: 'Standardszenario',
-    startMonth: 1,
-    startPK: 100,
-    startKPI: { al: 5.2, hh: 0.3, gi: 31.2, zf: 62 },
-    startCoalition: 78,
-  },
+  bundesratFraktionen: [],
+  scenario: DEFAULT_SCENARIO,
 };
