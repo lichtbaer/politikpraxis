@@ -9,10 +9,13 @@ import { applyGesetzKosten } from './haushalt';
 import { getVorstufenBoni } from './gesetzLebenszyklus';
 import { featureActive } from './features';
 import { applyEUKofinanzierung } from './eu';
+import { applyFraming, getMedienPkZusatzkosten } from './medienklima';
 
 export interface EinbringenContext {
   ausrichtung: Ideologie;
   complexity: number;
+  /** Optional: Framing-Key beim Einbringen (SMA-277) */
+  framingKey?: string | null;
 }
 
 export interface GesetzBeschlussContext {
@@ -46,7 +49,10 @@ export function einbringen(
   if (isEinbringenContext(options)) {
     const kongruenz = applyKongruenzEffekte(state, lawId, options.ausrichtung, options.complexity);
     const basePk = getEinbringenPkKosten(kongruenz.pkModifikator);
-    pkKosten = Math.max(2, basePk - boni.pkKostenRabatt);
+    const medienZusatz = featureActive(options.complexity, 'medienklima')
+      ? getMedienPkZusatzkosten(state.medienKlima ?? 55)
+      : 0;
+    pkKosten = Math.max(2, basePk - boni.pkKostenRabatt + medienZusatz);
     charEffekte = kongruenz.charEffekte;
   } else {
     const baseCost = 20;
@@ -78,6 +84,10 @@ export function einbringen(
 
   if (boni.kofinanzierung > 0) {
     newState = applyEUKofinanzierung(newState, boni.kofinanzierung);
+  }
+
+  if (isEinbringenContext(options) && options.framingKey) {
+    newState = applyFraming(newState, lawId, options.framingKey, options.complexity);
   }
 
   return addLog(newState, `${law.kurz} in Bundestag eingebracht`, 'hi');

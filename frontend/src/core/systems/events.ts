@@ -5,6 +5,7 @@ import { resolveMinisterialInitiative } from './ministerialInitiativen';
 import { startKommunalPilot } from './gesetzLebenszyklus';
 import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell } from './wahlkampf';
+import { applyMedienChoiceDelta } from './medienklima';
 import i18n from '../../i18n';
 
 /** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
@@ -290,6 +291,20 @@ export function resolveEvent(
     let newState = startKommunalPilot(state, event.lawId, stadttyp, undefined, complexity);
     const choiceIdx = event.choices.indexOf(choice);
     newState = addLog(newState, `game:kommunalEvents.${event.id}.choices.${choiceIdx}.log`, 'g');
+    newState.ticker = event.ticker;
+    newState.activeEvent = null;
+    return newState;
+  }
+
+  // Medien-Events (Skandal, positiv): medienklima_delta aus Choice anwenden (SMA-277)
+  if (event.id.startsWith('medien_')) {
+    if (state.pk < (choice.cost || 0)) return state;
+    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0) };
+    newState = applyMedienChoiceDelta(newState, choice);
+    if (choice.charMood) {
+      newState = applyMoodChange(newState, choice.charMood, choice.loyalty);
+    }
+    newState = addLog(newState, choice.log, choice.type === 'danger' ? 'r' : 'g');
     newState.ticker = event.ticker;
     newState.activeEvent = null;
     return newState;

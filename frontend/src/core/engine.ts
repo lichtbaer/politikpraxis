@@ -27,6 +27,7 @@ import {
   tickWahlkampfPrognose,
   triggerWahlnacht,
 } from './systems/wahlkampf';
+import { tickMedienKlima } from './systems/medienklima';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export { addLog } from './log';
@@ -64,7 +65,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   const medienVal = s.medienKlima ?? s.zust.g;
   const medienHist = [...(s.medienKlimaHistory ?? []), medienVal].slice(-48);
   s = { ...s, medienKlimaHistory: medienHist };
-  if (s.medienKlima == null) s = { ...s, medienKlima: s.zust.g };
+  if (s.medienKlima == null) s = { ...s, medienKlima: 55 };
 
   s = applyPendingEffects(s);
   const routesResult = advanceRoutes(s);
@@ -118,6 +119,9 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
     sprecherErsatz: SPRECHER_ERSATZ,
     landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
   });
+  // 12b. Medienklima (SMA-277): Drift, Opposition, Skandale, positive Events
+  s = tickMedienKlima(s, content, complexity);
+
   // 13. Events
   s = checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity);
   s = checkRandomEvents(s, content.events);
