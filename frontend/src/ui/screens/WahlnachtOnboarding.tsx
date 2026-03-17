@@ -14,8 +14,9 @@ import {
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
 } from '../../data/defaults/parteien';
-import { getKoalitionspartner } from '../../core/systems/koalition';
+import { berechneKoalitionspartner } from '../../core/systems/koalition';
 import { IdeologieSlider } from '../components/IdeologieSlider/IdeologieSlider';
+import { ALLE_PARTEIEN } from '../../data/defaults/koalitionspartner';
 import styles from './WahlnachtOnboarding.module.css';
 
 /** Beat 0 = Partei, 1 = Ideologie (Stufe 3+), 2 = Headline, 3 = Kabinett, 4 = Memo, 5 = CTA */
@@ -30,7 +31,6 @@ export function WahlnachtOnboarding() {
   const { t } = useTranslation('game');
   const {
     state,
-    content,
     playerName,
     complexity,
     init,
@@ -201,7 +201,11 @@ export function WahlnachtOnboarding() {
             </p>
             <p className={styles.koalitionspartnerVorschau}>
               {t('game:onboarding.koalitionspartnerVorschau', {
-                kuerzel: getKoalitionspartner(content).partei_kuerzel,
+                kuerzel: (() => {
+                  const partnerParteiId = berechneKoalitionspartner(selectedPartei, ausrichtung);
+                  const partnerPartei = ALLE_PARTEIEN.find((p) => p.id === partnerParteiId);
+                  return partnerPartei?.kuerzel ?? 'GP';
+                })(),
               })}
             </p>
           </div>
