@@ -527,7 +527,8 @@
     "andere": "In progress ({{count}} laws)",
     "vorbereitungLaeuft": "Preparation running ({{count}} laws)",
     "bereitEinbringen": "Ready to introduce ({{count}} laws)",
-    "keineVorbereitung": "No preparation yet ({{count}} laws)",
+    "keineVorbereitung": "Choose a law to start the legislature ({{count}} laws)",
+    "empfohlen": "Recommended",
     "empfehlungEinbringen": "Introduce now? Accumulated bonuses available.",
     "leer": "No laws."
   },

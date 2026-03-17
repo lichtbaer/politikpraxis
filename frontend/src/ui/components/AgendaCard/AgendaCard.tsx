@@ -13,6 +13,8 @@ import styles from './AgendaCard.module.css';
 
 interface AgendaCardProps {
   law: Law;
+  /** SMA-287: Empfohlen-Badge für Top-3 zur Spieler-Ausrichtung */
+  isRecommended?: boolean;
 }
 
 const STATUS_KEYS: Record<LawStatus, string> = {
@@ -33,7 +35,7 @@ const STATUS_CLASS: Record<LawStatus, string> = {
   ausweich: styles.statusAusweich,
 };
 
-export function AgendaCard({ law }: AgendaCardProps) {
+export function AgendaCard({ law, isRecommended }: AgendaCardProps) {
   const { t } = useTranslation(['common', 'game']);
   const { state, complexity, ausrichtung } = useGameStore();
   const actions = useGameActions();
@@ -61,6 +63,9 @@ export function AgendaCard({ law }: AgendaCardProps) {
         <span className={`${styles.badge} ${STATUS_CLASS[law.status]}`}>
           {t(STATUS_KEYS[law.status], { ns: 'common' })}
         </span>
+        {isRecommended && (
+          <span className={styles.empfohlenBadge}>{t('game:gesetzAgenda.empfohlen')}</span>
+        )}
         <h3 className={styles.title}>{law.titel || t(`game:laws.${law.id}.titel`)}</h3>
         <span className={styles.arrow}>{expanded ? '▲' : '▼'}</span>
       </header>

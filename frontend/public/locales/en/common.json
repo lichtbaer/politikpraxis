@@ -4,7 +4,8 @@
     "subtitle": "A politics simulation"
   },
   "header": {
-    "monthFormat": "Month {{month}}/48 · {{year}}"
+    "monthFormat": "Month {{month}}/48 · {{year}}",
+    "pkTooltip": "Political capital — your action resource"
   },
   "menu": {
     "newGame": "New Game",

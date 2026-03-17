@@ -4,7 +4,8 @@
     "subtitle": "Eine Politiksimulation"
   },
   "header": {
-    "monthFormat": "Monat {{month}}/48 · {{year}}"
+    "monthFormat": "Monat {{month}}/48 · {{year}}",
+    "pkTooltip": "Politisches Kapital — deine Handlungsressource"
   },
   "menu": {
     "newGame": "Neues Spiel",
