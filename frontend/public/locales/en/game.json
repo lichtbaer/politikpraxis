@@ -709,5 +709,92 @@
     "legislaturBegonnen": "New legislative period begun",
     "koalitionsvertrag": "Coalition agreement signed",
     "gesetzeVorbereitung": "{{count}} draft laws in preparation"
+  },
+  "medienklima": {
+    "label": "Media climate",
+    "opposition": "Opposition"
+  },
+  "framing": {
+    "title": "How do you communicate this law?",
+    "keinFraming": "No framing",
+    "abbrechen": "Cancel"
+  },
+  "pressemitteilung": {
+    "title": "Press release",
+    "desc": "Choose a topic for your press release (5 PK).",
+    "button": "Press release (5 PK)",
+    "thema": {
+      "haushalt": "Budget",
+      "koalition": "Coalition",
+      "politikfeld": "Policy field",
+      "opposition": "Opposition"
+    }
+  },
+  "legislaturBilanz": {
+    "beat1Title": "Legislature summary",
+    "beat2Title": "Qualitative assessment",
+    "beat3Title": "Campaign messages",
+    "beat3Desc": "Choose 2 core themes for your campaign communication. ✅ = credible, ⚠ = risky.",
+    "haushalt": "Budget balance",
+    "koalition": "Coalition agreement",
+    "reform": "Reform",
+    "stabilitaet": "Stability",
+    "wirtschaft": "Economy",
+    "medien": "Media",
+    "weiter": "Next",
+    "fertig": "Done",
+    "botschaft": {
+      "klima": "Climate",
+      "wirtschaft": "Economy",
+      "soziales": "Social",
+      "sicherheit": "Security",
+      "sonstiges": "Other",
+      "wirtschaft_finanzen": "Economy & Finance",
+      "arbeit_soziales": "Labour & Social",
+      "umwelt_energie": "Environment & Energy",
+      "innere_sicherheit": "Internal Security",
+      "bildung_forschung": "Education & Research",
+      "gesundheit_pflege": "Health & Care",
+      "digital_infrastruktur": "Digital & Infrastructure",
+      "landwirtschaft": "Agriculture",
+      "umwelt": "Environment",
+      "arbeit": "Labour"
+    }
+  },
+  "wahlkampf": {
+    "title": "Campaign",
+    "monat": "Month {{month}}/48",
+    "aktionen": "Action slots",
+    "bilanz": "Legislature summary",
+    "gesetze": "Laws",
+    "politikfelder": "Policy fields",
+    "reform": "Reform",
+    "medien": "Media",
+    "rede": "Speech",
+    "redeDesc": "+5% milieu approval, possibly +3 media climate",
+    "koalition": "Coalition action",
+    "koalitionDesc": "Partner core milieus +4%, media +5, relationship +8",
+    "koalitionAktion": "Coalition speech",
+    "medienoffensive": "Media offensive",
+    "medienoffensiveDesc": "Media climate +10, forecast +2 (once)",
+    "medienoffensiveAktion": "Media offensive",
+    "tvDuellBanner": "TV debate this or next month!"
+  },
+  "wahlnacht": {
+    "hochrechnung": "Projection",
+    "tiefenanalyse": "Detailed analysis",
+    "analyseTitle": "Legislature analysis",
+    "analyseDesc": "Summary of your government's performance."
+  },
+  "opposition": {
+    "angriff": "Opposition attacks: {{thema}}",
+    "kontern": "Counter",
+    "thema": {
+      "haushalt": "Budget",
+      "koalition": "Coalition",
+      "politikfeld": "Policy field",
+      "sicherheit": "Security",
+      "wirtschaft": "Economy"
+    }
   }
 }

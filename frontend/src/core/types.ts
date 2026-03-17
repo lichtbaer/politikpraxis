@@ -235,7 +235,7 @@ export interface LogEntry {
   params?: Record<string, string | number>;
 }
 
-export type ViewName = 'agenda' | 'eu' | 'land' | 'kommune' | 'medien' | 'bundesrat' | 'verbaende';
+export type ViewName = 'agenda' | 'eu' | 'land' | 'kommune' | 'medien' | 'bundesrat' | 'verbaende' | 'wahlkampf';
 export type SpeedLevel = 0 | 1 | 2;
 
 export interface BundesratLand {

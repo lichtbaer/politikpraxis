@@ -9,6 +9,7 @@ import { EbeneView } from '../views/EbeneView';
 import { MediaView } from '../views/MediaView';
 import { BundesratView } from '../views/BundesratView';
 import { VerbaendeView } from '../views/VerbaendeView';
+import { WahlkampfScreen } from '../screens/WahlkampfScreen';
 import { useGameActions } from '../hooks/useGameActions';
 import type { GameEvent, EventChoice } from '../../core/types';
 import styles from './CenterPanel.module.css';
@@ -51,6 +52,7 @@ export function CenterPanel() {
             {state.view === 'medien' && <MediaView />}
             {state.view === 'bundesrat' && <BundesratView />}
             {state.view === 'verbaende' && <VerbaendeView />}
+            {state.view === 'wahlkampf' && <WahlkampfScreen />}
           </>
         )}
       </div>

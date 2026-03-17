@@ -5,6 +5,10 @@ import styles from './EventCard.module.css';
 interface EventCardProps {
   event: GameEvent;
   onChoice: (event: GameEvent, choice: EventChoice) => void;
+  /** SMA-279: Skandal-Events mit rotem Banner, Zeitungs-Icon, Medienklima-Delta in Choices */
+  headerClass?: string;
+  icon?: string;
+  showMedienklimaDelta?: boolean;
 }
 
 const TYPE_CLASS: Record<GameEvent['type'], string> = {
@@ -32,9 +36,17 @@ function getEventNs(event: GameEvent): 'events' | 'charEvents' | 'bundesratEvent
   return 'events';
 }
 
-export function EventCard({ event, onChoice }: EventCardProps) {
+const SKANDAL_IDS = new Set([
+  'medien_skandal_spesen', 'medien_skandal_datenpanne', 'medien_skandal_koalitionsleck',
+  'medien_skandal_lobbying', 'medien_skandal_haushaltsloch', 'medien_skandal_persoenlich',
+]);
+
+export function EventCard({ event, onChoice, headerClass: headerClassOverride, icon: iconOverride, showMedienklimaDelta }: EventCardProps) {
   const { t } = useTranslation('game');
-  const headerClass = `${styles.header} ${TYPE_CLASS[event.type]}`;
+  const isSkandal = SKANDAL_IDS.has(event.id);
+  const headerClass = headerClassOverride ?? (isSkandal ? `${styles.header} ${styles.headerSkandal}` : `${styles.header} ${TYPE_CLASS[event.type]}`);
+  const icon = iconOverride ?? (isSkandal ? '📰' : event.icon);
+  const showDelta = showMedienklimaDelta ?? isSkandal;
   const ns = getEventNs(event);
 
   const typeLabel = event.typeLabel || t(`game:${ns}.${event.id}.typeLabel`);
@@ -45,7 +57,7 @@ export function EventCard({ event, onChoice }: EventCardProps) {
   return (
     <article className={styles.card}>
       <header className={headerClass}>
-        <span className={styles.icon}>{event.icon}</span>
+        <span className={styles.icon}>{icon}</span>
         <div className={styles.headerText}>
           <span className={styles.typeLabel}>{typeLabel.toUpperCase()}</span>
           <h2 className={styles.title}>{title}</h2>
@@ -71,6 +83,11 @@ export function EventCard({ event, onChoice }: EventCardProps) {
                   <span className={styles.choiceLabel}>{choiceLabel}</span>
                   <span className={styles.choiceCost}>
                     {choice.cost > 0 ? `${choice.cost} PK` : t('game.gratis', { ns: 'common' })}
+                    {showDelta && choice.medienklima_delta != null && choice.medienklima_delta !== 0 && (
+                      <span className={choice.medienklima_delta > 0 ? styles.medienKlimaPos : styles.medienKlimaNeg}>
+                        {' '}Medienklima {choice.medienklima_delta > 0 ? '+' : ''}{choice.medienklima_delta}
+                      </span>
+                    )}
                   </span>
                 </div>
                 {choiceDesc && (

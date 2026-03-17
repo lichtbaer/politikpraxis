@@ -4,9 +4,10 @@ import { LeftPanel } from '../panels/LeftPanel';
 import { CenterPanel } from '../panels/CenterPanel';
 import { RightPanel } from '../panels/RightPanel';
 import { CharacterDetail } from '../components/CharacterDetail/CharacterDetail';
-import { EndScreen } from '../components/EndScreen/EndScreen';
+import { WahlnachtScreen } from '../screens/WahlnachtScreen';
 import { Toast } from '../components/Toast/Toast';
 import { HaushaltsdebatteScreen } from '../screens/HaushaltsdebatteScreen';
+import { LegislaturBilanzScreen } from '../screens/LegislaturBilanzScreen';
 import { useGameTick } from '../hooks/useGameTick';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useGameStore } from '../../store/gameStore';
@@ -27,9 +28,10 @@ export function Shell() {
         <RightPanel />
       </div>
       <CharacterDetail />
-      <EndScreen />
+      <WahlnachtScreen />
       <Toast />
       {aktivesStrukturEvent && <HaushaltsdebatteScreen />}
+      <LegislaturBilanzScreen />
     </>
   );
 }

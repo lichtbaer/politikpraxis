@@ -4,7 +4,7 @@ import { featureActive } from '../../../core/systems/features';
 import type { ViewName } from '../../../core/types';
 import styles from './EbenenTabBar.module.css';
 
-const EBENE_IDS: ViewName[] = ['agenda', 'bundesrat', 'eu', 'land', 'kommune', 'verbaende', 'medien'];
+const EBENE_IDS: ViewName[] = ['agenda', 'bundesrat', 'eu', 'land', 'kommune', 'verbaende', 'medien', 'wahlkampf'];
 
 const EBENE_FEATURES: Partial<Record<ViewName, string>> = {
   bundesrat: 'bundesrat_simple',
@@ -13,6 +13,7 @@ const EBENE_FEATURES: Partial<Record<ViewName, string>> = {
   kommune: 'kommunal_pilot',
   verbaende: 'verbands_lobbying',
   medien: 'media_agenda',
+  wahlkampf: 'wahlkampf',
 };
 
 const FEATURE_LEVELS: Record<string, number> = {
@@ -22,6 +23,7 @@ const FEATURE_LEVELS: Record<string, number> = {
   kommunal_pilot: 2,
   verbands_lobbying: 3,
   media_agenda: 4,
+  wahlkampf: 1,
 };
 
 const EBENE_COLORS: Record<string, string> = {
@@ -32,6 +34,7 @@ const EBENE_COLORS: Record<string, string> = {
   medien: 'var(--blue)',
   bundesrat: 'var(--warn)',
   verbaende: 'var(--green)',
+  wahlkampf: 'var(--gold)',
 };
 
 function LockIcon() {
@@ -79,6 +82,11 @@ function EbeneIcon({ id, color }: { id: string; color: string }) {
         <path d="M2 2h10v1H2V2zm0 3h10v6H2V5zm1 1v4h8V6H3z" />
       </svg>
     ),
+    wahlkampf: (
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
+        <path d="M7 1l1 3 3 .5-2 2 .5 3L7 8l-2.5 1.5.5-3-2-2 3-.5L7 1z" />
+      </svg>
+    ),
   };
   return (
     <span className={styles.icon} style={{ color }}>
@@ -92,11 +100,12 @@ export function EbenenTabBar() {
   const view = useGameStore((s) => s.state.view);
   const setView = useGameStore((s) => s.setView);
   const complexity = useGameStore((s) => s.complexity);
+  const wahlkampfAktiv = useGameStore((s) => s.state.wahlkampfAktiv);
 
   return (
     <nav className={styles.tabBar} aria-label={t('game:tabBar.ariaLabel')}>
       <div className={styles.tabs}>
-        {EBENE_IDS.map((id) => {
+        {EBENE_IDS.filter((id) => id !== 'wahlkampf' || wahlkampfAktiv).map((id) => {
           const feature = EBENE_FEATURES[id];
           const unlocked = !feature || featureActive(complexity, feature);
           const lockLevel = feature ? FEATURE_LEVELS[feature] : 0;

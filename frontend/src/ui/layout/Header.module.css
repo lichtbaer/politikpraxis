@@ -75,3 +75,19 @@
   font-weight: 500;
   text-shadow: 0 0 12px color-mix(in srgb, var(--gold) 30%, transparent);
 }
+
+.pressemitteilungBtn {
+  padding: 6px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.pressemitteilungBtn:hover {
+  border-color: var(--gold);
+  background: rgba(255, 193, 7, 0.08);
+}

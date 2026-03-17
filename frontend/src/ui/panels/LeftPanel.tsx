@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { CharacterRow } from '../components/CharacterRow/CharacterRow';
 import { CoalitionMeter } from '../components/CoalitionMeter/CoalitionMeter';
+import { MedienklimaBadge } from '../components/MedienklimaBadge/MedienklimaBadge';
 import { MilieuSidebar } from '../components/MilieuSidebar/MilieuSidebar';
 import { PolitikfeldGrid } from '../components/PolitikfeldGrid/PolitikfeldGrid';
 import { KoalitionspartnerPanel } from '../components/KoalitionspartnerPanel/KoalitionspartnerPanel';
@@ -34,6 +35,7 @@ export function LeftPanel() {
           </div>
           <span className={styles.target}>{t('game:leftPanel.target', { percent: electionThreshold })}</span>
         </div>
+        <MedienklimaBadge />
       </section>
 
       <section className={styles.section}>
