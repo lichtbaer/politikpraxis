@@ -1,3 +1,10 @@
+/** Ideologie-Profil (wirtschaft, gesellschaft, staat) — Werte -100 bis +100 */
+export interface Ideologie {
+  wirtschaft: number;
+  gesellschaft: number;
+  staat: number;
+}
+
 export interface CharacterBonus {
   trigger: string;
   desc: string;
@@ -25,6 +32,8 @@ export interface Character {
   tag?: string;
   /** Mindest-Komplexitätsstufe, ab der der Char im Kabinett erscheint (default: 1) */
   min_complexity?: number;
+  /** Ideologie-Profil für Kongruenz-Berechnung */
+  ideologie?: Ideologie;
 }
 
 export interface LawEffects {
@@ -68,15 +77,10 @@ export interface Law {
   lobbyFraktionen?: Record<string, LawLobbyFraktion>;
   /** Kohl-Sonderregel: Sabotage bereits ausgelöst für dieses Gesetz */
   kohlSabotageTriggered?: boolean;
-  /** Ideologie für Koalitionsvertrag-Kongruenz (wirtschaft, gesellschaft, staat: -100 … +100) */
+  /** Ideologie-Profil für Kongruenz-Berechnung */
   ideologie?: Ideologie;
-}
-
-/** Politische Ausrichtung für Kongruenz-Berechnung */
-export interface Ideologie {
-  wirtschaft: number;
-  gesellschaft: number;
-  staat: number;
+  /** Primäres Politikfeld (für Druck-System) */
+  politikfeldId?: string | null;
 }
 
 /** Koalitionspartner-State im GameState */
@@ -131,6 +135,8 @@ export interface EventChoice {
   brRelationInitiator?: number;
   /** Bei Koalitionsbruch-Event: Delta für Koalitionspartner-Beziehung */
   koalitionspartnerBeziehung?: number;
+  /** Bei Ministerial-Initiative: Aktion für resolveMinisterialInitiative */
+  ministerialAction?: 'unterstuetzen' | 'ablehnen' | 'ignorieren';
   log: string;
 }
 
@@ -248,6 +254,20 @@ export interface BundesratFraktion {
   reparaturEndMonth?: number;
 }
 
+/** Milieu-Daten aus Content (Ideologie, min_complexity) */
+export interface Milieu {
+  id: string;
+  ideologie: Ideologie;
+  min_complexity: number;
+}
+
+/** Politikfeld mit Verbands-Zuordnung */
+export interface Politikfeld {
+  id: string;
+  verbandId: string | null;
+  druckEventId?: string | null;
+}
+
 export interface GameState {
   month: number;
   speed: SpeedLevel;
@@ -282,14 +302,51 @@ export interface GameState {
   koalitionspartner?: KoalitionspartnerState;
   /** Berechnetes Koalitionsvertrag-Profil (60% Spieler, 40% Partner) */
   koalitionsvertragProfil?: Ideologie;
-  /** Milieu-Zustimmung milieuId -> % (postmaterielle, soziale_mitte, arbeit etc.) */
+  /** Milieu-Zustimmung (ersetzt zust.arbeit/mitte/prog bei Stufe 2+) */
   milieuZustimmung?: Record<string, number>;
-  /** Verbands-Beziehungen verbandId -> 0–100 */
+  /** Verbands-Beziehungen (ab Stufe 3): verbandId → 0–100 */
   verbandsBeziehungen?: Record<string, number>;
   /** Partner priorisiert Gesetz für 3 Monate (+5% BT-Stimmen) */
   partnerPrioGesetz?: { gesetzId: string; bisMonat: number };
   /** Monat, in dem Koalitionsbruch-Warnung ausgelöst wurde (für 3-Monats-Frist) */
   koalitionsbruchSeitMonat?: number;
+  /** Politikfeld-Druck-Scores (0–100) */
+  politikfeldDruck?: Record<string, number>;
+  /** Monat des letzten Beschlusses pro Politikfeld */
+  politikfeldLetzterBeschluss?: Record<string, number>;
+  /** Ministerial-Initiativen: charId → Monat der letzten Initiative */
+  ministerialCooldowns?: Record<string, number>;
+  /** Aktive Ministerial-Initiative (max. 1 gleichzeitig) */
+  aktiveMinisterialInitiative?: { initId: string; charId: string; gesetzId: string } | null;
+}
+
+/** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */
+export interface Verband {
+  id: string;
+  kurz: string;
+  name?: string;
+  politikfeld_id: string;
+  beziehung_start: number;
+  tradeoffs?: VerbandTradeoff[];
+}
+
+/** Trade-off eines Verbands */
+export interface VerbandTradeoff {
+  key: string;
+  effekte: Partial<KpiDelta>;
+  feld_druck_delta: number;
+  label?: string;
+  desc?: string;
+}
+
+/** Ministerial-Initiative (Minister bringt eigenes Gesetz ein) */
+export interface MinisterialInitiative {
+  id: string;
+  char_id: string;
+  gesetz_ref_id: string;
+  cooldown_months: number;
+  /** Bedingungen: z.B. mood >= 3, interest match, etc. */
+  bedingungen?: Array<{ type: string; value?: number | string }>;
 }
 
 export interface ContentBundle {
@@ -301,6 +358,10 @@ export interface ContentBundle {
   bundesrat: BundesratLand[];
   bundesratFraktionen?: BundesratFraktion[];
   koalitionspartner?: KoalitionspartnerContent;
+  milieus?: Milieu[];
+  politikfelder?: Politikfeld[];
+  verbaende?: Verband[];
+  ministerialInitiativen?: MinisterialInitiative[];
   scenario: {
     id: string;
     name: string;

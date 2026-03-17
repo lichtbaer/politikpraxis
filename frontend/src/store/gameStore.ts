@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName } from '../core/types';
 import { createInitialState } from '../core/state';
 import { tick, addLog } from '../core/engine';
-import { einbringen, lobbying, abstimmen } from '../core/systems/parliament';
+import { einbringen, lobbying, abstimmen, type EinbringenContext, type GesetzBeschlussContext } from '../core/systems/parliament';
 import {
   updateKoalitionsvertragScore,
   koalitionsrunde,
@@ -13,11 +13,13 @@ import { startRoute } from '../core/systems/levels';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/media';
 import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
+import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
 import { getContentBundle } from '../stores/contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { saveGame, type SaveFile } from '../services/localStorageSave';
+import { migrateGameState } from '../core/state';
 
 export type GamePhase = 'onboarding' | 'playing';
 
@@ -52,6 +54,9 @@ interface GameStore {
   doKoalitionsrunde: () => void;
   doPrioritaetsgespraech: (gesetzId: string) => void;
   doKoalitionsZugestaendnis: (forderungId: string) => void;
+  doVerbandGespraech: (verbandId: string) => void;
+  doVerbandTradeoff: (verbandId: string, tradeoffKey: string) => void;
+  doVerbandLobbyAbstimmung: (verbandId: string, gesetzId: string) => number;
   toggleAgenda: (lawId: string) => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
@@ -114,11 +119,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setSpeed: (speed) => set(prev => ({ state: { ...prev.state, speed } })),
   setView: (view) => set(prev => ({ state: { ...prev.state, view } })),
 
-  doEinbringen: (lawId) => set(prev => ({ state: einbringen(prev.state, lawId) })),
+  doEinbringen: (lawId) =>
+    set((prev) => {
+      const ctx: EinbringenContext = { ausrichtung: prev.ausrichtung, complexity: prev.complexity };
+      return { state: einbringen(prev.state, lawId, ctx) };
+    }),
   doLobbying: (lawId) => set(prev => ({ state: lobbying(prev.state, lawId) })),
   doAbstimmen: (lawId) =>
-    set(prev => {
-      let state = abstimmen(prev.state, lawId);
+    set((prev) => {
+      const ctx: GesetzBeschlussContext | undefined = prev.content.milieus
+        ? { milieus: prev.content.milieus, complexity: prev.complexity }
+        : undefined;
+      let state = abstimmen(prev.state, lawId, ctx);
       const newLaw = state.gesetze.find(g => g.id === lawId);
       if (newLaw?.status === 'beschlossen') {
         state = updateKoalitionsvertragScore(state, lawId, prev.content, prev.complexity);
@@ -141,6 +153,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(prev => ({ state: prioritaetsgespraech(prev.state, gesetzId, prev.complexity) })),
   doKoalitionsZugestaendnis: (forderungId: string) =>
     set(prev => ({ state: koalitionsZugestaendnis(prev.state, forderungId, prev.content, prev.complexity) })),
+  doVerbandGespraech: (verbandId) =>
+    set(prev => ({
+      state: verbandGespraech(prev.state, verbandId, prev.content.verbaende ?? [], prev.complexity),
+    })),
+  doVerbandTradeoff: (verbandId, tradeoffKey) =>
+    set(prev => ({
+      state: verbandTradeoff(prev.state, verbandId, tradeoffKey, prev.content.verbaende ?? [], prev.complexity),
+    })),
+  doVerbandLobbyAbstimmung: (verbandId, gesetzId) => {
+    const { state, content, complexity } = get();
+    const { state: newState, bonus } = verbandLobbyAbstimmung(state, verbandId, gesetzId, content.verbaende ?? [], complexity);
+    set({ state: newState });
+    return bonus;
+  },
 
   toggleAgenda: (lawId) =>
     set(prev => ({
@@ -154,23 +180,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   loadSave: (savedState) => {
     const initial = createInitialState(getContentBundle(), get().complexity);
-    const state = {
+    const state = migrateGameState({
       ...savedState,
       bundesratFraktionen: savedState.bundesratFraktionen ?? initial.bundesratFraktionen,
       firedBundesratEvents: savedState.firedBundesratEvents ?? [],
       electionThreshold: savedState.electionThreshold ?? 40,
-    };
+    });
     set({ state, content: getContentBundle() });
   },
 
   loadSaveFromFile: (save) => {
     const initial = createInitialState(getContentBundle(), save.complexity);
-    const state = {
+    const state = migrateGameState({
       ...save.gameState,
       bundesratFraktionen: save.gameState.bundesratFraktionen ?? initial.bundesratFraktionen,
       firedBundesratEvents: save.gameState.firedBundesratEvents ?? [],
       electionThreshold: save.gameState.electionThreshold ?? 40,
-    };
+    });
     set({
       state,
       content: getContentBundle(),

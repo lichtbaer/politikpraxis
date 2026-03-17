@@ -1,23 +1,62 @@
-import type { GameState } from '../types';
+import type { GameState, Ideologie } from '../types';
 import { scheduleEffects } from './economy';
 import { addLog } from '../engine';
+import { applyKongruenzEffekte, getEinbringenPkKosten } from './kongruenz';
+import { applyMoodChange } from './characters';
+import { applyMilieuEffekte } from './milieus';
+import { setPolitikfeldBeschluss } from './politikfeldDruck';
 
-export function einbringen(state: GameState, lawId: string): GameState {
-  const idx = state.gesetze.findIndex(g => g.id === lawId);
+export interface EinbringenContext {
+  ausrichtung: Ideologie;
+  complexity: number;
+}
+
+export interface GesetzBeschlussContext {
+  milieus: { id: string; ideologie: { wirtschaft: number; gesellschaft: number; staat: number }; min_complexity: number }[];
+  complexity: number;
+}
+
+export type EinbringenOptions = EinbringenContext | { pkRabatt?: number };
+
+function isEinbringenContext(opts: EinbringenOptions | undefined): opts is EinbringenContext {
+  return opts != null && 'ausrichtung' in opts && 'complexity' in opts;
+}
+
+export function einbringen(
+  state: GameState,
+  lawId: string,
+  options?: EinbringenOptions,
+): GameState {
+  const idx = state.gesetze.findIndex((g) => g.id === lawId);
   if (idx === -1) return state;
   const law = state.gesetze[idx];
   if (law.status !== 'entwurf') return state;
-  if (state.pk < 20) return state;
+
+  let pkKosten: number;
+  let charEffekte: Record<string, number> = {};
+
+  if (isEinbringenContext(options)) {
+    const kongruenz = applyKongruenzEffekte(state, lawId, options.ausrichtung, options.complexity);
+    pkKosten = getEinbringenPkKosten(kongruenz.pkModifikator);
+    charEffekte = kongruenz.charEffekte;
+  } else {
+    const baseCost = 20;
+    const rabatt = options?.pkRabatt ?? 0;
+    pkKosten = Math.max(1, Math.round(baseCost * (1 - rabatt)));
+  }
+
+  if (state.pk < pkKosten) return state;
 
   const gesetze = state.gesetze.map((g, i) =>
     i === idx ? { ...g, status: 'aktiv' as const } : g,
   );
+  let newState: GameState = { ...state, pk: state.pk - pkKosten, gesetze };
 
-  return addLog(
-    { ...state, pk: state.pk - 20, gesetze },
-    `${law.kurz} in Bundestag eingebracht`,
-    'hi',
-  );
+  if (Object.keys(charEffekte).length > 0) {
+    newState = applyMoodChange(newState, charEffekte);
+  }
+
+  return addLog(newState, `${law.kurz} in Bundestag eingebracht`, 'hi');
 }
 
 export function lobbying(state: GameState, lawId: string): GameState {
@@ -45,8 +84,12 @@ export function lobbying(state: GameState, lawId: string): GameState {
   return addLog(newState, `Lobbying ${gesetze[idx].kurz}: Zustimmung steigt +${gain}%`, '');
 }
 
-export function abstimmen(state: GameState, lawId: string): GameState {
-  const idx = state.gesetze.findIndex(g => g.id === lawId);
+export function abstimmen(
+  state: GameState,
+  lawId: string,
+  beschlussContext?: GesetzBeschlussContext,
+): GameState {
+  const idx = state.gesetze.findIndex((g) => g.id === lawId);
   if (idx === -1) return state;
   const law = state.gesetze[idx];
   if (law.status !== 'aktiv') return state;
@@ -65,7 +108,15 @@ export function abstimmen(state: GameState, lawId: string): GameState {
         i === idx ? { ...g, status: 'beschlossen' as const } : g,
       );
       const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
-      const newState = scheduleEffects({ ...state, gesetze }, lawForEffects);
+      let newState: GameState = scheduleEffects({ ...state, gesetze }, lawForEffects);
+
+      if (beschlussContext?.milieus) {
+        newState = applyMilieuEffekte(newState, lawId, beschlussContext.milieus, beschlussContext.complexity);
+      }
+      if (law.politikfeldId) {
+        newState = setPolitikfeldBeschluss(newState, law.politikfeldId);
+      }
+
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
     }
     // Land-Gesetz: BT passed → 3 Monate bis BR-Abstimmung, Lobbying-Fenster

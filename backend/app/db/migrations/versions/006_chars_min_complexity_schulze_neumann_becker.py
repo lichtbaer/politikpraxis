@@ -233,7 +233,7 @@ def upgrade() -> None:
             "Becker ist frustriert über die fehlenden Fortschritte in der Bildungspolitik.",
             "KABINETTSKRISE: Bildungsministerin Becker droht mit Rücktritt",
         ),
-    )
+    ]
 
     for eid, etype, char_id, type_label, title, quote, context, ticker in events_data:
         conn.execute(

@@ -153,6 +153,10 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
             "ideologie": _ideologie(g.ideologie_wirtschaft, g.ideologie_gesellschaft, g.ideologie_staat),
             "politikfeld_id": g.politikfeld_id,
             "politikfeld_sekundaer": g.politikfeld_sekundaer or [],
+            "kosten_einmalig": float(g.kosten_einmalig or 0),
+            "kosten_laufend": float(g.kosten_laufend or 0),
+            "einnahmeeffekt": float(g.einnahmeeffekt or 0),
+            "investiv": g.investiv or False,
             "titel": i18n.titel,
             "kurz": i18n.kurz,
             "desc": i18n.desc,
@@ -382,6 +386,7 @@ async def fetch_politikfelder(db: AsyncSession, locale: str) -> list[dict]:
         rows.append({
             "id": p.id,
             "verband_id": p.verband_id,
+            "druck_event_id": p.druck_event_id,
             "eu_relevanz": p.eu_relevanz or 1,
             "kommunal_relevanz": p.kommunal_relevanz or 1,
             "min_complexity": p.min_complexity or 1,

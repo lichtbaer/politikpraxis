@@ -17,10 +17,22 @@ const FEATURES: Record<string, { minLevel: number }> = {
   kabinett_erweiterung: { minLevel: 3 },
   /** + Becker ab Stufe 4 */
   kabinett_voll: { minLevel: 4 },
+  /** SMA-261: Kongruenz modifiziert PK-Kosten beim Einbringen */
+  kongruenz_effekte: { minLevel: 2 },
+  /** Char-Mood bei ideologisch gegensätzlichem Gesetz */
+  char_ideologie: { minLevel: 3 },
+  /** Vollständige Milieu-Zustimmung (Stufe 1: nur aggregiert) */
+  milieus_voll: { minLevel: 2 },
+  /** Politikfeld-Druck-System */
+  politikfeld_druck: { minLevel: 3 },
+  /** Verbands-Lobbying, Trade-offs, Konflikt-Mechanik */
+  verbands_lobbying: { minLevel: 3 },
   /** Koalitionspartner als eigenständiger Akteur ab Stufe 2 */
   koalitionspartner: { minLevel: 2 },
   /** Koalitionsvertrag-Score (Kongruenz-Tracking) ab Stufe 4 */
   koalitionsvertrag_score: { minLevel: 4 },
+  /** Ministerial-Initiativen (Minister bringen eigene Gesetze ein) */
+  ministerial_initiativen: { minLevel: 3 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {
