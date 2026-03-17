@@ -78,16 +78,20 @@ async def test_get_gesetze_locale_fallback(client: AsyncClient):
 
 @pytest.mark.asyncio
 @requires_db
-async def test_get_gesetze_14_laws_sma265(client: AsyncClient):
-    """GET /api/content/gesetze liefert mindestens 14 Gesetze (4 + 10 neue + Grundrechte)."""
+async def test_get_gesetze_18_laws_sma271(client: AsyncClient):
+    """GET /api/content/gesetze liefert mindestens 18 Gesetze (4 + 11 + 4 Haushalt)."""
     r = await client.get("/api/content/gesetze", params={"locale": "de"})
     assert r.status_code == 200
     data = r.json()
-    assert len(data) >= 14, f"Erwartet mindestens 14 Gesetze, erhalten {len(data)}"
+    assert len(data) >= 18, f"Erwartet mindestens 18 Gesetze, erhalten {len(data)}"
     ids = [g["id"] for g in data]
     assert "mindestlohn" in ids
     assert "klimaschutz" in ids
     assert "grundrechte" in ids
+    assert "sondervermoegen_klima" in ids
+    assert "schuldenbremse_reform" in ids
+    assert "vermoegensteuer" in ids
+    assert "steuerreform_2" in ids
 
 
 @pytest.mark.asyncio
@@ -116,6 +120,27 @@ async def test_get_events_type_filter(client: AsyncClient):
     assert isinstance(data, list)
     for e in data:
         assert e["event_type"] == "random"
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_eu_events_6_events_sma271(client: AsyncClient):
+    """GET /api/content/eu-events?locale=de liefert alle 6 EU-Events."""
+    r = await client.get("/api/content/eu-events", params={"locale": "de"})
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data) >= 6, f"Erwartet mindestens 6 EU-Events, erhalten {len(data)}"
+    ids = [e["id"] for e in data]
+    assert "eu_rl_mindestlohn" in ids
+    assert "eu_rl_lieferkette" in ids
+    assert "eu_rl_klima" in ids
+    assert "eu_rechtsruck" in ids
+    assert "eu_gipfel_frankreich" in ids
+    assert "europawahl" in ids
+    for e in data:
+        assert "title" in e
+        assert "choices" in e
+        assert len(e["choices"]) >= 1
 
 
 @pytest.mark.asyncio

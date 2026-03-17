@@ -57,10 +57,6 @@ def upgrade() -> None:
         ("klimaschutz", 10.0, 1.5, 0.0, True),
         ("lieferkette", 0.0, 0.5, 0.0, False),
         ("grundrechte", 0.0, 0.5, 0.0, False),
-        ("sondervermoegen_klima", 100.0, 0.0, 0.0, True),
-        ("schuldenbremse_reform", 0.0, 0.0, 0.0, False),
-        ("vermoegensteuer", 0.0, 0.0, 8.0, False),
-        ("steuerreform_2", 0.0, 0.0, -15.0, False),
     ]
 
     for gid, einmalig, laufend, einnahme, investiv in GESETZ_KOSTEN:
