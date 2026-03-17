@@ -599,6 +599,8 @@
     "partei_cdp": "Du führst die Christlich-Demokratische Partei in die Regierung. Wirtschaft, Sicherheit und Familie stehen im Kern.",
     "partei_ldp": "Du führst die Liberal-Demokratische Partei in die Regierung. Freiheit, Digitalisierung und Eigenverantwortung stehen im Kern.",
     "partei_lp": "Du führst die Linke Partei in die Regierung. Umverteilung, Frieden und Grundsicherung stehen im Kern.",
+    "partei_gp": "Du führst die Grüne Partei in die Regierung. Klima, Umwelt und Nachhaltigkeit stehen im Kern.",
+    "partnerHint": "Mit deiner politischen Ausrichtung ist {{partei}} dein wahrscheinlichster Koalitionspartner.",
     "ideologieTitle": "Deine politische Ausrichtung",
     "ideologieSubtitle": "Innerhalb des Partei-Korridors",
     "wirtschaft": "Wirtschaft",

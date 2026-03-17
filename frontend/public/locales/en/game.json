@@ -573,6 +573,8 @@
     "partei_cdp": "You lead the Christian Democratic Party into government. Economy, security and family are at the core.",
     "partei_ldp": "You lead the Liberal Democratic Party into government. Freedom, digitalisation and personal responsibility are at the core.",
     "partei_lp": "You lead the Left Party into government. Redistribution, peace and basic income are at the core.",
+    "partei_gp": "You lead the Green Party into government. Climate, environment and sustainability are at the core.",
+    "partnerHint": "With your political orientation, {{partei}} is your most likely coalition partner.",
     "ideologieTitle": "Your political orientation",
     "ideologieSubtitle": "Within the party corridor",
     "wirtschaft": "Economy",
