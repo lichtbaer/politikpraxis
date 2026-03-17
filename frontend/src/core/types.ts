@@ -91,6 +91,8 @@ export interface EventChoice {
   brRelation?: Record<string, number>;
   /** Bei Bundesrat-Initiative: Delta für initiierende Fraktion (event.fraktionId) */
   brRelationInitiator?: number;
+  /** Bei Ministerial-Initiative: Aktion für resolveMinisterialInitiative */
+  ministerialAction?: 'unterstuetzen' | 'ablehnen' | 'ignorieren';
   log: string;
 }
 
@@ -238,6 +240,44 @@ export interface GameState {
   won: boolean;
   /** Wahlhürde in % (35/38/40/42 je nach Komplexitätsstufe) */
   electionThreshold?: number;
+
+  /** Verbands-Beziehungen (ab Stufe 3): verbandId → 0–100 */
+  verbandsBeziehungen?: Record<string, number>;
+  /** Politikfeld-Druck durch Verbands-Trade-offs */
+  politikfeldDruck?: Record<string, number>;
+  /** Ministerial-Initiativen: charId → Monat der letzten Initiative */
+  ministerialCooldowns?: Record<string, number>;
+  /** Aktive Ministerial-Initiative (max. 1 gleichzeitig) */
+  aktiveMinisterialInitiative?: { initId: string; charId: string; gesetzId: string } | null;
+}
+
+/** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */
+export interface Verband {
+  id: string;
+  kurz: string;
+  name?: string;
+  politikfeld_id: string;
+  beziehung_start: number;
+  tradeoffs?: VerbandTradeoff[];
+}
+
+/** Trade-off eines Verbands */
+export interface VerbandTradeoff {
+  key: string;
+  effekte: Partial<KpiDelta>;
+  feld_druck_delta: number;
+  label?: string;
+  desc?: string;
+}
+
+/** Ministerial-Initiative (Minister bringt eigenes Gesetz ein) */
+export interface MinisterialInitiative {
+  id: string;
+  char_id: string;
+  gesetz_ref_id: string;
+  cooldown_months: number;
+  /** Bedingungen: z.B. mood >= 3, interest match, etc. */
+  bedingungen?: Array<{ type: string; value?: number | string }>;
 }
 
 export interface ContentBundle {
@@ -248,6 +288,8 @@ export interface ContentBundle {
   laws: Law[];
   bundesrat: BundesratLand[];
   bundesratFraktionen?: BundesratFraktion[];
+  verbaende?: Verband[];
+  ministerialInitiativen?: MinisterialInitiative[];
   scenario: {
     id: string;
     name: string;
