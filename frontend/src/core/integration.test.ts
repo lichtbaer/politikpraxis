@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { tick } from './engine';
-import { einbringen, abstimmen } from './systems/parliament';
+import { einbringen } from './systems/parliament';
 import { applyMilieuEffekte } from './systems/milieus';
 import { berechneWahlprognose } from './systems/wahlprognose';
 import { triggerHaushaltsdebatte } from './systems/haushalt';
@@ -99,7 +99,9 @@ describe('SMA-291: Bundesrat-Stufen — Stufe 1 Land-Gesetz direkt beschlossen',
       ] as GameState['bundesratFraktionen'],
     };
     let s = einbringen(state, 'wb', { ausrichtung: { wirtschaft: 0, gesellschaft: 0, staat: 0 }, complexity: 1 });
-    s = abstimmen(s, 'wb', { milieus: content.milieus!, complexity: 1 });
+    expect(s.gesetze[0].status).toBe('eingebracht');
+    // SMA-304: Tick löst Abstimmung nach lag_months (Stufe 1: 1 Monat)
+    s = tick(s, content, 1);
     expect(s.gesetze[0].status).toBe('beschlossen');
     expect(s.gesetze[0]).not.toHaveProperty('brVoteMonth');
   });
@@ -109,12 +111,10 @@ describe('Integration: Gesetz einbringen → Milieu reagiert → Wahlprognose ä
   it('Gesetz beschlossen → Milieu-Zustimmung ändert sich → Wahlprognose ändert sich', () => {
     const state = createInitialState();
     let s = einbringen(state, 'ee', { ausrichtung: { wirtschaft: -30, gesellschaft: -60, staat: -20 }, complexity: 3 });
-    expect(s.gesetze[0].status).toBe('aktiv');
+    expect(s.gesetze[0].status).toBe('eingebracht');
 
-    s = abstimmen(s, 'ee', {
-      milieus: content.milieus!,
-      complexity: 3,
-    });
+    // SMA-304: Tick löst Abstimmung nach Einbringungs-Lag (complexity 3: lag/2 = 1 Monat)
+    s = tick(s, content, 3);
     expect(s.gesetze[0].status).toBe('beschlossen');
 
     s = applyMilieuEffekte(s, 'ee', content.milieus!, 3);

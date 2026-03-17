@@ -53,6 +53,7 @@
     },
     "status": {
       "entwurf": "Entwurf",
+      "eingebracht": "Eingebracht",
       "aktiv": "Im Bundestag",
       "bt_passed": "Bundestag beschlossen",
       "blockiert": "Blockiert",

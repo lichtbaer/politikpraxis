@@ -79,10 +79,28 @@ export function einbringen(
 
   if (state.pk < pkKosten) return state;
 
+  // SMA-304: Einbringungs-Lag — Stufe 1: 1 Monat fix, Stufe 2+: law.einbringungsLag oder abgeleitet
+  const lagMonths =
+    complexity === 1
+      ? 1
+      : (law.einbringungsLag ?? Math.min(6, Math.max(1, Math.ceil(law.lag / 2))));
+  const abstimmungMonat = state.month + lagMonths;
+
   const gesetze = state.gesetze.map((g, i) =>
-    i === idx ? { ...g, status: 'aktiv' as const } : g,
+    i === idx ? { ...g, status: 'eingebracht' as const } : g,
   );
-  let newState: GameState = { ...state, pk: state.pk - pkKosten, gesetze };
+  const eingebrachteGesetze = [...(state.eingebrachteGesetze ?? []), {
+    gesetzId: lawId,
+    eingebrachtMonat: state.month,
+    abstimmungMonat,
+    lagMonths,
+  }];
+  let newState: GameState = {
+    ...state,
+    pk: state.pk - pkKosten,
+    gesetze,
+    eingebrachteGesetze,
+  };
 
   if (state.gesetzProjekte?.[lawId]) {
     const projekte = newState.gesetzProjekte ?? {};
@@ -114,6 +132,9 @@ export function lobbying(state: GameState, lawId: string): GameState {
   const idx = state.gesetze.findIndex(g => g.id === lawId);
   if (idx === -1) return state;
   if (state.pk < 12) return state;
+  const law = state.gesetze[idx];
+  // SMA-304: Lobbying auch während Ausschussphase (eingebracht)
+  if (law.status !== 'entwurf' && law.status !== 'aktiv' && law.status !== 'eingebracht') return state;
 
   const gain = Math.floor(Math.random() * 5) + 2;
   const gesetze = state.gesetze.map((g, i) => {
@@ -204,4 +225,88 @@ export function abstimmen(
       'r',
     );
   }
+}
+
+/** SMA-304: Führt Abstimmung für eingebrachtes Gesetz durch (aufgerufen im Tick) */
+export function resolveEingebrachteAbstimmung(
+  state: GameState,
+  eg: { gesetzId: string },
+  beschlussContext?: GesetzBeschlussContext,
+): GameState {
+  const idx = state.gesetze.findIndex((g) => g.id === eg.gesetzId);
+  if (idx === -1) return state;
+  const law = state.gesetze[idx];
+  if (law.status !== 'eingebracht') return state;
+
+  const partnerBonus =
+    state.koalitionspartner &&
+    state.partnerPrioGesetz?.gesetzId === eg.gesetzId &&
+    state.month <= state.partnerPrioGesetz.bisMonat
+      ? 5
+      : 0;
+  const btBonus =
+    state.btStimmenBonus && state.month <= state.btStimmenBonus.bisMonat
+      ? state.btStimmenBonus.pct
+      : 0;
+  const vorstufenBtBonus = state.gesetzProjekte?.[eg.gesetzId]?.boni?.btStimmenBonus ?? 0;
+  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus);
+
+  const complexity = beschlussContext?.complexity ?? 4;
+  const bundesratAktiv = featureActive(complexity, 'bundesrat_sichtbar');
+  const needsBundesrat = law.tags.includes('land') && bundesratAktiv;
+
+  const gesetze = state.gesetze.map((g, i) => {
+    if (i !== idx) return g;
+    if (effectiveJa > 50) {
+      if (!needsBundesrat) {
+        return { ...g, status: 'beschlossen' as const };
+      }
+      return {
+        ...g,
+        status: 'bt_passed' as const,
+        brVoteMonth: state.month + 3,
+        lobbyFraktionen: {},
+      };
+    }
+    return { ...g, status: 'blockiert' as const, blockiert: 'bundestag' as const };
+  });
+
+  const eingebrachteGesetze = (state.eingebrachteGesetze ?? []).filter(
+    (e) => e.gesetzId !== eg.gesetzId,
+  );
+  let newState: GameState = { ...state, gesetze, eingebrachteGesetze };
+
+  if (effectiveJa > 50) {
+    if (!needsBundesrat) {
+      newState = applyGesetzKosten(newState, eg.gesetzId);
+      const lawForEffects = {
+        effekte: law.effekte as Record<string, number>,
+        lag: law.lag,
+        kurz: law.kurz,
+      };
+      newState = scheduleEffects(newState, lawForEffects);
+      if (beschlussContext?.milieus) {
+        newState = applyMilieuEffekte(
+          newState,
+          eg.gesetzId,
+          beschlussContext.milieus,
+          beschlussContext.complexity,
+        );
+      }
+      if (law.politikfeldId) {
+        newState = setPolitikfeldBeschluss(newState, law.politikfeldId);
+      }
+      return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
+    }
+    return addLog(
+      newState,
+      `${law.kurz} durch Bundestag — Bundesratsabstimmung in 3 Monaten. Lobbying möglich.`,
+      'g',
+    );
+  }
+  return addLog(
+    { ...newState, ...withPause(state) },
+    `${law.kurz}: Bundestag-Mehrheit verfehlt (${law.ja}%)`,
+    'r',
+  );
 }

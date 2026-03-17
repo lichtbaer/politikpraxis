@@ -40,6 +40,11 @@
   color: var(--text2);
 }
 
+.statusEingebracht {
+  background: var(--gold2);
+  color: var(--gold);
+}
+
 .statusAktiv {
   background: var(--gold2);
   color: var(--gold);
@@ -223,6 +228,10 @@
 
 .progressFill {
   background: var(--blue);
+}
+
+.progressFillEingebracht {
+  background: var(--gold);
 }
 
 .voteLabel,

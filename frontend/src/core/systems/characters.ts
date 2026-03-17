@@ -18,7 +18,7 @@ export function applyCharBonuses(state: GameState): GameState {
   const braun = newState.chars.find(c => c.id === 'im');
   if (braun && braun.mood <= 1 && Math.random() < 0.3) {
     gesetze.forEach(g => {
-      if ((g.status === 'aktiv' || g.status === 'entwurf') && Math.random() < 0.4) {
+      if ((g.status === 'aktiv' || g.status === 'entwurf' || g.status === 'eingebracht') && Math.random() < 0.4) {
         g.ja = Math.max(30, g.ja - 1);
         g.nein = 100 - g.ja;
       }

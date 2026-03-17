@@ -41,6 +41,7 @@ interface AgendaCardProps {
 
 const STATUS_KEYS: Record<LawStatus, string> = {
   entwurf: 'game.status.entwurf',
+  eingebracht: 'game.status.eingebracht',
   aktiv: 'game.status.aktiv',
   bt_passed: 'game.status.bt_passed',
   blockiert: 'game.status.blockiert',
@@ -50,6 +51,7 @@ const STATUS_KEYS: Record<LawStatus, string> = {
 
 const STATUS_CLASS: Record<LawStatus, string> = {
   entwurf: styles.statusEntwurf,
+  eingebracht: styles.statusEingebracht,
   aktiv: styles.statusAktiv,
   bt_passed: styles.statusAktiv,
   blockiert: styles.statusBlockiert,
@@ -91,7 +93,13 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
     law.status === 'entwurf' &&
     pk >= 20 &&
     !isVerfassungsgerichtBlockiert(state, law);
-  const canLobbying = (law.status === 'entwurf' || law.status === 'aktiv') && pk >= 12;
+  const canLobbying = (law.status === 'entwurf' || law.status === 'aktiv' || law.status === 'eingebracht') && pk >= 12;
+
+  const eingebrachtInfo = state.eingebrachteGesetze?.find((e) => e.gesetzId === law.id);
+  const monateNoch = eingebrachtInfo ? Math.max(0, eingebrachtInfo.abstimmungMonat - state.month) : 0;
+  const fortschritt = eingebrachtInfo
+    ? Math.min(eingebrachtInfo.lagMonths, state.month - eingebrachtInfo.eingebrachtMonat)
+    : 0;
 
   const total = law.ja + law.nein;
   const pct = total > 0 ? Math.round((law.ja / total) * 100) : 0;
@@ -192,7 +200,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
             ))}
           </div>
 
-          {(law.status === 'entwurf' || law.status === 'aktiv') && (
+          {(law.status === 'entwurf' || law.status === 'aktiv' || law.status === 'eingebracht') && (
             <div className={styles.voteBar}>
               <div className={styles.voteTrack}>
                 <div
@@ -261,6 +269,28 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
             </div>
           )}
 
+          {law.status === 'eingebracht' && eingebrachtInfo && (
+            <div className={styles.progressBar}>
+              <div className={styles.progressTrack}>
+                <div
+                  className={`${styles.progressFill} ${styles.progressFillEingebracht}`}
+                  style={{
+                    width: `${(fortschritt / eingebrachtInfo.lagMonths) * 100}%`,
+                  }}
+                />
+              </div>
+              <span className={styles.progressLabel}>
+                {t('game:agenda.ausschussphaseIn', { months: monateNoch })}
+              </span>
+              <span className={styles.progressLabel}>
+                {t('game:agenda.ausschussphaseProgress', {
+                  progress: fortschritt,
+                  total: eingebrachtInfo.lagMonths,
+                })}
+              </span>
+            </div>
+          )}
+
           {law.status === 'bt_passed' && law.brVoteMonth != null && (
             <div className={styles.progressBar}>
               <span className={styles.progressLabel}>
@@ -297,7 +327,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
                 </button>
               </>
             )}
-            {(law.status === 'entwurf' || law.status === 'aktiv') && (
+            {(law.status === 'entwurf' || law.status === 'aktiv' || law.status === 'eingebracht') && (
               <button
                 type="button"
                 className={styles.btn}
