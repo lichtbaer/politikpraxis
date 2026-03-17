@@ -102,6 +102,9 @@ function transformGesetz(api: GesetzApi): Law {
     kosten_laufend: api.kosten_laufend,
     einnahmeeffekt: api.einnahmeeffekt,
     investiv: (api as { investiv?: boolean }).investiv,
+    kommunal_pilot_moeglich: (api as { kommunal_pilot_moeglich?: boolean }).kommunal_pilot_moeglich ?? true,
+    laender_pilot_moeglich: (api as { laender_pilot_moeglich?: boolean }).laender_pilot_moeglich ?? true,
+    eu_initiative_moeglich: (api as { eu_initiative_moeglich?: boolean }).eu_initiative_moeglich ?? true,
   };
 }
 

@@ -91,6 +91,10 @@ export interface Law {
   einnahmeeffekt?: number;
   /** Investitionsgesetz (+2 Mo. Lag) */
   investiv?: boolean;
+  /** SMA-273: Vorstufen möglich (aus API) */
+  kommunal_pilot_moeglich?: boolean;
+  laender_pilot_moeglich?: boolean;
+  eu_initiative_moeglich?: boolean;
 }
 
 /** Koalitionspartner-State im GameState */
@@ -284,6 +288,39 @@ export interface Politikfeld {
   druckEventId?: string | null;
 }
 
+/** Vorstufen-Boni (SMA-273): Akkumuliert aus erfolgreichen Vorstufen */
+export interface VorstufenBoni {
+  btStimmenBonus: number; // max +25%
+  pkKostenRabatt: number; // max -18 PK
+  kofinanzierung: number; // 0.0–0.35
+  bundesratBonus: number; // max +35%
+  medienRueckhalt: number;
+}
+
+/** Aktive Vorstufe (Kommunal, Länder, EU) — läuft bis fortschritt 100 */
+export interface AktiveVorstufe {
+  typ: 'kommunal' | 'laender' | 'eu';
+  startMonat: number;
+  dauerMonate: number;
+  fortschritt: number; // 0–100
+  erfolgschance: number;
+  abgeschlossen: boolean;
+  ergebnis?: 'erfolg' | 'scheitern';
+  /** Kommunal-spezifisch */
+  stadttyp?: 'progressiv' | 'konservativ' | 'industrie';
+  stadtname?: string; // Stufe 3+ konkret
+  /** Länder-spezifisch */
+  fraktionId?: string;
+}
+
+/** Gesetz-Projekt mit Vorstufen und akkumulierten Boni (SMA-273) */
+export interface GesetzProjekt {
+  gesetzId: string;
+  status: 'vorbereitung' | 'bundesebene' | 'beschlossen' | 'gescheitert';
+  aktiveVorstufen: AktiveVorstufe[];
+  boni: VorstufenBoni;
+}
+
 /** EU-Substate (SMA-269): Klima, Ratsvorsitz, Ausweichroute, Umsetzungsfristen */
 export interface EUState {
   klima: Record<string, number>;
@@ -400,6 +437,8 @@ export interface GameState {
   lehmannSparvorschlagAktiv?: boolean;
   /** Aktives Strukturevent (z.B. Haushaltsdebatte) */
   aktivesStrukturEvent?: AktivesStrukturEvent | null;
+  /** SMA-273: Gesetz-Projekte mit Vorstufen und Boni */
+  gesetzProjekte?: Record<string, GesetzProjekt>;
 }
 
 /** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */

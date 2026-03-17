@@ -1,4 +1,4 @@
-import type { GameState, ContentBundle, LogEntry } from './types';
+import type { GameState, ContentBundle } from './types';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums } from './systems/characters';
@@ -18,16 +18,10 @@ import {
   checkLehmannSparvorschlag,
   triggerHaushaltsdebatte,
 } from './systems/haushalt';
+import { tickGesetzVorstufen } from './systems/gesetzLebenszyklus';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
-export function addLog(state: GameState, msg: string, type: string, params?: Record<string, string | number>): GameState {
-  const yr = 2025 + Math.floor((state.month - 1) / 12);
-  const mo = ((state.month - 1) % 12) + 1;
-  const time = `${String(mo).padStart(2, '0')}/${yr}`;
-  const entry: LogEntry = params ? { time, msg, type, params } : { time, msg, type };
-  const log = [entry, ...state.log].slice(0, 60);
-  return { ...state, log };
-}
+export { addLog } from './log';
 
 export function tick(state: GameState, content: ContentBundle, complexity: number = 4): GameState {
   if (state.gameOver) return state;
@@ -40,6 +34,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = applyPendingEffects(s);
   s = advanceRoutes(s);
   s = advanceEURoute(s);
+  s = tickGesetzVorstufen(s, content, complexity);
 
   s = tickKonjunktur(s, complexity);
   s = applySchuldenbremsenEffekte(s, complexity, content);

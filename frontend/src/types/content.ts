@@ -53,6 +53,10 @@ export interface GesetzApi {
   einnahmeeffekt?: number;
   /** Investitionsgesetz (+2 Mo. Lag) */
   investiv?: boolean;
+  /** SMA-273: Vorstufen möglich */
+  kommunal_pilot_moeglich?: boolean;
+  laender_pilot_moeglich?: boolean;
+  eu_initiative_moeglich?: boolean;
 }
 
 export interface MilieuApi {
