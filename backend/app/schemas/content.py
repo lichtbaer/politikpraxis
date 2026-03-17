@@ -51,6 +51,10 @@ class GesetzResponse(BaseModel):
     ideologie: IdeologieSchema
     politikfeld_id: str | None
     politikfeld_sekundaer: list[str]
+    kosten_einmalig: float = 0
+    kosten_laufend: float = 0
+    einnahmeeffekt: float = 0
+    investiv: bool = False
     titel: str
     kurz: str
     desc: str
