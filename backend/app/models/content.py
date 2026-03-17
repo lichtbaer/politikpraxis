@@ -93,6 +93,15 @@ class Event(Base):
     condition_op: Mapped[str | None] = mapped_column(Text(), nullable=True)
     condition_val: Mapped[int | None] = mapped_column(Integer(), nullable=True)
     min_complexity: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+    # Kommunal-Initiative Trigger (SMA-275)
+    politikfeld_id: Mapped[str | None] = mapped_column(
+        Text(), ForeignKey("politikfelder.id"), nullable=True
+    )
+    trigger_druck_min: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    trigger_milieu_key: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    trigger_milieu_op: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    trigger_milieu_val: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    gesetz_ref: Mapped[list[str] | None] = mapped_column(ARRAY(Text()), nullable=True)
 
 
 class EventI18n(Base):

@@ -101,7 +101,12 @@ export function abstimmen(
     state.month <= state.partnerPrioGesetz.bisMonat
       ? 5
       : 0;
-  const effectiveJa = law.ja + partnerBonus;
+  const btBonus =
+    state.btStimmenBonus &&
+    state.month <= state.btStimmenBonus.bisMonat
+      ? state.btStimmenBonus.pct
+      : 0;
+  const effectiveJa = law.ja + partnerBonus + btBonus;
 
   if (effectiveJa > 50) {
     if (!law.tags.includes('land')) {

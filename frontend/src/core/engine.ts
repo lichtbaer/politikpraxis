@@ -4,7 +4,7 @@ import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
-import { checkRandomEvents, checkBundesratEvents } from './systems/events';
+import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
 import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragScore } from './systems/koalition';
@@ -38,7 +38,16 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   if (s.gameOver) return s;
 
   s = applyPendingEffects(s);
-  s = advanceRoutes(s);
+  const routesResult = advanceRoutes(s);
+  s = routesResult.state;
+  if (routesResult.completedVorstufe && !s.activeEvent) {
+    const ev = routesResult.completedVorstufe.route === 'kommune'
+      ? (content.vorstufenEvents ?? []).find(e => e.id === 'vorstufe_kommunal_erfolg')
+      : (content.vorstufenEvents ?? []).find(e => e.id === 'vorstufe_laender_erfolg');
+    if (ev) {
+      s = { ...s, activeEvent: { ...ev, lawId: routesResult.completedVorstufe.lawId }, speed: 0 };
+    }
+  }
   s = advanceEURoute(s);
 
   s = tickKonjunktur(s, complexity);
@@ -70,6 +79,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
     sprecherErsatz: SPRECHER_ERSATZ,
     landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
   });
+  s = checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity);
   s = checkRandomEvents(s, content.events);
 
   let newZust = recalcApproval(s.kpi, s.zust);

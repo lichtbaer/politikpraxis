@@ -59,6 +59,7 @@ export function createInitialState(
     firedEvents: [],
     firedCharEvents: [],
     firedBundesratEvents: [],
+    firedKommunalEvents: [],
 
     pending: [],
 

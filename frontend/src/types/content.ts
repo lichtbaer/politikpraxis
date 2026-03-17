@@ -53,6 +53,8 @@ export interface GesetzApi {
   einnahmeeffekt?: number;
   /** Investitionsgesetz (+2 Mo. Lag) */
   investiv?: boolean;
+  /** Kommunal-Pilot möglich (SMA-272) */
+  kommunal_pilot_moeglich?: boolean;
 }
 
 export interface MilieuApi {
@@ -110,6 +112,13 @@ export interface EventApi {
   context: string;
   ticker: string;
   choices: EventChoiceApi[];
+  /** Kommunal-Initiative Trigger (SMA-275) */
+  politikfeld_id?: string | null;
+  trigger_druck_min?: number | null;
+  trigger_milieu_key?: string | null;
+  trigger_milieu_op?: string | null;
+  trigger_milieu_val?: number | null;
+  gesetz_ref?: string[];
 }
 
 export interface BundesratTradeoffApi {
