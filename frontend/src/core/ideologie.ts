@@ -51,6 +51,42 @@ export function milieuGesetzKongruenz(milieu: Milieu, gesetz: Law): number {
   return berechneKongruenz(milieu.ideologie, gesetz.ideologie ?? DEFAULT_IDEOLOGIE);
 }
 
+/** SMA-301: Pol-Beschriftungen pro Achse [links, rechts] */
+export const POL_LABELS: Record<keyof IdeologieType, [string, string]> = {
+  wirtschaft: ['Umverteilung', 'Freier Markt'],
+  gesellschaft: ['Progressiv', 'Konservativ'],
+  staat: ['Gemeinschaft', 'Eigenverantwortung'],
+};
+
+/** SMA-301: Verständliches Label statt Zahlenwert — gibt i18n-Key zurück (onboarding.ideologieLabel.*) */
+export function getIdeologieLabelKey(
+  achse: keyof IdeologieType,
+  wert: number,
+): string {
+  if (achse === 'wirtschaft') {
+    if (wert < -50) return 'onboarding.ideologieLabel.wirtschaft.starkLinks';
+    if (wert < -20) return 'onboarding.ideologieLabel.wirtschaft.links';
+    if (wert < 20) return 'onboarding.ideologieLabel.wirtschaft.mitte';
+    if (wert < 50) return 'onboarding.ideologieLabel.wirtschaft.rechts';
+    return 'onboarding.ideologieLabel.wirtschaft.starkRechts';
+  }
+  if (achse === 'gesellschaft') {
+    if (wert < -50) return 'onboarding.ideologieLabel.gesellschaft.sehrProgressiv';
+    if (wert < -20) return 'onboarding.ideologieLabel.gesellschaft.progressiv';
+    if (wert < 20) return 'onboarding.ideologieLabel.gesellschaft.liberal';
+    if (wert < 50) return 'onboarding.ideologieLabel.gesellschaft.konservativ';
+    return 'onboarding.ideologieLabel.gesellschaft.sehrKonservativ';
+  }
+  if (achse === 'staat') {
+    if (wert < -50) return 'onboarding.ideologieLabel.staat.starkerStaat';
+    if (wert < -20) return 'onboarding.ideologieLabel.staat.aktiverStaat';
+    if (wert < 20) return 'onboarding.ideologieLabel.staat.gemischtesModell';
+    if (wert < 50) return 'onboarding.ideologieLabel.staat.schlankerStaat';
+    return 'onboarding.ideologieLabel.staat.minimalerStaat';
+  }
+  return '';
+}
+
 /** Ideologie-Achse → Politikfeld-ID (für Verfassungsgericht, SMA-280) */
 const ACHSE_TO_POLITIKFELD: Record<keyof IdeologieType, string> = {
   wirtschaft: 'wirtschaft_finanzen',
