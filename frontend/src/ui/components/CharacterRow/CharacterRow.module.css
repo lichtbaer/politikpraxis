@@ -1,3 +1,4 @@
+/* SMA-302: Hover-State auf Char-Karten */
 .root {
   display: flex;
   align-items: center;
@@ -10,7 +11,7 @@
   cursor: pointer;
   text-align: left;
   font-family: var(--sans);
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, transform 0.15s;
 }
 
 .root:hover {

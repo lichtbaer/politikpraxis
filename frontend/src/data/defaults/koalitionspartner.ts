@@ -68,6 +68,7 @@ export const GRUENE: KoalitionspartnerContent = {
   name: 'Grüne',
   sprecher: 'Lena Fischer',
   partei_kuerzel: 'GP',
+  partei_farbe: '#64a12d',
   ideologie: { wirtschaft: -40, gesellschaft: -75, staat: -35 },
   beziehung_start: 65,
   bt_stimmen: 18,

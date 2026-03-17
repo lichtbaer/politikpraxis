@@ -15,8 +15,11 @@ import styles from './CenterPanel.module.css';
 
 export function CenterPanel() {
   const { t } = useTranslation('game');
-  const { state, setView, complexity } = useGameStore();
+  const { state, content, setView, complexity } = useGameStore();
   const { resolveEvent } = useGameActions();
+
+  const isKoalitionEvent = state.activeEvent && ['koalitionsbruch', 'koalitionskrise_ultimatum'].includes(state.activeEvent.id);
+  const headerColor = isKoalitionEvent && content?.koalitionspartner?.partei_farbe ? content.koalitionspartner.partei_farbe : undefined;
 
   useEffect(() => {
     if (state.view === 'bundesrat' && !featureActive(complexity, 'bundesrat_sichtbar')) {
@@ -39,7 +42,7 @@ export function CenterPanel() {
       </div>
       <div className={styles.content}>
         {state.activeEvent ? (
-          <EventCard event={state.activeEvent} onChoice={handleChoice} />
+          <EventCard event={state.activeEvent} onChoice={handleChoice} headerColor={headerColor} />
         ) : (
           <>
             {state.view === 'agenda' && <GesetzAgendaView />}

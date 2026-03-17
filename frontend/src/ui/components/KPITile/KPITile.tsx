@@ -41,11 +41,22 @@ export function KPITile({
       ? { text: formatDelta(value, prevValue), class: getDeltaClass(value, prevValue, inverted) }
       : null;
 
+  /* SMA-302: Flash-Animation wenn Wert sich geändert hat */
+  const showFlash = prevValue !== null && value !== prevValue;
+  const flashClass =
+    showFlash && delta
+      ? delta.class === 'better'
+        ? styles.valueFlashPos
+        : delta.class === 'worse'
+          ? styles.valueFlashNeg
+          : ''
+      : '';
+
   return (
     <div className={styles.root}>
       <span className={styles.label}>{label}</span>
       <div className={styles.valueRow}>
-        <span className={styles.value}>
+        <span className={`${styles.value} ${flashClass}`}>
           {value.toFixed(1)}
           {suffix}
         </span>

@@ -623,6 +623,7 @@
     "cta1": "Glückwunsch. Du hast gewonnen.",
     "cta2": "Jetzt fängt die Arbeit richtig los.",
     "insKanzleramt": "Ins Kanzleramt",
+    "stepProgress": "Schritt {{current}} von {{total}}",
     "defaultGovName": "Die neue Regierung",
     "erster_monat": "Erster Monat im Amt. Die Koalition ist vereidigt, die Ministerien besetzt. Jetzt geht es an die Arbeit.",
     "erstes_gesetz": "Dein erstes Gesetz. Politisches Kapital (PK) ist deine zentrale Ressource — für Einbringen, Lobbying und Abstimmungen.",
