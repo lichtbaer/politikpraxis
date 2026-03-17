@@ -47,11 +47,16 @@ function applySprecherWechselEffect(state: GameState, event: GameEvent): GameSta
   return { ...state, bundesratFraktionen: fraktionen };
 }
 
+/** Wahlkampf-Events werden nie zufällig getriggert; nur durch dedizierte Check-Funktionen (Monat 43–48) */
+const WAHLKAMPF_EVENT_IDS = new Set(['wahlkampf_beginn', 'tv_duell', 'koalitionspartner_alleingang']);
+
 export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): GameState {
   if (state.activeEvent) return state;
   if (Math.random() >= 0.22) return state;
 
-  const available = eventPool.filter(e => !state.firedEvents.includes(e.id));
+  const available = eventPool
+    .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
+    .filter(e => !state.firedEvents.includes(e.id));
   if (!available.length) return state;
 
   const ev = available[Math.floor(Math.random() * available.length)];
