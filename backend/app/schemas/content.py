@@ -170,6 +170,35 @@ class VerbandResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class EuEventChoiceResponse(BaseModel):
+    key: str
+    cost_pk: int
+    effekte: EffekteSchema
+    eu_klima_delta: int = 0
+    kofinanzierung: float = 0
+    label: str
+    desc: str
+    log_msg: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EuEventResponse(BaseModel):
+    id: str
+    event_type: str
+    politikfeld_id: str | None
+    trigger_klima_min: int | None
+    trigger_monat: int | None
+    min_complexity: int | None
+    title: str
+    quote: str
+    context: str
+    ticker: str
+    choices: list[EuEventChoiceResponse]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ContentBundleResponse(BaseModel):
     characters: list[dict[str, Any]]
     events: list[dict[str, Any]]
