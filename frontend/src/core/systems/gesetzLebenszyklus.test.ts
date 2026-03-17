@@ -202,6 +202,20 @@ describe('gesetzLebenszyklus', () => {
     });
   });
 
+  describe('startKommunalPilot — Zeitdruck-Warnung', () => {
+    it('Zeitdruck-Warnung ab Monat 45 (Vorstufe endet nach Wahltermin)', () => {
+      const state = createMockState({ month: 45 });
+      const next = startKommunalPilot(state, 'ee', 'progressiv', undefined, 2);
+      expect(next.log.some(l => l.msg.includes('Wahltermin'))).toBe(true);
+    });
+
+    it('keine Zeitdruck-Warnung vor Monat 45', () => {
+      const state = createMockState({ month: 40 });
+      const next = startKommunalPilot(state, 'ee', 'progressiv', undefined, 2);
+      expect(next.log.some(l => l.msg.includes('Wahltermin'))).toBe(false);
+    });
+  });
+
   describe('abbrechenVorstufe', () => {
     it('markiert Vorstufe als abgebrochen', () => {
       const state = createMockState({

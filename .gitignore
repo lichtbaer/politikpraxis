@@ -1,6 +1,10 @@
 # MkDocs build output
 site/
 
+# Test coverage
+coverage/
+frontend/coverage/
+
 # Python
 __pycache__/
 *.py[cod]
