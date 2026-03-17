@@ -5,7 +5,7 @@ import type {
   Ideologie,
   PartnerForderung,
 } from '../../core/types';
-import type { SpielerParteiId } from './parteien';
+import { SPIELBARE_PARTEIEN, type SpielerParteiId } from './parteien';
 
 /** SMA-299: Alle Parteien mit Ideologie für dynamische Koalitionspartner-Berechnung */
 export interface ParteiMitIdeologie {
@@ -92,11 +92,13 @@ export function buildKoalitionspartnerContent(
   if (!partei || !profil) {
     return GRUENE; // Fallback
   }
+  const parteiFarbe = SPIELBARE_PARTEIEN.find((p) => p.id === parteiId)?.farbe;
   return {
     id: parteiId,
     name: partei.name,
     sprecher: profil.sprecher,
     partei_kuerzel: partei.kuerzel,
+    partei_farbe: parteiFarbe,
     ideologie: partei.ideologie,
     beziehung_start: profil.beziehungStart(spielerParteiId),
     bt_stimmen: 18,
@@ -175,6 +177,7 @@ export const GRUENE: KoalitionspartnerContent = {
   name: 'Grüne Partei',
   sprecher: 'Lena Fischer',
   partei_kuerzel: 'GP',
+  partei_farbe: '#46962B',
   ideologie: { wirtschaft: -50, gesellschaft: -70, staat: -20 },
   beziehung_start: 65,
   bt_stimmen: 18,

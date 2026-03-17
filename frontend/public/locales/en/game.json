@@ -613,6 +613,7 @@
     "cta1": "Congratulations. You have won.",
     "cta2": "Now the real work begins.",
     "insKanzleramt": "To the Chancellery",
+    "stepProgress": "Step {{current}} of {{total}}",
     "defaultGovName": "The new government",
     "erster_monat": "First month in office. The coalition is sworn in, ministries are staffed. Now the work begins.",
     "erstes_gesetz": "Your first law. Political capital (PK) is your central resource — for introducing, lobbying and votes.",

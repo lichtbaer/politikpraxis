@@ -24,6 +24,15 @@
   color: var(--text);
 }
 
+/* SMA-302: Kurzer Flash bei Wertänderung */
+.valueFlashPos {
+  animation: flashGreen 0.6s ease-out;
+}
+
+.valueFlashNeg {
+  animation: flashRed 0.6s ease-out;
+}
+
 .better {
   font-family: var(--mono);
   font-size: 12px;

@@ -132,6 +132,8 @@ export interface KoalitionspartnerContent {
   sprecher: string;
   /** SMA-288: Fiktives Parteikürzel (z.B. GP) */
   partei_kuerzel?: string;
+  /** SMA-302: Parteifarbe für Event-Modal-Header (Koalition) */
+  partei_farbe?: string;
   ideologie: Ideologie;
   beziehung_start: number;
   bt_stimmen: number;

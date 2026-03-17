@@ -1,3 +1,16 @@
+/* ─── Typografie-Hierarchie (SMA-302) ───────────────────────────────────────── */
+:root {
+  --text-hero:    clamp(2rem, 5vw, 4rem);
+  --text-h1:      1.75rem;
+  --text-h2:      1.25rem;
+  --text-body:    0.95rem;
+  --text-small:   0.8rem;
+  --text-micro:   0.7rem;
+  --leading-tight:  1.2;
+  --leading-normal: 1.5;
+  --leading-loose:  1.8;
+}
+
 /* ─── Amtsstube (Default) ────────────────────────────────────────────────────
    Warm, erdig, institutionell. Berliner Ministerium trifft Regierungsalltag.
    ─────────────────────────────────────────────────────────────────────────── */

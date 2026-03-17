@@ -376,10 +376,16 @@ export function migrateGameState(state: GameState): GameState {
       };
     }
   }
-  if (result.koalitionspartner?.id === 'gruene') {
+  if ((result.koalitionspartner?.id as string) === 'gruene') {
+    const kp = result.koalitionspartner!;
     result = {
       ...result,
-      koalitionspartner: { ...result.koalitionspartner, id: 'gp' },
+      koalitionspartner: {
+        id: 'gp',
+        beziehung: kp.beziehung ?? 50,
+        koalitionsvertragScore: kp.koalitionsvertragScore ?? 50,
+        schluesselthemenErfuellt: kp.schluesselthemenErfuellt ?? [],
+      },
     };
   }
   return result;

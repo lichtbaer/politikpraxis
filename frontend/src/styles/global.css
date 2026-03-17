@@ -66,6 +66,17 @@ select:focus-visible {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* SMA-302: KPI-Zahlen Flash bei Änderung */
+@keyframes flashGreen {
+  0%   { color: var(--green); }
+  100% { color: inherit; }
+}
+
+@keyframes flashRed {
+  0%   { color: var(--red); }
+  100% { color: inherit; }
+}
+
 /* ─── Shared Button Styles ────────────────────────────────────────────────── */
 
 .btn-primary {

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
+import { getKoalitionspartner } from '../../core/systems/koalition';
 import { featureActive } from '../../core/systems/features';
 import { EventCard } from '../components/EventCard/EventCard';
 import { GesetzAgendaView } from '../views/GesetzAgendaView';
@@ -15,8 +16,12 @@ import styles from './CenterPanel.module.css';
 
 export function CenterPanel() {
   const { t } = useTranslation('game');
-  const { state, setView, complexity } = useGameStore();
+  const { state, content, setView, complexity } = useGameStore();
   const { resolveEvent } = useGameActions();
+
+  const partnerContent = getKoalitionspartner(content, state);
+  const isKoalitionEvent = state.activeEvent && ['koalitionsbruch', 'koalitionskrise_ultimatum'].includes(state.activeEvent.id);
+  const headerColor = isKoalitionEvent && partnerContent?.partei_farbe ? partnerContent.partei_farbe : undefined;
 
   useEffect(() => {
     if (state.view === 'bundesrat' && !featureActive(complexity, 'bundesrat_sichtbar')) {
@@ -39,7 +44,7 @@ export function CenterPanel() {
       </div>
       <div className={styles.content}>
         {state.activeEvent ? (
-          <EventCard event={state.activeEvent} onChoice={handleChoice} />
+          <EventCard event={state.activeEvent} onChoice={handleChoice} headerColor={headerColor} />
         ) : (
           <>
             {state.view === 'agenda' && <GesetzAgendaView />}
