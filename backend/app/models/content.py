@@ -104,6 +104,19 @@ class Gesetz(Base):
     framing_optionen: Mapped[list[dict[str, Any]]] = mapped_column(
         JSONB(), nullable=False, server_default="[]"
     )
+    # Lobby- und Route-Parameter (datengetrieben)
+    lobby_mood_effekte: Mapped[dict[str, Any]] = mapped_column(
+        JSONB(), nullable=False, server_default="{}"
+    )
+    lobby_pk_kosten: Mapped[int | None] = mapped_column(
+        Integer(), nullable=True, server_default="12"
+    )
+    lobby_gain_range: Mapped[dict[str, Any] | None] = mapped_column(
+        JSONB(), nullable=True, server_default='{"min": 2, "max": 6}'
+    )
+    route_overrides: Mapped[dict[str, Any]] = mapped_column(
+        JSONB(), nullable=False, server_default="{}"
+    )
 
 
 class GesetzI18n(Base):

@@ -113,6 +113,14 @@ export interface Law {
   eu_initiative_moeglich?: boolean;
   /** Framing-Optionen beim Einbringen (SMA-276): milieu_effekte, verband_effekte, medienklima_delta */
   framing_optionen?: FramingOption[];
+  /** Lobby-Mood-Effekte: {char_id: mood_delta} bei Lobbying */
+  lobby_mood_effekte?: Record<string, number>;
+  /** PK-Kosten pro Lobbying-Aktion (Default 12) */
+  lobby_pk_kosten?: number;
+  /** Zustimmungs-Gain-Range bei Lobbying (Default {min: 2, max: 6}) */
+  lobby_gain_range?: { min: number; max: number };
+  /** Gesetzspezifische Route-Kosten/Dauer-Overrides */
+  route_overrides?: Record<string, { cost?: number; dur?: number }>;
 }
 
 /** Framing-Option für Gesetz-Einbringen (SMA-303: label, slogan) */

@@ -63,6 +63,10 @@ class GesetzResponse(BaseModel):
     laender_pilot_moeglich: bool = True
     eu_initiative_moeglich: bool = True
     framing_optionen: list[dict[str, Any]] = []
+    lobby_mood_effekte: dict[str, int] = {}
+    lobby_pk_kosten: int = 12
+    lobby_gain_range: dict[str, int] = {}
+    route_overrides: dict[str, Any] = {}
     titel: str
     kurz: str
     desc: str

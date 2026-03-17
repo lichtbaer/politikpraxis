@@ -29,10 +29,12 @@ export function startRoute(
   const idx = state.gesetze.findIndex(g => g.id === lawId);
   if (idx === -1) return state;
 
-  const cost = options?.costOverride ?? ROUTE_COSTS[route];
+  const law = state.gesetze[idx];
+  const overrides = law.route_overrides?.[route];
+  const cost = options?.costOverride ?? overrides?.cost ?? ROUTE_COSTS[route];
   if (state.pk < cost) return state;
 
-  const dur = ROUTE_DURATIONS[route];
+  const dur = overrides?.dur ?? ROUTE_DURATIONS[route];
   const gesetze = state.gesetze.map((g, i) =>
     i === idx
       ? { ...g, status: 'ausweich' as const, route, rprog: 0, rdur: dur, blockiert: null }
