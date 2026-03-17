@@ -52,6 +52,16 @@
   color: var(--blue);
 }
 
+.empfohlenBadge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--green2, rgba(76, 175, 80, 0.2));
+  color: var(--green);
+}
+
 .title {
   flex: 1;
   font-family: var(--serif);

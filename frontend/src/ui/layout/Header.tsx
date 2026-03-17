@@ -37,7 +37,7 @@ export function Header() {
             </button>
           ))}
         </div>
-        <div className={styles.pk}>
+        <div className={styles.pk} title={t('header.pkTooltip')}>
           PK <span>{pk}</span>
         </div>
       </div>

@@ -732,7 +732,8 @@
     "andere": "In Bearbeitung ({{count}} Gesetze)",
     "vorbereitungLaeuft": "Vorbereitung läuft ({{count}} Gesetze)",
     "bereitEinbringen": "Bereit zum Einbringen ({{count}} Gesetze)",
-    "keineVorbereitung": "Noch keine Vorbereitung ({{count}} Gesetze)",
+    "keineVorbereitung": "Wähle ein Gesetz um die Legislatur zu starten ({{count}} Gesetze)",
+    "empfohlen": "Empfohlen",
     "empfehlungEinbringen": "Jetzt einbringen? Akkumulierte Boni vorhanden.",
     "leer": "Keine Gesetze."
   },
