@@ -386,6 +386,7 @@ async def fetch_politikfelder(db: AsyncSession, locale: str) -> list[dict]:
         rows.append({
             "id": p.id,
             "verband_id": p.verband_id,
+            "druck_event_id": p.druck_event_id,
             "eu_relevanz": p.eu_relevanz or 1,
             "kommunal_relevanz": p.kommunal_relevanz or 1,
             "min_complexity": p.min_complexity or 1,

@@ -8,6 +8,8 @@ import type {
 import { addLog } from '../engine';
 import { scheduleEffects } from './economy';
 import { applyMoodChange } from './characters';
+import { applyMilieuEffekte } from './milieus';
+import { setPolitikfeldBeschluss } from './politikfeldDruck';
 
 const PK_SCHICHT_1 = 15;
 const PK_SCHICHT_1_REDUZIERT = 10; // bei Beziehung 60-79
@@ -402,13 +404,19 @@ export function checkKohlSabotage(state: GameState): { triggered: boolean; lawId
   return { triggered: true, lawId: law.id };
 }
 
+export interface BundesratVoteContext {
+  milieus: { id: string; ideologie: { wirtschaft: number; gesellschaft: number; staat: number }; min_complexity: number }[];
+  complexity: number;
+}
+
 /** Führt die Bundesratsabstimmung durch und wendet Ergebnis an */
 export function executeBundesratVote(
   state: GameState,
   lawId: string,
+  voteContext?: BundesratVoteContext,
 ): GameState {
   const result = calcBundesratMehrheit(state, lawId);
-  const idx = state.gesetze.findIndex(g => g.id === lawId);
+  const idx = state.gesetze.findIndex((g) => g.id === lawId);
   if (idx === -1) return state;
   const law = state.gesetze[idx];
 
@@ -417,7 +425,15 @@ export function executeBundesratVote(
       i === idx ? { ...g, status: 'beschlossen' as const } : g,
     );
     const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
-    let newState = scheduleEffects({ ...state, gesetze }, lawForEffects);
+    let newState: GameState = scheduleEffects({ ...state, gesetze }, lawForEffects);
+
+    if (voteContext?.milieus) {
+      newState = applyMilieuEffekte(newState, lawId, voteContext.milieus, voteContext.complexity);
+    }
+    if (law.politikfeldId) {
+      newState = setPolitikfeldBeschluss(newState, law.politikfeldId);
+    }
+
     return addLog(newState, `${law.kurz} im Bundesrat beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
   } else {
     const gesetze = state.gesetze.map((g, i) =>

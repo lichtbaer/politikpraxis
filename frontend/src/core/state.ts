@@ -42,5 +42,38 @@ export function createInitialState(content: ContentBundle, complexity: number = 
 
     gameOver: false,
     won: false,
+
+    milieuZustimmung: {},
+    verbandsBeziehungen: {},
+    politikfeldDruck: {},
+    politikfeldLetzterBeschluss: {},
+  };
+}
+
+/**
+ * Migriert ältere Spielstände: zust.arbeit/mitte/prog → milieuZustimmung.
+ * arbeit → soziale_mitte, prekaere; mitte → buergerliche_mitte, leistungstraeger; prog → postmaterielle
+ */
+export function migrateGameState(state: GameState): GameState {
+  if (state.milieuZustimmung && Object.keys(state.milieuZustimmung).length > 0) {
+    return state;
+  }
+  const zust = state.zust;
+  const milieuZustimmung: Record<string, number> = {};
+  milieuZustimmung['soziale_mitte'] = zust.arbeit;
+  milieuZustimmung['prekaere'] = zust.arbeit;
+  milieuZustimmung['buergerliche_mitte'] = zust.mitte;
+  milieuZustimmung['leistungstraeger'] = zust.mitte;
+  milieuZustimmung['postmaterielle'] = zust.prog;
+  milieuZustimmung['etablierte'] = zust.mitte;
+  milieuZustimmung['traditionelle'] = zust.mitte;
+  return {
+    ...state,
+    milieuZustimmung,
+    verbandsBeziehungen: state.verbandsBeziehungen ?? {},
+    politikfeldDruck: state.politikfeldDruck ?? {},
+    politikfeldLetzterBeschluss: state.politikfeldLetzterBeschluss ?? {},
+    ministerialCooldowns: state.ministerialCooldowns ?? {},
+    aktiveMinisterialInitiative: state.aktiveMinisterialInitiative ?? null,
   };
 }

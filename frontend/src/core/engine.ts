@@ -6,6 +6,7 @@ import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
+import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/ministerialInitiativen';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
@@ -30,6 +31,9 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = applyPendingEffects(s);
   s = advanceRoutes(s);
 
+  const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
+  s = checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents);
+
   const pkRegen = Math.max(1, Math.floor(s.zust.g / 25));
   s = { ...s, pk: Math.min(150, s.pk + pkRegen) };
 
@@ -41,7 +45,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
 
   s = checkUltimatums(s, content.charEvents);
-  s = processBundesratVotes(s);
+  s = processBundesratVotes(s, content, complexity);
   s = checkBundesratEvents(s, {
     bundesratEvents: content.bundesratEvents ?? [],
     sprecherErsatz: SPRECHER_ERSATZ,
@@ -55,11 +59,14 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
 }
 
 /** Führt Bundesratsabstimmungen durch, wenn brVoteMonth erreicht */
-function processBundesratVotes(state: GameState): GameState {
+function processBundesratVotes(state: GameState, content: ContentBundle, complexity: number): GameState {
   let s = state;
+  const voteContext = content.milieus
+    ? { milieus: content.milieus, complexity }
+    : undefined;
   for (const law of s.gesetze) {
     if (law.status === 'bt_passed' && law.brVoteMonth != null && s.month >= law.brVoteMonth) {
-      s = executeBundesratVote(s, law.id);
+      s = executeBundesratVote(s, law.id, voteContext);
     }
   }
   return s;
