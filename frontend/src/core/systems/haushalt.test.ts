@@ -1,9 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   berechneEinnahmen,
   checkSchuldenbremse,
   createInitialHaushalt,
   applyGesetzKosten,
+  tickKonjunktur,
+  checkLehmannSparvorschlag,
 } from './haushalt';
 import type { GameState, Haushalt, Law } from '../types';
 
@@ -53,6 +55,9 @@ function createMockState(overrides: MockStateOverrides = {}): GameState {
     ...restOverrides,
   } as GameState;
 }
+
+describe('haushalt', () => {
+  afterEach(() => vi.restoreAllMocks());
 
 describe('berechneEinnahmen', () => {
   it('gibt Basis 350 bei AL=5, Konjunktur=0, Steuerpolitik=1.0', () => {
@@ -190,4 +195,65 @@ describe('applyGesetzKosten', () => {
     const result = applyGesetzKosten(ohneHaushalt, 'irgendwas');
     expect(result).toBe(ohneHaushalt);
   });
+});
+
+describe('tickKonjunktur', () => {
+  it('Drift bleibt in -3 bis +3', () => {
+    const state = createMockState({
+      haushalt: { ...createMockState().haushalt!, konjunkturIndex: 2.5 },
+    });
+    vi.spyOn(Math, 'random').mockReturnValue(0); // drift = -0.2
+    const result = tickKonjunktur(state, 3);
+    expect(result.haushalt?.konjunkturIndex).toBeGreaterThanOrEqual(-3);
+    expect(result.haushalt?.konjunkturIndex).toBeLessThanOrEqual(3);
+    vi.restoreAllMocks();
+  });
+
+  it('ändert nichts bei complexity < 3 (konjunkturindex inaktiv)', () => {
+    const state = createMockState();
+    const result = tickKonjunktur(state, 2);
+    expect(result.haushalt?.konjunkturIndex).toBe(0);
+  });
+});
+
+describe('checkLehmannSparvorschlag', () => {
+  it('triggert nur einmal bei Saldo < -15', () => {
+    const state = createMockState({
+      haushalt: { ...createMockState().haushalt!, saldo: -20 },
+      lehmannSparvorschlagAktiv: false,
+      aktiveMinisterialInitiative: null,
+    });
+    const result = checkLehmannSparvorschlag(state, 3);
+    expect(result.lehmannSparvorschlagAktiv).toBe(true);
+    expect(result.aktiveMinisterialInitiative?.initId).toBe('fm_sparpaket');
+
+    const result2 = checkLehmannSparvorschlag(result, 3);
+    expect(result2).toBe(result);
+  });
+
+  it('triggert nicht wenn bereits aktiv', () => {
+    const state = createMockState({
+      haushalt: { ...createMockState().haushalt!, saldo: -20 },
+      lehmannSparvorschlagAktiv: true,
+    });
+    const result = checkLehmannSparvorschlag(state, 3);
+    expect(result).toBe(state);
+  });
+
+  it('triggert nicht bei Saldo >= -15', () => {
+    const state = createMockState({
+      haushalt: { ...createMockState().haushalt!, saldo: -10 },
+    });
+    const result = checkLehmannSparvorschlag(state, 3);
+    expect(result).toBe(state);
+  });
+
+  it('triggert nicht bei complexity < 3 (schuldenbremse inaktiv)', () => {
+    const state = createMockState({
+      haushalt: { ...createMockState().haushalt!, saldo: -20 },
+    });
+    const result = checkLehmannSparvorschlag(state, 2);
+    expect(result).toBe(state);
+  });
+});
 });

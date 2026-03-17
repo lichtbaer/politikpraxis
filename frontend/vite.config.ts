@@ -15,4 +15,14 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 1500,
   },
+  test: {
+    setupFiles: ['src/test-setup.ts'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'text-summary', 'html'],
+      include: ['src/core/**/*.ts'],
+      exclude: ['src/core/**/*.test.ts', 'src/core/**/*.spec.ts', '**/types.ts'],
+    },
+  },
 })
