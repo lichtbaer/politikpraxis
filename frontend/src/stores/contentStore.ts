@@ -64,7 +64,7 @@ const EVENT_TYPE_MAP: Record<string, 'danger' | 'warn' | 'good' | 'info'> = {
 };
 
 function transformChar(api: CharApi): Character {
-  return {
+  const char: Character = {
     id: api.id,
     name: api.name,
     role: api.role,
@@ -87,6 +87,9 @@ function transformChar(api: CharApi): Character {
       event: api.ultimatum_event_id ?? '',
     },
   };
+  if (api.partei_kuerzel) char.partei_kuerzel = api.partei_kuerzel;
+  if (api.partei_farbe) char.partei_farbe = api.partei_farbe;
+  return char;
 }
 
 function transformGesetz(api: GesetzApi): Law {

@@ -7,6 +7,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.content import (
+    Partei,
     Char,
     CharI18n,
     Gesetz,
@@ -82,8 +83,9 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
 
     use_locale = locale
     stmt = (
-        select(Char, CharI18n)
+        select(Char, CharI18n, Partei)
         .join(CharI18n, (Char.id == CharI18n.char_id) & (CharI18n.locale == use_locale))
+        .outerjoin(Partei, Char.partei_id == Partei.id)
     )
     result = await db.execute(stmt)
     rows_raw = result.all()
@@ -91,15 +93,16 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
     if not rows_raw and locale == "en":
         use_locale = "de"
         stmt = (
-            select(Char, CharI18n)
+            select(Char, CharI18n, Partei)
             .join(CharI18n, (Char.id == CharI18n.char_id) & (CharI18n.locale == "de"))
+            .outerjoin(Partei, Char.partei_id == Partei.id)
         )
         result = await db.execute(stmt)
         rows_raw = result.all()
 
     rows = []
-    for c, i18n in rows_raw:
-        rows.append({
+    for c, i18n, partei in rows_raw:
+        row = {
             "id": c.id,
             "initials": c.initials,
             "color": c.color,
@@ -117,7 +120,12 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
             "bonus_desc": i18n.bonus_desc,
             "interests": i18n.interests or [],
             "keyword": i18n.keyword,
-        })
+        }
+        if partei:
+            row["partei_id"] = c.partei_id
+            row["partei_kuerzel"] = partei.kuerzel
+            row["partei_farbe"] = partei.farbe
+        rows.append(row)
     _set_cached(cache_key, rows)
     return rows
 
@@ -276,12 +284,13 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
 
     use_locale = locale
     stmt = (
-        select(BundesratFraktion, BundesratFraktionI18n)
+        select(BundesratFraktion, BundesratFraktionI18n, Partei)
         .join(
             BundesratFraktionI18n,
             (BundesratFraktion.id == BundesratFraktionI18n.fraktion_id)
             & (BundesratFraktionI18n.locale == use_locale),
         )
+        .outerjoin(Partei, BundesratFraktion.partei_id == Partei.id)
     )
     result = await db.execute(stmt)
     fraktionen_raw = result.all()
@@ -289,18 +298,19 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
     if not fraktionen_raw and locale == "en":
         use_locale = "de"
         stmt = (
-            select(BundesratFraktion, BundesratFraktionI18n)
+            select(BundesratFraktion, BundesratFraktionI18n, Partei)
             .join(
                 BundesratFraktionI18n,
                 (BundesratFraktion.id == BundesratFraktionI18n.fraktion_id)
                 & (BundesratFraktionI18n.locale == "de"),
             )
+            .outerjoin(Partei, BundesratFraktion.partei_id == Partei.id)
         )
         result = await db.execute(stmt)
         fraktionen_raw = result.all()
 
     rows = []
-    for f, fi18n in fraktionen_raw:
+    for f, fi18n, partei in fraktionen_raw:
         t_stmt = (
             select(BundesratTradeoff, BundesratTradeoffI18n)
             .join(
@@ -323,18 +333,25 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
                 "desc": ti18n.desc,
             })
 
+        # SMA-288: Fiktive Parteikürzel — partei.kuerzel/farbe wenn partei_id gesetzt
+        sprecher_partei = partei.kuerzel if partei else fi18n.sprecher_partei
+        sprecher_color = partei.farbe if partei else f.sprecher_color
         rows.append({
             "id": f.id,
             "laender": f.laender or [],
             "basis_bereitschaft": f.basis_bereitschaft,
             "beziehung_start": f.beziehung_start,
+            "sonderregel": f.sonderregel,
             "sprecher_initials": f.sprecher_initials,
-            "sprecher_color": f.sprecher_color,
+            "sprecher_color": sprecher_color,
             "name": fi18n.name,
             "sprecher_name": fi18n.sprecher_name,
-            "sprecher_partei": fi18n.sprecher_partei,
+            "sprecher_partei": sprecher_partei,
             "sprecher_land": fi18n.sprecher_land,
             "sprecher_bio": fi18n.sprecher_bio,
+            "partei_id": f.partei_id,
+            "partei_kuerzel": partei.kuerzel if partei else None,
+            "partei_farbe": partei.farbe if partei else None,
             "tradeoffs": tradeoffs,
         })
     _set_cached(cache_key, rows)
@@ -654,11 +671,15 @@ async def get_game_content_from_db(db: AsyncSession, locale: str = "de") -> dict
         elif eid in br_ids:
             result["bundesratEvents"][eid] = data
 
-    # bundesrat_fraktionen_i18n
+    # bundesrat_fraktionen_i18n + parteien (SMA-288: fiktive Kürzel)
     for row in (await db.execute(
         text("""
-            SELECT fraktion_id, name, sprecher_name, sprecher_partei, sprecher_land, sprecher_bio
-            FROM bundesrat_fraktionen_i18n WHERE locale = :locale
+            SELECT bf.id AS fraktion_id, fi.name, fi.sprecher_name,
+                   COALESCE(p.kuerzel, fi.sprecher_partei) AS sprecher_partei,
+                   fi.sprecher_land, fi.sprecher_bio, p.farbe AS partei_farbe
+            FROM bundesrat_fraktionen bf
+            JOIN bundesrat_fraktionen_i18n fi ON bf.id = fi.fraktion_id AND fi.locale = :locale
+            LEFT JOIN parteien p ON bf.partei_id = p.id
         """),
         {"locale": locale},
     )).mappings():
@@ -669,6 +690,7 @@ async def get_game_content_from_db(db: AsyncSession, locale: str = "de") -> dict
                 "partei": row["sprecher_partei"],
                 "land": row["sprecher_land"],
                 "bio": row["sprecher_bio"],
+                "farbe": row["partei_farbe"],
             },
             "tradeoffPool": {},
         }

@@ -7,6 +7,8 @@ from alembic import context
 from app.db.database import Base
 from app.models import User, GameSave, AnalyticsEvent, Mod  # noqa: F401
 from app.models.content import (  # noqa: F401
+    Partei,
+    ParteiI18n,
     Char,
     CharI18n,
     Gesetz,

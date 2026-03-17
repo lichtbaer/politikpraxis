@@ -27,20 +27,33 @@ export function CharacterRow({ character }: CharacterRowProps) {
   const { id, initials, color, mood, loyalty } = character;
   const emoji = MOOD_EMOJI[Math.min(4, Math.max(0, mood))] ?? '😐';
 
+  const badgeColor = character.partei_farbe ?? color;
+
   return (
     <button
       type="button"
       className={styles.root}
       onClick={() => showCharDetail(id)}
     >
-      <div
-        className={styles.avatar}
-        style={{
-          backgroundColor: `${color}33`,
-          borderColor: color,
-        }}
-      >
-        {initials}
+      <div className={styles.avatarWrap}>
+        <div
+          className={styles.avatar}
+          style={{
+            backgroundColor: `${color}33`,
+            borderColor: color,
+          }}
+        >
+          {initials}
+        </div>
+        {character.partei_kuerzel && (
+          <span
+            className={styles.parteiBadge}
+            style={{ backgroundColor: badgeColor, color: '#fff' }}
+            title={character.partei_kuerzel}
+          >
+            {character.partei_kuerzel}
+          </span>
+        )}
       </div>
       <div className={styles.info}>
         <span className={styles.name}>{character.name || t(`game:chars.${id}.name`)}</span>

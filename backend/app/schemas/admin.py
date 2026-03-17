@@ -147,6 +147,7 @@ class BundesratFraktionCreate(BaseModel):
     basis_bereitschaft: int
     beziehung_start: int
     sonderregel: str | None = None
+    partei_id: str | None = None
     sprecher_initials: str
     sprecher_color: str
 

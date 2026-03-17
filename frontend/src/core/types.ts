@@ -34,6 +34,10 @@ export interface Character {
   min_complexity?: number;
   /** Ideologie-Profil für Kongruenz-Berechnung */
   ideologie?: Ideologie;
+  /** SMA-288: Parteikürzel für Kanzler-Badge (z.B. SDP) */
+  partei_kuerzel?: string;
+  /** SMA-288: Parteifarbe für Badge */
+  partei_farbe?: string;
 }
 
 export interface LawEffects {
@@ -120,6 +124,8 @@ export interface KoalitionspartnerContent {
   id: 'gruene' | 'spd_fluegel';
   name: string;
   sprecher: string;
+  /** SMA-288: Fiktives Parteikürzel (z.B. GP) */
+  partei_kuerzel?: string;
   ideologie: Ideologie;
   beziehung_start: number;
   bt_stimmen: number;
