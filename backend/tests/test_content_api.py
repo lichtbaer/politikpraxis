@@ -65,6 +65,10 @@ async def test_get_gesetze_happy_path(client: AsyncClient):
         assert "effekte" in g
         assert "titel" in g
         assert "kurz" in g
+        # SMA-272: Vorstufen-Felder
+        assert "kommunal_pilot_moeglich" in g
+        assert "laender_pilot_moeglich" in g
+        assert "eu_initiative_moeglich" in g
 
 
 @pytest.mark.asyncio

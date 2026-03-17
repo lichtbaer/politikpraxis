@@ -55,6 +55,9 @@ class GesetzResponse(BaseModel):
     kosten_laufend: float = 0
     einnahmeeffekt: float = 0
     investiv: bool = False
+    kommunal_pilot_moeglich: bool = True
+    laender_pilot_moeglich: bool = True
+    eu_initiative_moeglich: bool = True
     titel: str
     kurz: str
     desc: str
