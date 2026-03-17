@@ -38,14 +38,18 @@ export function berechneEinnahmen(state: GameState): number {
   return Math.round(EINNAHMEN_BASIS * alFaktor * wirtFaktor * steuerpolitikFaktor);
 }
 
-/** Berechnet Pflichtausgaben (steigen bei AL > 6%) */
+/** Berechnet Pflichtausgaben (Basis + AL-Zuschlag + beschlossene Spargesetze) */
 function berechnePflichtausgaben(state: GameState): number {
-  const basis = PFLICHTAUSGABEN_BASIS;
+  let basis = PFLICHTAUSGABEN_BASIS;
   if (state.kpi.al > 6) {
-    const zuschlag = (state.kpi.al - 6) * 2;
-    return Math.round(basis + zuschlag);
+    basis += (state.kpi.al - 6) * 2;
   }
-  return basis;
+  // SMA-310: pflichtausgaben_delta aus beschlossenen Gesetzen (negativ = Kürzung)
+  const beschlossen = state.gesetze.filter((g) => g.status === 'beschlossen');
+  for (const g of beschlossen) {
+    basis += g.pflichtausgaben_delta ?? 0;
+  }
+  return Math.round(basis);
 }
 
 /** Wendet Gesetz-Kosten bei Beschluss an */
@@ -59,9 +63,16 @@ export function applyGesetzKosten(state: GameState, gesetzId: string): GameState
   const kostenEinmalig = gesetz.kosten_einmalig ?? 0;
   const kostenLaufend = gesetz.kosten_laufend ?? 0;
   const einnahmeEffekt = gesetz.einnahmeeffekt ?? 0;
+  const pflichtausgabenDelta = gesetz.pflichtausgaben_delta ?? 0;
 
   const einnahmeProz = einnahmeEffekt / EINNAHMEN_BASIS;
   const neuerSteuerpolitikModifikator = haushalt.steuerpolitikModifikator + einnahmeProz;
+
+  // SMA-310: pflichtausgaben_delta sofort anwenden (negativ = Kürzung)
+  const neuePflichtausgaben = haushalt.pflichtausgaben + pflichtausgabenDelta;
+  const neueLaufendeAusgaben = haushalt.laufendeAusgaben + kostenLaufend;
+  const spielraum = haushalt.einnahmen - neuePflichtausgaben;
+  const saldo = spielraum - neueLaufendeAusgaben;
 
   // SMA-309: Schuldenbremse-Reform löst Lehmann-Ultimatum aus
   let newState = state;
@@ -71,11 +82,12 @@ export function applyGesetzKosten(state: GameState, gesetzId: string): GameState
 
   const neuerHaushalt: Haushalt = {
     ...haushalt,
+    pflichtausgaben: neuePflichtausgaben,
     saldoKumulativ: haushalt.saldoKumulativ - kostenEinmalig,
-    laufendeAusgaben: haushalt.laufendeAusgaben + kostenLaufend,
+    laufendeAusgaben: neueLaufendeAusgaben,
     steuerpolitikModifikator: neuerSteuerpolitikModifikator,
-    spielraum: haushalt.einnahmen - haushalt.pflichtausgaben,
-    saldo: haushalt.einnahmen - haushalt.pflichtausgaben - (haushalt.laufendeAusgaben + kostenLaufend),
+    spielraum,
+    saldo,
   };
 
   return { ...newState, haushalt: neuerHaushalt };
@@ -201,6 +213,51 @@ export function checkLehmannSparvorschlag(state: GameState, complexity: number):
     };
   }
   return state;
+}
+
+/** SMA-310: Lehmann-Defizit-Startmemo in Monat 1 (auto_pause) */
+export function checkLehmannDefizitStart(
+  state: GameState,
+  content: { charEvents?: Record<string, import('../types').GameEvent> },
+  complexity: number,
+): GameState {
+  if (state.activeEvent) return state;
+  if (state.month !== 1) return state;
+  if (state.firedEvents.includes('lehmann_defizit_start')) return state;
+  if (complexity < 2) return state;
+
+  const ev = content.charEvents?.['lehmann_defizit_start'];
+  if (!ev) return state;
+
+  return {
+    ...state,
+    firedEvents: [...state.firedEvents, 'lehmann_defizit_start'],
+    activeEvent: ev,
+    ...withPause(state, getAutoPauseLevel(ev)),
+  };
+}
+
+/** SMA-310: Haushaltskrise-Event bei Saldo < -30 (erzwungen) */
+export function checkHaushaltskrise(
+  state: GameState,
+  content: { charEvents?: Record<string, import('../types').GameEvent> },
+  complexity: number,
+): GameState {
+  if (state.activeEvent) return state;
+  const haushalt = state.haushalt;
+  if (!haushalt || haushalt.saldo >= -30) return state;
+  if (state.firedEvents.includes('haushaltskrise')) return state;
+  if (complexity < 2) return state;
+
+  const ev = content.charEvents?.['haushaltskrise'];
+  if (!ev) return state;
+
+  return {
+    ...state,
+    firedEvents: [...state.firedEvents, 'haushaltskrise'],
+    activeEvent: ev,
+    ...withPause(state, getAutoPauseLevel(ev)),
+  };
 }
 
 /** Triggert Haushaltsdebatte in Monat 10/22/34 (Oktober) */

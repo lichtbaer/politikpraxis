@@ -103,6 +103,8 @@ export interface Law {
   kosten_laufend?: number;
   /** Einnahmeeffekt in Mrd. € (z.B. Steueränderung) */
   einnahmeeffekt?: number;
+  /** SMA-310: Pflichtausgaben-Delta in Mrd. € (negativ = Kürzung bei Beschluss) */
+  pflichtausgaben_delta?: number;
   /** Investitionsgesetz (+2 Mo. Lag) */
   investiv?: boolean;
   /** SMA-304: Monate Ausschussphase bis Abstimmung (Stufe 2+; Stufe 1: 1 Monat fix) */

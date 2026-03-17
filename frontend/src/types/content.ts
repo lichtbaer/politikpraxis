@@ -56,6 +56,8 @@ export interface GesetzApi {
   kosten_laufend?: number;
   /** SMA-268: Einnahmeeffekt in Mrd. € (z.B. Steueränderung) */
   einnahmeeffekt?: number;
+  /** SMA-310: Pflichtausgaben-Delta in Mrd. € (negativ = Kürzung bei Beschluss) */
+  pflichtausgaben_delta?: number;
   /** Investitionsgesetz (+2 Mo. Lag) */
   investiv?: boolean;
   /** Kommunal-Pilot möglich (SMA-272), Länder/EU-Vorstufen (SMA-273) */

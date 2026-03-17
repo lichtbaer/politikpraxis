@@ -95,6 +95,7 @@ class Gesetz(Base):
     kosten_einmalig: Mapped[Decimal] = mapped_column(Numeric(8, 2), nullable=True, server_default="0")
     kosten_laufend: Mapped[Decimal] = mapped_column(Numeric(8, 2), nullable=True, server_default="0")
     einnahmeeffekt: Mapped[Decimal] = mapped_column(Numeric(8, 2), nullable=True, server_default="0")
+    pflichtausgaben_delta: Mapped[Decimal] = mapped_column(Numeric(8, 2), nullable=True, server_default="0")
     investiv: Mapped[bool] = mapped_column(Boolean(), nullable=True, server_default="false")
     # Vorstufen-Erlaubnis (SMA-272)
     kommunal_pilot_moeglich: Mapped[bool] = mapped_column(Boolean(), nullable=True, server_default="true")

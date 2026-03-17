@@ -19,6 +19,8 @@ import {
   tickKonjunktur,
   applySchuldenbremsenEffekte,
   checkLehmannSparvorschlag,
+  checkLehmannDefizitStart,
+  checkHaushaltskrise,
   triggerHaushaltsdebatte,
 } from './systems/haushalt';
 import { tickGesetzVorstufen } from './systems/gesetzLebenszyklus';
@@ -111,6 +113,8 @@ export function tick(
   s = tickKonjunktur(s, complexity);
   s = applySchuldenbremsenEffekte(s, complexity, content);
   s = checkLehmannSparvorschlag(s, complexity);
+  s = checkLehmannDefizitStart(s, content, complexity);
+  s = checkHaushaltskrise(s, content, complexity);
   s = triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []);
 
   // 5. Politikfeld-Druck

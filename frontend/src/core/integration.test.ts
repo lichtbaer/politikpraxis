@@ -130,10 +130,10 @@ describe('Integration: Haushaltsdebatte Oktober → Politikfeld-Priorisierung', 
     state.month = 10;
     state.haushalt = {
       einnahmen: 350,
-      pflichtausgaben: 220,
+      pflichtausgaben: 370,
       laufendeAusgaben: 0,
-      spielraum: 130,
-      saldo: 0,
+      spielraum: -20,
+      saldo: -20,
       saldoKumulativ: 0,
       konjunkturIndex: 0,
       steuerpolitikModifikator: 1.0,
