@@ -1,8 +1,7 @@
 import type { GameState, ContentBundle } from './types';
-import { BUNDESRAT_FRAKTIONEN } from '../data/defaults/bundesratFraktionen';
 
 export function createInitialState(content: ContentBundle): GameState {
-  const fraktionen = content.bundesratFraktionen ?? BUNDESRAT_FRAKTIONEN;
+  const fraktionen = content.bundesratFraktionen ?? [];
 
   return {
     month: content.scenario.startMonth,

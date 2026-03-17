@@ -9,6 +9,7 @@ import { medienkampagne, type MilieuKey } from '../core/systems/media';
 import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
+import { getContentBundle } from '../stores/contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { saveGame, type SaveFile } from '../services/localStorageSave';
 
@@ -50,6 +51,7 @@ interface GameStore {
 export const useGameStore = create<GameStore>((set, get) => ({
   state: createInitialState(DEFAULT_CONTENT),
   content: DEFAULT_CONTENT,
+
   phase: 'onboarding',
   playerName: '',
   complexity: 2,
@@ -58,7 +60,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   init: (content?: ContentBundle) => {
     const { ausrichtung, ausrichtungApplied } = get();
-    const c = content || DEFAULT_CONTENT;
+    const c = content ?? getContentBundle();
     let initial = createInitialState(c);
     if (!ausrichtungApplied && (ausrichtung.wirtschaft !== 0 || ausrichtung.gesellschaft !== 0 || ausrichtung.staat !== 0)) {
       initial = applyAusrichtung(initial, ausrichtung);
@@ -127,18 +129,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
 
   loadSave: (savedState) => {
-    const initial = createInitialState(DEFAULT_CONTENT);
+    const initial = createInitialState(getContentBundle());
     const state = {
       ...savedState,
       bundesratFraktionen: savedState.bundesratFraktionen ?? initial.bundesratFraktionen,
       firedBundesratEvents: savedState.firedBundesratEvents ?? [],
       electionThreshold: savedState.electionThreshold ?? 40,
     };
-    set({ state });
+    set({ state, content: getContentBundle() });
   },
 
   loadSaveFromFile: (save) => {
-    const initial = createInitialState(DEFAULT_CONTENT);
+    const initial = createInitialState(getContentBundle());
     const state = {
       ...save.gameState,
       bundesratFraktionen: save.gameState.bundesratFraktionen ?? initial.bundesratFraktionen,
@@ -147,6 +149,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     };
     set({
       state,
+      content: getContentBundle(),
       playerName: save.playerName,
       complexity: save.complexity,
       ausrichtung: save.ausrichtung,

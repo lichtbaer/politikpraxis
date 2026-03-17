@@ -6,7 +6,7 @@ import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
-import { BUNDESRAT_EVENTS, SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bundesratEvents';
+import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export function addLog(state: GameState, msg: string, type: string, params?: Record<string, string | number>): GameState {
   const yr = 2025 + Math.floor((state.month - 1) / 12);
@@ -38,7 +38,7 @@ export function tick(state: GameState, content: ContentBundle): GameState {
   s = checkUltimatums(s, content.charEvents);
   s = processBundesratVotes(s);
   s = checkBundesratEvents(s, {
-    bundesratEvents: content.bundesratEvents ?? BUNDESRAT_EVENTS,
+    bundesratEvents: content.bundesratEvents ?? [],
     sprecherErsatz: SPRECHER_ERSATZ,
     landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
   });
