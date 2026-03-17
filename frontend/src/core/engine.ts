@@ -10,6 +10,7 @@ import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragSco
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/ministerialInitiativen';
+import { tickEUKlima, advanceEURoute, checkEUEreignisse } from './systems/eu';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export function addLog(state: GameState, msg: string, type: string, params?: Record<string, string | number>): GameState {
@@ -31,6 +32,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
 
   s = applyPendingEffects(s);
   s = advanceRoutes(s);
+  s = advanceEURoute(s);
 
   const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
   s = checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents);
@@ -46,6 +48,8 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = checkKoalitionsbruch(s, content, complexity);
   s = checkVerbandsAktionen(s, content.verbaende ?? [], complexity);
   s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
+  s = tickEUKlima(s, content.verbaende ?? [], complexity);
+  s = checkEUEreignisse(s, content, complexity);
 
   s = checkUltimatums(s, content.charEvents);
   s = processBundesratVotes(s, content, complexity);

@@ -1,6 +1,7 @@
 import type { GameState, ContentBundle } from './types';
 import { featureActive } from './systems/features';
 import { getKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
+import { initEUKlima } from './systems/eu';
 import type { Ausrichtung } from './systems/ausrichtung';
 
 /**
@@ -60,9 +61,10 @@ export function createInitialState(
     politikfeldLetzterBeschluss: {},
   };
 
+  let result: GameState = base;
   if (hasKoalition && partner) {
     const ideologie = ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
-    return {
+    result = {
       ...base,
       koalitionspartner: {
         id: partner.id,
@@ -75,7 +77,18 @@ export function createInitialState(
     };
   }
 
-  return base;
+  result = initEUKlima(result, content, complexity);
+  if (result.eu && featureActive(complexity, 'eu_ratsvorsitz')) {
+    result = {
+      ...result,
+      eu: {
+        ...result.eu,
+        ratsvorsitzStartMonat: Math.random() < 0.5 ? 6 : 30,
+      },
+    };
+  }
+
+  return result;
 }
 
 /**
@@ -103,5 +116,6 @@ export function migrateGameState(state: GameState): GameState {
     politikfeldLetzterBeschluss: state.politikfeldLetzterBeschluss ?? {},
     ministerialCooldowns: state.ministerialCooldowns ?? {},
     aktiveMinisterialInitiative: state.aktiveMinisterialInitiative ?? null,
+    eu: state.eu ?? undefined,
   };
 }

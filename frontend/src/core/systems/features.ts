@@ -33,6 +33,16 @@ const FEATURES: Record<string, { minLevel: number }> = {
   koalitionsvertrag_score: { minLevel: 4 },
   /** Ministerial-Initiativen (Minister bringen eigene Gesetze ein) */
   ministerial_initiativen: { minLevel: 3 },
+  /** SMA-269: EU-Ausweichroute (3 Phasen) */
+  eu_route: { minLevel: 2 },
+  /** EU-Klima-System (sichtbar, Drift) */
+  eu_klima: { minLevel: 3 },
+  /** Reaktive EU-Richtlinien (Europawahl, Ratsvorsitz, Random) */
+  eu_reaktiv: { minLevel: 3 },
+  /** Alle 6 EU-Events */
+  eu_events_voll: { minLevel: 4 },
+  /** Ratsvorsitz-Boni */
+  eu_ratsvorsitz: { minLevel: 4 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {
