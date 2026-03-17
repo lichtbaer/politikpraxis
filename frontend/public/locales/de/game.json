@@ -803,7 +803,13 @@
   },
   "gesetz": {
     "gegenKurs": "Gegen Regierungskurs",
-    "erhoehterAufwand": "Erhöhter Aufwand"
+    "erhoehterAufwand": "Erhöhter Aufwand",
+    "kostenEinmalig": "Einmalig",
+    "kostenLaufend": "Laufend",
+    "einnahmeeffekt": "Einnahmen",
+    "pkKosten": "Politisch",
+    "investivLabel": "Investition (+2 Mo. Lag)",
+    "haushaltAnteil": "{{percent}}% des Jahresbudgets"
   },
   "gesetzAgenda": {
     "title": "Gesetz-Agenda",
@@ -823,6 +829,8 @@
     "einbringen": "Einbringen (20 PK)",
     "lobbying": "Lobbying (12 PK)",
     "abstimmen": "Abstimmung ansetzen",
+    "ausschussphaseIn": "Ausschussphase — Abstimmung in {{months}} Monat(en)",
+    "ausschussphaseProgress": "{{progress}}/{{total}} Monate",
     "bundesratLobbying": "Bundesrat-Lobbying",
     "blockiertDurch": "Blockiert durch: {{blocker}}",
     "blockerBundestag": "Bundestag",

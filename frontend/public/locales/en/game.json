@@ -532,6 +532,16 @@
       "industrie": "Industrial city"
     }
   },
+  "gesetz": {
+    "gegenKurs": "Against government course",
+    "erhoehterAufwand": "Increased effort",
+    "kostenEinmalig": "One-time",
+    "kostenLaufend": "Recurring",
+    "einnahmeeffekt": "Revenue",
+    "pkKosten": "Political",
+    "investivLabel": "Investment (+2 mo. lag)",
+    "haushaltAnteil": "{{percent}}% of annual budget"
+  },
   "gesetzAgenda": {
     "title": "Law Agenda",
     "andere": "In progress ({{count}} laws)",
@@ -724,6 +734,8 @@
     "einbringen": "Introduce (20 PK)",
     "lobbying": "Lobbying (12 PK)",
     "abstimmen": "Call vote",
+    "ausschussphaseIn": "Committee phase — vote in {{months}} month(s)",
+    "ausschussphaseProgress": "{{progress}}/{{total}} months",
     "bundesratLobbying": "Bundesrat (Federal Council) lobbying",
     "blockiertDurch": "Blocked by: {{blocker}}",
     "blockerBundestag": "Bundestag (Federal Parliament)",

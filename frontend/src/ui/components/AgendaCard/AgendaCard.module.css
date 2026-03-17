@@ -40,6 +40,11 @@
   color: var(--text2);
 }
 
+.statusEingebracht {
+  background: var(--gold2);
+  color: var(--gold);
+}
+
 .statusAktiv {
   background: var(--gold2);
   color: var(--gold);
@@ -104,10 +109,20 @@
 
 .gesetzKosten {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
-  margin-top: 10px;
-  font-size: 11px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.gesetzKostenZeile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
 }
 
 .kostenEinmalig {
@@ -120,6 +135,31 @@
 
 .kostenPositiv {
   color: var(--green);
+}
+
+.kostenAmpel_gruen {
+  color: var(--green);
+}
+
+.kostenAmpel_gelb {
+  color: var(--warn);
+}
+
+.kostenAmpel_rot {
+  color: var(--red);
+}
+
+.kostenAmpel_neutral {
+  color: var(--text2);
+}
+
+.haushaltKontext {
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.pkKosten {
+  color: var(--gold);
 }
 
 .investivBadge {
@@ -188,6 +228,10 @@
 
 .progressFill {
   background: var(--blue);
+}
+
+.progressFillEingebracht {
+  background: var(--gold);
 }
 
 .voteLabel,
