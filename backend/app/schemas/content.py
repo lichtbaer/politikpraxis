@@ -34,6 +34,7 @@ class CharResponse(BaseModel):
     name: str
     role: str
     bio: str
+    eingangszitat: str | None = None
     bonus_desc: str | None
     interests: list[str]
     keyword: str | None

@@ -117,6 +117,7 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
             "name": i18n.name,
             "role": i18n.role,
             "bio": i18n.bio,
+            "eingangszitat": i18n.eingangszitat,
             "bonus_desc": i18n.bonus_desc,
             "interests": i18n.interests or [],
             "keyword": i18n.keyword,
@@ -605,13 +606,14 @@ async def get_game_content_from_db(db: AsyncSession, locale: str = "de") -> dict
 
     # chars_i18n
     for row in (await db.execute(
-        text("SELECT char_id, name, role, bio, bonus_desc, interests, keyword FROM chars_i18n WHERE locale = :locale"),
+        text("SELECT char_id, name, role, bio, eingangszitat, bonus_desc, interests, keyword FROM chars_i18n WHERE locale = :locale"),
         {"locale": locale},
     )).mappings():
         result["chars"][row["char_id"]] = {
             "name": row["name"],
             "role": row["role"],
             "bio": row["bio"],
+            "eingangszitat": row.get("eingangszitat"),
             "tag": row["keyword"] or "",
             "interests": row["interests"] or [],
             "bonus": {"desc": row["bonus_desc"]} if row["bonus_desc"] else {},

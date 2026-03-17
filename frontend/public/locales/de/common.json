@@ -3,6 +3,15 @@
     "title": "Politikpraxis",
     "subtitle": "Eine Politiksimulation"
   },
+  "startseite": {
+    "einladung1": "Du führst die Bundesregierung.",
+    "einladung2": "48 Monate. Eine Koalition die zusammenhalten muss.",
+    "einladung3": "19 Gesetze die darauf warten beschlossen zu werden.",
+    "einladung4": "Und eine Wahl am Ende die du gewinnen musst.",
+    "einladung5": "Politikpraxis ist ein Strategiespiel über das Regieren in einer parlamentarischen Demokratie — mit echten Abwägungen, knappem politischen Kapital und einer Öffentlichkeit die nicht vergisst.",
+    "kompakt": "48 Monate. 19 Gesetze. Eine Koalition. Eine Wahl. Führe die Bundesregierung.",
+    "disclaimer": "Politikpraxis ist ein fiktives Politiksimulationsspiel zu Bildungszwecken. Alle dargestellten Personen, Parteien und Institutionen sind frei erfunden."
+  },
   "header": {
     "monthFormat": "Monat {{month}}/48 · {{year}}",
     "pkTooltip": "Politisches Kapital — deine Handlungsressource"
