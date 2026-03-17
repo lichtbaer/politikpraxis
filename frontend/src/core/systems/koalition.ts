@@ -1,5 +1,6 @@
 import type { GameState, Ideologie, Law, KoalitionspartnerContent } from '../types';
 import { addLog } from '../engine';
+import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { applyMoodChange } from './characters';
 import { scheduleEffects } from './economy';
@@ -221,12 +222,6 @@ export function checkKoalitionsbruch(
 }
 
 // --- Spieler-Aktionen ---
-
-/** Verbraucht PK wenn genug vorhanden, sonst false (Rückgabe: neuer State oder null) */
-function verbrauchePK(state: GameState, cost: number): GameState | null {
-  if (state.pk < cost) return null;
-  return { ...state, pk: state.pk - cost };
-}
 
 /** Koalitionsrunde: 15 PK → +8 Beziehung, Chars mit Partner-Nähe +1 Mood */
 export function koalitionsrunde(

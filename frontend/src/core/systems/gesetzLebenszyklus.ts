@@ -2,7 +2,14 @@
  * SMA-273: Gesetz-Lebenszyklus — Vorstufen (Kommunal, Länder, EU), Bonus-Akkumulation.
  */
 import type { GameState, GesetzProjekt, AktiveVorstufe, VorstufenBoni } from '../types';
+import {
+  MAX_BT_STIMMEN_BONUS,
+  MAX_PK_KOSTEN_RABATT,
+  MAX_KOFINANZIERUNG,
+  MAX_BUNDESRAT_BONUS,
+} from '../constants';
 import { addLog } from '../log';
+import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { bewerteEURoute } from './eu';
 import type { ContentBundle } from '../types';
@@ -61,7 +68,7 @@ export function applyVorbildBonus(state: GameState, gesetzId: string): GameState
   const projekt = s.gesetzProjekte![gesetzId];
   const boni = {
     ...projekt.boni,
-    btStimmenBonus: Math.min(25, projekt.boni.btStimmenBonus + 2),
+    btStimmenBonus: Math.min(MAX_BT_STIMMEN_BONUS, projekt.boni.btStimmenBonus + 2),
   };
   return {
     ...s,
@@ -70,11 +77,6 @@ export function applyVorbildBonus(state: GameState, gesetzId: string): GameState
       [gesetzId]: { ...projekt, boni },
     },
   };
-}
-
-function verbrauchePK(state: GameState, cost: number): GameState | null {
-  if (state.pk < cost) return null;
-  return { ...state, pk: state.pk - cost };
 }
 
 function berechneKommunalErfolgschance(
@@ -337,10 +339,10 @@ function resolveVorstufe(
     }
 
     boni = {
-      btStimmenBonus: Math.min(25, boni.btStimmenBonus + boniAdd.btStimmenBonus),
-      pkKostenRabatt: Math.min(18, boni.pkKostenRabatt + boniAdd.pkKostenRabatt),
-      kofinanzierung: Math.min(0.35, boni.kofinanzierung + boniAdd.kofinanzierung),
-      bundesratBonus: Math.min(35, boni.bundesratBonus + boniAdd.bundesratBonus),
+      btStimmenBonus: Math.min(MAX_BT_STIMMEN_BONUS, boni.btStimmenBonus + boniAdd.btStimmenBonus),
+      pkKostenRabatt: Math.min(MAX_PK_KOSTEN_RABATT, boni.pkKostenRabatt + boniAdd.pkKostenRabatt),
+      kofinanzierung: Math.min(MAX_KOFINANZIERUNG, boni.kofinanzierung + boniAdd.kofinanzierung),
+      bundesratBonus: Math.min(MAX_BUNDESRAT_BONUS, boni.bundesratBonus + boniAdd.bundesratBonus),
       medienRueckhalt: boni.medienRueckhalt + boniAdd.medienRueckhalt,
     };
 
