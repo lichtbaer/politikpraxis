@@ -12,10 +12,39 @@ _locale_type = PgEnum("de", "en", name="content_locale", create_type=False)
 from app.db.database import Base
 
 
+class Partei(Base):
+    __tablename__ = "parteien"
+
+    id: Mapped[str] = mapped_column(Text(), primary_key=True)
+    kuerzel: Mapped[str] = mapped_column(Text(), nullable=False)
+    farbe: Mapped[str] = mapped_column(Text(), nullable=False)
+    ideologie_wirtschaft: Mapped[int] = mapped_column(Integer(), nullable=False)
+    ideologie_gesellschaft: Mapped[int] = mapped_column(Integer(), nullable=False)
+    ideologie_staat: Mapped[int] = mapped_column(Integer(), nullable=False)
+    korridor_w_min: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    korridor_w_max: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    korridor_g_min: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    korridor_g_max: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    korridor_s_min: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    korridor_s_max: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    spielbar: Mapped[bool] = mapped_column(Boolean(), nullable=False, server_default="true")
+
+
+class ParteiI18n(Base):
+    __tablename__ = "parteien_i18n"
+
+    partei_id: Mapped[str] = mapped_column(Text(), ForeignKey("parteien.id"), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
+    name: Mapped[str] = mapped_column(Text(), nullable=False)
+    desc: Mapped[str] = mapped_column(Text(), nullable=False)
+    kernthemen: Mapped[str] = mapped_column(Text(), nullable=False)
+
+
 class Char(Base):
     __tablename__ = "chars"
 
     id: Mapped[str] = mapped_column(Text(), primary_key=True)
+    partei_id: Mapped[str | None] = mapped_column(Text(), ForeignKey("parteien.id"), nullable=True)
     initials: Mapped[str] = mapped_column(Text(), nullable=False)
     color: Mapped[str] = mapped_column(Text(), nullable=False)
     mood_start: Mapped[int] = mapped_column(Integer(), nullable=False, server_default="3")
@@ -157,6 +186,7 @@ class BundesratFraktion(Base):
     __tablename__ = "bundesrat_fraktionen"
 
     id: Mapped[str] = mapped_column(Text(), primary_key=True)
+    partei_id: Mapped[str | None] = mapped_column(Text(), ForeignKey("parteien.id"), nullable=True)
     laender: Mapped[list[str]] = mapped_column(ARRAY(Text()), nullable=False)
     basis_bereitschaft: Mapped[int] = mapped_column(Integer(), nullable=False)
     beziehung_start: Mapped[int] = mapped_column(Integer(), nullable=False)
