@@ -78,6 +78,20 @@ async def test_get_gesetze_locale_fallback(client: AsyncClient):
 
 @pytest.mark.asyncio
 @requires_db
+async def test_get_gesetze_14_laws_sma265(client: AsyncClient):
+    """GET /api/content/gesetze liefert mindestens 14 Gesetze (4 + 10 neue + Grundrechte)."""
+    r = await client.get("/api/content/gesetze", params={"locale": "de"})
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data) >= 14, f"Erwartet mindestens 14 Gesetze, erhalten {len(data)}"
+    ids = [g["id"] for g in data]
+    assert "mindestlohn" in ids
+    assert "klimaschutz" in ids
+    assert "grundrechte" in ids
+
+
+@pytest.mark.asyncio
+@requires_db
 async def test_get_events_happy_path(client: AsyncClient):
     """GET /api/content/events?locale=de liefert Events."""
     r = await client.get("/api/content/events", params={"locale": "de"})
