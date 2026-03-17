@@ -104,6 +104,8 @@ export interface EventChoice {
   brRelation?: Record<string, number>;
   /** Bei Bundesrat-Initiative: Delta für initiierende Fraktion (event.fraktionId) */
   brRelationInitiator?: number;
+  /** Bei Ministerial-Initiative: Aktion für resolveMinisterialInitiative */
+  ministerialAction?: 'unterstuetzen' | 'ablehnen' | 'ignorieren';
   log: string;
 }
 
@@ -268,12 +270,45 @@ export interface GameState {
 
   /** Milieu-Zustimmung (ersetzt zust.arbeit/mitte/prog bei Stufe 2+) */
   milieuZustimmung?: Record<string, number>;
-  /** Verbands-Beziehungen */
+  /** Verbands-Beziehungen (ab Stufe 3): verbandId → 0–100 */
   verbandsBeziehungen?: Record<string, number>;
   /** Politikfeld-Druck-Scores (0–100) */
   politikfeldDruck?: Record<string, number>;
   /** Monat des letzten Beschlusses pro Politikfeld */
   politikfeldLetzterBeschluss?: Record<string, number>;
+  /** Ministerial-Initiativen: charId → Monat der letzten Initiative */
+  ministerialCooldowns?: Record<string, number>;
+  /** Aktive Ministerial-Initiative (max. 1 gleichzeitig) */
+  aktiveMinisterialInitiative?: { initId: string; charId: string; gesetzId: string } | null;
+}
+
+/** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */
+export interface Verband {
+  id: string;
+  kurz: string;
+  name?: string;
+  politikfeld_id: string;
+  beziehung_start: number;
+  tradeoffs?: VerbandTradeoff[];
+}
+
+/** Trade-off eines Verbands */
+export interface VerbandTradeoff {
+  key: string;
+  effekte: Partial<KpiDelta>;
+  feld_druck_delta: number;
+  label?: string;
+  desc?: string;
+}
+
+/** Ministerial-Initiative (Minister bringt eigenes Gesetz ein) */
+export interface MinisterialInitiative {
+  id: string;
+  char_id: string;
+  gesetz_ref_id: string;
+  cooldown_months: number;
+  /** Bedingungen: z.B. mood >= 3, interest match, etc. */
+  bedingungen?: Array<{ type: string; value?: number | string }>;
 }
 
 export interface ContentBundle {
@@ -286,6 +321,8 @@ export interface ContentBundle {
   bundesratFraktionen?: BundesratFraktion[];
   milieus?: Milieu[];
   politikfelder?: Politikfeld[];
+  verbaende?: Verband[];
+  ministerialInitiativen?: MinisterialInitiative[];
   scenario: {
     id: string;
     name: string;

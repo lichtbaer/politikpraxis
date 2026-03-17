@@ -7,11 +7,9 @@ import { checkRandomEvents, checkBundesratEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
+import { checkVerbandsAktionen } from './systems/verbaende';
+import { checkMinisterialInitiativen } from './systems/ministerialInitiativen';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
-
-export interface TickContext {
-  complexity: number;
-}
 
 export function addLog(state: GameState, msg: string, type: string, params?: Record<string, string | number>): GameState {
   const yr = 2025 + Math.floor((state.month - 1) / 12);
@@ -22,10 +20,8 @@ export function addLog(state: GameState, msg: string, type: string, params?: Rec
   return { ...state, log };
 }
 
-export function tick(state: GameState, content: ContentBundle, tickContext?: TickContext): GameState {
+export function tick(state: GameState, content: ContentBundle, complexity: number = 4): GameState {
   if (state.gameOver) return state;
-
-  const complexity = tickContext?.complexity ?? 4;
 
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi } };
 
@@ -44,6 +40,9 @@ export function tick(state: GameState, content: ContentBundle, tickContext?: Tic
   s = { ...s, kpi: applyKPIDrift(s.kpi) };
   s = applyCharBonuses(s);
   s = updateCoalitionStability(s);
+
+  s = checkVerbandsAktionen(s, content.verbaende ?? [], complexity);
+  s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
 
   s = checkUltimatums(s, content.charEvents);
   s = processBundesratVotes(s, content, complexity);

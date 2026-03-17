@@ -59,10 +59,21 @@ export interface PolitikfeldApi {
   druck_event_id?: string | null;
 }
 
+export interface VerbandTradeoffApi {
+  key: string;
+  effekte: { al?: number; hh?: number; gi?: number; zf?: number };
+  feld_druck_delta?: number;
+  label?: string;
+  desc?: string;
+}
+
 export interface VerbandApi {
   id: string;
+  kurz: string;
+  name?: string;
   politikfeld_id: string;
   beziehung_start: number;
+  tradeoffs?: VerbandTradeoffApi[];
 }
 
 export interface EventChoiceApi {

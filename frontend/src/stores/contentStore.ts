@@ -20,6 +20,7 @@ import type {
   Milieu,
   Politikfeld,
 } from '../core/types';
+import { DEFAULT_VERBAENDE, DEFAULT_MINISTERIAL_INITIATIVEN } from '../data/defaults/scenarios';
 import { DEFAULT_BUNDESRAT, DEFAULT_SCENARIO } from '../data/defaults/scenarios';
 import {
   BUNDESRAT_EVENTS,
@@ -180,6 +181,23 @@ function transformPolitikfeld(api: PolitikfeldApi, verbaende: VerbandApi[]): Pol
   };
 }
 
+function transformVerband(api: VerbandApi): import('../core/types').Verband {
+  return {
+    id: api.id,
+    kurz: api.kurz,
+    name: api.name,
+    politikfeld_id: api.politikfeld_id,
+    beziehung_start: api.beziehung_start,
+    tradeoffs: (api.tradeoffs ?? []).map((t) => ({
+      key: t.key,
+      effekte: t.effekte ?? {},
+      feld_druck_delta: t.feld_druck_delta ?? 0,
+      label: t.label,
+      desc: t.desc,
+    })),
+  };
+}
+
 export interface ContentStore {
   chars: Character[];
   gesetze: Law[];
@@ -190,6 +208,8 @@ export interface ContentStore {
   bundesratFraktionen: BundesratFraktion[];
   milieus: Milieu[];
   politikfelder: Politikfeld[];
+  verbaende: import('../core/types').Verband[];
+  ministerialInitiativen: import('../core/types').MinisterialInitiative[];
   scenario: ContentBundle['scenario'];
   loaded: boolean;
   error: string | null;
@@ -206,6 +226,8 @@ export const useContentStore = create<ContentStore>((set) => ({
   bundesratFraktionen: [],
   milieus: [],
   politikfelder: [],
+  verbaende: DEFAULT_VERBAENDE,
+  ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
   scenario: DEFAULT_SCENARIO,
   loaded: false,
   error: null,
@@ -239,8 +261,10 @@ export const useContentStore = create<ContentStore>((set) => ({
         brEventsList.length > 0 ? brEventsList : BUNDESRAT_EVENTS;
 
       const milieus = (milieusRaw ?? []).map(transformMilieu);
-      const verbaende = verbaendeRaw ?? [];
-      const politikfelder = (politikfelderRaw ?? []).map((p) => transformPolitikfeld(p, verbaende));
+      const verbaende = (verbaendeRaw ?? []).length > 0
+        ? (verbaendeRaw ?? []).map(transformVerband)
+        : DEFAULT_VERBAENDE;
+      const politikfelder = (politikfelderRaw ?? []).map((p) => transformPolitikfeld(p, verbaendeRaw ?? []));
 
       set({
         chars: chars.map(transformChar),
@@ -251,6 +275,8 @@ export const useContentStore = create<ContentStore>((set) => ({
         bundesratFraktionen: bundesratFraktionen.map(transformBundesratFraktion),
         milieus,
         politikfelder,
+        verbaende,
+        ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
         loaded: true,
         error: null,
       });
@@ -276,6 +302,8 @@ export function getContentBundle(): ContentBundle {
     bundesratFraktionen: s.bundesratFraktionen,
     milieus: s.milieus,
     politikfelder: s.politikfelder,
+    verbaende: s.verbaende?.length ? s.verbaende : DEFAULT_VERBAENDE,
+    ministerialInitiativen: s.ministerialInitiativen?.length ? s.ministerialInitiativen : DEFAULT_MINISTERIAL_INITIATIVEN,
     scenario: s.scenario,
   };
 }

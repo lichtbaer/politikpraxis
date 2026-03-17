@@ -29,6 +29,11 @@ from app.models.content import (  # noqa: F401
     VerbandsTradeoffI18n,
     MinisterialInitiative,
     MinisterialInitiativeI18n,
+    EuKlimaStartwert,
+    EuEvent,
+    EuEventI18n,
+    EuEventChoice,
+    EuEventChoiceI18n,
 )
 
 config = context.config

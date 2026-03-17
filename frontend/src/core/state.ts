@@ -73,5 +73,7 @@ export function migrateGameState(state: GameState): GameState {
     verbandsBeziehungen: state.verbandsBeziehungen ?? {},
     politikfeldDruck: state.politikfeldDruck ?? {},
     politikfeldLetzterBeschluss: state.politikfeldLetzterBeschluss ?? {},
+    ministerialCooldowns: state.ministerialCooldowns ?? {},
+    aktiveMinisterialInitiative: state.aktiveMinisterialInitiative ?? null,
   };
 }

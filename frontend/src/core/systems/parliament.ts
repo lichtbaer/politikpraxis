@@ -16,34 +16,44 @@ export interface GesetzBeschlussContext {
   complexity: number;
 }
 
+export type EinbringenOptions = EinbringenContext | { pkRabatt?: number };
+
+function isEinbringenContext(opts: EinbringenOptions | undefined): opts is EinbringenContext {
+  return opts != null && 'ausrichtung' in opts && 'complexity' in opts;
+}
+
 export function einbringen(
   state: GameState,
   lawId: string,
-  context?: EinbringenContext,
+  options?: EinbringenOptions,
 ): GameState {
   const idx = state.gesetze.findIndex((g) => g.id === lawId);
   if (idx === -1) return state;
   const law = state.gesetze[idx];
   if (law.status !== 'entwurf') return state;
 
-  const ausrichtung = context?.ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
-  const complexity = context?.complexity ?? 4;
+  let pkKosten: number;
+  let charEffekte: Record<string, number> = {};
 
-  const kongruenz = applyKongruenzEffekte(state, lawId, ausrichtung, complexity);
-  const pkKosten = getEinbringenPkKosten(kongruenz.pkModifikator);
+  if (isEinbringenContext(options)) {
+    const kongruenz = applyKongruenzEffekte(state, lawId, options.ausrichtung, options.complexity);
+    pkKosten = getEinbringenPkKosten(kongruenz.pkModifikator);
+    charEffekte = kongruenz.charEffekte;
+  } else {
+    const baseCost = 20;
+    const rabatt = options?.pkRabatt ?? 0;
+    pkKosten = Math.max(1, Math.round(baseCost * (1 - rabatt)));
+  }
 
   if (state.pk < pkKosten) return state;
 
-  let newState: GameState = {
-    ...state,
-    pk: state.pk - pkKosten,
-    gesetze: state.gesetze.map((g, i) =>
-      i === idx ? { ...g, status: 'aktiv' as const } : g,
-    ),
-  };
+  const gesetze = state.gesetze.map((g, i) =>
+    i === idx ? { ...g, status: 'aktiv' as const } : g,
+  );
+  let newState: GameState = { ...state, pk: state.pk - pkKosten, gesetze };
 
-  if (Object.keys(kongruenz.charEffekte).length > 0) {
-    newState = applyMoodChange(newState, kongruenz.charEffekte);
+  if (Object.keys(charEffekte).length > 0) {
+    newState = applyMoodChange(newState, charEffekte);
   }
 
   return addLog(newState, `${law.kurz} in Bundestag eingebracht`, 'hi');

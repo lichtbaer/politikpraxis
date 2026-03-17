@@ -1,6 +1,7 @@
 import type { GameState, GameEvent, EventChoice } from '../types';
 import { addLog } from '../engine';
 import { applyMoodChange } from './characters';
+import { resolveMinisterialInitiative } from './ministerialInitiativen';
 import i18n from '../../i18n';
 
 /** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
@@ -190,6 +191,11 @@ export function checkBundesratEvents(
 }
 
 export function resolveEvent(state: GameState, event: GameEvent, choice: EventChoice): GameState {
+  // Ministerial-Initiative: eigene Auflösung
+  if (choice.ministerialAction && state.aktiveMinisterialInitiative && event.id.startsWith('mi_')) {
+    return resolveMinisterialInitiative(state, choice.ministerialAction);
+  }
+
   if (state.pk < (choice.cost || 0)) return state;
 
   let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0), kpi: { ...state.kpi } };

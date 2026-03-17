@@ -25,10 +25,12 @@ const FEATURES: Record<string, { minLevel: number }> = {
   milieus_voll: { minLevel: 2 },
   /** Politikfeld-Druck-System */
   politikfeld_druck: { minLevel: 3 },
-  /** Verbands-Lobbying */
+  /** Verbands-Lobbying, Trade-offs, Konflikt-Mechanik */
   verbands_lobbying: { minLevel: 3 },
   /** Koalitionspartner-System */
   koalitionspartner: { minLevel: 2 },
+  /** Ministerial-Initiativen (Minister bringen eigene Gesetze ein) */
+  ministerial_initiativen: { minLevel: 3 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {
