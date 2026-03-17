@@ -1,4 +1,5 @@
 import { Header } from './Header';
+import { EbenenTabBar } from '../components/EbenenTabBar/EbenenTabBar';
 import { LeftPanel } from '../panels/LeftPanel';
 import { CenterPanel } from '../panels/CenterPanel';
 import { RightPanel } from '../panels/RightPanel';
@@ -19,6 +20,7 @@ export function Shell() {
   return (
     <>
       <Header />
+      <EbenenTabBar />
       <div className={styles.shell}>
         <LeftPanel />
         <CenterPanel />

@@ -749,6 +749,10 @@
     "routeFormat": "{{route}}: {{progress}}/{{duration}} Monate",
     "gratis": "gratis"
   },
+  "tabBar": {
+    "ariaLabel": "Ebenen-Navigation",
+    "lockedTooltip": "Freigeschaltet ab Stufe {{level}}"
+  },
   "leftPanel": {
     "wahlprognose": "Wahlprognose",
     "target": "Ziel: ≥ {{percent}}% am Wahltag",
