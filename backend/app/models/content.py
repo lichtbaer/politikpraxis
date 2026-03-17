@@ -23,6 +23,9 @@ class Char(Base):
     bonus_trigger: Mapped[str | None] = mapped_column(Text(), nullable=True)
     bonus_applies: Mapped[str | None] = mapped_column(Text(), nullable=True)
     sonderregel: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    ideologie_wirtschaft: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    ideologie_gesellschaft: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    ideologie_staat: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
 
 
 class CharI18n(Base):
@@ -50,6 +53,11 @@ class Gesetz(Base):
     effekt_zf: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=True, server_default="0")
     effekt_lag: Mapped[int] = mapped_column(Integer(), nullable=False, server_default="4")
     foederalismus_freundlich: Mapped[bool | None] = mapped_column(Boolean(), nullable=True, server_default="false")
+    ideologie_wirtschaft: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    ideologie_gesellschaft: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    ideologie_staat: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    politikfeld_id: Mapped[str | None] = mapped_column(Text(), ForeignKey("politikfelder.id"), nullable=True)
+    politikfeld_sekundaer: Mapped[list[str]] = mapped_column(ARRAY(Text()), nullable=False, server_default="{}")
 
 
 class GesetzI18n(Base):
@@ -166,3 +174,124 @@ class BundesratTradeoffI18n(Base):
     locale: Mapped[str] = mapped_column(String(5), primary_key=True)
     label: Mapped[str] = mapped_column(Text(), nullable=False)
     desc: Mapped[str] = mapped_column(Text(), nullable=False)
+
+
+# --- Politikfelder, Milieus, Verbände, Ministerial-Initiativen ---
+
+
+class Politikfeld(Base):
+    __tablename__ = "politikfelder"
+
+    id: Mapped[str] = mapped_column(Text(), primary_key=True)
+    verband_id: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    vernachlaessigung_start: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    druck_event_id: Mapped[str | None] = mapped_column(Text(), ForeignKey("events(id)"), nullable=True)
+    eu_relevanz: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+    kommunal_relevanz: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+    min_complexity: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+
+
+class PolitikfeldI18n(Base):
+    __tablename__ = "politikfelder_i18n"
+
+    feld_id: Mapped[str] = mapped_column(Text(), ForeignKey("politikfelder(id)"), primary_key=True)
+    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    name: Mapped[str] = mapped_column(Text(), nullable=False)
+    kurz: Mapped[str] = mapped_column(Text(), nullable=False)
+
+
+class Milieu(Base):
+    __tablename__ = "milieus"
+
+    id: Mapped[str] = mapped_column(Text(), primary_key=True)
+    gewicht: Mapped[int] = mapped_column(Integer(), nullable=False)
+    basisbeteiligung: Mapped[int] = mapped_column(Integer(), nullable=False)
+    ideologie_wirtschaft: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    ideologie_gesellschaft: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    ideologie_staat: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    min_complexity: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+    aggregat_gruppe: Mapped[str | None] = mapped_column(Text(), nullable=True)
+
+
+class MilieuI18n(Base):
+    __tablename__ = "milieus_i18n"
+
+    milieu_id: Mapped[str] = mapped_column(Text(), ForeignKey("milieus(id)"), primary_key=True)
+    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    name: Mapped[str] = mapped_column(Text(), nullable=False)
+    kurzcharakter: Mapped[str] = mapped_column(Text(), nullable=False)
+    beschreibung: Mapped[str] = mapped_column(Text(), nullable=False)
+
+
+class Verband(Base):
+    __tablename__ = "verbaende"
+
+    id: Mapped[str] = mapped_column(Text(), primary_key=True)
+    politikfeld_id: Mapped[str] = mapped_column(Text(), ForeignKey("politikfelder(id)"), nullable=False)
+    ideologie_wirtschaft: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    ideologie_gesellschaft: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    ideologie_staat: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    beziehung_start: Mapped[int] = mapped_column(Integer(), nullable=False)
+    staerke_bund: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+    staerke_eu: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+    staerke_laender: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+    staerke_kommunen: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+    konflikt_mit: Mapped[list[str]] = mapped_column(ARRAY(Text()), nullable=False, server_default="{}")
+    min_complexity: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="2")
+
+
+class VerbandI18n(Base):
+    __tablename__ = "verbaende_i18n"
+
+    verband_id: Mapped[str] = mapped_column(Text(), ForeignKey("verbaende(id)"), primary_key=True)
+    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    name: Mapped[str] = mapped_column(Text(), nullable=False)
+    kurz: Mapped[str] = mapped_column(Text(), nullable=False)
+    bio: Mapped[str] = mapped_column(Text(), nullable=False)
+
+
+class VerbandsTradeoff(Base):
+    __tablename__ = "verbands_tradeoffs"
+
+    id: Mapped[int] = mapped_column(Integer(), primary_key=True, autoincrement=True)
+    verband_id: Mapped[str] = mapped_column(Text(), ForeignKey("verbaende(id)"), nullable=False)
+    tradeoff_key: Mapped[str] = mapped_column(Text(), nullable=False)
+    effekt_al: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True, server_default="0")
+    effekt_hh: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True, server_default="0")
+    effekt_gi: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True, server_default="0")
+    effekt_zf: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True, server_default="0")
+    feld_druck_delta: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+
+
+class VerbandsTradeoffI18n(Base):
+    __tablename__ = "verbands_tradeoffs_i18n"
+
+    tradeoff_id: Mapped[int] = mapped_column(
+        Integer(), ForeignKey("verbands_tradeoffs(id)"), primary_key=True
+    )
+    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    label: Mapped[str] = mapped_column(Text(), nullable=False)
+    desc: Mapped[str] = mapped_column(Text(), nullable=False)
+
+
+class MinisterialInitiative(Base):
+    __tablename__ = "ministerial_initiativen"
+
+    id: Mapped[str] = mapped_column(Text(), primary_key=True)
+    char_id: Mapped[str] = mapped_column(Text(), ForeignKey("chars(id)"), nullable=False)
+    gesetz_ref_id: Mapped[str | None] = mapped_column(Text(), ForeignKey("gesetze(id)"), nullable=True)
+    trigger_type: Mapped[str] = mapped_column(Text(), nullable=False)
+    min_complexity: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="3")
+    cooldown_months: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="8")
+
+
+class MinisterialInitiativeI18n(Base):
+    __tablename__ = "ministerial_initiativen_i18n"
+
+    initiative_id: Mapped[str] = mapped_column(
+        Text(), ForeignKey("ministerial_initiativen(id)"), primary_key=True
+    )
+    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    titel: Mapped[str] = mapped_column(Text(), nullable=False)
+    desc: Mapped[str] = mapped_column(Text(), nullable=False)
+    quote: Mapped[str] = mapped_column(Text(), nullable=False)
