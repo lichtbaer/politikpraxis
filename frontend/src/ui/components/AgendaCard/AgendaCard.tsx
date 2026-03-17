@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { ROUTE_INFO } from '../../../core/systems/levels';
 import { gesetzKongruenz } from '../../../core/ideologie';
 import { featureActive } from '../../../core/systems/features';
+import { getVorstufenBoni } from '../../../core/systems/gesetzLebenszyklus';
+import { VorstufeBadge } from '../VorstufeBadge/VorstufeBadge';
+import { VorbereitungModal } from '../VorbereitungModal/VorbereitungModal';
 import type { Law, LawStatus, RouteType } from '../../../core/types';
 import styles from './AgendaCard.module.css';
 
@@ -33,10 +37,14 @@ export function AgendaCard({ law }: AgendaCardProps) {
   const { t } = useTranslation(['common', 'game']);
   const { state, complexity, ausrichtung } = useGameStore();
   const actions = useGameActions();
+  const [showVorbereitungModal, setShowVorbereitungModal] = useState(false);
   const expanded = law.expanded;
   const pk = state.pk;
 
   const kongruenz = gesetzKongruenz(ausrichtung, law);
+  const projekt = state.gesetzProjekte?.[law.id];
+  const boni = getVorstufenBoni(state, law.id);
+  const hasVorstufen = featureActive(complexity, 'kommunal_pilot') || featureActive(complexity, 'laender_pilot') || featureActive(complexity, 'eu_route');
 
   const handleHeaderClick = () => actions.toggleAgenda(law.id);
 
@@ -45,6 +53,7 @@ export function AgendaCard({ law }: AgendaCardProps) {
 
   const total = law.ja + law.nein;
   const pct = total > 0 ? Math.round((law.ja / total) * 100) : 0;
+  const effectivePct = Math.min(95, pct + boni.btStimmenBonus);
 
   return (
     <div className={styles.card}>
@@ -104,6 +113,39 @@ export function AgendaCard({ law }: AgendaCardProps) {
               <span className={styles.voteLabel}>
                 {law.ja} Ja / {law.nein} Nein ({pct}%)
               </span>
+              {hasVorstufen && boni.btStimmenBonus > 0 && (
+                <div className={styles.btChanceBonus}>
+                  {t('game:vorstufen.btChanceMitBonus', { base: pct, effective: effectivePct })}
+                  <span className={styles.bonusTag}>
+                    {t('game:vorstufen.bonusTag', { bonus: boni.btStimmenBonus })}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {hasVorstufen && law.status === 'entwurf' && (
+            <div className={styles.vorstufenStatus}>
+              <VorstufeBadge
+                typ="kommunal"
+                projekt={projekt}
+                month={state.month}
+                onAbbrechen={featureActive(complexity, 'kommunal_pilot') ? actions.abbrechenVorstufe : undefined}
+              />
+              <VorstufeBadge
+                typ="laender"
+                projekt={projekt}
+                month={state.month}
+                onAbbrechen={featureActive(complexity, 'laender_pilot') ? actions.abbrechenVorstufe : undefined}
+              />
+              {featureActive(complexity, 'eu_route') && (
+                <VorstufeBadge
+                  typ="eu"
+                  projekt={projekt}
+                  month={state.month}
+                  onAbbrechen={actions.abbrechenVorstufe}
+                />
+              )}
             </div>
           )}
 
@@ -139,14 +181,25 @@ export function AgendaCard({ law }: AgendaCardProps) {
 
           <div className={styles.actions}>
             {law.status === 'entwurf' && (
-              <button
-                type="button"
-                className={styles.btn}
-                disabled={!canEinbringen}
-                onClick={() => actions.einbringen(law.id)}
-              >
-                {t('game:agenda.einbringen')}
-              </button>
+              <>
+                {featureActive(complexity, 'kommunal_pilot') && law.kommunal_pilot_moeglich !== false && (
+                  <button
+                    type="button"
+                    className={styles.btn}
+                    onClick={() => setShowVorbereitungModal(true)}
+                  >
+                    + {t('game:vorstufen.vorbereitung')}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className={styles.btn}
+                  disabled={!canEinbringen}
+                  onClick={() => actions.einbringen(law.id)}
+                >
+                  {t('game:agenda.einbringen')}
+                </button>
+              </>
             )}
             {(law.status === 'entwurf' || law.status === 'aktiv') && (
               <button
@@ -196,6 +249,10 @@ export function AgendaCard({ law }: AgendaCardProps) {
               </>
             )}
           </div>
+
+          {showVorbereitungModal && (
+            <VorbereitungModal law={law} onClose={() => setShowVorbereitungModal(false)} />
+          )}
         </div>
       )}
     </div>

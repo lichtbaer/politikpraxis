@@ -2,7 +2,8 @@ import type { GameState, GameEvent, EventChoice } from '../types';
 import { addLog } from '../engine';
 import { applyMoodChange } from './characters';
 import { resolveMinisterialInitiative } from './ministerialInitiativen';
-import { startRoute } from './levels';
+import { startKommunalPilot } from './gesetzLebenszyklus';
+import { applyVorbildBonus } from './gesetzLebenszyklus';
 import i18n from '../../i18n';
 
 /** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
@@ -251,18 +252,28 @@ export function checkKommunalEvents(
   return state;
 }
 
-export function resolveEvent(state: GameState, event: GameEvent, choice: EventChoice): GameState {
+export interface ResolveEventOptions {
+  complexity?: number;
+}
+
+export function resolveEvent(
+  state: GameState,
+  event: GameEvent,
+  choice: EventChoice,
+  options?: ResolveEventOptions,
+): GameState {
+  const complexity = options?.complexity ?? 4;
   // Ministerial-Initiative: eigene Auflösung
   if (choice.ministerialAction && state.aktiveMinisterialInitiative && event.id.startsWith('mi_')) {
     return resolveMinisterialInitiative(state, choice.ministerialAction);
   }
 
-  // Kommunal-Initiative: als_vorbild — +2% BT-StimmenBonus, 0 PK
+  // Kommunal-Initiative: als_vorbild — +2% BT auf GesetzProjekt, 0 PK (SMA-274)
   const kommunalIds = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
-  if (kommunalIds.has(event.id) && choice.key === 'als_vorbild') {
+  if (kommunalIds.has(event.id) && choice.key === 'als_vorbild' && event.lawId) {
     if (state.pk < (choice.cost || 0)) return state;
-    const bisMonat = state.month + 12;
-    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0), btStimmenBonus: { pct: 2, bisMonat } };
+    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0) };
+    newState = applyVorbildBonus(newState, event.lawId);
     const choiceIdx = event.choices.indexOf(choice);
     const logKey = `game:kommunalEvents.${event.id}.choices.${choiceIdx}.log`;
     newState = addLog(newState, logKey, 'g');
@@ -271,10 +282,11 @@ export function resolveEvent(state: GameState, event: GameEvent, choice: EventCh
     return newState;
   }
 
-  // Kommunal-Initiative: koordinieren — startKommunalPilot (8 PK gesamt)
+  // Kommunal-Initiative: koordinieren — startKommunalPilot (8 PK, voller Bonus) (SMA-274)
   if (kommunalIds.has(event.id) && choice.key === 'koordinieren' && event.lawId) {
     if (state.pk < (choice.cost || 0)) return state;
-    let newState = startRoute(state, event.lawId, 'kommune', { costOverride: 8 });
+    const stadttyp = (event as GameEvent & { stadttyp?: 'progressiv' | 'konservativ' | 'industrie' }).stadttyp ?? 'progressiv';
+    let newState = startKommunalPilot(state, event.lawId, stadttyp, undefined, complexity);
     const choiceIdx = event.choices.indexOf(choice);
     newState = addLog(newState, `game:kommunalEvents.${event.id}.choices.${choiceIdx}.log`, 'g');
     newState.ticker = event.ticker;

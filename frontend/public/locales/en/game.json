@@ -505,6 +505,32 @@
     "bildung_forschung": "Education",
     "arbeit_soziales": "Labour"
   },
+  "vorstufen": {
+    "kommunal": "Municipal",
+    "laender": "States",
+    "eu": "EU",
+    "abbrechen": "Cancel stage",
+    "vorbereitung": "Preparation",
+    "btChanceMitBonus": "{{base}}% → {{effective}}%",
+    "bonusTag": "+{{bonus}}% Preparation"
+  },
+  "vorbereitung": {
+    "title": "Preparation: {{gesetz}}",
+    "stadttyp": {
+      "progressiv": "Progressive city",
+      "konservativ": "Conservative city",
+      "industrie": "Industrial city"
+    }
+  },
+  "gesetzAgenda": {
+    "title": "Law Agenda",
+    "andere": "In progress ({{count}} laws)",
+    "vorbereitungLaeuft": "Preparation running ({{count}} laws)",
+    "bereitEinbringen": "Ready to introduce ({{count}} laws)",
+    "keineVorbereitung": "No preparation yet ({{count}} laws)",
+    "empfehlungEinbringen": "Introduce now? Accumulated bonuses available.",
+    "leer": "No laws."
+  },
   "routes": {
     "eu": "EU level",
     "land": "State pilot",

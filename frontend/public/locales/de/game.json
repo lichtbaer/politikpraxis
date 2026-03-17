@@ -533,6 +533,23 @@
       }
     }
   },
+  "vorstufen": {
+    "kommunal": "Kommunal",
+    "laender": "Länder",
+    "eu": "EU",
+    "abbrechen": "Vorstufe abbrechen",
+    "vorbereitung": "Vorbereitung",
+    "btChanceMitBonus": "{{base}}% → {{effective}}%",
+    "bonusTag": "+{{bonus}}% Vorbereitung"
+  },
+  "vorbereitung": {
+    "title": "Vorbereitung: {{gesetz}}",
+    "stadttyp": {
+      "progressiv": "Progressive Stadt",
+      "konservativ": "Konservative Stadt",
+      "industrie": "Industriestadt"
+    }
+  },
   "routes": {
     "eu": "EU-Ebene",
     "land": "Länder-Pilot",
@@ -708,6 +725,15 @@
   "gesetz": {
     "gegenKurs": "Gegen Regierungskurs",
     "erhoehterAufwand": "Erhöhter Aufwand"
+  },
+  "gesetzAgenda": {
+    "title": "Gesetz-Agenda",
+    "andere": "In Bearbeitung ({{count}} Gesetze)",
+    "vorbereitungLaeuft": "Vorbereitung läuft ({{count}} Gesetze)",
+    "bereitEinbringen": "Bereit zum Einbringen ({{count}} Gesetze)",
+    "keineVorbereitung": "Noch keine Vorbereitung ({{count}} Gesetze)",
+    "empfehlungEinbringen": "Jetzt einbringen? Akkumulierte Boni vorhanden.",
+    "leer": "Keine Gesetze."
   },
   "agenda": {
     "title": "Gesetzliche Agenda",

@@ -4,6 +4,7 @@ import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { EventCard } from '../components/EventCard/EventCard';
 import { AgendaView } from '../views/AgendaView';
+import { GesetzAgendaView } from '../views/GesetzAgendaView';
 import { EbeneView } from '../views/EbeneView';
 import { MediaView } from '../views/MediaView';
 import { BundesratView } from '../views/BundesratView';
@@ -41,7 +42,9 @@ export function CenterPanel() {
           <EventCard event={state.activeEvent} onChoice={handleChoice} />
         ) : (
           <>
-            {state.view === 'agenda' && <AgendaView />}
+            {state.view === 'agenda' && (
+              featureActive(complexity, 'gesetz_agenda') ? <GesetzAgendaView /> : <AgendaView />
+            )}
             {(state.view === 'eu' || state.view === 'land' || state.view === 'kommune') && (
               <EbeneView type={state.view} />
             )}
