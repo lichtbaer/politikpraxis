@@ -199,7 +199,7 @@ export function wahlkampfKoalition(
   const next = verbrauchePK(state, 12);
   if (!next) return state;
 
-  const partner = getKoalitionspartner(content);
+  const partner = getKoalitionspartner(content, state);
   const milieuZustimmung = { ...(next.milieuZustimmung ?? {}) };
   for (const milieuId of partner.kernmilieus) {
     const current = milieuZustimmung[milieuId] ?? 50;
