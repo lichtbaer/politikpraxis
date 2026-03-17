@@ -725,10 +725,14 @@
     "konjunkturTooltip": "Konjunkturindex beeinflusst Steuereinnahmen"
   },
   "politikfeld": {
-    "umwelt_energie": "Umwelt",
-    "wirtschaft_finanzen": "Wirtschaft",
-    "bildung_forschung": "Bildung",
-    "arbeit_soziales": "Arbeit"
+    "wirtschaft_finanzen": "Wirtschaft & Finanzen",
+    "arbeit_soziales": "Arbeit & Soziales",
+    "umwelt_energie": "Umwelt & Energie",
+    "innere_sicherheit": "Innere Sicherheit & Justiz",
+    "bildung_forschung": "Bildung & Forschung",
+    "gesundheit_pflege": "Gesundheit & Pflege",
+    "digital_infrastruktur": "Digital & Infrastruktur",
+    "landwirtschaft": "Landwirtschaft & Ländl. Raum"
   },
   "gesetz": {
     "gegenKurs": "Gegen Regierungskurs",
@@ -742,7 +746,10 @@
     "keineVorbereitung": "Wähle ein Gesetz um die Legislatur zu starten ({{count}} Gesetze)",
     "empfohlen": "Empfohlen",
     "empfehlungEinbringen": "Jetzt einbringen? Akkumulierte Boni vorhanden.",
-    "leer": "Keine Gesetze."
+    "leer": "Keine Gesetze.",
+    "gesetzeCount": "Gesetze",
+    "ohneFeld": "Sonstige",
+    "kongruenz": "{{percent}}"
   },
   "agenda": {
     "title": "Gesetzliche Agenda",

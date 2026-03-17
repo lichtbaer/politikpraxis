@@ -500,10 +500,14 @@
     "kompromissAnbieten": "Offer compromise"
   },
   "politikfeld": {
-    "umwelt_energie": "Environment",
-    "wirtschaft_finanzen": "Economy",
-    "bildung_forschung": "Education",
-    "arbeit_soziales": "Labour"
+    "wirtschaft_finanzen": "Economy & Finance",
+    "arbeit_soziales": "Labour & Social Affairs",
+    "umwelt_energie": "Environment & Energy",
+    "innere_sicherheit": "Internal Security & Justice",
+    "bildung_forschung": "Education & Research",
+    "gesundheit_pflege": "Health & Care",
+    "digital_infrastruktur": "Digital & Infrastructure",
+    "landwirtschaft": "Agriculture & Rural Areas"
   },
   "vorstufen": {
     "kommunal": "Municipal",
@@ -530,7 +534,10 @@
     "keineVorbereitung": "Choose a law to start the legislature ({{count}} laws)",
     "empfohlen": "Recommended",
     "empfehlungEinbringen": "Introduce now? Accumulated bonuses available.",
-    "leer": "No laws."
+    "leer": "No laws.",
+    "gesetzeCount": "laws",
+    "ohneFeld": "Other",
+    "kongruenz": "{{percent}}"
   },
   "routes": {
     "eu": "EU level",

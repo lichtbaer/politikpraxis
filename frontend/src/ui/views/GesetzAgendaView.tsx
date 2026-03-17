@@ -1,157 +1,103 @@
 /**
  * SMA-274: Gesetz-Agenda View — Alle Gesetze auf allen Stufen sichtbar.
- * SMA-290: Stufe 1-2: Einfache Liste. Stufe 3+: Gruppierung (VORBEREITUNG LÄUFT | BEREIT ZUM EINBRINGEN | NOCH KEINE VORBEREITUNG)
+ * SMA-290: Stufe 3+: Gruppierung (VORBEREITUNG LÄUFT | BEREIT ZUM EINBRINGEN | NOCH KEINE VORBEREITUNG)
  * SMA-287: Top-3 Gesetze mit Empfohlen-Badge (Kongruenz zur Spieler-Ausrichtung)
+ * SMA-293: Clustering nach Politikfeld + personalisierte Reihenfolge nach Ideologie (alle Stufen)
  */
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
+import { useContentStore } from '../../stores/contentStore';
 import { AgendaCard } from '../components/AgendaCard/AgendaCard';
 import { featureActive } from '../../core/systems/features';
-import { gesetzKongruenz } from '../../core/ideologie';
-import type { Law, LawStatus } from '../../core/types';
+import {
+  gruppiereNachPolitikfeld,
+  getTop3Empfohlen,
+  POLITIKFELD_ICONS,
+} from '../../core/gesetzAgenda';
 import styles from './GesetzAgendaView.module.css';
-
-const STATUS_ORDER: LawStatus[] = ['blockiert', 'aktiv', 'ausweich', 'entwurf', 'beschlossen'];
-
-function orderLawsSimple(laws: Law[]): Law[] {
-  const byStatus = new Map<LawStatus, Law[]>();
-  for (const law of laws) {
-    const arr = byStatus.get(law.status) ?? [];
-    arr.push(law);
-    byStatus.set(law.status, arr);
-  }
-  const result: Law[] = [];
-  for (const status of STATUS_ORDER) {
-    const arr = byStatus.get(status);
-    if (arr) result.push(...arr);
-  }
-  return result;
-}
-
-function gruppiereGesetze(
-  laws: Law[],
-  gesetzProjekte: Record<string, { aktiveVorstufen: { abgeschlossen: boolean }[]; boni: { btStimmenBonus: number } }> | undefined,
-): { vorbereitungLaeuft: Law[]; bereitEinbringen: Law[]; keineVorbereitung: Law[]; andere: Law[] } {
-  const vorbereitungLaeuft: Law[] = [];
-  const bereitEinbringen: Law[] = [];
-  const keineVorbereitung: Law[] = [];
-  const andere: Law[] = [];
-
-  for (const law of laws) {
-    if (law.status !== 'entwurf') {
-      andere.push(law);
-      continue;
-    }
-
-    const projekt = gesetzProjekte?.[law.id];
-    const hatAktiveVorstufen = projekt?.aktiveVorstufen?.some((v) => !v.abgeschlossen) ?? false;
-    const hatBoni = (projekt?.boni?.btStimmenBonus ?? 0) > 0;
-
-    if (hatAktiveVorstufen) {
-      vorbereitungLaeuft.push(law);
-    } else if (hatBoni) {
-      bereitEinbringen.push(law);
-    } else {
-      keineVorbereitung.push(law);
-    }
-  }
-
-  return { vorbereitungLaeuft, bereitEinbringen, keineVorbereitung, andere };
-}
-
-function getTop3Empfohlen(keineVorbereitung: Law[], ausrichtung: { wirtschaft: number; gesellschaft: number; staat: number }): Set<string> {
-  if (keineVorbereitung.length === 0) return new Set();
-  const sorted = [...keineVorbereitung]
-    .map((law) => ({ law, kongruenz: gesetzKongruenz(ausrichtung, law) }))
-    .sort((a, b) => b.kongruenz - a.kongruenz);
-  return new Set(sorted.slice(0, 3).map(({ law }) => law.id));
-}
 
 export function GesetzAgendaView() {
   const { t } = useTranslation('game');
   const { state, ausrichtung, complexity } = useGameStore();
-  const showGruppierung = featureActive(complexity, 'gesetz_agenda');
+  const politikfelder = useContentStore((s) => s.politikfelder);
+  const showCollapsible = complexity >= 2;
+  const showDruck = featureActive(complexity, 'politikfeld_druck');
+  const politikfeldDruck = state.politikfeldDruck ?? {};
 
-  const { vorbereitungLaeuft, bereitEinbringen, keineVorbereitung, andere } = gruppiereGesetze(
-    state.gesetze,
-    state.gesetzProjekte,
-  );
+  const clusters = gruppiereNachPolitikfeld(state.gesetze, politikfelder, ausrichtung);
+  const top3Empfohlen = getTop3Empfohlen(state.gesetze, ausrichtung);
 
-  const top3Empfohlen = getTop3Empfohlen(keineVorbereitung, ausrichtung);
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
 
-  // Stufe 1-2: Einfache Liste (alle Gesetze, keine Gruppierung)
-  if (!showGruppierung) {
-    const ordered = orderLawsSimple(state.gesetze);
-    return (
-      <div className={styles.root}>
-        <h1 className={styles.title}>{t('game:gesetzAgenda.title')}</h1>
-        <div className={styles.list}>
-          {ordered.map((law) => (
-            <AgendaCard key={law.id} law={law} />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const toggleFeld = (feldId: string) => {
+    if (!showCollapsible) return;
+    setCollapsedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(feldId)) next.delete(feldId);
+      else next.add(feldId);
+      return next;
+    });
+  };
 
-  // Stufe 3+: Gruppierte Ansicht
   return (
     <div className={styles.root}>
       <h1 className={styles.title}>{t('game:gesetzAgenda.title')}</h1>
 
-      {andere.length > 0 && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t('game:gesetzAgenda.andere', { count: andere.length })}</h2>
-          <div className={styles.list}>
-            {andere.map((law) => (
-              <AgendaCard key={law.id} law={law} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {vorbereitungLaeuft.length > 0 && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            {t('game:gesetzAgenda.vorbereitungLaeuft', { count: vorbereitungLaeuft.length })}
-          </h2>
-          <div className={styles.list}>
-            {vorbereitungLaeuft.map((law) => (
-              <AgendaCard key={law.id} law={law} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {bereitEinbringen.length > 0 && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            {t('game:gesetzAgenda.bereitEinbringen', { count: bereitEinbringen.length })}
-          </h2>
-          <p className={styles.hinweis}>{t('game:gesetzAgenda.empfehlungEinbringen')}</p>
-          <div className={styles.list}>
-            {bereitEinbringen.map((law) => (
-              <AgendaCard key={law.id} law={law} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {keineVorbereitung.length > 0 && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            {t('game:gesetzAgenda.keineVorbereitung', { count: keineVorbereitung.length })}
-          </h2>
-          <div className={styles.list}>
-            {keineVorbereitung.map((law) => (
-              <AgendaCard key={law.id} law={law} isRecommended={top3Empfohlen.has(law.id)} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {vorbereitungLaeuft.length === 0 && bereitEinbringen.length === 0 && keineVorbereitung.length === 0 && andere.length === 0 && (
+      {clusters.length === 0 ? (
         <p className={styles.leer}>{t('game:gesetzAgenda.leer')}</p>
+      ) : (
+        <div className={styles.clusterList}>
+          {clusters.map(({ feldId, gesetze }) => {
+            const isCollapsed = showCollapsible && collapsedIds.has(feldId);
+            const druck = showDruck ? (politikfeldDruck[feldId] ?? 0) : 0;
+            const icon = POLITIKFELD_ICONS[feldId] ?? '📋';
+            const feldName =
+              feldId === '_ohne_feld'
+                ? t('game:gesetzAgenda.ohneFeld', 'Sonstige')
+                : t(`game:politikfeld.${feldId}`, feldId);
+
+            return (
+              <section key={feldId} className={styles.politikfeldSection}>
+                <header
+                  className={`${styles.politikfeldHeader} ${showCollapsible ? styles.clickable : ''}`}
+                  onClick={() => toggleFeld(feldId)}
+                  role={showCollapsible ? 'button' : undefined}
+                  aria-expanded={!isCollapsed}
+                >
+                  <span className={styles.politikfeldIcon}>{icon}</span>
+                  <span className={styles.politikfeldName}>{feldName}</span>
+                  <span className={styles.politikfeldCount}>
+                    ({gesetze.length} {t('game:gesetzAgenda.gesetzeCount', 'Gesetze')})
+                  </span>
+                  {showDruck && (
+                    <div className={styles.druckBar}>
+                      <div
+                        className={`${styles.druckFill} ${druck > 70 ? styles.kritisch : druck > 40 ? styles.warn : styles.ok}`}
+                        style={{ width: `${Math.min(100, druck)}%` }}
+                      />
+                    </div>
+                  )}
+                  {showCollapsible && (
+                    <span className={styles.toggle}>{isCollapsed ? '▶' : '▼'}</span>
+                  )}
+                </header>
+                {!isCollapsed && (
+                  <div className={styles.list}>
+                    {gesetze.map((law) => (
+                      <AgendaCard
+                        key={law.id}
+                        law={law}
+                        isRecommended={top3Empfohlen.has(law.id)}
+                        showKongruenz={complexity >= 2}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
       )}
     </div>
   );
