@@ -59,43 +59,34 @@
 
 .optionLabel {
   font-weight: 600;
+  font-size: 15px;
+  margin: 0 0 4px;
   color: var(--text);
 }
 
-.optionDesc {
+.optionSlogan {
   font-size: 12px;
   color: var(--text2);
+  margin: 0 0 8px;
+  font-style: italic;
+  line-height: 1.35;
 }
 
 .effekte {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
   margin-top: 4px;
 }
 
-.deltaPositiv {
-  font-size: 11px;
+.effektPositiv {
+  font-size: 12px;
   color: var(--green);
 }
 
-.deltaNegativ {
-  font-size: 11px;
+.effektNegativ {
+  font-size: 12px;
   color: var(--red);
-}
-
-.milieuTags {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.tag {
-  font-size: 10px;
-  padding: 2px 6px;
-  background: var(--bg2);
-  border-radius: 4px;
-  color: var(--text2);
 }
 
 .keinFraming {
