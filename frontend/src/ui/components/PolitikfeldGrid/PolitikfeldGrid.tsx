@@ -4,6 +4,8 @@ import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import styles from './PolitikfeldGrid.module.css';
 
+const EMPTY_DRUCK: Record<string, number> = {};
+
 const FELD_ICONS: Record<string, string> = {
   umwelt_energie: '🌱',
   wirtschaft_finanzen: '📊',
@@ -30,7 +32,7 @@ interface PolitikfeldGridProps {
 export function PolitikfeldGrid(props?: PolitikfeldGridProps) {
   const { t } = useTranslation('game');
   const contentPolitikfelder = useContentStore((s) => s.politikfelder);
-  const politikfeldDruck = useGameStore((s) => s.state.politikfeldDruck ?? {});
+  const politikfeldDruck = useGameStore((s) => s.state.politikfeldDruck ?? EMPTY_DRUCK);
   const complexity = useGameStore((s) => s.complexity);
 
   const {

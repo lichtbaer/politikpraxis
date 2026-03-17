@@ -12,6 +12,9 @@ const AGG_ARBEIT = ['leistungstraeger', 'prekaere'];
 /** progressiv = soziale_mitte, postmaterielle */
 const AGG_PROGRESSIV = ['soziale_mitte', 'postmaterielle'];
 
+const EMPTY_MILIEU_ZUSTIMMUNG: Record<string, number> = {};
+const EMPTY_MILIEU_HISTORY: Record<string, number[]> = {};
+
 function gewichtesMittel(
   milieuIds: string[],
   milieuZustimmung: Record<string, number>,
@@ -56,8 +59,8 @@ export function MilieuSidebar() {
   const { t } = useTranslation(['common', 'game']);
   const milieus = useContentStore((s) => s.milieus);
   const complexity = useGameStore((s) => s.complexity);
-  const milieuZustimmung = useGameStore((s) => s.state.milieuZustimmung ?? {});
-  const milieuZustimmungHistory = useGameStore((s) => s.state.milieuZustimmungHistory ?? {});
+  const milieuZustimmung = useGameStore((s) => s.state.milieuZustimmung ?? EMPTY_MILIEU_ZUSTIMMUNG);
+  const milieuZustimmungHistory = useGameStore((s) => s.state.milieuZustimmungHistory ?? EMPTY_MILIEU_HISTORY);
   const zust = useGameStore((s) => s.state.zust);
 
   const useAggregated = complexity === 1;

@@ -5,11 +5,17 @@ const AUTO_SAVE_INTERVAL = 120_000; // 2 minutes
 const LOCALSTORAGE_KEY = 'bundesrepublik_autosave';
 
 export function useAutoSave() {
-  const state = useGameStore(s => s.state);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stateRef = useRef(useGameStore.getState().state);
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
+    return useGameStore.subscribe((s) => {
+      stateRef.current = s.state;
+    });
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const state = stateRef.current;
       if (state.month > 1 && !state.gameOver) {
         try {
           localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(state));
@@ -19,10 +25,8 @@ export function useAutoSave() {
       }
     }, AUTO_SAVE_INTERVAL);
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [state]);
+    return () => clearInterval(id);
+  }, []);
 }
 
 export function loadAutoSave(): ReturnType<typeof useGameStore.getState>['state'] | null {
