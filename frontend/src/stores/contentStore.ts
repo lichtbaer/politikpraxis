@@ -41,6 +41,8 @@ const EVENT_TYPE_ICONS: Record<string, string> = {
   random: '📰',
   char_ultimatum: '💼',
   bundesrat: '🏛️',
+  kommunal_initiative: '🏙️',
+  vorstufe_erfolg: '✅',
 };
 
 const EVENT_TYPE_MAP: Record<string, 'danger' | 'warn' | 'good' | 'info'> = {
@@ -51,6 +53,8 @@ const EVENT_TYPE_MAP: Record<string, 'danger' | 'warn' | 'good' | 'info'> = {
   random: 'info',
   char_ultimatum: 'danger',
   bundesrat: 'warn',
+  kommunal_initiative: 'warn',
+  vorstufe_erfolg: 'good',
 };
 
 function transformChar(api: CharApi): Character {
@@ -102,6 +106,7 @@ function transformGesetz(api: GesetzApi): Law {
     kosten_laufend: api.kosten_laufend,
     einnahmeeffekt: api.einnahmeeffekt,
     investiv: (api as { investiv?: boolean }).investiv,
+    kommunal_pilot_moeglich: api.kommunal_pilot_moeglich ?? true,
   };
 }
 
@@ -128,13 +133,14 @@ function transformEventChoice(api: {
     charMood: api.char_mood,
     loyalty: api.loyalty,
     log: api.log_msg,
+    key: api.key,
   };
 }
 
 function transformEvent(api: EventApi): GameEvent {
   const eventType = EVENT_TYPE_MAP[api.event_type] ?? 'info';
   const icon = EVENT_TYPE_ICONS[api.event_type] ?? '📰';
-  return {
+  const ev: GameEvent = {
     id: api.id,
     type: eventType,
     icon,
@@ -145,6 +151,14 @@ function transformEvent(api: EventApi): GameEvent {
     ticker: api.ticker,
     choices: api.choices.map(transformEventChoice),
   };
+  if (api.politikfeld_id) ev.politikfeldId = api.politikfeld_id;
+  if (api.trigger_druck_min != null) ev.triggerDruckMin = api.trigger_druck_min;
+  if (api.trigger_milieu_key) ev.triggerMilieuKey = api.trigger_milieu_key;
+  if (api.trigger_milieu_op) ev.triggerMilieuOp = api.trigger_milieu_op;
+  if (api.trigger_milieu_val != null) ev.triggerMilieuVal = api.trigger_milieu_val;
+  if (api.gesetz_ref?.length) ev.gesetzRef = api.gesetz_ref;
+  if (api.min_complexity != null) ev.min_complexity = api.min_complexity;
+  return ev;
 }
 
 function transformBundesratFraktion(api: BundesratFraktionApi): BundesratFraktion {
@@ -227,6 +241,8 @@ export interface ContentStore {
   events: GameEvent[];
   charEvents: Record<string, GameEvent>;
   bundesratEvents: GameEvent[];
+  kommunalEvents: GameEvent[];
+  vorstufenEvents: GameEvent[];
   bundesrat: BundesratLand[];
   bundesratFraktionen: BundesratFraktion[];
   milieus: Milieu[];
@@ -247,6 +263,8 @@ export const useContentStore = create<ContentStore>((set) => ({
   events: [],
   charEvents: {},
   bundesratEvents: [],
+  kommunalEvents: [],
+  vorstufenEvents: [],
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
   milieus: [],
@@ -278,6 +296,8 @@ export const useContentStore = create<ContentStore>((set) => ({
       const randomEvents = events.filter((e) => eventTypeById.get(e.id) === 'random');
       const charEventsList = events.filter((e) => eventTypeById.get(e.id) === 'char_ultimatum');
       const brEventsList = events.filter((e) => eventTypeById.get(e.id) === 'bundesrat');
+      const kommunalEventsList = events.filter((e) => eventTypeById.get(e.id) === 'kommunal_initiative');
+      const vorstufenEventsList = events.filter((e) => eventTypeById.get(e.id) === 'vorstufe_erfolg');
 
       const charEventsMap: Record<string, GameEvent> = {};
       for (const ev of charEventsList) {
@@ -299,6 +319,8 @@ export const useContentStore = create<ContentStore>((set) => ({
         events: randomEvents.length > 0 ? randomEvents : events,
         charEvents: charEventsMap,
         bundesratEvents: bundesratEventsResolved,
+        kommunalEvents: kommunalEventsList,
+        vorstufenEvents: vorstufenEventsList,
         bundesratFraktionen: bundesratFraktionen.map(transformBundesratFraktion),
         milieus,
         politikfelder,
@@ -331,6 +353,8 @@ export function getContentBundle(): ContentBundle {
     events: s.events,
     charEvents: { ...KOALITION_CHAR_EVENTS, ...s.charEvents },
     bundesratEvents: s.bundesratEvents,
+    kommunalEvents: s.kommunalEvents ?? [],
+    vorstufenEvents: s.vorstufenEvents ?? [],
     bundesrat: s.bundesrat,
     bundesratFraktionen: s.bundesratFraktionen,
     koalitionspartner: GRUENE,

@@ -230,18 +230,32 @@ async def fetch_events(
                 "log_msg": chi18n.log_msg,
             })
 
-        rows.append({
+        row = {
             "id": e.id,
             "event_type": e.event_type,
             "trigger_type": e.trigger_type,
-            "min_complexity": e.min_complexity,
+            "min_complexity": getattr(e, "min_complexity", None),
             "type_label": ei18n.type_label,
             "title": ei18n.title,
             "quote": ei18n.quote,
             "context": ei18n.context,
             "ticker": ei18n.ticker,
             "choices": choices,
-        })
+        }
+        for attr, key in [
+            ("politikfeld_id", "politikfeld_id"),
+            ("trigger_druck_min", "trigger_druck_min"),
+            ("trigger_milieu_key", "trigger_milieu_key"),
+            ("trigger_milieu_op", "trigger_milieu_op"),
+            ("trigger_milieu_val", "trigger_milieu_val"),
+        ]:
+            val = getattr(e, attr, None)
+            if val is not None:
+                row[key] = val
+        gesetz_ref = getattr(e, "gesetz_ref", None)
+        if gesetz_ref:
+            row["gesetz_ref"] = list(gesetz_ref)
+        rows.append(row)
     _set_cached(cache_key, rows)
     return rows
 
