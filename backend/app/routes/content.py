@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.db.database import get_db
 from app.schemas.content import (
     CharResponse,
@@ -21,8 +23,8 @@ from app.services.content_db_service import (
     fetch_gesetze,
     fetch_events,
     fetch_bundesrat,
+    get_game_content_from_db,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -40,6 +42,15 @@ def validate_locale(locale: str = Query(default="de")) -> str:
 @router.get("/bundle", response_model=ContentBundleResponse)
 async def bundle(scenario_id: str = Query(default="standard")):
     return get_content_bundle(scenario_id)
+
+
+@router.get("/game")
+async def game_content(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """Narrative content from DB (chars, laws, events, bundesrat). Use ?locale=en for English."""
+    return await get_game_content_from_db(db, locale)
 
 
 @router.get("/characters")
