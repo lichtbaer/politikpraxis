@@ -68,7 +68,7 @@ def upgrade() -> None:
         sa.Column(
             "stadttyp_id",
             sa.Text(),
-            sa.ForeignKey("kommunal_stadttypen(id)"),
+            sa.ForeignKey("kommunal_stadttypen.id"),
             primary_key=True,
         ),
         sa.Column(

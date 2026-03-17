@@ -315,7 +315,7 @@ def upgrade() -> None:
             _, label, desc, log = choices_en[choice_idx]
             conn.execute(
                 sa.text("""
-                    INSERT INTO event_choices_i18n (choice_id, locale, label, desc, log_msg)
+                    INSERT INTO event_choices_i18n (choice_id, locale, label, "desc", log_msg)
                     VALUES (:choice_id, 'en', :label, :desc, :log_msg)
                 """),
                 {"choice_id": choice_id, "label": label, "desc": desc, "log_msg": log},
@@ -394,7 +394,7 @@ def upgrade() -> None:
     for tid, label, desc in tradeoffs_en:
         conn.execute(
             sa.text("""
-                INSERT INTO bundesrat_tradeoffs_i18n (tradeoff_id, locale, label, desc)
+                INSERT INTO bundesrat_tradeoffs_i18n (tradeoff_id, locale, label, "desc")
                 VALUES (:tid, 'en', :label, :desc)
             """),
             {"tid": tid, "label": label, "desc": desc},

@@ -24,7 +24,7 @@ def upgrade() -> None:
     # --- Migration 1: Trigger-Spalten für kommunal_initiative ---
     op.add_column(
         "events",
-        sa.Column("politikfeld_id", sa.Text(), sa.ForeignKey("politikfelder(id)"), nullable=True),
+        sa.Column("politikfeld_id", sa.Text(), sa.ForeignKey("politikfelder.id"), nullable=True),
     )
     op.add_column(
         "events",
@@ -63,7 +63,7 @@ def upgrade() -> None:
             sa.text("""
                 INSERT INTO events (id, event_type, politikfeld_id, min_complexity,
                     trigger_druck_min, trigger_milieu_key, trigger_milieu_op, trigger_milieu_val, gesetz_ref)
-                VALUES (:id, :etype, :pfid, :minc, :tdruck, :tmk, :tmo, :tmv, :gref::text[])
+                VALUES (:id, :etype, :pfid, :minc, :tdruck, :tmk, :tmo, :tmv, CAST(:gref AS text[]))
             """),
             {"id": eid, "etype": etype, "pfid": pfid, "minc": minc, "tdruck": tdruck, "tmk": tmk, "tmo": tmo, "tmv": tmv, "gref": gesetz_ref_sql},
         )
@@ -159,7 +159,7 @@ def upgrade() -> None:
         )
         conn.execute(
             sa.text("""
-                INSERT INTO event_choices_i18n (choice_id, locale, label, desc, log_msg)
+                INSERT INTO event_choices_i18n (choice_id, locale, label, "desc", log_msg)
                 VALUES (:id, 'de', :label, :desc, :log_msg)
             """),
             {"id": choice_id, "label": label, "desc": desc, "log_msg": log},
@@ -176,7 +176,7 @@ def upgrade() -> None:
     )
     conn.execute(
         sa.text("""
-            INSERT INTO event_choices_i18n (choice_id, locale, label, desc, log_msg)
+            INSERT INTO event_choices_i18n (choice_id, locale, label, "desc", log_msg)
             VALUES (:id, 'de', 'Zur Kenntnis nehmen', 'Erfolg bestätigt. Bonus wird angewendet.', 'Pilotprojekt-Erfolg zur Kenntnis genommen.')
         """),
         {"id": choice_id},
@@ -193,7 +193,7 @@ def upgrade() -> None:
     )
     conn.execute(
         sa.text("""
-            INSERT INTO event_choices_i18n (choice_id, locale, label, desc, log_msg)
+            INSERT INTO event_choices_i18n (choice_id, locale, label, "desc", log_msg)
             VALUES (:id, 'de', 'Weitere Länder einladen', '12 PK — startet zweiten Länder-Pilot mit +10% Erfolgschance.', 'Weitere Länder zum Pilot eingeladen.')
         """),
         {"id": choice_id},
@@ -209,7 +209,7 @@ def upgrade() -> None:
     )
     conn.execute(
         sa.text("""
-            INSERT INTO event_choices_i18n (choice_id, locale, label, desc, log_msg)
+            INSERT INTO event_choices_i18n (choice_id, locale, label, "desc", log_msg)
             VALUES (:id, 'de', 'Zur Kenntnis nehmen', 'Erfolg bestätigt.', 'Länder-Pilot-Erfolg zur Kenntnis genommen.')
         """),
         {"id": choice_id},

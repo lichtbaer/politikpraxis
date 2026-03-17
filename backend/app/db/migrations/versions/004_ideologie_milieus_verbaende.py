@@ -41,7 +41,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Text(), primary_key=True),
         sa.Column("verband_id", sa.Text(), nullable=True),
         sa.Column("vernachlaessigung_start", sa.Integer(), nullable=True, server_default="0"),
-        sa.Column("druck_event_id", sa.Text(), sa.ForeignKey("events(id)"), nullable=True),
+        sa.Column("druck_event_id", sa.Text(), sa.ForeignKey("events.id"), nullable=True),
         sa.Column("eu_relevanz", sa.Integer(), nullable=True, server_default="1"),
         sa.Column("kommunal_relevanz", sa.Integer(), nullable=True, server_default="1"),
         sa.Column("min_complexity", sa.Integer(), nullable=True, server_default="1"),
@@ -49,7 +49,7 @@ def upgrade() -> None:
 
     op.create_table(
         "politikfelder_i18n",
-        sa.Column("feld_id", sa.Text(), sa.ForeignKey("politikfelder(id)"), primary_key=True),
+        sa.Column("feld_id", sa.Text(), sa.ForeignKey("politikfelder.id"), primary_key=True),
         sa.Column(
             "locale",
             postgresql.ENUM("de", "en", name="content_locale", create_type=False),
@@ -68,7 +68,7 @@ def upgrade() -> None:
     # --- Politikfeld-Zuordnung für Gesetze ---
     op.add_column(
         "gesetze",
-        sa.Column("politikfeld_id", sa.Text(), sa.ForeignKey("politikfelder(id)"), nullable=True),
+        sa.Column("politikfeld_id", sa.Text(), sa.ForeignKey("politikfelder.id"), nullable=True),
     )
     op.add_column(
         "gesetze",
@@ -95,7 +95,7 @@ def upgrade() -> None:
 
     op.create_table(
         "milieus_i18n",
-        sa.Column("milieu_id", sa.Text(), sa.ForeignKey("milieus(id)"), primary_key=True),
+        sa.Column("milieu_id", sa.Text(), sa.ForeignKey("milieus.id"), primary_key=True),
         sa.Column(
             "locale",
             postgresql.ENUM("de", "en", name="content_locale", create_type=False),
@@ -116,7 +116,7 @@ def upgrade() -> None:
     op.create_table(
         "verbaende",
         sa.Column("id", sa.Text(), primary_key=True),
-        sa.Column("politikfeld_id", sa.Text(), sa.ForeignKey("politikfelder(id)"), nullable=False),
+        sa.Column("politikfeld_id", sa.Text(), sa.ForeignKey("politikfelder.id"), nullable=False),
         sa.Column("ideologie_wirtschaft", sa.Integer(), nullable=True, server_default="0"),
         sa.Column("ideologie_gesellschaft", sa.Integer(), nullable=True, server_default="0"),
         sa.Column("ideologie_staat", sa.Integer(), nullable=True, server_default="0"),
@@ -131,7 +131,7 @@ def upgrade() -> None:
 
     op.create_table(
         "verbaende_i18n",
-        sa.Column("verband_id", sa.Text(), sa.ForeignKey("verbaende(id)"), primary_key=True),
+        sa.Column("verband_id", sa.Text(), sa.ForeignKey("verbaende.id"), primary_key=True),
         sa.Column(
             "locale",
             postgresql.ENUM("de", "en", name="content_locale", create_type=False),
@@ -151,7 +151,7 @@ def upgrade() -> None:
     op.create_table(
         "verbands_tradeoffs",
         sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
-        sa.Column("verband_id", sa.Text(), sa.ForeignKey("verbaende(id)"), nullable=False),
+        sa.Column("verband_id", sa.Text(), sa.ForeignKey("verbaende.id"), nullable=False),
         sa.Column("tradeoff_key", sa.Text(), nullable=False),
         sa.Column("effekt_al", sa.Numeric(5, 2), nullable=True, server_default="0"),
         sa.Column("effekt_hh", sa.Numeric(5, 2), nullable=True, server_default="0"),
@@ -165,7 +165,7 @@ def upgrade() -> None:
         sa.Column(
             "tradeoff_id",
             sa.Integer(),
-            sa.ForeignKey("verbands_tradeoffs(id)"),
+            sa.ForeignKey("verbands_tradeoffs.id"),
             primary_key=True,
         ),
         sa.Column(
@@ -187,8 +187,8 @@ def upgrade() -> None:
     op.create_table(
         "ministerial_initiativen",
         sa.Column("id", sa.Text(), primary_key=True),
-        sa.Column("char_id", sa.Text(), sa.ForeignKey("chars(id)"), nullable=False),
-        sa.Column("gesetz_ref_id", sa.Text(), sa.ForeignKey("gesetze(id)"), nullable=True),
+        sa.Column("char_id", sa.Text(), sa.ForeignKey("chars.id"), nullable=False),
+        sa.Column("gesetz_ref_id", sa.Text(), sa.ForeignKey("gesetze.id"), nullable=True),
         sa.Column("trigger_type", sa.Text(), nullable=False),
         sa.Column("min_complexity", sa.Integer(), nullable=True, server_default="3"),
         sa.Column("cooldown_months", sa.Integer(), nullable=True, server_default="8"),
@@ -199,7 +199,7 @@ def upgrade() -> None:
         sa.Column(
             "initiative_id",
             sa.Text(),
-            sa.ForeignKey("ministerial_initiativen(id)"),
+            sa.ForeignKey("ministerial_initiativen.id"),
             primary_key=True,
         ),
         sa.Column(

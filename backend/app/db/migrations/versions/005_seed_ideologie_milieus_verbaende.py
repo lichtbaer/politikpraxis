@@ -21,6 +21,33 @@ def upgrade() -> None:
     """Seed Ideologie-Werte für Gesetze/Chars, 7 Milieus, 8 Politikfelder, 8 Verbände."""
     conn = op.get_bind()
 
+    # --- 8 Politikfelder (zuerst, da gesetze.politikfeld_id FK darauf verweist) ---
+    politikfelder = [
+        ("wirtschaft_finanzen", "Wirtschaft & Finanzen", "Wirt"),
+        ("arbeit_soziales", "Arbeit & Soziales", "Soz"),
+        ("umwelt_energie", "Umwelt & Energie", "Umw"),
+        ("innere_sicherheit", "Innere Sicherheit", "Inn"),
+        ("bildung_forschung", "Bildung & Forschung", "Bild"),
+        ("gesundheit_pflege", "Gesundheit & Pflege", "Ges"),
+        ("digital_infrastruktur", "Digital & Infrastruktur", "Dig"),
+        ("landwirtschaft", "Landwirtschaft", "Land"),
+    ]
+    for pfid, name, kurz in politikfelder:
+        conn.execute(
+            sa.text("""
+                INSERT INTO politikfelder (id, vernachlaessigung_start, eu_relevanz, kommunal_relevanz, min_complexity)
+                VALUES (:id, 0, 1, 1, 1)
+            """),
+            {"id": pfid},
+        )
+        conn.execute(
+            sa.text("""
+                INSERT INTO politikfelder_i18n (feld_id, locale, name, kurz)
+                VALUES (:id, 'de', :name, :kurz)
+            """),
+            {"id": pfid, "name": name, "kurz": kurz},
+        )
+
     # --- Gesetze: Ideologie + Politikfeld ---
     gesetze_updates = [
         ("ee", -60, -70, -20, "umwelt_energie"),
@@ -54,33 +81,6 @@ def upgrade() -> None:
                 ideologie_staat = :is_ WHERE id = :cid
             """),
             {"cid": cid, "iw": iw, "ig": ig, "is_": is_},
-        )
-
-    # --- 8 Politikfelder ---
-    politikfelder = [
-        ("wirtschaft_finanzen", "Wirtschaft & Finanzen", "Wirt"),
-        ("arbeit_soziales", "Arbeit & Soziales", "Soz"),
-        ("umwelt_energie", "Umwelt & Energie", "Umw"),
-        ("innere_sicherheit", "Innere Sicherheit", "Inn"),
-        ("bildung_forschung", "Bildung & Forschung", "Bild"),
-        ("gesundheit_pflege", "Gesundheit & Pflege", "Ges"),
-        ("digital_infrastruktur", "Digital & Infrastruktur", "Dig"),
-        ("landwirtschaft", "Landwirtschaft", "Land"),
-    ]
-    for pfid, name, kurz in politikfelder:
-        conn.execute(
-            sa.text("""
-                INSERT INTO politikfelder (id, vernachlaessigung_start, eu_relevanz, kommunal_relevanz, min_complexity)
-                VALUES (:id, 0, 1, 1, 1)
-            """),
-            {"id": pfid},
-        )
-        conn.execute(
-            sa.text("""
-                INSERT INTO politikfelder_i18n (feld_id, locale, name, kurz)
-                VALUES (:id, 'de', :name, :kurz)
-            """),
-            {"id": pfid, "name": name, "kurz": kurz},
         )
 
     # --- 7 Milieus ---
@@ -183,7 +183,7 @@ def upgrade() -> None:
         )
         conn.execute(
             sa.text("""
-                INSERT INTO verbands_tradeoffs_i18n (tradeoff_id, locale, label, desc)
+                INSERT INTO verbands_tradeoffs_i18n (tradeoff_id, locale, label, "desc")
                 VALUES (:tid, 'de', :label, :desc)
             """),
             {"tid": tid, "label": label, "desc": desc},

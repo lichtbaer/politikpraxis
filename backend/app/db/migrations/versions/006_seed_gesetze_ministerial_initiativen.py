@@ -48,7 +48,7 @@ def upgrade() -> None:
             sa.text("""
                 INSERT INTO gesetze (id, tags, bt_stimmen_ja, effekt_al, effekt_hh, effekt_gi, effekt_zf, effekt_lag,
                     foederalismus_freundlich, ideologie_wirtschaft, ideologie_gesellschaft, ideologie_staat, politikfeld_id)
-                VALUES (:id, :tags::text[], :bt, :ea, :eh, :eg, :ez, :lag, :foed, :iw, :ig, :is_, :pf)
+                VALUES (:id, CAST(:tags AS text[]), :bt, :ea, :eh, :eg, :ez, :lag, :foed, :iw, :ig, :is_, :pf)
             """),
             {
                 "id": gid, "tags": tags_sql, "bt": bt, "ea": ea, "eh": eh, "eg": eg, "ez": ez, "lag": lag,
@@ -85,7 +85,7 @@ def upgrade() -> None:
     for gid, titel, kurz, desc in gesetze_i18n_de:
         conn.execute(
             sa.text("""
-                INSERT INTO gesetze_i18n (gesetz_id, locale, titel, kurz, desc)
+                INSERT INTO gesetze_i18n (gesetz_id, locale, titel, kurz, "desc")
                 VALUES (:id, 'de', :titel, :kurz, :desc)
             """),
             {"id": gid, "titel": titel, "kurz": kurz, "desc": desc},
@@ -120,7 +120,7 @@ def upgrade() -> None:
     for gid, titel, kurz, desc in gesetze_i18n_en:
         conn.execute(
             sa.text("""
-                INSERT INTO gesetze_i18n (gesetz_id, locale, titel, kurz, desc)
+                INSERT INTO gesetze_i18n (gesetz_id, locale, titel, kurz, "desc")
                 VALUES (:id, 'en', :titel, :kurz, :desc)
             """),
             {"id": gid, "titel": titel, "kurz": kurz, "desc": desc},
@@ -163,7 +163,7 @@ def upgrade() -> None:
     for mid, titel, desc, quote in ministerial_i18n_de:
         conn.execute(
             sa.text("""
-                INSERT INTO ministerial_initiativen_i18n (initiative_id, locale, titel, desc, quote)
+                INSERT INTO ministerial_initiativen_i18n (initiative_id, locale, titel, "desc", quote)
                 VALUES (:id, 'de', :titel, :desc, :quote)
             """),
             {"id": mid, "titel": titel, "desc": desc, "quote": quote},
@@ -186,7 +186,7 @@ def upgrade() -> None:
     for mid, titel, desc, quote in ministerial_i18n_en:
         conn.execute(
             sa.text("""
-                INSERT INTO ministerial_initiativen_i18n (initiative_id, locale, titel, desc, quote)
+                INSERT INTO ministerial_initiativen_i18n (initiative_id, locale, titel, "desc", quote)
                 VALUES (:id, 'en', :titel, :desc, :quote)
             """),
             {"id": mid, "titel": titel, "desc": desc, "quote": quote},

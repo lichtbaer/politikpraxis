@@ -54,7 +54,7 @@ def upgrade() -> None:
 
     op.create_table(
         "chars_i18n",
-        sa.Column("char_id", sa.Text(), sa.ForeignKey("chars(id)"), primary_key=True),
+        sa.Column("char_id", sa.Text(), sa.ForeignKey("chars.id"), primary_key=True),
         sa.Column("locale", postgresql.ENUM("de", "en", name="content_locale", create_type=False), primary_key=True),
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("role", sa.Text(), nullable=False),
@@ -82,7 +82,7 @@ def upgrade() -> None:
 
     op.create_table(
         "gesetze_i18n",
-        sa.Column("gesetz_id", sa.Text(), sa.ForeignKey("gesetze(id)"), primary_key=True),
+        sa.Column("gesetz_id", sa.Text(), sa.ForeignKey("gesetze.id"), primary_key=True),
         sa.Column("locale", postgresql.ENUM("de", "en", name="content_locale", create_type=False), primary_key=True),
         sa.Column("titel", sa.Text(), nullable=False),
         sa.Column("kurz", sa.Text(), nullable=False),
@@ -95,7 +95,7 @@ def upgrade() -> None:
         "events",
         sa.Column("id", sa.Text(), primary_key=True),
         sa.Column("event_type", sa.Text(), nullable=False),
-        sa.Column("char_id", sa.Text(), sa.ForeignKey("chars(id)"), nullable=True),
+        sa.Column("char_id", sa.Text(), sa.ForeignKey("chars.id"), nullable=True),
         sa.Column("trigger_type", sa.Text(), nullable=True),
         sa.Column("trigger_month", sa.Integer(), nullable=True),
         sa.Column("repeat_interval", sa.Integer(), nullable=True),
@@ -108,7 +108,7 @@ def upgrade() -> None:
 
     op.create_table(
         "events_i18n",
-        sa.Column("event_id", sa.Text(), sa.ForeignKey("events(id)"), primary_key=True),
+        sa.Column("event_id", sa.Text(), sa.ForeignKey("events.id"), primary_key=True),
         sa.Column("locale", postgresql.ENUM("de", "en", name="content_locale", create_type=False), primary_key=True),
         sa.Column("type_label", sa.Text(), nullable=False),
         sa.Column("title", sa.Text(), nullable=False),
@@ -122,7 +122,7 @@ def upgrade() -> None:
     op.create_table(
         "event_choices",
         sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
-        sa.Column("event_id", sa.Text(), sa.ForeignKey("events(id)"), nullable=False),
+        sa.Column("event_id", sa.Text(), sa.ForeignKey("events.id"), nullable=False),
         sa.Column("choice_key", sa.Text(), nullable=False),
         sa.Column("choice_type", sa.Text(), nullable=False),
         sa.Column("cost_pk", sa.Integer(), nullable=True, server_default="0"),
@@ -132,12 +132,12 @@ def upgrade() -> None:
         sa.Column("effekt_zf", sa.Numeric(5, 2), nullable=True, server_default="0"),
         sa.Column("char_mood", postgresql.JSONB(), nullable=True, server_default="{}"),
         sa.Column("loyalty", postgresql.JSONB(), nullable=True, server_default="{}"),
-        sa.Column("followup_event_id", sa.Text(), sa.ForeignKey("events(id)"), nullable=True),
+        sa.Column("followup_event_id", sa.Text(), sa.ForeignKey("events.id"), nullable=True),
     )
 
     op.create_table(
         "event_choices_i18n",
-        sa.Column("choice_id", sa.Integer(), sa.ForeignKey("event_choices(id)"), primary_key=True),
+        sa.Column("choice_id", sa.Integer(), sa.ForeignKey("event_choices.id"), primary_key=True),
         sa.Column("locale", postgresql.ENUM("de", "en", name="content_locale", create_type=False), primary_key=True),
         sa.Column("label", sa.Text(), nullable=False),
         sa.Column("desc", sa.Text(), nullable=False),
@@ -160,7 +160,7 @@ def upgrade() -> None:
 
     op.create_table(
         "bundesrat_fraktionen_i18n",
-        sa.Column("fraktion_id", sa.Text(), sa.ForeignKey("bundesrat_fraktionen(id)"), primary_key=True),
+        sa.Column("fraktion_id", sa.Text(), sa.ForeignKey("bundesrat_fraktionen.id"), primary_key=True),
         sa.Column("locale", postgresql.ENUM("de", "en", name="content_locale", create_type=False), primary_key=True),
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("sprecher_name", sa.Text(), nullable=False),
@@ -179,7 +179,7 @@ def upgrade() -> None:
     op.create_table(
         "bundesrat_tradeoffs",
         sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
-        sa.Column("fraktion_id", sa.Text(), sa.ForeignKey("bundesrat_fraktionen(id)"), nullable=False),
+        sa.Column("fraktion_id", sa.Text(), sa.ForeignKey("bundesrat_fraktionen.id"), nullable=False),
         sa.Column("tradeoff_key", sa.Text(), nullable=False),
         sa.Column("effekt_al", sa.Numeric(5, 2), nullable=True, server_default="0"),
         sa.Column("effekt_hh", sa.Numeric(5, 2), nullable=True, server_default="0"),
@@ -190,7 +190,7 @@ def upgrade() -> None:
 
     op.create_table(
         "bundesrat_tradeoffs_i18n",
-        sa.Column("tradeoff_id", sa.Integer(), sa.ForeignKey("bundesrat_tradeoffs(id)"), primary_key=True),
+        sa.Column("tradeoff_id", sa.Integer(), sa.ForeignKey("bundesrat_tradeoffs.id"), primary_key=True),
         sa.Column("locale", postgresql.ENUM("de", "en", name="content_locale", create_type=False), primary_key=True),
         sa.Column("label", sa.Text(), nullable=False),
         sa.Column("desc", sa.Text(), nullable=False),

@@ -298,7 +298,7 @@ def upgrade() -> None:
             conn.execute(
                 sa.text("""
                     INSERT INTO event_choices (id, event_id, choice_key, choice_type, cost_pk, effekt_al, effekt_hh, effekt_gi, effekt_zf, char_mood, loyalty)
-                    VALUES (:id, :event_id, :choice_key, :choice_type, :cost_pk, :ea, :eh, :eg, :ez, :cm::jsonb, :ly::jsonb)
+                    VALUES (:id, :event_id, :choice_key, :choice_type, :cost_pk, :ea, :eh, :eg, :ez, CAST(:cm AS jsonb), CAST(:ly AS jsonb))
                 """),
                 {
                     "id": choice_id,
@@ -316,7 +316,7 @@ def upgrade() -> None:
             )
             conn.execute(
                 sa.text("""
-                    INSERT INTO event_choices_i18n (choice_id, locale, label, desc, log_msg)
+                    INSERT INTO event_choices_i18n (choice_id, locale, label, "desc", log_msg)
                     VALUES (:choice_id, 'de', :label, :desc, :log_msg)
                 """),
                 {"choice_id": choice_id, "label": label, "desc": desc, "log_msg": log},

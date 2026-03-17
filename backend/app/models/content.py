@@ -4,8 +4,10 @@ from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import ForeignKey, Integer, Numeric, String, Text, Boolean
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, ENUM as PgEnum
 from sqlalchemy.orm import Mapped, mapped_column
+
+_locale_type = PgEnum("de", "en", name="content_locale", create_type=False)
 
 from app.db.database import Base
 
@@ -33,7 +35,7 @@ class CharI18n(Base):
     __tablename__ = "chars_i18n"
 
     char_id: Mapped[str] = mapped_column(Text(), ForeignKey("chars(id)"), primary_key=True)
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     role: Mapped[str] = mapped_column(Text(), nullable=False)
     bio: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -78,7 +80,7 @@ class GesetzI18n(Base):
     __tablename__ = "gesetze_i18n"
 
     gesetz_id: Mapped[str] = mapped_column(Text(), ForeignKey("gesetze(id)"), primary_key=True)
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     titel: Mapped[str] = mapped_column(Text(), nullable=False)
     kurz: Mapped[str] = mapped_column(Text(), nullable=False)
     desc: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -112,7 +114,7 @@ class EventI18n(Base):
     __tablename__ = "events_i18n"
 
     event_id: Mapped[str] = mapped_column(Text(), ForeignKey("events(id)"), primary_key=True)
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     type_label: Mapped[str] = mapped_column(Text(), nullable=False)
     title: Mapped[str] = mapped_column(Text(), nullable=False)
     quote: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -141,7 +143,7 @@ class EventChoiceI18n(Base):
     __tablename__ = "event_choices_i18n"
 
     choice_id: Mapped[int] = mapped_column(Integer(), ForeignKey("event_choices(id)"), primary_key=True)
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     label: Mapped[str] = mapped_column(Text(), nullable=False)
     desc: Mapped[str] = mapped_column(Text(), nullable=False)
     log_msg: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -165,7 +167,7 @@ class BundesratFraktionI18n(Base):
     fraktion_id: Mapped[str] = mapped_column(
         Text(), ForeignKey("bundesrat_fraktionen(id)"), primary_key=True
     )
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     sprecher_name: Mapped[str] = mapped_column(Text(), nullable=False)
     sprecher_partei: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -194,7 +196,7 @@ class BundesratTradeoffI18n(Base):
     tradeoff_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("bundesrat_tradeoffs(id)"), primary_key=True
     )
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     label: Mapped[str] = mapped_column(Text(), nullable=False)
     desc: Mapped[str] = mapped_column(Text(), nullable=False)
 
@@ -218,7 +220,7 @@ class PolitikfeldI18n(Base):
     __tablename__ = "politikfelder_i18n"
 
     feld_id: Mapped[str] = mapped_column(Text(), ForeignKey("politikfelder(id)"), primary_key=True)
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     kurz: Mapped[str] = mapped_column(Text(), nullable=False)
 
@@ -240,7 +242,7 @@ class MilieuI18n(Base):
     __tablename__ = "milieus_i18n"
 
     milieu_id: Mapped[str] = mapped_column(Text(), ForeignKey("milieus(id)"), primary_key=True)
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     kurzcharakter: Mapped[str] = mapped_column(Text(), nullable=False)
     beschreibung: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -267,7 +269,7 @@ class VerbandI18n(Base):
     __tablename__ = "verbaende_i18n"
 
     verband_id: Mapped[str] = mapped_column(Text(), ForeignKey("verbaende(id)"), primary_key=True)
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     kurz: Mapped[str] = mapped_column(Text(), nullable=False)
     bio: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -292,7 +294,7 @@ class VerbandsTradeoffI18n(Base):
     tradeoff_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("verbands_tradeoffs(id)"), primary_key=True
     )
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     label: Mapped[str] = mapped_column(Text(), nullable=False)
     desc: Mapped[str] = mapped_column(Text(), nullable=False)
 
@@ -314,7 +316,7 @@ class MinisterialInitiativeI18n(Base):
     initiative_id: Mapped[str] = mapped_column(
         Text(), ForeignKey("ministerial_initiativen(id)"), primary_key=True
     )
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     titel: Mapped[str] = mapped_column(Text(), nullable=False)
     desc: Mapped[str] = mapped_column(Text(), nullable=False)
     quote: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -350,7 +352,7 @@ class EuEventI18n(Base):
     __tablename__ = "eu_events_i18n"
 
     event_id: Mapped[str] = mapped_column(Text(), ForeignKey("eu_events(id)"), primary_key=True)
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     title: Mapped[str] = mapped_column(Text(), nullable=False)
     quote: Mapped[str] = mapped_column(Text(), nullable=False)
     context: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -378,7 +380,7 @@ class EuEventChoiceI18n(Base):
     choice_id: Mapped[int] = mapped_column(
         Integer(), ForeignKey("eu_event_choices(id)"), primary_key=True
     )
-    locale: Mapped[str] = mapped_column(String(5), primary_key=True)
+    locale: Mapped[str] = mapped_column(_locale_type, primary_key=True)
     label: Mapped[str] = mapped_column(Text(), nullable=False)
     desc: Mapped[str] = mapped_column(Text(), nullable=False)
     log_msg: Mapped[str] = mapped_column(Text(), nullable=False)

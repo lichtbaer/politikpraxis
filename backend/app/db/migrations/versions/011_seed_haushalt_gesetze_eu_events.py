@@ -43,7 +43,7 @@ def upgrade() -> None:
                 INSERT INTO gesetze (id, tags, bt_stimmen_ja, effekt_al, effekt_hh, effekt_gi, effekt_zf, effekt_lag,
                     foederalismus_freundlich, ideologie_wirtschaft, ideologie_gesellschaft, ideologie_staat,
                     politikfeld_id, kosten_einmalig, kosten_laufend, einnahmeeffekt, investiv)
-                VALUES (:id, :tags::text[], :bt, :ea, :eh, :eg, :ez, :lag, :foed, :iw, :ig, :is_, :pf, :ke, :kl, :einn, :inv)
+                VALUES (:id, CAST(:tags AS text[]), :bt, :ea, :eh, :eg, :ez, :lag, :foed, :iw, :ig, :is_, :pf, :ke, :kl, :einn, :inv)
             """),
             {
                 "id": gid, "tags": tags_sql, "bt": bt, "ea": ea, "eh": eh, "eg": eg, "ez": ez, "lag": lag,
@@ -66,7 +66,7 @@ def upgrade() -> None:
     for gid, titel, kurz, desc in gesetze_i18n_de:
         conn.execute(
             sa.text("""
-                INSERT INTO gesetze_i18n (gesetz_id, locale, titel, kurz, desc)
+                INSERT INTO gesetze_i18n (gesetz_id, locale, titel, kurz, "desc")
                 VALUES (:id, 'de', :titel, :kurz, :desc)
             """),
             {"id": gid, "titel": titel, "kurz": kurz, "desc": desc},
@@ -87,7 +87,7 @@ def upgrade() -> None:
     for gid, titel, kurz, desc in gesetze_i18n_en:
         conn.execute(
             sa.text("""
-                INSERT INTO gesetze_i18n (gesetz_id, locale, titel, kurz, desc)
+                INSERT INTO gesetze_i18n (gesetz_id, locale, titel, kurz, "desc")
                 VALUES (:id, 'en', :titel, :kurz, :desc)
             """),
             {"id": gid, "titel": titel, "kurz": kurz, "desc": desc},
@@ -155,27 +155,27 @@ def upgrade() -> None:
     choice_id = 1
     choices_data = [
         # eu_rl_mindestlohn
-        ("eu_rl_mindestlohn", "sofort_umsetzen", 0, 0, 0, 0, 8, 0.20, "Sofort umsetzen", "Vollständige Umsetzung. Kofinanzierung 20%, GBD +8.", "EU-Mindestlohn-Richtlinie vollständig umgesetzt."),
-        ("eu_rl_mindestlohn", "minimal_umsetzen", 0, 0, 0, 0, 0, 0.10, "Minimal umsetzen", "Wirkung -30%, Kofinanzierung 10%. BdI -5.", "EU-Mindestlohn-Richtlinie minimal umgesetzt."),
-        ("eu_rl_mindestlohn", "klagen", 0, 0, 0, 0, 0, 0, "Klagen", "12 Monate Aufschub, 30% Erfolgschance.", "Klage gegen EU-Mindestlohn-Richtlinie eingereicht."),
+        ("eu_rl_mindestlohn", "sofort_umsetzen", 0, 0, 0, 0, 0, 8, 0.20, "Sofort umsetzen", "Vollständige Umsetzung. Kofinanzierung 20%, GBD +8.", "EU-Mindestlohn-Richtlinie vollständig umgesetzt."),
+        ("eu_rl_mindestlohn", "minimal_umsetzen", 0, 0, 0, 0, 0, 0, 0.10, "Minimal umsetzen", "Wirkung -30%, Kofinanzierung 10%. BdI -5.", "EU-Mindestlohn-Richtlinie minimal umgesetzt."),
+        ("eu_rl_mindestlohn", "klagen", 0, 0, 0, 0, 0, 0, 0.0, "Klagen", "12 Monate Aufschub, 30% Erfolgschance.", "Klage gegen EU-Mindestlohn-Richtlinie eingereicht."),
         # eu_rl_lieferkette
-        ("eu_rl_lieferkette", "sofort_umsetzen", 0, 0, 0, 0, 0, 0.20, "Sofort umsetzen", "Vollständige Umsetzung der Lieferketten-Richtlinie.", "EU-Lieferketten-Richtlinie umgesetzt."),
-        ("eu_rl_lieferkette", "minimal_umsetzen", 0, 0, 0, 0, 0, 0.10, "Minimal umsetzen", "Minimale Umsetzung, Wirkung -30%.", "EU-Lieferketten-Richtlinie minimal umgesetzt."),
-        ("eu_rl_lieferkette", "klagen", 0, 0, 0, 0, 0, 0, "Klagen", "12 Monate Aufschub, 30% Erfolgschance.", "Klage gegen EU-Lieferketten-Richtlinie eingereicht."),
+        ("eu_rl_lieferkette", "sofort_umsetzen", 0, 0, 0, 0, 0, 0, 0.20, "Sofort umsetzen", "Vollständige Umsetzung der Lieferketten-Richtlinie.", "EU-Lieferketten-Richtlinie umgesetzt."),
+        ("eu_rl_lieferkette", "minimal_umsetzen", 0, 0, 0, 0, 0, 0, 0.10, "Minimal umsetzen", "Minimale Umsetzung, Wirkung -30%.", "EU-Lieferketten-Richtlinie minimal umgesetzt."),
+        ("eu_rl_lieferkette", "klagen", 0, 0, 0, 0, 0, 0, 0.0, "Klagen", "12 Monate Aufschub, 30% Erfolgschance.", "Klage gegen EU-Lieferketten-Richtlinie eingereicht."),
         # eu_rl_klima
-        ("eu_rl_klima", "sofort_umsetzen", 0, 0, 0, 0, 0, 0.35, "Sofort umsetzen", "Kofinanzierung 35%. Vollständige Anpassung.", "EU-Klimaverschärfung umgesetzt."),
-        ("eu_rl_klima", "minimal_umsetzen", 0, 0, 0, 0, 0, 0.15, "Minimal umsetzen", "Minimale Anpassung, Wirkung -30%.", "EU-Klimaverschärfung minimal umgesetzt."),
-        ("eu_rl_klima", "klagen", 0, 0, 0, 0, 0, 0, "Klagen", "12 Monate Aufschub, 30% Erfolgschance.", "Klage gegen EU-Klimaverschärfung eingereicht."),
+        ("eu_rl_klima", "sofort_umsetzen", 0, 0, 0, 0, 0, 0, 0.35, "Sofort umsetzen", "Kofinanzierung 35%. Vollständige Anpassung.", "EU-Klimaverschärfung umgesetzt."),
+        ("eu_rl_klima", "minimal_umsetzen", 0, 0, 0, 0, 0, 0, 0.15, "Minimal umsetzen", "Minimale Anpassung, Wirkung -30%.", "EU-Klimaverschärfung minimal umgesetzt."),
+        ("eu_rl_klima", "klagen", 0, 0, 0, 0, 0, 0, 0.0, "Klagen", "12 Monate Aufschub, 30% Erfolgschance.", "Klage gegen EU-Klimaverschärfung eingereicht."),
         # eu_rechtsruck
-        ("eu_rechtsruck", "reagieren", 0, 0, 0, 0, 0, 0, "Reagieren", "Koalitionspartner +5.", "Regierung reagiert auf Rechtsruck in Europa."),
-        ("eu_rechtsruck", "neutral", 0, 0, 0, 0, 0, 0, "Neutral", "Keine Stellungnahme.", "Regierung nimmt keine Position ein."),
-        ("eu_rechtsruck", "gegenposition", 0, 0, 0, 0, 5, 0, "Gegenposition", "EU-Klima +5 in 2 Feldern.", "Regierung bezieht Gegenposition zum Rechtsruck."),
+        ("eu_rechtsruck", "reagieren", 0, 0, 0, 0, 0, 0, 0.0, "Reagieren", "Koalitionspartner +5.", "Regierung reagiert auf Rechtsruck in Europa."),
+        ("eu_rechtsruck", "neutral", 0, 0, 0, 0, 0, 0, 0.0, "Neutral", "Keine Stellungnahme.", "Regierung nimmt keine Position ein."),
+        ("eu_rechtsruck", "gegenposition", 0, 0, 0, 0, 5, 0, 0.0, "Gegenposition", "EU-Klima +5 in 2 Feldern.", "Regierung bezieht Gegenposition zum Rechtsruck."),
         # eu_gipfel_frankreich
-        ("eu_gipfel_frankreich", "thema_a", 0, 0, 0, 0, 0, 0, "Thema A vorantreiben", "Priorität auf ein Verhandlungsthema.", "Deutsch-Französischer Gipfel: Thema A priorisiert."),
-        ("eu_gipfel_frankreich", "thema_b", 0, 0, 0, 0, 0, 0, "Thema B priorisieren", "Priorität auf anderes Verhandlungsthema.", "Deutsch-Französischer Gipfel: Thema B priorisiert."),
-        ("eu_gipfel_frankreich", "beide_neutral", 0, 0, 0, 0, 0, 0, "Beide neutral", "Keine klare Priorisierung.", "Deutsch-Französischer Gipfel ohne Durchbruch."),
+        ("eu_gipfel_frankreich", "thema_a", 0, 0, 0, 0, 0, 0, 0.0, "Thema A vorantreiben", "Priorität auf ein Verhandlungsthema.", "Deutsch-Französischer Gipfel: Thema A priorisiert."),
+        ("eu_gipfel_frankreich", "thema_b", 0, 0, 0, 0, 0, 0, 0.0, "Thema B priorisieren", "Priorität auf anderes Verhandlungsthema.", "Deutsch-Französischer Gipfel: Thema B priorisiert."),
+        ("eu_gipfel_frankreich", "beide_neutral", 0, 0, 0, 0, 0, 0, 0.0, "Beide neutral", "Keine klare Priorisierung.", "Deutsch-Französischer Gipfel ohne Durchbruch."),
         # europawahl
-        ("europawahl", "zur_kenntnis", 0, 0, 0, 0, 0, 0, "Ergebnis zur Kenntnis nehmen", "Kein Trade-off.", "Europawahl-Ergebnis zur Kenntnis genommen."),
+        ("europawahl", "zur_kenntnis", 0, 0, 0, 0, 0, 0, 0.0, "Ergebnis zur Kenntnis nehmen", "Kein Trade-off.", "Europawahl-Ergebnis zur Kenntnis genommen."),
     ]
 
     for event_id, ckey, cost, ea, eh, eg, ez, euk, kof, label, desc, log in choices_data:
@@ -188,7 +188,7 @@ def upgrade() -> None:
         )
         conn.execute(
             sa.text("""
-                INSERT INTO eu_event_choices_i18n (choice_id, locale, label, desc, log_msg)
+                INSERT INTO eu_event_choices_i18n (choice_id, locale, label, "desc", log_msg)
                 VALUES (:id, 'de', :label, :desc, :log_msg)
             """),
             {"id": choice_id, "label": label, "desc": desc, "log_msg": log},

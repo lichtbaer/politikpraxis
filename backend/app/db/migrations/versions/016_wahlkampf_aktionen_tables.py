@@ -32,7 +32,7 @@ def upgrade() -> None:
 
     op.create_table(
         "wahlkampf_aktionen_i18n",
-        sa.Column("aktion_id", sa.Text(), sa.ForeignKey("wahlkampf_aktionen(id)"), primary_key=True),
+        sa.Column("aktion_id", sa.Text(), sa.ForeignKey("wahlkampf_aktionen.id"), primary_key=True),
         sa.Column("locale", sa.String(5), primary_key=True),
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("desc", sa.Text(), nullable=False),

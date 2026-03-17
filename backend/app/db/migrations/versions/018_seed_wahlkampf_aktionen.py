@@ -56,7 +56,7 @@ def upgrade() -> None:
     for aid, name, desc in aktionen_i18n_de:
         conn.execute(
             sa.text("""
-                INSERT INTO wahlkampf_aktionen_i18n (aktion_id, locale, name, desc)
+                INSERT INTO wahlkampf_aktionen_i18n (aktion_id, locale, name, "desc")
                 VALUES (:id, 'de', :name, :desc)
             """),
             {"id": aid, "name": name, "desc": desc},
@@ -75,7 +75,7 @@ def upgrade() -> None:
     for aid, name, desc in aktionen_i18n_en:
         conn.execute(
             sa.text("""
-                INSERT INTO wahlkampf_aktionen_i18n (aktion_id, locale, name, desc)
+                INSERT INTO wahlkampf_aktionen_i18n (aktion_id, locale, name, "desc")
                 VALUES (:id, 'en', :name, :desc)
             """),
             {"id": aid, "name": name, "desc": desc},

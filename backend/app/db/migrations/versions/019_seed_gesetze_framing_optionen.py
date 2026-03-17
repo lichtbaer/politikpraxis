@@ -72,7 +72,7 @@ def upgrade() -> None:
     for gesetz_id, optionen in framing_data.items():
         json_val = json.dumps(optionen)
         conn.execute(
-            sa.text("UPDATE gesetze SET framing_optionen = :opt::jsonb WHERE id = :gid"),
+            sa.text("UPDATE gesetze SET framing_optionen = CAST(:opt AS jsonb) WHERE id = :gid"),
             {"opt": json_val, "gid": gesetz_id},
         )
 

@@ -165,7 +165,7 @@ def upgrade() -> None:
         )
         conn.execute(
             sa.text("""
-                INSERT INTO medien_event_choices_i18n (choice_id, locale, label, desc, log_msg)
+                INSERT INTO medien_event_choices_i18n (choice_id, locale, label, "desc", log_msg)
                 VALUES (:id, 'de', :label, :desc, :log_msg)
             """),
             {"id": choice_id, "label": label, "desc": desc, "log_msg": log},

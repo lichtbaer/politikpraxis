@@ -318,11 +318,11 @@ def upgrade() -> None:
             ly_json = json.dumps(ly) if ly else "{}"
             conn.execute(sa.text("""
                 INSERT INTO event_choices (id, event_id, choice_key, choice_type, cost_pk, effekt_al, effekt_hh, effekt_gi, effekt_zf, char_mood, loyalty)
-                VALUES (:id, :event_id, :choice_key, :choice_type, :cost_pk, :ea, :eh, :eg, :ez, :cm::jsonb, :ly::jsonb)
+                VALUES (:id, :event_id, :choice_key, :choice_type, :cost_pk, :ea, :eh, :eg, :ez, CAST(:cm AS jsonb), CAST(:ly AS jsonb))
             """), {"id": choice_id, "event_id": event_id, "choice_key": ckey, "choice_type": ctype, "cost_pk": cost,
                    "ea": ea, "eh": eh, "eg": eg, "ez": ez, "cm": cm_json, "ly": ly_json})
             conn.execute(sa.text("""
-                INSERT INTO event_choices_i18n (choice_id, locale, label, desc, log_msg)
+                INSERT INTO event_choices_i18n (choice_id, locale, label, "desc", log_msg)
                 VALUES (:choice_id, 'de', :label, :desc, :log_msg)
             """), {"choice_id": choice_id, "label": label, "desc": desc, "log_msg": log})
             choice_id += 1
@@ -402,13 +402,13 @@ def upgrade() -> None:
         cm_json = json.dumps(cm) if cm else "{}"
         conn.execute(sa.text("""
             INSERT INTO bundesrat_tradeoffs (fraktion_id, tradeoff_key, effekt_al, effekt_hh, effekt_gi, effekt_zf, char_mood)
-            VALUES (:fid, :tkey, :ea, :eh, :eg, :ez, :cm::jsonb)
+            VALUES (:fid, :tkey, :ea, :eh, :eg, :ez, CAST(:cm AS jsonb))
         """), {"fid": fid, "tkey": tkey, "ea": ea, "eh": eh, "eg": eg, "ez": ez, "cm": cm_json})
 
     # Get tradeoff IDs (they're sequential 1-12)
     for i, (tkey, label, desc) in enumerate(tradeoff_i18n_data, 1):
         conn.execute(sa.text("""
-            INSERT INTO bundesrat_tradeoffs_i18n (tradeoff_id, locale, label, desc)
+            INSERT INTO bundesrat_tradeoffs_i18n (tradeoff_id, locale, label, "desc")
             VALUES (:tid, 'de', :label, :desc)
         """), {"tid": i, "label": label, "desc": desc})
 
