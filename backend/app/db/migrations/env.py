@@ -6,6 +6,20 @@ from alembic import context
 
 from app.db.database import Base
 from app.models import User, GameSave, AnalyticsEvent, Mod  # noqa: F401
+from app.models.content import (  # noqa: F401
+    Char,
+    CharI18n,
+    Gesetz,
+    GesetzI18n,
+    Event,
+    EventI18n,
+    EventChoice,
+    EventChoiceI18n,
+    BundesratFraktion,
+    BundesratFraktionI18n,
+    BundesratTradeoff,
+    BundesratTradeoffI18n,
+)
 
 config = context.config
 
