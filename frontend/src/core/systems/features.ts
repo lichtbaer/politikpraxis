@@ -23,6 +23,12 @@ const FEATURES: Record<string, { minLevel: number }> = {
   char_ideologie: { minLevel: 3 },
   /** Vollständige Milieu-Zustimmung (Stufe 1: nur aggregiert) */
   milieus_voll: { minLevel: 2 },
+  /** SMA-292: Medien-Screen Stufe 2 — 4 wichtigste Milieus sichtbar */
+  milieus_4: { minLevel: 2 },
+  /** SMA-292: Medien-Screen Stufe 3 — alle 7 Milieus sichtbar */
+  milieus_7: { minLevel: 3 },
+  /** SMA-292: Medien-Screen Stufe 4 — Milieu-Drift (Trend-Pfeile) */
+  milieu_drift: { minLevel: 4 },
   /** Politikfeld-Druck-System */
   politikfeld_druck: { minLevel: 3 },
   /** Verbands-Lobbying, Trade-offs, Konflikt-Mechanik */

@@ -309,6 +309,8 @@ export interface Milieu {
   basisbeteiligung?: number;
   /** Kurzbezeichnung für Anzeige */
   kurz?: string;
+  /** Beschreibung aus DB (milieus_i18n.beschreibung) */
+  beschreibung?: string;
 }
 
 /** Politikfeld mit Verbands-Zuordnung */

@@ -570,11 +570,10 @@
   },
   "media": {
     "title": "Medien & Milieus",
-    "desc": "Beeinflussen Sie die öffentliche Meinung durch gezielte Medienkampagnen.",
+    "desc": "Überblick über die Zustimmung der Wählermilieus. Milieus reagieren auf Gesetze und politische Entscheidungen.",
     "arbeit": { "name": "Arbeitsmilieu", "desc": "Gewerkschaftsnahe Wähler, Fokus auf soziale Gerechtigkeit." },
     "mitte": { "name": "Mitte", "desc": "Bürgerliche Mitte, wirtschaftsorientiert." },
-    "prog": { "name": "Progressive", "desc": "Urban, klimabewusst, diversitätsorientiert." },
-    "kampagne": "Kampagne (10 PK)"
+    "prog": { "name": "Progressive", "desc": "Urban, klimabewusst, diversitätsorientiert." }
   },
   "eu": {
     "klimaTitle": "EU-Klima-Scores",

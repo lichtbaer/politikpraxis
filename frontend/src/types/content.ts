@@ -66,6 +66,11 @@ export interface MilieuApi {
   gewicht?: number;
   basisbeteiligung?: number;
   kurz?: string;
+  /** Aus milieus_i18n (kurzcharakter) */
+  kurzcharakter?: string;
+  /** Aus milieus_i18n */
+  name?: string;
+  beschreibung?: string;
 }
 
 export interface PolitikfeldApi {
