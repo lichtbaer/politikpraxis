@@ -63,6 +63,12 @@ export function applyGesetzKosten(state: GameState, gesetzId: string): GameState
   const einnahmeProz = einnahmeEffekt / EINNAHMEN_BASIS;
   const neuerSteuerpolitikModifikator = haushalt.steuerpolitikModifikator + einnahmeProz;
 
+  // SMA-309: Schuldenbremse-Reform löst Lehmann-Ultimatum aus
+  let newState = state;
+  if (gesetzId === 'schuldenbremse_reform') {
+    newState = { ...newState, lehmannUltimatumBeschleunigt: true };
+  }
+
   const neuerHaushalt: Haushalt = {
     ...haushalt,
     saldoKumulativ: haushalt.saldoKumulativ - kostenEinmalig,
@@ -72,7 +78,7 @@ export function applyGesetzKosten(state: GameState, gesetzId: string): GameState
     saldo: haushalt.einnahmen - haushalt.pflichtausgaben - (haushalt.laufendeAusgaben + kostenLaufend),
   };
 
-  return { ...state, haushalt: neuerHaushalt };
+  return { ...newState, haushalt: neuerHaushalt };
 }
 
 /** Konjunkturindex-Drift (monatlich), jährliche Einnahmen-Neuberechnung */
@@ -83,7 +89,7 @@ export function tickKonjunktur(state: GameState, complexity: number): GameState 
   let neuerHaushalt = { ...haushalt };
 
   if (featureActive(complexity, 'konjunkturindex')) {
-    const drift = (Math.random() - 0.5) * 0.4;
+    const drift = (Math.random() - 0.5) * 0.6; // SMA-309: ±0.3 statt ±0.2
     neuerHaushalt = {
       ...neuerHaushalt,
       konjunkturIndex: Math.max(-3, Math.min(3, haushalt.konjunkturIndex + drift)),

@@ -117,6 +117,10 @@ class Gesetz(Base):
     route_overrides: Mapped[dict[str, Any]] = mapped_column(
         JSONB(), nullable=False, server_default="{}"
     )
+    # SMA-309: min_complexity für Gesetze (z.B. schuldenbremse_reform ab Stufe 3)
+    min_complexity: Mapped[int | None] = mapped_column(
+        Integer(), nullable=True, server_default="1"
+    )
 
 
 class GesetzI18n(Base):

@@ -25,8 +25,9 @@ export function GesetzAgendaView() {
   const showDruck = featureActive(complexity, 'politikfeld_druck');
   const politikfeldDruck = state.politikfeldDruck ?? {};
 
-  const clusters = gruppiereNachPolitikfeld(state.gesetze, politikfelder, ausrichtung);
-  const top3Empfohlen = getTop3Empfohlen(state.gesetze, ausrichtung);
+  const visibleGesetze = state.gesetze.filter((g) => (g.min_complexity ?? 1) <= complexity);
+  const clusters = gruppiereNachPolitikfeld(visibleGesetze, politikfelder, ausrichtung);
+  const top3Empfohlen = getTop3Empfohlen(visibleGesetze, ausrichtung);
 
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
 

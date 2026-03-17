@@ -23,8 +23,9 @@ function orderLaws(laws: Law[]): Law[] {
 
 export function AgendaView() {
   const { t } = useTranslation('game');
-  const { state } = useGameStore();
-  const ordered = orderLaws(state.gesetze);
+  const { state, complexity } = useGameStore();
+  const visibleGesetze = state.gesetze.filter((g) => (g.min_complexity ?? 1) <= complexity);
+  const ordered = orderLaws(visibleGesetze);
 
   return (
     <div className={styles.root}>

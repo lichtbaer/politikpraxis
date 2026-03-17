@@ -124,6 +124,7 @@ function transformGesetz(api: GesetzApi): Law {
     lobby_pk_kosten: api.lobby_pk_kosten ?? 12,
     lobby_gain_range: api.lobby_gain_range ?? { min: 2, max: 6 },
     route_overrides: api.route_overrides ?? {},
+    min_complexity: (api as { min_complexity?: number }).min_complexity ?? 1,
   };
 }
 
@@ -280,6 +281,7 @@ export interface ContentStore {
   vorstufenEvents: GameEvent[];
   extremismusEvents: GameEvent[];
   kommunalLaenderEvents: GameEvent[];
+  steuerEvents: GameEvent[];
   bundesrat: BundesratLand[];
   bundesratFraktionen: BundesratFraktion[];
   milieus: Milieu[];
@@ -304,6 +306,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   vorstufenEvents: [],
   extremismusEvents: [],
   kommunalLaenderEvents: [],
+  steuerEvents: [],
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
   milieus: [],
@@ -343,6 +346,9 @@ export const useContentStore = create<ContentStore>((set) => ({
       const kommunalLaenderEventsList = events.filter((e) =>
         ['kommunal_haushaltskrise', 'kommunal_buergerprotest', 'laender_koalitionskrise'].includes(e.id),
       );
+      const steuerEventsList = events.filter((e) =>
+        ['steuerstreit_koalition', 'steuereinnahmen_einbruch', 'haushaltsstreit_opposition'].includes(e.id),
+      );
 
       const charEventsMap: Record<string, GameEvent> = {};
       for (const ev of charEventsList) {
@@ -368,6 +374,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         vorstufenEvents: vorstufenEventsList,
         extremismusEvents: extremismusEventsList,
         kommunalLaenderEvents: kommunalLaenderEventsList,
+        steuerEvents: steuerEventsList,
         bundesratFraktionen: bundesratFraktionen.map(transformBundesratFraktion),
         milieus,
         politikfelder,
@@ -409,6 +416,7 @@ export function getContentBundle(): ContentBundle {
     vorstufenEvents: s.vorstufenEvents ?? [],
     extremismusEvents: s.extremismusEvents ?? [],
     kommunalLaenderEvents: s.kommunalLaenderEvents ?? [],
+    steuerEvents: s.steuerEvents ?? [],
     bundesrat: s.bundesrat,
     bundesratFraktionen: s.bundesratFraktionen,
     koalitionspartner: GRUENE,
