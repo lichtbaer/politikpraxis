@@ -1,14 +1,32 @@
 /**
- * SMA-274: Gesetz-Agenda View (Stufe 3+) — Gruppierte Übersicht aller Gesetz-Projekte.
- * VORBEREITUNG LÄUFT | BEREIT ZUM EINBRINGEN | NOCH KEINE VORBEREITUNG
+ * SMA-274: Gesetz-Agenda View — Alle Gesetze auf allen Stufen sichtbar.
+ * SMA-290: Stufe 1-2: Einfache Liste. Stufe 3+: Gruppierung (VORBEREITUNG LÄUFT | BEREIT ZUM EINBRINGEN | NOCH KEINE VORBEREITUNG)
  * SMA-287: Top-3 Gesetze mit Empfohlen-Badge (Kongruenz zur Spieler-Ausrichtung)
  */
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { AgendaCard } from '../components/AgendaCard/AgendaCard';
+import { featureActive } from '../../core/systems/features';
 import { gesetzKongruenz } from '../../core/ideologie';
-import type { Law } from '../../core/types';
+import type { Law, LawStatus } from '../../core/types';
 import styles from './GesetzAgendaView.module.css';
+
+const STATUS_ORDER: LawStatus[] = ['blockiert', 'aktiv', 'ausweich', 'entwurf', 'beschlossen'];
+
+function orderLawsSimple(laws: Law[]): Law[] {
+  const byStatus = new Map<LawStatus, Law[]>();
+  for (const law of laws) {
+    const arr = byStatus.get(law.status) ?? [];
+    arr.push(law);
+    byStatus.set(law.status, arr);
+  }
+  const result: Law[] = [];
+  for (const status of STATUS_ORDER) {
+    const arr = byStatus.get(status);
+    if (arr) result.push(...arr);
+  }
+  return result;
+}
 
 function gruppiereGesetze(
   laws: Law[],
@@ -51,7 +69,8 @@ function getTop3Empfohlen(keineVorbereitung: Law[], ausrichtung: { wirtschaft: n
 
 export function GesetzAgendaView() {
   const { t } = useTranslation('game');
-  const { state, ausrichtung } = useGameStore();
+  const { state, ausrichtung, complexity } = useGameStore();
+  const showGruppierung = featureActive(complexity, 'gesetz_agenda');
 
   const { vorbereitungLaeuft, bereitEinbringen, keineVorbereitung, andere } = gruppiereGesetze(
     state.gesetze,
@@ -60,6 +79,22 @@ export function GesetzAgendaView() {
 
   const top3Empfohlen = getTop3Empfohlen(keineVorbereitung, ausrichtung);
 
+  // Stufe 1-2: Einfache Liste (alle Gesetze, keine Gruppierung)
+  if (!showGruppierung) {
+    const ordered = orderLawsSimple(state.gesetze);
+    return (
+      <div className={styles.root}>
+        <h1 className={styles.title}>{t('game:gesetzAgenda.title')}</h1>
+        <div className={styles.list}>
+          {ordered.map((law) => (
+            <AgendaCard key={law.id} law={law} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Stufe 3+: Gruppierte Ansicht
   return (
     <div className={styles.root}>
       <h1 className={styles.title}>{t('game:gesetzAgenda.title')}</h1>
