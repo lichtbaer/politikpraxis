@@ -68,6 +68,10 @@ class Gesetz(Base):
     kommunal_pilot_moeglich: Mapped[bool] = mapped_column(Boolean(), nullable=True, server_default="true")
     laender_pilot_moeglich: Mapped[bool] = mapped_column(Boolean(), nullable=True, server_default="true")
     eu_initiative_moeglich: Mapped[bool] = mapped_column(Boolean(), nullable=True, server_default="true")
+    # Framing-Optionen (SMA-276): [{key, milieu_effekte, verband_effekte, medienklima_delta}]
+    framing_optionen: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSONB(), nullable=False, server_default="[]"
+    )
 
 
 class GesetzI18n(Base):

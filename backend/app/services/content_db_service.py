@@ -164,6 +164,7 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
             "kommunal_pilot_moeglich": g.kommunal_pilot_moeglich if g.kommunal_pilot_moeglich is not None else True,
             "laender_pilot_moeglich": g.laender_pilot_moeglich if g.laender_pilot_moeglich is not None else True,
             "eu_initiative_moeglich": g.eu_initiative_moeglich if g.eu_initiative_moeglich is not None else True,
+            "framing_optionen": g.framing_optionen or [],
             "titel": i18n.titel,
             "kurz": i18n.kurz,
             "desc": i18n.desc,
