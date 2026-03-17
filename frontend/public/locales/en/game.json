@@ -673,6 +673,8 @@
   "bundesrat": {
     "title": "Bundesrat (Federal Council)",
     "subtitle": "4 factions represent 16 Federal States. Lobbying influences voting readiness.",
+    "subtitleSimple": "Simplified display of state approval.",
+    "aggregiertUnterstuetzen": "{{prozent}}% of federal states support this law.",
     "beziehung": "Relationship",
     "abstimmungsbereitschaft": "Voting readiness",
     "gespraechSuchen": "Seek conversation",

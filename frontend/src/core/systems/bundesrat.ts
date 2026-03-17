@@ -194,6 +194,12 @@ export function getBundesratAbstimmungsFelder(
   return result;
 }
 
+/** SMA-291: Aggregierter Zustimmungs-Prozentwert für Stufe 2 (0–100) */
+export function getAggregierteZustimmung(state: GameState, gesetzeId: string): number {
+  const { ja } = calcBundesratMehrheit(state, gesetzeId);
+  return Math.round((ja / 16) * 100);
+}
+
 /** Vereinfachte Mehrheit für Kompatibilität (16 Länder, 9 Mehrheit) */
 export function calcBundesratMehrheitSimple(
   fraktionen: BundesratFraktion[],

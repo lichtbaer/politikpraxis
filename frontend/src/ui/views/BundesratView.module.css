@@ -234,3 +234,24 @@
   color: var(--text2);
   margin-top: 16px;
 }
+
+/* SMA-291: Stufe 2 — aggregierter Balken */
+.bundesratSimple {
+  padding: 4px 0;
+}
+
+.aggregierterBalken {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.aggregierterBalken .balkenTrack {
+  height: 12px;
+}
+
+.aggregiertText {
+  font-size: 14px;
+  color: var(--text2);
+}
