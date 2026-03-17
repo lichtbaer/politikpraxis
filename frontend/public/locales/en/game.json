@@ -544,11 +544,10 @@
   },
   "media": {
     "title": "Media & Milieus",
-    "desc": "Influence public opinion through targeted media campaigns.",
+    "desc": "Overview of voter milieu approval. Milieus react to laws and political decisions.",
     "arbeit": { "name": "Working-class milieu", "desc": "Union-aligned voters, focus on social justice." },
     "mitte": { "name": "Centre", "desc": "Bourgeois centre, economically oriented." },
-    "prog": { "name": "Progressive", "desc": "Urban, climate-conscious, diversity-oriented." },
-    "kampagne": "Campaign (10 PK)"
+    "prog": { "name": "Progressive", "desc": "Urban, climate-conscious, diversity-oriented." }
   },
   "ebene": {
     "eu": "Advance laws via EU level. Longer duration but bypasses Bundesrat (Federal Council).",

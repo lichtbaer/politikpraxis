@@ -227,7 +227,8 @@ function transformMilieu(api: MilieuApi): Milieu {
     min_complexity: api.min_complexity,
     gewicht: api.gewicht ?? def?.gewicht ?? 14,
     basisbeteiligung: api.basisbeteiligung ?? def?.basisbeteiligung ?? 70,
-    kurz: api.kurz ?? def?.kurz ?? api.id,
+    kurz: api.kurz ?? api.kurzcharakter ?? def?.kurz ?? api.id,
+    beschreibung: api.beschreibung,
   };
 }
 
