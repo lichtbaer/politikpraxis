@@ -68,6 +68,44 @@ export interface Law {
   lobbyFraktionen?: Record<string, LawLobbyFraktion>;
   /** Kohl-Sonderregel: Sabotage bereits ausgelöst für dieses Gesetz */
   kohlSabotageTriggered?: boolean;
+  /** Ideologie für Koalitionsvertrag-Kongruenz (wirtschaft, gesellschaft, staat: -100 … +100) */
+  ideologie?: Ideologie;
+}
+
+/** Politische Ausrichtung für Kongruenz-Berechnung */
+export interface Ideologie {
+  wirtschaft: number;
+  gesellschaft: number;
+  staat: number;
+}
+
+/** Koalitionspartner-State im GameState */
+export interface KoalitionspartnerState {
+  id: 'gruene' | 'spd_fluegel';
+  beziehung: number;
+  koalitionsvertragScore: number;
+  schluesselthemenErfuellt: string[];
+}
+
+/** Koalitionspartner-Content (Daten des Partners) */
+export interface KoalitionspartnerContent {
+  id: 'gruene' | 'spd_fluegel';
+  name: string;
+  sprecher: string;
+  ideologie: Ideologie;
+  beziehung_start: number;
+  bt_stimmen: number;
+  kernmilieus: string[];
+  kernverbaende: string[];
+  schluesselthemen: string[];
+  forderungen?: PartnerForderung[];
+}
+
+/** Partner-Forderung für Zugeständnis-Aktion */
+export interface PartnerForderung {
+  id: string;
+  label: string;
+  effekte: { hh?: number; zf?: number; gi?: number; al?: number };
 }
 
 export type EventType = 'danger' | 'warn' | 'good' | 'info';
@@ -91,6 +129,8 @@ export interface EventChoice {
   brRelation?: Record<string, number>;
   /** Bei Bundesrat-Initiative: Delta für initiierende Fraktion (event.fraktionId) */
   brRelationInitiator?: number;
+  /** Bei Koalitionsbruch-Event: Delta für Koalitionspartner-Beziehung */
+  koalitionspartnerBeziehung?: number;
   log: string;
 }
 
@@ -238,6 +278,18 @@ export interface GameState {
   won: boolean;
   /** Wahlhürde in % (35/38/40/42 je nach Komplexitätsstufe) */
   electionThreshold?: number;
+  /** Koalitionspartner (ab Stufe 2) */
+  koalitionspartner?: KoalitionspartnerState;
+  /** Berechnetes Koalitionsvertrag-Profil (60% Spieler, 40% Partner) */
+  koalitionsvertragProfil?: Ideologie;
+  /** Milieu-Zustimmung milieuId -> % (postmaterielle, soziale_mitte, arbeit etc.) */
+  milieuZustimmung?: Record<string, number>;
+  /** Verbands-Beziehungen verbandId -> 0–100 */
+  verbandsBeziehungen?: Record<string, number>;
+  /** Partner priorisiert Gesetz für 3 Monate (+5% BT-Stimmen) */
+  partnerPrioGesetz?: { gesetzId: string; bisMonat: number };
+  /** Monat, in dem Koalitionsbruch-Warnung ausgelöst wurde (für 3-Monats-Frist) */
+  koalitionsbruchSeitMonat?: number;
 }
 
 export interface ContentBundle {
@@ -248,6 +300,7 @@ export interface ContentBundle {
   laws: Law[];
   bundesrat: BundesratLand[];
   bundesratFraktionen?: BundesratFraktion[];
+  koalitionspartner?: KoalitionspartnerContent;
   scenario: {
     id: string;
     name: string;

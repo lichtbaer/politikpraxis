@@ -6,6 +6,7 @@ import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
+import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragScore } from './systems/koalition';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export function addLog(state: GameState, msg: string, type: string, params?: Record<string, string | number>): GameState {
@@ -17,7 +18,7 @@ export function addLog(state: GameState, msg: string, type: string, params?: Rec
   return { ...state, log };
 }
 
-export function tick(state: GameState, content: ContentBundle): GameState {
+export function tick(state: GameState, content: ContentBundle, complexity: number = 4): GameState {
   if (state.gameOver) return state;
 
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi } };
@@ -35,8 +36,11 @@ export function tick(state: GameState, content: ContentBundle): GameState {
   s = applyCharBonuses(s);
   s = updateCoalitionStability(s);
 
+  s = tickKoalitionspartner(s, content, complexity);
+  s = checkKoalitionsbruch(s, content, complexity);
+
   s = checkUltimatums(s, content.charEvents);
-  s = processBundesratVotes(s);
+  s = processBundesratVotes(s, content, complexity);
   s = checkBundesratEvents(s, {
     bundesratEvents: content.bundesratEvents ?? [],
     sprecherErsatz: SPRECHER_ERSATZ,
@@ -50,11 +54,20 @@ export function tick(state: GameState, content: ContentBundle): GameState {
 }
 
 /** Führt Bundesratsabstimmungen durch, wenn brVoteMonth erreicht */
-function processBundesratVotes(state: GameState): GameState {
+function processBundesratVotes(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): GameState {
   let s = state;
   for (const law of s.gesetze) {
     if (law.status === 'bt_passed' && law.brVoteMonth != null && s.month >= law.brVoteMonth) {
+      const prevLaw = s.gesetze.find(g => g.id === law.id);
       s = executeBundesratVote(s, law.id);
+      const newLaw = s.gesetze.find(g => g.id === law.id);
+      if (prevLaw?.status === 'bt_passed' && newLaw?.status === 'beschlossen') {
+        s = updateKoalitionsvertragScore(s, law.id, content, complexity);
+      }
     }
   }
   return s;

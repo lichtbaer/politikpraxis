@@ -1,4 +1,5 @@
 import type { ContentBundle, BundesratLand } from '../../core/types';
+import { GRUENE } from './koalitionspartner';
 
 /** 16 Bundesländer für Abstimmungsbalken (strukturelle Daten, nicht i18n) */
 export const DEFAULT_BUNDESRAT: BundesratLand[] = [
@@ -39,5 +40,6 @@ export const DEFAULT_CONTENT: ContentBundle = {
   laws: [],
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
+  koalitionspartner: GRUENE,
   scenario: DEFAULT_SCENARIO,
 };

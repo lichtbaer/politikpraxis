@@ -276,6 +276,28 @@
         "2": { "label": "Ignore", "desc": "Neumann angered", "log": "Demand ignored. Neumann threatens resignation." }
       }
     },
+    "koalitionsbruch": {
+      "typeLabel": "Coalition crisis",
+      "title": "Coalition partner threatens to leave",
+      "quote": "\"Without tangible concessions we cannot continue this coalition.\"",
+      "context": "The relationship with the coalition partner is at a critical low. You have 3 months to respond.",
+      "ticker": "Coalition crisis: Partner threatens to leave",
+      "choices": {
+        "0": { "label": "Call coalition summit", "desc": "15 PK — Relationship +8", "log": "Coalition summit called. Relationship improved." },
+        "1": { "label": "Buy time", "desc": "Continue negotiations", "log": "Negotiations continue." }
+      }
+    },
+    "koalitionskrise_ultimatum": {
+      "typeLabel": "Coalition agreement",
+      "title": "Partner demands adherence to coalition agreement",
+      "quote": "\"We signed an agreement. Current policy deviates too much.\"",
+      "context": "The coalition agreement score is critical. The partner demands more congruence with the agreed course.",
+      "ticker": "Coalition partner demands treaty compliance",
+      "choices": {
+        "0": { "label": "Adjust course", "desc": "More consideration for partner issues", "log": "Course adjusted. Partner appeased." },
+        "1": { "label": "Stand firm", "desc": "Risk of further escalation", "log": "No concessions. Tension remains." }
+      }
+    },
     "bm_ultimatum": {
       "typeLabel": "Education Ministry",
       "title": "Becker demands education emergency",

@@ -1,7 +1,7 @@
 import type { GameState } from '../types';
 
 export function applyCharBonuses(state: GameState): GameState {
-  let newState = { ...state, kpi: { ...state.kpi }, zust: { ...state.zust } };
+  const newState = { ...state, kpi: { ...state.kpi }, zust: { ...state.zust } };
   const gesetze = newState.gesetze.map(g => ({ ...g }));
 
   const wolf = newState.chars.find(c => c.id === 'um');
@@ -70,7 +70,7 @@ export function applyMoodChange(
   loyalty?: Record<string, number>,
 ): GameState {
   const chars = state.chars.map(c => {
-    let newChar = { ...c };
+    const newChar = { ...c };
     if (charMood[c.id] !== undefined) {
       newChar.mood = Math.max(0, Math.min(4, newChar.mood + charMood[c.id]));
     }

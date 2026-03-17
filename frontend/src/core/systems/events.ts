@@ -234,10 +234,21 @@ export function resolveEvent(state: GameState, event: GameEvent, choice: EventCh
     newState = applySprecherWechselEffect(newState, event);
   }
 
+  if (choice.koalitionspartnerBeziehung != null && newState.koalitionspartner) {
+    newState = {
+      ...newState,
+      koalitionspartner: {
+        ...newState.koalitionspartner,
+        beziehung: Math.min(100, Math.max(0, newState.koalitionspartner.beziehung + choice.koalitionspartnerBeziehung)),
+      },
+      koalitionsbruchSeitMonat: undefined,
+    };
+  }
+
   const logType = choice.type === 'danger' ? 'r' : 'g';
   const choiceIdx = event.choices.indexOf(choice);
   const BR_IDS = new Set(['laenderfinanzausgleich', 'landtagswahl', 'kohl_eskaliert', 'sprecher_wechsel', 'bundesrat_initiative', 'foederalismusgipfel']);
-  const CHAR_IDS = new Set(['fm_ultimatum', 'braun_ultimatum', 'wolf_ultimatum', 'kern_ultimatum', 'kanzler_ultimatum', 'kohl_bundesrat_sabotage', 'wm_ultimatum', 'am_ultimatum', 'gm_ultimatum', 'bm_ultimatum']);
+  const CHAR_IDS = new Set(['fm_ultimatum', 'braun_ultimatum', 'wolf_ultimatum', 'kern_ultimatum', 'kanzler_ultimatum', 'kohl_bundesrat_sabotage', 'wm_ultimatum', 'am_ultimatum', 'gm_ultimatum', 'bm_ultimatum', 'koalitionsbruch', 'koalitionskrise_ultimatum']);
   const eventNs = event.charId || CHAR_IDS.has(event.id) ? 'charEvents' : BR_IDS.has(event.id) ? 'bundesratEvents' : 'events';
   const logKey = `game:${eventNs}.${event.id}.choices.${choiceIdx}.log`;
   newState = addLog(newState, logKey, logType);

@@ -310,7 +310,7 @@ export function lobbyFraktion(
     if (!tradeoff) return state;
 
     if (tradeoffOptions.action === 'annehmen') {
-      let newState = applyTradeoffEffects(state, tradeoff);
+      const newState = applyTradeoffEffects(state, tradeoff);
       const fraktionen = newState.bundesratFraktionen.map(f =>
         f.id === fraktionId ? { ...f, beziehung: Math.min(100, f.beziehung + 10) } : f,
       );
@@ -348,7 +348,7 @@ export function lobbyFraktion(
       const abgeschwaecht = Object.fromEntries(
         Object.entries(tradeoff.effect ?? {}).map(([k, v]) => [k, (v as number) * 0.5]),
       ) as Partial<KpiDelta>;
-      let newState = applyTradeoffEffects({ ...state, pk: state.pk - PK_GEGENVORSCHLAG }, { effect: abgeschwaecht });
+      const newState = applyTradeoffEffects({ ...state, pk: state.pk - PK_GEGENVORSCHLAG }, { effect: abgeschwaecht });
       const fraktionen = newState.bundesratFraktionen.map(f =>
         f.id === fraktionId ? { ...f, beziehung: Math.min(100, f.beziehung + 5) } : f,
       );
@@ -417,7 +417,7 @@ export function executeBundesratVote(
       i === idx ? { ...g, status: 'beschlossen' as const } : g,
     );
     const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
-    let newState = scheduleEffects({ ...state, gesetze }, lawForEffects);
+    const newState = scheduleEffects({ ...state, gesetze }, lawForEffects);
     return addLog(newState, `${law.kurz} im Bundesrat beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
   } else {
     const gesetze = state.gesetze.map((g, i) =>
