@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routes import auth, saves, content, analytics, mods
+from app.routes import auth, saves, content, analytics, mods, admin
 
 settings = get_settings()
 
@@ -26,6 +26,7 @@ app.include_router(saves.router, prefix="/api/saves", tags=["saves"])
 app.include_router(content.router, prefix="/api/content", tags=["content"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 app.include_router(mods.router, prefix="/api/mods", tags=["mods"])
+app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
 
 @app.get("/api/health")
