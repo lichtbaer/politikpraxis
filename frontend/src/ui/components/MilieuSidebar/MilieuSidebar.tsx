@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useContentStore } from '../../../stores/contentStore';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { MilieuBar } from '../MilieuBar/MilieuBar';
+import { MilieuDetailPanel } from '../MilieuDetailPanel/MilieuDetailPanel';
 import styles from './MilieuSidebar.module.css';
 
 /** Aggregation für Stufe 1: konservativ = etablierte, buergerliche_mitte, traditionelle */
@@ -90,21 +92,39 @@ export function MilieuSidebar() {
   }
 
   const visibleMilieus = milieus.filter((m) => m.min_complexity <= complexity);
+  const [selectedMilieu, setSelectedMilieu] = useState<string | null>(null);
+  const selectedMilieuData = selectedMilieu ? visibleMilieus.find((m) => m.id === selectedMilieu) : null;
 
   return (
-    <div className={styles.milieus}>
-      {visibleMilieus.map((m) => {
-        const value = milieuZustimmung[m.id] ?? 50;
-        const history = milieuZustimmungHistory[m.id] ?? [];
-        const trend = getTrend(history);
-        const trendChar = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→';
-        const label = `${t(`game:milieu.${m.id}`, m.kurz ?? m.id)} ${trendChar}`;
-        return (
-          <div key={m.id} className={styles.milieuItem}>
-            <MilieuBar name={label} value={value} color={getBarColor(value)} />
-          </div>
-        );
-      })}
+    <div className={styles.milieusWrapper}>
+      <div className={styles.milieus}>
+        {visibleMilieus.map((m) => {
+          const value = milieuZustimmung[m.id] ?? 50;
+          const history = milieuZustimmungHistory[m.id] ?? [];
+          const trend = getTrend(history);
+          const trendChar = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→';
+          const label = `${t(`game:milieu.${m.id}`, m.kurz ?? m.id)} ${trendChar}`;
+          return (
+            <div
+              key={m.id}
+              className={`${styles.milieuItem} ${styles.clickable}`}
+              onClick={() => setSelectedMilieu(m.id)}
+              onKeyDown={(e) => e.key === 'Enter' && setSelectedMilieu(m.id)}
+              role="button"
+              tabIndex={0}
+              title={t('game:milieu.milieuDetail.openHint')}
+            >
+              <MilieuBar name={label} value={value} color={getBarColor(value)} />
+            </div>
+          );
+        })}
+      </div>
+      {selectedMilieuData && (
+        <MilieuDetailPanel
+          milieu={selectedMilieuData}
+          onClose={() => setSelectedMilieu(null)}
+        />
+      )}
     </div>
   );
 }

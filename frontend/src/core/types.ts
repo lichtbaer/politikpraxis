@@ -489,6 +489,8 @@ export interface GameState {
   milieuZustimmung?: Record<string, number>;
   /** Letzte 3 Monate pro Milieu für Trend-Pfeil */
   milieuZustimmungHistory?: Record<string, number[]>;
+  /** SMA-297: Letzte 3 Gesetz-Reaktionen pro Milieu (für Detail-Panel) */
+  milieuGesetzReaktionen?: Record<string, { gesetzId: string; delta: number }[]>;
   /** Verbands-Beziehungen (ab Stufe 3): verbandId → 0–100 */
   verbandsBeziehungen?: Record<string, number>;
   /** Partner priorisiert Gesetz für 3 Monate (+5% BT-Stimmen) */

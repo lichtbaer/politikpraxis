@@ -566,7 +566,15 @@
     "buergerliche_mitte": "Bürgerliche Mitte",
     "leistungstraeger": "Leistungsträger",
     "etablierte": "Etablierte",
-    "traditionelle": "Traditionelle"
+    "traditionelle": "Traditionelle",
+    "milieuDetail": {
+      "openHint": "Klicken für Details",
+      "close": "Schließen",
+      "anteil": "Anteil: {{percent}}% der Bevölkerung",
+      "reaktionen": "Reaktionen auf deine Politik",
+      "trend": "Trend",
+      "ideologie": "Ideologie"
+    }
   },
   "media": {
     "title": "Medien & Milieus",
@@ -733,6 +741,12 @@
     "schuldenbremseKritisch": "Kritisch",
     "konjunktur": "Konjunktur",
     "konjunkturTooltip": "Konjunkturindex beeinflusst Steuereinnahmen"
+  },
+  "politikfeldTooltip": {
+    "druck": "Politikfeld-Druck: {{value}}/100",
+    "aktiverVerband": "Aktiver Verband: {{verband}}",
+    "offeneGesetze": "Offene Gesetze: {{list}}",
+    "zurVerbaende": "→ Zur Verbände-Ebene"
   },
   "politikfeld": {
     "wirtschaft_finanzen": "Wirtschaft & Finanzen",

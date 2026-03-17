@@ -72,3 +72,76 @@
 .feldItem {
   position: relative;
 }
+
+.feldRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.feldMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 10px;
+}
+
+.druckZahl {
+  font-weight: 600;
+}
+
+.druckZahl.ok {
+  color: var(--green);
+}
+
+.druckZahl.warn {
+  color: var(--warn);
+}
+
+.druckZahl.kritisch {
+  color: var(--red);
+}
+
+.druckWarn {
+  font-size: 10px;
+}
+
+.verbandBadge {
+  font-size: 9px;
+  color: var(--text3);
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  z-index: 50;
+  min-width: 200px;
+  max-width: 260px;
+  padding: 8px 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+.tooltipContent {
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+.tooltipTitle {
+  font-weight: 600;
+  color: var(--text1);
+  margin-bottom: 4px;
+}
+
+.tooltipAction {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--gold);
+}

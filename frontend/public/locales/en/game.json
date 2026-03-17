@@ -499,6 +499,12 @@
     "lobbyingRunde": "Lobbying round",
     "kompromissAnbieten": "Offer compromise"
   },
+  "politikfeldTooltip": {
+    "druck": "Policy field pressure: {{value}}/100",
+    "aktiverVerband": "Active association: {{verband}}",
+    "offeneGesetze": "Open laws: {{list}}",
+    "zurVerbaende": "→ To associations view"
+  },
   "politikfeld": {
     "wirtschaft_finanzen": "Economy & Finance",
     "arbeit_soziales": "Labour & Social Affairs",
@@ -547,7 +553,23 @@
   "milieu": {
     "arbeit": "Working class",
     "mitte": "Centre",
-    "prog": "Progressive"
+    "prog": "Progressive",
+    "konservativ": "Conservative",
+    "postmaterielle": "Post-materialist",
+    "soziale_mitte": "Social centre",
+    "prekaere": "Precarious",
+    "buergerliche_mitte": "Bourgeois centre",
+    "leistungstraeger": "Achievers",
+    "etablierte": "Established",
+    "traditionelle": "Traditional",
+    "milieuDetail": {
+      "openHint": "Click for details",
+      "close": "Close",
+      "anteil": "Share: {{percent}}% of population",
+      "reaktionen": "Reactions to your policy",
+      "trend": "Trend",
+      "ideologie": "Ideology"
+    }
   },
   "media": {
     "title": "Media & Milieus",
