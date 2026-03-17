@@ -3,10 +3,12 @@ import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { CharacterRow } from '../components/CharacterRow/CharacterRow';
 import { CoalitionMeter } from '../components/CoalitionMeter/CoalitionMeter';
-import { MilieuBar } from '../components/MilieuBar/MilieuBar';
+import { MilieuSidebar } from '../components/MilieuSidebar/MilieuSidebar';
+import { PolitikfeldGrid } from '../components/PolitikfeldGrid/PolitikfeldGrid';
+import { KoalitionspartnerPanel } from '../components/KoalitionspartnerPanel/KoalitionspartnerPanel';
 import styles from './LeftPanel.module.css';
 
-const EBENE_IDS = ['agenda', 'eu', 'land', 'kommune', 'medien', 'bundesrat'] as const;
+const EBENE_IDS = ['agenda', 'eu', 'land', 'kommune', 'medien', 'bundesrat', 'verbaende'] as const;
 const EBENE_COLORS: Record<string, string> = {
   agenda: 'var(--gold)',
   eu: 'var(--eu-c)',
@@ -14,6 +16,7 @@ const EBENE_COLORS: Record<string, string> = {
   kommune: 'var(--kom-c)',
   medien: 'var(--blue)',
   bundesrat: 'var(--warn)',
+  verbaende: 'var(--green)',
 };
 
 export function LeftPanel() {
@@ -21,17 +24,16 @@ export function LeftPanel() {
   const zustG = useGameStore((s) => s.state.zust.g);
   const electionThreshold = useGameStore((s) => s.state.electionThreshold ?? 40);
   const coalition = useGameStore((s) => s.state.coalition);
-  const zustArbeit = useGameStore((s) => s.state.zust.arbeit);
-  const zustMitte = useGameStore((s) => s.state.zust.mitte);
-  const zustProg = useGameStore((s) => s.state.zust.prog);
   const chars = useGameStore((s) => s.state.chars);
   const view = useGameStore((s) => s.state.view);
   const setView = useGameStore((s) => s.setView);
   const complexity = useGameStore((s) => s.complexity);
 
-  const EBENEN = EBENE_IDS.filter(
-    (id) => id !== 'bundesrat' || featureActive(complexity, 'bundesrat_simple'),
-  ).map((id) => ({ id, label: t(`game.ebenen.${id}`, { ns: 'common' }), color: EBENE_COLORS[id] }));
+  const EBENEN = EBENE_IDS.filter((id) => {
+    if (id === 'bundesrat' && !featureActive(complexity, 'bundesrat_simple')) return false;
+    if (id === 'verbaende' && !featureActive(complexity, 'verbands_lobbying')) return false;
+    return true;
+  }).map((id) => ({ id, label: t(`game.ebenen.${id}`, { ns: 'common' }), color: EBENE_COLORS[id] }));
 
   return (
     <aside className={styles.panel}>
@@ -62,11 +64,8 @@ export function LeftPanel() {
 
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>{t('game:leftPanel.milieus')}</h3>
-        <div className={styles.milieus}>
-          <MilieuBar name={t('game:milieu.arbeit')} value={zustArbeit} color="var(--land-c)" />
-          <MilieuBar name={t('game:milieu.mitte')} value={zustMitte} color="var(--eu-c)" />
-          <MilieuBar name={t('game:milieu.prog')} value={zustProg} color="var(--blue)" />
-        </div>
+        <MilieuSidebar />
+        <PolitikfeldGrid />
       </section>
 
       <section className={styles.section}>
@@ -76,6 +75,7 @@ export function LeftPanel() {
             <CharacterRow key={char.id} character={char} />
           ))}
         </div>
+        <KoalitionspartnerPanel />
       </section>
 
       <nav className={styles.ebenen}>

@@ -78,6 +78,30 @@
   line-height: 1.5;
 }
 
+.kongruenzSignal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.kongruenzRot {
+  background: var(--red2);
+  color: var(--red);
+}
+
+.kongruenzAmber {
+  background: var(--warn2, rgba(255, 193, 7, 0.2));
+  color: var(--warn);
+}
+
+.kongruenzIcon {
+  font-size: 14px;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;

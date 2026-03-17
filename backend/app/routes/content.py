@@ -12,6 +12,7 @@ from app.schemas.content import (
     MilieuResponse,
     PolitikfeldResponse,
     VerbandResponse,
+    EuEventResponse,
 )
 from app.services.content_service import (
     get_content_bundle,
@@ -26,6 +27,7 @@ from app.services.content_db_service import (
     fetch_gesetze,
     fetch_events,
     fetch_bundesrat,
+    fetch_eu_events,
     fetch_milieus,
     fetch_politikfelder,
     fetch_verbaende,
@@ -102,6 +104,16 @@ async def get_events(
     db: AsyncSession = Depends(get_db),
 ):
     rows = await fetch_events(db, locale, event_type=event_type)
+    return rows
+
+
+@router.get("/eu-events", response_model=list[EuEventResponse])
+async def get_eu_events(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/content/eu-events?locale=de — EU-Events (Richtlinien, Random, Fix)."""
+    rows = await fetch_eu_events(db, locale)
     return rows
 
 

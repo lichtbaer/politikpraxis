@@ -83,6 +83,12 @@ export interface Law {
   politikfeldId?: string | null;
   /** EU-Route: Wirkungsfaktor bei Kompromiss (0.85) */
   wirkungFaktor?: number;
+  /** Einmalige Haushaltskosten in Mrd. € (bei Beschluss) */
+  kosten_einmalig?: number;
+  /** Laufende Haushaltskosten in Mrd. €/Jahr (bei Beschluss) */
+  kosten_laufend?: number;
+  /** Einnahmeeffekt in Mrd. € (z.B. Steueränderung) */
+  einnahmeeffekt?: number;
 }
 
 /** Koalitionspartner-State im GameState */
@@ -195,7 +201,7 @@ export interface LogEntry {
   params?: Record<string, string | number>;
 }
 
-export type ViewName = 'agenda' | 'eu' | 'land' | 'kommune' | 'medien' | 'bundesrat';
+export type ViewName = 'agenda' | 'eu' | 'land' | 'kommune' | 'medien' | 'bundesrat' | 'verbaende';
 export type SpeedLevel = 0 | 1 | 2;
 
 export interface BundesratLand {
@@ -261,6 +267,12 @@ export interface Milieu {
   id: string;
   ideologie: Ideologie;
   min_complexity: number;
+  /** Anteil an Wählerschaft 0–100 (für Wahlprognose) */
+  gewicht?: number;
+  /** Basisbeteiligung 0–100 (für Wahlprognose) */
+  basisbeteiligung?: number;
+  /** Kurzbezeichnung für Anzeige */
+  kurz?: string;
 }
 
 /** Politikfeld mit Verbands-Zuordnung */
@@ -293,6 +305,35 @@ export interface EUState {
     erfolgschance: number;
     verwässert: boolean;
   } | null;
+}
+
+/** Schuldenbremsen-Status */
+export type SchuldenbremsenStatus = 'inaktiv' | 'ausgeglichen' | 'grenzwertig' | 'verletzt_mild' | 'verletzt_stark';
+
+/** Haushalt-Objekt im GameState (SMA-268) */
+export interface Haushalt {
+  einnahmen: number;
+  pflichtausgaben: number;
+  laufendeAusgaben: number;
+  spielraum: number;
+  saldo: number;
+  saldoKumulativ: number;
+  konjunkturIndex: number;
+  steuerpolitikModifikator: number;
+  investitionsquote: number;
+  schuldenbremseAktiv: boolean;
+  haushaltsplanMonat: number;
+  haushaltsplanBeschlossen: boolean;
+  planPrioritaeten: string[];
+}
+
+/** Aktives Strukturevent (z.B. Haushaltsdebatte) */
+export interface AktivesStrukturEvent {
+  type: 'haushaltsdebatte';
+  ausgangslage: 'ueberschuss' | 'ausgeglichen' | 'defizit';
+  phase: number;
+  verfuegbarePrioritaeten: string[];
+  gewaehlePrioritaeten: string[];
 }
 
 export interface GameState {
@@ -331,6 +372,8 @@ export interface GameState {
   koalitionsvertragProfil?: Ideologie;
   /** Milieu-Zustimmung (ersetzt zust.arbeit/mitte/prog bei Stufe 2+) */
   milieuZustimmung?: Record<string, number>;
+  /** Letzte 3 Monate pro Milieu für Trend-Pfeil */
+  milieuZustimmungHistory?: Record<string, number[]>;
   /** Verbands-Beziehungen (ab Stufe 3): verbandId → 0–100 */
   verbandsBeziehungen?: Record<string, number>;
   /** Partner priorisiert Gesetz für 3 Monate (+5% BT-Stimmen) */
@@ -347,6 +390,14 @@ export interface GameState {
   aktiveMinisterialInitiative?: { initId: string; charId: string; gesetzId: string } | null;
   /** EU-System (ab Stufe 2): Klima, Ratsvorsitz, Ausweichroute */
   eu?: EUState;
+  /** Haushalt (ab Stufe 2, SMA-268) */
+  haushalt?: Haushalt;
+  /** Lehmann-Ultimatum beschleunigt bei starker Schuldenbremsen-Verletzung */
+  lehmannUltimatumBeschleunigt?: boolean;
+  /** Lehmann-Sparvorschlag aktiv (Saldo < -15 Mrd.) */
+  lehmannSparvorschlagAktiv?: boolean;
+  /** Aktives Strukturevent (z.B. Haushaltsdebatte) */
+  aktivesStrukturEvent?: AktivesStrukturEvent | null;
 }
 
 /** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */

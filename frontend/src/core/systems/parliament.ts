@@ -5,6 +5,7 @@ import { applyKongruenzEffekte, getEinbringenPkKosten } from './kongruenz';
 import { applyMoodChange } from './characters';
 import { applyMilieuEffekte } from './milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
+import { applyGesetzKosten } from './haushalt';
 
 export interface EinbringenContext {
   ausrichtung: Ideologie;
@@ -107,8 +108,10 @@ export function abstimmen(
       const gesetze = state.gesetze.map((g, i) =>
         i === idx ? { ...g, status: 'beschlossen' as const } : g,
       );
+      let newState: GameState = { ...state, gesetze };
+      newState = applyGesetzKosten(newState, lawId);
       const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
-      let newState: GameState = scheduleEffects({ ...state, gesetze }, lawForEffects);
+      newState = scheduleEffects(newState, lawForEffects);
 
       if (beschlussContext?.milieus) {
         newState = applyMilieuEffekte(newState, lawId, beschlussContext.milieus, beschlussContext.complexity);

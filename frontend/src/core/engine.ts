@@ -1,5 +1,6 @@
 import type { GameState, ContentBundle, LogEntry } from './types';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
+import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
@@ -11,6 +12,12 @@ import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/ministerialInitiativen';
 import { tickEUKlima, advanceEURoute, checkEUEreignisse } from './systems/eu';
+import {
+  tickKonjunktur,
+  applySchuldenbremsenEffekte,
+  checkLehmannSparvorschlag,
+  triggerHaushaltsdebatte,
+} from './systems/haushalt';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export function addLog(state: GameState, msg: string, type: string, params?: Record<string, string | number>): GameState {
@@ -33,6 +40,11 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = applyPendingEffects(s);
   s = advanceRoutes(s);
   s = advanceEURoute(s);
+
+  s = tickKonjunktur(s, complexity);
+  s = applySchuldenbremsenEffekte(s, complexity, content);
+  s = checkLehmannSparvorschlag(s, complexity);
+  s = triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []);
 
   const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
   s = checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents);
@@ -60,7 +72,22 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   });
   s = checkRandomEvents(s, content.events);
 
-  s = { ...s, zust: recalcApproval(s.kpi, s.zust) };
+  let newZust = recalcApproval(s.kpi, s.zust);
+  if (content.milieus && content.milieus.length > 0) {
+    const g = berechneWahlprognose({ ...s, zust: newZust }, content, complexity);
+    newZust = { ...newZust, g };
+  }
+  s = { ...s, zust: newZust };
+
+  if (s.milieuZustimmung && Object.keys(s.milieuZustimmung).length > 0) {
+    const history = { ...(s.milieuZustimmungHistory ?? {}) };
+    for (const [mid, val] of Object.entries(s.milieuZustimmung)) {
+      const arr = history[mid] ?? [];
+      const next = [...arr, val].slice(-3);
+      history[mid] = next;
+    }
+    s = { ...s, milieuZustimmungHistory: history };
+  }
 
   return s;
 }

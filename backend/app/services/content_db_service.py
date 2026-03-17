@@ -27,6 +27,10 @@ from app.models.content import (
     VerbandI18n,
     VerbandsTradeoff,
     VerbandsTradeoffI18n,
+    EuEvent,
+    EuEventI18n,
+    EuEventChoice,
+    EuEventChoiceI18n,
 )
 
 VALID_LOCALES = frozenset({"de", "en"})
@@ -307,6 +311,80 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
             "sprecher_land": fi18n.sprecher_land,
             "sprecher_bio": fi18n.sprecher_bio,
             "tradeoffs": tradeoffs,
+        })
+    _set_cached(cache_key, rows)
+    return rows
+
+
+async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
+    """Lädt alle EU-Events mit Choices für die gegebene Locale."""
+    cache_key = ("eu_events", locale)
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
+
+    use_locale = locale
+    stmt = (
+        select(EuEvent, EuEventI18n)
+        .join(
+            EuEventI18n,
+            (EuEvent.id == EuEventI18n.event_id) & (EuEventI18n.locale == use_locale),
+        )
+    )
+    result = await db.execute(stmt)
+    events_raw = result.all()
+
+    if not events_raw and locale == "en":
+        use_locale = "de"
+        stmt = (
+            select(EuEvent, EuEventI18n)
+            .join(
+                EuEventI18n,
+                (EuEvent.id == EuEventI18n.event_id) & (EuEventI18n.locale == "de"),
+            )
+        )
+        result = await db.execute(stmt)
+        events_raw = result.all()
+
+    rows = []
+    for e, ei18n in events_raw:
+        ch_stmt = (
+            select(EuEventChoice, EuEventChoiceI18n)
+            .join(
+                EuEventChoiceI18n,
+                (EuEventChoice.id == EuEventChoiceI18n.choice_id)
+                & (EuEventChoiceI18n.locale == use_locale),
+            )
+            .where(EuEventChoice.event_id == e.id)
+        )
+        ch_result = await db.execute(ch_stmt)
+        choices_raw = ch_result.all()
+
+        choices = []
+        for ch, chi18n in choices_raw:
+            choices.append({
+                "key": ch.choice_key,
+                "cost_pk": ch.cost_pk or 0,
+                "effekte": _effekte(ch.effekt_al, ch.effekt_hh, ch.effekt_gi, ch.effekt_zf),
+                "eu_klima_delta": ch.eu_klima_delta or 0,
+                "kofinanzierung": float(ch.kofinanzierung or 0),
+                "label": chi18n.label,
+                "desc": chi18n.desc,
+                "log_msg": chi18n.log_msg,
+            })
+
+        rows.append({
+            "id": e.id,
+            "event_type": e.event_type,
+            "politikfeld_id": e.politikfeld_id,
+            "trigger_klima_min": e.trigger_klima_min,
+            "trigger_monat": e.trigger_monat,
+            "min_complexity": e.min_complexity or 3,
+            "title": ei18n.title,
+            "quote": ei18n.quote,
+            "context": ei18n.context,
+            "ticker": ei18n.ticker,
+            "choices": choices,
         })
     _set_cached(cache_key, rows)
     return rows

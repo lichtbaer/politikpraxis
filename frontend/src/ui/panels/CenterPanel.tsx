@@ -7,6 +7,7 @@ import { AgendaView } from '../views/AgendaView';
 import { EbeneView } from '../views/EbeneView';
 import { MediaView } from '../views/MediaView';
 import { BundesratView } from '../views/BundesratView';
+import { VerbaendeView } from '../views/VerbaendeView';
 import { useGameActions } from '../hooks/useGameActions';
 import type { GameEvent, EventChoice } from '../../core/types';
 import styles from './CenterPanel.module.css';
@@ -18,6 +19,9 @@ export function CenterPanel() {
 
   useEffect(() => {
     if (state.view === 'bundesrat' && !featureActive(complexity, 'bundesrat_simple')) {
+      setView('agenda');
+    }
+    if (state.view === 'verbaende' && !featureActive(complexity, 'verbands_lobbying')) {
       setView('agenda');
     }
   }, [state.view, complexity, setView]);
@@ -43,6 +47,7 @@ export function CenterPanel() {
             )}
             {state.view === 'medien' && <MediaView />}
             {state.view === 'bundesrat' && <BundesratView />}
+            {state.view === 'verbaende' && <VerbaendeView />}
           </>
         )}
       </div>

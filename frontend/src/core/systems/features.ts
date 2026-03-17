@@ -33,6 +33,16 @@ const FEATURES: Record<string, { minLevel: number }> = {
   koalitionsvertrag_score: { minLevel: 4 },
   /** Ministerial-Initiativen (Minister bringen eigene Gesetze ein) */
   ministerial_initiativen: { minLevel: 3 },
+  /** SMA-268: Haushaltsdebatte als jährliches Strukturevent */
+  haushaltsdebatte: { minLevel: 2 },
+  /** SMA-268: Schuldenbremsen-Check und Lehmann-Reaktionen */
+  schuldenbremse: { minLevel: 3 },
+  /** SMA-268: Konjunkturindex sichtbar und in Einnahmen */
+  konjunkturindex: { minLevel: 3 },
+  /** SMA-268: Steuerquote/Steuerpolitik-Modifikator */
+  steuerquote: { minLevel: 3 },
+  /** SMA-268: Gegenfinanzierung bei Gesetzen */
+  gegenfinanzierung: { minLevel: 2 },
   /** SMA-269: EU-Ausweichroute (3 Phasen) */
   eu_route: { minLevel: 2 },
   /** EU-Klima-System (sichtbar, Drift) */

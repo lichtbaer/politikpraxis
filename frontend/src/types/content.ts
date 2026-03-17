@@ -45,12 +45,21 @@ export interface GesetzApi {
   desc: string;
   ideologie?: IdeologieApi;
   politikfeld_id?: string | null;
+  /** SMA-268: Einmalige Haushaltskosten in Mrd. € */
+  kosten_einmalig?: number;
+  /** SMA-268: Laufende Haushaltskosten in Mrd. €/Jahr */
+  kosten_laufend?: number;
+  /** SMA-268: Einnahmeeffekt in Mrd. € (z.B. Steueränderung) */
+  einnahmeeffekt?: number;
 }
 
 export interface MilieuApi {
   id: string;
   ideologie: IdeologieApi;
   min_complexity: number;
+  gewicht?: number;
+  basisbeteiligung?: number;
+  kurz?: string;
 }
 
 export interface PolitikfeldApi {

@@ -31,15 +31,15 @@ export const DEFAULT_SCENARIO: ContentBundle['scenario'] = {
   startCoalition: 78,
 };
 
-/** Fallback Milieus (SMA-261) wenn API nicht erreichbar */
+/** Fallback Milieus (SMA-261) wenn API nicht erreichbar. SMA-264: gewicht, basisbeteiligung für Wahlprognose. */
 const DEFAULT_MILIEUS: ContentBundle['milieus'] = [
-  { id: 'postmaterielle', ideologie: { wirtschaft: -60, gesellschaft: -70, staat: -35 }, min_complexity: 2 },
-  { id: 'soziale_mitte', ideologie: { wirtschaft: -45, gesellschaft: -30, staat: -55 }, min_complexity: 2 },
-  { id: 'prekaere', ideologie: { wirtschaft: -30, gesellschaft: 40, staat: -60 }, min_complexity: 3 },
-  { id: 'buergerliche_mitte', ideologie: { wirtschaft: 10, gesellschaft: 15, staat: -10 }, min_complexity: 2 },
-  { id: 'leistungstraeger', ideologie: { wirtschaft: 40, gesellschaft: -20, staat: 20 }, min_complexity: 2 },
-  { id: 'etablierte', ideologie: { wirtschaft: 65, gesellschaft: 45, staat: 50 }, min_complexity: 3 },
-  { id: 'traditionelle', ideologie: { wirtschaft: -5, gesellschaft: 55, staat: -40 }, min_complexity: 2 },
+  { id: 'postmaterielle', ideologie: { wirtschaft: -60, gesellschaft: -70, staat: -35 }, min_complexity: 2, gewicht: 12, basisbeteiligung: 85, kurz: 'Postmat.' },
+  { id: 'soziale_mitte', ideologie: { wirtschaft: -45, gesellschaft: -30, staat: -55 }, min_complexity: 2, gewicht: 18, basisbeteiligung: 72, kurz: 'Soz. Mitte' },
+  { id: 'prekaere', ideologie: { wirtschaft: -30, gesellschaft: 40, staat: -60 }, min_complexity: 3, gewicht: 14, basisbeteiligung: 55, kurz: 'Prekär' },
+  { id: 'buergerliche_mitte', ideologie: { wirtschaft: 10, gesellschaft: 15, staat: -10 }, min_complexity: 2, gewicht: 22, basisbeteiligung: 78, kurz: 'Bürg. Mitte' },
+  { id: 'leistungstraeger', ideologie: { wirtschaft: 40, gesellschaft: -20, staat: 20 }, min_complexity: 2, gewicht: 16, basisbeteiligung: 68, kurz: 'Leistung' },
+  { id: 'etablierte', ideologie: { wirtschaft: 65, gesellschaft: 45, staat: 50 }, min_complexity: 3, gewicht: 10, basisbeteiligung: 88, kurz: 'Etabliert' },
+  { id: 'traditionelle', ideologie: { wirtschaft: -5, gesellschaft: 55, staat: -40 }, min_complexity: 2, gewicht: 8, basisbeteiligung: 62, kurz: 'Tradition' },
 ];
 
 /** Fallback Politikfelder (SMA-261) */
