@@ -31,6 +31,10 @@ export interface CharApi {
   interests: string[];
   keyword?: string | null;
   ideologie?: IdeologieApi;
+  /** SMA-288: Parteikürzel für Kanzler-Badge */
+  partei_id?: string | null;
+  partei_kuerzel?: string | null;
+  partei_farbe?: string | null;
 }
 
 export interface GesetzApi {

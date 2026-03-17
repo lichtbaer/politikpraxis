@@ -715,6 +715,12 @@
     "label": "Media climate",
     "opposition": "Opposition"
   },
+  "koalition": {
+    "partner": "Coalition partner",
+    "koalition": "Coalition",
+    "koalitionsrunde": "Coalition meeting",
+    "zugestaendnis": "Concession"
+  },
   "framing": {
     "title": "How do you communicate this law?",
     "keinFraming": "No framing",

@@ -676,6 +676,7 @@
   },
   "koalition": {
     "partner": "Koalitionspartner",
+    "koalition": "Koalition",
     "koalitionsrunde": "Koalitionsrunde",
     "zugestaendnis": "Zugeständnis"
   },

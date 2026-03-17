@@ -22,6 +22,11 @@ export function KoalitionspartnerPanel() {
   const partnerState = state.koalitionspartner;
   if (!partnerState || partnerState.id !== partnerContent.id) return null;
 
+  const kanzler = state.chars.find((c) => c.id === 'kanzler') ?? state.chars[0];
+  const kanzlerPartei = kanzler?.partei_kuerzel ?? 'SDP';
+  const partnerPartei = partnerContent.partei_kuerzel ?? 'GP';
+  const koalitionTitle = `${kanzlerPartei} + ${partnerPartei} ${t('game:koalition.koalition')}`;
+
   const beziehung = partnerState.beziehung;
   const pk = state.pk;
   const canKoalitionsrunde = pk >= 15;
@@ -30,7 +35,7 @@ export function KoalitionspartnerPanel() {
 
   return (
     <div className={styles.panel}>
-      <h3 className={styles.title}>{t('game:koalition.partner')}</h3>
+      <h3 className={styles.title}>{koalitionTitle}</h3>
       <div className={styles.content}>
         <div
           className={styles.avatar}
