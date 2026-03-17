@@ -773,7 +773,13 @@
   },
   "gesetz": {
     "gegenKurs": "Gegen Regierungskurs",
-    "erhoehterAufwand": "Erhöhter Aufwand"
+    "erhoehterAufwand": "Erhöhter Aufwand",
+    "kostenEinmalig": "Einmalig",
+    "kostenLaufend": "Laufend",
+    "einnahmeeffekt": "Einnahmen",
+    "pkKosten": "Politisch",
+    "investivLabel": "Investition (+2 Mo. Lag)",
+    "haushaltAnteil": "{{percent}}% des Jahresbudgets"
   },
   "gesetzAgenda": {
     "title": "Gesetz-Agenda",

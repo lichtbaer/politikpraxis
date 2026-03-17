@@ -532,6 +532,16 @@
       "industrie": "Industrial city"
     }
   },
+  "gesetz": {
+    "gegenKurs": "Against government course",
+    "erhoehterAufwand": "Increased effort",
+    "kostenEinmalig": "One-time",
+    "kostenLaufend": "Recurring",
+    "einnahmeeffekt": "Revenue",
+    "pkKosten": "Political",
+    "investivLabel": "Investment (+2 mo. lag)",
+    "haushaltAnteil": "{{percent}}% of annual budget"
+  },
   "gesetzAgenda": {
     "title": "Law Agenda",
     "andere": "In progress ({{count}} laws)",
