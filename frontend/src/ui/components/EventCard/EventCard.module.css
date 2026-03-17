@@ -33,6 +33,24 @@
   color: white;
 }
 
+/* SMA-279: Skandal-Events mit rotem Banner */
+.headerSkandal {
+  background: var(--red);
+  color: white;
+}
+
+.medienKlimaPos {
+  color: var(--green);
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+.medienKlimaNeg {
+  color: var(--red);
+  font-size: 11px;
+  margin-left: 4px;
+}
+
 .icon {
   width: 40px;
   height: 40px;

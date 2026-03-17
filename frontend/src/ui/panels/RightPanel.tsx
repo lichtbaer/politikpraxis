@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
+import { useGameActions } from '../hooks/useGameActions';
+import { featureActive } from '../../core/systems/features';
 import { KPITile } from '../components/KPITile/KPITile';
 import { HaushaltsPanel } from '../components/HaushaltsPanel/HaushaltsPanel';
 import styles from './RightPanel.module.css';
@@ -37,8 +39,13 @@ function getBarStyle(
 
 export function RightPanel() {
   const { t } = useTranslation();
-  const { state } = useGameStore();
+  const state = useGameStore((s) => s.state);
+  const complexity = useGameStore((s) => s.complexity);
+  const { doPressemitteilung } = useGameActions();
   const { kpi, kpiPrev, log } = state;
+
+  const oppositionAktiv = state.opposition?.aktivesThema && featureActive(complexity, 'opposition');
+  const canKontern = state.pk >= 5 && state.letztesPressemitteilungMonat !== state.month;
 
   const prev = kpiPrev ?? { al: null, hh: null, gi: null, zf: null };
 
@@ -94,6 +101,21 @@ export function RightPanel() {
 
       <section className={styles.section}>
         <h3 className={styles.sectionLabel}>{t('game:rightPanel.ereignisprotokoll')}</h3>
+        {oppositionAktiv && (
+          <div className={styles.oppositionAngriff}>
+            <span className={styles.oppositionText}>
+              ⚡ {t('game:opposition.angriff', { thema: t(`game:opposition.thema.${state.opposition!.aktivesThema}`) })}
+            </span>
+            <button
+              type="button"
+              className={styles.oppositionBtn}
+              disabled={!canKontern}
+              onClick={() => doPressemitteilung('opposition')}
+            >
+              {t('game:opposition.kontern')} (5 PK)
+            </button>
+          </div>
+        )}
         <div className={styles.log}>
           {log.length === 0 ? (
             <p className={styles.logEmpty}>{t('game:rightPanel.logEmpty')}</p>

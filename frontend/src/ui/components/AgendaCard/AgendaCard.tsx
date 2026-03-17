@@ -8,6 +8,7 @@ import { featureActive } from '../../../core/systems/features';
 import { getVorstufenBoni } from '../../../core/systems/gesetzLebenszyklus';
 import { VorstufeBadge } from '../VorstufeBadge/VorstufeBadge';
 import { VorbereitungModal } from '../VorbereitungModal/VorbereitungModal';
+import { FramingModal } from '../FramingModal/FramingModal';
 import type { Law, LawStatus, RouteType } from '../../../core/types';
 import styles from './AgendaCard.module.css';
 
@@ -40,6 +41,7 @@ export function AgendaCard({ law, isRecommended }: AgendaCardProps) {
   const { state, complexity, ausrichtung } = useGameStore();
   const actions = useGameActions();
   const [showVorbereitungModal, setShowVorbereitungModal] = useState(false);
+  const [showFramingModal, setShowFramingModal] = useState(false);
   const expanded = law.expanded;
   const pk = state.pk;
 
@@ -47,6 +49,7 @@ export function AgendaCard({ law, isRecommended }: AgendaCardProps) {
   const projekt = state.gesetzProjekte?.[law.id];
   const boni = getVorstufenBoni(state, law.id);
   const hasVorstufen = featureActive(complexity, 'kommunal_pilot') || featureActive(complexity, 'laender_pilot') || featureActive(complexity, 'eu_route');
+  const hasFraming = featureActive(complexity, 'framing') && (law.framing_optionen?.length ?? 0) > 0;
 
   const handleHeaderClick = () => actions.toggleAgenda(law.id);
 
@@ -200,7 +203,13 @@ export function AgendaCard({ law, isRecommended }: AgendaCardProps) {
                   type="button"
                   className={styles.btn}
                   disabled={!canEinbringen}
-                  onClick={() => actions.einbringen(law.id)}
+                  onClick={() => {
+                    if (hasFraming) {
+                      setShowFramingModal(true);
+                    } else {
+                      actions.einbringen(law.id);
+                    }
+                  }}
                 >
                   {t('game:agenda.einbringen')}
                 </button>
@@ -257,6 +266,16 @@ export function AgendaCard({ law, isRecommended }: AgendaCardProps) {
 
           {showVorbereitungModal && (
             <VorbereitungModal law={law} onClose={() => setShowVorbereitungModal(false)} />
+          )}
+          {showFramingModal && hasFraming && (
+            <FramingModal
+              law={law}
+              onConfirm={(framingKey) => {
+                actions.einbringenMitFraming(law.id, framingKey);
+                setShowFramingModal(false);
+              }}
+              onClose={() => setShowFramingModal(false)}
+            />
           )}
         </div>
       )}

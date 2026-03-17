@@ -806,5 +806,92 @@
     "legislaturBegonnen": "Neue Legislaturperiode begonnen",
     "koalitionsvertrag": "Koalitionsvertrag unterzeichnet",
     "gesetzeVorbereitung": "{{count}} Gesetzentwürfe in Vorbereitung"
+  },
+  "medienklima": {
+    "label": "Medienklima",
+    "opposition": "Opposition"
+  },
+  "framing": {
+    "title": "Wie kommunizierst du dieses Gesetz?",
+    "keinFraming": "Kein Framing",
+    "abbrechen": "Abbrechen"
+  },
+  "pressemitteilung": {
+    "title": "Pressemitteilung",
+    "desc": "Wähle ein Thema für deine Pressemitteilung (5 PK).",
+    "button": "Pressemitteilung (5 PK)",
+    "thema": {
+      "haushalt": "Haushalt",
+      "koalition": "Koalition",
+      "politikfeld": "Politikfeld",
+      "opposition": "Opposition"
+    }
+  },
+  "legislaturBilanz": {
+    "beat1Title": "Legislatur-Bilanz",
+    "beat2Title": "Qualitative Bewertung",
+    "beat3Title": "Wahlkampf-Botschaften",
+    "beat3Desc": "Wähle 2 Kernthemen für deine Wahlkampf-Kommunikation. ✅ = glaubwürdig, ⚠ = riskant.",
+    "haushalt": "Haushaltssaldo",
+    "koalition": "Koalitionsvertrag",
+    "reform": "Reform",
+    "stabilitaet": "Stabilität",
+    "wirtschaft": "Wirtschaft",
+    "medien": "Medien",
+    "weiter": "Weiter",
+    "fertig": "Fertig",
+    "botschaft": {
+      "klima": "Klima",
+      "wirtschaft": "Wirtschaft",
+      "soziales": "Soziales",
+      "sicherheit": "Sicherheit",
+      "sonstiges": "Sonstiges",
+      "wirtschaft_finanzen": "Wirtschaft & Finanzen",
+      "arbeit_soziales": "Arbeit & Soziales",
+      "umwelt_energie": "Umwelt & Energie",
+      "innere_sicherheit": "Innere Sicherheit",
+      "bildung_forschung": "Bildung & Forschung",
+      "gesundheit_pflege": "Gesundheit & Pflege",
+      "digital_infrastruktur": "Digital & Infrastruktur",
+      "landwirtschaft": "Landwirtschaft",
+      "umwelt": "Umwelt",
+      "arbeit": "Arbeit"
+    }
+  },
+  "wahlkampf": {
+    "title": "Wahlkampf",
+    "monat": "Monat {{month}}/48",
+    "aktionen": "Aktionsslots",
+    "bilanz": "Legislatur-Bilanz",
+    "gesetze": "Gesetze",
+    "politikfelder": "Politikfelder",
+    "reform": "Reform",
+    "medien": "Medien",
+    "rede": "Rede",
+    "redeDesc": "+5% Milieu-Zustimmung, ggf. +3 Medienklima",
+    "koalition": "Koalitions-Aktion",
+    "koalitionDesc": "Partner-Kernmilieus +4%, Medien +5, Beziehung +8",
+    "koalitionAktion": "Koalitions-Rede",
+    "medienoffensive": "Medienoffensive",
+    "medienoffensiveDesc": "Medienklima +10, Wahlprognose +2 (einmalig)",
+    "medienoffensiveAktion": "Medienoffensive",
+    "tvDuellBanner": "TV-Duell in diesem oder nächstem Monat!"
+  },
+  "wahlnacht": {
+    "hochrechnung": "Hochrechnung",
+    "tiefenanalyse": "Tiefenanalyse",
+    "analyseTitle": "Analyse der Legislatur",
+    "analyseDesc": "Zusammenfassung Ihrer Regierungsbilanz."
+  },
+  "opposition": {
+    "angriff": "Opposition greift an: {{thema}}",
+    "kontern": "Kontern",
+    "thema": {
+      "haushalt": "Haushalt",
+      "koalition": "Koalition",
+      "politikfeld": "Politikfeld",
+      "sicherheit": "Sicherheit",
+      "wirtschaft": "Wirtschaft"
+    }
   }
 }

@@ -96,6 +96,7 @@ interface GameStore {
   doWahlkampfKoalition: () => void;
   doWahlkampfMedienoffensive: () => void;
   doPressemitteilung: (thema: 'haushalt' | 'koalition' | 'politikfeld' | 'opposition') => void;
+  doSetWahlkampfBotschaften: (botschaften: string[]) => void;
   doEinbringenMitFraming: (lawId: string, framingKey: string | null) => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
@@ -301,6 +302,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const next = pressemitteilung(prev.state, thema, prev.complexity);
       return next ? { state: next } : {};
     }),
+  doSetWahlkampfBotschaften: (botschaften) =>
+    set(prev => ({
+      state: { ...prev.state, wahlkampfBotschaften: botschaften },
+    })),
 
   loadSave: (savedState) => {
     const initial = createInitialState(getContentBundle(), get().complexity);

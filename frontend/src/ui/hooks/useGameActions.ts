@@ -6,6 +6,12 @@ export function useGameActions() {
   const store = useGameStore();
   return {
     einbringen: store.doEinbringen,
+    einbringenMitFraming: store.doEinbringenMitFraming,
+    doPressemitteilung: store.doPressemitteilung,
+    doSetWahlkampfBotschaften: store.doSetWahlkampfBotschaften,
+    doWahlkampfRede: store.doWahlkampfRede,
+    doWahlkampfKoalition: store.doWahlkampfKoalition,
+    doWahlkampfMedienoffensive: store.doWahlkampfMedienoffensive,
     lobbying: store.doLobbying,
     abstimmen: store.doAbstimmen,
     startRoute: (lawId: string, route: RouteType) => store.doStartRoute(lawId, route),
