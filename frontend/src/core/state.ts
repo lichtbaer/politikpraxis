@@ -1,6 +1,7 @@
 import type { GameState, ContentBundle } from './types';
 import { featureActive } from './systems/features';
 import { getKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
+import { createInitialHaushalt } from './systems/haushalt';
 import type { Ausrichtung } from './systems/ausrichtung';
 
 /**
@@ -60,6 +61,24 @@ export function createInitialState(
     politikfeldLetzterBeschluss: {},
   };
 
+  if (featureActive(complexity, 'haushaltsdebatte')) {
+    const withHaushalt = { ...base, haushalt: createInitialHaushalt(base) };
+    if (hasKoalition && partner) {
+      return {
+        ...withHaushalt,
+        koalitionspartner: {
+          id: partner.id,
+          beziehung: partner.beziehung_start,
+          koalitionsvertragScore: 0,
+          schluesselthemenErfuellt: [],
+        },
+        koalitionsvertragProfil: berechneKoalitionsvertragProfil(ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 }, partner),
+        verbandsBeziehungen: { uvb: 50, bvd: 50, ...withHaushalt.verbandsBeziehungen },
+      };
+    }
+    return withHaushalt;
+  }
+
   if (hasKoalition && partner) {
     const ideologie = ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
     return {
@@ -83,25 +102,29 @@ export function createInitialState(
  * arbeit → soziale_mitte, prekaere; mitte → buergerliche_mitte, leistungstraeger; prog → postmaterielle
  */
 export function migrateGameState(state: GameState): GameState {
-  if (state.milieuZustimmung && Object.keys(state.milieuZustimmung).length > 0) {
-    return state;
+  let result = state;
+  if (!state.milieuZustimmung || Object.keys(state.milieuZustimmung).length === 0) {
+    const zust = state.zust;
+    const milieuZustimmung: Record<string, number> = {};
+    milieuZustimmung['soziale_mitte'] = zust.arbeit;
+    milieuZustimmung['prekaere'] = zust.arbeit;
+    milieuZustimmung['buergerliche_mitte'] = zust.mitte;
+    milieuZustimmung['leistungstraeger'] = zust.mitte;
+    milieuZustimmung['postmaterielle'] = zust.prog;
+    milieuZustimmung['etablierte'] = zust.mitte;
+    milieuZustimmung['traditionelle'] = zust.mitte;
+    result = {
+      ...state,
+      milieuZustimmung,
+      verbandsBeziehungen: state.verbandsBeziehungen ?? {},
+      politikfeldDruck: state.politikfeldDruck ?? {},
+      politikfeldLetzterBeschluss: state.politikfeldLetzterBeschluss ?? {},
+      ministerialCooldowns: state.ministerialCooldowns ?? {},
+      aktiveMinisterialInitiative: state.aktiveMinisterialInitiative ?? null,
+    };
   }
-  const zust = state.zust;
-  const milieuZustimmung: Record<string, number> = {};
-  milieuZustimmung['soziale_mitte'] = zust.arbeit;
-  milieuZustimmung['prekaere'] = zust.arbeit;
-  milieuZustimmung['buergerliche_mitte'] = zust.mitte;
-  milieuZustimmung['leistungstraeger'] = zust.mitte;
-  milieuZustimmung['postmaterielle'] = zust.prog;
-  milieuZustimmung['etablierte'] = zust.mitte;
-  milieuZustimmung['traditionelle'] = zust.mitte;
-  return {
-    ...state,
-    milieuZustimmung,
-    verbandsBeziehungen: state.verbandsBeziehungen ?? {},
-    politikfeldDruck: state.politikfeldDruck ?? {},
-    politikfeldLetzterBeschluss: state.politikfeldLetzterBeschluss ?? {},
-    ministerialCooldowns: state.ministerialCooldowns ?? {},
-    aktiveMinisterialInitiative: state.aktiveMinisterialInitiative ?? null,
-  };
+  if (!result.haushalt) {
+    result = { ...result, haushalt: createInitialHaushalt(result) };
+  }
+  return result;
 }
