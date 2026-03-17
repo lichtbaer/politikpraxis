@@ -1,5 +1,6 @@
 import type { GameState, ContentBundle, LegislaturBilanz, Ideologie } from '../types';
 import { addLog } from '../engine';
+import { withPause, getAutoPauseLevel } from '../eventPause';
 import { featureActive } from './features';
 import { getKoalitionspartner } from './koalition';
 import { berechneWahlprognose } from './wahlprognose';
@@ -131,7 +132,7 @@ export function checkWahlkampfBeginn(
 
   const ev = content.events?.find(e => e.id === 'wahlkampf_beginn');
   if (ev) {
-    next = { ...next, activeEvent: ev, speed: 0 };
+    next = { ...next, activeEvent: ev, ...withPause(next, getAutoPauseLevel(ev)) };
   }
 
   return next;
@@ -263,7 +264,7 @@ export function checkTVDuell(
 
   const ev = content.events?.find(e => e.id === 'tv_duell');
   if (ev) {
-    return { ...state, activeEvent: ev, speed: 0 };
+    return { ...state, activeEvent: ev, ...withPause(state, getAutoPauseLevel(ev)) };
   }
   return state;
 }
@@ -339,7 +340,7 @@ export function checkKoalitionspartnerAlleingang(
         medienKlima,
         koalitionspartner: { ...kp, beziehung: newBeziehung },
         activeEvent: ev,
-        speed: 0,
+        ...withPause(state, getAutoPauseLevel(ev)),
       },
       'Koalitionspartner macht riskante öffentliche Aussage.',
       'r',

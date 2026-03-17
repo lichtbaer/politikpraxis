@@ -19,7 +19,10 @@
     "speed": {
       "pause": "Pause",
       "slow": "1×",
-      "fast": "3×"
+      "fast": "3×",
+      "pauseTitle": "Pause (Leertaste)",
+      "slowTitle": "Normal (1)",
+      "fastTitle": "Schnell (3)"
     },
     "actions": {
       "introduce": "Einbringen",

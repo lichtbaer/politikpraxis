@@ -1,5 +1,6 @@
 import type { GameState, GameEvent, EventChoice } from '../types';
 import { addLog } from '../engine';
+import { withPause, getAutoPauseLevel } from '../eventPause';
 import { applyMoodChange } from './characters';
 import { resolveMinisterialInitiative } from './ministerialInitiativen';
 import { startKommunalPilot } from './gesetzLebenszyklus';
@@ -59,7 +60,7 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): Gam
     ...state,
     firedEvents: [...state.firedEvents, ev.id],
     activeEvent: ev,
-    speed: 0,
+    ...withPause(state, getAutoPauseLevel(ev)),
   };
 }
 
@@ -86,7 +87,7 @@ export function checkBundesratEvents(
       return {
         ...state,
         activeEvent: ev,
-        speed: 0,
+        ...withPause(state, getAutoPauseLevel(ev)),
       };
     }
   }
@@ -98,7 +99,7 @@ export function checkBundesratEvents(
       return {
         ...state,
         activeEvent: ev,
-        speed: 0,
+        ...withPause(state, getAutoPauseLevel(ev)),
       };
     }
   }
@@ -123,7 +124,7 @@ export function checkBundesratEvents(
           gesetze,
           firedBundesratEvents: [...fired, 'kohl_eskaliert'],
           activeEvent: { ...ev, lawId: law.id },
-          speed: 0,
+          ...withPause(state, getAutoPauseLevel(ev)),
         };
       }
     }
@@ -147,7 +148,7 @@ export function checkBundesratEvents(
             landtagswahlToFraktion: t.toFraktion,
             ticker: `${t.landName}: ${t.newParty} gewinnt Landtagswahl`,
           },
-          speed: 0,
+          ...withPause(state, getAutoPauseLevel(ev)),
         };
       }
     }
@@ -170,7 +171,7 @@ export function checkBundesratEvents(
             sprecherErsatz: ersatz,
             ticker: `${f.name}: Neuer Sprecher ${ersatz.name}`,
           },
-          speed: 0,
+          ...withPause(state, getAutoPauseLevel(ev)),
         };
       }
     }
@@ -186,7 +187,7 @@ export function checkBundesratEvents(
         ...state,
         firedBundesratEvents: [...fired, 'bundesrat_initiative'],
         activeEvent: { ...ev, fraktionId },
-        speed: 0,
+        ...withPause(state, getAutoPauseLevel(ev)),
       };
     }
   }
@@ -247,7 +248,7 @@ export function checkKommunalEvents(
       ...state,
       firedKommunalEvents: [...fired, ev.id],
       activeEvent: passendesGesetz ? { ...ev, lawId: passendesGesetz.id } : ev,
-      speed: 0,
+      ...withPause(state, getAutoPauseLevel(ev)),
     };
   }
 

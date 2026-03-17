@@ -1,4 +1,5 @@
 import type { GameState, ContentBundle } from './types';
+import { withPause, getAutoPauseLevel } from './eventPause';
 import { PK_REGEN_DIVISOR, PK_MAX } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
@@ -82,7 +83,8 @@ export function tick(
       ? (content.vorstufenEvents ?? []).find(e => e.id === 'vorstufe_kommunal_erfolg')
       : (content.vorstufenEvents ?? []).find(e => e.id === 'vorstufe_laender_erfolg');
     if (ev) {
-      s = { ...s, activeEvent: { ...ev, lawId: routesResult.completedVorstufe.lawId }, speed: 0 };
+      const evWithLaw = { ...ev, lawId: routesResult.completedVorstufe.lawId };
+      s = { ...s, activeEvent: evWithLaw, ...withPause(s, getAutoPauseLevel(ev)) };
     }
   }
   s = advanceEURoute(s);
