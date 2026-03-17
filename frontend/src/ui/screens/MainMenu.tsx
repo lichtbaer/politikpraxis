@@ -49,24 +49,26 @@ export function MainMenu() {
       <div className={styles.startScreen}>
         <div className={styles.startLeft} aria-hidden="true" />
         <div className={styles.startRight}>
-          <h1 className={styles.title}>{t('app.title')}</h1>
-          <p className={styles.subtitle}>{t('app.subtitle')}</p>
+          <div className={styles.startText}>
+            <h1 className={styles.title}>{t('app.title')}</h1>
+            <p className={styles.subtitle}>{t('app.subtitle')}</p>
 
-          <div className={styles.einladung}>
-            <p className={styles.einladungKompakt}>{t('startseite.kompakt')}</p>
-            <div className={styles.einladungPrimaer}>
-              <p className={styles.einladungText}>{t('startseite.einladung1')}</p>
-              <p className={styles.einladungText}>
-                {t('startseite.einladung2')}
-                <br />
-                {t('startseite.einladung3')}
-              </p>
-              <p className={styles.einladungText}>{t('startseite.einladung4')}</p>
-              <p className={styles.einladungText}>{t('startseite.einladung5')}</p>
+            <div className={styles.einladung}>
+              <p className={styles.einladungKompakt}>{t('startseite.kompakt')}</p>
+              <div className={styles.einladungPrimaer}>
+                <p className={styles.einladungText}>{t('startseite.einladung1')}</p>
+                <p className={styles.einladungText}>
+                  {t('startseite.einladung2')}
+                  <br />
+                  {t('startseite.einladung3')}
+                </p>
+                <p className={styles.einladungText}>{t('startseite.einladung4')}</p>
+                <p className={styles.einladungText}>{t('startseite.einladung5')}</p>
+              </div>
             </div>
           </div>
 
-          <nav className={styles.buttons}>
+          <nav className={styles.startButtons}>
             <button
               type="button"
               className={styles.primary}
@@ -95,7 +97,7 @@ export function MainMenu() {
             </button>
           </nav>
 
-          <p className={styles.disclaimer}>{t('startseite.disclaimer')}</p>
+          <p className={styles.startDisclaimer}>{t('startseite.disclaimer')}</p>
         </div>
       </div>
 

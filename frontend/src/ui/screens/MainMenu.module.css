@@ -76,6 +76,13 @@
   max-width: 100%;
 }
 
+.startText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .title {
   font-family: var(--serif);
   font-size: clamp(36px, 8vw, 64px);
@@ -119,7 +126,7 @@
   display: none;
 }
 
-.disclaimer {
+.startDisclaimer {
   font-family: var(--sans);
   font-size: 11px;
   color: var(--text3);
@@ -129,7 +136,7 @@
   line-height: 1.4;
 }
 
-.buttons {
+.startButtons {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -214,11 +221,34 @@
   }
 
   .startRight {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 1fr auto;
+    gap: 2rem;
     padding: 4rem;
-    justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     text-align: left;
     max-width: none;
+  }
+
+  .startText {
+    grid-column: 1;
+    grid-row: 1;
+    align-items: flex-start;
+  }
+
+  .startButtons {
+    grid-column: 2;
+    grid-row: 1;
+    flex-direction: column;
+    min-width: 200px;
+    align-self: center;
+    max-width: none;
+  }
+
+  .startDisclaimer {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .title {
@@ -249,30 +279,17 @@
     font-size: 15px;
   }
 
-  .buttons {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 1rem;
-    max-width: 100%;
-    align-items: stretch;
+  .startButtons .primary {
+    width: 100%;
   }
 
-  .buttons .primary {
-    flex: 2;
-    min-width: 140px;
-    width: auto;
+  .startButtons .secondary {
+    width: 100%;
   }
 
-  .buttons .secondary {
-    flex: 1;
-    min-width: 140px;
-    width: auto;
-  }
-
-  .disclaimer {
+  .startDisclaimer {
     text-align: left;
-    max-width: 420px;
+    max-width: none;
   }
 
   .primary {
