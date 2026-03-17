@@ -315,6 +315,7 @@ export function validateGameState(raw: unknown): GameState {
     'gesetzProjekte', 'wahlkampfAktiv', 'wahlkampfAktionenGenutzt', 'legislaturBilanz', 'wahlkampfBotschaften',
     'tvDuellAbgehalten', 'tvDuellGewonnen', 'medienKlimaHistory', 'letzterSkandal', 'letztesPressemitteilungMonat',
     'opposition', 'medienoffensiveGenutzt',
+    'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);

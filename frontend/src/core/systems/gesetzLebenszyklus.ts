@@ -417,7 +417,9 @@ export function tickGesetzVorstufen(
       if (vorstufe.abgeschlossen) continue;
 
       const elapsed = s.month - vorstufe.startMonat;
-      const fortschritt = Math.min(100, (elapsed / vorstufe.dauerMonate) * 100);
+      const bonusMonate = s.vorstufeBonusMonate?.[gesetzId] ?? 0;
+      const effektivElapsed = elapsed + bonusMonate;
+      const fortschritt = Math.min(100, (effektivElapsed / vorstufe.dauerMonate) * 100);
       const updatedVorstufe = { ...vorstufe, fortschritt };
 
       if (fortschritt >= 100) {
