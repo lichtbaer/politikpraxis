@@ -1,5 +1,6 @@
 import type { ContentBundle, BundesratLand, Verband, MinisterialInitiative } from '../../core/types';
 import { GRUENE } from './koalitionspartner';
+import { DEFAULT_MEDIEN_EVENTS } from './medienEvents';
 
 /** 16 Bundesländer für Abstimmungsbalken (strukturelle Daten, nicht i18n) */
 export const DEFAULT_BUNDESRAT: BundesratLand[] = [
@@ -93,5 +94,6 @@ export const DEFAULT_CONTENT: ContentBundle = {
   ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
   euKlimaStartwerte: DEFAULT_EU_KLIMA_STARTWERTE,
   euEvents: [],
+  medienEvents: DEFAULT_MEDIEN_EVENTS,
   scenario: DEFAULT_SCENARIO,
 };

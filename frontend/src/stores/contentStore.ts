@@ -37,6 +37,7 @@ import {
   TV_DUELL_EVENT,
   KOALITIONSPARTNER_ALLEINGANG_EVENT,
 } from '../data/defaults/wahlkampfEvents';
+import { DEFAULT_MEDIEN_EVENTS } from '../data/defaults/medienEvents';
 
 const EVENT_TYPE_ICONS: Record<string, string> = {
   danger: '🔴',
@@ -114,6 +115,7 @@ function transformGesetz(api: GesetzApi): Law {
     kommunal_pilot_moeglich: api.kommunal_pilot_moeglich ?? true,
     laender_pilot_moeglich: api.laender_pilot_moeglich ?? true,
     eu_initiative_moeglich: api.eu_initiative_moeglich ?? true,
+    framing_optionen: (api as { framing_optionen?: { key: string; milieu_effekte: Record<string, number>; verband_effekte?: Record<string, number>; medienklima_delta: number }[] }).framing_optionen ?? [],
   };
 }
 
@@ -376,6 +378,7 @@ export function getContentBundle(): ContentBundle {
     ministerialInitiativen: s.ministerialInitiativen?.length ? s.ministerialInitiativen : DEFAULT_MINISTERIAL_INITIATIVEN,
     euKlimaStartwerte: s.euKlimaStartwerte ?? [],
     euEvents: s.euEvents ?? [],
+    medienEvents: DEFAULT_MEDIEN_EVENTS,
     scenario: s.scenario,
   };
 }
