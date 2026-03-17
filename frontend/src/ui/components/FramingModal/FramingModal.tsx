@@ -1,5 +1,6 @@
 /**
  * SMA-279: Framing-Auswahl beim Gesetz-Einbringen (ab Stufe 2)
+ * SMA-303: Label, Slogan, lesbare Milieu-Effekte
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +11,11 @@ interface FramingModalProps {
   law: Law;
   onConfirm: (framingKey: string | null) => void;
   onClose: () => void;
+}
+
+function getMilieuName(t: (key: string) => string, milieuId: string): string {
+  const name = t(`milieu.${milieuId}`);
+  return name !== `milieu.${milieuId}` ? name : milieuId;
 }
 
 export function FramingModal({ law, onConfirm, onClose }: FramingModalProps) {
@@ -36,25 +42,33 @@ export function FramingModal({ law, onConfirm, onClose }: FramingModalProps) {
               className={`${styles.option} ${selectedFraming === option.key ? styles.selected : ''}`}
               onClick={() => setSelectedFraming(option.key)}
             >
-              <span className={styles.optionLabel}>
-                {t(`game:framing.${option.key}.label`, option.key)}
-              </span>
-              <span className={styles.optionDesc}>
-                {t(`game:framing.${option.key}.desc`, '')}
-              </span>
+              <h4 className={styles.optionLabel}>
+                {option.label ?? t(`game:framing.${option.key}.label`, option.key)}
+              </h4>
+              {option.slogan && (
+                <p className={styles.optionSlogan}>&quot;{option.slogan}&quot;</p>
+              )}
               <div className={styles.effekte}>
-                {option.medienklima_delta !== 0 && (
-                  <span className={option.medienklima_delta > 0 ? styles.deltaPositiv : styles.deltaNegativ}>
-                    Medienklima {option.medienklima_delta > 0 ? '+' : ''}{option.medienklima_delta}
-                  </span>
-                )}
                 {option.milieu_effekte && Object.keys(option.milieu_effekte).length > 0 && (
-                  <span className={styles.milieuTags}>
-                    {Object.entries(option.milieu_effekte).map(([k, v]) => (
-                      <span key={k} className={styles.tag}>
-                        {k}: {v > 0 ? '+' : ''}{v}
+                  <>
+                    {Object.entries(option.milieu_effekte).map(([mid, delta]) => (
+                      <span
+                        key={mid}
+                        className={delta > 0 ? styles.effektPositiv : styles.effektNegativ}
+                      >
+                        👥 {getMilieuName(t, mid)} {delta > 0 ? '+' : ''}{delta}%
                       </span>
                     ))}
+                  </>
+                )}
+                {option.medienklima_delta !== 0 && (
+                  <span
+                    className={
+                      option.medienklima_delta > 0 ? styles.effektPositiv : styles.effektNegativ
+                    }
+                  >
+                    📰 {t('game:medienklima.label')} {option.medienklima_delta > 0 ? '+' : ''}
+                    {option.medienklima_delta}
                   </span>
                 )}
               </div>

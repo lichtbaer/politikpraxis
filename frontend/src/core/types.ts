@@ -105,9 +105,13 @@ export interface Law {
   framing_optionen?: FramingOption[];
 }
 
-/** Framing-Option für Gesetz-Einbringen */
+/** Framing-Option für Gesetz-Einbringen (SMA-303: label, slogan) */
 export interface FramingOption {
   key: string;
+  /** Anzeigename (z.B. "Sozialer Ausgleich") */
+  label?: string;
+  /** Kurzer Slogan/Satz (z.B. "Faire Löhne stärken den gesellschaftlichen Zusammenhalt") */
+  slogan?: string;
   milieu_effekte: Record<string, number>;
   verband_effekte?: Record<string, number>;
   medienklima_delta: number;
