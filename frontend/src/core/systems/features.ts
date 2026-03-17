@@ -73,6 +73,16 @@ const FEATURES: Record<string, { minLevel: number }> = {
   koalitionspartner_alleingang: { minLevel: 4 },
   /** Wahlnacht-Analyse (detaillierte Ergebnisanzeige) */
   wahlnacht_analyse: { minLevel: 3 },
+  /** SMA-277: Medienklima-Index sichtbar und Drift */
+  medienklima: { minLevel: 2 },
+  /** SMA-277: Framing beim Gesetz-Einbringen */
+  framing: { minLevel: 2 },
+  /** SMA-277: Skandal-Events mit Cooldown */
+  skandale: { minLevel: 2 },
+  /** SMA-277: Pressemitteilung-Aktion (1× pro Monat, 5 PK) */
+  pressemitteilung: { minLevel: 3 },
+  /** SMA-277: Opposition als abstrakter Akteur */
+  opposition: { minLevel: 3 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {

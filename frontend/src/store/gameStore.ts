@@ -42,6 +42,7 @@ import {
   wahlkampfKoalition,
   wahlkampfMedienoffensive,
 } from '../core/systems/wahlkampf';
+import { pressemitteilung } from '../core/systems/medienklima';
 
 export type GamePhase = 'onboarding' | 'playing';
 
@@ -94,6 +95,8 @@ interface GameStore {
   doWahlkampfRede: (milieuId: string) => void;
   doWahlkampfKoalition: () => void;
   doWahlkampfMedienoffensive: () => void;
+  doPressemitteilung: (thema: 'haushalt' | 'koalition' | 'politikfeld' | 'opposition') => void;
+  doEinbringenMitFraming: (lawId: string, framingKey: string | null) => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
 }
@@ -158,6 +161,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doEinbringen: (lawId) =>
     set((prev) => {
       const ctx: EinbringenContext = { ausrichtung: prev.ausrichtung, complexity: prev.complexity };
+      return { state: einbringen(prev.state, lawId, ctx) };
+    }),
+  doEinbringenMitFraming: (lawId, framingKey) =>
+    set((prev) => {
+      const ctx: EinbringenContext = {
+        ausrichtung: prev.ausrichtung,
+        complexity: prev.complexity,
+        framingKey: framingKey ?? undefined,
+      };
       return { state: einbringen(prev.state, lawId, ctx) };
     }),
   doLobbying: (lawId) => set(prev => ({ state: lobbying(prev.state, lawId) })),
@@ -284,6 +296,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(prev => ({
       state: wahlkampfMedienoffensive(prev.state, prev.content, prev.complexity),
     })),
+  doPressemitteilung: (thema) =>
+    set(prev => {
+      const next = pressemitteilung(prev.state, thema, prev.complexity);
+      return next ? { state: next } : {};
+    }),
 
   loadSave: (savedState) => {
     const initial = createInitialState(getContentBundle(), get().complexity);

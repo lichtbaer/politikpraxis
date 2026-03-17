@@ -1,11 +1,13 @@
 import type { GameState } from '../types';
 import { milieuGesetzKongruenz } from '../ideologie';
 import { featureActive } from './features';
+import { getMedienMultiplikator } from './medienklima';
 
 /**
  * Wendet Milieu-Effekte nach einem Gesetzesbeschluss an.
  * Nur bei featureActive('milieus_voll').
  * Delta: Score ≥75: +3, ≥55: +1, ≥25: -1, <25: -3
+ * SMA-277: getMedienMultiplikator() moduliert Delta; bei medienKlima > 75: +20%
  */
 export function applyMilieuEffekte(
   state: GameState,
@@ -19,6 +21,9 @@ export function applyMilieuEffekte(
   if (!gesetz) return state;
 
   const milieuZustimmung = { ...(state.milieuZustimmung ?? {}) };
+  const medienKlima = state.medienKlima ?? 55;
+  let multiplikator = getMedienMultiplikator(medienKlima);
+  if (medienKlima > 75) multiplikator *= 1.2;
 
   for (const milieu of milieus) {
     if (milieu.min_complexity > complexity) continue;
@@ -30,6 +35,7 @@ export function applyMilieuEffekte(
     else if (score >= 25) delta = -1;
     else delta = -3;
 
+    delta = Math.round(delta * multiplikator);
     const current = milieuZustimmung[milieu.id] ?? 50;
     milieuZustimmung[milieu.id] = Math.max(0, Math.min(100, current + delta));
   }
