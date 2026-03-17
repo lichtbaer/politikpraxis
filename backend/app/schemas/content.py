@@ -58,6 +58,7 @@ class GesetzResponse(BaseModel):
     kommunal_pilot_moeglich: bool = True
     laender_pilot_moeglich: bool = True
     eu_initiative_moeglich: bool = True
+    framing_optionen: list[dict[str, Any]] = []
     titel: str
     kurz: str
     desc: str
