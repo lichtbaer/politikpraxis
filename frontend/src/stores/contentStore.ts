@@ -232,6 +232,8 @@ export interface ContentStore {
   politikfelder: Politikfeld[];
   verbaende: import('../core/types').Verband[];
   ministerialInitiativen: import('../core/types').MinisterialInitiative[];
+  euKlimaStartwerte: { politikfeld_id: string; startwert: number }[];
+  euEvents: import('../core/types').EUEventContent[];
   scenario: ContentBundle['scenario'];
   loaded: boolean;
   error: string | null;
@@ -250,6 +252,8 @@ export const useContentStore = create<ContentStore>((set) => ({
   politikfelder: [],
   verbaende: DEFAULT_VERBAENDE,
   ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
+  euKlimaStartwerte: [],
+  euEvents: [],
   scenario: DEFAULT_SCENARIO,
   loaded: false,
   error: null,
@@ -333,6 +337,8 @@ export function getContentBundle(): ContentBundle {
     politikfelder: s.politikfelder,
     verbaende: s.verbaende?.length ? s.verbaende : DEFAULT_VERBAENDE,
     ministerialInitiativen: s.ministerialInitiativen?.length ? s.ministerialInitiativen : DEFAULT_MINISTERIAL_INITIATIVEN,
+    euKlimaStartwerte: s.euKlimaStartwerte ?? [],
+    euEvents: s.euEvents ?? [],
     scenario: s.scenario,
   };
 }

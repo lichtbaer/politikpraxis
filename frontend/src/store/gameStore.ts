@@ -10,6 +10,12 @@ import {
   koalitionsZugestaendnis,
 } from '../core/systems/koalition';
 import { startRoute } from '../core/systems/levels';
+import {
+  startEURoute,
+  euLobbyingRunde,
+  euKompromissAnbieten,
+  setRatsvorsitzPrioritaeten,
+} from '../core/systems/eu';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/media';
 import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
@@ -47,6 +53,10 @@ interface GameStore {
   doLobbying: (lawId: string) => void;
   doAbstimmen: (lawId: string) => void;
   doStartRoute: (lawId: string, route: RouteType) => void;
+  doStartEURoute: (lawId: string, option: 'direkt' | 'verband' | 'bilateral') => void;
+  doEULobbyingRunde: (gesetzId: string) => void;
+  doEUKompromissAnbieten: (gesetzId: string) => void;
+  doSetRatsvorsitzPrioritaeten: (feldIds: string[]) => void;
   doResolveEvent: (event: GameEvent, choice: EventChoice) => void;
   doMedienkampagne: (milieu: MilieuKey) => void;
   doLobbyLand: (landId: string) => void;
@@ -137,7 +147,29 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
       return { state };
     }),
-  doStartRoute: (lawId, route) => set(prev => ({ state: startRoute(prev.state, lawId, route) })),
+  doStartRoute: (lawId, route) =>
+    set((prev) => {
+      if (route === 'eu') {
+        return { state: startEURoute(prev.state, lawId, 'direkt', prev.content, prev.complexity) };
+      }
+      return { state: startRoute(prev.state, lawId, route) };
+    }),
+  doStartEURoute: (lawId, option) =>
+    set((prev) => ({
+      state: startEURoute(prev.state, lawId, option, prev.content, prev.complexity),
+    })),
+  doEULobbyingRunde: (gesetzId) =>
+    set((prev) => ({
+      state: euLobbyingRunde(prev.state, gesetzId, prev.complexity),
+    })),
+  doEUKompromissAnbieten: (gesetzId) =>
+    set((prev) => ({
+      state: euKompromissAnbieten(prev.state, gesetzId, prev.complexity),
+    })),
+  doSetRatsvorsitzPrioritaeten: (feldIds) =>
+    set((prev) => ({
+      state: setRatsvorsitzPrioritaeten(prev.state, feldIds, prev.content, prev.complexity),
+    })),
 
   doResolveEvent: (event, choice) =>
     set(prev => ({ state: resolveEvent(prev.state, event, choice) })),

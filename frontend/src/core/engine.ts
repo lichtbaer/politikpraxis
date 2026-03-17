@@ -11,6 +11,7 @@ import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragSco
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/ministerialInitiativen';
+import { tickEUKlima, advanceEURoute, checkEUEreignisse } from './systems/eu';
 import {
   tickKonjunktur,
   applySchuldenbremsenEffekte,
@@ -38,6 +39,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
 
   s = applyPendingEffects(s);
   s = advanceRoutes(s);
+  s = advanceEURoute(s);
 
   s = tickKonjunktur(s, complexity);
   s = applySchuldenbremsenEffekte(s, complexity, content);
@@ -58,6 +60,8 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = checkKoalitionsbruch(s, content, complexity);
   s = checkVerbandsAktionen(s, content.verbaende ?? [], complexity);
   s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
+  s = tickEUKlima(s, content.verbaende ?? [], complexity);
+  s = checkEUEreignisse(s, content, complexity);
 
   s = checkUltimatums(s, content.charEvents);
   s = processBundesratVotes(s, content, complexity);

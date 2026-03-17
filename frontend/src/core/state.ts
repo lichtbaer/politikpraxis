@@ -1,6 +1,7 @@
 import type { GameState, ContentBundle } from './types';
 import { featureActive } from './systems/features';
 import { getKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
+import { initEUKlima } from './systems/eu';
 import { createInitialHaushalt } from './systems/haushalt';
 import type { Ausrichtung } from './systems/ausrichtung';
 import { recalcApproval } from './systems/economy';
@@ -90,10 +91,21 @@ export function createInitialState(
     base.milieuZustimmung = milieuZustimmung;
   }
 
+  function applyEUKlimaAndRatsvorsitz(result: GameState): GameState {
+    let r = initEUKlima(result, content, complexity);
+    if (r.eu && featureActive(complexity, 'eu_ratsvorsitz')) {
+      r = {
+        ...r,
+        eu: { ...r.eu, ratsvorsitzStartMonat: Math.random() < 0.5 ? 6 : 30 },
+      };
+    }
+    return r;
+  }
+
   if (featureActive(complexity, 'haushaltsdebatte')) {
     const withHaushalt = { ...base, haushalt: createInitialHaushalt(base) };
     if (hasKoalition && partner) {
-      return {
+      return applyEUKlimaAndRatsvorsitz({
         ...withHaushalt,
         koalitionspartner: {
           id: partner.id,
@@ -103,9 +115,9 @@ export function createInitialState(
         },
         koalitionsvertragProfil: berechneKoalitionsvertragProfil(ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 }, partner),
         verbandsBeziehungen: { uvb: 50, bvd: 50, ...withHaushalt.verbandsBeziehungen },
-      };
+      });
     }
-    return withHaushalt;
+    return applyEUKlimaAndRatsvorsitz(withHaushalt);
   }
 
   if (hasKoalition && partner) {
@@ -113,7 +125,7 @@ export function createInitialState(
     const verbandsBeziehungen = { ...base.verbandsBeziehungen };
     verbandsBeziehungen['uvb'] = 50;
     verbandsBeziehungen['bvd'] = 50;
-    return {
+    return applyEUKlimaAndRatsvorsitz({
       ...base,
       koalitionspartner: {
         id: partner.id,
@@ -123,10 +135,10 @@ export function createInitialState(
       },
       koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
       verbandsBeziehungen,
-    };
+    });
   }
 
-  return base;
+  return applyEUKlimaAndRatsvorsitz(base);
 }
 
 /**
@@ -153,6 +165,7 @@ export function migrateGameState(state: GameState): GameState {
       politikfeldLetzterBeschluss: state.politikfeldLetzterBeschluss ?? {},
       ministerialCooldowns: state.ministerialCooldowns ?? {},
       aktiveMinisterialInitiative: state.aktiveMinisterialInitiative ?? null,
+      eu: state.eu ?? undefined,
     };
   }
   if (!result.haushalt) {

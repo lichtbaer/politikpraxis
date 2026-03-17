@@ -39,6 +39,9 @@ export function startRoute(state: GameState, lawId: string, route: RouteType): G
 export function advanceRoutes(state: GameState): GameState {
   const gesetze = state.gesetze.map(g => {
     if (g.route && g.status === 'ausweich') {
+      if (g.route === 'eu' && state.eu?.aktiveRoute?.gesetzId === g.id) {
+        return g;
+      }
       const rprog = g.rprog + 1;
       if (rprog >= g.rdur) {
         return { ...g, status: 'beschlossen' as const, rprog };
@@ -51,7 +54,7 @@ export function advanceRoutes(state: GameState): GameState {
   let newState = { ...state, gesetze };
 
   for (const g of gesetze) {
-    if (g.status === 'beschlossen' && g.rprog >= g.rdur && g.route) {
+    if (g.status === 'beschlossen' && g.rprog >= g.rdur && g.route && g.route !== 'eu') {
       const orig = state.gesetze.find(og => og.id === g.id);
       if (orig && orig.status === 'ausweich') {
         const lawForEffects = { effekte: g.effekte as Record<string, number>, lag: g.lag, kurz: g.kurz };

@@ -81,6 +81,8 @@ export interface Law {
   ideologie?: Ideologie;
   /** Primäres Politikfeld (für Druck-System) */
   politikfeldId?: string | null;
+  /** EU-Route: Wirkungsfaktor bei Kompromiss (0.85) */
+  wirkungFaktor?: number;
   /** Einmalige Haushaltskosten in Mrd. € (bei Beschluss) */
   kosten_einmalig?: number;
   /** Laufende Haushaltskosten in Mrd. €/Jahr (bei Beschluss) */
@@ -280,6 +282,31 @@ export interface Politikfeld {
   druckEventId?: string | null;
 }
 
+/** EU-Substate (SMA-269): Klima, Ratsvorsitz, Ausweichroute, Umsetzungsfristen */
+export interface EUState {
+  klima: Record<string, number>;
+  /** Sperre pro Politikfeld: feldId → Monat bis wann gesperrt */
+  klimaSperre: Record<string, number>;
+  ratsvorsitz: boolean;
+  ratsvorsitzStartMonat: number;
+  ratsvorsitzPrioritaeten: string[];
+  umsetzungsfristen: {
+    gesetzId: string;
+    feldId: string;
+    fristMonat: number;
+    umgesetzt: boolean;
+  }[];
+  foerdermittelBeantragt: string[];
+  aktiveRoute: {
+    gesetzId: string;
+    phase: 1 | 2 | 3;
+    startMonat: number;
+    dauer: number;
+    erfolgschance: number;
+    verwässert: boolean;
+  } | null;
+}
+
 /** Schuldenbremsen-Status */
 export type SchuldenbremsenStatus = 'inaktiv' | 'ausgeglichen' | 'grenzwertig' | 'verletzt_mild' | 'verletzt_stark';
 
@@ -361,6 +388,8 @@ export interface GameState {
   ministerialCooldowns?: Record<string, number>;
   /** Aktive Ministerial-Initiative (max. 1 gleichzeitig) */
   aktiveMinisterialInitiative?: { initId: string; charId: string; gesetzId: string } | null;
+  /** EU-System (ab Stufe 2): Klima, Ratsvorsitz, Ausweichroute */
+  eu?: EUState;
   /** Haushalt (ab Stufe 2, SMA-268) */
   haushalt?: Haushalt;
   /** Lehmann-Ultimatum beschleunigt bei starker Schuldenbremsen-Verletzung */
@@ -379,6 +408,8 @@ export interface Verband {
   politikfeld_id: string;
   beziehung_start: number;
   tradeoffs?: VerbandTradeoff[];
+  /** EU-Einflussstärke 1–5 (für EU-Route Verbands-Option) */
+  staerke_eu?: number;
 }
 
 /** Trade-off eines Verbands */
@@ -388,6 +419,14 @@ export interface VerbandTradeoff {
   feld_druck_delta: number;
   label?: string;
   desc?: string;
+}
+
+/** EU-Event-Content für reaktive Richtlinien */
+export interface EUEventContent {
+  id: string;
+  politikfeld_id: string | null;
+  trigger_klima_min: number | null;
+  min_complexity: number;
 }
 
 /** Ministerial-Initiative (Minister bringt eigenes Gesetz ein) */
@@ -413,6 +452,10 @@ export interface ContentBundle {
   politikfelder?: Politikfeld[];
   verbaende?: Verband[];
   ministerialInitiativen?: MinisterialInitiative[];
+  /** EU-Klima-Startwerte pro Politikfeld (aus DB eu_klima_startwerte) */
+  euKlimaStartwerte?: { politikfeld_id: string; startwert: number }[];
+  /** EU-Events für reaktive Richtlinien (aus DB eu_events) */
+  euEvents?: EUEventContent[];
   scenario: {
     id: string;
     name: string;
