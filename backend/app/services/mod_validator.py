@@ -7,7 +7,7 @@ REQUIRED_EVENT_FIELDS = {"id", "type", "icon", "typeLabel", "title", "quote", "c
 REQUIRED_LAW_FIELDS = {"id", "titel", "kurz", "desc", "tags", "ja", "nein", "effekte", "lag"}
 VALID_EVENT_TYPES = {"danger", "warn", "good", "info"}
 VALID_CHOICE_TYPES = {"safe", "primary", "danger"}
-VALID_TAGS = {"bund", "eu", "land", "kommune"}
+VALID_TAGS = {"bund", "eu", "land", "kommune", "kommunen"}
 
 
 class ValidationError(Exception):

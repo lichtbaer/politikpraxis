@@ -595,7 +595,17 @@
     "land": "Länder-Pilotprojekte starten. Mittlere Laufzeit und Kosten.",
     "kommune": "Städtebündnisse nutzen. Schnellste Alternative mit geringeren Kosten.",
     "empty": "Keine Gesetze auf dieser Route.",
-    "monate": "{{progress}}/{{duration}} Monate"
+    "monate": "{{progress}}/{{duration}} Monate",
+    "potentialTitle": "Gesetze für diese Route startbar",
+    "potentialHint": "Starte ein Pilotprojekt über die Agenda (Vorbereitung).",
+    "staedtebuendnis": "Städtebündnis aufbauen",
+    "staedtebuendnisDesc": "10 PK — Erhöht Chance für Kommunal-Initiativen.",
+    "kommunalKonferenz": "Kommunal-Konferenz",
+    "kommunalKonferenzDesc": "8 PK, 1×/Jahr — Senkt Druck in 2 Politikfeldern.",
+    "laenderGipfel": "Länder-Gipfel einberufen",
+    "laenderGipfelDesc": "12 PK — Verbessert Bundesrat-Beziehungen.",
+    "pilotBeschleunigen": "Pilotprojekt beschleunigen",
+    "pilotBeschleunigenDesc": "6 PK — +1 Monat Fortschritt."
   },
   "ticker": {
     "label": "NACHRICHTEN"

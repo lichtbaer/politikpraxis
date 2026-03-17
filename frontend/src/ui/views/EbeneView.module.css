@@ -196,3 +196,77 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.aktionen {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.aktionenTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--text);
+}
+
+.aktionenRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.aktionBtn {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: transparent;
+  border: 2px solid;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.aktionBtn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.aktionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.potential {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.potentialTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--text);
+}
+
+.potentialHint {
+  font-size: 0.85rem;
+  color: var(--text2);
+  margin: 0 0 0.5rem 0;
+}
+
+.potentialList {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.potentialItem {
+  font-size: 0.9rem;
+  color: var(--text2);
+}

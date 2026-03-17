@@ -35,5 +35,9 @@ export function useGameActions() {
     abbrechenVorstufe: store.doAbbrechenVorstufe,
     euLobbyingRunde: store.doEULobbyingRunde,
     euKompromissAnbieten: store.doEUKompromissAnbieten,
+    staedtebuendnis: store.doStaedtebuendnis,
+    kommunalKonferenz: store.doKommunalKonferenz,
+    laenderGipfel: store.doLaenderGipfel,
+    pilotBeschleunigen: store.doPilotBeschleunigen,
   };
 }
