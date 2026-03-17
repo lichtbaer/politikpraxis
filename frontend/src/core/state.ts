@@ -5,6 +5,7 @@ import { initEUKlima } from './systems/eu';
 import { createInitialHaushalt } from './systems/haushalt';
 import type { Ausrichtung } from './systems/ausrichtung';
 import { recalcApproval } from './systems/economy';
+import { berechneKongruenz } from './ideologie';
 
 /** Milieu → zust-Feld für initiale Zustimmung (SMA-264) */
 const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
@@ -85,10 +86,15 @@ export function createInitialState(
 
   if (featureActive(complexity, 'milieus_voll') && (content.milieus?.length ?? 0) > 0) {
     const zust = recalcApproval(content.scenario.startKPI, base.zust);
+    const spielerIdeologie = ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
     const milieuZustimmung: Record<string, number> = {};
     for (const m of content.milieus!) {
       if (m.min_complexity <= complexity) {
-        milieuZustimmung[m.id] = zust[MILIEU_TO_ZUST[m.id] ?? 'mitte'] ?? 50;
+        const basis = zust[MILIEU_TO_ZUST[m.id] ?? 'mitte'] ?? 50;
+        const kongruenz = berechneKongruenz(spielerIdeologie, m.ideologie ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 });
+        const delta = Math.round((kongruenz - 50) / 12.5);
+        const clampedDelta = Math.max(-5, Math.min(5, delta));
+        milieuZustimmung[m.id] = Math.max(0, Math.min(100, basis + clampedDelta));
       }
     }
     base.milieuZustimmung = milieuZustimmung;
