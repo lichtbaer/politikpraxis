@@ -1,0 +1,90 @@
+.tabBar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  position: sticky;
+  top: 48px;
+  z-index: 199;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  min-height: 40px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text2);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab:hover:not(:disabled) {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.tab.active {
+  background: color-mix(in srgb, var(--tab-color, var(--gold)) 18%, transparent);
+  color: var(--tab-color, var(--gold));
+  font-weight: 600;
+}
+
+.tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.tab.locked {
+  color: var(--text3);
+}
+
+.tab.locked .icon {
+  color: var(--text3);
+}
+
+.icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lockIcon {
+  flex-shrink: 0;
+  margin-left: 2px;
+  opacity: 0.8;
+}
+
+@media (max-width: 1280px) {
+  .tab {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .label {
+    max-width: 70px;
+  }
+}

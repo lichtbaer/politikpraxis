@@ -652,6 +652,10 @@
     "routeFormat": "{{route}}: {{progress}}/{{duration}} months",
     "gratis": "free"
   },
+  "tabBar": {
+    "ariaLabel": "Level navigation",
+    "lockedTooltip": "Unlocked at level {{level}}"
+  },
   "leftPanel": {
     "wahlprognose": "Election forecast",
     "target": "Target: ≥ {{percent}}% on election day",
