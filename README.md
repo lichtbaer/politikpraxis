@@ -20,7 +20,7 @@ docker-compose up --build
 ```
 
 - **Frontend (Spiel):** http://localhost (Port 80)
-- **Backend-API:** läuft im Container, von Frontend unter `/api` ansprechbar
+- **Backend-API:** unter `/api` erreichbar (Proxy über nginx)
 - **Datenbank:** PostgreSQL 16 im Container, nur intern erreichbar
 
 Zum Stoppen: `Ctrl+C` oder `docker-compose down`.
@@ -32,7 +32,7 @@ Zum Stoppen: `Ctrl+C` oder `docker-compose down`.
 | Ordner / Datei | Beschreibung |
 |----------------|--------------|
 | `frontend/` | React/TypeScript-Frontend (Vite, Phaser), Spiel-UI und -Logik |
-| `backend/` | FastAPI-Backend, Datenbank (PostgreSQL), Alembic-Migrationen |
+| `backend/` | FastAPI-Backend, Datenbank (PostgreSQL), Alembic-Migrationen (019+) |
 | `docs/` | MkDocs-Dokumentation (Game Design + Entwicklung) |
 | `bundesrepublik_gdd.md` | Game Design Document (Single-Source für Spieldesign) |
 | `docker-compose.yml` | Stack: DB, Backend, Frontend (nginx) |
@@ -44,6 +44,48 @@ Zum Stoppen: `Ctrl+C` oder `docker-compose down`.
 - **Frontend:** React 19, TypeScript, Vite, Phaser, Zustand, TanStack Query
 - **Backend:** FastAPI, SQLAlchemy 2, asyncpg, Alembic, Pydantic
 - **Infrastruktur:** Docker, PostgreSQL 16, nginx
+
+---
+
+## API-Endpoints
+
+| Prefix | Beschreibung |
+|--------|--------------|
+| `GET /api/health` | Health-Check |
+| `POST /api/auth/register` | Registrierung |
+| `POST /api/auth/login` | Login |
+| `GET /api/auth/me` | Aktueller User (JWT) |
+| `GET /api/saves` | Spielstände (JWT) |
+| `GET/POST/PUT/DELETE /api/saves/{id}` | CRUD Spielstände |
+| `GET /api/content/game?locale=de` | Volles Game-Content-Bundle |
+| `GET /api/content/chars` | Charaktere |
+| `GET /api/content/gesetze` | Gesetze |
+| `GET /api/content/events` | Events |
+| `GET /api/content/eu-events` | EU-Events |
+| `GET /api/content/bundesrat` | Bundesrat-Fraktionen |
+| `GET /api/content/milieus` | Milieus |
+| `GET /api/content/politikfelder` | Politikfelder |
+| `GET /api/content/verbaende` | Verbände |
+| `POST /api/analytics/batch` | Analytics-Events (JWT) |
+| `GET /api/analytics/summary` | Analytics-Summary |
+| `GET /api/mods` | Mod-Liste |
+| `GET /api/admin/*` | Admin-CRUD (Basic-Auth) |
+
+API-Dokumentation: `/api/docs` (Swagger UI).
+
+---
+
+## Umgebungsvariablen (Backend)
+
+Kopie von `backend/.env.example` nach `backend/.env`:
+
+| Variable | Beschreibung |
+|----------|--------------|
+| `DATABASE_URL` | PostgreSQL-URL (asyncpg) |
+| `SECRET_KEY` | JWT-Geheimschlüssel |
+| `CORS_ORIGINS` | JSON-Array der erlaubten Origins |
+| `ADMIN_USER` | Admin-Benutzername (Basic-Auth) |
+| `ADMIN_PASSWORD` | Admin-Passwort |
 
 ---
 
@@ -65,8 +107,9 @@ Inhalte:
 
 ## Entwicklung (Kurz)
 
-- **Frontend:** `cd frontend && npm install && npm run dev` (Vite Dev Server)
-- **Backend:** Python-Umgebung mit `backend/requirements.txt`, DB lauffähig (lokal oder Docker), dann `alembic upgrade head` und `uvicorn app.main:app --reload`
+- **Frontend:** `cd frontend && npm install && npm run dev` (Vite: http://localhost:5173)
+- **Backend:** `cd backend && python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`, dann `alembic upgrade head` und `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
+- **Datenbank:** PostgreSQL 16 lauffähig (lokal oder `docker-compose up db`)
 - **Dokumentation:** siehe Abschnitt „Dokumentation“ oben
 
 Details (inkl. Umgebungsvariablen, DB-URL) stehen in [docs/entwicklung/setup.md](docs/entwicklung/setup.md).

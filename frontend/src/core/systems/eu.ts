@@ -3,6 +3,7 @@
  */
 import type { GameState, Verband, ContentBundle } from '../types';
 import { addLog } from '../log';
+import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { scheduleEffects } from './economy';
 
@@ -143,11 +144,6 @@ function getStarksterEUVerband(
     const bezV = state.verbandsBeziehungen?.[v.id] ?? v.beziehung_start;
     return bezV > bezBest ? v : best;
   });
-}
-
-function verbrauchePK(state: GameState, cost: number): GameState | null {
-  if (state.pk < cost) return null;
-  return { ...state, pk: state.pk - cost };
 }
 
 /** Phase 1: EU-Route einleiten */

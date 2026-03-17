@@ -5,6 +5,7 @@ import type {
   LobbyTradeoffOptions,
   KpiDelta,
 } from '../types';
+import { PK_REPARATUR, BEREITSCHAFT_TRADEOFF_BONUS } from '../constants';
 import { addLog } from '../engine';
 import { scheduleEffects } from './economy';
 import { applyMoodChange } from './characters';
@@ -15,11 +16,9 @@ import { applyGesetzKosten } from './haushalt';
 const PK_SCHICHT_1 = 15;
 const PK_SCHICHT_1_REDUZIERT = 10; // bei Beziehung 60-79
 const PK_BEZIEHUNGSPFLEGE = 10;
-const PK_REPARATUR = 25;
 const PK_GEGENVORSCHLAG = 20;
 
 const BEREITSCHAFT_PK_BONUS = 20;
-const BEREITSCHAFT_TRADEOFF_BONUS = 40;
 
 /** Lobbying nur in den 3 Monaten VOR der geplanten BR-Abstimmung aktiv */
 export function isLobbyingActive(state: GameState, gesetzeId: string): boolean {

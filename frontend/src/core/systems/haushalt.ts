@@ -1,8 +1,6 @@
 import type { GameState, ContentBundle, Haushalt, SchuldenbremsenStatus } from '../types';
+import { EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS, SCHULDENBREMSE_DEFIZIT_MILD } from '../constants';
 import { featureActive } from './features';
-
-const EINNAHMEN_BASIS = 350;
-const PFLICHTAUSGABEN_BASIS = 220;
 
 /** Erstellt initiales Haushalt-Objekt */
 export function createInitialHaushalt(state: GameState): Haushalt {
@@ -118,7 +116,7 @@ export function checkSchuldenbremse(state: GameState, complexity: number): Schul
   const defizit = haushalt.saldo;
   if (defizit > 0) return 'ausgeglichen';
   if (defizit >= -12) return 'grenzwertig';
-  if (defizit >= -18) return 'verletzt_mild';
+  if (defizit >= SCHULDENBREMSE_DEFIZIT_MILD) return 'verletzt_mild';
   return 'verletzt_stark';
 }
 

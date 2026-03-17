@@ -1,4 +1,5 @@
 import type { GameState, ContentBundle } from './types';
+import { PK_REGEN_DIVISOR, PK_MAX } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums } from './systems/characters';
@@ -30,15 +31,36 @@ import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStor
 
 export { addLog } from './log';
 
+/**
+ * Monatlicher Engine-Tick: Reihenfolge der Systeme.
+ *
+ * 1. Zeit: Monat erhöhen, Spielende prüfen
+ * 2. Pending Effects: geplante KPI-/State-Änderungen anwenden
+ * 3. Vorstufen: Routes (Kommunal/Länder) + EU-Route + Gesetz-Vorstufen
+ * 4. Haushalt: Konjunktur, Schuldenbremse, Lehmann, Haushaltsdebatte
+ * 5. Politikfeld-Druck: Ideologie-Events
+ * 6. PK-Regen: Politik-Kapital aus Zustimmung
+ * 7. KPI/Chars: KPIDrift, Char-Boni, Koalitionsstabilität
+ * 8. Koalition: Partner-Tick, Koalitionsbruch
+ * 9. Verbände & Ministerial: Verbandsaktionen, Ministerial-Initiativen
+ * 10. EU: Klima-Tick, EU-Ereignisse
+ * 11. Chars: Ultimatums
+ * 12. Bundesrat: Abstimmungen, Events (Landtagswahl, Sprecher)
+ * 13. Events: Kommunal, Zufall
+ * 14. Wahlkampf: Beginn, TV-Duell, Koalitionspartner-Alleingang (Monat 43+)
+ * 15. Zustimmung: Milieu-Wahlprognose, Zustimmung neu berechnen
+ * 16. Milieu-History: Zustimmung pro Milieu speichern
+ */
 export function tick(state: GameState, content: ContentBundle, complexity: number = 4): GameState {
   if (state.gameOver) return state;
 
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi } };
 
+  // 1. Zeit: Spielende prüfen
   s = checkGameEnd(s);
   if (s.gameOver) return s;
 
-  // SMA-278: Medienklima-Historie für Legislatur-Bilanz (vor Monat 43)
+  // 2. Pending Effects (inkl. SMA-278: Medienklima-Historie)
   const medienVal = s.medienKlima ?? s.zust.g;
   const medienHist = [...(s.medienKlimaHistory ?? []), medienVal].slice(-48);
   s = { ...s, medienKlimaHistory: medienHist };
@@ -58,39 +80,49 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = advanceEURoute(s);
   s = tickGesetzVorstufen(s, content, complexity);
 
+  // 4. Haushalt
   s = tickKonjunktur(s, complexity);
   s = applySchuldenbremsenEffekte(s, complexity, content);
   s = checkLehmannSparvorschlag(s, complexity);
   s = triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []);
 
+  // 5. Politikfeld-Druck
   const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
   s = checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents);
 
-  const pkRegen = Math.max(1, Math.floor(s.zust.g / 25));
-  s = { ...s, pk: Math.min(150, s.pk + pkRegen) };
+  // 6. PK-Regen
+  const pkRegen = Math.max(1, Math.floor(s.zust.g / PK_REGEN_DIVISOR));
+  s = { ...s, pk: Math.min(PK_MAX, s.pk + pkRegen) };
 
+  // 7. KPI/Chars
   s = { ...s, kpi: applyKPIDrift(s.kpi) };
   s = applyCharBonuses(s);
   s = updateCoalitionStability(s);
 
+  // 8. Koalition
   s = tickKoalitionspartner(s, content, complexity);
   s = checkKoalitionsbruch(s, content, complexity);
+  // 9. Verbände & Ministerial
   s = checkVerbandsAktionen(s, content.verbaende ?? [], complexity);
   s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
+  // 10. EU
   s = tickEUKlima(s, content.verbaende ?? [], complexity);
   s = checkEUEreignisse(s, content, complexity);
 
+  // 11. Chars: Ultimatums
   s = checkUltimatums(s, content.charEvents);
+  // 12. Bundesrat
   s = processBundesratVotes(s, content, complexity);
   s = checkBundesratEvents(s, {
     bundesratEvents: content.bundesratEvents ?? [],
     sprecherErsatz: SPRECHER_ERSATZ,
     landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
   });
+  // 13. Events
   s = checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity);
   s = checkRandomEvents(s, content.events);
 
-  // SMA-278: Wahlkampf (Monat 43+)
+  // 14. Wahlkampf (SMA-278: Monat 43+)
   s = checkWahlkampfBeginn(s, content, complexity);
   if (s.wahlkampfAktiv) {
     s = { ...s, wahlkampfAktionenGenutzt: 0 };
@@ -98,6 +130,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
     if (!s.activeEvent) s = checkKoalitionspartnerAlleingang(s, content, complexity);
   }
 
+  // 15. Zustimmung
   let newZust = recalcApproval(s.kpi, s.zust);
   if (content.milieus && content.milieus.length > 0) {
     const g = berechneWahlprognose({ ...s, zust: newZust }, content, complexity);
@@ -105,6 +138,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   }
   s = { ...s, zust: newZust };
 
+  // 16. Milieu-History
   if (s.milieuZustimmung && Object.keys(s.milieuZustimmung).length > 0) {
     const history = { ...(s.milieuZustimmungHistory ?? {}) };
     for (const [mid, val] of Object.entries(s.milieuZustimmung)) {
