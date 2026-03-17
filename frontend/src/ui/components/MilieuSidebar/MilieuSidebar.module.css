@@ -1,0 +1,11 @@
+.milieus {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.milieuItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
