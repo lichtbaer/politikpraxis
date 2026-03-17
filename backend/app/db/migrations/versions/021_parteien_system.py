@@ -102,13 +102,13 @@ def upgrade() -> None:
         ("ldp", "de", "Liberal-Demokratische Partei", "Liberal-Demokratische Partei.", "Marktwirtschaft, Freiheit, Bürokratieabbau"),
         ("lp", "de", "Linke Partei", "Linke Partei.", "Soziale Gerechtigkeit, Umverteilung, Frieden"),
     ]
-    for pid, loc, name, desc, kt in parteien_i18n_de:
+    for pid, loc, name, description, kt in parteien_i18n_de:
         conn.execute(
             sa.text("""
-                INSERT INTO parteien_i18n (partei_id, locale, name, desc, kernthemen)
-                VALUES (:pid, :locale, :name, :desc, :kernthemen)
+                INSERT INTO parteien_i18n (partei_id, locale, name, "desc", kernthemen)
+                VALUES (:pid, :locale, :name, :description, :kernthemen)
             """),
-            {"pid": pid, "locale": loc, "name": name, "desc": desc, "kernthemen": kt},
+            {"pid": pid, "locale": loc, "name": name, "description": description, "kernthemen": kt},
         )
 
     # --- parteien_i18n EN ---
@@ -119,13 +119,13 @@ def upgrade() -> None:
         ("ldp", "en", "Liberal Democratic Party", "Liberal Democratic Party.", "Market economy, Freedom, Deregulation"),
         ("lp", "en", "Left Party", "Left Party.", "Social justice, Redistribution, Peace"),
     ]
-    for pid, loc, name, desc, kt in parteien_i18n_en:
+    for pid, loc, name, description, kt in parteien_i18n_en:
         conn.execute(
             sa.text("""
-                INSERT INTO parteien_i18n (partei_id, locale, name, desc, kernthemen)
-                VALUES (:pid, :locale, :name, :desc, :kernthemen)
+                INSERT INTO parteien_i18n (partei_id, locale, name, "desc", kernthemen)
+                VALUES (:pid, :locale, :name, :description, :kernthemen)
             """),
-            {"pid": pid, "locale": loc, "name": name, "desc": desc, "kernthemen": kt},
+            {"pid": pid, "locale": loc, "name": name, "description": description, "kernthemen": kt},
         )
 
     # --- partei_id zu bundesrat_fraktionen ---
