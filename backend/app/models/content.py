@@ -137,6 +137,10 @@ class EventChoice(Base):
     char_mood: Mapped[dict[str, Any] | None] = mapped_column(JSONB(), nullable=True, server_default="{}")
     loyalty: Mapped[dict[str, Any] | None] = mapped_column(JSONB(), nullable=True, server_default="{}")
     followup_event_id: Mapped[str | None] = mapped_column(Text(), ForeignKey("events(id)"), nullable=True)
+    # SMA-280: Extremismus-Events
+    koalitionspartner_beziehung_delta: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    medienklima_delta: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    verfahren_dauer_monate: Mapped[int | None] = mapped_column(Integer(), nullable=True)
 
 
 class EventChoiceI18n(Base):

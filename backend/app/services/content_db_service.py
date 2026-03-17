@@ -219,7 +219,7 @@ async def fetch_events(
 
         choices = []
         for ch, chi18n in choices_raw:
-            choices.append({
+            c = {
                 "key": ch.choice_key,
                 "type": ch.choice_type,
                 "cost_pk": ch.cost_pk or 0,
@@ -229,7 +229,14 @@ async def fetch_events(
                 "label": chi18n.label,
                 "desc": chi18n.desc,
                 "log_msg": chi18n.log_msg,
-            })
+            }
+            if getattr(ch, "koalitionspartner_beziehung_delta", None) is not None:
+                c["koalitionspartner_beziehung_delta"] = ch.koalitionspartner_beziehung_delta
+            if getattr(ch, "medienklima_delta", None) is not None:
+                c["medienklima_delta"] = ch.medienklima_delta
+            if getattr(ch, "verfahren_dauer_monate", None) is not None:
+                c["verfahren_dauer_monate"] = ch.verfahren_dauer_monate
+            choices.append(c)
 
         row = {
             "id": e.id,
