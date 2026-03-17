@@ -25,7 +25,7 @@ import type { LobbyTradeoffOptions } from '../core/types';
 import { getContentBundle } from '../stores/contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { saveGame, type SaveFile } from '../services/localStorageSave';
-import { migrateGameState } from '../core/state';
+import { migrateGameState, validateGameState } from '../core/state';
 import {
   setHaushaltsdebattePrioritaeten,
   advanceHaushaltsdebattePhase,
@@ -303,32 +303,43 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }),
 
   loadSave: (savedState) => {
-    const initial = createInitialState(getContentBundle(), get().complexity);
-    const state = migrateGameState({
-      ...savedState,
-      bundesratFraktionen: savedState.bundesratFraktionen ?? initial.bundesratFraktionen,
-      firedBundesratEvents: savedState.firedBundesratEvents ?? [],
-      electionThreshold: savedState.electionThreshold ?? 40,
-    });
-    set({ state, content: getContentBundle() });
+    try {
+      const validated = validateGameState(savedState);
+      const initial = createInitialState(getContentBundle(), get().complexity);
+      const state = migrateGameState({
+        ...validated,
+        bundesratFraktionen: validated.bundesratFraktionen ?? initial.bundesratFraktionen,
+        firedBundesratEvents: validated.firedBundesratEvents ?? [],
+        electionThreshold: validated.electionThreshold ?? 40,
+      });
+      set({ state, content: getContentBundle() });
+    } catch {
+      console.warn('[politikpraxis] Ungültiger Spielstand – Laden abgebrochen');
+    }
   },
 
   loadSaveFromFile: (save) => {
-    const initial = createInitialState(getContentBundle(), save.complexity);
-    const state = migrateGameState({
-      ...save.gameState,
-      bundesratFraktionen: save.gameState.bundesratFraktionen ?? initial.bundesratFraktionen,
-      firedBundesratEvents: save.gameState.firedBundesratEvents ?? [],
-      electionThreshold: save.gameState.electionThreshold ?? 40,
-    });
-    set({
-      state,
-      content: getContentBundle(),
-      playerName: save.playerName,
-      complexity: save.complexity,
-      ausrichtung: save.ausrichtung,
-      ausrichtungApplied: true,
-      phase: 'playing',
-    });
+    try {
+      const validated = validateGameState(save.gameState);
+      const complexity = Math.max(1, Math.min(4, Number(save.complexity) || 4));
+      const initial = createInitialState(getContentBundle(), complexity);
+      const state = migrateGameState({
+        ...validated,
+        bundesratFraktionen: validated.bundesratFraktionen ?? initial.bundesratFraktionen,
+        firedBundesratEvents: validated.firedBundesratEvents ?? [],
+        electionThreshold: validated.electionThreshold ?? 40,
+      });
+      set({
+        state,
+        content: getContentBundle(),
+        playerName: String(save.playerName ?? '').slice(0, 100),
+        complexity,
+        ausrichtung: save.ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
+        ausrichtungApplied: true,
+        phase: 'playing',
+      });
+    } catch {
+      console.warn('[politikpraxis] Ungültiger Spielstand – Laden abgebrochen');
+    }
   },
 }));
