@@ -14,6 +14,8 @@ import {
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
 } from '../../data/defaults/parteien';
+import { getKoalitionspartner } from '../../core/systems/koalition';
+import { IdeologieSlider } from '../components/IdeologieSlider/IdeologieSlider';
 import styles from './WahlnachtOnboarding.module.css';
 
 /** Beat 0 = Partei, 1 = Ideologie (Stufe 3+), 2 = Headline, 3 = Kabinett, 4 = Memo, 5 = CTA */
@@ -28,6 +30,7 @@ export function WahlnachtOnboarding() {
   const { t } = useTranslation('game');
   const {
     state,
+    content,
     playerName,
     complexity,
     init,
@@ -164,61 +167,44 @@ export function WahlnachtOnboarding() {
         </div>
       )}
 
-      {/* Beat 2 — Ideologie feinjustieren (Stufe 3+) */}
+      {/* Beat 2 — Ideologie feinjustieren (Stufe 3+) — SMA-301 */}
       {beat === 2 && selectedPartei && (
         <div className={styles.beatIdeologie}>
           <h1 className={styles.ideologieTitle}>{t('game:onboarding.ideologieTitle')}</h1>
           <p className={styles.ideologieSubtitle}>{t('game:onboarding.ideologieSubtitle')}</p>
-          <div className={styles.sliderGroup}>
-            <label className={styles.sliderLabel}>
-              <span>{t('game:onboarding.wirtschaft')}</span>
-              <span className={styles.sliderValue}>{ausrichtung.wirtschaft}</span>
-            </label>
-            <input
-              type="range"
-              min={PARTEI_KORRIDORE[selectedPartei].w[0]}
-              max={PARTEI_KORRIDORE[selectedPartei].w[1]}
-              step={1}
-              value={ausrichtung.wirtschaft}
-              onChange={(e) => handleAusrichtungChange('wirtschaft', Number(e.target.value))}
-              className={styles.slider}
-            />
+          <IdeologieSlider
+            achse="wirtschaft"
+            wert={ausrichtung.wirtschaft}
+            min={PARTEI_KORRIDORE[selectedPartei].w[0]}
+            max={PARTEI_KORRIDORE[selectedPartei].w[1]}
+            onChange={(v) => handleAusrichtungChange('wirtschaft', v)}
+          />
+          <IdeologieSlider
+            achse="gesellschaft"
+            wert={ausrichtung.gesellschaft}
+            min={PARTEI_KORRIDORE[selectedPartei].g[0]}
+            max={PARTEI_KORRIDORE[selectedPartei].g[1]}
+            onChange={(v) => handleAusrichtungChange('gesellschaft', v)}
+          />
+          <IdeologieSlider
+            achse="staat"
+            wert={ausrichtung.staat}
+            min={PARTEI_KORRIDORE[selectedPartei].s[0]}
+            max={PARTEI_KORRIDORE[selectedPartei].s[1]}
+            onChange={(v) => handleAusrichtungChange('staat', v)}
+          />
+          <div className={styles.ideologieFooter}>
+            <p className={styles.korridorHint}>
+              {t('game:onboarding.korridorHint', {
+                partei: SPIELBARE_PARTEIEN.find((x) => x.id === selectedPartei)?.kuerzel ?? '',
+              })}
+            </p>
+            <p className={styles.koalitionspartnerVorschau}>
+              {t('game:onboarding.koalitionspartnerVorschau', {
+                kuerzel: getKoalitionspartner(content).partei_kuerzel,
+              })}
+            </p>
           </div>
-          <div className={styles.sliderGroup}>
-            <label className={styles.sliderLabel}>
-              <span>{t('game:onboarding.gesellschaft')}</span>
-              <span className={styles.sliderValue}>{ausrichtung.gesellschaft}</span>
-            </label>
-            <input
-              type="range"
-              min={PARTEI_KORRIDORE[selectedPartei].g[0]}
-              max={PARTEI_KORRIDORE[selectedPartei].g[1]}
-              step={1}
-              value={ausrichtung.gesellschaft}
-              onChange={(e) => handleAusrichtungChange('gesellschaft', Number(e.target.value))}
-              className={styles.slider}
-            />
-          </div>
-          <div className={styles.sliderGroup}>
-            <label className={styles.sliderLabel}>
-              <span>{t('game:onboarding.staat')}</span>
-              <span className={styles.sliderValue}>{ausrichtung.staat}</span>
-            </label>
-            <input
-              type="range"
-              min={PARTEI_KORRIDORE[selectedPartei].s[0]}
-              max={PARTEI_KORRIDORE[selectedPartei].s[1]}
-              step={1}
-              value={ausrichtung.staat}
-              onChange={(e) => handleAusrichtungChange('staat', Number(e.target.value))}
-              className={styles.slider}
-            />
-          </div>
-          <p className={styles.korridorHint}>
-            {t('game:onboarding.korridorHint', {
-              partei: SPIELBARE_PARTEIEN.find((x) => x.id === selectedPartei)?.kuerzel ?? '',
-            })}
-          </p>
           <button type="button" className={styles.weiter} onClick={handleIdeologieWeiter}>
             {t('game:onboarding.weiter')}
           </button>
