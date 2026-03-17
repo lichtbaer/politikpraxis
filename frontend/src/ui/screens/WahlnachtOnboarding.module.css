@@ -218,3 +218,128 @@
   background: var(--bg3);
   border-color: var(--gold);
 }
+
+/* SMA-289: Beat 0 — Partei-Auswahl */
+.beatPartei {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.parteiTitle {
+  font-family: var(--serif);
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  text-align: center;
+}
+
+.parteiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  max-width: 560px;
+}
+
+.parteiCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, transform 0.15s;
+  background: var(--bg3);
+}
+
+.parteiCard:hover {
+  transform: translateY(-2px);
+}
+
+.parteiKuerzel {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+
+.parteiName {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+}
+
+.parteiBeschreibung {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text2);
+  text-align: center;
+}
+
+/* SMA-289: Beat 1 — Ideologie-Feinjustierung */
+.beatIdeologie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.ideologieTitle {
+  font-family: var(--serif);
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.ideologieSubtitle {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text2);
+  margin: -8px 0 0 0;
+}
+
+.beatIdeologie .sliderGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.beatIdeologie .sliderLabel {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.beatIdeologie .sliderValue {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.beatIdeologie .slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  accent-color: var(--gold);
+}
+
+.korridorHint {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text3);
+  margin: 0;
+}

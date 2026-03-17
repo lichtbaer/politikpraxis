@@ -387,6 +387,14 @@ export interface EUState {
 /** Schuldenbremsen-Status */
 export type SchuldenbremsenStatus = 'inaktiv' | 'ausgeglichen' | 'grenzwertig' | 'verletzt_mild' | 'verletzt_stark';
 
+/** SMA-289: Spieler-Partei (im gesamten Spiel sichtbar) */
+export interface SpielerParteiState {
+  id: 'sdp' | 'cdp' | 'ldp' | 'lp';
+  kuerzel: string;
+  farbe: string;
+  name: string;
+}
+
 /** Opposition als abstrakter Akteur (SMA-277) */
 export interface OppositionState {
   staerke: number;
@@ -535,6 +543,8 @@ export interface GameState {
   verfassungsgerichtPolitikfeldIds?: string[];
   /** SMA-280: Verfahren pausiert (Reform angekündigt) */
   verfassungsgerichtPausiert?: boolean;
+  /** SMA-289: Spieler-Partei (Partei-Auswahl im Onboarding) */
+  spielerPartei?: SpielerParteiState;
   /** Wahlprognose (aktuelle Umfrage) — Basis für Wahlergebnis */
   wahlprognose?: number;
   /** Medienoffensive einmalig pro Legislatur genutzt */

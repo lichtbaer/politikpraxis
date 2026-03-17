@@ -23,7 +23,7 @@ export function KoalitionspartnerPanel() {
   if (!partnerState || partnerState.id !== partnerContent.id) return null;
 
   const kanzler = state.chars.find((c) => c.id === 'kanzler') ?? state.chars[0];
-  const kanzlerPartei = kanzler?.partei_kuerzel ?? 'SDP';
+  const kanzlerPartei = state.spielerPartei?.kuerzel ?? kanzler?.partei_kuerzel ?? 'SDP';
   const partnerPartei = partnerContent.partei_kuerzel ?? 'GP';
   const koalitionTitle = `${kanzlerPartei} + ${partnerPartei} ${t('game:koalition.koalition')}`;
 

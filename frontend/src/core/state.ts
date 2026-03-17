@@ -1,4 +1,4 @@
-import type { GameState, ContentBundle } from './types';
+import type { GameState, ContentBundle, SpielerParteiState } from './types';
 import type { Approval } from './types';
 import { featureActive } from './systems/features';
 import { getKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
@@ -7,6 +7,12 @@ import { createInitialHaushalt } from './systems/haushalt';
 import type { Ausrichtung } from './systems/ausrichtung';
 import { recalcApproval } from './systems/economy';
 import { berechneKongruenz } from './ideologie';
+import {
+  PARTEI_GP_BEZIEHUNG_START,
+  PARTEI_VERBANDS_BONUS,
+  SPIELBARE_PARTEIEN,
+  type SpielerParteiId,
+} from '../data/defaults/parteien';
 
 /** Milieu → zust-Feld für initiale Zustimmung (SMA-264) */
 const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
@@ -24,11 +30,13 @@ const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
  * @param content Content-Bundle (Chars, Gesetze, Events, …)
  * @param complexity Komplexitätsstufe (1–4). Chars mit min_complexity > complexity werden ausgeblendet.
  * @param ausrichtung Optionale Spieler-Ausrichtung für Koalitionsvertrag-Profil (bei init)
+ * @param spielerPartei SMA-289: Gewählte Partei (Stufe 1: SDP default)
  */
 export function createInitialState(
   content: ContentBundle,
   complexity: number = 4,
   ausrichtung?: Ausrichtung,
+  spielerPartei?: SpielerParteiState,
 ): GameState {
   const fraktionen = content.bundesratFraktionen ?? [];
   const activeChars = content.characters.filter(
@@ -37,6 +45,21 @@ export function createInitialState(
 
   const partner = content.koalitionspartner ? getKoalitionspartner(content) : null;
   const hasKoalition = featureActive(complexity, 'koalitionspartner') && partner;
+
+  const parteiId: SpielerParteiId = spielerPartei?.id ?? 'sdp';
+  const parteiInfo = SPIELBARE_PARTEIEN.find((p) => p.id === parteiId);
+  const spielerParteiState: SpielerParteiState | undefined = parteiInfo
+    ? { id: parteiId, kuerzel: parteiInfo.kuerzel, farbe: parteiInfo.farbe, name: parteiInfo.name }
+    : undefined;
+
+  const charsWithPartei = activeChars.map((c) => {
+    const char = { ...c };
+    if (c.id === 'kanzler' && spielerParteiState) {
+      char.partei_kuerzel = spielerParteiState.kuerzel;
+      char.partei_farbe = spielerParteiState.farbe;
+    }
+    return char;
+  });
 
   const base: GameState = {
     month: content.scenario.startMonth,
@@ -49,7 +72,7 @@ export function createInitialState(
     zust: { g: 52, arbeit: 58, mitte: 54, prog: 44 },
     coalition: content.scenario.startCoalition,
 
-    chars: activeChars.map((c) => ({ ...c })),
+    chars: charsWithPartei,
     gesetze: content.laws.map(g => ({ ...g, expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null })),
     bundesrat: content.bundesrat.map(b => ({ ...b })),
     bundesratFraktionen: fraktionen.map(f => ({
@@ -74,8 +97,11 @@ export function createInitialState(
     milieuZustimmung: {},
     verbandsBeziehungen: (() => {
       const bez: Record<string, number> = {};
+      const bonus = PARTEI_VERBANDS_BONUS[parteiId] ?? {};
       for (const v of content.verbaende ?? []) {
-        bez[v.id] = v.beziehung_start;
+        const base = v.beziehung_start;
+        const b = bonus[v.id] ?? 0;
+        bez[v.id] = Math.max(0, Math.min(100, base + b));
       }
       return bez;
     })(),
@@ -83,6 +109,7 @@ export function createInitialState(
     politikfeldLetzterBeschluss: {},
     medienKlima: 55,
     opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 },
+    ...(spielerParteiState && { spielerPartei: spielerParteiState }),
   };
 
   if (featureActive(complexity, 'milieus_voll') && (content.milieus?.length ?? 0) > 0) {
@@ -112,6 +139,8 @@ export function createInitialState(
     return r;
   }
 
+  const gpBeziehungStart = PARTEI_GP_BEZIEHUNG_START[parteiId];
+
   if (featureActive(complexity, 'haushaltsdebatte')) {
     const withHaushalt = { ...base, haushalt: createInitialHaushalt(base) };
     if (hasKoalition && partner) {
@@ -119,7 +148,7 @@ export function createInitialState(
         ...withHaushalt,
         koalitionspartner: {
           id: partner.id,
-          beziehung: partner.beziehung_start,
+          beziehung: gpBeziehungStart,
           koalitionsvertragScore: 0,
           schluesselthemenErfuellt: [],
         },
@@ -139,7 +168,7 @@ export function createInitialState(
       ...base,
       koalitionspartner: {
         id: partner.id,
-        beziehung: partner.beziehung_start,
+        beziehung: gpBeziehungStart,
         koalitionsvertragScore: 0,
         schluesselthemenErfuellt: [],
       },
@@ -279,6 +308,7 @@ export function validateGameState(raw: unknown): GameState {
 
   // Optionale Felder durchreichen (werden von migrateGameState weitergegeben)
   const optionalKeys = [
+    'spielerPartei',
     'koalitionspartner', 'koalitionsvertragProfil', 'milieuZustimmungHistory', 'partnerPrioGesetz',
     'btStimmenBonus', 'koalitionsbruchSeitMonat', 'ministerialCooldowns', 'aktiveMinisterialInitiative',
     'eu', 'haushalt', 'lehmannUltimatumBeschleunigt', 'lehmannSparvorschlagAktiv', 'aktivesStrukturEvent',
@@ -331,6 +361,15 @@ export function migrateGameState(state: GameState): GameState {
   }
   if (!result.opposition) {
     result = { ...result, opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 } };
+  }
+  if (!result.spielerPartei) {
+    const sdp = SPIELBARE_PARTEIEN.find((p) => p.id === 'sdp');
+    if (sdp) {
+      result = {
+        ...result,
+        spielerPartei: { id: sdp.id, kuerzel: sdp.kuerzel, farbe: sdp.farbe, name: sdp.name },
+      };
+    }
   }
   return result;
 }
