@@ -128,7 +128,7 @@ describe('createInitialHaushalt', () => {
     const base = { ...state, haushalt: undefined };
     const haushalt = createInitialHaushalt(base);
     expect(haushalt.einnahmen).toBe(350);
-    expect(haushalt.pflichtausgaben).toBe(220);
+    expect(haushalt.pflichtausgaben).toBe(240); // SMA-309: PFLICHTAUSGABEN_BASIS
     expect(haushalt.laufendeAusgaben).toBe(0);
     expect(haushalt.konjunkturIndex).toBe(0);
     expect(haushalt.steuerpolitikModifikator).toBe(1.0);
@@ -194,6 +194,31 @@ describe('applyGesetzKosten', () => {
     const ohneHaushalt = { ...state, haushalt: undefined };
     const result = applyGesetzKosten(ohneHaushalt, 'irgendwas');
     expect(result).toBe(ohneHaushalt);
+  });
+
+  it('SMA-309: setzt lehmannUltimatumBeschleunigt bei schuldenbremse_reform', () => {
+    const state = createMockState();
+    const gesetz: Law = {
+      id: 'schuldenbremse_reform',
+      titel: 'Schuldenbremse-Reform',
+      kurz: 'SBR',
+      desc: '',
+      tags: ['bund'],
+      status: 'entwurf',
+      ja: 60,
+      nein: 40,
+      effekte: {},
+      lag: 0,
+      expanded: false,
+      route: null,
+      rprog: 0,
+      rdur: 0,
+      blockiert: null,
+      einnahmeeffekt: 20,
+    };
+    const stateMitGesetz = { ...state, gesetze: [gesetz] };
+    const result = applyGesetzKosten(stateMitGesetz, 'schuldenbremse_reform');
+    expect(result.lehmannUltimatumBeschleunigt).toBe(true);
   });
 });
 

@@ -241,6 +241,61 @@ export function checkKommunalLaenderEvents(
   return state;
 }
 
+/** SMA-309: Prüft Steuer-Events (conditional) */
+export function checkSteuerEvents(
+  state: GameState,
+  events: GameEvent[],
+  complexity: number,
+): GameState {
+  if (state.activeEvent) return state;
+  if (!events.length) return state;
+  if (complexity < 2) return state;
+
+  const fired = state.firedEvents ?? [];
+  const haushaltSaldo = state.haushalt?.saldo ?? 0;
+  const konjunkturIndex = state.haushalt?.konjunkturIndex ?? 0;
+
+  for (const ev of events) {
+    if (fired.includes(ev.id)) continue;
+    const evMinC = (ev as GameEvent & { min_complexity?: number }).min_complexity;
+    if (evMinC != null && evMinC > complexity) continue;
+
+    let trigger = false;
+    if (ev.id === 'steuereinnahmen_einbruch') {
+      trigger = konjunkturIndex < -1.5;
+    } else if (ev.id === 'haushaltsstreit_opposition') {
+      trigger = haushaltSaldo < -20 && state.month > 6;
+    }
+    if (!trigger) continue;
+
+    let newState: GameState = {
+      ...state,
+      firedEvents: [...fired, ev.id],
+      activeEvent: ev,
+      ...withPause(state, getAutoPauseLevel(ev)),
+    };
+
+    if (ev.id === 'steuereinnahmen_einbruch' && newState.haushalt) {
+      const neueEinnahmen = Math.max(0, newState.haushalt.einnahmen - 15);
+      newState = {
+        ...newState,
+        haushalt: {
+          ...newState.haushalt,
+          einnahmen: neueEinnahmen,
+          saldo: neueEinnahmen - newState.haushalt.pflichtausgaben - newState.haushalt.laufendeAusgaben,
+        },
+      };
+    }
+
+    if (ev.id === 'haushaltsstreit_opposition' && (newState.medienKlima ?? 55) > 0) {
+      newState = { ...newState, medienKlima: Math.max(0, (newState.medienKlima ?? 55) - 4) };
+    }
+
+    return newState;
+  }
+  return state;
+}
+
 export interface KommunalEventContext {
   kommunalEvents: GameEvent[];
 }
@@ -376,6 +431,49 @@ export function resolveEvent(
   // Wahlkampf-Beginn, Koalitionspartner-Alleingang: einfaches Bestätigen
   if (event.id === 'wahlkampf_beginn' || event.id === 'koalitionspartner_alleingang') {
     return { ...state, activeEvent: null };
+  }
+
+  // SMA-309: Steuer-Events (steuereinnahmen_einbruch, haushaltsstreit_opposition, steuerstreit_koalition)
+  const STEUER_IDS = new Set(['steuereinnahmen_einbruch', 'haushaltsstreit_opposition', 'steuerstreit_koalition']);
+  if (STEUER_IDS.has(event.id)) {
+    if (state.pk < (choice.cost || 0)) return state;
+    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0) };
+    newState = applyMedienChoiceDelta(newState, choice);
+    if (choice.koalitionspartnerBeziehung != null && newState.koalitionspartner) {
+      newState = {
+        ...newState,
+        koalitionspartner: {
+          ...newState.koalitionspartner,
+          beziehung: Math.max(0, Math.min(100, newState.koalitionspartner.beziehung + choice.koalitionspartnerBeziehung)),
+        },
+      };
+    }
+    if (event.id === 'steuereinnahmen_einbruch' && newState.haushalt && choice.effect?.hh != null) {
+      const hhDelta = choice.effect.hh;
+      if (choice.key === 'sparen' && hhDelta > 0) {
+        newState = {
+          ...newState,
+          haushalt: {
+            ...newState.haushalt,
+            laufendeAusgaben: Math.max(0, newState.haushalt.laufendeAusgaben - hhDelta),
+            saldo: newState.haushalt.einnahmen - newState.haushalt.pflichtausgaben - Math.max(0, newState.haushalt.laufendeAusgaben - hhDelta),
+          },
+        };
+      } else if (choice.key === 'steuer' && hhDelta > 0) {
+        newState = {
+          ...newState,
+          haushalt: {
+            ...newState.haushalt,
+            einnahmen: newState.haushalt.einnahmen + hhDelta,
+            saldo: newState.haushalt.einnahmen + hhDelta - newState.haushalt.pflichtausgaben - newState.haushalt.laufendeAusgaben,
+          },
+        };
+      }
+    }
+    newState = addLog(newState, choice.log, choice.type === 'danger' ? 'r' : 'g');
+    newState.ticker = event.ticker;
+    newState.activeEvent = null;
+    return newState;
   }
 
   // SMA-298: Kommunal/Länder conditional Events (Haushaltskrise, Bürgerprotest, Länder-Koalitionskrise)

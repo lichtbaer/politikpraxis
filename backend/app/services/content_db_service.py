@@ -178,6 +178,7 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
             "lobby_pk_kosten": g.lobby_pk_kosten or 12,
             "lobby_gain_range": g.lobby_gain_range or {"min": 2, "max": 6},
             "route_overrides": g.route_overrides or {},
+            "min_complexity": g.min_complexity if g.min_complexity is not None else 1,
             "titel": i18n.titel,
             "kurz": i18n.kurz,
             "desc": i18n.desc,

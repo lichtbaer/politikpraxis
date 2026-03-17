@@ -34,8 +34,8 @@ export const MAX_BUNDESRAT_BONUS = 35;
 // --- Haushalt ---
 /** Basis-Einnahmen (jährlich) */
 export const EINNAHMEN_BASIS = 350;
-/** Basis-Pflichtausgaben */
-export const PFLICHTAUSGABEN_BASIS = 220;
+/** Basis-Pflichtausgaben (SMA-309: 240 für realistischer Druck) */
+export const PFLICHTAUSGABEN_BASIS = 240;
 /** Defizit-Grenze für milde Schuldenbremse (ab -18: stark) */
 export const SCHULDENBREMSE_DEFIZIT_MILD = -18;
 

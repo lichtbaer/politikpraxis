@@ -121,6 +121,8 @@ export interface Law {
   lobby_gain_range?: { min: number; max: number };
   /** Gesetzspezifische Route-Kosten/Dauer-Overrides */
   route_overrides?: Record<string, { cost?: number; dur?: number }>;
+  /** SMA-309: Min. Komplexitätsstufe (z.B. schuldenbremse_reform ab Stufe 3) */
+  min_complexity?: number;
 }
 
 /** Framing-Option für Gesetz-Einbringen (SMA-303: label, slogan) */
@@ -692,6 +694,8 @@ export interface ContentBundle {
   extremismusEvents?: GameEvent[];
   /** SMA-298: Kommunal/Länder conditional Events */
   kommunalLaenderEvents?: GameEvent[];
+  /** SMA-309: Steuer-Events (conditional) */
+  steuerEvents?: GameEvent[];
   scenario: {
     id: string;
     name: string;
