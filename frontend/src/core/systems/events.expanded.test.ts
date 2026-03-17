@@ -166,7 +166,7 @@ describe('checkKommunalLaenderEvents', () => {
     const state = makeState({
       month: 15,
       haushalt: {
-        einnahmen: 350, pflichtausgaben: 220, laufendeAusgaben: 0, spielraum: 130,
+        einnahmen: 350, pflichtausgaben: 370, laufendeAusgaben: 0, spielraum: -20,
         saldo: -25, saldoKumulativ: -25, konjunkturIndex: 100,
         steuerpolitikModifikator: 0, investitionsquote: 0,
         schuldenbremseAktiv: false, haushaltsplanMonat: 0,

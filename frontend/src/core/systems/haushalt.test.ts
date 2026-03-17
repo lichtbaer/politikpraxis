@@ -15,7 +15,7 @@ function createMockState(overrides: MockStateOverrides = {}): GameState {
   const { haushalt: haushaltOverrides, ...restOverrides } = overrides;
   const haushalt: Haushalt = {
     einnahmen: 350,
-    pflichtausgaben: 220,
+    pflichtausgaben: 370,
     laufendeAusgaben: 0,
     spielraum: 130,
     saldo: 130,
@@ -128,7 +128,7 @@ describe('createInitialHaushalt', () => {
     const base = { ...state, haushalt: undefined };
     const haushalt = createInitialHaushalt(base);
     expect(haushalt.einnahmen).toBe(350);
-    expect(haushalt.pflichtausgaben).toBe(240); // SMA-309: PFLICHTAUSGABEN_BASIS
+    expect(haushalt.pflichtausgaben).toBe(370); // SMA-310: PFLICHTAUSGABEN_BASIS (strukturelles Defizit)
     expect(haushalt.laufendeAusgaben).toBe(0);
     expect(haushalt.konjunkturIndex).toBe(0);
     expect(haushalt.steuerpolitikModifikator).toBe(1.0);
