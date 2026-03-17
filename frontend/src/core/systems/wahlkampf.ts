@@ -23,8 +23,7 @@ function berechneKVErfuellung(state: GameState): number {
 }
 
 /** Kernthemen (Politikfelder mit meisten Beschlüssen) */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- für zukünftige Erweiterung (Politikfeld-Namen)
-function berechneKernthemen(state: GameState, content: ContentBundle): string[] {
+function berechneKernthemen(state: GameState, _content: ContentBundle): string[] {
   const beschlossen = state.gesetze.filter(g => g.status === 'beschlossen');
   const feldCount: Record<string, number> = {};
   for (const g of beschlossen) {
@@ -38,8 +37,7 @@ function berechneKernthemen(state: GameState, content: ContentBundle): string[] 
 }
 
 /** Schwachstellen (Politikfelder mit Druck, aber wenig Beschlüssen) */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- für zukünftige Erweiterung
-function berechneSchwachstellen(state: GameState, content: ContentBundle): string[] {
+function berechneSchwachstellen(state: GameState, _content: ContentBundle): string[] {
   const druck = state.politikfeldDruck ?? {};
   const beschlossen = state.gesetze.filter(g => g.status === 'beschlossen');
   const feldCount: Record<string, number> = {};
@@ -226,7 +224,7 @@ export function wahlkampfKoalition(
 /** Medienoffensive: 15 PK, einmalig → Medien +10, Wahlprognose +2 */
 export function wahlkampfMedienoffensive(
   state: GameState,
-  content: ContentBundle,
+  _content: ContentBundle,
   complexity: number,
 ): GameState {
   if (!featureActive(complexity, 'wahlkampf')) return state;
@@ -393,8 +391,7 @@ export function berechneWahlergebnis(state: GameState): number {
 }
 
 /** Wahlnacht-Trigger (Monat 48) — berechnet Wahlergebnis und setzt Spielende */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- API-Konsistenz mit complexity
-export function triggerWahlnacht(state: GameState, complexity: number): GameState {
+export function triggerWahlnacht(state: GameState, _complexity: number): GameState {
   if (state.month !== 48) return state;
   if (state.gameOver) return state;
 

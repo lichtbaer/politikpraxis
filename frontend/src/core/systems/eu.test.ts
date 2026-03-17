@@ -235,7 +235,7 @@ describe('initEUKlima', () => {
       bundesrat: [],
       bundesratFraktionen: [],
       milieus: [],
-      politikfelder: [{ id: 'umwelt_energie' }, { id: 'wirtschaft_finanzen' }],
+      politikfelder: [{ id: 'umwelt_energie', verbandId: null }, { id: 'wirtschaft_finanzen', verbandId: null }],
       verbaende: [],
       scenario: { id: 's1', name: 'Test', startMonth: 1, startPK: 100, startKPI: { al: 5, hh: 0, gi: 50, zf: 50 }, startCoalition: 70 },
     };
