@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { createInitialState } from '../state';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
+import { TV_DUELL_EVENT, KOALITIONSPARTNER_ALLEINGANG_EVENT } from '../../data/defaults/wahlkampfEvents';
 import {
   checkWahlkampfBeginn,
+  checkTVDuell,
+  checkKoalitionspartnerAlleingang,
   berechneLegislaturBilanz,
   berechneWahlergebnis,
   resolveTVDuell,
@@ -51,5 +54,36 @@ describe('wahlkampf', () => {
     expect(result.tvDuellAbgehalten).toBe(true);
     expect(result.tvDuellGewonnen).toBeDefined();
     expect(typeof result.tvDuellGewonnen).toBe('boolean');
+  });
+
+  it('checkTVDuell triggert nur in Monat 45 oder 46 (SMA-296)', () => {
+    const contentWithTVDuell = { ...content, events: [TV_DUELL_EVENT] };
+    let state = createInitialState(contentWithTVDuell, complexity);
+    state = { ...state, month: 3, wahlkampfAktiv: true, tvDuellAbgehalten: false };
+
+    const resultMonth3 = checkTVDuell(state, contentWithTVDuell, complexity);
+    expect(resultMonth3.activeEvent).toBeFalsy();
+
+    state = { ...state, month: 45 };
+    const resultMonth45 = checkTVDuell(state, contentWithTVDuell, complexity);
+    expect(resultMonth45.activeEvent?.id).toBe('tv_duell');
+  });
+
+  it('checkKoalitionspartnerAlleingang triggert nur in Monat 43–48 (SMA-296)', () => {
+    const contentWithEvent = { ...content, events: [KOALITIONSPARTNER_ALLEINGANG_EVENT] };
+    let state = createInitialState(contentWithEvent, complexity);
+    state = {
+      ...state,
+      month: 3,
+      wahlkampfAktiv: true,
+      koalitionspartner: { ...state.koalitionspartner!, beziehung: 30 },
+    };
+
+    const resultMonth3 = checkKoalitionspartnerAlleingang(state, contentWithEvent, complexity);
+    expect(resultMonth3.activeEvent).toBeFalsy();
+
+    state = { ...state, month: 42 };
+    const resultMonth42 = checkKoalitionspartnerAlleingang(state, contentWithEvent, complexity);
+    expect(resultMonth42.activeEvent).toBeFalsy();
   });
 });

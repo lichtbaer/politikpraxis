@@ -317,7 +317,7 @@ export function resolveTVDuell(
   return next;
 }
 
-/** Koalitionspartner-Alleingang (nur Stufe 4, 20% Chance) */
+/** Koalitionspartner-Alleingang (nur Stufe 4, Monat 43–48, 20% Chance) */
 export function checkKoalitionspartnerAlleingang(
   state: GameState,
   content: ContentBundle,
@@ -325,6 +325,7 @@ export function checkKoalitionspartnerAlleingang(
 ): GameState {
   if (!featureActive(complexity, 'koalitionspartner_alleingang')) return state;
   if (!state.wahlkampfAktiv) return state;
+  if (state.month < 43 || state.month > 48) return state;
   const kp = state.koalitionspartner;
   if (!kp || kp.beziehung >= 50) return state;
 
