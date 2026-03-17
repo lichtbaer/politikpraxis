@@ -54,12 +54,26 @@
   }
 }
 
-.content {
+.startScreen {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 48px;
   animation: fadeIn 1.2s ease-out;
+  width: 100%;
+  max-width: 100%;
+}
+
+.startLeft {
+  display: none;
+}
+
+.startRight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
 }
 
 .title {
@@ -179,16 +193,48 @@
 }
 
 @media (min-width: 768px) {
-  .content {
-    gap: 56px;
+  .root {
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .startScreen {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    flex: 1;
+    min-height: 0;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .startLeft {
+    display: block;
+    background: linear-gradient(135deg, var(--bg2), var(--bg4));
+    min-height: 0;
+  }
+
+  .startRight {
+    padding: 4rem;
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
+    max-width: none;
   }
 
   .title {
     font-size: clamp(48px, 6vw, 72px);
+    text-align: left;
   }
 
   .subtitle {
     font-size: 15px;
+    text-align: left;
+  }
+
+  .einladung {
+    align-items: flex-start;
+    text-align: left;
+    max-width: 480px;
   }
 
   .einladungKompakt {
@@ -206,6 +252,12 @@
   .buttons {
     max-width: 320px;
     gap: 14px;
+    align-items: stretch;
+  }
+
+  .disclaimer {
+    text-align: left;
+    max-width: 420px;
   }
 
   .primary {
