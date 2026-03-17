@@ -53,6 +53,14 @@ const FEATURES: Record<string, { minLevel: number }> = {
   eu_events_voll: { minLevel: 4 },
   /** Ratsvorsitz-Boni */
   eu_ratsvorsitz: { minLevel: 4 },
+  /** SMA-273: Kommunal-Pilot als Vorstufe */
+  kommunal_pilot: { minLevel: 2 },
+  /** SMA-273: Länder-Pilot als Vorstufe */
+  laender_pilot: { minLevel: 2 },
+  /** SMA-273: Agenda-Tab sichtbar */
+  gesetz_agenda: { minLevel: 3 },
+  /** SMA-273: Parallele Vorstufen möglich */
+  parallele_vorstufen: { minLevel: 3 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {

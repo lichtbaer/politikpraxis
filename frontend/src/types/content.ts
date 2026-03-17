@@ -53,8 +53,10 @@ export interface GesetzApi {
   einnahmeeffekt?: number;
   /** Investitionsgesetz (+2 Mo. Lag) */
   investiv?: boolean;
-  /** Kommunal-Pilot möglich (SMA-272) */
+  /** Kommunal-Pilot möglich (SMA-272), Länder/EU-Vorstufen (SMA-273) */
   kommunal_pilot_moeglich?: boolean;
+  laender_pilot_moeglich?: boolean;
+  eu_initiative_moeglich?: boolean;
 }
 
 export interface MilieuApi {

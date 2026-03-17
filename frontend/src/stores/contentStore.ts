@@ -107,6 +107,8 @@ function transformGesetz(api: GesetzApi): Law {
     einnahmeeffekt: api.einnahmeeffekt,
     investiv: (api as { investiv?: boolean }).investiv,
     kommunal_pilot_moeglich: api.kommunal_pilot_moeglich ?? true,
+    laender_pilot_moeglich: api.laender_pilot_moeglich ?? true,
+    eu_initiative_moeglich: api.eu_initiative_moeglich ?? true,
   };
 }
 

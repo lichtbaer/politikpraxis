@@ -2,7 +2,7 @@
  * EU-Engine (SMA-269): Klima-System, 3-Phasen-Ausweichroute, reaktive Richtlinien, Ratsvorsitz.
  */
 import type { GameState, Verband, ContentBundle } from '../types';
-import { addLog } from '../engine';
+import { addLog } from '../log';
 import { featureActive } from './features';
 import { scheduleEffects } from './economy';
 
@@ -266,7 +266,8 @@ function berechneKofinanzierung(feldId: string, state: GameState): number {
   return Math.min(0.5, 0.1 + (klima / 100) * 0.4);
 }
 
-function applyEUKofinanzierung(state: GameState, kofinanzierung: number): GameState {
+/** Kofinanzierungs-Log (exportiert für Vorstufen-Boni in parliament) */
+export function applyEUKofinanzierung(state: GameState, kofinanzierung: number): GameState {
   return addLog(state, `Kofinanzierung: ${(kofinanzierung * 100).toFixed(0)}%`, 'g');
 }
 

@@ -6,6 +6,9 @@ import { applyMoodChange } from './characters';
 import { applyMilieuEffekte } from './milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { applyGesetzKosten } from './haushalt';
+import { getVorstufenBoni } from './gesetzLebenszyklus';
+import { featureActive } from './features';
+import { applyEUKofinanzierung } from './eu';
 
 export interface EinbringenContext {
   ausrichtung: Ideologie;
@@ -35,15 +38,20 @@ export function einbringen(
 
   let pkKosten: number;
   let charEffekte: Record<string, number> = {};
+  const complexity = isEinbringenContext(options) ? options.complexity : 4;
+  const boni = (featureActive(complexity, 'kommunal_pilot') || featureActive(complexity, 'laender_pilot'))
+    ? getVorstufenBoni(state, lawId)
+    : { pkKostenRabatt: 0, btStimmenBonus: 0, bundesratBonus: 0, kofinanzierung: 0 };
 
   if (isEinbringenContext(options)) {
     const kongruenz = applyKongruenzEffekte(state, lawId, options.ausrichtung, options.complexity);
-    pkKosten = getEinbringenPkKosten(kongruenz.pkModifikator);
+    const basePk = getEinbringenPkKosten(kongruenz.pkModifikator);
+    pkKosten = Math.max(2, basePk - boni.pkKostenRabatt);
     charEffekte = kongruenz.charEffekte;
   } else {
     const baseCost = 20;
     const rabatt = options?.pkRabatt ?? 0;
-    pkKosten = Math.max(1, Math.round(baseCost * (1 - rabatt)));
+    pkKosten = Math.max(2, Math.round(baseCost * (1 - rabatt)) - boni.pkKostenRabatt);
   }
 
   if (state.pk < pkKosten) return state;
@@ -53,8 +61,23 @@ export function einbringen(
   );
   let newState: GameState = { ...state, pk: state.pk - pkKosten, gesetze };
 
+  if (state.gesetzProjekte?.[lawId]) {
+    const projekte = newState.gesetzProjekte ?? {};
+    newState = {
+      ...newState,
+      gesetzProjekte: {
+        ...projekte,
+        [lawId]: { ...projekte[lawId], status: 'bundesebene' },
+      },
+    };
+  }
+
   if (Object.keys(charEffekte).length > 0) {
     newState = applyMoodChange(newState, charEffekte);
+  }
+
+  if (boni.kofinanzierung > 0) {
+    newState = applyEUKofinanzierung(newState, boni.kofinanzierung);
   }
 
   return addLog(newState, `${law.kurz} in Bundestag eingebracht`, 'hi');
@@ -106,7 +129,8 @@ export function abstimmen(
     state.month <= state.btStimmenBonus.bisMonat
       ? state.btStimmenBonus.pct
       : 0;
-  const effectiveJa = law.ja + partnerBonus + btBonus;
+  const vorstufenBtBonus = state.gesetzProjekte?.[lawId]?.boni?.btStimmenBonus ?? 0;
+  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus);
 
   if (effectiveJa > 50) {
     if (!law.tags.includes('land')) {

@@ -77,6 +77,8 @@ export function calcBundesratMehrheit(
   let ja = 0;
   let nein = 0;
 
+  const vorstufenBonus = state.gesetzProjekte?.[gesetzeId]?.boni?.bundesratBonus ?? 0;
+
   for (const f of state.bundesratFraktionen) {
     const lobby: LawLobbyFraktion = law.lobbyFraktionen?.[f.id] ?? { pkInvestiert: false };
     const effMult = getLobbyEffektMultiplikator(f.beziehung);
@@ -107,6 +109,10 @@ export function calcBundesratMehrheit(
       // Beziehungsbonus (passiv): leichter Bonus aus Beziehung
       const beziehungsBonus = Math.min(15, Math.floor(f.beziehung / 7));
       bereitschaft += beziehungsBonus;
+      if (vorstufenBonus > 0) {
+        bereitschaft += vorstufenBonus;
+        details.push(`${f.name}: +${vorstufenBonus}% Vorstufen-Bonus`);
+      }
       details.push(`${f.name}: Basis ${f.basisBereitschaft} + Beziehung +${beziehungsBonus} → ${bereitschaft}%`);
     }
 
@@ -136,6 +142,8 @@ export function getBundesratVoteDetails(
   const law = state.gesetze.find(g => g.id === gesetzeId);
   if (!law) return [];
 
+  const vorstufenBonus = state.gesetzProjekte?.[gesetzeId]?.boni?.bundesratBonus ?? 0;
+
   return state.bundesratFraktionen.map((f) => {
     const lobby: LawLobbyFraktion = law.lobbyFraktionen?.[f.id] ?? { pkInvestiert: false };
     const effMult = getLobbyEffektMultiplikator(f.beziehung);
@@ -151,6 +159,7 @@ export function getBundesratVoteDetails(
       if (lobby.pkInvestiert) bereitschaft += BEREITSCHAFT_PK_BONUS * effMult;
       if (lobby.tradeoffAngenommen) bereitschaft += BEREITSCHAFT_TRADEOFF_BONUS * effMult;
       bereitschaft += Math.min(15, Math.floor(f.beziehung / 7));
+      bereitschaft += vorstufenBonus;
     }
 
     return {
