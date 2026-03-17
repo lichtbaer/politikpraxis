@@ -95,7 +95,7 @@ describe('SMA-291: Bundesrat-Stufen — Stufe 1 Land-Gesetz direkt beschlossen',
       ...createInitialState(),
       gesetze: [gesetz],
       bundesratFraktionen: [
-        { id: 'kb', name: 'KB', laender: ['by', 'bw', 'sn'], sprecher: { name: 'X', partei: 'CDP', land: 'BY', initials: 'X', color: '#000' }, beziehung: 50, basisBereitschaft: 60, tradeoffPool: [] },
+        { id: 'kb', name: 'KB', laender: ['by', 'bw', 'sn'], sprecher: { name: 'X', partei: 'CDP', land: 'BY', initials: 'X', color: '#000', bio: '' }, beziehung: 50, basisBereitschaft: 60, tradeoffPool: [] },
       ] as GameState['bundesratFraktionen'],
     };
     let s = einbringen(state, 'wb', { ausrichtung: { wirtschaft: 0, gesellschaft: 0, staat: 0 }, complexity: 1 });
