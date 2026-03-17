@@ -83,6 +83,8 @@ const FEATURES: Record<string, { minLevel: number }> = {
   pressemitteilung: { minLevel: 3 },
   /** SMA-277: Opposition als abstrakter Akteur */
   opposition: { minLevel: 3 },
+  /** SMA-280: Extremismus-Eskalation (Koalitionspartner-Warnung, Verfassungsgericht) */
+  extremismus_eskalation: { minLevel: 2 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {

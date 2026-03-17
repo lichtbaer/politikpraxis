@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { berechneKongruenz } from './ideologie';
+import { berechneKongruenz, getGesamtExtremismusMalus } from './ideologie';
 
 describe('berechneKongruenz', () => {
   it('gibt 100 bei identischen Profilen', () => {
@@ -45,5 +45,28 @@ describe('berechneKongruenz', () => {
     expect(Number.isInteger(score)).toBe(true);
     expect(score).toBeGreaterThanOrEqual(0);
     expect(score).toBeLessThanOrEqual(100);
+  });
+});
+
+describe('getGesamtExtremismusMalus', () => {
+  it('gibt 0 bei neutraler Ausrichtung', () => {
+    expect(getGesamtExtremismusMalus({ wirtschaft: 0, gesellschaft: 0, staat: 0 })).toBe(0);
+  });
+
+  it('gibt 0 bei Werten unter 65', () => {
+    expect(getGesamtExtremismusMalus({ wirtschaft: 60, gesellschaft: -50, staat: 40 })).toBe(0);
+  });
+
+  it('berechnet Malus bei wirtschaft 75', () => {
+    // ((75-65)/10)² × 4 = 1² × 4 = 4
+    expect(getGesamtExtremismusMalus({ wirtschaft: 75, gesellschaft: 0, staat: 0 })).toBe(4);
+  });
+
+  it('berechnet Malus bei mehreren Achsen > 65', () => {
+    // wirtschaft 75: ((75-65)/10)²×4 = 4, gesellschaft -80: ((80-65)/10)²×4 = 9, staat 70: ((70-65)/10)²×4 = 1
+    // Summe: 4 + 9 + 1 = 14
+    const malus = getGesamtExtremismusMalus({ wirtschaft: 75, gesellschaft: -80, staat: 70 });
+    expect(malus).toBeGreaterThan(8);
+    expect(malus).toBeGreaterThanOrEqual(14);
   });
 });

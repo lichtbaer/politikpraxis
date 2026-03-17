@@ -129,11 +129,14 @@ function transformEventChoice(api: {
   desc: string;
   log_msg: string;
   loyalty?: Record<string, number>;
+  koalitionspartner_beziehung_delta?: number;
+  medienklima_delta?: number;
+  verfahren_dauer_monate?: number;
 }): EventChoice {
   const type = (['primary', 'danger', 'safe'].includes(api.type)
     ? api.type
     : 'safe') as 'primary' | 'danger' | 'safe';
-  return {
+  const choice: EventChoice = {
     label: api.label,
     desc: api.desc,
     cost: api.cost_pk,
@@ -144,6 +147,16 @@ function transformEventChoice(api: {
     log: api.log_msg,
     key: api.key,
   };
+  if (api.koalitionspartner_beziehung_delta != null) {
+    choice.koalitionspartnerBeziehung = api.koalitionspartner_beziehung_delta;
+  }
+  if (api.medienklima_delta != null) {
+    choice.medienklima_delta = api.medienklima_delta;
+  }
+  if (api.verfahren_dauer_monate != null) {
+    choice.verfahrenDauerMonate = api.verfahren_dauer_monate;
+  }
+  return choice;
 }
 
 function transformEvent(api: EventApi): GameEvent {
@@ -252,6 +265,7 @@ export interface ContentStore {
   bundesratEvents: GameEvent[];
   kommunalEvents: GameEvent[];
   vorstufenEvents: GameEvent[];
+  extremismusEvents: GameEvent[];
   bundesrat: BundesratLand[];
   bundesratFraktionen: BundesratFraktion[];
   milieus: Milieu[];
@@ -274,6 +288,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   bundesratEvents: [],
   kommunalEvents: [],
   vorstufenEvents: [],
+  extremismusEvents: [],
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
   milieus: [],
@@ -307,6 +322,9 @@ export const useContentStore = create<ContentStore>((set) => ({
       const brEventsList = events.filter((e) => eventTypeById.get(e.id) === 'bundesrat');
       const kommunalEventsList = events.filter((e) => eventTypeById.get(e.id) === 'kommunal_initiative');
       const vorstufenEventsList = events.filter((e) => eventTypeById.get(e.id) === 'vorstufe_erfolg');
+      const extremismusEventsList = events.filter((e) =>
+        ['koalitionspartner_extremismus_warnung', 'verfassungsgericht_klage'].includes(e.id),
+      );
 
       const charEventsMap: Record<string, GameEvent> = {};
       for (const ev of charEventsList) {
@@ -330,6 +348,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         bundesratEvents: bundesratEventsResolved,
         kommunalEvents: kommunalEventsList,
         vorstufenEvents: vorstufenEventsList,
+        extremismusEvents: extremismusEventsList,
         bundesratFraktionen: bundesratFraktionen.map(transformBundesratFraktion),
         milieus,
         politikfelder,
@@ -369,6 +388,7 @@ export function getContentBundle(): ContentBundle {
     bundesratEvents: s.bundesratEvents,
     kommunalEvents: s.kommunalEvents ?? [],
     vorstufenEvents: s.vorstufenEvents ?? [],
+    extremismusEvents: s.extremismusEvents ?? [],
     bundesrat: s.bundesrat,
     bundesratFraktionen: s.bundesratFraktionen,
     koalitionspartner: GRUENE,

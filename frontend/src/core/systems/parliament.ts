@@ -29,6 +29,17 @@ function isEinbringenContext(opts: EinbringenOptions | undefined): opts is Einbr
   return opts != null && 'ausrichtung' in opts && 'complexity' in opts;
 }
 
+/** SMA-280: Prüft ob Einbringen durch Verfassungsgericht-Verfahren blockiert ist */
+export function isVerfassungsgerichtBlockiert(state: GameState, law: { politikfeldId?: string | null }): boolean {
+  return !!(
+    state.verfassungsgerichtAktiv &&
+    !state.verfassungsgerichtPausiert &&
+    state.verfassungsgerichtPolitikfeldIds?.length &&
+    law.politikfeldId &&
+    state.verfassungsgerichtPolitikfeldIds.includes(law.politikfeldId)
+  );
+}
+
 export function einbringen(
   state: GameState,
   lawId: string,
@@ -38,6 +49,11 @@ export function einbringen(
   if (idx === -1) return state;
   const law = state.gesetze[idx];
   if (law.status !== 'entwurf') return state;
+
+  // SMA-280: Verfassungsgericht-Verfahren blockiert Einbringen in betroffenen Politikfeldern
+  if (isVerfassungsgerichtBlockiert(state, law)) {
+    return state;
+  }
 
   let pkKosten: number;
   let charEffekte: Record<string, number> = {};

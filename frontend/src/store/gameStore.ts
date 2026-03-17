@@ -149,7 +149,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   gameTick: () => {
     const { state: s, content, phase, playerName, complexity, ausrichtung } = get();
     if (s.gameOver || s.speed === 0) return;
-    const nextState = tick(s, content, complexity);
+    const nextState = tick(s, content, complexity, ausrichtung);
     set({ state: nextState });
     if (phase === 'playing' && !nextState.gameOver) {
       saveGame({ gameState: nextState, playerName, complexity, ausrichtung });

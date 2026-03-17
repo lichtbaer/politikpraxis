@@ -6,6 +6,7 @@ import { ROUTE_INFO } from '../../../core/systems/levels';
 import { gesetzKongruenz } from '../../../core/ideologie';
 import { featureActive } from '../../../core/systems/features';
 import { getVorstufenBoni } from '../../../core/systems/gesetzLebenszyklus';
+import { isVerfassungsgerichtBlockiert } from '../../../core/systems/parliament';
 import { VorstufeBadge } from '../VorstufeBadge/VorstufeBadge';
 import { VorbereitungModal } from '../VorbereitungModal/VorbereitungModal';
 import { FramingModal } from '../FramingModal/FramingModal';
@@ -53,7 +54,10 @@ export function AgendaCard({ law, isRecommended }: AgendaCardProps) {
 
   const handleHeaderClick = () => actions.toggleAgenda(law.id);
 
-  const canEinbringen = law.status === 'entwurf' && pk >= 20;
+  const canEinbringen =
+    law.status === 'entwurf' &&
+    pk >= 20 &&
+    !isVerfassungsgerichtBlockiert(state, law);
   const canLobbying = (law.status === 'entwurf' || law.status === 'aktiv') && pk >= 12;
 
   const total = law.ja + law.nein;

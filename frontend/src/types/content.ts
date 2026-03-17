@@ -101,6 +101,12 @@ export interface EventChoiceApi {
   desc: string;
   log_msg: string;
   loyalty?: Record<string, number>;
+  /** SMA-280: Koalitionspartner-Beziehung Delta */
+  koalitionspartner_beziehung_delta?: number;
+  /** SMA-280: Medienklima Delta */
+  medienklima_delta?: number;
+  /** SMA-280: Verfassungsgericht Verfahrensdauer in Monaten */
+  verfahren_dauer_monate?: number;
 }
 
 export interface EventApi {
