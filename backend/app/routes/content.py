@@ -9,6 +9,9 @@ from app.schemas.content import (
     GesetzResponse,
     EventResponse,
     BundesratResponse,
+    MilieuResponse,
+    PolitikfeldResponse,
+    VerbandResponse,
 )
 from app.services.content_service import (
     get_content_bundle,
@@ -23,6 +26,9 @@ from app.services.content_db_service import (
     fetch_gesetze,
     fetch_events,
     fetch_bundesrat,
+    fetch_milieus,
+    fetch_politikfelder,
+    fetch_verbaende,
     get_game_content_from_db,
 )
 
@@ -105,4 +111,34 @@ async def get_bundesrat(
     db: AsyncSession = Depends(get_db),
 ):
     rows = await fetch_bundesrat(db, locale)
+    return rows
+
+
+@router.get("/milieus", response_model=list[MilieuResponse])
+async def get_milieus(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/content/milieus?locale=de — Milieus mit Ideologie."""
+    rows = await fetch_milieus(db, locale)
+    return rows
+
+
+@router.get("/politikfelder", response_model=list[PolitikfeldResponse])
+async def get_politikfelder(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/content/politikfelder?locale=de — Politikfelder."""
+    rows = await fetch_politikfelder(db, locale)
+    return rows
+
+
+@router.get("/verbaende", response_model=list[VerbandResponse])
+async def get_verbaende(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/content/verbaende?locale=de — Verbände mit Ideologie und Tradeoffs."""
+    rows = await fetch_verbaende(db, locale)
     return rows

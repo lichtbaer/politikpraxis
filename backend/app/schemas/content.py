@@ -2,6 +2,14 @@ from pydantic import BaseModel, ConfigDict
 from typing import Any
 
 
+class IdeologieSchema(BaseModel):
+    """Ideologie-Werte (wirtschaft, gesellschaft, staat) für Chars, Gesetze, Milieus, Verbände."""
+
+    wirtschaft: int = 0
+    gesellschaft: int = 0
+    staat: int = 0
+
+
 class EffekteSchema(BaseModel):
     """Effekte für Gesetze, Event-Choices und Bundesrat-Tradeoffs."""
 
@@ -22,6 +30,7 @@ class CharResponse(BaseModel):
     bonus_trigger: str | None
     bonus_applies: str | None
     min_complexity: int | None
+    ideologie: IdeologieSchema
     name: str
     role: str
     bio: str
@@ -39,6 +48,9 @@ class GesetzResponse(BaseModel):
     effekte: EffekteSchema
     effekt_lag: int
     foederalismus_freundlich: bool
+    ideologie: IdeologieSchema
+    politikfeld_id: str | None
+    politikfeld_sekundaer: list[str]
     titel: str
     kurz: str
     desc: str
@@ -97,6 +109,58 @@ class BundesratResponse(BaseModel):
     sprecher_land: str
     sprecher_bio: str
     tradeoffs: list[BundesratTradeoffResponse]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class VerbandTradeoffResponse(BaseModel):
+    key: str
+    effekte: EffekteSchema
+    feld_druck_delta: int = 0
+    label: str
+    desc: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MilieuResponse(BaseModel):
+    id: str
+    gewicht: int
+    basisbeteiligung: int
+    ideologie: IdeologieSchema
+    min_complexity: int
+    aggregat_gruppe: str | None
+    name: str
+    kurzcharakter: str
+    beschreibung: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PolitikfeldResponse(BaseModel):
+    id: str
+    verband_id: str | None = None
+    eu_relevanz: int
+    kommunal_relevanz: int
+    min_complexity: int
+    name: str
+    kurz: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class VerbandResponse(BaseModel):
+    id: str
+    politikfeld_id: str
+    ideologie: IdeologieSchema
+    beziehung_start: int
+    staerke: dict[str, int]
+    konflikt_mit: list[str]
+    min_complexity: int
+    name: str
+    kurz: str
+    bio: str
+    tradeoffs: list[VerbandTradeoffResponse]
 
     model_config = ConfigDict(from_attributes=True)
 
