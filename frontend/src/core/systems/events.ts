@@ -349,15 +349,21 @@ export function resolveEvent(
     };
   }
 
+  // SMA-277: Medien-Event-Choice — medienklima_delta anwenden
+  if (choice.medienklima_delta != null && event.id.startsWith('medien_')) {
+    const currentMk = newState.medienKlima ?? 55;
+    newState = { ...newState, medienKlima: Math.max(0, Math.min(100, currentMk + choice.medienklima_delta)) };
+  }
+
   const logType = choice.type === 'danger' ? 'r' : 'g';
   const choiceIdx = event.choices.indexOf(choice);
   const BR_IDS = new Set(['laenderfinanzausgleich', 'landtagswahl', 'kohl_eskaliert', 'sprecher_wechsel', 'bundesrat_initiative', 'foederalismusgipfel']);
   const KOMMUNAL_IDS = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
   const VORSTUFEN_IDS = new Set(['vorstufe_kommunal_erfolg', 'vorstufe_laender_erfolg']);
   const CHAR_IDS = new Set(['fm_ultimatum', 'braun_ultimatum', 'wolf_ultimatum', 'kern_ultimatum', 'kanzler_ultimatum', 'kohl_bundesrat_sabotage', 'wm_ultimatum', 'am_ultimatum', 'gm_ultimatum', 'bm_ultimatum', 'koalitionsbruch', 'koalitionskrise_ultimatum']);
-  const eventNs = event.charId || CHAR_IDS.has(event.id) ? 'charEvents' : BR_IDS.has(event.id) ? 'bundesratEvents' : KOMMUNAL_IDS.has(event.id) ? 'kommunalEvents' : VORSTUFEN_IDS.has(event.id) ? 'vorstufenEvents' : 'events';
-  const logKey = `game:${eventNs}.${event.id}.choices.${choiceIdx}.log`;
-  newState = addLog(newState, logKey, logType);
+  const eventNs = event.id.startsWith('medien_') ? 'medienEvents' : event.charId || CHAR_IDS.has(event.id) ? 'charEvents' : BR_IDS.has(event.id) ? 'bundesratEvents' : KOMMUNAL_IDS.has(event.id) ? 'kommunalEvents' : VORSTUFEN_IDS.has(event.id) ? 'vorstufenEvents' : 'events';
+  const logMsg = event.id.startsWith('medien_') && choice.log ? choice.log : `game:${eventNs}.${event.id}.choices.${choiceIdx}.log`;
+  newState = addLog(newState, logMsg, logType);
   const tickerKey = `game:${eventNs}.${event.id}.ticker`;
   newState.ticker = i18n.exists(tickerKey) ? i18n.t(tickerKey) : event.ticker;
   newState.activeEvent = null;

@@ -32,6 +32,7 @@ import {
   KOALITIONSBRUCH_EVENT,
   KOALITIONSKRISE_ULTIMATUM_EVENT,
 } from '../data/defaults/koalitionspartner';
+import { DEFAULT_MEDIEN_EVENTS } from '../data/defaults/medienEvents';
 
 const EVENT_TYPE_ICONS: Record<string, string> = {
   danger: '🔴',
@@ -109,6 +110,7 @@ function transformGesetz(api: GesetzApi): Law {
     kommunal_pilot_moeglich: api.kommunal_pilot_moeglich ?? true,
     laender_pilot_moeglich: api.laender_pilot_moeglich ?? true,
     eu_initiative_moeglich: api.eu_initiative_moeglich ?? true,
+    framing_optionen: (api as { framing_optionen?: typeof api.framing_optionen }).framing_optionen ?? [],
   };
 }
 
@@ -253,6 +255,7 @@ export interface ContentStore {
   ministerialInitiativen: import('../core/types').MinisterialInitiative[];
   euKlimaStartwerte: { politikfeld_id: string; startwert: number }[];
   euEvents: import('../core/types').EUEventContent[];
+  medienEvents: import('../core/types').MedienEventContent[];
   scenario: ContentBundle['scenario'];
   loaded: boolean;
   error: string | null;
@@ -275,6 +278,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
   euKlimaStartwerte: [],
   euEvents: [],
+  medienEvents: DEFAULT_MEDIEN_EVENTS,
   scenario: DEFAULT_SCENARIO,
   loaded: false,
   error: null,
@@ -366,6 +370,7 @@ export function getContentBundle(): ContentBundle {
     ministerialInitiativen: s.ministerialInitiativen?.length ? s.ministerialInitiativen : DEFAULT_MINISTERIAL_INITIATIVEN,
     euKlimaStartwerte: s.euKlimaStartwerte ?? [],
     euEvents: s.euEvents ?? [],
+    medienEvents: s.medienEvents?.length ? s.medienEvents : DEFAULT_MEDIEN_EVENTS,
     scenario: s.scenario,
   };
 }

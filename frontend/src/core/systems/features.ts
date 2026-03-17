@@ -61,6 +61,16 @@ const FEATURES: Record<string, { minLevel: number }> = {
   gesetz_agenda: { minLevel: 3 },
   /** SMA-273: Parallele Vorstufen möglich */
   parallele_vorstufen: { minLevel: 3 },
+  /** SMA-277: Medienklima sichtbar, Drift, Multiplikator */
+  medienklima: { minLevel: 2 },
+  /** SMA-277: Framing beim Gesetz-Einbringen */
+  framing: { minLevel: 2 },
+  /** SMA-277: Skandal-Events */
+  skandale: { minLevel: 2 },
+  /** SMA-277: Pressemitteilung-Aktion (1×/Monat, 5 PK) */
+  pressemitteilung: { minLevel: 3 },
+  /** SMA-277: Opposition als abstrakter Akteur */
+  opposition: { minLevel: 3 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {

@@ -57,6 +57,8 @@ export interface GesetzApi {
   kommunal_pilot_moeglich?: boolean;
   laender_pilot_moeglich?: boolean;
   eu_initiative_moeglich?: boolean;
+  /** Framing-Optionen (SMA-276) */
+  framing_optionen?: Array<{ key: string; milieu_effekte: Record<string, number>; verband_effekte?: Record<string, number>; medienklima_delta: number }>;
 }
 
 export interface MilieuApi {

@@ -18,6 +18,7 @@ import {
 } from '../core/systems/eu';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/media';
+import { pressemitteilung } from '../core/systems/medien';
 import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
 import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
@@ -60,7 +61,7 @@ interface GameStore {
   setSpeed: (speed: SpeedLevel) => void;
   setView: (view: ViewName) => void;
 
-  doEinbringen: (lawId: string) => void;
+  doEinbringen: (lawId: string, framingKey?: string | null) => void;
   doLobbying: (lawId: string) => void;
   doAbstimmen: (lawId: string) => void;
   doStartRoute: (lawId: string, route: RouteType) => void;
@@ -70,6 +71,7 @@ interface GameStore {
   doSetRatsvorsitzPrioritaeten: (feldIds: string[]) => void;
   doResolveEvent: (event: GameEvent, choice: EventChoice) => void;
   doMedienkampagne: (milieu: MilieuKey) => void;
+  doPressemitteilung: (thema: 'haushalt' | 'koalition' | 'politikfeld' | 'opposition') => void;
   doLobbyLand: (landId: string) => void;
   doLobbyFraktion: (fraktionId: string, gesetzeId: string, schicht: 1 | 2 | 'beziehungspflege' | 'reparatur', tradeoffOptions?: LobbyTradeoffOptions) => void;
   doKoalitionsrunde: () => void;
@@ -147,9 +149,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setSpeed: (speed) => set(prev => ({ state: { ...prev.state, speed } })),
   setView: (view) => set(prev => ({ state: { ...prev.state, view } })),
 
-  doEinbringen: (lawId) =>
+  doEinbringen: (lawId, framingKey) =>
     set((prev) => {
-      const ctx: EinbringenContext = { ausrichtung: prev.ausrichtung, complexity: prev.complexity };
+      const ctx: EinbringenContext = { ausrichtung: prev.ausrichtung, complexity: prev.complexity, framingKey: framingKey ?? undefined };
       return { state: einbringen(prev.state, lawId, ctx) };
     }),
   doLobbying: (lawId) => set(prev => ({ state: lobbying(prev.state, lawId) })),
@@ -193,6 +195,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(prev => ({ state: resolveEvent(prev.state, event, choice, { complexity: prev.complexity }) })),
 
   doMedienkampagne: (milieu) => set(prev => ({ state: medienkampagne(prev.state, milieu) })),
+  doPressemitteilung: (thema) => set(prev => ({ state: pressemitteilung(prev.state, thema, prev.complexity) })),
   doLobbyLand: (landId) => set(prev => ({ state: lobbyLand(prev.state, landId) })),
   doLobbyFraktion: (fraktionId, gesetzeId, schicht, tradeoffOptions) =>
     set(prev => ({ state: lobbyFraktion(prev.state, fraktionId, gesetzeId, schicht, tradeoffOptions) })),

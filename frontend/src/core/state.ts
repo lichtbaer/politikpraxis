@@ -100,6 +100,17 @@ export function createInitialState(
         eu: { ...r.eu, ratsvorsitzStartMonat: Math.random() < 0.5 ? 6 : 30 },
       };
     }
+    if (featureActive(complexity, 'medienklima')) {
+      r = {
+        ...r,
+        medienKlima: 55,
+        letzterSkandal: 0,
+        letztesPressemitteilungMonat: 0,
+        opposition: featureActive(complexity, 'opposition')
+          ? { staerke: 40, aktivesThema: null, letzterAngriff: 0 }
+          : undefined,
+      };
+    }
     return r;
   }
 
@@ -171,6 +182,15 @@ export function migrateGameState(state: GameState): GameState {
   }
   if (!result.haushalt) {
     result = { ...result, haushalt: createInitialHaushalt(result) };
+  }
+  if (result.medienKlima == null) {
+    result = {
+      ...result,
+      medienKlima: 55,
+      letzterSkandal: result.letzterSkandal ?? 0,
+      letztesPressemitteilungMonat: result.letztesPressemitteilungMonat ?? 0,
+      opposition: result.opposition ?? { staerke: 40, aktivesThema: null, letzterAngriff: 0 },
+    };
   }
   return result;
 }

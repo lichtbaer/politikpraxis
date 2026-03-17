@@ -9,10 +9,13 @@ import { applyGesetzKosten } from './haushalt';
 import { getVorstufenBoni } from './gesetzLebenszyklus';
 import { featureActive } from './features';
 import { applyEUKofinanzierung } from './eu';
+import { applyFraming } from './medien';
 
 export interface EinbringenContext {
   ausrichtung: Ideologie;
   complexity: number;
+  /** Framing-Key beim Einbringen (SMA-277) */
+  framingKey?: string | null;
 }
 
 export interface GesetzBeschlussContext {
@@ -20,7 +23,7 @@ export interface GesetzBeschlussContext {
   complexity: number;
 }
 
-export type EinbringenOptions = EinbringenContext | { pkRabatt?: number };
+export type EinbringenOptions = EinbringenContext | { pkRabatt?: number; framingKey?: string | null };
 
 function isEinbringenContext(opts: EinbringenOptions | undefined): opts is EinbringenContext {
   return opts != null && 'ausrichtung' in opts && 'complexity' in opts;
@@ -45,11 +48,17 @@ export function einbringen(
 
   if (isEinbringenContext(options)) {
     const kongruenz = applyKongruenzEffekte(state, lawId, options.ausrichtung, options.complexity);
-    const basePk = getEinbringenPkKosten(kongruenz.pkModifikator);
+    let basePk = getEinbringenPkKosten(kongruenz.pkModifikator);
+    if (featureActive(options.complexity, 'medienklima') && (state.medienKlima ?? 55) < 20) {
+      basePk += 3;
+    }
     pkKosten = Math.max(2, basePk - boni.pkKostenRabatt);
     charEffekte = kongruenz.charEffekte;
   } else {
-    const baseCost = 20;
+    let baseCost = 20;
+    if (featureActive(complexity, 'medienklima') && (state.medienKlima ?? 55) < 20) {
+      baseCost += 3;
+    }
     const rabatt = options?.pkRabatt ?? 0;
     pkKosten = Math.max(2, Math.round(baseCost * (1 - rabatt)) - boni.pkKostenRabatt);
   }
@@ -78,6 +87,11 @@ export function einbringen(
 
   if (boni.kofinanzierung > 0) {
     newState = applyEUKofinanzierung(newState, boni.kofinanzierung);
+  }
+
+  const framingKey = isEinbringenContext(options) ? options.framingKey : (options as { framingKey?: string | null })?.framingKey;
+  if (framingKey) {
+    newState = applyFraming(newState, lawId, framingKey, complexity);
   }
 
   return addLog(newState, `${law.kurz} in Bundestag eingebracht`, 'hi');

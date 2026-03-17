@@ -19,6 +19,7 @@ import {
   triggerHaushaltsdebatte,
 } from './systems/haushalt';
 import { tickGesetzVorstufen } from './systems/gesetzLebenszyklus';
+import { tickMedienKlima } from './systems/medien';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export { addLog } from './log';
@@ -75,6 +76,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
     landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
   });
   s = checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity);
+  s = tickMedienKlima(s, content, complexity);
   s = checkRandomEvents(s, content.events);
 
   let newZust = recalcApproval(s.kpi, s.zust);

@@ -95,6 +95,16 @@ export interface Law {
   kommunal_pilot_moeglich?: boolean;
   laender_pilot_moeglich?: boolean;
   eu_initiative_moeglich?: boolean;
+  /** Framing-Optionen beim Einbringen (SMA-276): milieu_effekte, verband_effekte, medienklima_delta */
+  framing_optionen?: FramingOption[];
+}
+
+/** Framing-Option für Gesetz-Einbringen */
+export interface FramingOption {
+  key: string;
+  milieu_effekte: Record<string, number>;
+  verband_effekte?: Record<string, number>;
+  medienklima_delta: number;
 }
 
 /** Koalitionspartner-State im GameState */
@@ -154,6 +164,8 @@ export interface EventChoice {
   log: string;
   /** Choice-Key aus API (z.B. als_vorbild, koordinieren) */
   key?: string;
+  /** Medien-Event-Choice: Delta für Medienklima (SMA-277) */
+  medienklima_delta?: number;
 }
 
 export interface GameEvent {
@@ -459,6 +471,21 @@ export interface GameState {
   aktivesStrukturEvent?: AktivesStrukturEvent | null;
   /** SMA-273: Gesetz-Projekte mit Vorstufen und Boni */
   gesetzProjekte?: Record<string, GesetzProjekt>;
+  /** SMA-277: Medienklima 0–100, Start 55 */
+  medienKlima?: number;
+  /** Monat des letzten Skandals — für Cooldown */
+  letzterSkandal?: number;
+  /** Monat der letzten Pressemitteilung */
+  letztesPressemitteilungMonat?: number;
+  /** Opposition als abstrakter Akteur */
+  opposition?: OppositionState;
+}
+
+/** Opposition-State (SMA-277) */
+export interface OppositionState {
+  staerke: number; // 0–100, Start 40
+  aktivesThema: string | null;
+  letzterAngriff: number;
 }
 
 /** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */
@@ -488,6 +515,33 @@ export interface EUEventContent {
   politikfeld_id: string | null;
   trigger_klima_min: number | null;
   min_complexity: number;
+}
+
+/** Medien-Event (Skandal/positiv) — SMA-277 */
+export interface MedienEventContent {
+  id: string;
+  event_subtype: 'skandal' | 'positiv';
+  trigger_type: 'random' | 'conditional';
+  medienklima_delta: number;
+  min_complexity: number;
+  trigger_monat_min: number;
+  title: string;
+  quote: string;
+  context: string;
+  choices: MedienEventChoice[];
+}
+
+export interface MedienEventChoice {
+  key: string;
+  cost_pk: number;
+  medienklima_delta: number;
+  effekt_zf?: number;
+  char_mood_delta?: Record<string, number>;
+  verband_id?: string | null;
+  verband_delta?: number;
+  label: string;
+  desc: string;
+  log_msg: string;
 }
 
 /** Ministerial-Initiative (Minister bringt eigenes Gesetz ein) */
@@ -521,6 +575,8 @@ export interface ContentBundle {
   euKlimaStartwerte?: { politikfeld_id: string; startwert: number }[];
   /** EU-Events für reaktive Richtlinien (aus DB eu_events) */
   euEvents?: EUEventContent[];
+  /** Medien-Events (Skandale, positive) — SMA-277 */
+  medienEvents?: MedienEventContent[];
   scenario: {
     id: string;
     name: string;
