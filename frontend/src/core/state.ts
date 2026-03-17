@@ -1,4 +1,5 @@
 import type { GameState, ContentBundle } from './types';
+import type { Approval } from './types';
 import { featureActive } from './systems/features';
 import { getKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
 import { initEUKlima } from './systems/eu';
@@ -148,6 +149,151 @@ export function createInitialState(
   }
 
   return applyEUKlimaAndRatsvorsitz(base);
+}
+
+/** Maximale Array-Längen für GameState (Schutz vor localStorage-Manipulation) */
+const MAX_LOG_ENTRIES = 500;
+const MAX_FIRED_EVENTS = 200;
+const MAX_PENDING = 100;
+
+/** Erlaubte View- und Speed-Werte */
+const VALID_VIEWS = new Set<string>(['agenda', 'eu', 'land', 'kommune', 'medien', 'bundesrat', 'verbaende']);
+const VALID_SPEEDS = new Set<number>([0, 1, 2]);
+
+/** Clampt Zahl auf Bereich [min, max] */
+function clamp(n: number, min: number, max: number): number {
+  if (typeof n !== 'number' || !Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, n));
+}
+
+/** Clampt Record<string, number> Werte auf 0–100 */
+function clampRecord0_100(rec: Record<string, number> | null | undefined): Record<string, number> {
+  if (!rec || typeof rec !== 'object' || Array.isArray(rec)) return {};
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(rec)) {
+    if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+    if (typeof v === 'number' && Number.isFinite(v)) {
+      out[k] = clamp(v, 0, 100);
+    }
+  }
+  return out;
+}
+
+/**
+ * Validiert und sanitized GameState beim Laden aus localStorage.
+ * Schützt vor Manipulation: clampt numerische Werte, validiert Enums, begrenzt Arrays,
+ * filtert Prototype-Pollution-Keys.
+ */
+export function validateGameState(raw: unknown): GameState {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('Invalid GameState: expected object');
+  }
+  const s = raw as Record<string, unknown>;
+
+  // Prototype-Pollution-Schutz: nur erwartete Keys kopieren
+  const get = (key: string, def: unknown) => {
+    if (!(key in s)) return def;
+    const v = s[key];
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') return def;
+    return v;
+  };
+
+  const month = clamp(Number(get('month', 1)), 1, 60);
+  const speedVal = Number(get('speed', 0));
+  const speed = VALID_SPEEDS.has(speedVal) ? (speedVal as 0 | 1 | 2) : 0;
+  const pk = clamp(Number(get('pk', 100)), 0, 999);
+  const viewVal = String(get('view', 'agenda'));
+  const view = VALID_VIEWS.has(viewVal) ? (viewVal as GameState['view']) : 'agenda';
+
+  const kpiRaw = get('kpi', { al: 50, hh: 50, gi: 50, zf: 50 }) as Record<string, number>;
+  const kpi = {
+    al: clamp(Number(kpiRaw?.al ?? 50), 0, 100),
+    hh: clamp(Number(kpiRaw?.hh ?? 50), 0, 100),
+    gi: clamp(Number(kpiRaw?.gi ?? 50), 0, 100),
+    zf: clamp(Number(kpiRaw?.zf ?? 50), 0, 100),
+  };
+
+  const zustRaw = get('zust', { g: 52, arbeit: 58, mitte: 54, prog: 44 }) as Record<string, number>;
+  const zust: Approval = {
+    g: clamp(Number(zustRaw?.g ?? 52), 0, 100),
+    arbeit: clamp(Number(zustRaw?.arbeit ?? 58), 0, 100),
+    mitte: clamp(Number(zustRaw?.mitte ?? 54), 0, 100),
+    prog: clamp(Number(zustRaw?.prog ?? 44), 0, 100),
+  };
+
+  const coalition = clamp(Number(get('coalition', 50)), 0, 100);
+  const gameOver = Boolean(get('gameOver', false));
+  const won = Boolean(get('won', false));
+
+  const logRaw = Array.isArray(get('log', [])) ? (get('log', []) as unknown[]) : [];
+  const log = logRaw.slice(0, MAX_LOG_ENTRIES).filter((e) => e && typeof e === 'object');
+
+  const firedEvents = Array.isArray(get('firedEvents', [])) ? (get('firedEvents', []) as string[]).slice(0, MAX_FIRED_EVENTS) : [];
+  const firedCharEvents = Array.isArray(get('firedCharEvents', [])) ? (get('firedCharEvents', []) as string[]).slice(0, MAX_FIRED_EVENTS) : [];
+  const firedBundesratEvents = Array.isArray(get('firedBundesratEvents', [])) ? (get('firedBundesratEvents', []) as string[]).slice(0, MAX_FIRED_EVENTS) : [];
+  const firedKommunalEvents = Array.isArray(get('firedKommunalEvents', [])) ? (get('firedKommunalEvents', []) as string[]).slice(0, MAX_FIRED_EVENTS) : [];
+
+  const pendingRaw = Array.isArray(get('pending', [])) ? (get('pending', []) as unknown[]) : [];
+  const pending = pendingRaw.slice(0, MAX_PENDING).filter((e): e is GameState['pending'][number] => e != null && typeof e === 'object');
+
+  const electionThreshold = clamp(Number(get('electionThreshold', 40)), 30, 50);
+  const wahlprognoseVal = get('wahlprognose', undefined);
+  const wahlprognose = wahlprognoseVal != null ? clamp(Number(wahlprognoseVal), 0, 100) : undefined;
+  const wahlergebnisVal = get('wahlergebnis', undefined);
+  const wahlergebnis = wahlergebnisVal != null ? clamp(Number(wahlergebnisVal), 0, 100) : undefined;
+  const medienKlimaVal = get('medienKlima', undefined);
+  const medienKlima = medienKlimaVal != null ? clamp(Number(medienKlimaVal), 0, 100) : 55;
+
+  const validated: GameState = {
+    month,
+    speed,
+    pk,
+    view,
+    kpi,
+    kpiPrev: get('kpiPrev', null) as GameState['kpiPrev'],
+    zust,
+    coalition,
+    chars: Array.isArray(get('chars', [])) ? (get('chars', []) as GameState['chars']) : [],
+    gesetze: Array.isArray(get('gesetze', [])) ? (get('gesetze', []) as GameState['gesetze']) : [],
+    bundesrat: Array.isArray(get('bundesrat', [])) ? (get('bundesrat', []) as GameState['bundesrat']) : [],
+    bundesratFraktionen: Array.isArray(get('bundesratFraktionen', [])) ? (get('bundesratFraktionen', []) as GameState['bundesratFraktionen']) : [],
+    activeEvent: get('activeEvent', null) as GameState['activeEvent'],
+    firedEvents,
+    firedCharEvents,
+    firedBundesratEvents,
+    firedKommunalEvents,
+    pending,
+    log: log as GameState['log'],
+    ticker: String(get('ticker', '')),
+    gameOver,
+    won,
+    electionThreshold,
+    milieuZustimmung: clampRecord0_100(get('milieuZustimmung', {}) as Record<string, number>),
+    verbandsBeziehungen: clampRecord0_100(get('verbandsBeziehungen', {}) as Record<string, number>),
+    politikfeldDruck: clampRecord0_100(get('politikfeldDruck', {}) as Record<string, number>),
+    politikfeldLetzterBeschluss: (get('politikfeldLetzterBeschluss', {}) as Record<string, number>) || {},
+    medienKlima,
+    wahlprognose,
+    wahlergebnis,
+  };
+
+  // Optionale Felder durchreichen (werden von migrateGameState weitergegeben)
+  const optionalKeys = [
+    'koalitionspartner', 'koalitionsvertragProfil', 'milieuZustimmungHistory', 'partnerPrioGesetz',
+    'btStimmenBonus', 'koalitionsbruchSeitMonat', 'ministerialCooldowns', 'aktiveMinisterialInitiative',
+    'eu', 'haushalt', 'lehmannUltimatumBeschleunigt', 'lehmannSparvorschlagAktiv', 'aktivesStrukturEvent',
+    'gesetzProjekte', 'wahlkampfAktiv', 'wahlkampfAktionenGenutzt', 'legislaturBilanz', 'wahlkampfBotschaften',
+    'tvDuellAbgehalten', 'tvDuellGewonnen', 'medienKlimaHistory', 'letzterSkandal', 'letztesPressemitteilungMonat',
+    'opposition', 'medienoffensiveGenutzt',
+  ] as const;
+  for (const key of optionalKeys) {
+    const v = get(key, undefined);
+    if (v !== undefined && v !== null) {
+      (validated as unknown as Record<string, unknown>)[key] = v;
+    }
+  }
+
+  return validated as GameState;
 }
 
 /**
