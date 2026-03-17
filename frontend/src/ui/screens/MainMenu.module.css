@@ -250,9 +250,24 @@
   }
 
   .buttons {
-    max-width: 320px;
-    gap: 14px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: 100%;
     align-items: stretch;
+  }
+
+  .buttons .primary {
+    flex: 2;
+    min-width: 140px;
+    width: auto;
+  }
+
+  .buttons .secondary {
+    flex: 1;
+    min-width: 140px;
+    width: auto;
   }
 
   .disclaimer {
