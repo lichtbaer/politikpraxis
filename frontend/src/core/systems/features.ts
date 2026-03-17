@@ -1,5 +1,10 @@
 /** Feature-Flags abhängig von Komplexitätsstufe (1–4) */
 const FEATURES: Record<string, { minLevel: number }> = {
+  /** SMA-291: Stufe 1 unsichtbar, Stufe 2+ Tab sichtbar */
+  bundesrat_sichtbar: { minLevel: 2 },
+  /** SMA-291: Stufe 2 aggregierter Balken, Stufe 3+ 4 Fraktionen mit Lobbying */
+  bundesrat_detail: { minLevel: 3 },
+  /** Legacy-Aliase für Kompatibilität */
   bundesrat_simple: { minLevel: 2 },
   bundesrat_full: { minLevel: 3 },
   lobbying: { minLevel: 3 },
