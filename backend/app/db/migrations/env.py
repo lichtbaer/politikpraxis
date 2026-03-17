@@ -19,6 +19,16 @@ from app.models.content import (  # noqa: F401
     BundesratFraktionI18n,
     BundesratTradeoff,
     BundesratTradeoffI18n,
+    Politikfeld,
+    PolitikfeldI18n,
+    Milieu,
+    MilieuI18n,
+    Verband,
+    VerbandI18n,
+    VerbandsTradeoff,
+    VerbandsTradeoffI18n,
+    MinisterialInitiative,
+    MinisterialInitiativeI18n,
 )
 
 config = context.config
