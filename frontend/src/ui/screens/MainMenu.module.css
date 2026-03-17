@@ -25,6 +25,7 @@
   border-radius: 6px;
   cursor: pointer;
   transition: opacity 0.15s, background 0.15s;
+  z-index: 10;
 }
 
 .langToggle:hover {
@@ -54,11 +55,13 @@
   }
 }
 
+/* --- Mobile: single column, center menu + compact text --- */
+
 .startScreen {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 48px;
+  gap: 32px;
   animation: fadeIn 1.2s ease-out;
   width: 100%;
   max-width: 100%;
@@ -68,12 +71,18 @@
   display: none;
 }
 
+.startCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .startRight {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 100%;
 }
 
 .startText {
@@ -81,6 +90,15 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+}
+
+.europeMap {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.9;
+  user-select: none;
+  pointer-events: none;
 }
 
 .title {
@@ -97,7 +115,7 @@
   font-family: var(--sans);
   font-size: 14px;
   color: var(--text3);
-  margin: -24px 0 0 0;
+  margin: -24px 0 24px 0;
   font-style: italic;
 }
 
@@ -199,66 +217,97 @@
   color: var(--text3);
 }
 
+/* --- Desktop: 3-column layout (map | menu | text) --- */
+
 @media (min-width: 768px) {
   .root {
     align-items: stretch;
     justify-content: stretch;
+    padding: 0;
   }
 
   .startScreen {
     display: grid;
-    grid-template-columns: 40% 60%;
+    grid-template-columns: 1fr minmax(300px, 1.2fr) 1.5fr;
     flex: 1;
     min-height: 0;
     gap: 0;
     align-items: stretch;
   }
 
+  /* Left column: Europe map on subtle gradient */
   .startLeft {
-    display: block;
-    background: linear-gradient(135deg, var(--bg2), var(--bg4));
-    min-height: 0;
-  }
-
-  .startRight {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: 1fr auto;
-    gap: 2rem;
-    padding: 4rem;
+    display: flex;
     align-items: center;
-    text-align: left;
-    max-width: none;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--bg2), var(--bg4));
+    padding: 2rem;
+    min-height: 0;
+    overflow: hidden;
   }
 
-  .startText {
-    grid-column: 1;
-    grid-row: 1;
-    align-items: flex-start;
+  .europeMap {
+    max-width: 100%;
+    max-height: 80vh;
+    opacity: 0.85;
   }
 
-  .startButtons {
-    grid-column: 2;
-    grid-row: 1;
+  /* Center column: title + game menu */
+  .startCenter {
+    display: flex;
     flex-direction: column;
-    min-width: 200px;
-    align-self: center;
-    max-width: none;
-  }
-
-  .startDisclaimer {
-    grid-column: 1 / -1;
-    grid-row: 2;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    gap: 8px;
   }
 
   .title {
-    font-size: clamp(48px, 6vw, 72px);
-    text-align: left;
+    font-size: clamp(40px, 5vw, 64px);
+    text-align: center;
   }
 
   .subtitle {
     font-size: 15px;
-    text-align: left;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .startButtons {
+    max-width: 260px;
+    min-width: 220px;
+  }
+
+  .startButtons .primary {
+    width: 100%;
+  }
+
+  .startButtons .secondary {
+    width: 100%;
+  }
+
+  .primary {
+    font-size: 20px;
+    padding: 18px 44px;
+  }
+
+  .secondary {
+    font-size: 15px;
+    padding: 14px 36px;
+  }
+
+  /* Right column: description text */
+  .startRight {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem 3rem 3rem 2rem;
+    border-left: 1px solid var(--border);
+    max-width: none;
+  }
+
+  .startText {
+    align-items: flex-start;
   }
 
   .einladung {
@@ -279,26 +328,8 @@
     font-size: 15px;
   }
 
-  .startButtons .primary {
-    width: 100%;
-  }
-
-  .startButtons .secondary {
-    width: 100%;
-  }
-
   .startDisclaimer {
     text-align: left;
     max-width: none;
-  }
-
-  .primary {
-    font-size: 20px;
-    padding: 18px 44px;
-  }
-
-  .secondary {
-    font-size: 15px;
-    padding: 14px 36px;
   }
 }
