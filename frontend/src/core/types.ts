@@ -581,6 +581,8 @@ export interface GameState {
   verfassungsgerichtPolitikfeldIds?: string[];
   /** SMA-280: Verfahren pausiert (Reform angekündigt) */
   verfassungsgerichtPausiert?: boolean;
+  /** SMA-307: Dynamische BT-Stimmen pro Gesetz (Koalitions-Kongruenz) */
+  gesetzBTStimmen?: Record<string, number>;
   /** SMA-289: Spieler-Partei (Partei-Auswahl im Onboarding) */
   spielerPartei?: SpielerParteiState;
   /** Wahlprognose (aktuelle Umfrage) — Basis für Wahlergebnis */
