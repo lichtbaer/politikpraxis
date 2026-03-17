@@ -169,11 +169,25 @@ function transformBundesratFraktion(api: BundesratFraktionApi): BundesratFraktio
   };
 }
 
+const MILIEU_DEFAULTS: Record<string, { gewicht: number; basisbeteiligung: number; kurz: string }> = {
+  postmaterielle: { gewicht: 12, basisbeteiligung: 85, kurz: 'Postmat.' },
+  soziale_mitte: { gewicht: 18, basisbeteiligung: 72, kurz: 'Soz. Mitte' },
+  prekaere: { gewicht: 14, basisbeteiligung: 55, kurz: 'Prekär' },
+  buergerliche_mitte: { gewicht: 22, basisbeteiligung: 78, kurz: 'Bürg. Mitte' },
+  leistungstraeger: { gewicht: 16, basisbeteiligung: 68, kurz: 'Leistung' },
+  etablierte: { gewicht: 10, basisbeteiligung: 88, kurz: 'Etabliert' },
+  traditionelle: { gewicht: 8, basisbeteiligung: 62, kurz: 'Tradition' },
+};
+
 function transformMilieu(api: MilieuApi): Milieu {
+  const def = MILIEU_DEFAULTS[api.id];
   return {
     id: api.id,
     ideologie: api.ideologie,
     min_complexity: api.min_complexity,
+    gewicht: api.gewicht ?? def?.gewicht ?? 14,
+    basisbeteiligung: api.basisbeteiligung ?? def?.basisbeteiligung ?? 70,
+    kurz: api.kurz ?? def?.kurz ?? api.id,
   };
 }
 

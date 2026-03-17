@@ -1,5 +1,6 @@
 import type { GameState, ContentBundle, LogEntry } from './types';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
+import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
@@ -56,7 +57,22 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   });
   s = checkRandomEvents(s, content.events);
 
-  s = { ...s, zust: recalcApproval(s.kpi, s.zust) };
+  let newZust = recalcApproval(s.kpi, s.zust);
+  if (content.milieus && content.milieus.length > 0) {
+    const g = berechneWahlprognose({ ...s, zust: newZust }, content, complexity);
+    newZust = { ...newZust, g };
+  }
+  s = { ...s, zust: newZust };
+
+  if (s.milieuZustimmung && Object.keys(s.milieuZustimmung).length > 0) {
+    const history = { ...(s.milieuZustimmungHistory ?? {}) };
+    for (const [mid, val] of Object.entries(s.milieuZustimmung)) {
+      const arr = history[mid] ?? [];
+      const next = [...arr, val].slice(-3);
+      history[mid] = next;
+    }
+    s = { ...s, milieuZustimmungHistory: history };
+  }
 
   return s;
 }

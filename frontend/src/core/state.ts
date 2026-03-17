@@ -2,6 +2,18 @@ import type { GameState, ContentBundle } from './types';
 import { featureActive } from './systems/features';
 import { getKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
 import type { Ausrichtung } from './systems/ausrichtung';
+import { recalcApproval } from './systems/economy';
+
+/** Milieu → zust-Feld für initiale Zustimmung (SMA-264) */
+const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
+  postmaterielle: 'prog',
+  soziale_mitte: 'arbeit',
+  prekaere: 'arbeit',
+  buergerliche_mitte: 'mitte',
+  leistungstraeger: 'mitte',
+  etablierte: 'mitte',
+  traditionelle: 'mitte',
+};
 
 /**
  * Erstellt den initialen Spielzustand.
@@ -55,13 +67,33 @@ export function createInitialState(
     won: false,
 
     milieuZustimmung: {},
-    verbandsBeziehungen: {},
+    verbandsBeziehungen: (() => {
+      const bez: Record<string, number> = {};
+      for (const v of content.verbaende ?? []) {
+        bez[v.id] = v.beziehung_start;
+      }
+      return bez;
+    })(),
     politikfeldDruck: {},
     politikfeldLetzterBeschluss: {},
   };
 
+  if (featureActive(complexity, 'milieus_voll') && (content.milieus?.length ?? 0) > 0) {
+    const zust = recalcApproval(content.scenario.startKPI, base.zust);
+    const milieuZustimmung: Record<string, number> = {};
+    for (const m of content.milieus!) {
+      if (m.min_complexity <= complexity) {
+        milieuZustimmung[m.id] = zust[MILIEU_TO_ZUST[m.id] ?? 'mitte'] ?? 50;
+      }
+    }
+    base.milieuZustimmung = milieuZustimmung;
+  }
+
   if (hasKoalition && partner) {
     const ideologie = ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
+    const verbandsBeziehungen = { ...base.verbandsBeziehungen };
+    verbandsBeziehungen['uvb'] = 50;
+    verbandsBeziehungen['bvd'] = 50;
     return {
       ...base,
       koalitionspartner: {
@@ -71,7 +103,7 @@ export function createInitialState(
         schluesselthemenErfuellt: [],
       },
       koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
-      verbandsBeziehungen: { uvb: 50, bvd: 50 },
+      verbandsBeziehungen,
     };
   }
 

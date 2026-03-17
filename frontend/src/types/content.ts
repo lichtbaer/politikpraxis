@@ -51,6 +51,9 @@ export interface MilieuApi {
   id: string;
   ideologie: IdeologieApi;
   min_complexity: number;
+  gewicht?: number;
+  basisbeteiligung?: number;
+  kurz?: string;
 }
 
 export interface PolitikfeldApi {
