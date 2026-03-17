@@ -1,5 +1,6 @@
 import type { GameState, GameEvent } from '../types';
 import { featureActive } from './features';
+import { withPause, getAutoPauseLevel } from '../eventPause';
 
 /** Politikfeld mit Verbands-Zuordnung und optionalem Druck-Event */
 interface PolitikfeldForDruck {
@@ -64,7 +65,7 @@ export function checkPolitikfeldDruck(
     politikfeldLetzterBeschluss,
     verbandsBeziehungen,
     firedEvents,
-    ...(activeEvent ? { activeEvent, speed: 0 as const } : {}),
+    ...(activeEvent ? { activeEvent, ...withPause(s, getAutoPauseLevel(activeEvent)) } : {}),
   };
 }
 

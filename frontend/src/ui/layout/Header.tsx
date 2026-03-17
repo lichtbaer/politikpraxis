@@ -28,10 +28,10 @@ export function Header() {
     pk >= 5;
   const year = 2025 + Math.floor((month - 1) / 12);
 
-  const speeds: { level: SpeedLevel; label: string }[] = [
-    { level: 0, label: '⏸' },
-    { level: 1, label: t('game.speed.slow') },
-    { level: 2, label: t('game.speed.fast') },
+  const speeds: { level: SpeedLevel; label: string; titleKey: string }[] = [
+    { level: 0, label: '⏸', titleKey: 'game.speed.pauseTitle' },
+    { level: 1, label: t('game.speed.slow'), titleKey: 'game.speed.slowTitle' },
+    { level: 2, label: t('game.speed.fast'), titleKey: 'game.speed.fastTitle' },
   ];
 
   return (
@@ -45,8 +45,10 @@ export function Header() {
           {speeds.map(s => (
             <button
               key={s.level}
+              type="button"
               className={`${styles.spd} ${speed === s.level ? styles.on : ''}`}
               onClick={() => setSpeed(s.level)}
+              title={t(s.titleKey)}
             >
               {s.label}
             </button>

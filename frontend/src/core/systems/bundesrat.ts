@@ -5,6 +5,7 @@ import type {
   LobbyTradeoffOptions,
   KpiDelta,
 } from '../types';
+import { withPause } from '../eventPause';
 import { PK_REPARATUR, BEREITSCHAFT_TRADEOFF_BONUS } from '../constants';
 import { addLog } from '../engine';
 import { scheduleEffects } from './economy';
@@ -457,7 +458,7 @@ export function executeBundesratVote(
       i === idx ? { ...g, status: 'blockiert' as const, blockiert: 'bundesrat' as const } : g,
     );
     return addLog(
-      { ...state, gesetze, speed: 0 },
+      { ...state, gesetze, ...withPause(state) },
       `${law.kurz}: Bundesrat blockiert! Ebenenwechsel möglich.`,
       'r',
     );

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Header } from './Header';
 import { EbenenTabBar } from '../components/EbenenTabBar/EbenenTabBar';
 import { LeftPanel } from '../panels/LeftPanel';
@@ -17,6 +18,23 @@ export function Shell() {
   useGameTick();
   useAutoSave();
   const aktivesStrukturEvent = useGameStore((s) => s.state.aktivesStrukturEvent);
+  const setSpeed = useGameStore((s) => s.setSpeed);
+  const togglePause = useGameStore((s) => s.togglePause);
+
+  // SMA-295: Keyboard-Shortcuts für Zeitsteuerung
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePause();
+      }
+      if (e.key === '1') setSpeed(1);
+      if (e.key === '3') setSpeed(2);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [setSpeed, togglePause]);
 
   return (
     <>

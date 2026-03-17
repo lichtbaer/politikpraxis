@@ -4,6 +4,7 @@
  */
 import type { GameState, ContentBundle, MedienEventContent, GameEvent, EventChoice } from '../types';
 import { addLog } from '../engine';
+import { withPause, getAutoPauseLevel } from '../eventPause';
 import { featureActive } from './features';
 import { verbrauchePK } from '../pk';
 
@@ -173,7 +174,7 @@ function checkSkandale(
     letzterSkandal: state.month,
     firedEvents: [...state.firedEvents, event.id],
     activeEvent: gameEvent,
-    speed: 0,
+    ...withPause(state, getAutoPauseLevel(gameEvent)),
   };
 }
 
@@ -204,7 +205,7 @@ function checkPositiveMedienEvents(
     ...state,
     firedEvents: [...state.firedEvents, event.id],
     activeEvent: gameEvent,
-    speed: 0,
+    ...withPause(state, getAutoPauseLevel(gameEvent)),
   };
 }
 

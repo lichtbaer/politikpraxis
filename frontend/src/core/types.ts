@@ -214,6 +214,8 @@ export interface GameEvent {
   gesetzRef?: string[];
   /** Mindest-Komplexitätsstufe */
   min_complexity?: number;
+  /** SMA-295: Auto-Pause-Verhalten — always | fast_only | never */
+  auto_pause?: 'always' | 'fast_only' | 'never';
 }
 
 export interface KPI {
@@ -448,6 +450,8 @@ export interface LegislaturBilanz {
 export interface GameState {
   month: number;
   speed: SpeedLevel;
+  /** SMA-295: Speed vor Auto-Pause (für Auto-Resume nach Event) */
+  speedBeforePause?: SpeedLevel;
   pk: number;
   view: ViewName;
 

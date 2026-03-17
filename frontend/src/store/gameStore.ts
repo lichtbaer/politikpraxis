@@ -69,6 +69,8 @@ interface GameStore {
   setSpielerPartei: (partei: SpielerParteiState | null) => void;
   gameTick: () => void;
   setSpeed: (speed: SpeedLevel) => void;
+  /** SMA-295: Pause/Play umschalten — bei Pause wird vorheriger Speed wiederhergestellt */
+  togglePause: () => void;
   setView: (view: ViewName) => void;
 
   doEinbringen: (lawId: string) => void;
@@ -180,6 +182,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   setSpeed: (speed) => set(prev => ({ state: { ...prev.state, speed } })),
+  togglePause: () =>
+    set(prev => {
+      const { speed, speedBeforePause } = prev.state;
+      if (speed === 0) {
+        const resume = (speedBeforePause ?? 1) as SpeedLevel;
+        return { state: { ...prev.state, speed: resume, speedBeforePause: undefined } };
+      }
+      return { state: { ...prev.state, speed: 0, speedBeforePause: speed } };
+    }),
   setView: (view) => set(prev => ({ state: { ...prev.state, view } })),
 
   doEinbringen: (lawId) =>
@@ -234,7 +245,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
 
   doResolveEvent: (event, choice) =>
-    set(prev => ({ state: resolveEvent(prev.state, event, choice, { complexity: prev.complexity }) })),
+    set(prev => {
+      let next = resolveEvent(prev.state, event, choice, { complexity: prev.complexity });
+      // SMA-295: Auto-Resume nach Event-Auflösung
+      if (next.speed === 0 && next.speedBeforePause != null) {
+        next = { ...next, speed: next.speedBeforePause, speedBeforePause: undefined };
+      }
+      return { state: next };
+    }),
 
   doMedienkampagne: (milieu) => set(prev => ({ state: medienkampagne(prev.state, milieu) })),
   doLobbyLand: (landId) => set(prev => ({ state: lobbyLand(prev.state, landId) })),

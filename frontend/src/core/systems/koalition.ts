@@ -1,5 +1,6 @@
 import type { GameState, Ideologie, Law, KoalitionspartnerContent } from '../types';
 import { addLog } from '../engine';
+import { withPause, getAutoPauseLevel } from '../eventPause';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { applyMoodChange } from './characters';
@@ -176,7 +177,7 @@ export function tickKoalitionspartner(
       next = {
         ...next,
         activeEvent: ev,
-        speed: 0,
+        ...withPause(next, getAutoPauseLevel(ev)),
         firedEvents: [...next.firedEvents, 'koalitionskrise_warning'],
       };
     }
@@ -212,7 +213,7 @@ export function checkKoalitionsbruch(
         ...state,
         koalitionsbruchSeitMonat: state.month,
         activeEvent: ev,
-        speed: 0,
+        ...withPause(state, getAutoPauseLevel(ev)),
         firedEvents: [...state.firedEvents, 'koalitionsbruch'],
       };
     }

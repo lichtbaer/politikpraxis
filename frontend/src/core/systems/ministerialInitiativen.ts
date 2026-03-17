@@ -1,5 +1,6 @@
 import type { GameState, Character, MinisterialInitiative } from '../types';
 import { addLog } from '../engine';
+import { withPause } from '../eventPause';
 import { einbringen } from './parliament';
 import { featureActive } from './features';
 
@@ -105,7 +106,7 @@ export function checkMinisterialInitiativen(
         ],
         charId: init.char_id,
       },
-      speed: 0,
+      ...withPause(state),
     };
   }
 

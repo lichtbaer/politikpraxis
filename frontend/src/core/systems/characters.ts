@@ -1,4 +1,5 @@
 import type { GameState } from '../types';
+import { withPause, getAutoPauseLevel } from '../eventPause';
 
 export function applyCharBonuses(state: GameState): GameState {
   const newState = { ...state, kpi: { ...state.kpi }, zust: { ...state.zust } };
@@ -48,7 +49,7 @@ export function checkUltimatums(
           ...state,
           firedCharEvents: [...state.firedCharEvents, evId],
           activeEvent: ev,
-          speed: 0,
+          ...withPause(state, getAutoPauseLevel(ev)),
         };
       }
     }

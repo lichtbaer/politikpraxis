@@ -1,4 +1,5 @@
 import type { Ideologie as IdeologieType, Law, Milieu, GameState, GameEvent } from './types';
+import { withPause, getAutoPauseLevel } from './eventPause';
 
 const DEFAULT_IDEOLOGIE: IdeologieType = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 
@@ -82,7 +83,7 @@ export function tickExtremismusDruck(
         extremismusWarnung: true,
         firedEvents: [...(state.firedEvents ?? []), ev.id],
         activeEvent: ev,
-        speed: 0,
+        ...withPause(state, getAutoPauseLevel(ev)),
       };
     }
   }
@@ -108,7 +109,7 @@ export function tickExtremismusDruck(
         verfassungsgerichtPolitikfeldIds: betroffeneFelder,
         firedEvents: [...(state.firedEvents ?? []), ev.id],
         activeEvent: ev,
-        speed: 0,
+        ...withPause(state, getAutoPauseLevel(ev)),
       };
     }
   }

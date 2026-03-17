@@ -1,4 +1,5 @@
 import type { GameState, Ideologie } from '../types';
+import { withPause } from '../eventPause';
 import { scheduleEffects } from './economy';
 import { addLog } from '../engine';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from './kongruenz';
@@ -198,7 +199,7 @@ export function abstimmen(
       i === idx ? { ...g, status: 'blockiert' as const, blockiert: 'bundestag' as const } : g,
     );
     return addLog(
-      { ...state, gesetze, speed: 0 },
+      { ...state, gesetze, ...withPause(state) },
       `${law.kurz}: Bundestag-Mehrheit verfehlt (${law.ja}%)`,
       'r',
     );

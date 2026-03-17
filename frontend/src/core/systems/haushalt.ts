@@ -1,6 +1,7 @@
 import type { GameState, ContentBundle, Haushalt, SchuldenbremsenStatus } from '../types';
 import { EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS, SCHULDENBREMSE_DEFIZIT_MILD } from '../constants';
 import { featureActive } from './features';
+import { withPause, getAutoPauseLevel } from '../eventPause';
 
 /** Erstellt initiales Haushalt-Objekt */
 export function createInitialHaushalt(state: GameState): Haushalt {
@@ -156,7 +157,7 @@ export function applySchuldenbremsenEffekte(
           ...newState,
           activeEvent: event,
           firedEvents: [...state.firedEvents, 'schuldenbremse_verletzt'],
-          speed: 0,
+          ...withPause(newState, getAutoPauseLevel(event)),
         };
       } else {
         newState = {
@@ -215,7 +216,7 @@ export function triggerHaushaltsdebatte(
 
   return {
     ...state,
-    speed: 0,
+    ...withPause(state),
     aktivesStrukturEvent: {
       type: 'haushaltsdebatte',
       ausgangslage,

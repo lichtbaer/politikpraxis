@@ -28,7 +28,10 @@
     "speed": {
       "pause": "Pause",
       "slow": "1×",
-      "fast": "3×"
+      "fast": "3×",
+      "pauseTitle": "Pause (Space)",
+      "slowTitle": "Normal (1)",
+      "fastTitle": "Fast (3)"
     },
     "actions": {
       "introduce": "Introduce",
