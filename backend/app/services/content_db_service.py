@@ -19,6 +19,14 @@ from app.models.content import (
     BundesratFraktionI18n,
     BundesratTradeoff,
     BundesratTradeoffI18n,
+    Milieu,
+    MilieuI18n,
+    Politikfeld,
+    PolitikfeldI18n,
+    Verband,
+    VerbandI18n,
+    VerbandsTradeoff,
+    VerbandsTradeoffI18n,
 )
 
 VALID_LOCALES = frozenset({"de", "en"})
@@ -51,6 +59,14 @@ def _effekte(al: float | None, hh: float | None, gi: float | None, zf: float | N
         "hh": float(hh or 0),
         "gi": float(gi or 0),
         "zf": float(zf or 0),
+    }
+
+
+def _ideologie(wirtschaft: int | None, gesellschaft: int | None, staat: int | None) -> dict[str, int]:
+    return {
+        "wirtschaft": int(wirtschaft or 0),
+        "gesellschaft": int(gesellschaft or 0),
+        "staat": int(staat or 0),
     }
 
 
@@ -89,6 +105,7 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
             "ultimatum_event_id": c.ultimatum_event_id,
             "bonus_trigger": c.bonus_trigger,
             "bonus_applies": c.bonus_applies,
+            "ideologie": _ideologie(c.ideologie_wirtschaft, c.ideologie_gesellschaft, c.ideologie_staat),
             "name": i18n.name,
             "role": i18n.role,
             "bio": i18n.bio,
@@ -132,6 +149,9 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
             "effekte": _effekte(g.effekt_al, g.effekt_hh, g.effekt_gi, g.effekt_zf),
             "effekt_lag": g.effekt_lag,
             "foederalismus_freundlich": g.foederalismus_freundlich or False,
+            "ideologie": _ideologie(g.ideologie_wirtschaft, g.ideologie_gesellschaft, g.ideologie_staat),
+            "politikfeld_id": g.politikfeld_id,
+            "politikfeld_sekundaer": g.politikfeld_sekundaer or [],
             "titel": i18n.titel,
             "kurz": i18n.kurz,
             "desc": i18n.desc,
@@ -281,6 +301,159 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
             "sprecher_partei": fi18n.sprecher_partei,
             "sprecher_land": fi18n.sprecher_land,
             "sprecher_bio": fi18n.sprecher_bio,
+            "tradeoffs": tradeoffs,
+        })
+    _set_cached(cache_key, rows)
+    return rows
+
+
+async def fetch_milieus(db: AsyncSession, locale: str) -> list[dict]:
+    cache_key = ("milieus", locale)
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
+
+    use_locale = locale
+    stmt = (
+        select(Milieu, MilieuI18n)
+        .join(MilieuI18n, (Milieu.id == MilieuI18n.milieu_id) & (MilieuI18n.locale == use_locale))
+    )
+    result = await db.execute(stmt)
+    rows_raw = result.all()
+
+    if not rows_raw and locale == "en":
+        use_locale = "de"
+        stmt = (
+            select(Milieu, MilieuI18n)
+            .join(MilieuI18n, (Milieu.id == MilieuI18n.milieu_id) & (MilieuI18n.locale == "de"))
+        )
+        result = await db.execute(stmt)
+        rows_raw = result.all()
+
+    rows = []
+    for m, i18n in rows_raw:
+        rows.append({
+            "id": m.id,
+            "gewicht": m.gewicht,
+            "basisbeteiligung": m.basisbeteiligung,
+            "ideologie": _ideologie(m.ideologie_wirtschaft, m.ideologie_gesellschaft, m.ideologie_staat),
+            "min_complexity": m.min_complexity or 1,
+            "aggregat_gruppe": m.aggregat_gruppe,
+            "name": i18n.name,
+            "kurzcharakter": i18n.kurzcharakter,
+            "beschreibung": i18n.beschreibung,
+        })
+    _set_cached(cache_key, rows)
+    return rows
+
+
+async def fetch_politikfelder(db: AsyncSession, locale: str) -> list[dict]:
+    cache_key = ("politikfelder", locale)
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
+
+    use_locale = locale
+    stmt = (
+        select(Politikfeld, PolitikfeldI18n)
+        .join(
+            PolitikfeldI18n,
+            (Politikfeld.id == PolitikfeldI18n.feld_id) & (PolitikfeldI18n.locale == use_locale),
+        )
+    )
+    result = await db.execute(stmt)
+    rows_raw = result.all()
+
+    if not rows_raw and locale == "en":
+        use_locale = "de"
+        stmt = (
+            select(Politikfeld, PolitikfeldI18n)
+            .join(
+                PolitikfeldI18n,
+                (Politikfeld.id == PolitikfeldI18n.feld_id) & (PolitikfeldI18n.locale == "de"),
+            )
+        )
+        result = await db.execute(stmt)
+        rows_raw = result.all()
+
+    rows = []
+    for p, i18n in rows_raw:
+        rows.append({
+            "id": p.id,
+            "verband_id": p.verband_id,
+            "eu_relevanz": p.eu_relevanz or 1,
+            "kommunal_relevanz": p.kommunal_relevanz or 1,
+            "min_complexity": p.min_complexity or 1,
+            "name": i18n.name,
+            "kurz": i18n.kurz,
+        })
+    _set_cached(cache_key, rows)
+    return rows
+
+
+async def fetch_verbaende(db: AsyncSession, locale: str) -> list[dict]:
+    cache_key = ("verbaende", locale)
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
+
+    use_locale = locale
+    stmt = (
+        select(Verband, VerbandI18n)
+        .join(VerbandI18n, (Verband.id == VerbandI18n.verband_id) & (VerbandI18n.locale == use_locale))
+    )
+    result = await db.execute(stmt)
+    rows_raw = result.all()
+
+    if not rows_raw and locale == "en":
+        use_locale = "de"
+        stmt = (
+            select(Verband, VerbandI18n)
+            .join(VerbandI18n, (Verband.id == VerbandI18n.verband_id) & (VerbandI18n.locale == "de"))
+        )
+        result = await db.execute(stmt)
+        rows_raw = result.all()
+
+    rows = []
+    for v, i18n in rows_raw:
+        t_stmt = (
+            select(VerbandsTradeoff, VerbandsTradeoffI18n)
+            .join(
+                VerbandsTradeoffI18n,
+                (VerbandsTradeoff.id == VerbandsTradeoffI18n.tradeoff_id)
+                & (VerbandsTradeoffI18n.locale == use_locale),
+            )
+            .where(VerbandsTradeoff.verband_id == v.id)
+        )
+        t_result = await db.execute(t_stmt)
+        tradeoffs_raw = t_result.all()
+
+        tradeoffs = []
+        for t, ti18n in tradeoffs_raw:
+            tradeoffs.append({
+                "key": t.tradeoff_key,
+                "effekte": _effekte(t.effekt_al, t.effekt_hh, t.effekt_gi, t.effekt_zf),
+                "feld_druck_delta": t.feld_druck_delta or 0,
+                "label": ti18n.label,
+                "desc": ti18n.desc,
+            })
+
+        rows.append({
+            "id": v.id,
+            "politikfeld_id": v.politikfeld_id,
+            "ideologie": _ideologie(v.ideologie_wirtschaft, v.ideologie_gesellschaft, v.ideologie_staat),
+            "beziehung_start": v.beziehung_start,
+            "staerke": {
+                "bund": v.staerke_bund or 1,
+                "eu": v.staerke_eu or 1,
+                "laender": v.staerke_laender or 1,
+                "kommunen": v.staerke_kommunen or 1,
+            },
+            "konflikt_mit": v.konflikt_mit or [],
+            "min_complexity": v.min_complexity or 2,
+            "name": i18n.name,
+            "kurz": i18n.kurz,
+            "bio": i18n.bio,
             "tradeoffs": tradeoffs,
         })
     _set_cached(cache_key, rows)

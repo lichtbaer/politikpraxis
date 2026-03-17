@@ -125,3 +125,125 @@ async def test_get_bundesrat_invalid_locale(client: AsyncClient):
     """Ungültige locale bei bundesrat liefert 400."""
     r = await client.get("/api/content/bundesrat", params={"locale": "xy"})
     assert r.status_code == 400
+
+
+# --- SMA-260: Milieus, Politikfelder, Verbände ---
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_milieus_happy_path(client: AsyncClient):
+    """GET /api/content/milieus?locale=de liefert Milieus."""
+    r = await client.get("/api/content/milieus", params={"locale": "de"})
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list)
+    if data:
+        m = data[0]
+        assert "id" in m
+        assert "gewicht" in m
+        assert "basisbeteiligung" in m
+        assert "ideologie" in m
+        assert "wirtschaft" in m["ideologie"]
+        assert "gesellschaft" in m["ideologie"]
+        assert "staat" in m["ideologie"]
+        assert "min_complexity" in m
+        assert "aggregat_gruppe" in m
+        assert "name" in m
+        assert "kurzcharakter" in m
+        assert "beschreibung" in m
+
+
+@pytest.mark.asyncio
+async def test_get_milieus_invalid_locale(client: AsyncClient):
+    """Ungültige locale bei milieus liefert 400."""
+    r = await client.get("/api/content/milieus", params={"locale": "fr"})
+    assert r.status_code == 400
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_politikfelder_happy_path(client: AsyncClient):
+    """GET /api/content/politikfelder?locale=de liefert Politikfelder."""
+    r = await client.get("/api/content/politikfelder", params={"locale": "de"})
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list)
+    if data:
+        p = data[0]
+        assert "id" in p
+        assert "verband_id" in p
+        assert "eu_relevanz" in p
+        assert "kommunal_relevanz" in p
+        assert "min_complexity" in p
+        assert "name" in p
+        assert "kurz" in p
+
+
+@pytest.mark.asyncio
+async def test_get_politikfelder_invalid_locale(client: AsyncClient):
+    """Ungültige locale bei politikfelder liefert 400."""
+    r = await client.get("/api/content/politikfelder", params={"locale": "xy"})
+    assert r.status_code == 400
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_verbaende_happy_path(client: AsyncClient):
+    """GET /api/content/verbaende?locale=de liefert Verbände."""
+    r = await client.get("/api/content/verbaende", params={"locale": "de"})
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list)
+    if data:
+        v = data[0]
+        assert "id" in v
+        assert "politikfeld_id" in v
+        assert "ideologie" in v
+        assert "beziehung_start" in v
+        assert "staerke" in v
+        assert "bund" in v["staerke"]
+        assert "konflikt_mit" in v
+        assert "min_complexity" in v
+        assert "name" in v
+        assert "kurz" in v
+        assert "bio" in v
+        assert "tradeoffs" in v
+
+
+@pytest.mark.asyncio
+async def test_get_verbaende_invalid_locale(client: AsyncClient):
+    """Ungültige locale bei verbaende liefert 400."""
+    r = await client.get("/api/content/verbaende", params={"locale": "fr"})
+    assert r.status_code == 400
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_chars_includes_ideologie(client: AsyncClient):
+    """Char-Response enthält ideologie-Objekt."""
+    r = await client.get("/api/content/chars", params={"locale": "de"})
+    assert r.status_code == 200
+    data = r.json()
+    if data:
+        char = data[0]
+        assert "ideologie" in char
+        assert "wirtschaft" in char["ideologie"]
+        assert "gesellschaft" in char["ideologie"]
+        assert "staat" in char["ideologie"]
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_gesetze_includes_ideologie_and_politikfeld(client: AsyncClient):
+    """Gesetz-Response enthält ideologie, politikfeld_id, politikfeld_sekundaer."""
+    r = await client.get("/api/content/gesetze", params={"locale": "de"})
+    assert r.status_code == 200
+    data = r.json()
+    if data:
+        g = data[0]
+        assert "ideologie" in g
+        assert "wirtschaft" in g["ideologie"]
+        assert "politikfeld_id" in g
+        assert "politikfeld_sekundaer" in g
+        assert isinstance(g["politikfeld_sekundaer"], list)
