@@ -199,7 +199,7 @@ export interface LogEntry {
   params?: Record<string, string | number>;
 }
 
-export type ViewName = 'agenda' | 'eu' | 'land' | 'kommune' | 'medien' | 'bundesrat';
+export type ViewName = 'agenda' | 'eu' | 'land' | 'kommune' | 'medien' | 'bundesrat' | 'verbaende';
 export type SpeedLevel = 0 | 1 | 2;
 
 export interface BundesratLand {
@@ -265,6 +265,12 @@ export interface Milieu {
   id: string;
   ideologie: Ideologie;
   min_complexity: number;
+  /** Anteil an Wählerschaft 0–100 (für Wahlprognose) */
+  gewicht?: number;
+  /** Basisbeteiligung 0–100 (für Wahlprognose) */
+  basisbeteiligung?: number;
+  /** Kurzbezeichnung für Anzeige */
+  kurz?: string;
 }
 
 /** Politikfeld mit Verbands-Zuordnung */
@@ -339,6 +345,8 @@ export interface GameState {
   koalitionsvertragProfil?: Ideologie;
   /** Milieu-Zustimmung (ersetzt zust.arbeit/mitte/prog bei Stufe 2+) */
   milieuZustimmung?: Record<string, number>;
+  /** Letzte 3 Monate pro Milieu für Trend-Pfeil */
+  milieuZustimmungHistory?: Record<string, number[]>;
   /** Verbands-Beziehungen (ab Stufe 3): verbandId → 0–100 */
   verbandsBeziehungen?: Record<string, number>;
   /** Partner priorisiert Gesetz für 3 Monate (+5% BT-Stimmen) */

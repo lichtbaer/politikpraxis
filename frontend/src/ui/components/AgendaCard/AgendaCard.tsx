@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { ROUTE_INFO } from '../../../core/systems/levels';
+import { gesetzKongruenz } from '../../../core/ideologie';
+import { featureActive } from '../../../core/systems/features';
 import type { Law, LawStatus, RouteType } from '../../../core/types';
 import styles from './AgendaCard.module.css';
 
@@ -29,10 +31,12 @@ const STATUS_CLASS: Record<LawStatus, string> = {
 
 export function AgendaCard({ law }: AgendaCardProps) {
   const { t } = useTranslation(['common', 'game']);
-  const { state } = useGameStore();
+  const { state, complexity, ausrichtung } = useGameStore();
   const actions = useGameActions();
   const expanded = law.expanded;
   const pk = state.pk;
+
+  const kongruenz = gesetzKongruenz(ausrichtung, law);
 
   const handleHeaderClick = () => actions.toggleAgenda(law.id);
 
@@ -55,6 +59,13 @@ export function AgendaCard({ law }: AgendaCardProps) {
       {expanded && (
         <div className={styles.body}>
           <p className={styles.desc}>{t(`game:laws.${law.id}.desc`)}</p>
+
+          {kongruenz < 60 && featureActive(complexity, 'kongruenz_effekte') && (
+            <div className={`${styles.kongruenzSignal} ${kongruenz < 40 ? styles.kongruenzRot : styles.kongruenzAmber}`}>
+              <span className={styles.kongruenzIcon}>{kongruenz < 40 ? '⚠' : '!'}</span>
+              <span>{kongruenz < 40 ? t('game:gesetz.gegenKurs') : t('game:gesetz.erhoehterAufwand')}</span>
+            </div>
+          )}
 
           <div className={styles.tags}>
             {law.tags.map((tag) => (

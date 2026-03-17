@@ -1,0 +1,172 @@
+.container {
+  padding: 4px 0;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.karten {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .karten {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.karte {
+  padding: 14px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.karteHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg4);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.karteMeta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.verbandName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.politikfeldBadge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: var(--bg4);
+  border-radius: 4px;
+  color: var(--text2);
+  align-self: flex-start;
+}
+
+.einfluss {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.einflussLabel {
+  color: var(--text2);
+}
+
+.einflussDots {
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+.beziehungsBalken {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.balkenLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.balkenTrack {
+  height: 6px;
+  background: var(--bg2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.balkenFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+.konfliktWarnung {
+  font-size: 10px;
+  color: var(--warn);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.btn {
+  padding: 8px 12px;
+  font-size: 12px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  padding: 6px 10px;
+  font-size: 11px;
+  background: var(--bg4);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btnSecondary:hover {
+  background: var(--bg3);
+}

@@ -1,0 +1,46 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.feldItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feldIcon {
+  font-size: 14px;
+}
+
+.druckBar {
+  height: 4px;
+  background: var(--bg3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.druckFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.2s ease;
+}
+
+.druckFill.ok {
+  background: var(--green);
+}
+
+.druckFill.warn {
+  background: var(--warn);
+}
+
+.druckFill.kritisch {
+  background: var(--red);
+}
+
+.feldName {
+  font-family: var(--sans);
+  font-size: 10px;
+  color: var(--text2);
+}
