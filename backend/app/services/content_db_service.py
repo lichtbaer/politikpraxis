@@ -89,6 +89,7 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
             "ultimatum_event_id": c.ultimatum_event_id,
             "bonus_trigger": c.bonus_trigger,
             "bonus_applies": c.bonus_applies,
+            "min_complexity": c.min_complexity if c.min_complexity is not None else 1,
             "name": i18n.name,
             "role": i18n.role,
             "bio": i18n.bio,
@@ -361,7 +362,7 @@ async def get_game_content_from_db(db: AsyncSession, locale: str = "de") -> dict
 
     # Split into events, charEvents, bundesratEvents
     random_ids = {"haushalt", "skandal", "euklage", "konjunktur", "koalition_krise", "demo", "eufoerder"}
-    char_ids = {"fm_ultimatum", "braun_ultimatum", "wolf_ultimatum", "kern_ultimatum", "kanzler_ultimatum", "kohl_bundesrat_sabotage", "wm_ultimatum"}
+    char_ids = {"fm_ultimatum", "braun_ultimatum", "wolf_ultimatum", "kern_ultimatum", "kanzler_ultimatum", "kohl_bundesrat_sabotage", "wm_ultimatum", "am_ultimatum", "gm_ultimatum", "bm_ultimatum"}
     br_ids = {"laenderfinanzausgleich", "landtagswahl", "kohl_eskaliert", "sprecher_wechsel", "bundesrat_initiative", "foederalismusgipfel"}
 
     for eid, data in all_events.items():

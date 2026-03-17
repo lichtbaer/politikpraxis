@@ -19,6 +19,7 @@ class CharCreate(BaseModel):
     bonus_trigger: str | None = None
     bonus_applies: str | None = None
     sonderregel: str | None = None
+    min_complexity: int | None = 1
 
 
 class CharUpdate(BaseModel):
@@ -31,6 +32,7 @@ class CharUpdate(BaseModel):
     bonus_trigger: str | None = None
     bonus_applies: str | None = None
     sonderregel: str | None = None
+    min_complexity: int | None = None
 
 
 class CharI18nCreate(BaseModel):

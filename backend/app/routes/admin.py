@@ -74,6 +74,7 @@ async def admin_list_chars(db: AsyncSession = Depends(get_db)):
             "bonus_trigger": r.bonus_trigger,
             "bonus_applies": r.bonus_applies,
             "sonderregel": r.sonderregel,
+            "min_complexity": r.min_complexity,
         }
         for r in rows
     ]
@@ -92,6 +93,7 @@ async def admin_create_char(data: CharCreate, db: AsyncSession = Depends(get_db)
         bonus_trigger=data.bonus_trigger,
         bonus_applies=data.bonus_applies,
         sonderregel=data.sonderregel,
+        min_complexity=data.min_complexity,
     )
     db.add(char)
     await db.flush()
@@ -116,6 +118,7 @@ async def admin_get_char(char_id: str, db: AsyncSession = Depends(get_db)):
         "bonus_trigger": char.bonus_trigger,
         "bonus_applies": char.bonus_applies,
         "sonderregel": char.sonderregel,
+        "min_complexity": char.min_complexity,
     }
 
 
@@ -143,6 +146,8 @@ async def admin_update_char(char_id: str, data: CharUpdate, db: AsyncSession = D
         char.bonus_applies = data.bonus_applies
     if data.sonderregel is not None:
         char.sonderregel = data.sonderregel
+    if data.min_complexity is not None:
+        char.min_complexity = data.min_complexity
     content_cache_clear()
     return {"id": char.id}
 
