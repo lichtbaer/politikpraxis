@@ -72,6 +72,39 @@ const content: ContentBundle = {
   scenario: { id: 's1', name: 'Test', startMonth: 1, startPK: 100, startKPI: { al: 5, hh: 0, gi: 50, zf: 50 }, startCoalition: 70 },
 };
 
+describe('SMA-291: Bundesrat-Stufen — Stufe 1 Land-Gesetz direkt beschlossen', () => {
+  it('Land-Gesetz bei complexity=1: BT-Mehrheit → direkt beschlossen (kein bt_passed)', () => {
+    const gesetz: Law = {
+      id: 'wb',
+      titel: 'Wohnungsbau',
+      kurz: 'WB',
+      desc: '',
+      tags: ['land'],
+      status: 'entwurf',
+      ja: 65,
+      nein: 35,
+      effekte: { gi: 1 },
+      lag: 2,
+      expanded: false,
+      route: null,
+      rprog: 0,
+      rdur: 0,
+      blockiert: null,
+    };
+    const state: GameState = {
+      ...createInitialState(),
+      gesetze: [gesetz],
+      bundesratFraktionen: [
+        { id: 'kb', name: 'KB', laender: ['by', 'bw', 'sn'], sprecher: { name: 'X', partei: 'CDP', land: 'BY', initials: 'X', color: '#000' }, beziehung: 50, basisBereitschaft: 60, tradeoffPool: [] },
+      ] as GameState['bundesratFraktionen'],
+    };
+    let s = einbringen(state, 'wb', { ausrichtung: { wirtschaft: 0, gesellschaft: 0, staat: 0 }, complexity: 1 });
+    s = abstimmen(s, 'wb', { milieus: content.milieus!, complexity: 1 });
+    expect(s.gesetze[0].status).toBe('beschlossen');
+    expect(s.gesetze[0]).not.toHaveProperty('brVoteMonth');
+  });
+});
+
 describe('Integration: Gesetz einbringen → Milieu reagiert → Wahlprognose ändert sich', () => {
   it('Gesetz beschlossen → Milieu-Zustimmung ändert sich → Wahlprognose ändert sich', () => {
     const state = createInitialState();
