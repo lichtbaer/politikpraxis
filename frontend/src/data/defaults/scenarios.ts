@@ -30,6 +30,25 @@ export const DEFAULT_SCENARIO: ContentBundle['scenario'] = {
   startCoalition: 78,
 };
 
+/** Fallback Milieus (SMA-261) wenn API nicht erreichbar */
+const DEFAULT_MILIEUS: ContentBundle['milieus'] = [
+  { id: 'postmaterielle', ideologie: { wirtschaft: -60, gesellschaft: -70, staat: -35 }, min_complexity: 2 },
+  { id: 'soziale_mitte', ideologie: { wirtschaft: -45, gesellschaft: -30, staat: -55 }, min_complexity: 2 },
+  { id: 'prekaere', ideologie: { wirtschaft: -30, gesellschaft: 40, staat: -60 }, min_complexity: 3 },
+  { id: 'buergerliche_mitte', ideologie: { wirtschaft: 10, gesellschaft: 15, staat: -10 }, min_complexity: 2 },
+  { id: 'leistungstraeger', ideologie: { wirtschaft: 40, gesellschaft: -20, staat: 20 }, min_complexity: 2 },
+  { id: 'etablierte', ideologie: { wirtschaft: 65, gesellschaft: 45, staat: 50 }, min_complexity: 3 },
+  { id: 'traditionelle', ideologie: { wirtschaft: -5, gesellschaft: 55, staat: -40 }, min_complexity: 2 },
+];
+
+/** Fallback Politikfelder (SMA-261) */
+const DEFAULT_POLITIKFELDER: ContentBundle['politikfelder'] = [
+  { id: 'umwelt_energie', verbandId: 'uvb', druckEventId: null },
+  { id: 'wirtschaft_finanzen', verbandId: 'bdi', druckEventId: null },
+  { id: 'bildung_forschung', verbandId: 'bvd', druckEventId: null },
+  { id: 'arbeit_soziales', verbandId: 'gbd', druckEventId: null },
+];
+
 /** Fallback ContentBundle wenn API nicht erreichbar (nur für init-Fallback) */
 export const DEFAULT_CONTENT: ContentBundle = {
   characters: [],
@@ -39,5 +58,7 @@ export const DEFAULT_CONTENT: ContentBundle = {
   laws: [],
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
+  milieus: DEFAULT_MILIEUS,
+  politikfelder: DEFAULT_POLITIKFELDER,
   scenario: DEFAULT_SCENARIO,
 };

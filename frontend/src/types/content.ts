@@ -7,6 +7,12 @@ export interface Effekte {
   zf: number;
 }
 
+export interface IdeologieApi {
+  wirtschaft: number;
+  gesellschaft: number;
+  staat: number;
+}
+
 export interface CharApi {
   id: string;
   initials: string;
@@ -24,6 +30,7 @@ export interface CharApi {
   bonus_desc?: string | null;
   interests: string[];
   keyword?: string | null;
+  ideologie?: IdeologieApi;
 }
 
 export interface GesetzApi {
@@ -36,6 +43,26 @@ export interface GesetzApi {
   titel: string;
   kurz: string;
   desc: string;
+  ideologie?: IdeologieApi;
+  politikfeld_id?: string | null;
+}
+
+export interface MilieuApi {
+  id: string;
+  ideologie: IdeologieApi;
+  min_complexity: number;
+}
+
+export interface PolitikfeldApi {
+  id: string;
+  verband_id?: string | null;
+  druck_event_id?: string | null;
+}
+
+export interface VerbandApi {
+  id: string;
+  politikfeld_id: string;
+  beziehung_start: number;
 }
 
 export interface EventChoiceApi {

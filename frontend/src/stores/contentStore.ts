@@ -5,6 +5,9 @@ import type {
   GesetzApi,
   EventApi,
   BundesratFraktionApi,
+  MilieuApi,
+  PolitikfeldApi,
+  VerbandApi,
 } from '../types/content';
 import type {
   ContentBundle,
@@ -14,6 +17,8 @@ import type {
   EventChoice,
   BundesratFraktion,
   BundesratLand,
+  Milieu,
+  Politikfeld,
 } from '../core/types';
 import { DEFAULT_BUNDESRAT, DEFAULT_SCENARIO } from '../data/defaults/scenarios';
 import {
@@ -55,6 +60,7 @@ function transformChar(api: CharApi): Character {
     interests: api.interests ?? [],
     tag: api.keyword ?? undefined,
     min_complexity: api.min_complexity ?? 1,
+    ideologie: api.ideologie,
     bonus: {
       trigger: api.bonus_trigger ?? 'mood>=3',
       desc: api.bonus_desc ?? '',
@@ -84,6 +90,8 @@ function transformGesetz(api: GesetzApi): Law {
     rprog: 0,
     rdur: 0,
     blockiert: null,
+    ideologie: api.ideologie,
+    politikfeldId: api.politikfeld_id ?? null,
   };
 }
 
@@ -155,6 +163,23 @@ function transformBundesratFraktion(api: BundesratFraktionApi): BundesratFraktio
   };
 }
 
+function transformMilieu(api: MilieuApi): Milieu {
+  return {
+    id: api.id,
+    ideologie: api.ideologie,
+    min_complexity: api.min_complexity,
+  };
+}
+
+function transformPolitikfeld(api: PolitikfeldApi, verbaende: VerbandApi[]): Politikfeld {
+  const verband = verbaende.find((v) => v.politikfeld_id === api.id);
+  return {
+    id: api.id,
+    verbandId: api.verband_id ?? verband?.id ?? null,
+    druckEventId: api.druck_event_id ?? null,
+  };
+}
+
 export interface ContentStore {
   chars: Character[];
   gesetze: Law[];
@@ -163,6 +188,8 @@ export interface ContentStore {
   bundesratEvents: GameEvent[];
   bundesrat: BundesratLand[];
   bundesratFraktionen: BundesratFraktion[];
+  milieus: Milieu[];
+  politikfelder: Politikfeld[];
   scenario: ContentBundle['scenario'];
   loaded: boolean;
   error: string | null;
@@ -177,6 +204,8 @@ export const useContentStore = create<ContentStore>((set) => ({
   bundesratEvents: [],
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
+  milieus: [],
+  politikfelder: [],
   scenario: DEFAULT_SCENARIO,
   loaded: false,
   error: null,
@@ -184,12 +213,16 @@ export const useContentStore = create<ContentStore>((set) => ({
   load: async (locale: string) => {
     set({ error: null, loaded: false });
     try {
-      const [chars, gesetze, eventsAll, bundesratFraktionen] = await Promise.all([
-        apiFetch<CharApi[]>(`/content/chars?locale=${locale}`),
-        apiFetch<GesetzApi[]>(`/content/gesetze?locale=${locale}`),
-        apiFetch<EventApi[]>(`/content/events?locale=${locale}`),
-        apiFetch<BundesratFraktionApi[]>(`/content/bundesrat?locale=${locale}`),
-      ]);
+      const [chars, gesetze, eventsAll, bundesratFraktionen, milieusRaw, politikfelderRaw, verbaendeRaw] =
+        await Promise.all([
+          apiFetch<CharApi[]>(`/content/chars?locale=${locale}`),
+          apiFetch<GesetzApi[]>(`/content/gesetze?locale=${locale}`),
+          apiFetch<EventApi[]>(`/content/events?locale=${locale}`),
+          apiFetch<BundesratFraktionApi[]>(`/content/bundesrat?locale=${locale}`),
+          apiFetch<MilieuApi[]>(`/content/milieus?locale=${locale}`).catch(() => []),
+          apiFetch<PolitikfeldApi[]>(`/content/politikfelder?locale=${locale}`).catch(() => []),
+          apiFetch<VerbandApi[]>(`/content/verbaende?locale=${locale}`).catch(() => []),
+        ]);
 
       const events = eventsAll.map(transformEvent);
       const eventTypeById = new Map(eventsAll.map((a) => [a.id, a.event_type]));
@@ -205,6 +238,10 @@ export const useContentStore = create<ContentStore>((set) => ({
       const bundesratEventsResolved =
         brEventsList.length > 0 ? brEventsList : BUNDESRAT_EVENTS;
 
+      const milieus = (milieusRaw ?? []).map(transformMilieu);
+      const verbaende = verbaendeRaw ?? [];
+      const politikfelder = (politikfelderRaw ?? []).map((p) => transformPolitikfeld(p, verbaende));
+
       set({
         chars: chars.map(transformChar),
         gesetze: gesetze.map(transformGesetz),
@@ -212,6 +249,8 @@ export const useContentStore = create<ContentStore>((set) => ({
         charEvents: charEventsMap,
         bundesratEvents: bundesratEventsResolved,
         bundesratFraktionen: bundesratFraktionen.map(transformBundesratFraktion),
+        milieus,
+        politikfelder,
         loaded: true,
         error: null,
       });
@@ -235,6 +274,8 @@ export function getContentBundle(): ContentBundle {
     bundesratEvents: s.bundesratEvents,
     bundesrat: s.bundesrat,
     bundesratFraktionen: s.bundesratFraktionen,
+    milieus: s.milieus,
+    politikfelder: s.politikfelder,
     scenario: s.scenario,
   };
 }

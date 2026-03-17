@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName } from '../core/types';
 import { createInitialState } from '../core/state';
 import { tick, addLog } from '../core/engine';
-import { einbringen, lobbying, abstimmen } from '../core/systems/parliament';
+import { einbringen, lobbying, abstimmen, type EinbringenContext, type GesetzBeschlussContext } from '../core/systems/parliament';
 import { startRoute } from '../core/systems/levels';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/media';
@@ -12,6 +12,7 @@ import type { LobbyTradeoffOptions } from '../core/types';
 import { getContentBundle } from '../stores/contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { saveGame, type SaveFile } from '../services/localStorageSave';
+import { migrateGameState } from '../core/state';
 
 export type GamePhase = 'onboarding' | 'playing';
 
@@ -95,7 +96,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   gameTick: () => {
     const { state: s, content, phase, playerName, complexity, ausrichtung } = get();
     if (s.gameOver || s.speed === 0) return;
-    const nextState = tick(s, content);
+    const tickContext = { complexity };
+    const nextState = tick(s, content, tickContext);
     set({ state: nextState });
     if (phase === 'playing' && !nextState.gameOver) {
       saveGame({ gameState: nextState, playerName, complexity, ausrichtung });
@@ -105,9 +107,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setSpeed: (speed) => set(prev => ({ state: { ...prev.state, speed } })),
   setView: (view) => set(prev => ({ state: { ...prev.state, view } })),
 
-  doEinbringen: (lawId) => set(prev => ({ state: einbringen(prev.state, lawId) })),
+  doEinbringen: (lawId) =>
+    set((prev) => {
+      const ctx: EinbringenContext = { ausrichtung: prev.ausrichtung, complexity: prev.complexity };
+      return { state: einbringen(prev.state, lawId, ctx) };
+    }),
   doLobbying: (lawId) => set(prev => ({ state: lobbying(prev.state, lawId) })),
-  doAbstimmen: (lawId) => set(prev => ({ state: abstimmen(prev.state, lawId) })),
+  doAbstimmen: (lawId) =>
+    set((prev) => {
+      const ctx: GesetzBeschlussContext | undefined = prev.content.milieus
+        ? { milieus: prev.content.milieus, complexity: prev.complexity }
+        : undefined;
+      return { state: abstimmen(prev.state, lawId, ctx) };
+    }),
   doStartRoute: (lawId, route) => set(prev => ({ state: startRoute(prev.state, lawId, route) })),
 
   doResolveEvent: (event, choice) =>
@@ -130,23 +142,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   loadSave: (savedState) => {
     const initial = createInitialState(getContentBundle(), get().complexity);
-    const state = {
+    const state = migrateGameState({
       ...savedState,
       bundesratFraktionen: savedState.bundesratFraktionen ?? initial.bundesratFraktionen,
       firedBundesratEvents: savedState.firedBundesratEvents ?? [],
       electionThreshold: savedState.electionThreshold ?? 40,
-    };
+    });
     set({ state, content: getContentBundle() });
   },
 
   loadSaveFromFile: (save) => {
     const initial = createInitialState(getContentBundle(), save.complexity);
-    const state = {
+    const state = migrateGameState({
       ...save.gameState,
       bundesratFraktionen: save.gameState.bundesratFraktionen ?? initial.bundesratFraktionen,
       firedBundesratEvents: save.gameState.firedBundesratEvents ?? [],
       electionThreshold: save.gameState.electionThreshold ?? 40,
-    };
+    });
     set({
       state,
       content: getContentBundle(),

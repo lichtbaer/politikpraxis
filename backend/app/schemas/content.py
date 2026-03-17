@@ -140,6 +140,7 @@ class MilieuResponse(BaseModel):
 class PolitikfeldResponse(BaseModel):
     id: str
     verband_id: str | None = None
+    druck_event_id: str | None = None
     eu_relevanz: int
     kommunal_relevanz: int
     min_complexity: int

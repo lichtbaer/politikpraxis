@@ -1,3 +1,10 @@
+/** Ideologie-Profil (wirtschaft, gesellschaft, staat) — Werte -100 bis +100 */
+export interface Ideologie {
+  wirtschaft: number;
+  gesellschaft: number;
+  staat: number;
+}
+
 export interface CharacterBonus {
   trigger: string;
   desc: string;
@@ -25,6 +32,8 @@ export interface Character {
   tag?: string;
   /** Mindest-Komplexitätsstufe, ab der der Char im Kabinett erscheint (default: 1) */
   min_complexity?: number;
+  /** Ideologie-Profil für Kongruenz-Berechnung */
+  ideologie?: Ideologie;
 }
 
 export interface LawEffects {
@@ -68,6 +77,10 @@ export interface Law {
   lobbyFraktionen?: Record<string, LawLobbyFraktion>;
   /** Kohl-Sonderregel: Sabotage bereits ausgelöst für dieses Gesetz */
   kohlSabotageTriggered?: boolean;
+  /** Ideologie-Profil für Kongruenz-Berechnung */
+  ideologie?: Ideologie;
+  /** Primäres Politikfeld (für Druck-System) */
+  politikfeldId?: string | null;
 }
 
 export type EventType = 'danger' | 'warn' | 'good' | 'info';
@@ -208,6 +221,20 @@ export interface BundesratFraktion {
   reparaturEndMonth?: number;
 }
 
+/** Milieu-Daten aus Content (Ideologie, min_complexity) */
+export interface Milieu {
+  id: string;
+  ideologie: Ideologie;
+  min_complexity: number;
+}
+
+/** Politikfeld mit Verbands-Zuordnung */
+export interface Politikfeld {
+  id: string;
+  verbandId: string | null;
+  druckEventId?: string | null;
+}
+
 export interface GameState {
   month: number;
   speed: SpeedLevel;
@@ -238,6 +265,15 @@ export interface GameState {
   won: boolean;
   /** Wahlhürde in % (35/38/40/42 je nach Komplexitätsstufe) */
   electionThreshold?: number;
+
+  /** Milieu-Zustimmung (ersetzt zust.arbeit/mitte/prog bei Stufe 2+) */
+  milieuZustimmung?: Record<string, number>;
+  /** Verbands-Beziehungen */
+  verbandsBeziehungen?: Record<string, number>;
+  /** Politikfeld-Druck-Scores (0–100) */
+  politikfeldDruck?: Record<string, number>;
+  /** Monat des letzten Beschlusses pro Politikfeld */
+  politikfeldLetzterBeschluss?: Record<string, number>;
 }
 
 export interface ContentBundle {
@@ -248,6 +284,8 @@ export interface ContentBundle {
   laws: Law[];
   bundesrat: BundesratLand[];
   bundesratFraktionen?: BundesratFraktion[];
+  milieus?: Milieu[];
+  politikfelder?: Politikfeld[];
   scenario: {
     id: string;
     name: string;
