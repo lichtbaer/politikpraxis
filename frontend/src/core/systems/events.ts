@@ -607,10 +607,11 @@ export function resolveEvent(
   const BR_IDS = new Set(['laenderfinanzausgleich', 'landtagswahl', 'kohl_eskaliert', 'sprecher_wechsel', 'bundesrat_initiative', 'foederalismusgipfel']);
   const KOMMUNAL_IDS = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
   const VORSTUFEN_IDS = new Set(['vorstufe_kommunal_erfolg', 'vorstufe_laender_erfolg']);
-  const CHAR_IDS = new Set(['fm_ultimatum', 'braun_ultimatum', 'wolf_ultimatum', 'kern_ultimatum', 'kanzler_ultimatum', 'kohl_bundesrat_sabotage', 'wm_ultimatum', 'am_ultimatum', 'gm_ultimatum', 'bm_ultimatum', 'koalitionsbruch', 'koalitionskrise_ultimatum']);
+  const CHAR_IDS = new Set(['fm_ultimatum', 'braun_ultimatum', 'wolf_ultimatum', 'kern_ultimatum', 'kanzler_ultimatum', 'kohl_bundesrat_sabotage', 'wm_ultimatum', 'am_ultimatum', 'gm_ultimatum', 'bm_ultimatum', 'koalitionsbruch', 'koalitionskrise_ultimatum', 'lehmann_defizit_start', 'haushaltskrise']);
   const eventNs = event.charId || CHAR_IDS.has(event.id) ? 'charEvents' : BR_IDS.has(event.id) ? 'bundesratEvents' : KOMMUNAL_IDS.has(event.id) ? 'kommunalEvents' : VORSTUFEN_IDS.has(event.id) ? 'vorstufenEvents' : 'events';
   const logKey = `game:${eventNs}.${event.id}.choices.${choiceIdx}.log`;
-  newState = addLog(newState, logKey, logType);
+  const logMsg = i18n.exists(logKey) ? i18n.t(logKey) : (choice.log || logKey);
+  newState = addLog(newState, logMsg, logType);
   const tickerKey = `game:${eventNs}.${event.id}.ticker`;
   newState.ticker = i18n.exists(tickerKey) ? i18n.t(tickerKey) : event.ticker;
   newState.activeEvent = null;
