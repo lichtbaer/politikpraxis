@@ -43,12 +43,12 @@ export function CharacterRow({ character }: CharacterRowProps) {
         {initials}
       </div>
       <div className={styles.info}>
-        <span className={styles.name}>{t(`game:chars.${id}.name`)}</span>
+        <span className={styles.name}>{character.name || t(`game:chars.${id}.name`)}</span>
         <span
           className={styles.role}
           style={{ color: getRoleColor(loyalty) }}
         >
-          {t(`game:chars.${id}.role`)}
+          {character.role || t(`game:chars.${id}.role`)}
         </span>
       </div>
       <span className={styles.mood}>{emoji}</span>

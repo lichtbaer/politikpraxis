@@ -37,39 +37,48 @@ export function EventCard({ event, onChoice }: EventCardProps) {
   const headerClass = `${styles.header} ${TYPE_CLASS[event.type]}`;
   const ns = getEventNs(event);
 
+  const typeLabel = event.typeLabel || t(`game:${ns}.${event.id}.typeLabel`);
+  const title = event.title || t(`game:${ns}.${event.id}.title`);
+  const quote = event.quote || t(`game:${ns}.${event.id}.quote`);
+  const context = event.context || t(`game:${ns}.${event.id}.context`);
+
   return (
     <article className={styles.card}>
       <header className={headerClass}>
         <span className={styles.icon}>{event.icon}</span>
         <div className={styles.headerText}>
-          <span className={styles.typeLabel}>{t(`game:${ns}.${event.id}.typeLabel`).toUpperCase()}</span>
-          <h2 className={styles.title}>{t(`game:${ns}.${event.id}.title`)}</h2>
+          <span className={styles.typeLabel}>{typeLabel.toUpperCase()}</span>
+          <h2 className={styles.title}>{title}</h2>
         </div>
       </header>
       <div className={styles.body}>
-        {event.quote && (
-          <blockquote className={styles.quote}>{t(`game:${ns}.${event.id}.quote`)}</blockquote>
+        {event.quote != null && event.quote !== '' && (
+          <blockquote className={styles.quote}>{quote}</blockquote>
         )}
-        <p className={styles.context}>{t(`game:${ns}.${event.id}.context`)}</p>
+        <p className={styles.context}>{context}</p>
         <div className={styles.choices}>
-          {event.choices.map((choice, i) => (
-            <button
-              key={i}
-              type="button"
-              className={`${styles.choice} ${CHOICE_CLASS[choice.type]}`}
-              onClick={() => onChoice(event, choice)}
-            >
-              <div className={styles.choiceMain}>
-                <span className={styles.choiceLabel}>{t(`game:${ns}.${event.id}.choices.${i}.label`)}</span>
-                <span className={styles.choiceCost}>
-                  {choice.cost > 0 ? `${choice.cost} PK` : t('game.gratis', { ns: 'common' })}
-                </span>
-              </div>
-              {choice.desc && (
-                <span className={styles.choiceDesc}>{t(`game:${ns}.${event.id}.choices.${i}.desc`)}</span>
-              )}
-            </button>
-          ))}
+          {event.choices.map((choice, i) => {
+            const choiceLabel = choice.label || t(`game:${ns}.${event.id}.choices.${i}.label`);
+            const choiceDesc = choice.desc || t(`game:${ns}.${event.id}.choices.${i}.desc`);
+            return (
+              <button
+                key={i}
+                type="button"
+                className={`${styles.choice} ${CHOICE_CLASS[choice.type]}`}
+                onClick={() => onChoice(event, choice)}
+              >
+                <div className={styles.choiceMain}>
+                  <span className={styles.choiceLabel}>{choiceLabel}</span>
+                  <span className={styles.choiceCost}>
+                    {choice.cost > 0 ? `${choice.cost} PK` : t('game.gratis', { ns: 'common' })}
+                  </span>
+                </div>
+                {choiceDesc && (
+                  <span className={styles.choiceDesc}>{choiceDesc}</span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     </article>

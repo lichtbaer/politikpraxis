@@ -146,7 +146,7 @@ export function EbeneView({ type }: EbeneViewProps) {
             return (
               <div key={law.id} className={styles.lawCard}>
                 <div className={styles.lawHeader}>
-                  <span className={styles.lawTitle}>{t(`game:laws.${law.id}.kurz`)}</span>
+                  <span className={styles.lawTitle}>{law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}</span>
                   <span className={styles.lawProgress}>
                     {t('game:ebene.monate', { progress: routeProgress, duration: routeDur })}
                   </span>

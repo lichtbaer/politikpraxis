@@ -113,7 +113,7 @@ function Abstimmungsbalken({ law, felder, ja, nein, mehrheit }: Abstimmungsbalke
   return (
     <div className={styles.abstimmungsBalken}>
       <div className={styles.abstimmungsHeader}>
-        <span className={styles.abstimmungsLaw}>{t(`game:laws.${law.id}.kurz`)}</span>
+        <span className={styles.abstimmungsLaw}>{law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}</span>
         <span className={styles.abstimmungsErgebnis}>
           {t('game:bundesrat.jaNein', { ja, nein, mehrheit: mehrheit ? t('game:bundesrat.mehrheitJa') : t('game:bundesrat.mehrheitNein') })}
         </span>

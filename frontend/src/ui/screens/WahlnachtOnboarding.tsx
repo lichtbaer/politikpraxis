@@ -84,9 +84,9 @@ export function WahlnachtOnboarding() {
                 >
                   {c.initials}
                 </div>
-                <span className={styles.charName}>{t(`game:chars.${c.id}.name`)}</span>
-                <span className={styles.charRole}>{t(`game:chars.${c.id}.role`)}</span>
-                <span className={styles.charTag}>{t(`game:chars.${c.id}.tag`)}</span>
+                <span className={styles.charName}>{c.name || t(`game:chars.${c.id}.name`)}</span>
+                <span className={styles.charRole}>{c.role || t(`game:chars.${c.id}.role`)}</span>
+                <span className={styles.charTag}>{c.tag ?? t(`game:chars.${c.id}.tag`)}</span>
               </div>
             ))}
           </div>

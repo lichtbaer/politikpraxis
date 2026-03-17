@@ -53,10 +53,10 @@ export function CharacterDetail() {
         </div>
 
         <h2 id="char-detail-name" className={styles.name}>
-          {t(`game:chars.${character.id}.name`)}
+          {character.name || t(`game:chars.${character.id}.name`)}
         </h2>
-        <p className={styles.role}>{t(`game:chars.${character.id}.role`)}</p>
-        <p className={styles.bio}>{t(`game:chars.${character.id}.bio`)}</p>
+        <p className={styles.role}>{character.role || t(`game:chars.${character.id}.role`)}</p>
+        <p className={styles.bio}>{character.bio || t(`game:chars.${character.id}.bio`)}</p>
 
         <div className={styles.mood}>
           <span className={styles.moodEmoji}>{moodEmoji}</span>
@@ -75,7 +75,7 @@ export function CharacterDetail() {
         </div>
 
         <div className={styles.bonus}>
-          {t(`game:chars.${character.id}.bonus.desc`)}
+          {character.bonus?.desc || t(`game:chars.${character.id}.bonus.desc`)}
         </div>
 
         {nearUltimatum && (
@@ -85,9 +85,9 @@ export function CharacterDetail() {
         )}
 
         <div className={styles.interests}>
-          {character.interests.map((_, i) => (
+          {character.interests.map((interest, i) => (
             <span key={i} className={styles.pill}>
-              {t(`game:chars.${character.id}.interests.${i}`)}
+              {interest || t(`game:chars.${character.id}.interests.${i}`)}
             </span>
           ))}
         </div>

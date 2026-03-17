@@ -12,6 +12,8 @@ i18n
     defaultNS: 'common',
     backend: { loadPath: '/locales/{{lng}}/{{ns}}.json' },
     interpolation: { escapeValue: false },
+    /** Bei fehlendem Key keinen Roh-Key anzeigen (z. B. "charEvents.mi_mi_wm_ee.title"), sondern leeren String. */
+    parseMissingKeyHandler: () => '',
   });
 
 export default i18n;

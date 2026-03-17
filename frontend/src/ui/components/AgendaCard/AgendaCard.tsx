@@ -61,13 +61,13 @@ export function AgendaCard({ law }: AgendaCardProps) {
         <span className={`${styles.badge} ${STATUS_CLASS[law.status]}`}>
           {t(STATUS_KEYS[law.status], { ns: 'common' })}
         </span>
-        <h3 className={styles.title}>{t(`game:laws.${law.id}.titel`)}</h3>
+        <h3 className={styles.title}>{law.titel || t(`game:laws.${law.id}.titel`)}</h3>
         <span className={styles.arrow}>{expanded ? '▲' : '▼'}</span>
       </header>
 
       {expanded && (
         <div className={styles.body}>
-          <p className={styles.desc}>{t(`game:laws.${law.id}.desc`)}</p>
+          <p className={styles.desc}>{law.desc || t(`game:laws.${law.id}.desc`)}</p>
 
           {complexity >= 2 && ((law.kosten_einmalig ?? 0) > 0 || (law.kosten_laufend ?? 0) !== 0 || law.investiv) && (
             <div className={styles.gesetzKosten}>

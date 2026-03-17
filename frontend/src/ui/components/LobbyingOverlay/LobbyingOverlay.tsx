@@ -94,7 +94,9 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
             {fraktion.sprecher.initials}
           </div>
           <blockquote className={styles.zitat}>
-            „{fraktion.sprecher.quote ? t(`game:bundesratFraktionen.${fraktion.id}.sprecher.quote`) : t(`game:bundesratFraktionen.${fraktion.id}.sprecher.bio`)}“
+            „{fraktion.sprecher.quote
+              ? (fraktion.sprecher.quote || t(`game:bundesratFraktionen.${fraktion.id}.sprecher.quote`))
+              : (fraktion.sprecher.bio || t(`game:bundesratFraktionen.${fraktion.id}.sprecher.bio`))}“
           </blockquote>
         </div>
 
@@ -121,8 +123,8 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
             {tradeoffVerfuegbar && ersterTradeoff && (
               <div className={styles.forderung}>
                 <h4 className={styles.forderungTitle}>{t('game:bundesrat.forderungTitle')}</h4>
-                <p className={styles.forderungLabel}>{t(`game:bundesratFraktionen.${fraktion.id}.tradeoffPool.${ersterTradeoff.id}.label`)}</p>
-                <p className={styles.forderungDesc}>{t(`game:bundesratFraktionen.${fraktion.id}.tradeoffPool.${ersterTradeoff.id}.desc`)}</p>
+                <p className={styles.forderungLabel}>{ersterTradeoff.label || t(`game:bundesratFraktionen.${fraktion.id}.tradeoffPool.${ersterTradeoff.id}.label`)}</p>
+                <p className={styles.forderungDesc}>{ersterTradeoff.desc || t(`game:bundesratFraktionen.${fraktion.id}.tradeoffPool.${ersterTradeoff.id}.desc`)}</p>
               </div>
             )}
 
