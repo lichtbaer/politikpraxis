@@ -37,6 +37,9 @@ class CharResponse(BaseModel):
     bonus_desc: str | None
     interests: list[str]
     keyword: str | None
+    partei_id: str | None = None
+    partei_kuerzel: str | None = None
+    partei_farbe: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -109,6 +112,7 @@ class BundesratResponse(BaseModel):
     laender: list[str]
     basis_bereitschaft: int
     beziehung_start: int
+    sonderregel: str | None = None
     sprecher_initials: str
     sprecher_color: str
     name: str

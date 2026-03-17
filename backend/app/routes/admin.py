@@ -627,6 +627,7 @@ async def admin_list_bundesrat(db: AsyncSession = Depends(get_db)):
             "basis_bereitschaft": r.basis_bereitschaft,
             "beziehung_start": r.beziehung_start,
             "sonderregel": r.sonderregel,
+            "partei_id": r.partei_id,
             "sprecher_initials": r.sprecher_initials,
             "sprecher_color": r.sprecher_color,
         }
@@ -644,6 +645,7 @@ async def admin_create_bundesrat(
         basis_bereitschaft=data.basis_bereitschaft,
         beziehung_start=data.beziehung_start,
         sonderregel=data.sonderregel,
+        partei_id=data.partei_id,
         sprecher_initials=data.sprecher_initials,
         sprecher_color=data.sprecher_color,
     )
