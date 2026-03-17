@@ -1,4 +1,4 @@
-import type { GameState, Ideologie } from '../types';
+import type { GameState, Ideologie, Law } from '../types';
 import { withPause } from '../eventPause';
 import { scheduleEffects } from './economy';
 import { addLog } from '../engine';
@@ -11,6 +11,27 @@ import { getVorstufenBoni } from './gesetzLebenszyklus';
 import { featureActive } from './features';
 import { applyEUKofinanzierung } from './eu';
 import { applyFraming, getMedienPkZusatzkosten } from './medienklima';
+import { berechneKongruenz } from '../ideologie';
+import { getGesetzIdeologie } from './koalition';
+
+/** SMA-307: Berechnet effektive BT-Stimmen aus Koalitions-Kongruenz (dynamisch statt statisch). */
+export function berechneEffektiveBTStimmen(
+  gesetz: Law,
+  basis: number,
+  spielerIdeologie: Ideologie,
+  koalitionspartnerIdeologie: Ideologie | null,
+): number {
+  const gesetzIdeologie = getGesetzIdeologie(gesetz);
+
+  const spielerKongruenz = berechneKongruenz(spielerIdeologie, gesetzIdeologie);
+  const spielerBonus = (spielerKongruenz - 50) / 5;
+
+  const partnerBonus = koalitionspartnerIdeologie
+    ? (berechneKongruenz(koalitionspartnerIdeologie, gesetzIdeologie) - 50) / 12
+    : 0;
+
+  return Math.max(20, Math.min(90, Math.round(basis + spielerBonus + partnerBonus)));
+}
 
 export interface EinbringenContext {
   ausrichtung: Ideologie;
@@ -139,7 +160,7 @@ export function lobbying(state: GameState, lawId: string): GameState {
   const gain = Math.floor(Math.random() * 5) + 2;
   const gesetze = state.gesetze.map((g, i) => {
     if (i !== idx) return g;
-    const ja = Math.min(63, g.ja + gain);
+    const ja = Math.min(90, g.ja + gain);
     return { ...g, ja, nein: 100 - ja };
   });
 

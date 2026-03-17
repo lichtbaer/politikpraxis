@@ -8,6 +8,7 @@ import { createInitialHaushalt } from './systems/haushalt';
 import type { Ausrichtung } from './systems/ausrichtung';
 import { recalcApproval } from './systems/economy';
 import { berechneKongruenz } from './ideologie';
+import { berechneEffektiveBTStimmen } from './systems/parliament';
 import {
   PARTEI_VERBANDS_BONUS,
   SPIELBARE_PARTEIEN,
@@ -66,6 +67,24 @@ export function createInitialState(
     return char;
   });
 
+  const partnerIdeologie = partner?.ideologie ?? null;
+  const gesetzBTStimmen: Record<string, number> = {};
+  const gesetze = content.laws.map((g) => {
+    const basis = g.ja;
+    const effektiv = berechneEffektiveBTStimmen(g, basis, ideologie, partnerIdeologie);
+    gesetzBTStimmen[g.id] = effektiv;
+    return {
+      ...g,
+      ja: effektiv,
+      nein: 100 - effektiv,
+      expanded: false,
+      route: null,
+      rprog: 0,
+      rdur: 0,
+      blockiert: null,
+    };
+  });
+
   const base: GameState = {
     month: content.scenario.startMonth,
     speed: 0,
@@ -78,7 +97,8 @@ export function createInitialState(
     coalition: content.scenario.startCoalition,
 
     chars: charsWithPartei,
-    gesetze: content.laws.map(g => ({ ...g, expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null })),
+    gesetze,
+    gesetzBTStimmen,
     bundesrat: content.bundesrat.map(b => ({ ...b })),
     bundesratFraktionen: fraktionen.map(f => ({
       ...f,
@@ -312,7 +332,7 @@ export function validateGameState(raw: unknown): GameState {
 
   // Optionale Felder durchreichen (werden von migrateGameState weitergegeben)
   const optionalKeys = [
-    'spielerPartei', 'speedBeforePause', 'eingebrachteGesetze',
+    'gesetzBTStimmen', 'spielerPartei', 'speedBeforePause', 'eingebrachteGesetze',
     'koalitionspartner', 'koalitionsvertragProfil', 'milieuZustimmungHistory', 'milieuGesetzReaktionen', 'partnerPrioGesetz',
     'btStimmenBonus', 'koalitionsbruchSeitMonat', 'ministerialCooldowns', 'aktiveMinisterialInitiative',
     'eu', 'haushalt', 'lehmannUltimatumBeschleunigt', 'lehmannSparvorschlagAktiv', 'aktivesStrukturEvent',

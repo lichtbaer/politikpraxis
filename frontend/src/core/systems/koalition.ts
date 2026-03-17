@@ -1,4 +1,4 @@
-import type { GameState, Ideologie, Law, KoalitionspartnerContent, KoalitionspartnerParteiId, SpielerParteiState } from '../types';
+import type { GameState, Ideologie, KoalitionspartnerContent, KoalitionspartnerParteiId, SpielerParteiState } from '../types';
 import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { verbrauchePK } from '../pk';
@@ -90,7 +90,8 @@ const GESETZ_IDEOLOGIE: Record<string, Ideologie> = {
   wb: { wirtschaft: -45, gesellschaft: -35, staat: -25 },
 };
 
-function getGesetzIdeologie(law: Law): Ideologie {
+/** SMA-307: Exportiert für dynamische BT-Stimmen-Berechnung */
+export function getGesetzIdeologie(law: { id: string; ideologie?: Ideologie }): Ideologie {
   return law.ideologie ?? GESETZ_IDEOLOGIE[law.id] ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 }
 
