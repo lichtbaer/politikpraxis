@@ -115,6 +115,7 @@ function transformGesetz(api: GesetzApi): Law {
     kosten_einmalig: api.kosten_einmalig,
     kosten_laufend: api.kosten_laufend,
     einnahmeeffekt: api.einnahmeeffekt,
+    pflichtausgaben_delta: api.pflichtausgaben_delta,
     investiv: (api as { investiv?: boolean }).investiv,
     kommunal_pilot_moeglich: api.kommunal_pilot_moeglich ?? true,
     laender_pilot_moeglich: api.laender_pilot_moeglich ?? true,

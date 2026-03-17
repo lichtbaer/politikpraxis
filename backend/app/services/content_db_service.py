@@ -169,6 +169,7 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
             "kosten_einmalig": float(g.kosten_einmalig or 0),
             "kosten_laufend": float(g.kosten_laufend or 0),
             "einnahmeeffekt": float(g.einnahmeeffekt or 0),
+            "pflichtausgaben_delta": float(g.pflichtausgaben_delta or 0),
             "investiv": g.investiv or False,
             "kommunal_pilot_moeglich": g.kommunal_pilot_moeglich if g.kommunal_pilot_moeglich is not None else True,
             "laender_pilot_moeglich": g.laender_pilot_moeglich if g.laender_pilot_moeglich is not None else True,
@@ -669,7 +670,7 @@ async def get_game_content_from_db(db: AsyncSession, locale: str = "de") -> dict
 
     # Split into events, charEvents, bundesratEvents
     random_ids = {"haushalt", "skandal", "euklage", "konjunktur", "koalition_krise", "demo", "eufoerder"}
-    char_ids = {"fm_ultimatum", "braun_ultimatum", "wolf_ultimatum", "kern_ultimatum", "kanzler_ultimatum", "kohl_bundesrat_sabotage", "wm_ultimatum", "am_ultimatum", "gm_ultimatum", "bm_ultimatum"}
+    char_ids = {"fm_ultimatum", "braun_ultimatum", "wolf_ultimatum", "kern_ultimatum", "kanzler_ultimatum", "kohl_bundesrat_sabotage", "wm_ultimatum", "am_ultimatum", "gm_ultimatum", "bm_ultimatum", "lehmann_defizit_start", "haushaltskrise"}
     br_ids = {"laenderfinanzausgleich", "landtagswahl", "kohl_eskaliert", "sprecher_wechsel", "bundesrat_initiative", "foederalismusgipfel"}
 
     for eid, data in all_events.items():
