@@ -119,7 +119,7 @@ function transformGesetz(api: GesetzApi): Law {
     kommunal_pilot_moeglich: api.kommunal_pilot_moeglich ?? true,
     laender_pilot_moeglich: api.laender_pilot_moeglich ?? true,
     eu_initiative_moeglich: api.eu_initiative_moeglich ?? true,
-    framing_optionen: (api as { framing_optionen?: { key: string; milieu_effekte: Record<string, number>; verband_effekte?: Record<string, number>; medienklima_delta: number }[] }).framing_optionen ?? [],
+    framing_optionen: (api as { framing_optionen?: { key: string; label?: string; slogan?: string; milieu_effekte: Record<string, number>; verband_effekte?: Record<string, number>; medienklima_delta: number }[] }).framing_optionen ?? [],
   };
 }
 
