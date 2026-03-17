@@ -17,6 +17,8 @@ interface AgendaCardProps {
   law: Law;
   /** SMA-287: Empfohlen-Badge für Top-3 zur Spieler-Ausrichtung */
   isRecommended?: boolean;
+  /** SMA-293: Kongruenz-Anzeige (Stufe 2+) neben dem Gesetz */
+  showKongruenz?: boolean;
 }
 
 const STATUS_KEYS: Record<LawStatus, string> = {
@@ -37,7 +39,7 @@ const STATUS_CLASS: Record<LawStatus, string> = {
   ausweich: styles.statusAusweich,
 };
 
-export function AgendaCard({ law, isRecommended }: AgendaCardProps) {
+export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProps) {
   const { t } = useTranslation(['common', 'game']);
   const { state, complexity, ausrichtung } = useGameStore();
   const actions = useGameActions();
@@ -74,6 +76,11 @@ export function AgendaCard({ law, isRecommended }: AgendaCardProps) {
           <span className={styles.empfohlenBadge}>{t('game:gesetzAgenda.empfohlen')}</span>
         )}
         <h3 className={styles.title}>{law.titel || t(`game:laws.${law.id}.titel`)}</h3>
+        {showKongruenz && (
+          <span className={styles.kongruenzBadge}>
+            {t('game:gesetzAgenda.kongruenz', { percent: kongruenz })}%
+          </span>
+        )}
         <span className={styles.arrow}>{expanded ? '▲' : '▼'}</span>
       </header>
 
