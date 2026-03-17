@@ -15,8 +15,11 @@ const SCHLUESSELTHEMA_TO_FELD: Record<string, string> = {
   sr: 'wirtschaft_finanzen',
 };
 
-function getPartnerHaushaltsfeld(content: ContentBundle): string | null {
-  const partner = getKoalitionspartner(content);
+function getPartnerHaushaltsfeld(
+  content: ContentBundle,
+  state?: Pick<import('../../core/types').GameState, 'koalitionspartner' | 'spielerPartei'>,
+): string | null {
+  const partner = getKoalitionspartner(content, state);
   const first = partner.schluesselthemen?.[0];
   return first ? (SCHLUESSELTHEMA_TO_FELD[first] ?? first) : null;
 }
@@ -117,7 +120,7 @@ export function HaushaltsdebatteScreen() {
   if (!ev || ev.type !== 'haushaltsdebatte' || !haushalt) return null;
 
   const jahr = 2025 + Math.floor((state.month - 1) / 12);
-  const partnerFeld = getPartnerHaushaltsfeld(content);
+  const partnerFeld = getPartnerHaushaltsfeld(content, state);
   const partnerFeldGewaehlt = partnerFeld ? ev.gewaehlePrioritaeten.includes(partnerFeld) : true;
   const felder = ev.verfuegbarePrioritaeten.map((id) => ({ id }));
 

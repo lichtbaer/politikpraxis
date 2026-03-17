@@ -14,6 +14,8 @@ import {
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
 } from '../../data/defaults/parteien';
+import { berechneKoalitionspartner } from '../../core/systems/koalition';
+import { ALLE_PARTEIEN } from '../../data/defaults/koalitionspartner';
 import styles from './WahlnachtOnboarding.module.css';
 
 /** Beat 0 = Partei, 1 = Ideologie (Stufe 3+), 2 = Headline, 3 = Kabinett, 4 = Memo, 5 = CTA */
@@ -239,10 +241,19 @@ export function WahlnachtOnboarding() {
               partei: SPIELBARE_PARTEIEN.find((x) => x.id === selectedPartei)?.kuerzel ?? '',
             })}
           </p>
-            <button type="button" className={styles.weiter} onClick={handleIdeologieWeiter}>
-              {t('game:onboarding.weiter')}
-            </button>
-          </div>
+          {(() => {
+            const partnerParteiId = berechneKoalitionspartner(selectedPartei, ausrichtung);
+            const partnerPartei = ALLE_PARTEIEN.find((p) => p.id === partnerParteiId);
+            return partnerPartei ? (
+              <p className={styles.partnerHint}>
+                {t('game:onboarding.partnerHint', { partei: partnerPartei.name })}
+              </p>
+            ) : null;
+          })()}
+          <button type="button" className={styles.weiter} onClick={handleIdeologieWeiter}>
+            {t('game:onboarding.weiter')}
+          </button>
+        </div>
         )}
 
         {/* Beat 3 — Schlagzeile */}

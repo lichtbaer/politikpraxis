@@ -46,51 +46,57 @@ export function MainMenu() {
       >
         {i18n.language === 'de' ? 'EN' : 'DE'}
       </button>
-      <div className={styles.content}>
-        <h1 className={styles.title}>{t('app.title')}</h1>
-        <p className={styles.subtitle}>{t('app.subtitle')}</p>
+      <div className={styles.startScreen}>
+        <div className={styles.startLeft} aria-hidden="true" />
+        <div className={styles.startRight}>
+          <h1 className={styles.title}>{t('app.title')}</h1>
+          <p className={styles.subtitle}>{t('app.subtitle')}</p>
 
-        <div className={styles.einladung}>
-          <p className={styles.einladungKompakt}>{t('startseite.kompakt')}</p>
-          <div className={styles.einladungPrimaer}>
-            <p className={styles.einladungText}>{t('startseite.einladung1')}</p>
-            <p className={styles.einladungText}>{t('startseite.einladung2')}</p>
-            <p className={styles.einladungText}>{t('startseite.einladung3')}</p>
-            <p className={styles.einladungText}>{t('startseite.einladung4')}</p>
-            <p className={styles.einladungText}>{t('startseite.einladung5')}</p>
+          <div className={styles.einladung}>
+            <p className={styles.einladungKompakt}>{t('startseite.kompakt')}</p>
+            <div className={styles.einladungPrimaer}>
+              <p className={styles.einladungText}>{t('startseite.einladung1')}</p>
+              <p className={styles.einladungText}>
+                {t('startseite.einladung2')}
+                <br />
+                {t('startseite.einladung3')}
+              </p>
+              <p className={styles.einladungText}>{t('startseite.einladung4')}</p>
+              <p className={styles.einladungText}>{t('startseite.einladung5')}</p>
+            </div>
           </div>
-        </div>
 
-        <nav className={styles.buttons}>
-          <button
-            type="button"
-            className={styles.primary}
-            onClick={handleNewGame}
-          >
-            {t('menu.newGame')}
-          </button>
-          {saveAvailable && (
+          <nav className={styles.buttons}>
+            <button
+              type="button"
+              className={styles.primary}
+              onClick={handleNewGame}
+            >
+              {t('menu.newGame')}
+            </button>
+            {saveAvailable && (
+              <button
+                type="button"
+                className={styles.secondary}
+                onClick={handleLoadGame}
+              >
+                {t('menu.loadGame')}
+              </button>
+            )}
+            <button type="button" className={styles.secondary} disabled>
+              {t('menu.settings')}
+            </button>
             <button
               type="button"
               className={styles.secondary}
-              onClick={handleLoadGame}
+              onClick={handleCredits}
             >
-              {t('menu.loadGame')}
+              {t('menu.credits')}
             </button>
-          )}
-          <button type="button" className={styles.secondary} disabled>
-            {t('menu.settings')}
-          </button>
-          <button
-            type="button"
-            className={styles.secondary}
-            onClick={handleCredits}
-          >
-            {t('menu.credits')}
-          </button>
-        </nav>
+          </nav>
 
-        <p className={styles.disclaimer}>{t('startseite.disclaimer')}</p>
+          <p className={styles.disclaimer}>{t('startseite.disclaimer')}</p>
+        </div>
       </div>
 
       <span className={styles.version}>v{__APP_VERSION__}</span>

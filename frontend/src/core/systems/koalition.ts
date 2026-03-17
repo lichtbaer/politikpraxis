@@ -1,11 +1,33 @@
-import type { GameState, Ideologie, Law, KoalitionspartnerContent } from '../types';
+import type { GameState, Ideologie, Law, KoalitionspartnerContent, KoalitionspartnerParteiId, SpielerParteiState } from '../types';
 import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { applyMoodChange } from './characters';
 import { scheduleEffects } from './economy';
-import { GRUENE, MILIEU_NAMES, VERBAND_KURZ } from '../../data/defaults/koalitionspartner';
+import { berechneKongruenz } from '../ideologie';
+import {
+  ALLE_PARTEIEN,
+  GRUENE,
+  MILIEU_NAMES,
+  VERBAND_KURZ,
+  buildKoalitionspartnerContent,
+} from '../../data/defaults/koalitionspartner';
+import type { SpielerParteiId } from '../../data/defaults/parteien';
+
+/** SMA-299: Berechnet Koalitionspartner aus Ideologie-Distanz (niedrigste Distanz = nächster Partner) */
+export function berechneKoalitionspartner(
+  spielerParteiId: SpielerParteiId,
+  spielerIdeologie: Ideologie,
+): KoalitionspartnerParteiId {
+  const kandidaten = ALLE_PARTEIEN.filter((p) => p.id !== spielerParteiId);
+  const mitDistanz = kandidaten.map((p) => ({
+    partei: p,
+    distanz: 100 - berechneKongruenz(spielerIdeologie, p.ideologie),
+  }));
+  mitDistanz.sort((a, b) => a.distanz - b.distanz);
+  return mitDistanz[0].partei.id;
+}
 
 /** Milieu-ID zu zust-Feld (Approval) */
 const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
@@ -14,8 +36,14 @@ const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
   arbeit: 'arbeit',
 };
 
-/** Holt Koalitionspartner-Content (Fallback: Grüne) */
-export function getKoalitionspartner(content?: { koalitionspartner?: KoalitionspartnerContent }): KoalitionspartnerContent {
+/** Holt Koalitionspartner-Content (SMA-299: dynamisch aus State wenn vorhanden) */
+export function getKoalitionspartner(
+  content?: { koalitionspartner?: KoalitionspartnerContent },
+  state?: { koalitionspartner?: { id: KoalitionspartnerParteiId }; spielerPartei?: SpielerParteiState },
+): KoalitionspartnerContent {
+  if (state?.koalitionspartner?.id && state?.spielerPartei?.id) {
+    return buildKoalitionspartnerContent(state.koalitionspartner.id, state.spielerPartei.id);
+  }
   return content?.koalitionspartner ?? GRUENE;
 }
 
@@ -41,16 +69,6 @@ function getMilieuName(milieuId: string): string {
 /** Holt Verband-Kurzbezeichnung */
 function getVerbandKurz(verbandId: string): string {
   return VERBAND_KURZ[verbandId] ?? verbandId;
-}
-
-/** Kongruenz zwischen zwei Ideologien (0–100) */
-function berechneKongruenz(a: Ideologie, b: Ideologie): number {
-  const diffW = Math.abs(a.wirtschaft - b.wirtschaft);
-  const diffG = Math.abs(a.gesellschaft - b.gesellschaft);
-  const diffS = Math.abs(a.staat - b.staat);
-  const maxDiff = 200;
-  const avgDiff = (diffW + diffG + diffS) / 3;
-  return Math.round(Math.max(0, Math.min(100, 100 - (avgDiff / maxDiff) * 100)));
 }
 
 /** Berechnet Koalitionsvertrag-Profil (60% Spieler, 40% Partner) */
@@ -118,7 +136,7 @@ export function tickKoalitionspartner(
   const kp = state.koalitionspartner;
   if (!kp) return state;
 
-  const partner = getKoalitionspartner(content);
+  const partner = getKoalitionspartner(content, state);
   let next: GameState = { ...state, koalitionspartner: { ...kp } };
 
   // Score regeneriert -2/Monat (Stufe 4)
@@ -277,8 +295,9 @@ export function prioritaetsgespraech(state: GameState, gesetzId: string, complex
 function getPartnerForderung(
   content: { koalitionspartner?: KoalitionspartnerContent },
   forderungId: string,
+  state?: { koalitionspartner?: { id: KoalitionspartnerParteiId }; spielerPartei?: SpielerParteiState },
 ) {
-  const partner = getKoalitionspartner(content);
+  const partner = getKoalitionspartner(content, state);
   return partner.forderungen?.find(f => f.id === forderungId);
 }
 
@@ -292,7 +311,7 @@ export function koalitionsZugestaendnis(
   if (!featureActive(complexity, 'koalitionspartner')) return state;
   if (!state.koalitionspartner) return state;
 
-  const forderung = getPartnerForderung(content, forderungId);
+  const forderung = getPartnerForderung(content, forderungId, state);
   if (!forderung) return state;
 
   let next = scheduleEffects(state, {

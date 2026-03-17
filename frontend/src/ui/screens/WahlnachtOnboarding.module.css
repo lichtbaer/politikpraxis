@@ -441,3 +441,11 @@
 .layoutFooterSingle {
   justify-content: center;
 }
+
+.partnerHint {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text);
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}

@@ -171,6 +171,8 @@ class EventChoice(Base):
     koalitionspartner_beziehung_delta: Mapped[int | None] = mapped_column(Integer(), nullable=True)
     medienklima_delta: Mapped[int | None] = mapped_column(Integer(), nullable=True)
     verfahren_dauer_monate: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    # SMA-298: Länder-Koalitionskrise
+    bundesrat_bonus: Mapped[int | None] = mapped_column(Integer(), nullable=True)
 
 
 class EventChoiceI18n(Base):

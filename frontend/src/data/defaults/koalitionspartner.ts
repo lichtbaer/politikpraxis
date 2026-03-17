@@ -1,4 +1,113 @@
-import type { KoalitionspartnerContent, GameEvent } from '../../core/types';
+import type {
+  KoalitionspartnerContent,
+  KoalitionspartnerParteiId,
+  GameEvent,
+  Ideologie,
+  PartnerForderung,
+} from '../../core/types';
+import { SPIELBARE_PARTEIEN, type SpielerParteiId } from './parteien';
+
+/** SMA-299: Alle Parteien mit Ideologie für dynamische Koalitionspartner-Berechnung */
+export interface ParteiMitIdeologie {
+  id: KoalitionspartnerParteiId;
+  name: string;
+  kuerzel: string;
+  ideologie: Ideologie;
+}
+
+export const ALLE_PARTEIEN: ParteiMitIdeologie[] = [
+  { id: 'sdp', name: 'Sozialdemokratische Partei', kuerzel: 'SDP', ideologie: { wirtschaft: -40, gesellschaft: -20, staat: -40 } },
+  { id: 'cdp', name: 'Christlich-Demokratische Partei', kuerzel: 'CDP', ideologie: { wirtschaft: 20, gesellschaft: 30, staat: 20 } },
+  { id: 'gp', name: 'Grüne Partei', kuerzel: 'GP', ideologie: { wirtschaft: -50, gesellschaft: -70, staat: -20 } },
+  { id: 'ldp', name: 'Liberal-Demokratische Partei', kuerzel: 'LDP', ideologie: { wirtschaft: 60, gesellschaft: -10, staat: 60 } },
+  { id: 'lp', name: 'Linke Partei', kuerzel: 'LP', ideologie: { wirtschaft: -65, gesellschaft: -40, staat: -60 } },
+];
+
+/** SMA-299: Koalitionspartner-Profil (wenn Partei nicht Spieler-Partei ist) */
+export interface KoalitionspartnerProfil {
+  sprecher: string;
+  initials: string;
+  kernmilieus: string[];
+  kernverbaende: string[];
+  schluesselthemen: string[];
+  forderungen?: PartnerForderung[];
+  /** Beziehungs-Start je Spieler-Partei */
+  beziehungStart: (spielerParteiId: SpielerParteiId) => number;
+}
+
+export const KOALITIONSPARTNER_PROFILE: Record<KoalitionspartnerParteiId, KoalitionspartnerProfil> = {
+  sdp: {
+    sprecher: 'Thomas Reinhardt',
+    initials: 'TR',
+    kernmilieus: ['soziale_mitte', 'prekaere', 'leistungstraeger'],
+    kernverbaende: ['gbd', 'uvb'],
+    schluesselthemen: ['arbeit_soziales', 'umwelt_energie'],
+    beziehungStart: (spielerParteiId) => ({ sdp: 50, cdp: 40, gp: 60, ldp: 45, lp: 55 }[spielerParteiId] ?? 50),
+  },
+  cdp: {
+    sprecher: 'Heinrich Mauer',
+    initials: 'HM',
+    kernmilieus: ['etablierte', 'buergerliche_mitte', 'traditionelle'],
+    kernverbaende: ['bdi', 'sgd'],
+    schluesselthemen: ['wirtschaft_finanzen', 'innere_sicherheit'],
+    beziehungStart: (spielerParteiId) => ({ sdp: 45, cdp: 50, gp: 40, ldp: 60, lp: 30 }[spielerParteiId] ?? 50),
+  },
+  gp: {
+    sprecher: 'Lena Fischer',
+    initials: 'LF',
+    kernmilieus: ['postmaterielle', 'soziale_mitte'],
+    kernverbaende: ['uvb', 'bvd'],
+    schluesselthemen: ['ee', 'bp'],
+    forderungen: [
+      { id: 'ee_prioritaet', label: 'EE-Beschleunigung priorisieren', effekte: { hh: -0.2, zf: 2 } },
+      { id: 'bp_wohnung', label: 'Bundeswohnungsbauoffensive stärken', effekte: { hh: -0.3, zf: 3 } },
+    ],
+    beziehungStart: (spielerParteiId) => ({ sdp: 65, cdp: 45, gp: 50, ldp: 50, lp: 55 }[spielerParteiId] ?? 50),
+  },
+  ldp: {
+    sprecher: 'Vera Stahl',
+    initials: 'VS',
+    kernmilieus: ['etablierte', 'leistungstraeger'],
+    kernverbaende: ['bdi', 'dwv'],
+    schluesselthemen: ['wirtschaft_finanzen', 'digital_infrastruktur'],
+    beziehungStart: (spielerParteiId) => ({ sdp: 50, cdp: 60, gp: 45, ldp: 50, lp: 40 }[spielerParteiId] ?? 50),
+  },
+  lp: {
+    sprecher: 'Karl Voss',
+    initials: 'KV',
+    kernmilieus: ['prekaere', 'soziale_mitte'],
+    kernverbaende: ['gbd', 'sgd'],
+    schluesselthemen: ['arbeit_soziales', 'umwelt_energie'],
+    beziehungStart: (spielerParteiId) => ({ sdp: 55, cdp: 35, gp: 40, ldp: 30, lp: 45 }[spielerParteiId] ?? 45),
+  },
+};
+
+/** Baut KoalitionspartnerContent aus Profil + Partei-Daten */
+export function buildKoalitionspartnerContent(
+  parteiId: KoalitionspartnerParteiId,
+  spielerParteiId: SpielerParteiId,
+): KoalitionspartnerContent {
+  const partei = ALLE_PARTEIEN.find((p) => p.id === parteiId);
+  const profil = KOALITIONSPARTNER_PROFILE[parteiId];
+  if (!partei || !profil) {
+    return GRUENE; // Fallback
+  }
+  const parteiFarbe = SPIELBARE_PARTEIEN.find((p) => p.id === parteiId)?.farbe;
+  return {
+    id: parteiId,
+    name: partei.name,
+    sprecher: profil.sprecher,
+    partei_kuerzel: partei.kuerzel,
+    partei_farbe: parteiFarbe,
+    ideologie: partei.ideologie,
+    beziehung_start: profil.beziehungStart(spielerParteiId),
+    bt_stimmen: 18,
+    kernmilieus: profil.kernmilieus,
+    kernverbaende: profil.kernverbaende,
+    schluesselthemen: profil.schluesselthemen,
+    forderungen: profil.forderungen,
+  };
+}
 
 /** Koalitionsbruch-Event (Beziehung < 15) */
 export const KOALITIONSBRUCH_EVENT: GameEvent = {
@@ -62,30 +171,22 @@ export const KOALITIONSKRISE_ULTIMATUM_EVENT: GameEvent = {
   ],
 };
 
-/** Grüne als Standard-Koalitionspartner */
+/** Grüne als Standard-Koalitionspartner (Fallback, id = gp) */
 export const GRUENE: KoalitionspartnerContent = {
-  id: 'gruene',
-  name: 'Grüne',
+  id: 'gp',
+  name: 'Grüne Partei',
   sprecher: 'Lena Fischer',
   partei_kuerzel: 'GP',
-  partei_farbe: '#64a12d',
-  ideologie: { wirtschaft: -40, gesellschaft: -75, staat: -35 },
+  partei_farbe: '#46962B',
+  ideologie: { wirtschaft: -50, gesellschaft: -70, staat: -20 },
   beziehung_start: 65,
   bt_stimmen: 18,
   kernmilieus: ['postmaterielle', 'soziale_mitte'],
   kernverbaende: ['uvb', 'bvd'],
   schluesselthemen: ['ee', 'bp'],
   forderungen: [
-    {
-      id: 'ee_prioritaet',
-      label: 'EE-Beschleunigung priorisieren',
-      effekte: { hh: -0.2, zf: 2 },
-    },
-    {
-      id: 'bp_wohnung',
-      label: 'Bundeswohnungsbauoffensive stärken',
-      effekte: { hh: -0.3, zf: 3 },
-    },
+    { id: 'ee_prioritaet', label: 'EE-Beschleunigung priorisieren', effekte: { hh: -0.2, zf: 2 } },
+    { id: 'bp_wohnung', label: 'Bundeswohnungsbauoffensive stärken', effekte: { hh: -0.3, zf: 3 } },
   ],
 };
 
@@ -102,4 +203,9 @@ export const MILIEU_NAMES: Record<string, string> = {
 export const VERBAND_KURZ: Record<string, string> = {
   uvb: 'UvB',
   bvd: 'BvD',
+  gbd: 'GBD',
+  bdi: 'BDI',
+  sgd: 'SGD',
+  bvl: 'BVL',
+  dwv: 'DWV',
 };

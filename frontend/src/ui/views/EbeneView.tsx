@@ -6,6 +6,11 @@ import { featureActive } from '../../core/systems/features';
 import type { RouteType } from '../../core/types';
 import styles from './EbeneView.module.css';
 
+const STAEDTEBUENDNIS_PK = 10;
+const KOMMUNAL_KONFERENZ_PK = 8;
+const LAENDER_GIPFEL_PK = 12;
+const PILOT_BESCHLEUNIGEN_PK = 6;
+
 const FELD_ICONS: Record<string, string> = {
   umwelt_energie: '🌱',
   wirtschaft_finanzen: '📊',
@@ -44,6 +49,31 @@ export function EbeneView({ type }: EbeneViewProps) {
   const aktiveRoute = eu?.aktiveRoute;
   const politikfelder = content.politikfelder ?? [];
 
+  const hasKommunalPilot = featureActive(complexity, 'kommunal_pilot');
+  const hasLaenderPilot = featureActive(complexity, 'laender_pilot');
+  const jahr = Math.floor(state.month / 12);
+  const kommunalKonferenzVerfuegbar =
+    hasKommunalPilot && (state.kommunalKonferenzJahr ?? -1) < jahr;
+
+  const potentialLaws =
+    complexity >= 2
+      ? state.gesetze.filter((g) => {
+          if (g.status !== 'entwurf') return false;
+          if (type === 'kommune') return g.kommunal_pilot_moeglich !== false;
+          if (type === 'land') return g.laender_pilot_moeglich !== false;
+          return false;
+        })
+      : [];
+
+  const aktiveVorstufe =
+    type === 'kommune' || type === 'land'
+      ? Object.entries(state.gesetzProjekte ?? {}).find(([, p]) =>
+          p.aktiveVorstufen.some(
+            (v) => !v.abgeschlossen && v.typ === (type === 'kommune' ? 'kommunal' : 'laender')
+          )
+        )
+      : null;
+
   const getGesetz = (id: string) => state.gesetze.find((g) => g.id === id);
 
   return (
@@ -77,6 +107,71 @@ export function EbeneView({ type }: EbeneViewProps) {
                   </div>
                 );
               }
+            )}
+          </div>
+        </div>
+      )}
+
+      {type === 'kommune' && hasKommunalPilot && (
+        <div className={styles.aktionen}>
+          <h3 className={styles.aktionenTitle}>Aktionen</h3>
+          <div className={styles.aktionenRow}>
+            <button
+              type="button"
+              className={styles.aktionBtn}
+              style={{ borderColor: color }}
+              disabled={state.pk < STAEDTEBUENDNIS_PK}
+              onClick={() => actions.staedtebuendnis()}
+            >
+              {t('game:ebene.staedtebuendnis')} ({STAEDTEBUENDNIS_PK} PK)
+            </button>
+            <button
+              type="button"
+              className={styles.aktionBtn}
+              style={{ borderColor: color }}
+              disabled={state.pk < KOMMUNAL_KONFERENZ_PK || !kommunalKonferenzVerfuegbar}
+              onClick={() => actions.kommunalKonferenz()}
+            >
+              {t('game:ebene.kommunalKonferenz')} ({KOMMUNAL_KONFERENZ_PK} PK)
+            </button>
+            {aktiveVorstufe && (
+              <button
+                type="button"
+                className={styles.aktionBtn}
+                style={{ borderColor: color }}
+                disabled={state.pk < PILOT_BESCHLEUNIGEN_PK}
+                onClick={() => actions.pilotBeschleunigen(aktiveVorstufe[0], 'kommunal')}
+              >
+                {t('game:ebene.pilotBeschleunigen')} ({PILOT_BESCHLEUNIGEN_PK} PK)
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {type === 'land' && hasLaenderPilot && (
+        <div className={styles.aktionen}>
+          <h3 className={styles.aktionenTitle}>Aktionen</h3>
+          <div className={styles.aktionenRow}>
+            <button
+              type="button"
+              className={styles.aktionBtn}
+              style={{ borderColor: color }}
+              disabled={state.pk < LAENDER_GIPFEL_PK}
+              onClick={() => actions.laenderGipfel()}
+            >
+              {t('game:ebene.laenderGipfel')} ({LAENDER_GIPFEL_PK} PK)
+            </button>
+            {aktiveVorstufe && (
+              <button
+                type="button"
+                className={styles.aktionBtn}
+                style={{ borderColor: color }}
+                disabled={state.pk < PILOT_BESCHLEUNIGEN_PK}
+                onClick={() => actions.pilotBeschleunigen(aktiveVorstufe[0], 'laender')}
+              >
+                {t('game:ebene.pilotBeschleunigen')} ({PILOT_BESCHLEUNIGEN_PK} PK)
+              </button>
             )}
           </div>
         </div>
@@ -132,9 +227,25 @@ export function EbeneView({ type }: EbeneViewProps) {
         </div>
       )}
 
+      {potentialLaws.length > 0 && activeLaws.length === 0 && (
+        <div className={styles.potential}>
+          <h3 className={styles.potentialTitle}>{t('game:ebene.potentialTitle')}</h3>
+          <p className={styles.potentialHint}>{t('game:ebene.potentialHint')}</p>
+          <ul className={styles.potentialList}>
+            {potentialLaws.slice(0, 8).map((law) => (
+              <li key={law.id} className={styles.potentialItem}>
+                {law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className={styles.list}>
         {activeLaws.length === 0 ? (
-          <p className={styles.empty}>{t('game:ebene.empty')}</p>
+          potentialLaws.length === 0 ? (
+            <p className={styles.empty}>{t('game:ebene.empty')}</p>
+          ) : null
         ) : (
           activeLaws.map((law) => {
             const routeProgress =

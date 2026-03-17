@@ -1,14 +1,14 @@
 import type { GameState, ContentBundle, SpielerParteiState } from './types';
 import type { Approval } from './types';
 import { featureActive } from './systems/features';
-import { getKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
+import { berechneKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
+import { buildKoalitionspartnerContent } from '../data/defaults/koalitionspartner';
 import { initEUKlima } from './systems/eu';
 import { createInitialHaushalt } from './systems/haushalt';
 import type { Ausrichtung } from './systems/ausrichtung';
 import { recalcApproval } from './systems/economy';
 import { berechneKongruenz } from './ideologie';
 import {
-  PARTEI_GP_BEZIEHUNG_START,
   PARTEI_VERBANDS_BONUS,
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
@@ -43,10 +43,15 @@ export function createInitialState(
     (c) => (c.min_complexity ?? 1) <= complexity
   );
 
-  const partner = content.koalitionspartner ? getKoalitionspartner(content) : null;
-  const hasKoalition = featureActive(complexity, 'koalitionspartner') && partner;
-
   const parteiId: SpielerParteiId = spielerPartei?.id ?? 'sdp';
+  const ideologie = ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
+  const partnerParteiId = featureActive(complexity, 'koalitionspartner')
+    ? berechneKoalitionspartner(parteiId, ideologie)
+    : null;
+  const partner = partnerParteiId
+    ? buildKoalitionspartnerContent(partnerParteiId, parteiId)
+    : null;
+  const hasKoalition = !!partner;
   const parteiInfo = SPIELBARE_PARTEIEN.find((p) => p.id === parteiId);
   const spielerParteiState: SpielerParteiState | undefined = parteiInfo
     ? { id: parteiId, kuerzel: parteiInfo.kuerzel, farbe: parteiInfo.farbe, name: parteiInfo.name }
@@ -139,7 +144,7 @@ export function createInitialState(
     return r;
   }
 
-  const gpBeziehungStart = PARTEI_GP_BEZIEHUNG_START[parteiId];
+  const beziehungStart = partner?.beziehung_start ?? 50;
 
   if (featureActive(complexity, 'haushaltsdebatte')) {
     const withHaushalt = { ...base, haushalt: createInitialHaushalt(base) };
@@ -148,11 +153,11 @@ export function createInitialState(
         ...withHaushalt,
         koalitionspartner: {
           id: partner.id,
-          beziehung: gpBeziehungStart,
+          beziehung: beziehungStart,
           koalitionsvertragScore: 0,
           schluesselthemenErfuellt: [],
         },
-        koalitionsvertragProfil: berechneKoalitionsvertragProfil(ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 }, partner),
+        koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
         verbandsBeziehungen: { uvb: 50, bvd: 50, ...withHaushalt.verbandsBeziehungen },
       });
     }
@@ -160,7 +165,6 @@ export function createInitialState(
   }
 
   if (hasKoalition && partner) {
-    const ideologie = ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
     const verbandsBeziehungen = { ...base.verbandsBeziehungen };
     verbandsBeziehungen['uvb'] = 50;
     verbandsBeziehungen['bvd'] = 50;
@@ -168,7 +172,7 @@ export function createInitialState(
       ...base,
       koalitionspartner: {
         id: partner.id,
-        beziehung: gpBeziehungStart,
+        beziehung: beziehungStart,
         koalitionsvertragScore: 0,
         schluesselthemenErfuellt: [],
       },
@@ -315,6 +319,7 @@ export function validateGameState(raw: unknown): GameState {
     'gesetzProjekte', 'wahlkampfAktiv', 'wahlkampfAktionenGenutzt', 'legislaturBilanz', 'wahlkampfBotschaften',
     'tvDuellAbgehalten', 'tvDuellGewonnen', 'medienKlimaHistory', 'letzterSkandal', 'letztesPressemitteilungMonat',
     'opposition', 'medienoffensiveGenutzt',
+    'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
@@ -370,6 +375,18 @@ export function migrateGameState(state: GameState): GameState {
         spielerPartei: { id: sdp.id, kuerzel: sdp.kuerzel, farbe: sdp.farbe, name: sdp.name },
       };
     }
+  }
+  if ((result.koalitionspartner?.id as string) === 'gruene') {
+    const kp = result.koalitionspartner!;
+    result = {
+      ...result,
+      koalitionspartner: {
+        id: 'gp',
+        beziehung: kp.beziehung ?? 50,
+        koalitionsvertragScore: kp.koalitionsvertragScore ?? 50,
+        schluesselthemenErfuellt: kp.schluesselthemenErfuellt ?? [],
+      },
+    };
   }
   return result;
 }

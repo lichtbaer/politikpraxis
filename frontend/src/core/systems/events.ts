@@ -200,6 +200,47 @@ export function checkBundesratEvents(
   return state;
 }
 
+/** SMA-298: Prüft Kommunal/Länder conditional Events */
+export function checkKommunalLaenderEvents(
+  state: GameState,
+  events: GameEvent[],
+  complexity: number,
+): GameState {
+  if (state.activeEvent) return state;
+  if (!events.length) return state;
+
+  const fired = state.firedEvents ?? [];
+  const haushaltSaldo = state.haushalt?.saldo ?? 0;
+  const politikfeldDruck = state.politikfeldDruck ?? {};
+  const minBrBeziehung = state.bundesratFraktionen?.length
+    ? Math.min(...state.bundesratFraktionen.map(f => f.beziehung))
+    : 100;
+
+  for (const ev of events) {
+    if (fired.includes(ev.id)) continue;
+    const evMinC = (ev as GameEvent & { min_complexity?: number }).min_complexity;
+    if (evMinC != null && evMinC > complexity) continue;
+
+    let trigger = false;
+    if (ev.id === 'kommunal_haushaltskrise') {
+      trigger = haushaltSaldo < -20 && state.month > 12;
+    } else if (ev.id === 'kommunal_buergerprotest') {
+      trigger = (politikfeldDruck['umwelt_energie'] ?? 0) > 70;
+    } else if (ev.id === 'laender_koalitionskrise') {
+      trigger = minBrBeziehung < 30;
+    }
+    if (!trigger) continue;
+
+    return {
+      ...state,
+      firedEvents: [...fired, ev.id],
+      activeEvent: ev,
+      ...withPause(state, getAutoPauseLevel(ev)),
+    };
+  }
+  return state;
+}
+
 export interface KommunalEventContext {
   kommunalEvents: GameEvent[];
 }
@@ -225,7 +266,10 @@ export function checkKommunalEvents(
     if (evMinC != null && evMinC > complexity) continue;
 
     const pfId = ev.politikfeldId;
-    const druckMin = ev.triggerDruckMin ?? 0;
+    let druckMin = ev.triggerDruckMin ?? 0;
+    if (state.staedtebuendnisBisMonat != null && state.month <= state.staedtebuendnisBisMonat) {
+      druckMin = Math.max(0, druckMin - 10);
+    }
     const milieuKey = ev.triggerMilieuKey;
     const milieuOp = ev.triggerMilieuOp;
     const milieuVal = ev.triggerMilieuVal ?? 0;
@@ -334,6 +378,33 @@ export function resolveEvent(
     return { ...state, activeEvent: null };
   }
 
+  // SMA-298: Kommunal/Länder conditional Events (Haushaltskrise, Bürgerprotest, Länder-Koalitionskrise)
+  const KOMMUNAL_LAENDER_IDS = new Set(['kommunal_haushaltskrise', 'kommunal_buergerprotest', 'laender_koalitionskrise']);
+  if (KOMMUNAL_LAENDER_IDS.has(event.id)) {
+    if (state.pk < (choice.cost || 0)) return state;
+    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0), kpi: { ...state.kpi } };
+    newState = applyMedienChoiceDelta(newState, choice);
+    for (const [k, v] of Object.entries(choice.effect || {})) {
+      const key = k as 'al' | 'hh' | 'gi' | 'zf';
+      if (key in newState.kpi) {
+        newState.kpi[key] = +Math.max(0, newState.kpi[key] + v).toFixed(2);
+        if (key === 'zf') newState.kpi.zf = Math.min(100, newState.kpi.zf);
+      }
+    }
+    if (choice.bundesratBonusAll != null && newState.bundesratFraktionen) {
+      newState = {
+        ...newState,
+        bundesratFraktionen: newState.bundesratFraktionen.map(f =>
+          ({ ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + choice.bundesratBonusAll!)) }),
+        ),
+      };
+    }
+    newState = addLog(newState, choice.log, choice.type === 'danger' ? 'r' : 'g');
+    newState.ticker = event.ticker;
+    newState.activeEvent = null;
+    return newState;
+  }
+
   // SMA-280: Extremismus-Events (Koalitionspartner-Warnung, Verfassungsgericht)
   const EXTREMISMUS_IDS = new Set(['koalitionspartner_extremismus_warnung', 'verfassungsgericht_klage']);
   if (EXTREMISMUS_IDS.has(event.id)) {
@@ -392,6 +463,14 @@ export function resolveEvent(
         if (delta == null) return f;
         return { ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + delta)) };
       }),
+    };
+  }
+  if (choice.bundesratBonusAll != null && newState.bundesratFraktionen) {
+    newState = {
+      ...newState,
+      bundesratFraktionen: newState.bundesratFraktionen.map(f =>
+        ({ ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + choice.bundesratBonusAll!)) }),
+      ),
     };
   }
 

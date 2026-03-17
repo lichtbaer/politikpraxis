@@ -18,9 +18,9 @@ export function KoalitionspartnerPanel() {
 
   if (!featureActive(complexity, 'koalitionspartner')) return null;
 
-  const partnerContent = getKoalitionspartner(content);
+  const partnerContent = getKoalitionspartner(content, state);
   const partnerState = state.koalitionspartner;
-  if (!partnerState || partnerState.id !== partnerContent.id) return null;
+  if (!partnerState) return null;
 
   const kanzler = state.chars.find((c) => c.id === 'kanzler') ?? state.chars[0];
   const kanzlerPartei = state.spielerPartei?.kuerzel ?? kanzler?.partei_kuerzel ?? 'SDP';

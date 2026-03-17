@@ -245,6 +245,8 @@ async def fetch_events(
                 c["medienklima_delta"] = ch.medienklima_delta
             if getattr(ch, "verfahren_dauer_monate", None) is not None:
                 c["verfahren_dauer_monate"] = ch.verfahren_dauer_monate
+            if getattr(ch, "bundesrat_bonus", None) is not None:
+                c["bundesrat_bonus"] = ch.bundesrat_bonus
             choices.append(c)
 
         row = {

@@ -136,6 +136,7 @@ function transformEventChoice(api: {
   koalitionspartner_beziehung_delta?: number;
   medienklima_delta?: number;
   verfahren_dauer_monate?: number;
+  bundesrat_bonus?: number;
 }): EventChoice {
   const type = (['primary', 'danger', 'safe'].includes(api.type)
     ? api.type
@@ -159,6 +160,9 @@ function transformEventChoice(api: {
   }
   if (api.verfahren_dauer_monate != null) {
     choice.verfahrenDauerMonate = api.verfahren_dauer_monate;
+  }
+  if (api.bundesrat_bonus != null) {
+    choice.bundesratBonusAll = api.bundesrat_bonus;
   }
   return choice;
 }
@@ -271,6 +275,7 @@ export interface ContentStore {
   kommunalEvents: GameEvent[];
   vorstufenEvents: GameEvent[];
   extremismusEvents: GameEvent[];
+  kommunalLaenderEvents: GameEvent[];
   bundesrat: BundesratLand[];
   bundesratFraktionen: BundesratFraktion[];
   milieus: Milieu[];
@@ -294,6 +299,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   kommunalEvents: [],
   vorstufenEvents: [],
   extremismusEvents: [],
+  kommunalLaenderEvents: [],
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
   milieus: [],
@@ -330,6 +336,9 @@ export const useContentStore = create<ContentStore>((set) => ({
       const extremismusEventsList = events.filter((e) =>
         ['koalitionspartner_extremismus_warnung', 'verfassungsgericht_klage'].includes(e.id),
       );
+      const kommunalLaenderEventsList = events.filter((e) =>
+        ['kommunal_haushaltskrise', 'kommunal_buergerprotest', 'laender_koalitionskrise'].includes(e.id),
+      );
 
       const charEventsMap: Record<string, GameEvent> = {};
       for (const ev of charEventsList) {
@@ -354,6 +363,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         kommunalEvents: kommunalEventsList,
         vorstufenEvents: vorstufenEventsList,
         extremismusEvents: extremismusEventsList,
+        kommunalLaenderEvents: kommunalLaenderEventsList,
         bundesratFraktionen: bundesratFraktionen.map(transformBundesratFraktion),
         milieus,
         politikfelder,
@@ -394,6 +404,7 @@ export function getContentBundle(): ContentBundle {
     kommunalEvents: s.kommunalEvents ?? [],
     vorstufenEvents: s.vorstufenEvents ?? [],
     extremismusEvents: s.extremismusEvents ?? [],
+    kommunalLaenderEvents: s.kommunalLaenderEvents ?? [],
     bundesrat: s.bundesrat,
     bundesratFraktionen: s.bundesratFraktionen,
     koalitionspartner: GRUENE,
