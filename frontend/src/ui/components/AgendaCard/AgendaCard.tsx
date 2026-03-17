@@ -359,7 +359,10 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
               <>
                 {(['eu', 'land', 'kommune'] as RouteType[]).map((route) => {
                   const info = ROUTE_INFO[route];
-                  const canRoute = pk >= info.cost;
+                  const overrides = law.route_overrides?.[route];
+                  const cost = overrides?.cost ?? info.cost;
+                  const dur = overrides?.dur ?? info.dur;
+                  const canRoute = pk >= cost;
                   return (
                     <button
                       key={route}
@@ -368,7 +371,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
                       disabled={!canRoute}
                       onClick={() => actions.startRoute(law.id, route)}
                     >
-                      {t(`game:routes.${route}`)} ({info.cost} PK, {info.dur} Mo)
+                      {t(`game:routes.${route}`)} ({cost} PK, {dur} Mo)
                     </button>
                   );
                 })}

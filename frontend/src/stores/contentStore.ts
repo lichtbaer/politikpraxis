@@ -120,6 +120,10 @@ function transformGesetz(api: GesetzApi): Law {
     laender_pilot_moeglich: api.laender_pilot_moeglich ?? true,
     eu_initiative_moeglich: api.eu_initiative_moeglich ?? true,
     framing_optionen: (api as { framing_optionen?: { key: string; label?: string; slogan?: string; milieu_effekte: Record<string, number>; verband_effekte?: Record<string, number>; medienklima_delta: number }[] }).framing_optionen ?? [],
+    lobby_mood_effekte: api.lobby_mood_effekte ?? {},
+    lobby_pk_kosten: api.lobby_pk_kosten ?? 12,
+    lobby_gain_range: api.lobby_gain_range ?? { min: 2, max: 6 },
+    route_overrides: api.route_overrides ?? {},
   };
 }
 

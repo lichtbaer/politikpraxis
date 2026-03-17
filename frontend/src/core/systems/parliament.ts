@@ -152,23 +152,27 @@ export function einbringen(
 export function lobbying(state: GameState, lawId: string): GameState {
   const idx = state.gesetze.findIndex(g => g.id === lawId);
   if (idx === -1) return state;
-  if (state.pk < 12) return state;
   const law = state.gesetze[idx];
+  const lobbyPkKosten = law.lobby_pk_kosten ?? 12;
+  if (state.pk < lobbyPkKosten) return state;
   // SMA-304: Lobbying auch während Ausschussphase (eingebracht)
   if (law.status !== 'entwurf' && law.status !== 'aktiv' && law.status !== 'eingebracht') return state;
 
-  const gain = Math.floor(Math.random() * 5) + 2;
+  const range = law.lobby_gain_range ?? { min: 2, max: 6 };
+  const gain = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
   const gesetze = state.gesetze.map((g, i) => {
     if (i !== idx) return g;
     const ja = Math.min(90, g.ja + gain);
     return { ...g, ja, nein: 100 - ja };
   });
 
-  let newState: GameState = { ...state, pk: state.pk - 12, gesetze };
+  let newState: GameState = { ...state, pk: state.pk - lobbyPkKosten, gesetze };
 
-  if (['ee', 'wb', 'bp'].includes(lawId)) {
+  const lobbyMoodEffekte = law.lobby_mood_effekte ?? {};
+  if (Object.keys(lobbyMoodEffekte).length > 0) {
     const chars = newState.chars.map(c => {
-      if (c.id === 'fm' && c.mood > 0) return { ...c, mood: c.mood - 1 };
+      const delta = lobbyMoodEffekte[c.id];
+      if (delta != null && c.mood > 0) return { ...c, mood: c.mood + delta };
       return c;
     });
     newState = { ...newState, chars };
