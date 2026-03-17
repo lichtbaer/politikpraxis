@@ -10,6 +10,7 @@ import { scheduleEffects } from './economy';
 import { applyMoodChange } from './characters';
 import { applyMilieuEffekte } from './milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
+import { applyGesetzKosten } from './haushalt';
 
 const PK_SCHICHT_1 = 15;
 const PK_SCHICHT_1_REDUZIERT = 10; // bei Beziehung 60-79
@@ -424,8 +425,10 @@ export function executeBundesratVote(
     const gesetze = state.gesetze.map((g, i) =>
       i === idx ? { ...g, status: 'beschlossen' as const } : g,
     );
+    let newState: GameState = { ...state, gesetze };
+    newState = applyGesetzKosten(newState, lawId);
     const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
-    let newState: GameState = scheduleEffects({ ...state, gesetze }, lawForEffects);
+    newState = scheduleEffects(newState, lawForEffects);
 
     if (voteContext?.milieus) {
       newState = applyMilieuEffekte(newState, lawId, voteContext.milieus, voteContext.complexity);

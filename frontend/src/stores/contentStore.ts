@@ -98,6 +98,9 @@ function transformGesetz(api: GesetzApi): Law {
     blockiert: null,
     ideologie: api.ideologie,
     politikfeldId: api.politikfeld_id ?? null,
+    kosten_einmalig: api.kosten_einmalig,
+    kosten_laufend: api.kosten_laufend,
+    einnahmeeffekt: api.einnahmeeffekt,
   };
 }
 

@@ -11,6 +11,12 @@ import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragSco
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/ministerialInitiativen';
+import {
+  tickKonjunktur,
+  applySchuldenbremsenEffekte,
+  checkLehmannSparvorschlag,
+  triggerHaushaltsdebatte,
+} from './systems/haushalt';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export function addLog(state: GameState, msg: string, type: string, params?: Record<string, string | number>): GameState {
@@ -32,6 +38,11 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
 
   s = applyPendingEffects(s);
   s = advanceRoutes(s);
+
+  s = tickKonjunktur(s, complexity);
+  s = applySchuldenbremsenEffekte(s, complexity, content);
+  s = checkLehmannSparvorschlag(s, complexity);
+  s = triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []);
 
   const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
   s = checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents);

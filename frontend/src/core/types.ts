@@ -81,6 +81,12 @@ export interface Law {
   ideologie?: Ideologie;
   /** Primäres Politikfeld (für Druck-System) */
   politikfeldId?: string | null;
+  /** Einmalige Haushaltskosten in Mrd. € (bei Beschluss) */
+  kosten_einmalig?: number;
+  /** Laufende Haushaltskosten in Mrd. €/Jahr (bei Beschluss) */
+  kosten_laufend?: number;
+  /** Einnahmeeffekt in Mrd. € (z.B. Steueränderung) */
+  einnahmeeffekt?: number;
 }
 
 /** Koalitionspartner-State im GameState */
@@ -274,6 +280,35 @@ export interface Politikfeld {
   druckEventId?: string | null;
 }
 
+/** Schuldenbremsen-Status */
+export type SchuldenbremsenStatus = 'inaktiv' | 'ausgeglichen' | 'grenzwertig' | 'verletzt_mild' | 'verletzt_stark';
+
+/** Haushalt-Objekt im GameState (SMA-268) */
+export interface Haushalt {
+  einnahmen: number;
+  pflichtausgaben: number;
+  laufendeAusgaben: number;
+  spielraum: number;
+  saldo: number;
+  saldoKumulativ: number;
+  konjunkturIndex: number;
+  steuerpolitikModifikator: number;
+  investitionsquote: number;
+  schuldenbremseAktiv: boolean;
+  haushaltsplanMonat: number;
+  haushaltsplanBeschlossen: boolean;
+  planPrioritaeten: string[];
+}
+
+/** Aktives Strukturevent (z.B. Haushaltsdebatte) */
+export interface AktivesStrukturEvent {
+  type: 'haushaltsdebatte';
+  ausgangslage: 'ueberschuss' | 'ausgeglichen' | 'defizit';
+  phase: number;
+  verfuegbarePrioritaeten: string[];
+  gewaehlePrioritaeten: string[];
+}
+
 export interface GameState {
   month: number;
   speed: SpeedLevel;
@@ -326,6 +361,14 @@ export interface GameState {
   ministerialCooldowns?: Record<string, number>;
   /** Aktive Ministerial-Initiative (max. 1 gleichzeitig) */
   aktiveMinisterialInitiative?: { initId: string; charId: string; gesetzId: string } | null;
+  /** Haushalt (ab Stufe 2, SMA-268) */
+  haushalt?: Haushalt;
+  /** Lehmann-Ultimatum beschleunigt bei starker Schuldenbremsen-Verletzung */
+  lehmannUltimatumBeschleunigt?: boolean;
+  /** Lehmann-Sparvorschlag aktiv (Saldo < -15 Mrd.) */
+  lehmannSparvorschlagAktiv?: boolean;
+  /** Aktives Strukturevent (z.B. Haushaltsdebatte) */
+  aktivesStrukturEvent?: AktivesStrukturEvent | null;
 }
 
 /** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */
