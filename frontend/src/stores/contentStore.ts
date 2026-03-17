@@ -101,6 +101,7 @@ function transformGesetz(api: GesetzApi): Law {
     kosten_einmalig: api.kosten_einmalig,
     kosten_laufend: api.kosten_laufend,
     einnahmeeffekt: api.einnahmeeffekt,
+    investiv: (api as { investiv?: boolean }).investiv,
   };
 }
 

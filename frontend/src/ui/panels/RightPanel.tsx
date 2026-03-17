@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { KPITile } from '../components/KPITile/KPITile';
+import { HaushaltsPanel } from '../components/HaushaltsPanel/HaushaltsPanel';
 import styles from './RightPanel.module.css';
 
 function getBarStyle(
@@ -48,6 +49,7 @@ export function RightPanel() {
 
   return (
     <aside className={styles.root}>
+      <HaushaltsPanel />
       <section className={styles.section}>
         <h3 className={styles.sectionLabel}>{t('game:rightPanel.wirtschaftslage')}</h3>
         <div className={styles.kpiGrid}>

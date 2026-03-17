@@ -89,6 +89,8 @@ export interface Law {
   kosten_laufend?: number;
   /** Einnahmeeffekt in Mrd. € (z.B. Steueränderung) */
   einnahmeeffekt?: number;
+  /** Investitionsgesetz (+2 Mo. Lag) */
+  investiv?: boolean;
 }
 
 /** Koalitionspartner-State im GameState */

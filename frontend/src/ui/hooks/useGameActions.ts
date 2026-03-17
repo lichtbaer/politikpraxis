@@ -23,5 +23,7 @@ export function useGameActions() {
     toggleAgenda: store.toggleAgenda,
     setSpeed: store.setSpeed,
     setView: store.setView,
+    euLobbyingRunde: store.doEULobbyingRunde,
+    euKompromissAnbieten: store.doEUKompromissAnbieten,
   };
 }

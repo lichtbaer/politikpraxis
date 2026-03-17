@@ -51,6 +51,8 @@ export interface GesetzApi {
   kosten_laufend?: number;
   /** SMA-268: Einnahmeeffekt in Mrd. € (z.B. Steueränderung) */
   einnahmeeffekt?: number;
+  /** Investitionsgesetz (+2 Mo. Lag) */
+  investiv?: boolean;
 }
 
 export interface MilieuApi {

@@ -26,6 +26,11 @@ import { getContentBundle } from '../stores/contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { saveGame, type SaveFile } from '../services/localStorageSave';
 import { migrateGameState } from '../core/state';
+import {
+  setHaushaltsdebattePrioritaeten,
+  advanceHaushaltsdebattePhase,
+  schliessenHaushaltsdebatte,
+} from '../core/systems/haushalt';
 
 export type GamePhase = 'onboarding' | 'playing';
 
@@ -68,6 +73,9 @@ interface GameStore {
   doVerbandTradeoff: (verbandId: string, tradeoffKey: string) => void;
   doVerbandLobbyAbstimmung: (verbandId: string, gesetzId: string) => number;
   toggleAgenda: (lawId: string) => void;
+  doHaushaltsdebattePrioritaeten: (feldIds: string[]) => void;
+  doHaushaltsdebatteNext: () => void;
+  doHaushaltsdebatteSchliessen: () => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
 }
@@ -208,6 +216,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
           g.id === lawId ? { ...g, expanded: !g.expanded } : g,
         ),
       },
+    })),
+
+  doHaushaltsdebattePrioritaeten: (feldIds) =>
+    set(prev => ({
+      state: setHaushaltsdebattePrioritaeten(prev.state, feldIds),
+    })),
+  doHaushaltsdebatteNext: () =>
+    set(prev => ({
+      state: advanceHaushaltsdebattePhase(prev.state),
+    })),
+  doHaushaltsdebatteSchliessen: () =>
+    set(prev => ({
+      state: schliessenHaushaltsdebatte(prev.state),
     })),
 
   loadSave: (savedState) => {
