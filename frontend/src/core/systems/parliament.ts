@@ -94,7 +94,15 @@ export function abstimmen(
   const law = state.gesetze[idx];
   if (law.status !== 'aktiv') return state;
 
-  if (law.ja > 50) {
+  const partnerBonus =
+    state.koalitionspartner &&
+    state.partnerPrioGesetz?.gesetzId === lawId &&
+    state.month <= state.partnerPrioGesetz.bisMonat
+      ? 5
+      : 0;
+  const effectiveJa = law.ja + partnerBonus;
+
+  if (effectiveJa > 50) {
     if (!law.tags.includes('land')) {
       const gesetze = state.gesetze.map((g, i) =>
         i === idx ? { ...g, status: 'beschlossen' as const } : g,

@@ -83,6 +83,35 @@ export interface Law {
   politikfeldId?: string | null;
 }
 
+/** Koalitionspartner-State im GameState */
+export interface KoalitionspartnerState {
+  id: 'gruene' | 'spd_fluegel';
+  beziehung: number;
+  koalitionsvertragScore: number;
+  schluesselthemenErfuellt: string[];
+}
+
+/** Koalitionspartner-Content (Daten des Partners) */
+export interface KoalitionspartnerContent {
+  id: 'gruene' | 'spd_fluegel';
+  name: string;
+  sprecher: string;
+  ideologie: Ideologie;
+  beziehung_start: number;
+  bt_stimmen: number;
+  kernmilieus: string[];
+  kernverbaende: string[];
+  schluesselthemen: string[];
+  forderungen?: PartnerForderung[];
+}
+
+/** Partner-Forderung für Zugeständnis-Aktion */
+export interface PartnerForderung {
+  id: string;
+  label: string;
+  effekte: { hh?: number; zf?: number; gi?: number; al?: number };
+}
+
 export type EventType = 'danger' | 'warn' | 'good' | 'info';
 
 export interface EventChoiceEffect {
@@ -104,6 +133,8 @@ export interface EventChoice {
   brRelation?: Record<string, number>;
   /** Bei Bundesrat-Initiative: Delta für initiierende Fraktion (event.fraktionId) */
   brRelationInitiator?: number;
+  /** Bei Koalitionsbruch-Event: Delta für Koalitionspartner-Beziehung */
+  koalitionspartnerBeziehung?: number;
   /** Bei Ministerial-Initiative: Aktion für resolveMinisterialInitiative */
   ministerialAction?: 'unterstuetzen' | 'ablehnen' | 'ignorieren';
   log: string;
@@ -267,11 +298,18 @@ export interface GameState {
   won: boolean;
   /** Wahlhürde in % (35/38/40/42 je nach Komplexitätsstufe) */
   electionThreshold?: number;
-
+  /** Koalitionspartner (ab Stufe 2) */
+  koalitionspartner?: KoalitionspartnerState;
+  /** Berechnetes Koalitionsvertrag-Profil (60% Spieler, 40% Partner) */
+  koalitionsvertragProfil?: Ideologie;
   /** Milieu-Zustimmung (ersetzt zust.arbeit/mitte/prog bei Stufe 2+) */
   milieuZustimmung?: Record<string, number>;
   /** Verbands-Beziehungen (ab Stufe 3): verbandId → 0–100 */
   verbandsBeziehungen?: Record<string, number>;
+  /** Partner priorisiert Gesetz für 3 Monate (+5% BT-Stimmen) */
+  partnerPrioGesetz?: { gesetzId: string; bisMonat: number };
+  /** Monat, in dem Koalitionsbruch-Warnung ausgelöst wurde (für 3-Monats-Frist) */
+  koalitionsbruchSeitMonat?: number;
   /** Politikfeld-Druck-Scores (0–100) */
   politikfeldDruck?: Record<string, number>;
   /** Monat des letzten Beschlusses pro Politikfeld */
@@ -319,6 +357,7 @@ export interface ContentBundle {
   laws: Law[];
   bundesrat: BundesratLand[];
   bundesratFraktionen?: BundesratFraktion[];
+  koalitionspartner?: KoalitionspartnerContent;
   milieus?: Milieu[];
   politikfelder?: Politikfeld[];
   verbaende?: Verband[];

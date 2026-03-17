@@ -312,7 +312,7 @@ export function lobbyFraktion(
     if (!tradeoff) return state;
 
     if (tradeoffOptions.action === 'annehmen') {
-      let newState = applyTradeoffEffects(state, tradeoff);
+      const newState = applyTradeoffEffects(state, tradeoff);
       const fraktionen = newState.bundesratFraktionen.map(f =>
         f.id === fraktionId ? { ...f, beziehung: Math.min(100, f.beziehung + 10) } : f,
       );
@@ -350,7 +350,7 @@ export function lobbyFraktion(
       const abgeschwaecht = Object.fromEntries(
         Object.entries(tradeoff.effect ?? {}).map(([k, v]) => [k, (v as number) * 0.5]),
       ) as Partial<KpiDelta>;
-      let newState = applyTradeoffEffects({ ...state, pk: state.pk - PK_GEGENVORSCHLAG }, { effect: abgeschwaecht });
+      const newState = applyTradeoffEffects({ ...state, pk: state.pk - PK_GEGENVORSCHLAG }, { effect: abgeschwaecht });
       const fraktionen = newState.bundesratFraktionen.map(f =>
         f.id === fraktionId ? { ...f, beziehung: Math.min(100, f.beziehung + 5) } : f,
       );

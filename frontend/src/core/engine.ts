@@ -6,6 +6,7 @@ import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
+import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragScore } from './systems/koalition';
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/ministerialInitiativen';
@@ -41,6 +42,8 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = applyCharBonuses(s);
   s = updateCoalitionStability(s);
 
+  s = tickKoalitionspartner(s, content, complexity);
+  s = checkKoalitionsbruch(s, content, complexity);
   s = checkVerbandsAktionen(s, content.verbaende ?? [], complexity);
   s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
 
@@ -66,7 +69,12 @@ function processBundesratVotes(state: GameState, content: ContentBundle, complex
     : undefined;
   for (const law of s.gesetze) {
     if (law.status === 'bt_passed' && law.brVoteMonth != null && s.month >= law.brVoteMonth) {
+      const prevLaw = s.gesetze.find(g => g.id === law.id);
       s = executeBundesratVote(s, law.id, voteContext);
+      const newLaw = s.gesetze.find(g => g.id === law.id);
+      if (prevLaw?.status === 'bt_passed' && newLaw?.status === 'beschlossen') {
+        s = updateKoalitionsvertragScore(s, law.id, content, complexity);
+      }
     }
   }
   return s;

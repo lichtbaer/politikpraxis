@@ -27,6 +27,11 @@ import {
   SPRECHER_ERSATZ,
   LANDTAGSWAHL_TRANSITIONS,
 } from '../data/defaults/bundesratEvents';
+import {
+  GRUENE,
+  KOALITIONSBRUCH_EVENT,
+  KOALITIONSKRISE_ULTIMATUM_EVENT,
+} from '../data/defaults/koalitionspartner';
 
 const EVENT_TYPE_ICONS: Record<string, string> = {
   danger: '🔴',
@@ -289,6 +294,12 @@ export const useContentStore = create<ContentStore>((set) => ({
   },
 }));
 
+/** Koalitions-Events (immer verfügbar für Koalitionspartner-System) */
+const KOALITION_CHAR_EVENTS: Record<string, GameEvent> = {
+  koalitionsbruch: KOALITIONSBRUCH_EVENT,
+  koalitionskrise_ultimatum: KOALITIONSKRISE_ULTIMATUM_EVENT,
+};
+
 /** Erstellt ContentBundle aus dem aktuellen Store-Zustand */
 export function getContentBundle(): ContentBundle {
   const s = useContentStore.getState();
@@ -296,10 +307,11 @@ export function getContentBundle(): ContentBundle {
     characters: s.chars,
     laws: s.gesetze,
     events: s.events,
-    charEvents: s.charEvents,
+    charEvents: { ...KOALITION_CHAR_EVENTS, ...s.charEvents },
     bundesratEvents: s.bundesratEvents,
     bundesrat: s.bundesrat,
     bundesratFraktionen: s.bundesratFraktionen,
+    koalitionspartner: GRUENE,
     milieus: s.milieus,
     politikfelder: s.politikfelder,
     verbaende: s.verbaende?.length ? s.verbaende : DEFAULT_VERBAENDE,

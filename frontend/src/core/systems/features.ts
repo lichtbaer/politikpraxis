@@ -27,8 +27,10 @@ const FEATURES: Record<string, { minLevel: number }> = {
   politikfeld_druck: { minLevel: 3 },
   /** Verbands-Lobbying, Trade-offs, Konflikt-Mechanik */
   verbands_lobbying: { minLevel: 3 },
-  /** Koalitionspartner-System */
+  /** Koalitionspartner als eigenständiger Akteur ab Stufe 2 */
   koalitionspartner: { minLevel: 2 },
+  /** Koalitionsvertrag-Score (Kongruenz-Tracking) ab Stufe 4 */
+  koalitionsvertrag_score: { minLevel: 4 },
   /** Ministerial-Initiativen (Minister bringen eigene Gesetze ein) */
   ministerial_initiativen: { minLevel: 3 },
 };

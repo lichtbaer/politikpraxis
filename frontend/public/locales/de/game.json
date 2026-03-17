@@ -297,6 +297,28 @@
         "1": { "label": "Regulierung zurücknehmen", "desc": "Populär bei Industrie, unpopulär bei Progressiven", "log": "Regulierungspause beschlossen. Industrie erleichtert." },
         "2": { "label": "Maier überstimmen", "desc": "Koalitionsdisziplin, Maier verliert Einfluss", "log": "Koalitionsdisziplin erzwungen. Maier fügt sich." }
       }
+    },
+    "koalitionsbruch": {
+      "typeLabel": "Koalitionskrise",
+      "title": "Koalitionspartner droht mit Austritt",
+      "quote": "„Ohne spürbare Zugeständnisse können wir diese Koalition nicht fortsetzen.“",
+      "context": "Die Beziehung zum Koalitionspartner ist auf einem kritischen Tiefstand. Sie haben 3 Monate Zeit zu reagieren.",
+      "ticker": "Koalitionskrise: Partner droht mit Austritt",
+      "choices": {
+        "0": { "label": "Koalitionsrunde einberufen", "desc": "15 PK — Beziehung +8", "log": "Koalitionsrunde einberufen. Beziehung verbessert." },
+        "1": { "label": "Zeit gewinnen", "desc": "Weiter verhandeln", "log": "Verhandlungen werden fortgesetzt." }
+      }
+    },
+    "koalitionskrise_ultimatum": {
+      "typeLabel": "Koalitionsvertrag",
+      "title": "Partner fordert Einhaltung des Koalitionsvertrags",
+      "quote": "„Wir haben einen Vertrag unterzeichnet. Die aktuelle Politik weicht zu stark ab.“",
+      "context": "Der Koalitionsvertrag-Score ist kritisch. Der Partner verlangt mehr Kongruenz mit dem vereinbarten Kurs.",
+      "ticker": "Koalitionspartner fordert Vertragstreue",
+      "choices": {
+        "0": { "label": "Kurs anpassen", "desc": "Mehr Rücksicht auf Partner-Themen", "log": "Kurs angepasst. Partner besänftigt." },
+        "1": { "label": "Standhaft bleiben", "desc": "Risiko einer weiteren Eskalation", "log": "Keine Zugeständnisse. Spannung bleibt." }
+      }
     }
   },
   "laws": {

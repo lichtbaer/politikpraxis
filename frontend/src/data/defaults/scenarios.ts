@@ -1,4 +1,5 @@
 import type { ContentBundle, BundesratLand, Verband, MinisterialInitiative } from '../../core/types';
+import { GRUENE } from './koalitionspartner';
 
 /** 16 Bundesländer für Abstimmungsbalken (strukturelle Daten, nicht i18n) */
 export const DEFAULT_BUNDESRAT: BundesratLand[] = [
@@ -73,6 +74,7 @@ export const DEFAULT_CONTENT: ContentBundle = {
   laws: [],
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
+  koalitionspartner: GRUENE,
   milieus: DEFAULT_MILIEUS,
   politikfelder: DEFAULT_POLITIKFELDER,
   verbaende: DEFAULT_VERBAENDE,
