@@ -21,6 +21,7 @@ export function applyMilieuEffekte(
   if (!gesetz) return state;
 
   const milieuZustimmung = { ...(state.milieuZustimmung ?? {}) };
+  const milieuGesetzReaktionen = { ...(state.milieuGesetzReaktionen ?? {}) };
   const medienKlima = state.medienKlima ?? 55;
   let multiplikator = getMedienMultiplikator(medienKlima);
   if (medienKlima > 75) multiplikator *= 1.2;
@@ -38,7 +39,11 @@ export function applyMilieuEffekte(
     delta = Math.round(delta * multiplikator);
     const current = milieuZustimmung[milieu.id] ?? 50;
     milieuZustimmung[milieu.id] = Math.max(0, Math.min(100, current + delta));
+
+    // SMA-297: Letzte 3 Reaktionen pro Milieu speichern
+    const reaktionen = milieuGesetzReaktionen[milieu.id] ?? [];
+    milieuGesetzReaktionen[milieu.id] = [...reaktionen, { gesetzId, delta }].slice(-3);
   }
 
-  return { ...state, milieuZustimmung };
+  return { ...state, milieuZustimmung, milieuGesetzReaktionen };
 }

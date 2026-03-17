@@ -309,7 +309,7 @@ export function validateGameState(raw: unknown): GameState {
   // Optionale Felder durchreichen (werden von migrateGameState weitergegeben)
   const optionalKeys = [
     'spielerPartei', 'speedBeforePause',
-    'koalitionspartner', 'koalitionsvertragProfil', 'milieuZustimmungHistory', 'partnerPrioGesetz',
+    'koalitionspartner', 'koalitionsvertragProfil', 'milieuZustimmungHistory', 'milieuGesetzReaktionen', 'partnerPrioGesetz',
     'btStimmenBonus', 'koalitionsbruchSeitMonat', 'ministerialCooldowns', 'aktiveMinisterialInitiative',
     'eu', 'haushalt', 'lehmannUltimatumBeschleunigt', 'lehmannSparvorschlagAktiv', 'aktivesStrukturEvent',
     'gesetzProjekte', 'wahlkampfAktiv', 'wahlkampfAktionenGenutzt', 'legislaturBilanz', 'wahlkampfBotschaften',
