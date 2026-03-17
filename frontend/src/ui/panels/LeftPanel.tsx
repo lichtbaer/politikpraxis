@@ -38,11 +38,17 @@ export function LeftPanel() {
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>{t('game:leftPanel.wahlprognose')}</h3>
         <div className={styles.wahlprognose}>
-          <span className={styles.wahlprognoseValue}>{Math.round(zustG)}%</span>
+          <span
+            className={styles.wahlprognoseValue}
+            style={{ color: zustG >= electionThreshold ? 'var(--green)' : zustG >= electionThreshold - 5 ? 'var(--warn)' : 'var(--red)' }}
+          >{Math.round(zustG)}%</span>
           <div className={styles.progressBar}>
             <div
               className={styles.progressFill}
-              style={{ width: `${Math.min(100, zustG)}%` }}
+              style={{
+                width: `${Math.min(100, zustG)}%`,
+                background: zustG >= electionThreshold ? 'var(--green)' : zustG >= electionThreshold - 5 ? 'var(--warn)' : 'var(--red)',
+              }}
             />
           </div>
           <span className={styles.target}>{t('game:leftPanel.target', { percent: electionThreshold })}</span>

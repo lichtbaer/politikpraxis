@@ -12,14 +12,25 @@
   border-radius: 6px;
   color: var(--text);
   pointer-events: none;
-  animation: toastFadeIn 0.2s ease;
+  animation: toastLife 2.8s ease both;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes toastFadeIn {
-  from {
+@keyframes toastLife {
+  0% {
     opacity: 0;
+    transform: translateX(-50%) translateY(8px);
   }
-  to {
+  8% {
     opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  85% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
   }
 }
