@@ -462,6 +462,49 @@
       }
     }
   },
+  "haushaltsdebatte": {
+    "entwurfTitle": "Budget draft {{jahr}}",
+    "weiter": "Continue",
+    "prioritaetenTitle": "Set priorities",
+    "prioritaetenDesc": "Choose 2 policy areas for additional spending (+10 bn.)",
+    "bestaetigen": "Confirm",
+    "koalitionTitle": "Coalition negotiation",
+    "partnerForderung": "Coalition partner demands: {{feld}}",
+    "partnerKeineForderung": "No specific demand from coalition partner.",
+    "forderungErfuelllt": "The demand was met by your priority choice.",
+    "forderungNichtErfuelllt": "The demand was not met.",
+    "forderungErfuellltBtn": "Demand met ✓",
+    "weiterOhneZugestaendnis": "Continue without concession",
+    "abstimmungTitle": "Vote",
+    "abstimmungLabel": "Budget plan",
+    "insKanzleramt": "To the Chancellery"
+  },
+  "haushalt": {
+    "title": "Budget",
+    "einnahmen": "Revenue",
+    "pflichtausgaben": "Mandatory spending",
+    "laufendeAusgaben": "Laws (ongoing)",
+    "saldo": "Balance",
+    "schuldenbremseAusgeglichen": "Debt brake complied",
+    "schuldenbremseGrenzwertig": "Borderline",
+    "schuldenbremseVerletzt": "Debt brake violated",
+    "schuldenbremseKritisch": "Critical",
+    "konjunktur": "Economy",
+    "konjunkturTooltip": "Economic index affects tax revenue"
+  },
+  "eu": {
+    "klimaTitle": "EU climate scores",
+    "aktiveRoute": "Active route",
+    "erfolgschance": "Success chance: {{pct}}%",
+    "lobbyingRunde": "Lobbying round",
+    "kompromissAnbieten": "Offer compromise"
+  },
+  "politikfeld": {
+    "umwelt_energie": "Environment",
+    "wirtschaft_finanzen": "Economy",
+    "bildung_forschung": "Education",
+    "arbeit_soziales": "Labour"
+  },
   "routes": {
     "eu": "EU level",
     "land": "State pilot",

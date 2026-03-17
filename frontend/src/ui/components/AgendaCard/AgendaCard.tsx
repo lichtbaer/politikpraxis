@@ -60,6 +60,24 @@ export function AgendaCard({ law }: AgendaCardProps) {
         <div className={styles.body}>
           <p className={styles.desc}>{t(`game:laws.${law.id}.desc`)}</p>
 
+          {complexity >= 2 && ((law.kosten_einmalig ?? 0) > 0 || (law.kosten_laufend ?? 0) !== 0 || law.investiv) && (
+            <div className={styles.gesetzKosten}>
+              {law.kosten_einmalig && law.kosten_einmalig > 0 && (
+                <span className={styles.kostenEinmalig}>
+                  -{law.kosten_einmalig} Mrd. (einmalig)
+                </span>
+              )}
+              {law.kosten_laufend != null && law.kosten_laufend !== 0 && (
+                <span className={law.kosten_laufend > 0 ? styles.kostenNegativ : styles.kostenPositiv}>
+                  {law.kosten_laufend > 0 ? '-' : '+'}{Math.abs(law.kosten_laufend)} Mrd./J
+                </span>
+              )}
+              {law.investiv && (
+                <span className={styles.investivBadge}>💡 Investition (+2 Mo. Lag)</span>
+              )}
+            </div>
+          )}
+
           {kongruenz < 60 && featureActive(complexity, 'kongruenz_effekte') && (
             <div className={`${styles.kongruenzSignal} ${kongruenz < 40 ? styles.kongruenzRot : styles.kongruenzAmber}`}>
               <span className={styles.kongruenzIcon}>{kongruenz < 40 ? '⚠' : '!'}</span>

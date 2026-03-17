@@ -217,6 +217,7 @@ export function triggerHaushaltsdebatte(
 
   return {
     ...state,
+    speed: 0,
     aktivesStrukturEvent: {
       type: 'haushaltsdebatte',
       ausgangslage,
@@ -224,6 +225,69 @@ export function triggerHaushaltsdebatte(
       verfuegbarePrioritaeten: politikfelder.map((f) => f.id),
       gewaehlePrioritaeten: [],
     },
+  };
+}
+
+/** Phase 2: Prioritäten setzen (2 Politikfelder) */
+export function setHaushaltsdebattePrioritaeten(
+  state: GameState,
+  feldIds: string[],
+): GameState {
+  const ev = state.aktivesStrukturEvent;
+  if (!ev || ev.type !== 'haushaltsdebatte' || ev.phase !== 2) return state;
+  if (feldIds.length !== 2) return state;
+
+  const valid = feldIds.every((id) => ev.verfuegbarePrioritaeten.includes(id));
+  if (!valid) return state;
+
+  return {
+    ...state,
+    aktivesStrukturEvent: { ...ev, gewaehlePrioritaeten: feldIds },
+  };
+}
+
+/** Nächste Phase der Haushaltsdebatte */
+export function advanceHaushaltsdebattePhase(state: GameState): GameState {
+  const ev = state.aktivesStrukturEvent;
+  if (!ev || ev.type !== 'haushaltsdebatte') return state;
+
+  if (ev.phase < 4) {
+    return {
+      ...state,
+      aktivesStrukturEvent: { ...ev, phase: (ev.phase + 1) as 1 | 2 | 3 | 4 },
+    };
+  }
+  return state;
+}
+
+/** Haushaltsdebatte abschließen: Plan beschlossen, +10 Mrd. pro Priorität */
+export function schliessenHaushaltsdebatte(state: GameState): GameState {
+  const ev = state.aktivesStrukturEvent;
+  if (!ev || ev.type !== 'haushaltsdebatte') return state;
+
+  const haushalt = state.haushalt;
+  if (!haushalt) {
+    return {
+      ...state,
+      aktivesStrukturEvent: null,
+      speed: 1,
+    };
+  }
+
+  const mehrausgaben = ev.gewaehlePrioritaeten.length * 10;
+  const neuerHaushalt: Haushalt = {
+    ...haushalt,
+    laufendeAusgaben: haushalt.laufendeAusgaben + mehrausgaben,
+    saldo: haushalt.einnahmen - haushalt.pflichtausgaben - (haushalt.laufendeAusgaben + mehrausgaben),
+    haushaltsplanBeschlossen: true,
+    planPrioritaeten: ev.gewaehlePrioritaeten,
+  };
+
+  return {
+    ...state,
+    haushalt: neuerHaushalt,
+    aktivesStrukturEvent: null,
+    speed: 1,
   };
 }
 

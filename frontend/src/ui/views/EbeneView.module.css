@@ -65,3 +65,134 @@
   border-radius: 3px;
   transition: width 0.3s;
 }
+
+.euKlimaGrid {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.euKlimaTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: var(--text);
+}
+
+.euKlimaItems {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.euKlimaItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.feldIcon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.euKlimaBar {
+  flex: 1;
+  height: 6px;
+  background: var(--bg4);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.euKlimaFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s;
+}
+
+.euKlimaFill.klimaGut {
+  background: var(--green);
+}
+
+.euKlimaFill.klimaMittel {
+  background: var(--warn);
+}
+
+.euKlimaFill.klimaSchlecht {
+  background: var(--red);
+}
+
+.feldKurz {
+  font-size: 10px;
+  color: var(--text2);
+  min-width: 60px;
+}
+
+.euRouteAktiv {
+  margin-bottom: 1.5rem;
+}
+
+.euRouteTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--text);
+}
+
+.euRouteCard {
+  padding: 1rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.euRouteGesetz {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.euRouteProgress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.euRouteMonate {
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.euRouteChance {
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.euRouteActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.euBtn {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: var(--eu-c);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.euBtn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.euBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

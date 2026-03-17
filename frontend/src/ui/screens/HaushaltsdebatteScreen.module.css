@@ -1,0 +1,144 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.beat {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--text);
+}
+
+.desc {
+  color: var(--text2);
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.avatar {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.avatarCircle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+}
+
+.quote {
+  font-style: italic;
+  color: var(--text2);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.grafik {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grafikBar {
+  display: flex;
+  height: 24px;
+  background: var(--bg4);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.grafikBar .grafikFillEinnahmen {
+  background: var(--green);
+  border-radius: 6px;
+}
+
+.grafikBar .grafikFillPflicht {
+  background: var(--warn);
+  flex-shrink: 0;
+}
+
+.grafikBar .grafikFillLaufend {
+  background: var(--red);
+  flex-shrink: 0;
+}
+
+.grafikLegende {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.saldoKurz {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.koalitionPanel {
+  padding: 12px;
+  background: var(--bg3);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.hinweis {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: var(--text2);
+}
+
+.abstimmung {
+  padding: 12px 0;
+}
+
+.btn {
+  padding: 10px 20px;
+  background: var(--gold);
+  color: var(--bg1);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  align-self: flex-start;
+}
+
+.btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

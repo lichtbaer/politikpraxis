@@ -498,6 +498,13 @@
     "prog": { "name": "Progressive", "desc": "Urban, klimabewusst, diversitätsorientiert." },
     "kampagne": "Kampagne (10 PK)"
   },
+  "eu": {
+    "klimaTitle": "EU-Klima-Scores",
+    "aktiveRoute": "Aktive Route",
+    "erfolgschance": "Erfolgschance: {{pct}}%",
+    "lobbyingRunde": "Lobbying-Runde",
+    "kompromissAnbieten": "Kompromiss anbieten"
+  },
   "ebene": {
     "eu": "Gesetze über die EU-Ebene vorantreiben. Längere Laufzeit, aber umgeht den Bundesrat.",
     "land": "Länder-Pilotprojekte starten. Mittlere Laufzeit und Kosten.",
@@ -600,6 +607,36 @@
     "forderungAnnehmen": "Forderung annehmen",
     "einfluss": "Einfluss",
     "konfliktWarnung": "Konflikt-Partner aktiv"
+  },
+  "haushaltsdebatte": {
+    "entwurfTitle": "Haushaltsentwurf {{jahr}}",
+    "weiter": "Weiter",
+    "prioritaetenTitle": "Prioritäten setzen",
+    "prioritaetenDesc": "Wähle 2 Politikfelder für Mehrausgaben (+10 Mrd.)",
+    "bestaetigen": "Bestätigen",
+    "koalitionTitle": "Koalitionsverhandlung",
+    "partnerForderung": "Der Koalitionspartner fordert: {{feld}}",
+    "partnerKeineForderung": "Keine spezifische Forderung vom Koalitionspartner.",
+    "forderungErfuelllt": "Die Forderung wurde durch Ihre Prioritätenwahl erfüllt.",
+    "forderungNichtErfuelllt": "Die Forderung wurde nicht erfüllt.",
+    "forderungErfuellltBtn": "Forderung erfüllt ✓",
+    "weiterOhneZugestaendnis": "Weiter ohne Zugeständnis",
+    "abstimmungTitle": "Abstimmung",
+    "abstimmungLabel": "Haushaltsplan",
+    "insKanzleramt": "Ins Kanzleramt"
+  },
+  "haushalt": {
+    "title": "Haushalt",
+    "einnahmen": "Einnahmen",
+    "pflichtausgaben": "Pflichtausgaben",
+    "laufendeAusgaben": "Gesetze (laufend)",
+    "saldo": "Saldo",
+    "schuldenbremseAusgeglichen": "Schuldenbremse eingehalten",
+    "schuldenbremseGrenzwertig": "Grenzwertig",
+    "schuldenbremseVerletzt": "Schuldenbremse verletzt",
+    "schuldenbremseKritisch": "Kritisch",
+    "konjunktur": "Konjunktur",
+    "konjunkturTooltip": "Konjunkturindex beeinflusst Steuereinnahmen"
   },
   "politikfeld": {
     "umwelt_energie": "Umwelt",

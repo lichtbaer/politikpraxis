@@ -78,6 +78,30 @@
   line-height: 1.5;
 }
 
+.gesetzKosten {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 11px;
+}
+
+.kostenEinmalig {
+  color: var(--red);
+}
+
+.kostenNegativ {
+  color: var(--red);
+}
+
+.kostenPositiv {
+  color: var(--green);
+}
+
+.investivBadge {
+  color: var(--text2);
+}
+
 .kongruenzSignal {
   display: flex;
   align-items: center;
