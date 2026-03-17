@@ -15,6 +15,10 @@ class Settings(BaseSettings):
 
     content_dir: str = "app/content"
 
+    # Admin-API (Basic-Auth)
+    admin_user: str = "admin"
+    admin_password: str = ""
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

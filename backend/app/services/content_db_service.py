@@ -26,6 +26,11 @@ CACHE_TTL = 3600  # 1 Stunde
 _content_cache: dict[tuple[str, str], tuple[Any, float]] = {}
 
 
+def content_cache_clear() -> None:
+    """Leert den Content-Cache (z.B. nach Admin-Schreiboperationen)."""
+    _content_cache.clear()
+
+
 def _get_cached(cache_key: tuple[str, str]) -> Any | None:
     """Liefert gecachtes Ergebnis wenn noch gültig."""
     now = time.time()
