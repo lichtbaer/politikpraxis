@@ -23,14 +23,16 @@ Die Struktur des Spielzustands ist im GDD unter [Technischer Stack (Spiel) → S
 
 ### Tick und Systeme
 
-Ein Spieltick (ein Monat) wird in `frontend/src/core/engine.ts` ausgeführt: `tick(state, content)` wendet nacheinander an:
+Ein Spieltick (ein Monat) wird in `frontend/src/core/engine.ts` ausgeführt: `tick(state, content)` wendet nacheinander u. a. an:
 
-- `applyPendingEffects`, `advanceRoutes` (Ebenen)
+- `applyPendingEffects`, `advanceRoutes` (Ebenen), `advanceEURoute`, `tickGesetzVorstufen`
+- Konjunktur, Schuldenbremse, Haushaltsdebatte, Politikfeld-Druck
 - PK-Regeneration, KPI-Drift, Char-Boni, Koalitionsstabilität
-- Ultimatum- und Random-Event-Checks
-- Neuberechnung der Zustimmung
+- Koalitionspartner, Verbände, Ministerial-Initiativen, EU-Klima/Ereignisse
+- Ultimatum- und Random-Event-Checks, Bundesrat-Abstimmung und -Events, Kommunal-Events
+- Neuberechnung der Zustimmung (inkl. Wahlprognose)
 
-Die einzelnen Regeln liegen in `frontend/src/core/systems/` (economy, characters, coalition, events, election, parliament, levels, bundesrat, media, procgen). Die UI triggert Ticks über einen Timer (z. B. `frontend/src/ui/hooks/useGameTick.ts`).
+Die einzelnen Regeln liegen in `frontend/src/core/systems/`. Dort u. a.: economy, wahlprognose, characters, coalition, koalition, levels, events, election, parliament, bundesrat, media, procgen, gesetzLebenszyklus, haushalt, ministerialInitiativen, eu, politikfeldDruck, verbaende; außerdem ausrichtung, features (u. a. in state.ts). Vollständige Reihenfolge siehe `engine.ts`. Die UI triggert Ticks über einen Timer (z. B. `frontend/src/ui/hooks/useGameTick.ts`).
 
 ### Datenfluss (vereinfacht)
 
@@ -70,12 +72,18 @@ Das Frontend spricht die API über `frontend/src/services/api.ts` an (`apiFetch`
 
 ---
 
-## Backend (erwartete Struktur)
+## Backend (Struktur)
 
-Das Backend wird mit **FastAPI** betrieben (`uvicorn app.main:app`). Erwartet wird ein Paket `app` unter `backend/` mit mindestens:
+Das Backend wird mit **FastAPI** betrieben (`uvicorn app.main:app`). Paket `app` unter `backend/` mit:
 
-- `app/main.py` — FastAPI-Instanz `app`, CORS, Einbindung der Router
-- Routen für Auth, ggf. Spielstand, Health-Check
-- Datenbankzugriff per **SQLAlchemy 2** (async, Treiber **asyncpg**), Migrationen mit **Alembic**
+- **`app/main.py`** — FastAPI-Instanz, CORS, Router unter `/api/*`; Health unter `/api/health`
+- **`app/config.py`** — Einstellungen (Pydantic Settings)
+- **`app/dependencies.py`** — Abhängigkeiten für Routen
+- **`app/routes/`** — auth, saves, content, analytics, mods, admin
+- **`app/models/`** — SQLAlchemy-Modelle (user, save, content, analytics, mod)
+- **`app/schemas/`** — Pydantic-Schemas pro Modul
+- **`app/services/`** — auth_service, save_service, content_service, content_db_service, analytics_service, mod_validator, …
+- **`app/db/`** — database.py, migrations/ (Alembic)
+- **`app/content/`** — YAML-Daten (scenarios/, laws/, characters/, events/)
 
-Umgebungsvariablen (siehe [Lokales Setup](setup.md)): `DATABASE_URL`, `SECRET_KEY`, optional `DEBUG`, `CORS_ORIGINS`. Die konkrete API-Spezifikation (Pfade, Request/Response-Schemas) liegt in der Backend-Implementierung; bei OpenAPI-Dokumentation ist sie unter `/docs` (Swagger) abrufbar.
+Datenbankzugriff per **SQLAlchemy 2** (async, Treiber **asyncpg**), Migrationen mit **Alembic**. Umgebungsvariablen (siehe [Lokales Setup](setup.md)): `DATABASE_URL`, `SECRET_KEY`, optional `DEBUG`, `CORS_ORIGINS`. OpenAPI-Dokumentation: `/api/docs`, Spezifikation `/api/openapi.json`.

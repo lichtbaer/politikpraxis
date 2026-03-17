@@ -2,46 +2,21 @@
 
 ---
 
-## 6.1 Aktuell (MVP)
+## 6.1 Aktuell
 
-- **Single HTML File** — alles in einer Datei, kein Build-System, kein Framework
-- Vanilla JavaScript (ES2020+)
-- Google Fonts (Playfair Display, DM Sans, DM Mono)
-- Keine externen Abhängigkeiten
+- **Frontend:** React 19, TypeScript, Vite, Zustand, Phaser, i18next/react-i18next, TanStack Query, react-router-dom
+- **Backend:** FastAPI, SQLAlchemy 2 (async, asyncpg), Alembic, Pydantic
+- **Infrastruktur:** Docker, PostgreSQL 16, nginx
 
-*Hinweis: Das laufende Projekt nutzt inzwischen React/TypeScript (Frontend) und FastAPI (Backend). Die Spiel-Logik und das State-Modell folgen weiterhin dem GDD; siehe [Entwicklung → Architektur](../entwicklung/architektur.md) für die aktuelle Code-Struktur.*
+State-Modell und Spiel-Logik folgen dem GDD; die Umsetzung (Typen, Engine, Systeme) steht in `frontend/src/core/` und ist unter [Entwicklung → Architektur](../entwicklung/architektur.md) beschrieben.
 
 ---
 
-## 6.2 Dateistruktur (geplant für v1.0)
+## 6.2 Dateistruktur
 
-```
-/bundesrepublik
-  index.html
-  /js
-    engine.js         ← Tick-System, Event-Bus, Zeit
-    state.js          ← Zentraler Game-State
-    /systems
-      parliament.js   ← Abstimmungslogik BT + BR
-      economy.js      ← KPI-System mit Lags
-      levels.js       ← Ebenenwechsel-Logik
-      events.js       ← Event-Pool, Trigger, Folge-Events
-      chars.js        ← Charakter-Mechaniken, Ultimatums
-      election.js     ← Zustimmungsberechnung, Wahl
-    /views
-      agenda.js       ← Gesetz-Cards
-      bundesrat.js    ← Länder-Karte
-      medien.js       ← Milieu-Kampagnen
-      ebenen.js       ← EU/Land/Kom-Views
-  /css
-    main.css
-    components.css
-  /data
-    chars.json        ← Charakter-Definitionen
-    events.json       ← Event-Pool
-    gesetze.json      ← Gesetz-Definitionen
-    laender.json      ← Bundesrat-Konfiguration
-```
+Die aktuelle Projektstruktur (Frontend `frontend/src/`, Backend `backend/app/`) ist unter [Entwicklung → Projektstruktur](../entwicklung/projektstruktur.md) beschrieben.
+
+*Historisch: Ursprünglich war eine reine JS-Struktur unter `/bundesrepublik` mit engine.js, state.js und systems/ geplant; umgesetzt wurde stattdessen die React/TypeScript-Struktur mit `core/engine.ts`, `core/state.ts` und `core/systems/`.*
 
 ---
 

@@ -14,7 +14,7 @@ Dieses Dokument richtet sich an AI-Coding-Agents (Cursor, GitHub Copilot, etc.) 
 
 | Bereich | Technologien |
 |---------|--------------|
-| **Frontend** | React 19, TypeScript, Vite, Phaser, Zustand, TanStack Query |
+| **Frontend** | React 19, TypeScript, Vite, Phaser, Zustand, TanStack Query, i18next/react-i18next, react-router-dom |
 | **Backend** | FastAPI, SQLAlchemy 2, asyncpg, Alembic, Pydantic |
 | **Infrastruktur** | Docker, PostgreSQL 16, nginx |
 
@@ -28,15 +28,18 @@ Dieses Dokument richtet sich an AI-Coding-Agents (Cursor, GitHub Copilot, etc.) 
 │   └── src/
 │       ├── core/      # Spiel-Logik (engine, state, types, systems)
 │       ├── store/     # Zustand-Stores (gameStore, uiStore, authStore)
-│       ├── ui/        # React-Komponenten (layout, panels, views, components)
+│       ├── stores/    # contentStore
+│       ├── types/     # Content-Typen (content.ts)
+│       ├── ui/        # React-Komponenten (layout, panels, views, screens, components, hooks)
 │       ├── data/      # Szenarien, Gesetze, Events, Charaktere
-│       ├── services/  # API, Auth, Content, Saves
+│       ├── services/  # API, Auth, Content, Saves, Analytics, Mods
+│       ├── styles/    # global.css, tokens.css
 │       └── phaser/    # Phaser-Szenen
 ├── backend/           # FastAPI-Backend
-│   └── app/           # FastAPI-App, Routen, Modelle
+│   └── app/           # main, config, dependencies, routes, models, schemas, services, db, content
 ├── docs/              # MkDocs-Dokumentation
 │   ├── game-design/   # Konzept, Core Loop, Spielsysteme
-│   └── entwicklung/  # Setup, Architektur
+│   └── entwicklung/  # Setup, Projektstruktur, Architektur
 ├── bundesrepublik_gdd.md  # Game Design Document (Single-Source)
 └── docker-compose.yml
 ```
@@ -83,6 +86,8 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 |--------|-----|--------------|
 | `npm run build` | `frontend/` | TypeScript-Check + Vite-Build |
 | `npm run lint` | `frontend/` | ESLint |
+| `npm run test` | `frontend/` | Vitest (Unit-Tests) |
+| `npm run test:watch` | `frontend/` | Vitest im Watch-Modus |
 | `mkdocs build` | Root | Statischer Doku-Build |
 | `mkdocs serve` | Root | Doku lokal (http://127.0.0.1:8000) |
 
@@ -100,7 +105,8 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ## Backend-Struktur
 
-- FastAPI-Instanz in `backend/app/main.py`
+- FastAPI-Instanz in `backend/app/main.py`; Router: auth, saves, content, analytics, mods, admin
+- `app/config.py`, `app/dependencies.py`; `app/routes/`, `app/models/`, `app/schemas/`, `app/services/`, `app/db/`, `app/content/`
 - SQLAlchemy 2 (async, asyncpg), Migrationen mit Alembic
 - Umgebungsvariablen: `DATABASE_URL`, `SECRET_KEY`, optional `DEBUG`, `CORS_ORIGINS`
 

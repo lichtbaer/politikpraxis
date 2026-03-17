@@ -23,7 +23,7 @@
 
 ### Konfiguration
 
-- `package.json` — Skripte: `dev`, `build`, `lint`, `preview`
+- `package.json` — Skripte: `dev`, `build`, `lint`, `preview`, `test`, `test:watch`
 - `vite.config.ts` — Vite + React-Plugin
 - `tsconfig.json`, `tsconfig.app.json` — TypeScript
 - `index.html` — Einstieg, Root für Vite
@@ -40,19 +40,23 @@
 | `core/engine.ts` | Tick-Funktion, Log; ruft Systeme auf |
 | `core/types.ts` | TypeScript-Typen (GameState, Law, Character, Event, …) |
 | `core/validation.ts` | Validierung von Content/Spielstand |
-| `core/systems/` | Einzelne Spielsysteme (parliament, economy, events, characters, coalition, levels, bundesrat, media, election, procgen) |
+| `core/systems/` | Spielsysteme: parliament, economy, characters, coalition, koalition, events, election, levels, bundesrat, media, procgen, gesetzLebenszyklus, haushalt, ministerialInitiativen, eu, milieus, verbaende, wahlprognose, kongruenz, politikfeldDruck, ausrichtung, features (plus Testdateien) |
 | `store/gameStore.ts` | Zustand-Store für Spielstate und Aktionen (tick, einbringen, lobbying, …) |
 | `store/uiStore.ts` | UI-Zustand (z. B. Modals, Toasts) |
 | `store/authStore.ts` | Authentifizierung (falls Backend-Auth genutzt wird) |
+| `stores/contentStore.ts` | Content-Store (Sprecher-Ersatz, Landtagswahl-Transitions etc.) |
+| `types/content.ts` | Content-Typen (ContentBundle, Szenarien, …) |
+| `i18n.ts` | i18next-Konfiguration, Mehrsprachigkeit (DE/EN) |
 | `ui/` | React-Komponenten und Layout |
 | `ui/layout/` | Shell, Header |
 | `ui/panels/` | LeftPanel, CenterPanel, RightPanel |
 | `ui/views/` | AgendaView, BundesratView, EbeneView, MediaView |
+| `ui/screens/` | MainMenu, GameView, Setup, LoadingScreen |
 | `ui/components/` | AgendaCard, CharacterRow, CoalitionMeter, EventCard, KPITile, MilieuBar, ProgressBar, Toast, EndScreen, CharacterDetail |
 | `ui/hooks/` | useGameTick, useGameActions, useAutoSave |
 | `data/defaults/` | Szenarien, Gesetze, Events, Charaktere (Standard-Content) |
 | `data/schemas/` | JSON-Schema für Content |
-| `services/` | api, auth, content, saves, analytics, mods |
+| `services/` | api, auth, content, saves, analytics, mods, localStorageSave |
 | `styles/` | global.css, tokens.css |
 | `phaser/` | Phaser-Container und Szenen (z. B. Bundesrat-Visualisierung) |
 
@@ -66,8 +70,22 @@
 | `alembic.ini` | Konfiguration für Datenbank-Migrationen |
 | `Dockerfile` | Python-Image, startet `uvicorn app.main:app` |
 | `.env` | Lokale Umgebungsvariablen (nicht versioniert) |
+| `pytest.ini` | Konfiguration für Tests |
+| `tests/` | API-Tests (z. B. test_admin_api, test_content_api) |
 
-Die Laufzeit erwartet ein Paket **`app`** unter `backend/` (z. B. `backend/app/main.py` mit FastAPI-Instanz `app`). Routen, Modelle und Migrationen liegen typischerweise unter `app/`. Ist diese Struktur noch nicht vorhanden, muss sie beim Aufsetzen des Backends angelegt werden.
+Die Laufzeit erwartet ein Paket **`app`** unter `backend/`. Aktuelle Struktur unter `app/`:
+
+| Ordner/Datei | Inhalt |
+|--------------|--------|
+| `main.py` | FastAPI-Instanz, CORS, Router-Einbindung |
+| `config.py` | Einstellungen (Pydantic Settings) |
+| `dependencies.py` | Abhängigkeiten für Routen |
+| `routes/` | auth, saves, content, analytics, mods, admin |
+| `models/` | user, save, content, analytics, mod (SQLAlchemy) |
+| `schemas/` | Pydantic-Schemas pro Modul |
+| `services/` | auth_service, save_service, content_service, content_db_service, analytics_service, mod_validator, … |
+| `db/` | database.py, migrations/ (Alembic) |
+| `content/` | YAML-Daten (scenarios/, laws/, characters/, events/) |
 
 ---
 

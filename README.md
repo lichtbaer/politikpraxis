@@ -41,7 +41,7 @@ Zum Stoppen: `Ctrl+C` oder `docker-compose down`.
 
 ## Tech-Stack
 
-- **Frontend:** React 19, TypeScript, Vite, Phaser, Zustand, TanStack Query
+- **Frontend:** React 19, TypeScript, Vite, Phaser, Zustand, TanStack Query, i18next, react-router-dom
 - **Backend:** FastAPI, SQLAlchemy 2, asyncpg, Alembic, Pydantic
 - **Infrastruktur:** Docker, PostgreSQL 16, nginx
 
@@ -107,7 +107,7 @@ Inhalte:
 
 ## Entwicklung (Kurz)
 
-- **Frontend:** `cd frontend && npm install && npm run dev` (Vite: http://localhost:5173)
+- **Frontend:** `cd frontend && npm install && npm run dev` (Vite: http://localhost:5173); Tests: `npm run test` bzw. `npm run test:watch` (Vitest)
 - **Backend:** `cd backend && python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`, dann `alembic upgrade head` und `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
 - **Datenbank:** PostgreSQL 16 lauffähig (lokal oder `docker-compose up db`)
 - **Dokumentation:** siehe Abschnitt „Dokumentation“ oben
