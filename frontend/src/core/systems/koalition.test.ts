@@ -1,11 +1,39 @@
 import { describe, it, expect } from 'vitest';
 import {
+  berechneKoalitionspartner,
   berechneKoalitionsvertragProfil,
   tickKoalitionspartner,
   checkKoalitionsbruch,
 } from './koalition';
 import { GRUENE } from '../../data/defaults/koalitionspartner';
 import type { GameState } from '../types';
+
+describe('berechneKoalitionspartner', () => {
+  it('SDP mit W<-55 bekommt LP als Partner', () => {
+    const ideologie = { wirtschaft: -60, gesellschaft: -20, staat: -40 };
+    expect(berechneKoalitionspartner('sdp', ideologie)).toBe('lp');
+  });
+
+  it('CDP mit progressiver Ausrichtung bekommt GP als Partner', () => {
+    const ideologie = { wirtschaft: -45, gesellschaft: -60, staat: -25 };
+    expect(berechneKoalitionspartner('cdp', ideologie)).toBe('gp');
+  });
+
+  it('GP-Spieler bekommt SDP als Partner', () => {
+    const ideologie = { wirtschaft: -50, gesellschaft: -70, staat: -20 };
+    expect(berechneKoalitionspartner('gp', ideologie)).toBe('sdp');
+  });
+
+  it('LP-Spieler bekommt SDP als Partner', () => {
+    const ideologie = { wirtschaft: -65, gesellschaft: -40, staat: -60 };
+    expect(berechneKoalitionspartner('lp', ideologie)).toBe('sdp');
+  });
+
+  it('LDP-Spieler bekommt CDP als Partner', () => {
+    const ideologie = { wirtschaft: 60, gesellschaft: -10, staat: 60 };
+    expect(berechneKoalitionspartner('ldp', ideologie)).toBe('cdp');
+  });
+});
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   return {
@@ -31,11 +59,12 @@ function createMockState(overrides: Partial<GameState> = {}): GameState {
     gameOver: false,
     won: false,
     koalitionspartner: {
-      id: 'gruene',
+      id: 'gp',
       beziehung: 50,
       koalitionsvertragScore: 60,
       schluesselthemenErfuellt: [],
     },
+    spielerPartei: { id: 'sdp', kuerzel: 'SDP', farbe: '#e3000f', name: 'Sozialdemokratische Partei' },
     ...overrides,
   } as GameState;
 }
@@ -55,7 +84,7 @@ describe('tickKoalitionspartner', () => {
   it('KV-Score -2/Monat passiv (Stufe 4)', () => {
     const state = createMockState({
       koalitionspartner: {
-        id: 'gruene',
+        id: 'gp',
         beziehung: 50,
         koalitionsvertragScore: 70,
         schluesselthemenErfuellt: [],
@@ -70,7 +99,7 @@ describe('checkKoalitionsbruch', () => {
   it('triggert bei Beziehung < 15', () => {
     const state = createMockState({
       koalitionspartner: {
-        id: 'gruene',
+        id: 'gp',
         beziehung: 10,
         koalitionsvertragScore: 50,
         schluesselthemenErfuellt: [],
@@ -100,7 +129,7 @@ describe('checkKoalitionsbruch', () => {
   it('triggert nicht bei Beziehung >= 15', () => {
     const state = createMockState({
       koalitionspartner: {
-        id: 'gruene',
+        id: 'gp',
         beziehung: 20,
         koalitionsvertragScore: 50,
         schluesselthemenErfuellt: [],
