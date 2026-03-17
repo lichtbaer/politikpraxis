@@ -53,6 +53,7 @@
     },
     "status": {
       "entwurf": "Draft",
+      "eingebracht": "Introduced",
       "aktiv": "In parliament",
       "bt_passed": "Parliament passed",
       "blockiert": "Blocked",

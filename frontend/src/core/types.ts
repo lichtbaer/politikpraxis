@@ -49,7 +49,15 @@ export interface LawEffects {
   al?: number;
 }
 
-export type LawStatus = 'entwurf' | 'aktiv' | 'blockiert' | 'beschlossen' | 'ausweich' | 'bt_passed';
+export type LawStatus = 'entwurf' | 'eingebracht' | 'aktiv' | 'blockiert' | 'beschlossen' | 'ausweich' | 'bt_passed';
+
+/** SMA-304: Eingebrachtes Gesetz in Ausschussphase (lag_months bis Abstimmung) */
+export interface EingebrachteGesetz {
+  gesetzId: string;
+  eingebrachtMonat: number;
+  abstimmungMonat: number;
+  lagMonths: number;
+}
 export type RouteType = 'eu' | 'land' | 'kommune';
 export type LawTag = 'bund' | 'eu' | 'land' | 'kommune' | 'kommunen';
 
@@ -97,6 +105,8 @@ export interface Law {
   einnahmeeffekt?: number;
   /** Investitionsgesetz (+2 Mo. Lag) */
   investiv?: boolean;
+  /** SMA-304: Monate Ausschussphase bis Abstimmung (Stufe 2+; Stufe 1: 1 Monat fix) */
+  einbringungsLag?: number;
   /** Kommunal-Pilot möglich (SMA-272), Länder/EU-Vorstufen (SMA-273) */
   kommunal_pilot_moeglich?: boolean;
   laender_pilot_moeglich?: boolean;
@@ -468,6 +478,8 @@ export interface GameState {
 
   chars: Character[];
   gesetze: Law[];
+  /** SMA-304: Gesetze in Ausschussphase (Einbringungs-Lag bis Abstimmung) */
+  eingebrachteGesetze?: EingebrachteGesetz[];
   bundesrat: BundesratLand[];
   bundesratFraktionen: BundesratFraktion[];
 

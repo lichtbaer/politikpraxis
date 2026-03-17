@@ -288,7 +288,7 @@ export function checkKommunalEvents(
     // Gesetz-Referenz: passendes Gesetz für Pilot (bei koordinieren)
     const gesetzRef = ev.gesetzRef ?? [];
     const passendesGesetz = state.gesetze.find(
-      g => gesetzRef.includes(g.id) && (g.status === 'entwurf' || g.status === 'aktiv') &&
+      g => gesetzRef.includes(g.id) && (g.status === 'entwurf' || g.status === 'aktiv' || g.status === 'eingebracht') &&
            g.kommunal_pilot_moeglich !== false,
     );
     if (!passendesGesetz && gesetzRef.length > 0) continue;

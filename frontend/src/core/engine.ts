@@ -9,6 +9,7 @@ import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKommunalLaenderEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
+import { resolveEingebrachteAbstimmung } from './systems/parliament';
 import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragScore } from './systems/koalition';
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
@@ -76,6 +77,22 @@ export function tick(
   if (s.medienKlima == null) s = { ...s, medienKlima: 55 };
 
   s = applyPendingEffects(s);
+
+  // SMA-304: Eingebrachte Gesetze — Abstimmung wenn Abstimmungsmonat erreicht
+  const eingebrachte = s.eingebrachteGesetze ?? [];
+  for (const eg of eingebrachte) {
+    if (s.month >= eg.abstimmungMonat) {
+      const voteContext = content.milieus
+        ? { milieus: content.milieus, complexity }
+        : undefined;
+      s = resolveEingebrachteAbstimmung(s, eg, voteContext);
+      const newLaw = s.gesetze.find(g => g.id === eg.gesetzId);
+      if (newLaw?.status === 'beschlossen') {
+        s = updateKoalitionsvertragScore(s, eg.gesetzId, content, complexity);
+      }
+    }
+  }
+
   const routesResult = advanceRoutes(s);
   s = routesResult.state;
   if (routesResult.completedVorstufe && !s.activeEvent) {
