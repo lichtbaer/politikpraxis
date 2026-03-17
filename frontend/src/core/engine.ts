@@ -6,6 +6,8 @@ import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
+import { checkVerbandsAktionen } from './systems/verbaende';
+import { checkMinisterialInitiativen } from './systems/ministerialInitiativen';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export function addLog(state: GameState, msg: string, type: string, params?: Record<string, string | number>): GameState {
@@ -17,7 +19,7 @@ export function addLog(state: GameState, msg: string, type: string, params?: Rec
   return { ...state, log };
 }
 
-export function tick(state: GameState, content: ContentBundle): GameState {
+export function tick(state: GameState, content: ContentBundle, complexity: number = 4): GameState {
   if (state.gameOver) return state;
 
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi } };
@@ -34,6 +36,9 @@ export function tick(state: GameState, content: ContentBundle): GameState {
   s = { ...s, kpi: applyKPIDrift(s.kpi) };
   s = applyCharBonuses(s);
   s = updateCoalitionStability(s);
+
+  s = checkVerbandsAktionen(s, content.verbaende ?? [], complexity);
+  s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
 
   s = checkUltimatums(s, content.charEvents);
   s = processBundesratVotes(s);

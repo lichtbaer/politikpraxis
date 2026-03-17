@@ -2,19 +2,23 @@ import type { GameState } from '../types';
 import { scheduleEffects } from './economy';
 import { addLog } from '../engine';
 
-export function einbringen(state: GameState, lawId: string): GameState {
+export function einbringen(state: GameState, lawId: string, options?: { pkRabatt?: number }): GameState {
   const idx = state.gesetze.findIndex(g => g.id === lawId);
   if (idx === -1) return state;
   const law = state.gesetze[idx];
   if (law.status !== 'entwurf') return state;
-  if (state.pk < 20) return state;
+
+  const baseCost = 20;
+  const rabatt = options?.pkRabatt ?? 0;
+  const cost = Math.max(1, Math.round(baseCost * (1 - rabatt)));
+  if (state.pk < cost) return state;
 
   const gesetze = state.gesetze.map((g, i) =>
     i === idx ? { ...g, status: 'aktiv' as const } : g,
   );
 
   return addLog(
-    { ...state, pk: state.pk - 20, gesetze },
+    { ...state, pk: state.pk - cost, gesetze },
     `${law.kurz} in Bundestag eingebracht`,
     'hi',
   );

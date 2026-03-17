@@ -1,4 +1,4 @@
-import type { ContentBundle, BundesratLand } from '../../core/types';
+import type { ContentBundle, BundesratLand, Verband, MinisterialInitiative } from '../../core/types';
 
 /** 16 Bundesländer für Abstimmungsbalken (strukturelle Daten, nicht i18n) */
 export const DEFAULT_BUNDESRAT: BundesratLand[] = [
@@ -30,6 +30,21 @@ export const DEFAULT_SCENARIO: ContentBundle['scenario'] = {
   startCoalition: 78,
 };
 
+/** Default-Verbände (BDI, UVB, BVL, SGD, GBD) — ab Stufe 3 */
+export const DEFAULT_VERBAENDE: Verband[] = [
+  { id: 'bdi', kurz: 'BDI', politikfeld_id: 'wirtschaft', beziehung_start: 50, tradeoffs: [{ key: 't1', effekte: { hh: -0.2 }, feld_druck_delta: 5 }] },
+  { id: 'uvb', kurz: 'UVB', politikfeld_id: 'wirtschaft', beziehung_start: 45, tradeoffs: [{ key: 't1', effekte: { al: 0.2 }, feld_druck_delta: 3 }] },
+  { id: 'bvl', kurz: 'BVL', politikfeld_id: 'umwelt', beziehung_start: 40, tradeoffs: [{ key: 't1', effekte: { zf: -2 }, feld_druck_delta: 4 }] },
+  { id: 'sgd', kurz: 'SGD', politikfeld_id: 'arbeit', beziehung_start: 55, tradeoffs: [{ key: 't1', effekte: { gi: 0.5 }, feld_druck_delta: 2 }] },
+  { id: 'gbd', kurz: 'GBD', politikfeld_id: 'arbeit', beziehung_start: 48, tradeoffs: [{ key: 't1', effekte: { al: -0.3 }, feld_druck_delta: 4 }] },
+];
+
+/** Default Ministerial-Initiativen — ab Stufe 3 */
+export const DEFAULT_MINISTERIAL_INITIATIVEN: MinisterialInitiative[] = [
+  { id: 'mi_wm_ee', char_id: 'wm', gesetz_ref_id: 'ee', cooldown_months: 8, bedingungen: [{ type: 'min_mood' }, { type: 'interest', value: 'Standortpolitik' }] },
+  { id: 'mi_um_ee', char_id: 'um', gesetz_ref_id: 'ee', cooldown_months: 8, bedingungen: [{ type: 'min_mood' }, { type: 'interest', value: 'Klimaschutz' }] },
+];
+
 /** Fallback ContentBundle wenn API nicht erreichbar (nur für init-Fallback) */
 export const DEFAULT_CONTENT: ContentBundle = {
   characters: [],
@@ -39,5 +54,7 @@ export const DEFAULT_CONTENT: ContentBundle = {
   laws: [],
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
+  verbaende: DEFAULT_VERBAENDE,
+  ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
   scenario: DEFAULT_SCENARIO,
 };

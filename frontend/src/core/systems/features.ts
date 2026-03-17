@@ -17,6 +17,10 @@ const FEATURES: Record<string, { minLevel: number }> = {
   kabinett_erweiterung: { minLevel: 3 },
   /** + Becker ab Stufe 4 */
   kabinett_voll: { minLevel: 4 },
+  /** Verbands-Lobbying, Trade-offs, Konflikt-Mechanik */
+  verbands_lobbying: { minLevel: 3 },
+  /** Ministerial-Initiativen (Minister bringen eigene Gesetze ein) */
+  ministerial_initiativen: { minLevel: 3 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {

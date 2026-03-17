@@ -7,6 +7,7 @@ import { startRoute } from '../core/systems/levels';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/media';
 import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
+import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
 import { getContentBundle } from '../stores/contentStore';
@@ -43,6 +44,9 @@ interface GameStore {
   doMedienkampagne: (milieu: MilieuKey) => void;
   doLobbyLand: (landId: string) => void;
   doLobbyFraktion: (fraktionId: string, gesetzeId: string, schicht: 1 | 2 | 'beziehungspflege' | 'reparatur', tradeoffOptions?: LobbyTradeoffOptions) => void;
+  doVerbandGespraech: (verbandId: string) => void;
+  doVerbandTradeoff: (verbandId: string, tradeoffKey: string) => void;
+  doVerbandLobbyAbstimmung: (verbandId: string, gesetzId: string) => number;
   toggleAgenda: (lawId: string) => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
@@ -95,7 +99,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   gameTick: () => {
     const { state: s, content, phase, playerName, complexity, ausrichtung } = get();
     if (s.gameOver || s.speed === 0) return;
-    const nextState = tick(s, content);
+    const nextState = tick(s, content, complexity);
     set({ state: nextState });
     if (phase === 'playing' && !nextState.gameOver) {
       saveGame({ gameState: nextState, playerName, complexity, ausrichtung });
@@ -117,6 +121,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doLobbyLand: (landId) => set(prev => ({ state: lobbyLand(prev.state, landId) })),
   doLobbyFraktion: (fraktionId, gesetzeId, schicht, tradeoffOptions) =>
     set(prev => ({ state: lobbyFraktion(prev.state, fraktionId, gesetzeId, schicht, tradeoffOptions) })),
+
+  doVerbandGespraech: (verbandId) =>
+    set(prev => ({
+      state: verbandGespraech(prev.state, verbandId, prev.content.verbaende ?? [], prev.complexity),
+    })),
+  doVerbandTradeoff: (verbandId, tradeoffKey) =>
+    set(prev => ({
+      state: verbandTradeoff(prev.state, verbandId, tradeoffKey, prev.content.verbaende ?? [], prev.complexity),
+    })),
+  doVerbandLobbyAbstimmung: (verbandId, gesetzId) => {
+    const { state, content, complexity } = get();
+    const { state: newState, bonus } = verbandLobbyAbstimmung(state, verbandId, gesetzId, content.verbaende ?? [], complexity);
+    set({ state: newState });
+    return bonus;
+  },
 
   toggleAgenda: (lawId) =>
     set(prev => ({

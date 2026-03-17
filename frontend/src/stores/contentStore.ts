@@ -15,6 +15,7 @@ import type {
   BundesratFraktion,
   BundesratLand,
 } from '../core/types';
+import { DEFAULT_VERBAENDE, DEFAULT_MINISTERIAL_INITIATIVEN } from '../data/defaults/scenarios';
 import { DEFAULT_BUNDESRAT, DEFAULT_SCENARIO } from '../data/defaults/scenarios';
 import {
   BUNDESRAT_EVENTS,
@@ -163,6 +164,8 @@ export interface ContentStore {
   bundesratEvents: GameEvent[];
   bundesrat: BundesratLand[];
   bundesratFraktionen: BundesratFraktion[];
+  verbaende?: import('../core/types').Verband[];
+  ministerialInitiativen?: import('../core/types').MinisterialInitiative[];
   scenario: ContentBundle['scenario'];
   loaded: boolean;
   error: string | null;
@@ -235,6 +238,8 @@ export function getContentBundle(): ContentBundle {
     bundesratEvents: s.bundesratEvents,
     bundesrat: s.bundesrat,
     bundesratFraktionen: s.bundesratFraktionen,
+    verbaende: s.verbaende?.length ? s.verbaende : DEFAULT_VERBAENDE,
+    ministerialInitiativen: s.ministerialInitiativen?.length ? s.ministerialInitiativen : DEFAULT_MINISTERIAL_INITIATIVEN,
     scenario: s.scenario,
   };
 }
