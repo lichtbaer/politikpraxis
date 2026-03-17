@@ -20,7 +20,7 @@ export function CenterPanel() {
   const { resolveEvent } = useGameActions();
 
   useEffect(() => {
-    if (state.view === 'bundesrat' && !featureActive(complexity, 'bundesrat_simple')) {
+    if (state.view === 'bundesrat' && !featureActive(complexity, 'bundesrat_sichtbar')) {
       setView('agenda');
     }
     if (state.view === 'verbaende' && !featureActive(complexity, 'verbands_lobbying')) {

@@ -128,13 +128,15 @@ export function tick(
 
   // 11. Chars: Ultimatums
   s = checkUltimatums(s, content.charEvents);
-  // 12. Bundesrat
-  s = processBundesratVotes(s, content, complexity);
-  s = checkBundesratEvents(s, {
-    bundesratEvents: content.bundesratEvents ?? [],
-    sprecherErsatz: SPRECHER_ERSATZ,
-    landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
-  });
+  // 12. Bundesrat (SMA-291: Stufe 1 unsichtbar — keine Abstimmung, keine Events)
+  if (featureActive(complexity, 'bundesrat_sichtbar')) {
+    s = processBundesratVotes(s, content, complexity);
+    s = checkBundesratEvents(s, {
+      bundesratEvents: content.bundesratEvents ?? [],
+      sprecherErsatz: SPRECHER_ERSATZ,
+      landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
+    });
+  }
   // 12b. Medienklima (SMA-277): Drift, Opposition, Skandale, positive Events
   s = tickMedienKlima(s, content, complexity);
 

@@ -159,7 +159,12 @@ export function abstimmen(
   const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus);
 
   if (effectiveJa > 50) {
-    if (!law.tags.includes('land')) {
+    const complexity = beschlussContext?.complexity ?? 4;
+    const bundesratAktiv = featureActive(complexity, 'bundesrat_sichtbar');
+    const needsBundesrat = law.tags.includes('land') && bundesratAktiv;
+
+    if (!needsBundesrat) {
+      // Kein Bundesrat (Stufe 1) oder kein Land-Gesetz: direkt beschlossen
       const gesetze = state.gesetze.map((g, i) =>
         i === idx ? { ...g, status: 'beschlossen' as const } : g,
       );
@@ -177,7 +182,7 @@ export function abstimmen(
 
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
     }
-    // Land-Gesetz: BT passed → 3 Monate bis BR-Abstimmung, Lobbying-Fenster
+    // Land-Gesetz + Bundesrat aktiv: BT passed → 3 Monate bis BR-Abstimmung, Lobbying-Fenster
     const gesetze = state.gesetze.map((g, i) =>
       i === idx
         ? { ...g, status: 'bt_passed' as const, brVoteMonth: state.month + 3, lobbyFraktionen: {} }

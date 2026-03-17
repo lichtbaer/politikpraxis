@@ -40,7 +40,7 @@ export function WahlnachtOnboarding() {
   const name = playerName.trim() || t('game:onboarding.defaultGovName');
   const lawCount = state.gesetze.length;
   const pk = state.pk;
-  const showBundesratLine = featureActive(complexity, 'bundesrat_simple');
+  const showBundesratLine = featureActive(complexity, 'bundesrat_sichtbar');
   const memoBrLine = showBundesratLine ? t('game:onboarding.memoBrLine') : '';
 
   return (

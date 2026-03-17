@@ -768,6 +768,8 @@
   "bundesrat": {
     "title": "Bundesrat",
     "subtitle": "4 Fraktionen vertreten 16 Bundesländer. Lobbying beeinflusst die Abstimmungsbereitschaft.",
+    "subtitleSimple": "Vereinfachte Darstellung der Länderzustimmung.",
+    "aggregiertUnterstuetzen": "{{prozent}}% der Bundesländer unterstützen dieses Gesetz.",
     "beziehung": "Beziehung",
     "abstimmungsbereitschaft": "Abstimmungsbereitschaft",
     "gespraechSuchen": "Gespräch suchen",

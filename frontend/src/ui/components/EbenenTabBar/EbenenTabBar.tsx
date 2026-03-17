@@ -6,8 +6,13 @@ import styles from './EbenenTabBar.module.css';
 
 const EBENE_IDS: ViewName[] = ['agenda', 'bundesrat', 'eu', 'land', 'kommune', 'verbaende', 'medien', 'wahlkampf'];
 
+/** SMA-291: Bundesrat-Tab komplett ausblenden bei Stufe 1 (nicht nur sperren) */
+function isBundesratTabVisible(complexity: number): boolean {
+  return featureActive(complexity, 'bundesrat_sichtbar');
+}
+
 const EBENE_FEATURES: Partial<Record<ViewName, string>> = {
-  bundesrat: 'bundesrat_simple',
+  bundesrat: 'bundesrat_sichtbar',
   eu: 'eu_route',
   land: 'laender_pilot',
   kommune: 'kommunal_pilot',
@@ -17,7 +22,7 @@ const EBENE_FEATURES: Partial<Record<ViewName, string>> = {
 };
 
 const FEATURE_LEVELS: Record<string, number> = {
-  bundesrat_simple: 2,
+  bundesrat_sichtbar: 2,
   eu_route: 2,
   laender_pilot: 2,
   kommunal_pilot: 2,
@@ -105,7 +110,11 @@ export function EbenenTabBar() {
   return (
     <nav className={styles.tabBar} aria-label={t('game:tabBar.ariaLabel')}>
       <div className={styles.tabs}>
-        {EBENE_IDS.filter((id) => id !== 'wahlkampf' || wahlkampfAktiv).map((id) => {
+        {EBENE_IDS.filter((id) => {
+          if (id === 'wahlkampf' && !wahlkampfAktiv) return false;
+          if (id === 'bundesrat' && !isBundesratTabVisible(complexity)) return false;
+          return true;
+        }).map((id) => {
           const feature = EBENE_FEATURES[id];
           const unlocked = !feature || featureActive(complexity, feature);
           const lockLevel = feature ? FEATURE_LEVELS[feature] : 0;

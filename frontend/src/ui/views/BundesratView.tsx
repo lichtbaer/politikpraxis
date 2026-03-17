@@ -7,6 +7,7 @@ import {
   calcBundesratMehrheit,
   getBundesratVoteDetails,
   getBundesratAbstimmungsFelder,
+  getAggregierteZustimmung,
 } from '../../core/systems/bundesrat';
 import type { BundesratFraktion, Law } from '../../core/types';
 import { useUIStore } from '../../store/uiStore';
@@ -37,7 +38,7 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
   const { t } = useTranslation('game');
   const state = useGameStore((s) => s.state);
 
-  const fullView = featureActive(complexity, 'bundesrat_full');
+  const fullView = featureActive(complexity, 'bundesrat_detail');
   const lobbyingActive = law && isLobbyingActive(state, law.id);
   const lobbyGesperrt = !canLobby(fraktion, state);
   const showGespraechBtn = fullView && lobbyingActive && !lobbyGesperrt;
@@ -139,16 +140,66 @@ function Abstimmungsbalken({ law, felder, ja, nein, mehrheit }: Abstimmungsbalke
   );
 }
 
+/** SMA-291: Stufe 2 — aggregierter Zustimmungsbalken, keine Fraktions-Details */
+function BundesratSimple({
+  prozent,
+  law,
+  mehrheit,
+}: {
+  prozent: number;
+  law: Law | null;
+  mehrheit: boolean;
+}) {
+  const { t } = useTranslation('game');
+  return (
+    <section className={styles.bundesratSimple}>
+      <h2 className={styles.title}>{t('game:bundesrat.title')}</h2>
+      <p className={styles.subtitle}>{t('game:bundesrat.subtitleSimple')}</p>
+      {law ? (
+        <>
+          <div className={styles.aggregierterBalken}>
+            <div className={styles.balkenTrack}>
+              <div
+                className={styles.balkenFill}
+                style={{
+                  width: `${prozent}%`,
+                  backgroundColor: mehrheit ? 'var(--green)' : 'var(--red)',
+                }}
+              />
+            </div>
+            <p className={styles.aggregiertText}>
+              {t('game:bundesrat.aggregiertUnterstuetzen', { prozent })}
+            </p>
+          </div>
+        </>
+      ) : (
+        <p className={styles.keineAbstimmung}>{t('game:bundesrat.keineAbstimmung')}</p>
+      )}
+    </section>
+  );
+}
+
 export function BundesratView() {
   const { t } = useTranslation('game');
   const state = useGameStore((s) => s.state);
   const complexity = useGameStore((s) => s.complexity);
   const [lobbyingFraktion, setLobbyingFraktion] = useState<BundesratFraktion | null>(null);
+
+  if (!featureActive(complexity, 'bundesrat_sichtbar')) return null;
+
   const activeLaws = state.gesetze.filter(
     (g) => g.status === 'bt_passed' && isLobbyingActive(state, g.id),
   );
   const displayLaw =
     activeLaws[0] ?? state.gesetze.find((g) => g.status === 'bt_passed' && g.brVoteMonth);
+
+  if (!featureActive(complexity, 'bundesrat_detail')) {
+    const prozent = displayLaw ? getAggregierteZustimmung(state, displayLaw.id) : 0;
+    const { mehrheit } = displayLaw ? calcBundesratMehrheit(state, displayLaw.id) : { mehrheit: false };
+    return (
+      <BundesratSimple prozent={prozent} law={displayLaw ?? null} mehrheit={mehrheit} />
+    );
+  }
 
   const voteDetails = displayLaw
     ? getBundesratVoteDetails(state, displayLaw.id)
