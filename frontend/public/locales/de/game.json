@@ -480,7 +480,15 @@
   "milieu": {
     "arbeit": "Arbeit",
     "mitte": "Mitte",
-    "prog": "Progressiv"
+    "prog": "Progressiv",
+    "konservativ": "Konservativ",
+    "postmaterielle": "Postmaterielle",
+    "soziale_mitte": "Soziale Mitte",
+    "prekaere": "Prekäre",
+    "buergerliche_mitte": "Bürgerliche Mitte",
+    "leistungstraeger": "Leistungsträger",
+    "etablierte": "Etablierte",
+    "traditionelle": "Traditionelle"
   },
   "media": {
     "title": "Medien & Milieus",
@@ -579,6 +587,29 @@
     "title": "Credits",
     "text": "Bundesrepublik — Eine Politiksimulation\npolitikpraxis",
     "back": "Zurück"
+  },
+  "koalition": {
+    "partner": "Koalitionspartner",
+    "koalitionsrunde": "Koalitionsrunde",
+    "zugestaendnis": "Zugeständnis"
+  },
+  "verbaende": {
+    "title": "Verbände",
+    "subtitle": "Wirtschaftsverbände und Interessengruppen. Gespräche und Trade-offs beeinflussen Beziehungen und Politikfeld-Druck.",
+    "gespraechSuchen": "Gespräch suchen",
+    "forderungAnnehmen": "Forderung annehmen",
+    "einfluss": "Einfluss",
+    "konfliktWarnung": "Konflikt-Partner aktiv"
+  },
+  "politikfeld": {
+    "umwelt_energie": "Umwelt",
+    "wirtschaft_finanzen": "Wirtschaft",
+    "bildung_forschung": "Bildung",
+    "arbeit_soziales": "Arbeit"
+  },
+  "gesetz": {
+    "gegenKurs": "Gegen Regierungskurs",
+    "erhoehterAufwand": "Erhöhter Aufwand"
   },
   "agenda": {
     "title": "Gesetzliche Agenda",
