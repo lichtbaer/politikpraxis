@@ -636,7 +636,8 @@
   },
   "credits": {
     "title": "Credits",
-    "text": "Bundesrepublik — A politics simulation\npolitikpraxis",
+    "text": "Politikpraxis — A politics simulation\npolitikpraxis",
+    "disclaimer": "Politikpraxis is a fictional politics simulation game for educational purposes. All depicted persons, parties and institutions are fictitious.",
     "back": "Back"
   },
   "agenda": {
@@ -651,6 +652,10 @@
     "brVoteIn": "Bundesrat (Federal Council) vote in {{months}} months — lobbying active",
     "routeFormat": "{{route}}: {{progress}}/{{duration}} months",
     "gratis": "free"
+  },
+  "tabBar": {
+    "ariaLabel": "Level navigation",
+    "lockedTooltip": "Unlocked at level {{level}}"
   },
   "leftPanel": {
     "wahlprognose": "Election forecast",

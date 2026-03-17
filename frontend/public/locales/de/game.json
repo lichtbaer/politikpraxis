@@ -670,7 +670,8 @@
   },
   "credits": {
     "title": "Credits",
-    "text": "Bundesrepublik — Eine Politiksimulation\npolitikpraxis",
+    "text": "Politikpraxis — Eine Politiksimulation\npolitikpraxis",
+    "disclaimer": "Politikpraxis ist ein fiktives Politiksimulationsspiel zu Bildungszwecken. Alle dargestellten Personen, Parteien und Institutionen sind frei erfunden.",
     "back": "Zurück"
   },
   "koalition": {
@@ -747,6 +748,10 @@
     "brVoteIn": "Bundesratsabstimmung in {{months}} Monaten — Lobbying aktiv",
     "routeFormat": "{{route}}: {{progress}}/{{duration}} Monate",
     "gratis": "gratis"
+  },
+  "tabBar": {
+    "ariaLabel": "Ebenen-Navigation",
+    "lockedTooltip": "Freigeschaltet ab Stufe {{level}}"
   },
   "leftPanel": {
     "wahlprognose": "Wahlprognose",

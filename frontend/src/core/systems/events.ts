@@ -4,6 +4,7 @@ import { applyMoodChange } from './characters';
 import { resolveMinisterialInitiative } from './ministerialInitiativen';
 import { startKommunalPilot } from './gesetzLebenszyklus';
 import { applyVorbildBonus } from './gesetzLebenszyklus';
+import { resolveTVDuell } from './wahlkampf';
 import i18n from '../../i18n';
 
 /** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
@@ -292,6 +293,24 @@ export function resolveEvent(
     newState.ticker = event.ticker;
     newState.activeEvent = null;
     return newState;
+  }
+
+  // TV-Duell (SMA-278): eigene Auflösung
+  if (event.id === 'tv_duell') {
+    const vorbereitet = choice.key === 'vorbereiten';
+    if (vorbereitet && state.pk < (choice.cost || 0)) return state;
+    const nextPk = vorbereitet ? state.pk - (choice.cost || 0) : state.pk;
+    let newState = { ...state, pk: nextPk };
+    newState = resolveTVDuell(newState, vorbereitet);
+    newState = addLog(newState, choice.log, vorbereitet ? 'g' : 'r');
+    newState.ticker = event.ticker;
+    newState.activeEvent = null;
+    return newState;
+  }
+
+  // Wahlkampf-Beginn, Koalitionspartner-Alleingang: einfaches Bestätigen
+  if (event.id === 'wahlkampf_beginn' || event.id === 'koalitionspartner_alleingang') {
+    return { ...state, activeEvent: null };
   }
 
   if (state.pk < (choice.cost || 0)) return state;

@@ -20,6 +20,13 @@ import {
   triggerHaushaltsdebatte,
 } from './systems/haushalt';
 import { tickGesetzVorstufen } from './systems/gesetzLebenszyklus';
+import {
+  checkWahlkampfBeginn,
+  checkTVDuell,
+  checkKoalitionspartnerAlleingang,
+  tickWahlkampfPrognose,
+  triggerWahlnacht,
+} from './systems/wahlkampf';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export { addLog } from './log';
@@ -40,8 +47,9 @@ export { addLog } from './log';
  * 11. Chars: Ultimatums
  * 12. Bundesrat: Abstimmungen, Events (Landtagswahl, Sprecher)
  * 13. Events: Kommunal, Zufall
- * 14. Zustimmung: Milieu-Wahlprognose, Zustimmung neu berechnen
- * 15. Milieu-History: Zustimmung pro Milieu speichern
+ * 14. Wahlkampf: Beginn, TV-Duell, Koalitionspartner-Alleingang (Monat 43+)
+ * 15. Zustimmung: Milieu-Wahlprognose, Zustimmung neu berechnen
+ * 16. Milieu-History: Zustimmung pro Milieu speichern
  */
 export function tick(state: GameState, content: ContentBundle, complexity: number = 4): GameState {
   if (state.gameOver) return state;
@@ -52,7 +60,12 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = checkGameEnd(s);
   if (s.gameOver) return s;
 
-  // 2. Pending Effects
+  // 2. Pending Effects (inkl. SMA-278: Medienklima-Historie)
+  const medienVal = s.medienKlima ?? s.zust.g;
+  const medienHist = [...(s.medienKlimaHistory ?? []), medienVal].slice(-48);
+  s = { ...s, medienKlimaHistory: medienHist };
+  if (s.medienKlima == null) s = { ...s, medienKlima: s.zust.g };
+
   s = applyPendingEffects(s);
   const routesResult = advanceRoutes(s);
   s = routesResult.state;
@@ -109,7 +122,15 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity);
   s = checkRandomEvents(s, content.events);
 
-  // 14. Zustimmung
+  // 14. Wahlkampf (SMA-278: Monat 43+)
+  s = checkWahlkampfBeginn(s, content, complexity);
+  if (s.wahlkampfAktiv) {
+    s = { ...s, wahlkampfAktionenGenutzt: 0 };
+    if (!s.activeEvent) s = checkTVDuell(s, content, complexity);
+    if (!s.activeEvent) s = checkKoalitionspartnerAlleingang(s, content, complexity);
+  }
+
+  // 15. Zustimmung
   let newZust = recalcApproval(s.kpi, s.zust);
   if (content.milieus && content.milieus.length > 0) {
     const g = berechneWahlprognose({ ...s, zust: newZust }, content, complexity);
@@ -117,7 +138,7 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   }
   s = { ...s, zust: newZust };
 
-  // 15. Milieu-History
+  // 16. Milieu-History
   if (s.milieuZustimmung && Object.keys(s.milieuZustimmung).length > 0) {
     const history = { ...(s.milieuZustimmungHistory ?? {}) };
     for (const [mid, val] of Object.entries(s.milieuZustimmung)) {
@@ -126,6 +147,14 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
       history[mid] = next;
     }
     s = { ...s, milieuZustimmungHistory: history };
+  }
+
+  if (s.wahlkampfAktiv) {
+    s = tickWahlkampfPrognose(s, content, complexity);
+  }
+
+  if (s.month === 48) {
+    s = triggerWahlnacht(s, complexity);
   }
 
   return s;

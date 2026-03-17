@@ -32,6 +32,11 @@ import {
   KOALITIONSBRUCH_EVENT,
   KOALITIONSKRISE_ULTIMATUM_EVENT,
 } from '../data/defaults/koalitionspartner';
+import {
+  WAHLKAMPF_BEGINN_EVENT,
+  TV_DUELL_EVENT,
+  KOALITIONSPARTNER_ALLEINGANG_EVENT,
+} from '../data/defaults/wahlkampfEvents';
 
 const EVENT_TYPE_ICONS: Record<string, string> = {
   danger: '🔴',
@@ -349,10 +354,15 @@ const KOALITION_CHAR_EVENTS: Record<string, GameEvent> = {
 /** Erstellt ContentBundle aus dem aktuellen Store-Zustand */
 export function getContentBundle(): ContentBundle {
   const s = useContentStore.getState();
+  const wahlkampfEvents = [
+    WAHLKAMPF_BEGINN_EVENT,
+    TV_DUELL_EVENT,
+    KOALITIONSPARTNER_ALLEINGANG_EVENT,
+  ];
   return {
     characters: s.chars,
     laws: s.gesetze,
-    events: s.events,
+    events: [...wahlkampfEvents, ...s.events],
     charEvents: { ...KOALITION_CHAR_EVENTS, ...s.charEvents },
     bundesratEvents: s.bundesratEvents,
     kommunalEvents: s.kommunalEvents ?? [],
