@@ -113,9 +113,13 @@ export interface FramingOption {
   medienklima_delta: number;
 }
 
+/** Partei-ID für Koalitionspartner (SMA-299: Dynamisch) */
+export type KoalitionspartnerParteiId = 'sdp' | 'cdp' | 'gp' | 'ldp' | 'lp';
+
 /** Koalitionspartner-State im GameState */
 export interface KoalitionspartnerState {
-  id: 'gruene' | 'spd_fluegel';
+  /** SMA-299: parteiId (dynamisch berechnet) statt id */
+  id: KoalitionspartnerParteiId;
   beziehung: number;
   koalitionsvertragScore: number;
   schluesselthemenErfuellt: string[];
@@ -123,7 +127,7 @@ export interface KoalitionspartnerState {
 
 /** Koalitionspartner-Content (Daten des Partners) */
 export interface KoalitionspartnerContent {
-  id: 'gruene' | 'spd_fluegel';
+  id: KoalitionspartnerParteiId;
   name: string;
   sprecher: string;
   /** SMA-288: Fiktives Parteikürzel (z.B. GP) */
@@ -393,7 +397,7 @@ export type SchuldenbremsenStatus = 'inaktiv' | 'ausgeglichen' | 'grenzwertig' |
 
 /** SMA-289: Spieler-Partei (im gesamten Spiel sichtbar) */
 export interface SpielerParteiState {
-  id: 'sdp' | 'cdp' | 'ldp' | 'lp';
+  id: 'sdp' | 'cdp' | 'ldp' | 'lp' | 'gp';
   kuerzel: string;
   farbe: string;
   name: string;
