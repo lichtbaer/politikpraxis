@@ -391,6 +391,21 @@ export interface AktivesStrukturEvent {
   gewaehlePrioritaeten: string[];
 }
 
+/** Legislatur-Bilanz (SMA-278) — berechnet ab Monat 43 für Wahlkampf */
+export interface LegislaturBilanz {
+  gesetzeBeschlossen: number;
+  politikfelderAbgedeckt: number;
+  haushaltsaldo: number;
+  koalitionsvertragErfuellt: number;
+  reformStaerke: 'stark' | 'moderat' | 'schwach';
+  stabilitaet: 'stabil' | 'turbulent' | 'krise';
+  wirtschaftsBilanz: 'positiv' | 'neutral' | 'negativ';
+  medienbilanz: 'gut' | 'gemischt' | 'schlecht';
+  kernthemen: string[];
+  schwachstellen: string[];
+  glaubwuerdigkeitsBonus: number;
+}
+
 export interface GameState {
   month: number;
   speed: SpeedLevel;
@@ -459,6 +474,28 @@ export interface GameState {
   aktivesStrukturEvent?: AktivesStrukturEvent | null;
   /** SMA-273: Gesetz-Projekte mit Vorstufen und Boni */
   gesetzProjekte?: Record<string, GesetzProjekt>;
+  /** SMA-278: Wahlkampf ab Monat 43 */
+  wahlkampfAktiv?: boolean;
+  /** Wahlkampf-Aktionen pro Monat (max 2), wird monatlich zurückgesetzt */
+  wahlkampfAktionenGenutzt?: number;
+  /** Legislatur-Bilanz (berechnet bei Wahlkampfbeginn) */
+  legislaturBilanz?: LegislaturBilanz | null;
+  /** Gewählte 2 Kernthemen für Wahlkampf-Kommunikation */
+  wahlkampfBotschaften?: string[];
+  /** TV-Duell bereits abgehalten */
+  tvDuellAbgehalten?: boolean;
+  /** TV-Duell gewonnen (null = noch nicht abgehalten) */
+  tvDuellGewonnen?: boolean | null;
+  /** Medienklima 0–100 (für Wahlkampf, TV-Duell) */
+  medienKlima?: number;
+  /** Medienklima-Historie für Bilanz-Berechnung */
+  medienKlimaHistory?: number[];
+  /** Wahlprognose (aktuelle Umfrage) — Basis für Wahlergebnis */
+  wahlprognose?: number;
+  /** Medienoffensive einmalig pro Legislatur genutzt */
+  medienoffensiveGenutzt?: boolean;
+  /** Finales Wahlergebnis (bei Spielende) */
+  wahlergebnis?: number;
 }
 
 /** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */

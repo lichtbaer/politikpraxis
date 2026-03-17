@@ -61,6 +61,18 @@ const FEATURES: Record<string, { minLevel: number }> = {
   gesetz_agenda: { minLevel: 3 },
   /** SMA-273: Parallele Vorstufen möglich */
   parallele_vorstufen: { minLevel: 3 },
+  /** SMA-278: Wahlkampf ab Monat 43 */
+  wahlkampf: { minLevel: 1 },
+  /** Legislatur-Bilanz-Berechnung */
+  legislatur_bilanz: { minLevel: 2 },
+  /** Bilanz-Kommunikation im Wahlkampf */
+  bilanz_kommunikation: { minLevel: 2 },
+  /** TV-Duell in Monat 45/46 */
+  tv_duell: { minLevel: 2 },
+  /** Koalitionspartner-Alleingang (20% bei Beziehung < 50) */
+  koalitionspartner_alleingang: { minLevel: 4 },
+  /** Wahlnacht-Analyse (detaillierte Ergebnisanzeige) */
+  wahlnacht_analyse: { minLevel: 3 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {

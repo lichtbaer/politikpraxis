@@ -19,6 +19,13 @@ import {
   triggerHaushaltsdebatte,
 } from './systems/haushalt';
 import { tickGesetzVorstufen } from './systems/gesetzLebenszyklus';
+import {
+  checkWahlkampfBeginn,
+  checkTVDuell,
+  checkKoalitionspartnerAlleingang,
+  tickWahlkampfPrognose,
+  triggerWahlnacht,
+} from './systems/wahlkampf';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export { addLog } from './log';
@@ -30,6 +37,12 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
 
   s = checkGameEnd(s);
   if (s.gameOver) return s;
+
+  // SMA-278: Medienklima-Historie für Legislatur-Bilanz (vor Monat 43)
+  const medienVal = s.medienKlima ?? s.zust.g;
+  const medienHist = [...(s.medienKlimaHistory ?? []), medienVal].slice(-48);
+  s = { ...s, medienKlimaHistory: medienHist };
+  if (s.medienKlima == null) s = { ...s, medienKlima: s.zust.g };
 
   s = applyPendingEffects(s);
   const routesResult = advanceRoutes(s);
@@ -77,6 +90,14 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   s = checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity);
   s = checkRandomEvents(s, content.events);
 
+  // SMA-278: Wahlkampf (Monat 43+)
+  s = checkWahlkampfBeginn(s, content, complexity);
+  if (s.wahlkampfAktiv) {
+    s = { ...s, wahlkampfAktionenGenutzt: 0 };
+    if (!s.activeEvent) s = checkTVDuell(s, content, complexity);
+    if (!s.activeEvent) s = checkKoalitionspartnerAlleingang(s, content, complexity);
+  }
+
   let newZust = recalcApproval(s.kpi, s.zust);
   if (content.milieus && content.milieus.length > 0) {
     const g = berechneWahlprognose({ ...s, zust: newZust }, content, complexity);
@@ -92,6 +113,14 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
       history[mid] = next;
     }
     s = { ...s, milieuZustimmungHistory: history };
+  }
+
+  if (s.wahlkampfAktiv) {
+    s = tickWahlkampfPrognose(s, content, complexity);
+  }
+
+  if (s.month === 48) {
+    s = triggerWahlnacht(s, complexity);
   }
 
   return s;

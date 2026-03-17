@@ -37,6 +37,11 @@ import {
   startEUInitiativeAlsVorstufe,
   abbrechenVorstufe,
 } from '../core/systems/gesetzLebenszyklus';
+import {
+  wahlkampfRede,
+  wahlkampfKoalition,
+  wahlkampfMedienoffensive,
+} from '../core/systems/wahlkampf';
 
 export type GamePhase = 'onboarding' | 'playing';
 
@@ -86,6 +91,9 @@ interface GameStore {
   doStartLaenderPilot: (gesetzId: string, fraktionId: string) => void;
   doStartEUInitiativeAlsVorstufe: (gesetzId: string) => void;
   doAbbrechenVorstufe: (gesetzId: string, typ: 'kommunal' | 'laender' | 'eu') => void;
+  doWahlkampfRede: (milieuId: string) => void;
+  doWahlkampfKoalition: () => void;
+  doWahlkampfMedienoffensive: () => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
 }
@@ -256,6 +264,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doAbbrechenVorstufe: (gesetzId, typ) =>
     set(prev => ({
       state: abbrechenVorstufe(prev.state, gesetzId, typ),
+    })),
+
+  doWahlkampfRede: (milieuId) =>
+    set(prev => ({
+      state: wahlkampfRede(
+        prev.state,
+        milieuId,
+        prev.content,
+        prev.ausrichtung,
+        prev.complexity,
+      ),
+    })),
+  doWahlkampfKoalition: () =>
+    set(prev => ({
+      state: wahlkampfKoalition(prev.state, prev.content, prev.complexity),
+    })),
+  doWahlkampfMedienoffensive: () =>
+    set(prev => ({
+      state: wahlkampfMedienoffensive(prev.state, prev.content, prev.complexity),
     })),
 
   loadSave: (savedState) => {
