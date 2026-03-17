@@ -28,6 +28,8 @@ import {
   triggerWahlnacht,
 } from './systems/wahlkampf';
 import { tickMedienKlima } from './systems/medienklima';
+import { featureActive } from './systems/features';
+import { tickExtremismusDruck } from './ideologie';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export { addLog } from './log';
@@ -52,7 +54,12 @@ export { addLog } from './log';
  * 15. Zustimmung: Milieu-Wahlprognose, Zustimmung neu berechnen
  * 16. Milieu-History: Zustimmung pro Milieu speichern
  */
-export function tick(state: GameState, content: ContentBundle, complexity: number = 4): GameState {
+export function tick(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number = 4,
+  ausrichtung?: { wirtschaft: number; gesellschaft: number; staat: number },
+): GameState {
   if (state.gameOver) return state;
 
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi } };
@@ -90,6 +97,15 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   // 5. Politikfeld-Druck
   const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
   s = checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents);
+
+  // 5b. Extremismus-Druck (SMA-280): Koalitionspartner-Warnung, Verfassungsgericht
+  if (
+    featureActive(complexity, 'extremismus_eskalation') &&
+    ausrichtung &&
+    content.extremismusEvents?.length
+  ) {
+    s = tickExtremismusDruck(s, ausrichtung, content.extremismusEvents, complexity);
+  }
 
   // 6. PK-Regen
   const pkRegen = Math.max(1, Math.floor(s.zust.g / PK_REGEN_DIVISOR));
@@ -137,10 +153,29 @@ export function tick(state: GameState, content: ContentBundle, complexity: numbe
   // 15. Zustimmung
   let newZust = recalcApproval(s.kpi, s.zust);
   if (content.milieus && content.milieus.length > 0) {
-    const g = berechneWahlprognose({ ...s, zust: newZust }, content, complexity);
+    let g = berechneWahlprognose({ ...s, zust: newZust }, content, complexity);
+    // SMA-280: Verfassungsgericht-Verfahren: -3% Wahlprognose
+    if (s.verfassungsgerichtAktiv && !s.verfassungsgerichtPausiert) {
+      g = Math.max(0, g - 3);
+    }
     newZust = { ...newZust, g };
   }
   s = { ...s, zust: newZust };
+
+  // SMA-280: Verfassungsgericht-Verfahren beenden wenn Frist abgelaufen
+  if (
+    s.verfassungsgerichtAktiv &&
+    !s.verfassungsgerichtPausiert &&
+    s.verfassungsgerichtVerfahrenBisMonat != null &&
+    s.month >= s.verfassungsgerichtVerfahrenBisMonat
+  ) {
+    s = {
+      ...s,
+      verfassungsgerichtAktiv: false,
+      verfassungsgerichtVerfahrenBisMonat: undefined,
+      verfassungsgerichtPolitikfeldIds: undefined,
+    };
+  }
 
   // 16. Milieu-History
   if (s.milieuZustimmung && Object.keys(s.milieuZustimmung).length > 0) {

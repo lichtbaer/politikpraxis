@@ -166,6 +166,8 @@ export interface EventChoice {
   key?: string;
   /** Medien-Event-Choice: Delta für Medienklima (SMA-277) */
   medienklima_delta?: number;
+  /** SMA-280: Verfassungsgericht — Verfahrensdauer in Monaten (0 = pausiert) */
+  verfahrenDauerMonate?: number;
 }
 
 export interface GameEvent {
@@ -515,6 +517,16 @@ export interface GameState {
   letztesPressemitteilungMonat?: number;
   /** Opposition als abstrakter Akteur (SMA-277) */
   opposition?: OppositionState;
+  /** SMA-280: Koalitionspartner-Extremismus-Warnung bereits ausgelöst */
+  extremismusWarnung?: boolean;
+  /** SMA-280: Verfassungsgericht-Klage aktiv */
+  verfassungsgerichtAktiv?: boolean;
+  /** SMA-280: Verfassungsgericht-Verfahren endet in diesem Monat */
+  verfassungsgerichtVerfahrenBisMonat?: number;
+  /** SMA-280: Betroffene Politikfelder (Gesetze pausiert) */
+  verfassungsgerichtPolitikfeldIds?: string[];
+  /** SMA-280: Verfahren pausiert (Reform angekündigt) */
+  verfassungsgerichtPausiert?: boolean;
   /** Wahlprognose (aktuelle Umfrage) — Basis für Wahlergebnis */
   wahlprognose?: number;
   /** Medienoffensive einmalig pro Legislatur genutzt */
@@ -610,6 +622,8 @@ export interface ContentBundle {
   euEvents?: EUEventContent[];
   /** Medien-Events (Skandale, positiv) — SMA-277 */
   medienEvents?: MedienEventContent[];
+  /** SMA-280: Extremismus-Eskalation Events (conditional) */
+  extremismusEvents?: GameEvent[];
   scenario: {
     id: string;
     name: string;

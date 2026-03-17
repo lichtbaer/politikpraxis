@@ -328,6 +328,42 @@ export function resolveEvent(
     return { ...state, activeEvent: null };
   }
 
+  // SMA-280: Extremismus-Events (Koalitionspartner-Warnung, Verfassungsgericht)
+  const EXTREMISMUS_IDS = new Set(['koalitionspartner_extremismus_warnung', 'verfassungsgericht_klage']);
+  if (EXTREMISMUS_IDS.has(event.id)) {
+    if (state.pk < (choice.cost || 0)) return state;
+    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0) };
+    newState = applyMedienChoiceDelta(newState, choice);
+    if (choice.koalitionspartnerBeziehung != null && newState.koalitionspartner) {
+      newState = {
+        ...newState,
+        koalitionspartner: {
+          ...newState.koalitionspartner,
+          beziehung: Math.min(100, Math.max(0, newState.koalitionspartner.beziehung + choice.koalitionspartnerBeziehung)),
+        },
+      };
+    }
+    if (event.id === 'verfassungsgericht_klage' && choice.verfahrenDauerMonate != null) {
+      if (choice.verfahrenDauerMonate === 0) {
+        newState = {
+          ...newState,
+          verfassungsgerichtPausiert: true,
+          verfassungsgerichtVerfahrenBisMonat: undefined,
+        };
+      } else {
+        newState = {
+          ...newState,
+          verfassungsgerichtVerfahrenBisMonat: newState.month + choice.verfahrenDauerMonate,
+          verfassungsgerichtPausiert: false,
+        };
+      }
+    }
+    newState = addLog(newState, choice.log, choice.type === 'danger' ? 'r' : 'g');
+    newState.ticker = event.ticker;
+    newState.activeEvent = null;
+    return newState;
+  }
+
   if (state.pk < (choice.cost || 0)) return state;
 
   let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0), kpi: { ...state.kpi } };
