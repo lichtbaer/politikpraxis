@@ -68,6 +68,7 @@ class CharI18n(Base):
     name: Mapped[str] = mapped_column(Text(), nullable=False)
     role: Mapped[str] = mapped_column(Text(), nullable=False)
     bio: Mapped[str] = mapped_column(Text(), nullable=False)
+    eingangszitat: Mapped[str | None] = mapped_column(Text(), nullable=True)
     bonus_desc: Mapped[str | None] = mapped_column(Text(), nullable=True)
     interests: Mapped[list[str]] = mapped_column(ARRAY(Text()), nullable=False, server_default="{}")
     keyword: Mapped[str | None] = mapped_column(Text(), nullable=True)

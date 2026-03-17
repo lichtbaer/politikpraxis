@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import i18n from '../i18n';
 import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName, SpielerParteiState } from '../core/types';
 import { createInitialState } from '../core/state';
 import { tick, addLog } from '../core/engine';
@@ -141,10 +142,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     );
     const ELECTION_THRESHOLDS: Record<number, number> = { 1: 35, 2: 38, 3: 40, 4: 42 };
     const electionThreshold = ELECTION_THRESHOLDS[get().complexity] ?? 40;
+    const ersterMonatTicker = i18n.exists('game:onboarding.erster_monat')
+      ? i18n.t('game:onboarding.erster_monat')
+      : 'Neue Legislaturperiode. Koalitionsvertrag unterzeichnet.';
     const withExpanded = {
       ...withLogs,
       gesetze: withLogs.gesetze.map((g, i) => i === 0 ? { ...g, expanded: true } : g),
       electionThreshold,
+      ticker: ersterMonatTicker,
     };
     set({ state: withExpanded, content: c });
   },

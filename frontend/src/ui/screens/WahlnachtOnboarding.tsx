@@ -39,7 +39,7 @@ export function WahlnachtOnboarding() {
   const showParteiScreen = complexity >= 2;
   const showIdeologieScreen = complexity >= 3;
 
-  const [beat, setBeat] = useState(showParteiScreen ? 0 : 2);
+  const [beat, setBeat] = useState(showParteiScreen ? 0 : 3);
   const [selectedPartei, setSelectedPartei] = useState<SpielerParteiId | null>(null);
   const [ausrichtung, setLocalAusrichtung] = useState<Ausrichtung>({
     wirtschaft: 0,
@@ -48,7 +48,7 @@ export function WahlnachtOnboarding() {
   });
 
   const advance = useCallback(() => {
-    const maxBeat = showIdeologieScreen ? 5 : 4;
+    const maxBeat = showIdeologieScreen ? 6 : 5;
     if (beat < maxBeat) setBeat((b) => b + 1);
     else startGame();
   }, [beat, startGame, showIdeologieScreen]);
@@ -61,20 +61,24 @@ export function WahlnachtOnboarding() {
       setAusrichtung(start);
       setLocalAusrichtung(start);
       setSelectedPartei(parteiId);
-      if (showIdeologieScreen) {
-        setBeat(1);
-      } else {
-        init();
-        setBeat(2);
-      }
+      setBeat(1);
     },
-    [setSpielerPartei, setAusrichtung, init, showIdeologieScreen]
+    [setSpielerPartei, setAusrichtung]
   );
+
+  const handleParteiConfirmWeiter = useCallback(() => {
+    if (showIdeologieScreen) {
+      setBeat(2);
+    } else {
+      init();
+      setBeat(3);
+    }
+  }, [showIdeologieScreen, init]);
 
   const handleIdeologieWeiter = useCallback(() => {
     setAusrichtung(ausrichtung);
     init();
-    setBeat(2);
+    setBeat(3);
   }, [ausrichtung, setAusrichtung, init]);
 
   const handleAusrichtungChange = useCallback(
@@ -88,9 +92,9 @@ export function WahlnachtOnboarding() {
     [selectedPartei]
   );
 
-  // Beat 2 (Headline): Auto-Weiter nach 4s
+  // Beat 3 (Headline): Auto-Weiter nach 4s
   useEffect(() => {
-    if (beat !== 2) return;
+    if (beat !== 3) return;
     const id = setTimeout(advance, 4000);
     return () => clearTimeout(id);
   }, [beat, advance]);
@@ -100,7 +104,7 @@ export function WahlnachtOnboarding() {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        if (beat === 0 || beat === 1) return;
+        if (beat === 0 || beat === 1 || beat === 2) return;
         advance();
       }
     };
@@ -120,6 +124,7 @@ export function WahlnachtOnboarding() {
       {/* Beat 0 — Partei wählen (Stufe 2+) */}
       {beat === 0 && (
         <div className={styles.beatPartei}>
+          <p className={styles.willkommen}>{t('game:onboarding.willkommen')}</p>
           <h1 className={styles.parteiTitle}>{t('game:onboarding.parteiTitle')}</h1>
           <div className={styles.parteiGrid}>
             {SPIELBARE_PARTEIEN.map((p) => (
@@ -147,8 +152,20 @@ export function WahlnachtOnboarding() {
         </div>
       )}
 
-      {/* Beat 1 — Ideologie feinjustieren (Stufe 3+) */}
+      {/* Beat 1 — Partei-Bestätigung (Stufe 2+) */}
       {beat === 1 && selectedPartei && (
+        <div className={styles.beatPartei}>
+          <p className={styles.parteiConfirm}>
+            {t(`game:onboarding.partei_${selectedPartei}`)}
+          </p>
+          <button type="button" className={styles.weiter} onClick={handleParteiConfirmWeiter}>
+            {t('game:onboarding.weiter')}
+          </button>
+        </div>
+      )}
+
+      {/* Beat 2 — Ideologie feinjustieren (Stufe 3+) */}
+      {beat === 2 && selectedPartei && (
         <div className={styles.beatIdeologie}>
           <h1 className={styles.ideologieTitle}>{t('game:onboarding.ideologieTitle')}</h1>
           <p className={styles.ideologieSubtitle}>{t('game:onboarding.ideologieSubtitle')}</p>
@@ -208,8 +225,8 @@ export function WahlnachtOnboarding() {
         </div>
       )}
 
-      {/* Beat 2 — Schlagzeile */}
-      {beat === 2 && (
+      {/* Beat 3 — Schlagzeile */}
+      {beat === 3 && (
         <div className={styles.beat1}>
           <div className={styles.headline}>
             <h1 className={styles.h1}>{t('game:onboarding.headline1')}</h1>
@@ -231,8 +248,8 @@ export function WahlnachtOnboarding() {
         </div>
       )}
 
-      {/* Beat 3 — Kabinett-Vorstellung */}
-      {beat === 3 && (
+      {/* Beat 4 — Kabinett-Vorstellung */}
+      {beat === 4 && (
         <div className={styles.beat2}>
           <div className={styles.chars}>
             {chars.map((c, i) => (
@@ -253,6 +270,9 @@ export function WahlnachtOnboarding() {
                 <span className={styles.charName}>{c.name || t(`game:chars.${c.id}.name`)}</span>
                 <span className={styles.charRole}>{c.role || t(`game:chars.${c.id}.role`)}</span>
                 <span className={styles.charTag}>{c.tag ?? t(`game:chars.${c.id}.tag`)}</span>
+                {c.eingangszitat && (
+                  <span className={styles.charZitat}>{c.eingangszitat}</span>
+                )}
               </div>
             ))}
           </div>
@@ -263,8 +283,8 @@ export function WahlnachtOnboarding() {
         </div>
       )}
 
-      {/* Beat 4 — Internes Memo */}
-      {beat === 4 && (
+      {/* Beat 5 — Internes Memo */}
+      {beat === 5 && (
         <div className={styles.beat3}>
           <pre className={styles.memo}>
             {t('game:onboarding.memo', { lawCount, pk, brLine: memoBrLine })}
@@ -275,8 +295,8 @@ export function WahlnachtOnboarding() {
         </div>
       )}
 
-      {/* Beat 5 — Call to Action */}
-      {beat === 5 && (
+      {/* Beat 6 — Call to Action */}
+      {beat === 6 && (
         <div className={styles.beat4}>
           <p className={styles.ctaText}>
             <em>{t('game:onboarding.cta1')}</em>

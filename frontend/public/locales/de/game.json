@@ -593,7 +593,12 @@
     "label": "NACHRICHTEN"
   },
   "onboarding": {
+    "willkommen": "Willkommen bei Politikpraxis. Du übernimmst das Kanzleramt — 48 Monate bis zur nächsten Wahl.",
     "parteiTitle": "Welche Partei führst du in die Regierung?",
+    "partei_sdp": "Du führst die Sozialdemokratische Partei in die Regierung. Arbeit, Soziales und Gerechtigkeit stehen im Kern.",
+    "partei_cdp": "Du führst die Christlich-Demokratische Partei in die Regierung. Wirtschaft, Sicherheit und Familie stehen im Kern.",
+    "partei_ldp": "Du führst die Liberal-Demokratische Partei in die Regierung. Freiheit, Digitalisierung und Eigenverantwortung stehen im Kern.",
+    "partei_lp": "Du führst die Linke Partei in die Regierung. Umverteilung, Frieden und Grundsicherung stehen im Kern.",
     "ideologieTitle": "Deine politische Ausrichtung",
     "ideologieSubtitle": "Innerhalb des Partei-Korridors",
     "wirtschaft": "Wirtschaft",
@@ -610,7 +615,12 @@
     "cta1": "Glückwunsch. Du hast gewonnen.",
     "cta2": "Jetzt fängt die Arbeit richtig los.",
     "insKanzleramt": "Ins Kanzleramt",
-    "defaultGovName": "Die neue Regierung"
+    "defaultGovName": "Die neue Regierung",
+    "erster_monat": "Erster Monat im Amt. Die Koalition ist vereidigt, die Ministerien besetzt. Jetzt geht es an die Arbeit.",
+    "erstes_gesetz": "Dein erstes Gesetz. Politisches Kapital (PK) ist deine zentrale Ressource — für Einbringen, Lobbying und Abstimmungen.",
+    "bundesrat_intro": "Der Bundesrat ist aktiv. 16 Länder, 4 Fraktionen. Lobbying beeinflusst die Abstimmungsbereitschaft.",
+    "skandal_intro": "Ein politischer Skandal hat die Regierung erreicht. Wie reagierst du?",
+    "wahlkampf_beginn": "Der Wahlkampf beginnt. Noch 6 Monate bis zur Wahl — Zeit für Reden, Koalitions-Aktionen und Medienoffensiven."
   },
   "gameSetup": {
     "title": "Spielstart",

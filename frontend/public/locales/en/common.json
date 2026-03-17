@@ -3,6 +3,15 @@
     "title": "Politikpraxis",
     "subtitle": "A politics simulation"
   },
+  "startseite": {
+    "einladung1": "You lead the federal government.",
+    "einladung2": "48 months. A coalition that must hold together.",
+    "einladung3": "19 laws waiting to be passed.",
+    "einladung4": "And an election at the end that you must win.",
+    "einladung5": "Politikpraxis is a strategy game about governing in a parliamentary democracy — with real trade-offs, scarce political capital, and a public that does not forget.",
+    "kompakt": "48 months. 19 laws. One coalition. One election. Lead the federal government.",
+    "disclaimer": "Politikpraxis is a fictional politics simulation for educational purposes. All persons, parties and institutions depicted are fictitious."
+  },
   "header": {
     "monthFormat": "Month {{month}}/48 · {{year}}",
     "pkTooltip": "Political capital — your action resource"

@@ -25,6 +25,8 @@ export interface Character {
   mood: number;
   loyalty: number;
   bio: string;
+  /** SMA-294: Eingangszitat bei Char-Vorstellung */
+  eingangszitat?: string;
   interests: string[];
   bonus: CharacterBonus;
   ultimatum: CharacterUltimatum;

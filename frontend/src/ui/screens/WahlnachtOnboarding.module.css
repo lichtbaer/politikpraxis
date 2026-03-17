@@ -116,6 +116,21 @@
   letter-spacing: 0.05em;
 }
 
+.charZitat {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text3);
+  text-align: center;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+
 .kabinettText {
   font-family: var(--serif);
   font-size: 16px;
@@ -228,6 +243,16 @@
   animation: fadeIn 0.6s ease-out;
 }
 
+.willkommen {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text2);
+  text-align: center;
+  max-width: 420px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+
 .parteiTitle {
   font-family: var(--serif);
   font-size: clamp(20px, 3vw, 26px);
@@ -284,7 +309,17 @@
   text-align: center;
 }
 
-/* SMA-289: Beat 1 — Ideologie-Feinjustierung */
+.parteiConfirm {
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--text);
+  text-align: center;
+  max-width: 400px;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+/* SMA-289: Beat 2 — Ideologie-Feinjustierung */
 .beatIdeologie {
   display: flex;
   flex-direction: column;

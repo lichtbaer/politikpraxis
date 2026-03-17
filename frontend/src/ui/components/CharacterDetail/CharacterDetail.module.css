@@ -72,6 +72,16 @@
   margin: 0 0 12px 0;
 }
 
+.eingangszitat {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text2);
+  margin: 0 0 12px 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--gold);
+  line-height: 1.5;
+}
+
 .bio {
   font-size: 13px;
   line-height: 1.5;

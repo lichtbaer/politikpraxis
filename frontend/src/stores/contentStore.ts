@@ -87,6 +87,7 @@ function transformChar(api: CharApi): Character {
       event: api.ultimatum_event_id ?? '',
     },
   };
+  if (api.eingangszitat) char.eingangszitat = api.eingangszitat;
   if (api.partei_kuerzel) char.partei_kuerzel = api.partei_kuerzel;
   if (api.partei_farbe) char.partei_farbe = api.partei_farbe;
   return char;

@@ -56,6 +56,9 @@ export function CharacterDetail() {
           {character.name || t(`game:chars.${character.id}.name`)}
         </h2>
         <p className={styles.role}>{character.role || t(`game:chars.${character.id}.role`)}</p>
+        {character.eingangszitat && (
+          <blockquote className={styles.eingangszitat}>{character.eingangszitat}</blockquote>
+        )}
         <p className={styles.bio}>{character.bio || t(`game:chars.${character.id}.bio`)}</p>
 
         <div className={styles.mood}>

@@ -80,6 +80,41 @@
   font-style: italic;
 }
 
+.einladung {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 480px;
+}
+
+.einladungText,
+.einladungKompakt {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text2);
+  margin: 0 0 0.5em 0;
+  line-height: 1.5;
+}
+
+.einladungKompakt {
+  display: block;
+}
+
+.einladungPrimaer {
+  display: none;
+}
+
+.disclaimer {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--text3);
+  margin: 24px 0 0 0;
+  max-width: 420px;
+  text-align: center;
+  line-height: 1.4;
+}
+
 .buttons {
   display: flex;
   flex-direction: column;
@@ -153,6 +188,18 @@
   }
 
   .subtitle {
+    font-size: 15px;
+  }
+
+  .einladungKompakt {
+    display: none;
+  }
+
+  .einladungPrimaer {
+    display: block;
+  }
+
+  .einladungText {
     font-size: 15px;
   }
 

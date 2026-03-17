@@ -560,7 +560,12 @@
     "label": "NEWS"
   },
   "onboarding": {
+    "willkommen": "Welcome to Politikpraxis. You take over the Chancellery — 48 months until the next election.",
     "parteiTitle": "Which party do you lead into government?",
+    "partei_sdp": "You lead the Social Democratic Party into government. Labour, social affairs and justice are at the core.",
+    "partei_cdp": "You lead the Christian Democratic Party into government. Economy, security and family are at the core.",
+    "partei_ldp": "You lead the Liberal Democratic Party into government. Freedom, digitalisation and personal responsibility are at the core.",
+    "partei_lp": "You lead the Left Party into government. Redistribution, peace and basic income are at the core.",
     "ideologieTitle": "Your political orientation",
     "ideologieSubtitle": "Within the party corridor",
     "wirtschaft": "Economy",
@@ -577,7 +582,12 @@
     "cta1": "Congratulations. You have won.",
     "cta2": "Now the real work begins.",
     "insKanzleramt": "To the Chancellery",
-    "defaultGovName": "The new government"
+    "defaultGovName": "The new government",
+    "erster_monat": "First month in office. The coalition is sworn in, ministries are staffed. Now the work begins.",
+    "erstes_gesetz": "Your first law. Political capital (PK) is your central resource — for introducing, lobbying and votes.",
+    "bundesrat_intro": "The Bundesrat (Federal Council) is active. 16 states, 4 factions. Lobbying affects willingness to vote.",
+    "skandal_intro": "A political scandal has reached the government. How do you respond?",
+    "wahlkampf_beginn": "The campaign begins. 6 months until the election — time for speeches, coalition actions and media offensives."
   },
   "gameSetup": {
     "title": "Game Start",

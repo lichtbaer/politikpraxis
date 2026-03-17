@@ -27,6 +27,7 @@ export interface CharApi {
   name: string;
   role: string;
   bio: string;
+  eingangszitat?: string | null;
   bonus_desc?: string | null;
   interests: string[];
   keyword?: string | null;
