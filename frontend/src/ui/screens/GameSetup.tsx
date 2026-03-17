@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
-import type { Ausrichtung } from '../../core/systems/ausrichtung';
+import { PARTEI_STARTPUNKTE, SPIELBARE_PARTEIEN } from '../../data/defaults/parteien';
 import styles from './GameSetup.module.css';
 
 const COMPLEXITY_LEVELS = [
@@ -32,59 +32,24 @@ const COMPLEXITY_LEVELS = [
   },
 ] as const;
 
-function buildAusrichtungSatz(
-  ausrichtung: Ausrichtung,
-  t: (key: string, opts?: Record<string, number | string>) => string
-): string {
-  const parts: string[] = [];
-  if (ausrichtung.wirtschaft !== 0) {
-    parts.push(
-      ausrichtung.wirtschaft < 0
-        ? t('gameSetup.ausrichtungWirtschaftUmverteilung', { val: Math.abs(ausrichtung.wirtschaft) })
-        : t('gameSetup.ausrichtungWirtschaftWachstum', { val: ausrichtung.wirtschaft })
-    );
-  }
-  if (ausrichtung.gesellschaft !== 0) {
-    parts.push(
-      ausrichtung.gesellschaft < 0
-        ? t('gameSetup.ausrichtungGesellschaftOffenheit', { val: Math.abs(ausrichtung.gesellschaft) })
-        : t('gameSetup.ausrichtungGesellschaftOrdnung', { val: ausrichtung.gesellschaft })
-    );
-  }
-  if (ausrichtung.staat !== 0) {
-    parts.push(
-      ausrichtung.staat < 0
-        ? t('gameSetup.ausrichtungStaatGemeinschaft', { val: Math.abs(ausrichtung.staat) })
-        : t('gameSetup.ausrichtungStaatEigenverantwortung', { val: ausrichtung.staat })
-    );
-  }
-  if (parts.length === 0) return t('gameSetup.ausrichtungNeutral');
-  return t('gameSetup.ausrichtungSatz', { parts: parts.join(', ') });
-}
-
+/** SMA-289: Stufe 1: init mit SDP. Stufe 2+: init erst im Onboarding (Partei-Auswahl). */
 export function GameSetup() {
   const { t } = useTranslation('game');
   const navigate = useNavigate();
-  const { init, setPlayerName, setComplexity, setAusrichtung } = useGameStore();
+  const { init, setPlayerName, setComplexity, setSpielerPartei, setAusrichtung } = useGameStore();
 
   const [name, setName] = useState('');
   const [selectedComplexity, setSelectedComplexity] = useState(1);
-  const [ausrichtung, setLocalAusrichtung] = useState<Ausrichtung>({
-    wirtschaft: 0,
-    gesellschaft: 0,
-    staat: 0,
-  });
-
-  const ausrichtungSatz = useMemo(
-    () => buildAusrichtungSatz(ausrichtung, (k, opts) => t(k as never, opts)),
-    [ausrichtung, t]
-  );
 
   const handleKandidaturAnnehmen = () => {
     setPlayerName(name.trim().slice(0, 30));
     setComplexity(selectedComplexity);
-    setAusrichtung(ausrichtung);
-    init();
+    if (selectedComplexity === 1) {
+      const sdp = SPIELBARE_PARTEIEN.find((p) => p.id === 'sdp')!;
+      setSpielerPartei({ id: sdp.id, kuerzel: sdp.kuerzel, farbe: sdp.farbe, name: sdp.name });
+      setAusrichtung(PARTEI_STARTPUNKTE.sdp);
+      init();
+    }
     navigate('/game');
   };
 
@@ -110,71 +75,7 @@ export function GameSetup() {
           />
         </section>
 
-        {/* Block B — Politische Ausrichtung */}
-        <section className={styles.block}>
-          <h2 className={styles.blockTitle}>{t('gameSetup.ausrichtungTitle')}</h2>
-
-          <div className={styles.sliderGroup}>
-            <label className={styles.sliderLabel}>
-              <span className={styles.sliderPole}>{t('gameSetup.wirtschaftLinks')}</span>
-              <span className={styles.sliderDim}>Wirtschaft</span>
-              <span className={styles.sliderPole}>{t('gameSetup.wirtschaftRechts')}</span>
-            </label>
-            <input
-              type="range"
-              min={-100}
-              max={100}
-              step={1}
-              value={ausrichtung.wirtschaft}
-              onChange={(e) =>
-                setLocalAusrichtung((a) => ({ ...a, wirtschaft: Number(e.target.value) }))
-              }
-              className={styles.slider}
-            />
-          </div>
-
-          <div className={styles.sliderGroup}>
-            <label className={styles.sliderLabel}>
-              <span className={styles.sliderPole}>{t('gameSetup.gesellschaftLinks')}</span>
-              <span className={styles.sliderDim}>Gesellschaft</span>
-              <span className={styles.sliderPole}>{t('gameSetup.gesellschaftRechts')}</span>
-            </label>
-            <input
-              type="range"
-              min={-100}
-              max={100}
-              step={1}
-              value={ausrichtung.gesellschaft}
-              onChange={(e) =>
-                setLocalAusrichtung((a) => ({ ...a, gesellschaft: Number(e.target.value) }))
-              }
-              className={styles.slider}
-            />
-          </div>
-
-          <div className={styles.sliderGroup}>
-            <label className={styles.sliderLabel}>
-              <span className={styles.sliderPole}>{t('gameSetup.staatLinks')}</span>
-              <span className={styles.sliderDim}>Staat</span>
-              <span className={styles.sliderPole}>{t('gameSetup.staatRechts')}</span>
-            </label>
-            <input
-              type="range"
-              min={-100}
-              max={100}
-              step={1}
-              value={ausrichtung.staat}
-              onChange={(e) =>
-                setLocalAusrichtung((a) => ({ ...a, staat: Number(e.target.value) }))
-              }
-              className={styles.slider}
-            />
-          </div>
-
-          <p className={styles.ausrichtungSatz}>{ausrichtungSatz}</p>
-        </section>
-
-        {/* Block C — Komplexitätsstufe */}
+        {/* Block B — Komplexitätsstufe (SMA-289: Ausrichtung/Partei im Onboarding) */}
         <section className={styles.block}>
           <h2 className={styles.blockTitle}>{t('gameSetup.complexityTitle')}</h2>
           <div className={styles.complexityGrid}>

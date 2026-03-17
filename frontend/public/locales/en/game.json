@@ -560,6 +560,13 @@
     "label": "NEWS"
   },
   "onboarding": {
+    "parteiTitle": "Which party do you lead into government?",
+    "ideologieTitle": "Your political orientation",
+    "ideologieSubtitle": "Within the party corridor",
+    "wirtschaft": "Economy",
+    "gesellschaft": "Society",
+    "staat": "State",
+    "korridorHint": "Corridor: {{partei}}-typical",
     "headline1": "FEDERAL ELECTION 2025",
     "headline2": "{{name}} WINS —\nNEW GOVERNMENT POSSIBLE",
     "headlineMeta": "40.2% · SPD/Greens coalition likely\nTurnout: 76.3% · Historic night in Berlin",

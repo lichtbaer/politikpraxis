@@ -593,6 +593,13 @@
     "label": "NACHRICHTEN"
   },
   "onboarding": {
+    "parteiTitle": "Welche Partei führst du in die Regierung?",
+    "ideologieTitle": "Deine politische Ausrichtung",
+    "ideologieSubtitle": "Innerhalb des Partei-Korridors",
+    "wirtschaft": "Wirtschaft",
+    "gesellschaft": "Gesellschaft",
+    "staat": "Staat",
+    "korridorHint": "Korridor: {{partei}}-typisch",
     "headline1": "BUNDESTAGSWAHL 2025",
     "headline2": "{{name}} GEWINNT —\nNEUE REGIERUNG MÖGLICH",
     "headlineMeta": "40,2% · SPD/Grüne-Koalition wahrscheinlich\nWahlbeteiligung: 76,3% · Historische Nacht in Berlin",

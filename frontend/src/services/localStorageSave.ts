@@ -1,4 +1,4 @@
-import type { GameState } from '../core/types';
+import type { GameState, SpielerParteiState } from '../core/types';
 import type { Ausrichtung } from '../core/systems/ausrichtung';
 
 /** Kompatibel mit v0.5.x */
@@ -13,6 +13,8 @@ export interface SaveFile {
   playerName: string;
   complexity: number;
   ausrichtung: Ausrichtung;
+  /** SMA-289: Spieler-Partei (optional für ältere Saves) */
+  spielerPartei?: SpielerParteiState;
 }
 
 function isLocalStorageAvailable(): boolean {

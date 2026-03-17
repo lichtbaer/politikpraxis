@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName } from '../core/types';
+import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName, SpielerParteiState } from '../core/types';
 import { createInitialState } from '../core/state';
 import { tick, addLog } from '../core/engine';
 import { einbringen, lobbying, abstimmen, type EinbringenContext, type GesetzBeschlussContext } from '../core/systems/parliament';
@@ -24,6 +24,7 @@ import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung'
 import type { LobbyTradeoffOptions } from '../core/types';
 import { getContentBundle } from '../stores/contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
+import { SPIELBARE_PARTEIEN } from '../data/defaults/parteien';
 import { saveGame, type SaveFile } from '../services/localStorageSave';
 import { migrateGameState, validateGameState } from '../core/state';
 import {
@@ -56,12 +57,15 @@ interface GameStore {
   complexity: number;
   ausrichtung: Ausrichtung;
   ausrichtungApplied: boolean;
+  /** SMA-289: Gewählte Partei (Stufe 1: SDP default) */
+  spielerPartei: SpielerParteiState | null;
 
   init: (content?: ContentBundle) => void;
   startGame: () => void;
   setPlayerName: (name: string) => void;
   setComplexity: (c: number) => void;
   setAusrichtung: (a: Ausrichtung) => void;
+  setSpielerPartei: (partei: SpielerParteiState | null) => void;
   gameTick: () => void;
   setSpeed: (speed: SpeedLevel) => void;
   setView: (view: ViewName) => void;
@@ -111,11 +115,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
   complexity: 2,
   ausrichtung: DEFAULT_AUSRICHTUNG,
   ausrichtungApplied: false,
+  spielerPartei: null,
 
   init: (content?: ContentBundle) => {
-    const { ausrichtung, ausrichtungApplied, complexity } = get();
+    const { ausrichtung, ausrichtungApplied, complexity, spielerPartei } = get();
     const c = content ?? getContentBundle();
-    let initial = createInitialState(c, complexity, ausrichtung);
+    const spielerParteiState =
+      spielerPartei ??
+      (() => {
+        const p = SPIELBARE_PARTEIEN.find((x) => x.id === 'sdp');
+        return p ? { id: p.id, kuerzel: p.kuerzel, farbe: p.farbe, name: p.name } : undefined;
+      })();
+    let initial = createInitialState(c, complexity, ausrichtung, spielerParteiState ?? undefined);
     if (!ausrichtungApplied && (ausrichtung.wirtschaft !== 0 || ausrichtung.gesellschaft !== 0 || ausrichtung.staat !== 0)) {
       initial = applyAusrichtung(initial, ausrichtung);
       set({ ausrichtungApplied: true });
@@ -145,6 +156,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setComplexity: (complexity) => set({ complexity }),
 
   setAusrichtung: (ausrichtung) => set({ ausrichtung, ausrichtungApplied: false }),
+  setSpielerPartei: (spielerPartei) => set({ spielerPartei }),
 
   gameTick: () => {
     const { state: s, content, phase, playerName, complexity, ausrichtung } = get();
@@ -152,7 +164,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const nextState = tick(s, content, complexity, ausrichtung);
     set({ state: nextState });
     if (phase === 'playing' && !nextState.gameOver) {
-      saveGame({ gameState: nextState, playerName, complexity, ausrichtung });
+      saveGame({
+        gameState: nextState,
+        playerName,
+        complexity,
+        ausrichtung,
+        spielerPartei: nextState.spielerPartei,
+      });
     }
   },
 
@@ -334,6 +352,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         firedBundesratEvents: validated.firedBundesratEvents ?? [],
         electionThreshold: validated.electionThreshold ?? 40,
       });
+      const spielerPartei = save.spielerPartei ?? state.spielerPartei ?? null;
       set({
         state,
         content: getContentBundle(),
@@ -341,6 +360,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         complexity,
         ausrichtung: save.ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
         ausrichtungApplied: true,
+        spielerPartei,
         phase: 'playing',
       });
     } catch {
