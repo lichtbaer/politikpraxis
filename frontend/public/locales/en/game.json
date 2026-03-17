@@ -1,4 +1,5 @@
 {
+  "_deprecated": "DEPRECATED: Narrative content (chars, laws, events, bundesrat) now served from API /api/content/game?locale=en. This file kept for UI strings (onboarding, setup, etc.) until full migration. See SMA-257.",
   "_institutionConvention": "Bundesrat → Bundesrat (Federal Council); Bundestag → Bundestag (Federal Parliament); Bundesland/Länder → Federal States",
   "chars": {
     "kanzler": {
