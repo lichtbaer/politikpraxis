@@ -34,8 +34,9 @@
   color: var(--text);
 }
 
+/* SMA-302: Aktiver Tab klar hervorgehoben (Hintergrund + Farbe) */
 .tab.active {
-  background: color-mix(in srgb, var(--tab-color, var(--gold)) 18%, transparent);
+  background: color-mix(in srgb, var(--tab-color, var(--gold)) 22%, transparent);
   color: var(--tab-color, var(--gold));
   font-weight: 600;
 }

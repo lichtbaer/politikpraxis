@@ -1,8 +1,16 @@
+/* SMA-302: Einheitliche Karten-Optik mit Hover */
 .card {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .header {

@@ -319,6 +319,7 @@ export function validateGameState(raw: unknown): GameState {
     'gesetzProjekte', 'wahlkampfAktiv', 'wahlkampfAktionenGenutzt', 'legislaturBilanz', 'wahlkampfBotschaften',
     'tvDuellAbgehalten', 'tvDuellGewonnen', 'medienKlimaHistory', 'letzterSkandal', 'letztesPressemitteilungMonat',
     'opposition', 'medienoffensiveGenutzt',
+    'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
@@ -376,14 +377,14 @@ export function migrateGameState(state: GameState): GameState {
     }
   }
   if ((result.koalitionspartner?.id as string) === 'gruene') {
-    const kp = result.koalitionspartner;
+    const kp = result.koalitionspartner!;
     result = {
       ...result,
       koalitionspartner: {
         id: 'gp',
-        beziehung: kp?.beziehung ?? 50,
-        koalitionsvertragScore: kp?.koalitionsvertragScore ?? 0,
-        schluesselthemenErfuellt: kp?.schluesselthemenErfuellt ?? [],
+        beziehung: kp.beziehung ?? 50,
+        koalitionsvertragScore: kp.koalitionsvertragScore ?? 50,
+        schluesselthemenErfuellt: kp.schluesselthemenErfuellt ?? [],
       },
     };
   }

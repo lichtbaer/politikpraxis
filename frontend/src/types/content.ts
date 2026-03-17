@@ -117,6 +117,8 @@ export interface EventChoiceApi {
   medienklima_delta?: number;
   /** SMA-280: Verfassungsgericht Verfahrensdauer in Monaten */
   verfahren_dauer_monate?: number;
+  /** SMA-298: Bundesrat-Bonus für alle Fraktionen (Länder-Koalitionskrise) */
+  bundesrat_bonus?: number;
 }
 
 export interface EventApi {

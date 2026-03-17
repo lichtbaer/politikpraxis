@@ -40,6 +40,12 @@ import {
   abbrechenVorstufe,
 } from '../core/systems/gesetzLebenszyklus';
 import {
+  staedtebuendnis,
+  kommunalKonferenz,
+  laenderGipfel,
+  pilotBeschleunigen,
+} from '../core/systems/ebeneActions';
+import {
   wahlkampfRede,
   wahlkampfKoalition,
   wahlkampfMedienoffensive,
@@ -99,6 +105,10 @@ interface GameStore {
   doStartLaenderPilot: (gesetzId: string, fraktionId: string) => void;
   doStartEUInitiativeAlsVorstufe: (gesetzId: string) => void;
   doAbbrechenVorstufe: (gesetzId: string, typ: 'kommunal' | 'laender' | 'eu') => void;
+  doStaedtebuendnis: () => void;
+  doKommunalKonferenz: () => void;
+  doLaenderGipfel: () => void;
+  doPilotBeschleunigen: (gesetzId: string, typ: 'kommunal' | 'laender') => void;
   doWahlkampfRede: (milieuId: string) => void;
   doWahlkampfKoalition: () => void;
   doWahlkampfMedienoffensive: () => void;
@@ -319,6 +329,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(prev => ({
       state: abbrechenVorstufe(prev.state, gesetzId, typ),
     })),
+
+  doStaedtebuendnis: () =>
+    set(prev => {
+      const next = staedtebuendnis(prev.state, prev.complexity);
+      return next !== prev.state ? { state: next } : {};
+    }),
+  doKommunalKonferenz: () =>
+    set(prev => {
+      const next = kommunalKonferenz(prev.state, prev.complexity);
+      return next !== prev.state ? { state: next } : {};
+    }),
+  doLaenderGipfel: () =>
+    set(prev => {
+      const next = laenderGipfel(prev.state, prev.complexity);
+      return next !== prev.state ? { state: next } : {};
+    }),
+  doPilotBeschleunigen: (gesetzId, typ) =>
+    set(prev => {
+      const next = pilotBeschleunigen(prev.state, gesetzId, typ, prev.complexity);
+      return next !== prev.state ? { state: next } : {};
+    }),
 
   doWahlkampfRede: (milieuId) =>
     set(prev => ({

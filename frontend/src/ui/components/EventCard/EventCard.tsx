@@ -7,6 +7,8 @@ interface EventCardProps {
   onChoice: (event: GameEvent, choice: EventChoice) => void;
   /** SMA-279: Skandal-Events mit rotem Banner, Zeitungs-Icon, Medienklima-Delta in Choices */
   headerClass?: string;
+  /** SMA-302: Custom header background (z.B. Koalitionspartner-Farbe) */
+  headerColor?: string;
   icon?: string;
   showMedienklimaDelta?: boolean;
 }
@@ -41,10 +43,13 @@ const SKANDAL_IDS = new Set([
   'medien_skandal_lobbying', 'medien_skandal_haushaltsloch', 'medien_skandal_persoenlich',
 ]);
 
-export function EventCard({ event, onChoice, headerClass: headerClassOverride, icon: iconOverride, showMedienklimaDelta }: EventCardProps) {
+const KOALITION_EVENT_IDS = new Set(['koalitionsbruch', 'koalitionskrise_ultimatum']);
+
+export function EventCard({ event, onChoice, headerClass: headerClassOverride, headerColor, icon: iconOverride, showMedienklimaDelta }: EventCardProps) {
   const { t } = useTranslation('game');
   const isSkandal = SKANDAL_IDS.has(event.id);
-  const headerClass = headerClassOverride ?? (isSkandal ? `${styles.header} ${styles.headerSkandal}` : `${styles.header} ${TYPE_CLASS[event.type]}`);
+  const isKoalition = KOALITION_EVENT_IDS.has(event.id);
+  const headerClass = headerClassOverride ?? (isSkandal ? `${styles.header} ${styles.headerSkandal}` : isKoalition && headerColor ? `${styles.header}` : `${styles.header} ${TYPE_CLASS[event.type]}`);
   const icon = iconOverride ?? (isSkandal ? '📰' : event.icon);
   const showDelta = showMedienklimaDelta ?? isSkandal;
   const ns = getEventNs(event);
@@ -56,7 +61,7 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, i
 
   return (
     <article className={styles.card}>
-      <header className={headerClass}>
+      <header className={headerClass} style={headerColor ? { backgroundColor: headerColor, color: '#fff' } : undefined}>
         <span className={styles.icon}>{icon}</span>
         <div className={styles.headerText}>
           <span className={styles.typeLabel}>{typeLabel.toUpperCase()}</span>

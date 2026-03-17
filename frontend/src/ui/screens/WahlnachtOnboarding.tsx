@@ -122,11 +122,31 @@ export function WahlnachtOnboarding() {
   const showBundesratLine = featureActive(complexity, 'bundesrat_sichtbar');
   const memoBrLine = showBundesratLine ? t('game:onboarding.memoBrLine') : '';
 
+  /* SMA-302: Fortschritts-Dots — Schritte je nach Komplexität */
+  const steps = showIdeologieScreen
+    ? [0, 1, 2, 3, 4, 5, 6]
+    : showParteiScreen
+      ? [0, 1, 3, 4, 5, 6]
+      : [3, 4, 5, 6];
+  const currentStepIndex = steps.indexOf(beat);
+
   return (
     <div className={styles.root}>
-      {/* Beat 0 — Partei wählen (Stufe 2+) */}
-      {beat === 0 && (
-        <div className={styles.beatPartei}>
+      <div className={styles.layoutWrapper}>
+        {/* Fortschritts-Dots (SMA-302) */}
+        <div className={styles.progressDots} aria-label={t('game:onboarding.stepProgress', { current: currentStepIndex + 1, total: steps.length })}>
+          {steps.map((s, i) => (
+            <span
+              key={s}
+              className={`${styles.progressDot} ${i === currentStepIndex ? styles.active : i < currentStepIndex ? styles.passed : ''}`}
+              aria-hidden
+            />
+          ))}
+        </div>
+
+        {/* Beat 0 — Partei wählen (Stufe 2+) */}
+        {beat === 0 && (
+          <div className={styles.beatPartei}>
           <p className={styles.willkommen}>{t('game:onboarding.willkommen')}</p>
           <h1 className={styles.parteiTitle}>{t('game:onboarding.parteiTitle')}</h1>
           <div className={styles.parteiGrid}>
@@ -151,25 +171,25 @@ export function WahlnachtOnboarding() {
                 <span className={styles.parteiBeschreibung}>{p.beschreibung}</span>
               </button>
             ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Beat 1 — Partei-Bestätigung (Stufe 2+) */}
-      {beat === 1 && selectedPartei && (
-        <div className={styles.beatPartei}>
+        {/* Beat 1 — Partei-Bestätigung (Stufe 2+) */}
+        {beat === 1 && selectedPartei && (
+          <div className={styles.beatPartei}>
           <p className={styles.parteiConfirm}>
             {t(`game:onboarding.partei_${selectedPartei}`)}
           </p>
-          <button type="button" className={styles.weiter} onClick={handleParteiConfirmWeiter}>
-            {t('game:onboarding.weiter')}
-          </button>
-        </div>
-      )}
+            <button type="button" className={styles.weiter} onClick={handleParteiConfirmWeiter}>
+              {t('game:onboarding.weiter')}
+            </button>
+          </div>
+        )}
 
-      {/* Beat 2 — Ideologie feinjustieren (Stufe 3+) — SMA-301 */}
-      {beat === 2 && selectedPartei && (
-        <div className={styles.beatIdeologie}>
+        {/* Beat 2 — Ideologie feinjustieren (Stufe 3+) — SMA-301 */}
+        {beat === 2 && selectedPartei && (
+          <div className={styles.beatIdeologie}>
           <h1 className={styles.ideologieTitle}>{t('game:onboarding.ideologieTitle')}</h1>
           <p className={styles.ideologieSubtitle}>{t('game:onboarding.ideologieSubtitle')}</p>
           <IdeologieSlider
@@ -213,11 +233,11 @@ export function WahlnachtOnboarding() {
             {t('game:onboarding.weiter')}
           </button>
         </div>
-      )}
+        )}
 
-      {/* Beat 3 — Schlagzeile */}
-      {beat === 3 && (
-        <div className={styles.beat1}>
+        {/* Beat 3 — Schlagzeile */}
+        {beat === 3 && (
+          <div className={styles.beat1}>
           <div className={styles.headline}>
             <h1 className={styles.h1}>{t('game:onboarding.headline1')}</h1>
             <h2 className={styles.h2}>
@@ -232,15 +252,15 @@ export function WahlnachtOnboarding() {
             </h2>
             <p className={styles.meta}>{t('game:onboarding.headlineMeta')}</p>
           </div>
-          <button type="button" className={styles.weiter} onClick={advance}>
-            {t('game:onboarding.weiter')}
-          </button>
-        </div>
-      )}
+            <button type="button" className={styles.weiter} onClick={advance}>
+              {t('game:onboarding.weiter')}
+            </button>
+          </div>
+        )}
 
-      {/* Beat 4 — Kabinett-Vorstellung */}
-      {beat === 4 && (
-        <div className={styles.beat2}>
+        {/* Beat 4 — Kabinett-Vorstellung */}
+        {beat === 4 && (
+          <div className={styles.beat2}>
           <div className={styles.chars}>
             {chars.map((c, i) => (
               <div
@@ -267,37 +287,40 @@ export function WahlnachtOnboarding() {
             ))}
           </div>
           <p className={styles.kabinettText}>{t('game:onboarding.kabinettText')}</p>
-          <button type="button" className={styles.weiter} onClick={advance}>
-            {t('game:onboarding.weiter')}
-          </button>
-        </div>
-      )}
+            <button type="button" className={styles.weiter} onClick={advance}>
+              {t('game:onboarding.weiter')}
+            </button>
+          </div>
+        )}
 
-      {/* Beat 5 — Internes Memo */}
-      {beat === 5 && (
-        <div className={styles.beat3}>
-          <pre className={styles.memo}>
-            {t('game:onboarding.memo', { lawCount, pk, brLine: memoBrLine })}
-          </pre>
-          <button type="button" className={styles.weiter} onClick={advance}>
-            {t('game:onboarding.weiter')}
-          </button>
-        </div>
-      )}
+        {/* Beat 5 — Internes Memo */}
+        {beat === 5 && (
+          <div className={styles.beat3}>
+          <div className={styles.memoContainer}>
+            <pre className={styles.memo}>
+              {t('game:onboarding.memo', { lawCount, pk, brLine: memoBrLine })}
+            </pre>
+          </div>
+            <button type="button" className={styles.weiter} onClick={advance}>
+              {t('game:onboarding.weiter')}
+            </button>
+          </div>
+        )}
 
-      {/* Beat 6 — Call to Action */}
-      {beat === 6 && (
-        <div className={styles.beat4}>
-          <p className={styles.ctaText}>
-            <em>{t('game:onboarding.cta1')}</em>
-            <br />
-            <strong>{t('game:onboarding.cta2')}</strong>
-          </p>
-          <button type="button" className={styles.insKanzleramt} onClick={advance}>
-            {t('game:onboarding.insKanzleramt')}
-          </button>
-        </div>
-      )}
+        {/* Beat 6 — Call to Action */}
+        {beat === 6 && (
+          <div className={styles.beat4}>
+            <p className={styles.ctaText}>
+              <em>{t('game:onboarding.cta1')}</em>
+              <br />
+              <strong>{t('game:onboarding.cta2')}</strong>
+            </p>
+            <button type="button" className={styles.insKanzleramt} onClick={advance}>
+              {t('game:onboarding.insKanzleramt')}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

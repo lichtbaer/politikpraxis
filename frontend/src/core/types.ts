@@ -51,7 +51,7 @@ export interface LawEffects {
 
 export type LawStatus = 'entwurf' | 'aktiv' | 'blockiert' | 'beschlossen' | 'ausweich' | 'bt_passed';
 export type RouteType = 'eu' | 'land' | 'kommune';
-export type LawTag = 'bund' | 'eu' | 'land' | 'kommune';
+export type LawTag = 'bund' | 'eu' | 'land' | 'kommune' | 'kommunen';
 
 /** Lobby-Status pro Fraktion pro Gesetz */
 export interface LawLobbyFraktion {
@@ -132,6 +132,8 @@ export interface KoalitionspartnerContent {
   sprecher: string;
   /** SMA-288: Fiktives Parteikürzel (z.B. GP) */
   partei_kuerzel?: string;
+  /** SMA-302: Parteifarbe für Event-Modal-Header (Koalition) */
+  partei_farbe?: string;
   ideologie: Ideologie;
   beziehung_start: number;
   bt_stimmen: number;
@@ -180,6 +182,8 @@ export interface EventChoice {
   medienklima_delta?: number;
   /** SMA-280: Verfassungsgericht — Verfahrensdauer in Monaten (0 = pausiert) */
   verfahrenDauerMonate?: number;
+  /** SMA-298: Bundesrat-Bonus für alle Fraktionen (Länder-Koalitionskrise) */
+  bundesratBonusAll?: number;
 }
 
 export interface GameEvent {
@@ -523,6 +527,12 @@ export interface GameState {
   aktivesStrukturEvent?: AktivesStrukturEvent | null;
   /** SMA-273: Gesetz-Projekte mit Vorstufen und Boni */
   gesetzProjekte?: Record<string, GesetzProjekt>;
+  /** SMA-298: Städtebündnis aktiv bis Monat (erhöht Kommunal-Initiative Chance) */
+  staedtebuendnisBisMonat?: number;
+  /** SMA-298: Kommunal-Konferenz — Jahr der letzten Nutzung (1×/Jahr) */
+  kommunalKonferenzJahr?: number;
+  /** SMA-298: Bonus-Monate pro Gesetz für Vorstufen-Beschleunigung */
+  vorstufeBonusMonate?: Record<string, number>;
   /** SMA-278: Wahlkampf ab Monat 43 */
   wahlkampfAktiv?: boolean;
   /** Wahlkampf-Aktionen pro Monat (max 2), wird monatlich zurückgesetzt */
@@ -654,6 +664,8 @@ export interface ContentBundle {
   medienEvents?: MedienEventContent[];
   /** SMA-280: Extremismus-Eskalation Events (conditional) */
   extremismusEvents?: GameEvent[];
+  /** SMA-298: Kommunal/Länder conditional Events */
+  kommunalLaenderEvents?: GameEvent[];
   scenario: {
     id: string;
     name: string;
