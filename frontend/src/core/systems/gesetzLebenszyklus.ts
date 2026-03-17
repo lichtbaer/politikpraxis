@@ -55,6 +55,23 @@ function ensureGesetzProjekt(state: GameState, gesetzId: string): GameState {
   return { ...state, gesetzProjekte: projekte };
 }
 
+/** SMA-274: Als Vorbild nutzen — reduzierter Bonus (+2% BT) ohne PK, auf GesetzProjekt */
+export function applyVorbildBonus(state: GameState, gesetzId: string): GameState {
+  const s = ensureGesetzProjekt(state, gesetzId);
+  const projekt = s.gesetzProjekte![gesetzId];
+  const boni = {
+    ...projekt.boni,
+    btStimmenBonus: Math.min(25, projekt.boni.btStimmenBonus + 2),
+  };
+  return {
+    ...s,
+    gesetzProjekte: {
+      ...s.gesetzProjekte!,
+      [gesetzId]: { ...projekt, boni },
+    },
+  };
+}
+
 function verbrauchePK(state: GameState, cost: number): GameState | null {
   if (state.pk < cost) return null;
   return { ...state, pk: state.pk - cost };

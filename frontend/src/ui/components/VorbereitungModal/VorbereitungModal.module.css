@@ -1,0 +1,168 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-family: var(--serif);
+}
+
+.close {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 16px;
+  background: transparent;
+  border: none;
+  color: var(--text2);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.close:hover {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.body {
+  padding: 20px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.meta {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.warn {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--warn);
+}
+
+.aktiv {
+  font-size: 12px;
+  color: var(--text2);
+  font-style: italic;
+}
+
+.stadttypRow,
+.stadtGrid,
+.fraktionGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stadttypBtn,
+.stadtBtn,
+.fraktionBtn {
+  padding: 8px 14px;
+  font-size: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.stadttypBtn:hover:not(:disabled),
+.stadtBtn:hover:not(:disabled),
+.fraktionBtn:hover:not(:disabled) {
+  background: var(--bg4);
+  border-color: var(--gold);
+}
+
+.stadttypBtn:disabled,
+.stadtBtn:disabled,
+.fraktionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stadtGrid {
+  flex-direction: column;
+}
+
+.stadtGruppe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.stadtTypLabel {
+  font-size: 11px;
+  color: var(--text2);
+  min-width: 100px;
+}
+
+.klima {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--blue);
+}
+
+.hinweis {
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.btn {
+  padding: 8px 16px;
+  font-size: 12px;
+  background: var(--gold2);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  color: var(--gold);
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--gold);
+  color: var(--bg2);
+}
+
+.akkumuliert {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text2);
+}

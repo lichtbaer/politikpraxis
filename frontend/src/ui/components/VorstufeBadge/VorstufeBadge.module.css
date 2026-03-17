@@ -1,0 +1,71 @@
+.offen {
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.aktiv {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.label {
+  flex-shrink: 0;
+  color: var(--text2);
+}
+
+.progress {
+  flex: 1;
+  min-width: 40px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--bg4);
+  border-radius: 2px;
+}
+
+.progress::-webkit-progress-bar {
+  background: var(--bg4);
+  border-radius: 2px;
+}
+
+.progress::-webkit-progress-value {
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+.progress::-moz-progress-bar {
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+.abbrechen {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  font-size: 10px;
+  line-height: 1;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.abbrechen:hover {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.erfolg {
+  font-size: 11px;
+  color: var(--green);
+}
+
+.gescheitert {
+  font-size: 11px;
+  color: var(--red);
+}

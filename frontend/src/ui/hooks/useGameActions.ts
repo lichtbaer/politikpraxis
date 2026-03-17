@@ -23,6 +23,10 @@ export function useGameActions() {
     toggleAgenda: store.toggleAgenda,
     setSpeed: store.setSpeed,
     setView: store.setView,
+    startKommunalPilot: store.doStartKommunalPilot,
+    startLaenderPilot: store.doStartLaenderPilot,
+    startEUInitiativeAlsVorstufe: store.doStartEUInitiativeAlsVorstufe,
+    abbrechenVorstufe: store.doAbbrechenVorstufe,
     euLobbyingRunde: store.doEULobbyingRunde,
     euKompromissAnbieten: store.doEUKompromissAnbieten,
   };

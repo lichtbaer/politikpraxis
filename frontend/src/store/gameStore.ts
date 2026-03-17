@@ -31,6 +31,12 @@ import {
   advanceHaushaltsdebattePhase,
   schliessenHaushaltsdebatte,
 } from '../core/systems/haushalt';
+import {
+  startKommunalPilot,
+  startLaenderPilot,
+  startEUInitiativeAlsVorstufe,
+  abbrechenVorstufe,
+} from '../core/systems/gesetzLebenszyklus';
 
 export type GamePhase = 'onboarding' | 'playing';
 
@@ -76,6 +82,10 @@ interface GameStore {
   doHaushaltsdebattePrioritaeten: (feldIds: string[]) => void;
   doHaushaltsdebatteNext: () => void;
   doHaushaltsdebatteSchliessen: () => void;
+  doStartKommunalPilot: (gesetzId: string, stadttyp: 'progressiv' | 'konservativ' | 'industrie', stadtname?: string) => void;
+  doStartLaenderPilot: (gesetzId: string, fraktionId: string) => void;
+  doStartEUInitiativeAlsVorstufe: (gesetzId: string) => void;
+  doAbbrechenVorstufe: (gesetzId: string, typ: 'kommunal' | 'laender' | 'eu') => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
 }
@@ -180,7 +190,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
 
   doResolveEvent: (event, choice) =>
-    set(prev => ({ state: resolveEvent(prev.state, event, choice) })),
+    set(prev => ({ state: resolveEvent(prev.state, event, choice, { complexity: prev.complexity }) })),
 
   doMedienkampagne: (milieu) => set(prev => ({ state: medienkampagne(prev.state, milieu) })),
   doLobbyLand: (landId) => set(prev => ({ state: lobbyLand(prev.state, landId) })),
@@ -229,6 +239,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doHaushaltsdebatteSchliessen: () =>
     set(prev => ({
       state: schliessenHaushaltsdebatte(prev.state),
+    })),
+
+  doStartKommunalPilot: (gesetzId, stadttyp, stadtname) =>
+    set(prev => ({
+      state: startKommunalPilot(prev.state, gesetzId, stadttyp, stadtname, prev.complexity),
+    })),
+  doStartLaenderPilot: (gesetzId, fraktionId) =>
+    set(prev => ({
+      state: startLaenderPilot(prev.state, gesetzId, fraktionId, prev.complexity),
+    })),
+  doStartEUInitiativeAlsVorstufe: (gesetzId) =>
+    set(prev => ({
+      state: startEUInitiativeAlsVorstufe(prev.state, gesetzId, prev.content, prev.complexity),
+    })),
+  doAbbrechenVorstufe: (gesetzId, typ) =>
+    set(prev => ({
+      state: abbrechenVorstufe(prev.state, gesetzId, typ),
     })),
 
   loadSave: (savedState) => {
