@@ -29,6 +29,7 @@ class CharResponse(BaseModel):
     ultimatum_event_id: str | None
     bonus_trigger: str | None
     bonus_applies: str | None
+    min_complexity: int | None
     ideologie: IdeologieSchema
     name: str
     role: str

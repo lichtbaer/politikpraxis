@@ -49,6 +49,30 @@
       "tag": "Climate",
       "interests": ["Climate protection", "Energy transition"],
       "bonus": { "desc": "+4% approval in progressive milieu" }
+    },
+    "am": {
+      "name": "Dr. Anna Schulze",
+      "role": "Minister for Labour and Social Affairs",
+      "bio": "Union-friendly and combative. Schulze knows the companies from the inside and consistently demands minimum wage and collective bargaining.",
+      "tag": "Fighter",
+      "interests": ["Minimum wage", "Collective bargaining", "Social benefits"],
+      "bonus": { "desc": "GBD relationship regenerates passively when Mood ≥ 3" }
+    },
+    "gm": {
+      "name": "Prof. Thomas Neumann",
+      "role": "Minister for Health and Care",
+      "bio": "Clinical pragmatist. Neumann thinks in systems and seeks sustainable solutions for care and health insurance.",
+      "tag": "Systematic",
+      "interests": ["Care financing", "Health insurance", "Prevention"],
+      "bonus": { "desc": "Health field pressure rises more slowly when Mood ≥ 3" }
+    },
+    "bm": {
+      "name": "Dr. Sabine Becker",
+      "role": "Minister for Education and Research",
+      "bio": "Tireless reformer with federalism frustration. Becker wants to bring federal and state levels together — often in vain.",
+      "tag": "Reformer",
+      "interests": ["Education federalism", "Childcare expansion", "Research funding"],
+      "bonus": { "desc": "Bundesrat blockade for education laws -15% when Mood ≥ 3" }
     }
   },
   "mood": {
@@ -226,6 +250,42 @@
         "0": { "label": "Accelerate tax reform", "desc": "Maier stays, budget suffers", "log": "Tax reform brought forward. Economy stabilised, budget burdened." },
         "1": { "label": "Roll back regulation", "desc": "Popular with industry, unpopular with progressives", "log": "Regulation pause decided. Industry relieved." },
         "2": { "label": "Outvote Maier", "desc": "Coalition discipline, Maier loses influence", "log": "Coalition discipline enforced. Maier complies." }
+      }
+    },
+    "am_ultimatum": {
+      "typeLabel": "Labour Ministry",
+      "title": "Schulze demands minimum wage emergency programme",
+      "quote": "\"Without an emergency programme for the minimum wage I can no longer represent this cabinet.\"",
+      "context": "Schulze is at the end of her patience. The unions expect action.",
+      "ticker": "CABINET CRISIS: Labour Minister Schulze threatens resignation",
+      "choices": {
+        "0": { "label": "Approve emergency programme", "desc": "Schulze satisfied, budget burdened", "log": "Minimum wage emergency programme approved. Schulze appeased." },
+        "1": { "label": "Offer negotiation", "desc": "Gains time, costs political capital", "log": "Coalition summit on social policy. Compromise found." },
+        "2": { "label": "Reject", "desc": "Schulze threatens resignation", "log": "Demand rejected. Schulze threatens resignation." }
+      }
+    },
+    "gm_ultimatum": {
+      "typeLabel": "Health Ministry",
+      "title": "Neumann demands recognition of care emergency",
+      "quote": "\"If we do not officially recognise the care emergency, I lose all credibility.\"",
+      "context": "Neumann sees health policy at a crossroads.",
+      "ticker": "CABINET CRISIS: Health Minister Neumann threatens resignation",
+      "choices": {
+        "0": { "label": "Recognise care emergency", "desc": "Neumann satisfied, pressure rises", "log": "Care emergency officially recognised. Neumann stays." },
+        "1": { "label": "Appoint expert commission", "desc": "Gains time, Neumann cooperates", "log": "Commission appointed. Neumann provisionally satisfied." },
+        "2": { "label": "Ignore", "desc": "Neumann angered", "log": "Demand ignored. Neumann threatens resignation." }
+      }
+    },
+    "bm_ultimatum": {
+      "typeLabel": "Education Ministry",
+      "title": "Becker demands education emergency",
+      "quote": "\"Federalism blocks every reform. Without recognition of the emergency I am out.\"",
+      "context": "Becker is frustrated by the lack of progress in education policy.",
+      "ticker": "CABINET CRISIS: Education Minister Becker threatens resignation",
+      "choices": {
+        "0": { "label": "Recognise education emergency", "desc": "Becker satisfied, states alarmed", "log": "Education emergency recognised. Becker stays." },
+        "1": { "label": "Announce federalism reform", "desc": "Gains time, Becker cooperates", "log": "Federalism reform announced. Becker provisionally satisfied." },
+        "2": { "label": "Reject", "desc": "Becker angered", "log": "Demand rejected. Becker threatens resignation." }
       }
     }
   },

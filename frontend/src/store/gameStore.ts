@@ -59,9 +59,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ausrichtungApplied: false,
 
   init: (content?: ContentBundle) => {
-    const { ausrichtung, ausrichtungApplied } = get();
+    const { ausrichtung, ausrichtungApplied, complexity } = get();
     const c = content ?? getContentBundle();
-    let initial = createInitialState(c);
+    let initial = createInitialState(c, complexity);
     if (!ausrichtungApplied && (ausrichtung.wirtschaft !== 0 || ausrichtung.gesellschaft !== 0 || ausrichtung.staat !== 0)) {
       initial = applyAusrichtung(initial, ausrichtung);
       set({ ausrichtungApplied: true });
@@ -129,7 +129,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
 
   loadSave: (savedState) => {
-    const initial = createInitialState(getContentBundle());
+    const initial = createInitialState(getContentBundle(), get().complexity);
     const state = {
       ...savedState,
       bundesratFraktionen: savedState.bundesratFraktionen ?? initial.bundesratFraktionen,
@@ -140,7 +140,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   loadSaveFromFile: (save) => {
-    const initial = createInitialState(getContentBundle());
+    const initial = createInitialState(getContentBundle(), save.complexity);
     const state = {
       ...save.gameState,
       bundesratFraktionen: save.gameState.bundesratFraktionen ?? initial.bundesratFraktionen,

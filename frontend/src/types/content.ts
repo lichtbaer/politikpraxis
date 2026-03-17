@@ -17,6 +17,7 @@ export interface CharApi {
   ultimatum_event_id?: string | null;
   bonus_trigger?: string | null;
   bonus_applies?: string | null;
+  min_complexity?: number | null;
   name: string;
   role: string;
   bio: string;

@@ -47,6 +47,30 @@
       "tag": "Klima",
       "interests": ["Klimaschutz", "Energiewende"],
       "bonus": { "desc": "+4% Zustimmung im progressiven Milieu" }
+    },
+    "am": {
+      "name": "Dr. Anna Schulze",
+      "role": "Arbeits- und Sozialministerin",
+      "bio": "Gewerkschaftsnah und kampfeslustig. Schulze kennt die Betriebe von innen und fordert konsequent für Mindestlohn und Tarifbindung.",
+      "tag": "Kämpferin",
+      "interests": ["Mindestlohn", "Tarifbindung", "Sozialleistungen"],
+      "bonus": { "desc": "GBD-Beziehung regeneriert passiv wenn Mood ≥ 3" }
+    },
+    "gm": {
+      "name": "Prof. Thomas Neumann",
+      "role": "Gesundheits- und Pflegeminister",
+      "bio": "Klinischer Pragmatiker. Neumann denkt in Systemen und sucht nachhaltige Lösungen für Pflege und Krankenversicherung.",
+      "tag": "Systematiker",
+      "interests": ["Pflegefinanzierung", "Krankenversicherung", "Prävention"],
+      "bonus": { "desc": "Gesundheitsfeld-Druck steigt langsamer wenn Mood ≥ 3" }
+    },
+    "bm": {
+      "name": "Dr. Sabine Becker",
+      "role": "Bildungs- und Forschungsministerin",
+      "bio": "Unermüdliche Reformerin mit Föderalismusfrust. Becker will Bund und Länder zusammenbringen — oft vergeblich.",
+      "tag": "Reformerin",
+      "interests": ["Bildungsföderalismus", "Kitaausbau", "Forschungsförderung"],
+      "bonus": { "desc": "Bundesrat-Blockade bei Bildungsgesetzen -15% wenn Mood ≥ 3" }
     }
   },
   "mood": {
@@ -224,6 +248,42 @@
         "0": { "label": "Verzögerung akzeptieren", "desc": "Gesetz wird 2 Monate später abgestimmt", "log": "Vermittlungsausschuss-Verfahren läuft. Abstimmung verzögert." },
         "1": { "label": "Kohl direkt ansprechen", "desc": "Beziehungspflege, kostet 15 PK", "log": "Gespräch mit Kohl. Beziehung verbessert, Verzögerung bleibt." },
         "2": { "label": "Öffentlich kritisieren", "desc": "Beziehung zu Kohl sinkt weiter", "log": "Kohl öffentlich kritisiert. Ostblock verhärtet Position." }
+      }
+    },
+    "am_ultimatum": {
+      "typeLabel": "Arbeitsministerium",
+      "title": "Schulze fordert Mindestlohn-Sofortprogramm",
+      "quote": "„Ohne ein Sofortprogramm zum Mindestlohn kann ich dieses Kabinett nicht mehr vertreten.“",
+      "context": "Schulze ist am Ende ihrer Geduld. Die Gewerkschaften erwarten Taten.",
+      "ticker": "KABINETTSKRISE: Arbeitsministerin Schulze droht mit Rücktritt",
+      "choices": {
+        "0": { "label": "Sofortprogramm beschließen", "desc": "Schulze zufrieden, Haushalt belastet", "log": "Mindestlohn-Sofortprogramm beschlossen. Schulze besänftigt." },
+        "1": { "label": "Verhandlung anbieten", "desc": "Zeitgewinn, kostet politisches Kapital", "log": "Koalitionsgipfel zu Sozialpolitik. Kompromiss gefunden." },
+        "2": { "label": "Ablehnen", "desc": "Schulze droht Rücktritt", "log": "Forderung abgelehnt. Schulze droht mit Rücktritt." }
+      }
+    },
+    "gm_ultimatum": {
+      "typeLabel": "Gesundheitsministerium",
+      "title": "Neumann fordert Pflegenotstand anerkennen",
+      "quote": "„Wenn wir den Pflegenotstand nicht offiziell anerkennen, verliere ich jede Glaubwürdigkeit.“",
+      "context": "Neumann sieht die Gesundheitspolitik am Scheideweg.",
+      "ticker": "KABINETTSKRISE: Gesundheitsminister Neumann droht mit Rücktritt",
+      "choices": {
+        "0": { "label": "Pflegenotstand anerkennen", "desc": "Neumann zufrieden, Druck steigt", "log": "Pflegenotstand offiziell anerkannt. Neumann bleibt." },
+        "1": { "label": "Expertenkommission einsetzen", "desc": "Zeitgewinn, Neumann kooperiert", "log": "Kommission eingesetzt. Neumann vorläufig zufrieden." },
+        "2": { "label": "Ignorieren", "desc": "Neumann verärgert", "log": "Forderung ignoriert. Neumann droht mit Rücktritt." }
+      }
+    },
+    "bm_ultimatum": {
+      "typeLabel": "Bildungsministerium",
+      "title": "Becker fordert Bildungsnotstand",
+      "quote": "„Der Föderalismus blockiert jede Reform. Ohne Anerkennung des Notstands bin ich raus.“",
+      "context": "Becker ist frustriert über die fehlenden Fortschritte in der Bildungspolitik.",
+      "ticker": "KABINETTSKRISE: Bildungsministerin Becker droht mit Rücktritt",
+      "choices": {
+        "0": { "label": "Bildungsnotstand anerkennen", "desc": "Becker zufrieden, Länder alarmiert", "log": "Bildungsnotstand anerkannt. Becker bleibt." },
+        "1": { "label": "Föderalismusreform ankündigen", "desc": "Zeitgewinn, Becker kooperiert", "log": "Föderalismusreform angekündigt. Becker vorläufig zufrieden." },
+        "2": { "label": "Ablehnen", "desc": "Becker verärgert", "log": "Forderung abgelehnt. Becker droht mit Rücktritt." }
       }
     },
     "wm_ultimatum": {

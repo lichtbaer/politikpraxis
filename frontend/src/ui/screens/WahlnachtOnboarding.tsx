@@ -5,8 +5,6 @@ import { featureActive } from '../../core/systems/features';
 import type { Character } from '../../core/types';
 import styles from './WahlnachtOnboarding.module.css';
 
-const LEVEL1_CHAR_IDS = ['kanzler', 'fm'];
-
 export function WahlnachtOnboarding() {
   const { t } = useTranslation('game');
   const { state, playerName, complexity, startGame } = useGameStore();
@@ -36,10 +34,8 @@ export function WahlnachtOnboarding() {
     return () => window.removeEventListener('keydown', handler);
   }, [advance]);
 
-  const chars: Character[] =
-    complexity >= 2
-      ? state.chars
-      : state.chars.filter((c) => LEVEL1_CHAR_IDS.includes(c.id));
+  // Chars sind bereits nach min_complexity gefiltert (createInitialState)
+  const chars: Character[] = state.chars;
 
   const name = playerName.trim() || t('game:onboarding.defaultGovName');
   const lawCount = state.gesetze.length;
