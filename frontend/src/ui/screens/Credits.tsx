@@ -18,6 +18,7 @@ export function Credits() {
             </span>
           ))}
         </p>
+        <p className={styles.disclaimer}>{t('credits.disclaimer')}</p>
         <button
           type="button"
           className={styles.back}
