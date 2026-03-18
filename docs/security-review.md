@@ -74,22 +74,29 @@ Der GameState wird in localStorage gespeichert. Ein Spieler kann den Inhalt manu
 
 ## 4. Content Security Policy (CSP)
 
-**Status:** ⚠️ **Keine CSP-Header gesetzt**
+**Status:** ✅ **CSP-Header in nginx.conf gesetzt** (SMA-314)
 
-- `index.html` enthält keine CSP-Meta-Tags
-- nginx.conf setzt keine CSP-Header
-
-**Empfehlung:** CSP in nginx oder als FastAPI-Middleware setzen:
-
-```
-Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.anthropic.com;
-```
+- `frontend/nginx.conf` setzt `Content-Security-Policy` mit `font-src 'self'` (blockiert externe Font-Quellen wie Google Fonts)
+- `default-src 'self'`, `script-src 'self'`, `style-src 'self' 'unsafe-inline'`, `connect-src 'self' http://localhost:* ws://localhost:*`
+- Versehentliche externe Abhängigkeiten werden sofort sichtbar (Blockierung)
 
 Falls Anthropic-API genutzt wird: `connect-src` muss `api.anthropic.com` erlauben.
 
 ---
 
-## 5. Anthropic-API-Key im Frontend
+## 5. DSGVO — Lokale Asset-Auslieferung (SMA-314)
+
+**Status:** ✅ **Keine externen Ressourcen beim Seitenaufruf**
+
+- **Google Fonts:** Ersetzt durch lokale @fontsource-Pakete (Playfair Display, DM Sans, DM Mono) — keine Requests an fonts.googleapis.com oder fonts.gstatic.com
+- **GeoJSON:** Europa- und Deutschland-Karten liegen unter `frontend/public/geo/` (nicht mehr von raw.githubusercontent.com)
+- **Build-Größe:** Fonts erhöhen das Bundle um ~200 kB (latin-Subset); GeoJSON ~2 MB (statisch, vom CDN getrennt)
+
+**Rechtliche Relevanz:** Deutsche Gerichte haben wiederholt entschieden, dass Google Fonts ohne Einwilligung DSGVO-widrig sind. Für ein Bildungsspiel mit potenziellem Schuleinsatz ist die lokale Auslieferung entscheidend.
+
+---
+
+## 6. Anthropic-API-Key im Frontend
 
 **Status:** ✅ **Kein API-Key im Frontend**
 
@@ -101,7 +108,7 @@ Falls Anthropic-API genutzt wird: `connect-src` muss `api.anthropic.com` erlaube
 
 ---
 
-## 6. i18n-Injection (XSS)
+## 7. i18n-Injection (XSS)
 
 **Status:** ✅ **DB-Texte werden als plain text gerendert**
 
@@ -111,7 +118,7 @@ Falls Anthropic-API genutzt wird: `connect-src` muss `api.anthropic.com` erlaube
 
 ---
 
-## 7. Secrets-Scan im Repo
+## 8. Secrets-Scan im Repo
 
 ```bash
 git log --all --full-history -- "*.env"
@@ -127,7 +134,7 @@ git log --all -p | grep -i "password\|secret\|api_key\|token"
 
 ---
 
-## 8. Akzeptanzkriterien — Übersicht
+## 9. Akzeptanzkriterien — Übersicht
 
 | Kriterium | Status |
 |-----------|--------|
@@ -139,12 +146,14 @@ git log --all -p | grep -i "password\|secret\|api_key\|token"
 | Keine API-Keys im Frontend-Bundle | ✅ |
 | DB-Texte nie als innerHTML gerendert | ✅ |
 | Kein Secrets-Leak in Git-History | ✅ |
+| Keine externen Fonts/GeoJSON (DSGVO) | ✅ (SMA-314) |
+| CSP-Header blockiert externe Fonts | ✅ |
 
 ---
 
-## 9. Offene Empfehlungen
+## 10. Offene Empfehlungen
 
 1. **Rate-Limiting** für Admin-API (z.B. slowapi)
-2. **CSP-Header** in nginx oder FastAPI setzen
 3. **pip-audit** in CI/CD integrieren (z.B. nach `pip install -r requirements.txt`)
 4. **`.env`** explizit in `.gitignore` aufnehmen, falls noch nicht vorhanden
+5. ~~**CSP-Header** in nginx setzen~~ — erledigt (SMA-314)

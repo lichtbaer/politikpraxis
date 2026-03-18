@@ -10,7 +10,7 @@
     "einladung4": "And an election at the end that you must win.",
     "einladung5": "Politikpraxis is a strategy game about governing in a parliamentary democracy — with real trade-offs, scarce political capital, and a public that does not forget.",
     "kompakt": "48 months. Federal, States, Municipalities, Europe. One coalition. One election. Lead the federal government.",
-    "disclaimer": "Politikpraxis is a fictional politics simulation for educational purposes. All persons, parties and institutions depicted are fictitious."
+    "disclaimer": "Politikpraxis is a fictional politics simulation for educational purposes. All persons, parties and institutions depicted are fictitious. Politikpraxis does not load any external resources; all fonts and map data are served locally."
   },
   "header": {
     "monthFormat": "Month {{month}}/48 · {{year}}",
