@@ -50,6 +50,8 @@ const FEATURES: Record<string, { minLevel: number }> = {
   schuldenbremse: { minLevel: 3 },
   /** SMA-268: Konjunkturindex sichtbar und in Einnahmen */
   konjunkturindex: { minLevel: 3 },
+  /** SMA-323: Konjunktur-Anzeige im Haushalt-Tab (Stufe 2+) */
+  konjunktur_anzeige: { minLevel: 2 },
   /** SMA-268: Steuerquote/Steuerpolitik-Modifikator */
   steuerquote: { minLevel: 3 },
   /** SMA-268: Gegenfinanzierung bei Gesetzen */

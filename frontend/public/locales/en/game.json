@@ -722,7 +722,14 @@
     "schuldenbremseVerletzt": "Debt brake violated",
     "schuldenbremseKritisch": "Critical",
     "konjunktur": "Economy",
-    "konjunkturTooltip": "Economic index affects tax revenue"
+    "konjunkturTooltip": "Economic index affects tax revenue",
+    "keineLaufendenGesetze": "No running law costs",
+    "steuerquoteTitle": "Adjust tax rate",
+    "steuerquoteDesc": "1× per year, 15 PK. Increase: BdI -8, GBD +5. Decrease: BdI +8, GBD -8.",
+    "steuerquoteErhoehen": "+2 bn/year revenue",
+    "steuerquoteSenken": "-3 bn/year revenue",
+    "steuerquotePk": "15 PK required",
+    "verbandsForderungen": "Association budget demands"
   },
   "eu": {
     "klimaTitle": "EU climate scores",

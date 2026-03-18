@@ -32,6 +32,7 @@ import {
   setHaushaltsdebattePrioritaeten,
   advanceHaushaltsdebattePhase,
   schliessenHaushaltsdebatte,
+  applySteuerquoteChange,
 } from '../core/systems/haushalt';
 import {
   startKommunalPilot,
@@ -102,6 +103,7 @@ interface GameStore {
   doHaushaltsdebattePrioritaeten: (feldIds: string[]) => void;
   doHaushaltsdebatteNext: () => void;
   doHaushaltsdebatteSchliessen: () => void;
+  doSteuerquoteChange: (deltaMrd: number) => void;
   doStartKommunalPilot: (gesetzId: string, stadttyp: 'progressiv' | 'konservativ' | 'industrie', stadtname?: string) => void;
   doStartLaenderPilot: (gesetzId: string, fraktionId: string) => void;
   doStartEUInitiativeAlsVorstufe: (gesetzId: string) => void;
@@ -341,6 +343,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doHaushaltsdebatteSchliessen: () =>
     set(prev => ({
       state: schliessenHaushaltsdebatte(prev.state),
+    })),
+
+  doSteuerquoteChange: (deltaMrd) =>
+    set(prev => ({
+      state: applySteuerquoteChange(prev.state, deltaMrd, prev.complexity),
     })),
 
   doStartKommunalPilot: (gesetzId, stadttyp, stadtname) =>
