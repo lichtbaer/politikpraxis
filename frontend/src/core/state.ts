@@ -16,6 +16,7 @@ import {
 } from '../data/defaults/parteien';
 import { selectEventPool } from './systems/eventPoolSelection';
 import { bildeKabinett, waehleMinisterAusPool } from './kabinett';
+import { MINISTER_AGENDEN_CONFIG } from '../data/defaults/ministerAgenden';
 
 /** Milieu → zust-Feld für initiale Zustimmung (SMA-264) */
 const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
@@ -156,6 +157,20 @@ export function createInitialState(
     };
   });
 
+  // SMA-330: Minister-Agenden init (Stufe 2+)
+  const ministerAgenden: Record<string, { status: 'wartend'; letzte_forderung_monat: number; ablehnungen_count: number }> = {};
+  if (featureActive(complexity, 'char_ultimatums')) {
+    for (const c of charsWithPartei) {
+      const hasConfig =
+        MINISTER_AGENDEN_CONFIG[c.id] ||
+        (c.ressort === 'umwelt' && c.pool_partei === 'gp') ||
+        (c.ressort === 'finanzen' && c.pool_partei === 'cdp');
+      if (hasConfig) {
+        ministerAgenden[c.id] = { status: 'wartend', letzte_forderung_monat: 0, ablehnungen_count: 0 };
+      }
+    }
+  }
+
   const base: GameState = {
     month: content.scenario.startMonth,
     speed: 0,
@@ -212,6 +227,7 @@ export function createInitialState(
     ...(spielerParteiState && { spielerPartei: spielerParteiState }),
     kanzlerGeschlecht,
     ...(kanzlerName && { kanzlerName }),
+    ...(Object.keys(ministerAgenden).length > 0 && { ministerAgenden }),
   };
 
   if (featureActive(complexity, 'milieus_voll') && (content.milieus?.length ?? 0) > 0) {
@@ -415,7 +431,7 @@ export function validateGameState(raw: unknown): GameState {
   const optionalKeys = [
     'gesetzBTStimmen', 'spielerPartei', 'kanzlerName', 'kanzlerGeschlecht', 'speedBeforePause', 'eingebrachteGesetze',
     'koalitionspartner', 'koalitionsvertragProfil', 'milieuZustimmungHistory', 'milieuGesetzReaktionen', 'partnerPrioGesetz',
-    'btStimmenBonus', 'koalitionsbruchSeitMonat', 'ministerialCooldowns', 'aktiveMinisterialInitiative',
+    'btStimmenBonus', 'koalitionsbruchSeitMonat', 'ministerialCooldowns', 'aktiveMinisterialInitiative', 'ministerAgenden', 'aktiveMinisterAgenda',
     'eu', 'haushalt', 'lehmannUltimatumBeschleunigt', 'lehmannSparvorschlagAktiv', 'aktivesStrukturEvent',
     'gesetzProjekte', 'wahlkampfAktiv', 'wahlkampfAktionenGenutzt', 'legislaturBilanz', 'wahlkampfBotschaften',
     'tvDuellAbgehalten', 'tvDuellGewonnen', 'medienKlimaHistory', 'letzterSkandal', 'letztesPressemitteilungMonat',

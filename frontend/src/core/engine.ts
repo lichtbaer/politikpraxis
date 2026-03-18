@@ -14,6 +14,7 @@ import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragSco
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/ministerialInitiativen';
+import { checkMinisterAgenden } from './systems/ministerAgenden';
 import { tickEUKlima, advanceEURoute, checkEUEreignisse } from './systems/eu';
 import {
   tickKonjunktur,
@@ -175,6 +176,8 @@ export function tick(
   // 9. Verbände & Ministerial
   s = checkVerbandsAktionen(s, content.verbaende ?? [], complexity);
   s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
+  // 9b. SMA-330: Minister-Agenden (kontinuierliche Forderungen)
+  s = checkMinisterAgenden(s, complexity);
   // 10. EU
   s = tickEUKlima(s, content.verbaende ?? [], complexity);
   s = checkEUEreignisse(s, content, complexity);

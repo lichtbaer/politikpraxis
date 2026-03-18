@@ -4,6 +4,7 @@ import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { applyMoodChange } from './characters';
 import { resolveMinisterialInitiative } from './ministerialInitiativen';
+import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from './ministerAgenden';
 import { startKommunalPilot } from './gesetzLebenszyklus';
 import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell } from './wahlkampf';
@@ -364,6 +365,8 @@ export function checkKommunalEvents(
 
 export interface ResolveEventOptions {
   complexity?: number;
+  /** Content für resolveMinisterAgenda (charEvents) */
+  content?: { charEvents?: Record<string, import('../types').GameEvent> };
 }
 
 /** Prüft ob der Spieler genug PK hat */
@@ -449,6 +452,11 @@ export function resolveEvent(
   // Ministerial-Initiative: eigene Auflösung
   if (choice.ministerialAction && state.aktiveMinisterialInitiative && event.id.startsWith('mi_')) {
     return resolveMinisterialInitiative(state, choice.ministerialAction);
+  }
+
+  // SMA-330: Minister-Agenda: eigene Auflösung
+  if (choice.agendaAction && state.aktiveMinisterAgenda && event.id.startsWith(AGENDA_EVENT_PREFIX)) {
+    return resolveMinisterAgenda(state, choice.agendaAction, options?.content ?? {});
   }
 
   // Wahlkampf-Beginn, Koalitionspartner-Alleingang: einfaches Bestätigen

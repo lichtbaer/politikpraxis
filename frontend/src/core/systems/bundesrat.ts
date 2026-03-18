@@ -13,6 +13,7 @@ import { applyMoodChange } from './characters';
 import { applyMilieuEffekte } from './milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { applyGesetzKosten } from './haushalt';
+import { checkProaktiveErfuellung } from './ministerAgenden';
 
 const PK_SCHICHT_1 = 15;
 const PK_SCHICHT_1_REDUZIERT = 10; // bei Beziehung 60-79
@@ -459,6 +460,8 @@ export function executeBundesratVote(
     if (law.politikfeldId) {
       newState = setPolitikfeldBeschluss(newState, law.politikfeldId);
     }
+    // SMA-330: Proaktive Erfüllung bei Beschluss
+    newState = checkProaktiveErfuellung(newState, lawId);
 
     return addLog(newState, `${law.kurz} im Bundesrat beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
   } else {
