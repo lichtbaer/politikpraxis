@@ -805,6 +805,7 @@
     }
   },
   "kabinett": {
+    "entlassen": "Entlassen (20 PK)",
     "title": "Kabinett",
     "desc": "Ihr Kabinett und der Koalitionspartner. Stimmung und Loyalität beeinflussen die Regierungsarbeit.",
     "ultimatumWarnung": "{{name}} droht mit Ultimatum — Stimmung kritisch.",
@@ -931,6 +932,12 @@
     "subtitle": "Konfiguriere deine Kandidatur",
     "nameLabel": "Name",
     "namePlaceholder": "Dein Name (optional)",
+    "geschlechtLabel": "Anrede",
+    "geschlecht": {
+      "sie": "Bundeskanzlerin (sie/ihr)",
+      "er": "Bundeskanzler (er/ihm)",
+      "they": "Bundeskanzler*in (they/them)"
+    },
     "ausrichtungTitle": "Politische Ausrichtung",
     "wirtschaftLinks": "Umverteilung",
     "wirtschaftRechts": "Wachstum",

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore, type Theme } from '../../store/uiStore';
 import { PARTEI_STARTPUNKTE, SPIELBARE_PARTEIEN } from '../../data/defaults/parteien';
+import { GeschlechtAuswahl, type KanzlerGeschlecht } from '../components/GeschlechtAuswahl/GeschlechtAuswahl';
 import styles from './GameSetup.module.css';
 
 const THEMES: { id: Theme; swatches: [string, string, string] }[] = [
@@ -44,14 +45,16 @@ const COMPLEXITY_LEVELS = [
 export function GameSetup() {
   const { t } = useTranslation('game');
   const navigate = useNavigate();
-  const { init, setPlayerName, setComplexity, setSpielerPartei, setAusrichtung } = useGameStore();
+  const { init, setPlayerName, setKanzlerGeschlecht, setComplexity, setSpielerPartei, setAusrichtung } = useGameStore();
 
   const { theme, setTheme } = useUIStore();
   const [name, setName] = useState('');
+  const [geschlecht, setGeschlecht] = useState<KanzlerGeschlecht>('sie');
   const [selectedComplexity, setSelectedComplexity] = useState(1);
 
   const handleKandidaturAnnehmen = () => {
     setPlayerName(name.trim().slice(0, 30));
+    setKanzlerGeschlecht(geschlecht);
     setComplexity(selectedComplexity);
     if (selectedComplexity === 1) {
       const sdp = SPIELBARE_PARTEIEN.find((p) => p.id === 'sdp')!;
@@ -82,6 +85,14 @@ export function GameSetup() {
             placeholder={t('gameSetup.namePlaceholder')}
             maxLength={30}
           />
+        </section>
+
+        {/* Block A2 — Geschlecht (SMA-327) */}
+        <section className={styles.block}>
+          <label className={styles.label}>
+            {t('gameSetup.geschlechtLabel')}
+          </label>
+          <GeschlechtAuswahl value={geschlecht} onChange={setGeschlecht} />
         </section>
 
         {/* Block B — Komplexitätsstufe (SMA-289: Ausrichtung/Partei im Onboarding) */}

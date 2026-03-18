@@ -58,6 +58,12 @@ class Char(Base):
     ideologie_gesellschaft: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
     ideologie_staat: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
     min_complexity: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="1")
+    # SMA-327: Dynamisches Kabinett
+    pool_partei: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    ressort: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    ressort_partner: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    agenda: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
+    ist_kanzler: Mapped[bool] = mapped_column(Boolean(), nullable=False, server_default="false")
 
 
 class CharI18n(Base):

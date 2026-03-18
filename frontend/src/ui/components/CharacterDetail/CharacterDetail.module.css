@@ -138,6 +138,24 @@
   margin-bottom: 12px;
 }
 
+.entlassenBtn {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--red);
+  background: rgba(192, 88, 72, 0.15);
+  border: 1px solid var(--red);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.entlassenBtn:hover {
+  background: rgba(192, 88, 72, 0.25);
+}
+
 .interests {
   display: flex;
   flex-wrap: wrap;

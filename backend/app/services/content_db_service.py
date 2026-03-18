@@ -121,6 +121,12 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
             "bonus_desc": i18n.bonus_desc,
             "interests": i18n.interests or [],
             "keyword": i18n.keyword,
+            # SMA-327: Dynamisches Kabinett
+            "pool_partei": c.pool_partei,
+            "ressort": c.ressort,
+            "ressort_partner": c.ressort_partner,
+            "agenda": c.agenda,
+            "ist_kanzler": c.ist_kanzler or False,
         }
         if partei:
             row["partei_id"] = c.partei_id

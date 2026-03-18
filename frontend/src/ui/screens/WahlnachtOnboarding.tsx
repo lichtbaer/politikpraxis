@@ -116,7 +116,7 @@ export function WahlnachtOnboarding() {
   }, [advance, beat]);
 
   const chars: Character[] = state.chars;
-  const name = playerName.trim() || t('game:onboarding.defaultGovName');
+  const name = (state.kanzlerName ?? playerName).trim() || t('game:onboarding.defaultGovName');
   const lawCount = state.gesetze.length;
   const pk = state.pk;
   const showBundesratLine = featureActive(complexity, 'bundesrat_sichtbar');

@@ -36,6 +36,12 @@ export interface CharApi {
   partei_id?: string | null;
   partei_kuerzel?: string | null;
   partei_farbe?: string | null;
+  /** SMA-327: Dynamisches Kabinett */
+  pool_partei?: string | null;
+  ressort?: string | null;
+  ressort_partner?: string | null;
+  agenda?: unknown;
+  ist_kanzler?: boolean;
 }
 
 export interface GesetzApi {

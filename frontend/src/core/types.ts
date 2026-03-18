@@ -40,6 +40,16 @@ export interface Character {
   partei_kuerzel?: string;
   /** SMA-288: Parteifarbe für Badge */
   partei_farbe?: string;
+  /** SMA-327: Partei-Pool (sdp, cdp, gp, ldp, lp) */
+  pool_partei?: string;
+  /** SMA-327: Primäres Ressort */
+  ressort?: string;
+  /** SMA-327: Ressort als Partner-Minister */
+  ressort_partner?: string;
+  /** SMA-327: Phasen-Agenda (JSON) */
+  agenda?: unknown;
+  /** SMA-327: Ist Kanzler (Spieler) */
+  ist_kanzler?: boolean;
 }
 
 export interface LawEffects {
@@ -636,6 +646,10 @@ export interface GameState {
   gesetzBTStimmen?: Record<string, number>;
   /** SMA-289: Spieler-Partei (Partei-Auswahl im Onboarding) */
   spielerPartei?: SpielerParteiState;
+  /** SMA-327: Kanzler-Name (Spieler-Input, Default aus Content) */
+  kanzlerName?: string;
+  /** SMA-327: Kanzler-Geschlecht für Pronomen/Anrede (sie/er/they) */
+  kanzlerGeschlecht?: 'sie' | 'er' | 'they';
   /** Wahlprognose (aktuelle Umfrage) — Basis für Wahlergebnis */
   wahlprognose?: number;
   /** Medienoffensive einmalig pro Legislatur genutzt */
