@@ -94,7 +94,7 @@ describe('updateCoalition', () => {
 });
 
 describe('checkUltimatums', () => {
-  it('triggert Event wenn Mood <= Threshold', () => {
+  it('triggert Event wenn Mood <= Threshold (ab Monat 4)', () => {
     const chars = [makeChar({ id: 'fm', mood: 0, ultimatum: { moodThresh: 0, event: 'fm_ultimatum' } })];
     const event: GameEvent = {
       id: 'fm_ultimatum', type: 'danger', icon: '', typeLabel: '', title: '', quote: '', context: '',
@@ -103,6 +103,7 @@ describe('checkUltimatums', () => {
     };
     const state = makeState({
       chars,
+      month: 4,
       activeEvent: null,
       firedCharEvents: [],
     });
@@ -110,6 +111,23 @@ describe('checkUltimatums', () => {
     expect(result.activeEvent).toBeTruthy();
     expect(result.activeEvent!.id).toBe('fm_ultimatum');
     expect(result.firedCharEvents).toContain('fm_ultimatum');
+  });
+
+  it('triggert nicht vor Monat 4 (SMA-321)', () => {
+    const chars = [makeChar({ id: 'fm', mood: 0, ultimatum: { moodThresh: 0, event: 'fm_ultimatum' } })];
+    const event: GameEvent = {
+      id: 'fm_ultimatum', type: 'danger', icon: '', typeLabel: '', title: '', quote: '', context: '',
+      choices: [{ label: 'OK', desc: '', cost: 0, type: 'safe', effect: {}, log: '' }],
+      ticker: '',
+    };
+    const state = makeState({
+      chars,
+      month: 1,
+      activeEvent: null,
+      firedCharEvents: [],
+    });
+    const result = checkUltimatums(state, { fm_ultimatum: event });
+    expect(result.activeEvent).toBeNull();
   });
 
   it('triggert nicht wenn bereits gefeuert', () => {
@@ -121,6 +139,7 @@ describe('checkUltimatums', () => {
     };
     const state = makeState({
       chars,
+      month: 4,
       activeEvent: null,
       firedCharEvents: ['fm_ultimatum'],
     });
@@ -138,6 +157,7 @@ describe('checkUltimatums', () => {
     const existingEvent: GameEvent = { ...event, id: 'other' };
     const state = makeState({
       chars,
+      month: 4,
       activeEvent: existingEvent,
       firedCharEvents: [],
     });
@@ -154,6 +174,7 @@ describe('checkUltimatums', () => {
     };
     const state = makeState({
       chars,
+      month: 4,
       activeEvent: null,
       firedCharEvents: [],
     });

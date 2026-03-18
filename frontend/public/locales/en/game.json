@@ -823,7 +823,11 @@
     "desc": "Your cabinet and coalition partner. Mood and loyalty affect government work.",
     "ultimatumWarnung": "{{name}} threatens ultimatum — mood critical.",
     "initiativeTitle": "Ministerial initiative",
-    "initiativeAktiv": "{{char}} is introducing {{gesetz}}."
+    "initiativeAktiv": "{{char}} is introducing {{gesetz}}.",
+    "gespraechTooltip": "Have conversation ({{pk}} PK)",
+    "gespraechCooldown": "Cooldown: {{months}} months remaining",
+    "gespraechKeinPK": "Not enough PK ({{pk}})",
+    "stimmungTooltip": "Mood: {{value}}/{{max}}"
   },
   "bundestag": {
     "title": "Bundestag",

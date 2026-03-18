@@ -146,13 +146,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       initial = applyAusrichtung(initial, ausrichtung);
       set({ ausrichtungApplied: true });
     }
+    /** SMA-321: Kein "50 Gesetzentwürfe in Vorbereitung" beim Start — nur bei aktiv eingebrachten Gesetzen */
     const withLogs = addLog(
-      addLog(
-        addLog(initial, 'game:logs.legislaturBegonnen', 'hi'),
-        'game:logs.koalitionsvertrag', 'g',
-      ),
-      'game:logs.gesetzeVorbereitung', '',
-      { count: c.laws.length },
+      addLog(initial, 'game:logs.legislaturBegonnen', 'hi'),
+      'game:logs.koalitionsvertrag', 'g',
     );
     const ELECTION_THRESHOLDS: Record<number, number> = { 1: 35, 2: 38, 3: 40, 4: 42 };
     const electionThreshold = ELECTION_THRESHOLDS[get().complexity] ?? 40;

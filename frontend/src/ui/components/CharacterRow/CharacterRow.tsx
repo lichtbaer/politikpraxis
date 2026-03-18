@@ -70,7 +70,9 @@ export function CharacterRow({ character }: CharacterRowProps) {
             {character.role || t(`game:chars.${id}.role`)}
           </span>
         </div>
-        <span className={styles.mood}><MoodIcon size={16} /></span>
+        <span className={styles.mood} title={t('game:kabinett.stimmungTooltip', { value: mood, max: 4 })}>
+          <MoodIcon size={16} aria-hidden />
+        </span>
       </button>
       <button
         type="button"
@@ -78,10 +80,10 @@ export function CharacterRow({ character }: CharacterRowProps) {
         disabled={gespraechDisabled}
         title={
           onCooldown
-            ? `Cooldown: ${cooldownRemaining} Mon.`
+            ? t('game:kabinett.gespraechCooldown', { months: cooldownRemaining })
             : notEnoughPK
-              ? 'Nicht genug PK (8)'
-              : t('game:verbaende.gespraechSuchen')
+              ? t('game:kabinett.gespraechKeinPK', { pk: 8 })
+              : t('game:kabinett.gespraechTooltip', { pk: 8 })
         }
         onClick={(e) => {
           e.stopPropagation();

@@ -809,7 +809,11 @@
     "desc": "Ihr Kabinett und der Koalitionspartner. Stimmung und Loyalität beeinflussen die Regierungsarbeit.",
     "ultimatumWarnung": "{{name}} droht mit Ultimatum — Stimmung kritisch.",
     "initiativeTitle": "Ministerial-Initiative",
-    "initiativeAktiv": "{{char}} bringt {{gesetz}} ein."
+    "initiativeAktiv": "{{char}} bringt {{gesetz}} ein.",
+    "gespraechTooltip": "Gespräch führen ({{pk}} PK)",
+    "gespraechCooldown": "Cooldown: noch {{months}} Monate",
+    "gespraechKeinPK": "Nicht genug PK ({{pk}})",
+    "stimmungTooltip": "Stimmung: {{value}}/{{max}}"
   },
   "bundestag": {
     "title": "Bundestag",
