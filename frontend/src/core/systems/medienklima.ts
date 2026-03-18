@@ -59,7 +59,12 @@ export function applyFraming(
   const mk = (newState.medienKlima ?? 55) + framing.medienklima_delta;
   newState = { ...newState, medienKlima: Math.max(0, Math.min(100, mk)) };
 
-  return addLog(newState, `Framing: "${framing.key}" angewendet`, 'hi');
+  // SMA-322: Kein Log-Eintrag bei internen Keys (standard/keine) — sonst lesbares Label
+  const label = framing.label ?? framing.key;
+  if (framing.key === 'standard' || framing.key === 'keine' || !label || label === 'Kein Framing') {
+    return newState;
+  }
+  return addLog(newState, `Framing „${label}" angewendet`, 'hi');
 }
 
 /** Konvertiert MedienEventContent zu GameEvent für activeEvent */

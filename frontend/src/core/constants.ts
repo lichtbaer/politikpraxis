@@ -41,6 +41,12 @@ export const PFLICHTAUSGABEN_BASIS = 370;
 /** Defizit-Grenze für milde Schuldenbremse (ab -18: stark) */
 export const SCHULDENBREMSE_DEFIZIT_MILD = -18;
 
+// --- Bundestag / Sitzverteilung (SMA-322) ---
+/** Sitzanteil Koalition (Spieler + Partner) — typisch ~53%, nicht Koalitionsstabilität */
+export const KOALITION_SITZANTEIL = 53;
+/** Bundestag-Sitze gesamt (für Sitzverteilung Stufe 2+) */
+export const BUNDESTAG_SITZE = 600;
+
 // --- Wahl / Spielende ---
 /** Standard-Wahlhürde in % */
 export const DEFAULT_ELECTION_THRESHOLD = 40;
