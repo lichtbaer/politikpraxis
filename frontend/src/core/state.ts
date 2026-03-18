@@ -71,18 +71,33 @@ export function createInitialState(
     ? { id: parteiId, kuerzel: parteiInfo.kuerzel, farbe: parteiInfo.farbe, name: parteiInfo.name }
     : undefined;
 
-  // SMA-327: Dynamisches Kabinett — aus Pool wählen wenn pool_partei vorhanden
+  // SMA-327/328: Dynamisches Kabinett — aus Pool wählen wenn pool_partei vorhanden
   const hasPoolChars = allChars.some((c) => c.pool_partei && !c.ist_kanzler);
   let activeChars = allChars;
   if (hasPoolChars) {
     const config = bildeKabinett(parteiId, partnerParteiId, complexity);
     const usedIds = new Set<string>();
     const selected: typeof allChars = [];
-    const kanzler = allChars.find((c) => c.id === 'kanzler' || c.ist_kanzler);
-    if (kanzler) {
-      selected.push(kanzler);
-      usedIds.add(kanzler.id);
-    }
+    // SMA-328: Kanzler ist immer der Spieler — synthetischer Char, kein DB-Char
+    const kanzlerNameDisplay = kanzlerName?.trim() || 'Kanzler/in';
+    const kanzlerChar = allChars.find((c) => c.id === 'kanzler' || c.ist_kanzler);
+    const kanzlerBase = kanzlerChar ?? allChars[0];
+    const kanzlerSynthetic = {
+      ...(kanzlerBase ?? {}),
+      id: 'kanzler',
+      name: kanzlerNameDisplay,
+      role: KANZLER_ROLLE[kanzlerGeschlecht],
+      ist_kanzler: true,
+      pool_partei: parteiId,
+      partei_kuerzel: spielerParteiState?.kuerzel,
+      partei_farbe: spielerParteiState?.farbe,
+      mood: kanzlerBase?.mood ?? 3,
+      loyalty: kanzlerBase?.loyalty ?? 5,
+      initials: kanzlerNameDisplay.slice(0, 2).toUpperCase() || '??',
+      color: spielerParteiState?.farbe ?? '#8a7030',
+    } as typeof allChars[0];
+    selected.push(kanzlerSynthetic);
+    usedIds.add('kanzler');
     for (const ressort of config.spielerRessorts) {
       const m = waehleMinisterAusPool(allChars, parteiId, ressort);
       if (m && !usedIds.has(m.id)) {

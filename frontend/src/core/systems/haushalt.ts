@@ -152,7 +152,8 @@ export function applySchuldenbremsenEffekte(
   if (!haushalt) return state;
 
   const chars = state.chars.map((c) => ({ ...c }));
-  const lehmann = chars.find((c) => c.id === 'fm');
+  // SMA-328: Lehmann = CDP Finanzminister (ressort+pool)
+  const lehmann = chars.find((c) => (c.ressort === 'finanzen' && c.pool_partei === 'cdp') || c.id === 'fm');
   if (!lehmann) return state;
 
   let newState = state;
@@ -202,12 +203,14 @@ export function checkLehmannSparvorschlag(state: GameState, complexity: number):
   if (!featureActive(complexity, 'schuldenbremse')) return state;
 
   if (haushalt.saldo < -15) {
+    const lehmann = state.chars.find((c) => (c.ressort === 'finanzen' && c.pool_partei === 'cdp') || c.id === 'fm');
+    const charId = lehmann?.id ?? 'fm';
     return {
       ...state,
       lehmannSparvorschlagAktiv: true,
       aktiveMinisterialInitiative: {
         initId: 'fm_sparpaket',
-        charId: 'fm',
+        charId,
         gesetzId: 'sparpaket_intern',
       },
     };

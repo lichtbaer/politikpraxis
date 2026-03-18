@@ -6,17 +6,20 @@ export function applyCharBonuses(state: GameState): GameState {
   const newState = { ...state, kpi: { ...state.kpi }, zust: { ...state.zust } };
   const gesetze = newState.gesetze.map(g => ({ ...g }));
 
-  const wolf = newState.chars.find(c => c.id === 'um');
+  // Wolf (GP Umwelt) — prog-Bonus
+  const wolf = newState.chars.find((c) => (c.ressort === 'umwelt' && c.pool_partei === 'gp') || c.id === 'um');
   if (wolf && wolf.mood >= 4) {
     newState.zust.prog = Math.min(90, newState.zust.prog + 0.3);
   }
 
-  const lehmann = newState.chars.find(c => c.id === 'fm');
+  // Lehmann (CDP Finanzen) — hh-Bonus
+  const lehmann = newState.chars.find((c) => (c.ressort === 'finanzen' && c.pool_partei === 'cdp') || c.id === 'fm');
   if (lehmann && lehmann.mood >= 4 && newState.kpi.hh < 0) {
     newState.kpi.hh = +Math.min(0, newState.kpi.hh + 0.05).toFixed(2);
   }
 
-  const braun = newState.chars.find(c => c.id === 'im');
+  // Braun (CDP Innen) — Sabotage
+  const braun = newState.chars.find((c) => (c.ressort === 'innen' && c.pool_partei === 'cdp') || c.id === 'im');
   if (braun && braun.mood <= 1 && Math.random() < 0.3) {
     gesetze.forEach(g => {
       if ((g.status === 'aktiv' || g.status === 'entwurf' || g.status === 'eingebracht') && Math.random() < 0.4) {
@@ -26,7 +29,8 @@ export function applyCharBonuses(state: GameState): GameState {
     });
   }
 
-  const maier = newState.chars.find(c => c.id === 'wm');
+  // Maier (SDP Wirtschaft) — al-Bonus
+  const maier = newState.chars.find((c) => (c.ressort === 'wirtschaft' && c.pool_partei === 'sdp') || c.id === 'wm');
   if (maier && maier.mood >= 4 && Math.random() < 0.3) {
     newState.kpi.al = +Math.max(2, newState.kpi.al - 0.05).toFixed(2);
   }

@@ -1,4 +1,4 @@
-"""SMA-327: Dynamisches Kabinett — pool_partei, ressort, agenda, ist_kanzler
+"""SMA-327/SMA-328: Dynamisches Kabinett — pool_partei, ressort, agenda, ist_kanzler
 
 Revision ID: 033_chars_kabinett
 Revises: 032_merge_031_heads
@@ -29,70 +29,68 @@ def upgrade() -> None:
 
     conn = op.get_bind()
 
-    # Kanzler markieren
+    # Kanzler markieren (Fallback für Stufe 1 / ohne Pool)
     conn.execute(sa.text("UPDATE chars SET ist_kanzler = true WHERE id = 'kanzler'"))
 
-    # Bestehende Chars mit pool_partei/ressort (Rückwärtskompatibilität)
-    conn.execute(sa.text("UPDATE chars SET pool_partei = 'cdp', ressort = 'finanzen' WHERE id = 'fm'"))
-    conn.execute(sa.text("UPDATE chars SET pool_partei = 'cdp', ressort = 'wirtschaft' WHERE id = 'wm'"))
-    conn.execute(sa.text("UPDATE chars SET pool_partei = 'lp', ressort = 'innen' WHERE id = 'im'"))
-    conn.execute(sa.text("UPDATE chars SET pool_partei = 'cdp', ressort = 'justiz' WHERE id = 'jm'"))
-    conn.execute(sa.text("UPDATE chars SET pool_partei = 'gp', ressort = 'umwelt' WHERE id = 'um'"))
-    conn.execute(sa.text("UPDATE chars SET pool_partei = 'sdp', ressort = 'arbeit' WHERE id = 'am'"))
-    conn.execute(sa.text("UPDATE chars SET pool_partei = 'cdp', ressort = 'gesundheit' WHERE id = 'gm'"))
-    conn.execute(sa.text("UPDATE chars SET pool_partei = 'sdp', ressort = 'bildung' WHERE id = 'bm'"))
+    # Alte Chars (fm, wm, im, jm, um, am, gm, bm) NICHT mit pool_partei updaten —
+    # sie bleiben für Event/Initiative-FKs, werden aber nicht im Pool verwendet.
 
-    # 30 neue Minister-Chars (5 Parteien × 6) — Partei-Pools
-    # SDP: arbeit, soziales, justiz, bildung, finanzen
-    # CDP: innen, finanzen, wirtschaft, justiz, bildung
-    # GP: umwelt, wirtschaft, justiz, bildung, digital
-    # LDP: wirtschaft, finanzen, digital, justiz, innen
-    # LP: arbeit, soziales, umwelt, justiz, wohnen
+    # 30 Minister-Chars (5 Parteien × 6) — exakte Namen aus SMA-328
+    # SDP: Robert Mayer (FM), Petra Maier (WM), Maria Schulze (AM), Thomas Neumann (GM), Klaus Werner (IM), Lisa Becker (BM)
+    # CDP: Friedrich Schwarz (Kanzler-Kandidat), Robert Lehmann (FM), Klaus Braun (IM), Heinrich Mauer (WM), Sara Kern (JM), Monika Brandt (BM)
+    # GP: Lena Fischer (Kanzlerin), Jonas Wolf (UM), Anna Grün (WM), Michael Berg (FM), Sophie Weber (JM), Felix Grau (IM)
+    # LDP: Christian Frei (Kanzler), Vera Stahl (FM), Marco Digital (WM), Laura Markt (JM), Stefan Privat (IM), Nina Bildung (BM)
+    # LP: Rosa Volk (Kanzlerin), Karl Voss (FM), Gerd Arbeit (AM), Inge Sozial (JM), Werner Wohn (WM), Petra Frieden (IM)
 
     ministers = [
         # SDP (6)
-        ("sdp_fm", "sdp", "finanzen", "Maria Stein", "FM", "#E3000F", 3, 4),
-        ("sdp_am", "sdp", "arbeit", "Thomas Berger", "TB", "#E3000F", 4, 4),
-        ("sdp_asm", "sdp", "soziales", "Laura Weber", "LW", "#E3000F", 3, 4),
-        ("sdp_jm", "sdp", "justiz", "Dr. Felix Roth", "FR", "#E3000F", 3, 3),
-        ("sdp_bm", "sdp", "bildung", "Anna Schulze", "AS", "#E3000F", 3, 4),
-        ("sdp_im", "sdp", "innen", "Michael Koch", "MK", "#E3000F", 3, 3),
-        # CDP (6)
-        ("cdp_fm", "cdp", "finanzen", "Robert Lehmann", "RL", "#2D2D2D", 2, 3),
-        ("cdp_wm", "cdp", "wirtschaft", "Vera Stahl", "VS", "#2D2D2D", 4, 4),
-        ("cdp_im", "cdp", "innen", "Klaus Braun", "KB", "#2D2D2D", 1, 2),
-        ("cdp_jm", "cdp", "justiz", "Sara Kern", "SK", "#2D2D2D", 4, 4),
-        ("cdp_bm", "cdp", "bildung", "Prof. Helmut Wagner", "HW", "#2D2D2D", 3, 3),
-        ("cdp_um", "cdp", "umwelt", "Christoph Berg", "CB", "#2D2D2D", 2, 3),
+        ("sdp_fm", "sdp", "finanzen", "Robert Mayer", "RM", "#E3000F", 3, 4, {"prioritaeten": ["haushalt", "steuern"]}),
+        ("sdp_wm", "sdp", "wirtschaft", "Petra Maier", "PM", "#E3000F", 4, 4, {"prioritaeten": ["arbeit", "standort"]}),
+        ("sdp_am", "sdp", "arbeit", "Maria Schulze", "MS", "#E3000F", 4, 4, {"prioritaeten": ["mindestlohn", "tarifbindung"]}),
+        ("sdp_gm", "sdp", "gesundheit", "Thomas Neumann", "TN", "#E3000F", 3, 4, {"prioritaeten": ["pflege", "krankenversicherung"]}),
+        ("sdp_im", "sdp", "innen", "Klaus Werner", "KW", "#E3000F", 3, 3, {"prioritaeten": ["sicherheit", "integration"]}),
+        ("sdp_bm", "sdp", "bildung", "Lisa Becker", "LB", "#E3000F", 3, 4, {"prioritaeten": ["chancengleichheit", "ausbildung"]}),
+        # CDP (6) — Friedrich Schwarz = Kanzler-Kandidat, kein Ressort
+        ("cdp_kanzler", "cdp", None, "Friedrich Schwarz", "FS", "#2D2D2D", 3, 5, None),
+        ("cdp_fm", "cdp", "finanzen", "Robert Lehmann", "RL", "#2D2D2D", 2, 3, {"prioritaeten": ["schuldenbremse", "haushaltsdisziplin"]}),
+        ("cdp_im", "cdp", "innen", "Klaus Braun", "KB", "#2D2D2D", 1, 2, {"prioritaeten": ["innere_sicherheit", "migration"]}),
+        ("cdp_wm", "cdp", "wirtschaft", "Heinrich Mauer", "HM", "#2D2D2D", 4, 4, {"prioritaeten": ["wirtschaftswachstum", "industrie"]}),
+        ("cdp_jm", "cdp", "justiz", "Sara Kern", "SK", "#2D2D2D", 4, 4, {"prioritaeten": ["rechtsstaat", "grundrechte"]}),
+        ("cdp_bm", "cdp", "bildung", "Monika Brandt", "MB", "#2D2D2D", 3, 3, {"prioritaeten": ["bildung", "forschung"]}),
         # GP (6)
-        ("gp_um", "gp", "umwelt", "Jonas Wolf", "JW", "#46962B", 3, 3),
-        ("gp_wm", "gp", "wirtschaft", "Petra Maier", "PM", "#46962B", 4, 4),
-        ("gp_jm", "gp", "justiz", "Dr. Lena Hartmann", "LH", "#46962B", 4, 4),
-        ("gp_bm", "gp", "bildung", "Simon Grün", "SG", "#46962B", 3, 3),
-        ("gp_digital", "gp", "digital", "Julia Becker", "JB", "#46962B", 4, 4),
-        ("gp_im", "gp", "innen", "Markus Vogel", "MV", "#46962B", 3, 3),
+        ("gp_kanzlerin", "gp", None, "Lena Fischer", "LF", "#46962B", 3, 5, None),
+        ("gp_um", "gp", "umwelt", "Jonas Wolf", "JW", "#46962B", 3, 3, {"prioritaeten": ["klimaschutz", "energiewende"]}),
+        ("gp_wm", "gp", "wirtschaft", "Anna Grün", "AG", "#46962B", 4, 4, {"prioritaeten": ["nachhaltigkeit", "kreislaufwirtschaft"]}),
+        ("gp_fm", "gp", "finanzen", "Michael Berg", "MB", "#46962B", 3, 3, {"prioritaeten": ["gruene_investitionen", "klimafinanzierung"]}),
+        ("gp_jm", "gp", "justiz", "Sophie Weber", "SW", "#46962B", 4, 4, {"prioritaeten": ["buergerrechte", "umweltrecht"]}),
+        ("gp_im", "gp", "innen", "Felix Grau", "FG", "#46962B", 3, 3, {"prioritaeten": ["demokratieschutz", "versammlungsrecht"]}),
         # LDP (6)
-        ("ldp_wm", "ldp", "wirtschaft", "Vera Stahl", "VS", "#FFED00", 4, 4),
-        ("ldp_fm", "ldp", "finanzen", "Robert Lehmann", "RL", "#FFED00", 3, 3),
-        ("ldp_digital", "ldp", "digital", "Dr. Nina Klein", "NK", "#FFED00", 4, 4),
-        ("ldp_jm", "ldp", "justiz", "Florian Beck", "FB", "#FFED00", 3, 3),
-        ("ldp_im", "ldp", "innen", "Stefan Richter", "SR", "#FFED00", 3, 3),
-        ("ldp_bm", "ldp", "bildung", "Katharina Wolf", "KW", "#FFED00", 3, 3),
+        ("ldp_kanzler", "ldp", None, "Christian Frei", "CF", "#FFED00", 3, 5, None),
+        ("ldp_fm", "ldp", "finanzen", "Vera Stahl", "VS", "#FFED00", 4, 4, {"prioritaeten": ["steuerreform", "schuldenabbau"]}),
+        ("ldp_wm", "ldp", "wirtschaft", "Marco Digital", "MD", "#FFED00", 4, 4, {"prioritaeten": ["digitalisierung", "innovation"]}),
+        ("ldp_jm", "ldp", "justiz", "Laura Markt", "LM", "#FFED00", 3, 3, {"prioritaeten": ["buergerrechte", "wirtschaftsrecht"]}),
+        ("ldp_im", "ldp", "innen", "Stefan Privat", "SP", "#FFED00", 3, 3, {"prioritaeten": ["datenschutz", "freiheitsrechte"]}),
+        ("ldp_bm", "ldp", "bildung", "Nina Bildung", "NB", "#FFED00", 3, 3, {"prioritaeten": ["bildung", "startups"]}),
         # LP (6)
-        ("lp_am", "lp", "arbeit", "Dr. Anna Schulze", "AS", "#BE3075", 4, 4),
-        ("lp_asm", "lp", "soziales", "Paul Richter", "PR", "#BE3075", 4, 4),
-        ("lp_um", "lp", "umwelt", "Lisa Hoffmann", "LH", "#BE3075", 3, 3),
-        ("lp_jm", "lp", "justiz", "Martin Schulz", "MS", "#BE3075", 3, 3),
-        ("lp_wohnen", "lp", "wohnen", "Erik Neumann", "EN", "#BE3075", 3, 3),
-        ("lp_bm", "lp", "bildung", "Sophie Bauer", "SB", "#BE3075", 3, 3),
+        ("lp_kanzlerin", "lp", None, "Rosa Volk", "RV", "#BE3075", 3, 5, None),
+        ("lp_fm", "lp", "finanzen", "Karl Voss", "KV", "#BE3075", 3, 3, {"prioritaeten": ["umverteilung", "vermoegensteuer"]}),
+        ("lp_am", "lp", "arbeit", "Gerd Arbeit", "GA", "#BE3075", 4, 4, {"prioritaeten": ["arbeitnehmerrechte", "mindestlohn"]}),
+        ("lp_jm", "lp", "justiz", "Inge Sozial", "IS", "#BE3075", 4, 4, {"prioritaeten": ["soziale_gerechtigkeit", "antidiskriminierung"]}),
+        ("lp_wm", "lp", "wirtschaft", "Werner Wohn", "WW", "#BE3075", 3, 3, {"prioritaeten": ["wohnungsbau", "mietpreisbremse"]}),
+        ("lp_im", "lp", "innen", "Petra Frieden", "PF", "#BE3075", 3, 3, {"prioritaeten": ["frieden", "abruestung"]}),
     ]
 
-    for char_id, pool, ressort, name, initials, color, mood, loyalty in ministers:
+    import json
+    for char_id, pool, ressort, name, initials, color, mood, loyalty, agenda in ministers:
+        agenda_json = json.dumps(agenda) if agenda else None
+        role_de = f"Minister/in ({ressort})" if ressort else "Kanzler-Kandidat/in"
+        role_en = f"Minister ({ressort})" if ressort else "Chancellor candidate"
         conn.execute(
             sa.text("""
                 INSERT INTO chars (id, initials, color, mood_start, loyalty_start, min_complexity, pool_partei, ressort,
-                    ultimatum_mood_thresh, ultimatum_event_id, bonus_trigger, bonus_applies)
-                VALUES (:id, :initials, :color, :mood, :loyalty, 2, :pool, :ressort, 0, NULL, NULL, NULL)
+                    ultimatum_mood_thresh, ultimatum_event_id, bonus_trigger, bonus_applies, agenda)
+                VALUES (:id, :initials, :color, :mood, :loyalty, 2, :pool, :ressort, 0, NULL, NULL, NULL,
+                    CASE WHEN :agenda IS NOT NULL THEN CAST(:agenda AS jsonb) ELSE NULL END)
             """),
             {
                 "id": char_id,
@@ -102,32 +100,31 @@ def upgrade() -> None:
                 "loyalty": loyalty,
                 "pool": pool,
                 "ressort": ressort,
+                "agenda": agenda_json,
             },
         )
         conn.execute(
             sa.text("""
                 INSERT INTO chars_i18n (char_id, locale, name, role, bio, bonus_desc, interests)
-                VALUES (:id, 'de', :name, :role, :bio, :bonus, '{}')
+                VALUES (:id, 'de', :name, :role_de, :bio_de, NULL, '{}')
             """),
             {
                 "id": char_id,
                 "name": name,
-                "role": f"Minister/in ({ressort})",
-                "bio": f"Minister aus dem {pool.upper()}-Pool.",
-                "bonus": "",
+                "role_de": role_de,
+                "bio_de": f"Minister/in aus dem {pool.upper()}-Pool.",
             },
         )
         conn.execute(
             sa.text("""
                 INSERT INTO chars_i18n (char_id, locale, name, role, bio, bonus_desc, interests)
-                VALUES (:id, 'en', :name, :role, :bio, :bonus, '{}')
+                VALUES (:id, 'en', :name, :role_en, :bio_en, NULL, '{}')
             """),
             {
                 "id": char_id,
                 "name": name,
-                "role": f"Minister ({ressort})",
-                "bio": f"Minister from {pool.upper()} pool.",
-                "bonus": "",
+                "role_en": role_en,
+                "bio_en": f"Minister from {pool.upper()} pool.",
             },
         )
 
@@ -136,11 +133,11 @@ def downgrade() -> None:
     """Remove columns and new chars."""
     conn = op.get_bind()
     new_ids = [
-        "sdp_fm", "sdp_am", "sdp_asm", "sdp_jm", "sdp_bm", "sdp_im",
-        "cdp_fm", "cdp_wm", "cdp_im", "cdp_jm", "cdp_bm", "cdp_um",
-        "gp_um", "gp_wm", "gp_jm", "gp_bm", "gp_digital", "gp_im",
-        "ldp_wm", "ldp_fm", "ldp_digital", "ldp_jm", "ldp_im", "ldp_bm",
-        "lp_am", "lp_asm", "lp_um", "lp_jm", "lp_wohnen", "lp_bm",
+        "sdp_fm", "sdp_wm", "sdp_am", "sdp_gm", "sdp_im", "sdp_bm",
+        "cdp_kanzler", "cdp_fm", "cdp_im", "cdp_wm", "cdp_jm", "cdp_bm",
+        "gp_kanzlerin", "gp_um", "gp_wm", "gp_fm", "gp_jm", "gp_im",
+        "ldp_kanzler", "ldp_fm", "ldp_wm", "ldp_jm", "ldp_im", "ldp_bm",
+        "lp_kanzlerin", "lp_fm", "lp_am", "lp_jm", "lp_wm", "lp_im",
     ]
     for cid in new_ids:
         conn.execute(sa.text("DELETE FROM chars_i18n WHERE char_id = :cid"), {"cid": cid})

@@ -945,7 +945,7 @@
     "title": "Game Start",
     "subtitle": "Configure your candidacy",
     "nameLabel": "Name",
-    "namePlaceholder": "Your name (optional)",
+    "namePlaceholder": "Your name as Chancellor",
     "geschlechtLabel": "Form of address",
     "geschlecht": {
       "sie": "Federal Chancellor (she/her)",
