@@ -1,19 +1,22 @@
-import type { GameState } from '../types';
+import type { GameState, GesetzRelation } from '../types';
 import { milieuGesetzKongruenz } from '../ideologie';
 import { featureActive } from './features';
 import { getMedienMultiplikator } from './medienklima';
+import { berechneGesetzEffektMitSynergien } from '../gesetz';
 
 /**
  * Wendet Milieu-Effekte nach einem Gesetzesbeschluss an.
  * Nur bei featureActive('milieus_voll').
  * Delta: Score ≥75: +3, ≥55: +1, ≥25: -1, <25: -3
  * SMA-277: getMedienMultiplikator() moduliert Delta; bei medienKlima > 75: +20%
+ * SMA-312: Synergieeffekte (enhances) multiplizieren Delta
  */
 export function applyMilieuEffekte(
   state: GameState,
   gesetzId: string,
   milieus: { id: string; ideologie: { wirtschaft: number; gesellschaft: number; staat: number }; min_complexity: number }[],
   complexity: number,
+  gesetzRelationen?: Record<string, GesetzRelation[]>,
 ): GameState {
   if (!featureActive(complexity, 'milieus_voll') || milieus.length === 0) return state;
 
@@ -26,6 +29,9 @@ export function applyMilieuEffekte(
   let multiplikator = getMedienMultiplikator(medienKlima);
   if (medienKlima > 75) multiplikator *= 1.2;
 
+  // SMA-312: Synergie-Faktor (enhances) — State vor Beschluss: Synergiegesetze bereits beschlossen
+  const synergieFaktor = berechneGesetzEffektMitSynergien(state, gesetzId, 1.0, gesetzRelationen);
+
   for (const milieu of milieus) {
     if (milieu.min_complexity > complexity) continue;
 
@@ -36,7 +42,7 @@ export function applyMilieuEffekte(
     else if (score >= 25) delta = -1;
     else delta = -3;
 
-    delta = Math.round(delta * multiplikator);
+    delta = Math.round(delta * multiplikator * synergieFaktor);
     const current = milieuZustimmung[milieu.id] ?? 50;
     milieuZustimmung[milieu.id] = Math.max(0, Math.min(100, current + delta));
 

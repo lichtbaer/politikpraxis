@@ -712,6 +712,14 @@ export interface MedienEventContent {
   cooldownMonths?: number;
 }
 
+/** SMA-312: Gesetz-Relation (requires, excludes, enhances) */
+export interface GesetzRelation {
+  typ: 'requires' | 'excludes' | 'enhances';
+  targetId: string;
+  beschreibung?: string;
+  enhancesFaktor?: number;
+}
+
 export interface ContentBundle {
   characters: Character[];
   events: GameEvent[];
@@ -741,6 +749,8 @@ export interface ContentBundle {
   kommunalLaenderEvents?: GameEvent[];
   /** SMA-309: Steuer-Events (conditional) */
   steuerEvents?: GameEvent[];
+  /** SMA-312: Gesetz-Abhängigkeiten — gesetzId -> Relationen */
+  gesetzRelationen?: Record<string, GesetzRelation[]>;
   scenario: {
     id: string;
     name: string;

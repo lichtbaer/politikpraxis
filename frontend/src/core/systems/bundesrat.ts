@@ -423,6 +423,8 @@ export function checkKohlSabotage(state: GameState): { triggered: boolean; lawId
 export interface BundesratVoteContext {
   milieus: { id: string; ideologie: { wirtschaft: number; gesellschaft: number; staat: number }; min_complexity: number }[];
   complexity: number;
+  /** SMA-312: Gesetz-Relationen für Synergie-Berechnung */
+  gesetzRelationen?: Record<string, import('../types').GesetzRelation[]>;
 }
 
 /** Führt die Bundesratsabstimmung durch und wendet Ergebnis an */
@@ -446,7 +448,13 @@ export function executeBundesratVote(
     newState = scheduleEffects(newState, lawForEffects);
 
     if (voteContext?.milieus) {
-      newState = applyMilieuEffekte(newState, lawId, voteContext.milieus, voteContext.complexity);
+      newState = applyMilieuEffekte(
+        newState,
+        lawId,
+        voteContext.milieus,
+        voteContext.complexity,
+        voteContext.gesetzRelationen,
+      );
     }
     if (law.politikfeldId) {
       newState = setPolitikfeldBeschluss(newState, law.politikfeldId);

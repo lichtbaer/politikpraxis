@@ -19,6 +19,7 @@ import type {
   BundesratLand,
   Milieu,
   Politikfeld,
+  GesetzRelation,
 } from '../core/types';
 import { DEFAULT_VERBAENDE, DEFAULT_MINISTERIAL_INITIATIVEN } from '../data/defaults/scenarios';
 import { DEFAULT_BUNDESRAT, DEFAULT_SCENARIO } from '../data/defaults/scenarios';
@@ -272,6 +273,15 @@ function transformVerband(api: VerbandApi): import('../core/types').Verband {
   };
 }
 
+/** SMA-312: API-Format für Gesetz-Relation */
+export interface GesetzRelationApi {
+  gesetz_a_id: string;
+  gesetz_b_id: string;
+  relation_typ: 'requires' | 'excludes' | 'enhances';
+  beschreibung_de?: string | null;
+  enhances_faktor?: number | null;
+}
+
 export interface ContentStore {
   chars: Character[];
   gesetze: Law[];
@@ -291,10 +301,27 @@ export interface ContentStore {
   ministerialInitiativen: import('../core/types').MinisterialInitiative[];
   euKlimaStartwerte: { politikfeld_id: string; startwert: number }[];
   euEvents: import('../core/types').EUEventContent[];
+  /** SMA-312: Gesetz-Abhängigkeiten — gesetzId -> Relationen */
+  gesetzRelationen: Record<string, GesetzRelation[]>;
   scenario: ContentBundle['scenario'];
   loaded: boolean;
   error: string | null;
   load: (locale: string) => Promise<void>;
+}
+
+function buildGesetzRelationen(api: GesetzRelationApi[]): Record<string, GesetzRelation[]> {
+  const out: Record<string, GesetzRelation[]> = {};
+  for (const r of api) {
+    const rel: GesetzRelation = {
+      typ: r.relation_typ,
+      targetId: r.gesetz_b_id,
+      beschreibung: r.beschreibung_de ?? undefined,
+      enhancesFaktor: r.enhances_faktor ?? undefined,
+    };
+    if (!out[r.gesetz_a_id]) out[r.gesetz_a_id] = [];
+    out[r.gesetz_a_id].push(rel);
+  }
+  return out;
 }
 
 export const useContentStore = create<ContentStore>((set) => ({
@@ -316,6 +343,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
   euKlimaStartwerte: [],
   euEvents: [],
+  gesetzRelationen: {},
   scenario: DEFAULT_SCENARIO,
   loaded: false,
   error: null,
@@ -323,7 +351,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   load: async (locale: string) => {
     set({ error: null, loaded: false });
     try {
-      const [chars, gesetze, eventsAll, bundesratFraktionen, milieusRaw, politikfelderRaw, verbaendeRaw] =
+      const [chars, gesetze, eventsAll, bundesratFraktionen, milieusRaw, politikfelderRaw, verbaendeRaw, gesetzRelationenRaw] =
         await Promise.all([
           apiFetch<CharApi[]>(`/content/chars?locale=${locale}`),
           apiFetch<GesetzApi[]>(`/content/gesetze?locale=${locale}`),
@@ -332,6 +360,7 @@ export const useContentStore = create<ContentStore>((set) => ({
           apiFetch<MilieuApi[]>(`/content/milieus?locale=${locale}`).catch(() => []),
           apiFetch<PolitikfeldApi[]>(`/content/politikfelder?locale=${locale}`).catch(() => []),
           apiFetch<VerbandApi[]>(`/content/verbaende?locale=${locale}`).catch(() => []),
+          apiFetch<GesetzRelationApi[]>(`/content/gesetz-relationen`).catch(() => []),
         ]);
 
       const events = eventsAll.map(transformEvent);
@@ -381,6 +410,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         politikfelder,
         verbaende,
         ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
+        gesetzRelationen: buildGesetzRelationen(gesetzRelationenRaw ?? []),
         loaded: true,
         error: null,
       });
@@ -427,6 +457,7 @@ export function getContentBundle(): ContentBundle {
     ministerialInitiativen: s.ministerialInitiativen?.length ? s.ministerialInitiativen : DEFAULT_MINISTERIAL_INITIATIVEN,
     euKlimaStartwerte: s.euKlimaStartwerte ?? [],
     euEvents: s.euEvents ?? [],
+    gesetzRelationen: s.gesetzRelationen,
     medienEvents: DEFAULT_MEDIEN_EVENTS,
     scenario: s.scenario,
   };
