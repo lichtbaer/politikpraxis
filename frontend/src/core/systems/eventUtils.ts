@@ -12,8 +12,12 @@ export function isOnCooldown(state: GameState, event: GameEvent): boolean {
   return cooldownUntil != null && state.month < cooldownUntil;
 }
 
-/** Check if an event is available (not fired for non-repeatable, not on cooldown for repeatable) */
+/** Check if an event is available (not fired for non-repeatable, not on cooldown for repeatable, in active pool) */
 export function isEventAvailable(state: GameState, event: GameEvent): boolean {
+  // Event-Pool-Filter: wenn Pool definiert und nicht leer, nur Events im Pool zulassen
+  if (state.activeEventPool?.length && !state.activeEventPool.includes(event.id)) {
+    return false;
+  }
   if (event.repeatable) {
     return !isOnCooldown(state, event);
   }

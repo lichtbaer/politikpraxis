@@ -263,6 +263,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (next.speed === 0 && next.speedBeforePause != null) {
         next = { ...next, speed: next.speedBeforePause, speedBeforePause: undefined };
       }
+      // Freigeschaltete Gesetze in state.gesetze einfügen
+      if (choice.unlocks_laws?.length && prev.content.laws) {
+        for (const lawId of choice.unlocks_laws) {
+          if (!next.gesetze.some(g => g.id === lawId)) {
+            const lawDef = prev.content.laws.find(l => l.id === lawId);
+            if (lawDef) {
+              next = {
+                ...next,
+                gesetze: [...next.gesetze, {
+                  ...lawDef,
+                  status: 'entwurf' as const,
+                  expanded: false,
+                  route: null,
+                  rprog: 0,
+                  rdur: 0,
+                  blockiert: null,
+                }],
+              };
+            }
+          }
+        }
+      }
       return { state: next };
     }),
 

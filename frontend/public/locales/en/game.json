@@ -166,6 +166,234 @@
         "1": { "label": "Prioritise housing", "desc": "Popular, quickly visible", "log": "EU funds strengthen housing offensive." },
         "2": { "label": "Debt repayment", "desc": "Finance Ministry delighted", "log": "Debt repaid. Budget improved, room for reforms." }
       }
+    },
+    "verfassungsgericht": {
+      "typeLabel": "Constitutional Court",
+      "title": "Federal Constitutional Court strikes down key regulation",
+      "quote": "\"The Federal Constitutional Court declares a core government law unconstitutional.\"",
+      "context": "The judges in Karlsruhe see fundamental rights violated. The opposition triumphs, the coalition must respond.",
+      "ticker": "Karlsruhe strikes down government law — coalition under pressure",
+      "choices": {
+        "0": { "label": "Respect ruling", "desc": "Rule of law, political damage", "log": "Ruling accepted. Trust in rule of law strengthened." },
+        "1": { "label": "Introduce amendment", "desc": "Revision costs PK and budget", "log": "Legislative amendment in progress. Constitutionally corrected." },
+        "2": { "label": "Consider constitutional change", "desc": "Risky — touching Basic Law divides", "log": "Constitutional amendment announced. Jurists and opposition alarmed." }
+      }
+    },
+    "naturkatastrophe": {
+      "typeLabel": "Natural disaster",
+      "title": "Century flood devastates southern Germany",
+      "quote": "\"The worst flood catastrophe in decades claims dozens of lives and causes billions in damage.\"",
+      "context": "Entire towns are underwater. Emergency services are at their limit. The federal government must act fast.",
+      "ticker": "Flood catastrophe: Federal government activates crisis team",
+      "choices": {
+        "0": { "label": "Emergency aid package", "desc": "Fast help, burdens budget", "log": "Emergency aid package passed. Fast help for those affected." },
+        "1": { "label": "Coordinate army deployment", "desc": "Effective but limited resources", "log": "Army in relief deployment. Population grateful." },
+        "2": { "label": "State matter — wait", "desc": "Emphasise federalism, risks criticism", "log": "Federation points to state responsibility. Massive criticism follows." }
+      }
+    },
+    "cyberangriff": {
+      "typeLabel": "Cyber attack",
+      "title": "Massive cyber attack paralyses federal ministries",
+      "quote": "\"A coordinated hacker attack has compromised central IT systems of the federal administration.\"",
+      "context": "Intelligence agencies suspect a state actor. Sensitive data may have been leaked.",
+      "ticker": "Cyber attack on federal government — IT systems paralysed",
+      "choices": {
+        "0": { "label": "Crisis team & IT offensive", "desc": "Act immediately, invest", "log": "IT crisis team established. Cybersecurity becomes top priority." },
+        "1": { "label": "Let intelligence investigate", "desc": "Quiet but slow", "log": "Investigation initiated. Public learns little." },
+        "2": { "label": "Diplomatic escalation", "desc": "Publicly accuse, risk of crisis", "log": "Diplomatic confrontation. International tensions rise." }
+      }
+    },
+    "g7_krise": {
+      "typeLabel": "International crisis",
+      "title": "G7 summit overshadowed by global tensions",
+      "quote": "\"International conflicts overshadow the G7 summit under German presidency.\"",
+      "context": "The world is watching Berlin. A summit failure would be a diplomatic disaster.",
+      "ticker": "G7 summit in Berlin: Chancellor under international pressure",
+      "choices": {
+        "0": { "label": "Take mediator role", "desc": "Diplomatically skilled, costs PK", "log": "Germany as mediator. International reputation rises." },
+        "1": { "label": "Demonstrate alliance loyalty", "desc": "Safe choice, limited impact", "log": "Alliance loyalty demonstrated. Partner state satisfied." },
+        "2": { "label": "Prioritise German interests", "desc": "Popular domestically, isolated internationally", "log": "National interests emphasised. International criticism grows." }
+      }
+    },
+    "whistleblower": {
+      "typeLabel": "Whistleblower affair",
+      "title": "Official reveals systematic surveillance",
+      "quote": "\"A senior official publishes explosive documents about illegal surveillance programmes.\"",
+      "context": "The revelations hit the domestic intelligence service hard. Civil rights advocates demand consequences.",
+      "ticker": "Surveillance scandal: Civil rights vs. security",
+      "choices": {
+        "0": { "label": "Investigation committee", "desc": "Transparency, political cost", "log": "Investigation committee established. Inquiry begins." },
+        "1": { "label": "Protect whistleblower", "desc": "Brave, divides coalition", "log": "Whistleblower placed under protection. Intelligence service outraged." },
+        "2": { "label": "Emphasise security interests", "desc": "Strengthen agencies, ignore criticism", "log": "Security over transparency. Civil rights advocates protest." }
+      }
+    },
+    "streikwelle": {
+      "typeLabel": "Strike wave",
+      "title": "Unions call for general strike",
+      "quote": "\"Public transport, daycare, hospitals — a strike wave paralyses public life.\"",
+      "context": "Wage negotiations have failed. Unions demand double-digit pay rises.",
+      "ticker": "General strike paralyses Germany — millions affected",
+      "choices": {
+        "0": { "label": "Offer mediation", "desc": "Seek compromise, costs PK", "log": "Mediation proceedings initiated. Social partners at the table." },
+        "1": { "label": "Support employer side", "desc": "Business-friendly, provokes escalation", "log": "Employer position strengthened. Unions threaten escalation." },
+        "2": { "label": "Strengthen legal framework", "desc": "Long-term, short-term ineffective", "log": "Labour law reform announced. Long-term solution in sight." }
+      }
+    },
+    "wohnungsnot": {
+      "typeLabel": "Housing crisis",
+      "title": "Tens of thousands protest against soaring rents",
+      "quote": "\"In 50 cities, people take to the streets — affordable housing is the central demand.\"",
+      "context": "Rents in major cities have doubled in 10 years. Families are being pushed to the outskirts.",
+      "ticker": "Housing protests in 50 cities — government under pressure",
+      "choices": {
+        "0": { "label": "Tighten rent cap", "desc": "Popular, burdens investors", "log": "Rent cap tightened. Tenant associations satisfied, investors angered." },
+        "1": { "label": "Promote social housing", "desc": "Effective long-term, expensive", "log": "Social housing programme launched. Effects visible in years." },
+        "2": { "label": "Emphasise market solutions", "desc": "Business-friendly, unpopular", "log": "Market should fix it. Protests intensify." }
+      }
+    },
+    "rechtsextremismus": {
+      "typeLabel": "Right-wing extremism",
+      "title": "Right-wing extremist attack shakes the nation",
+      "quote": "\"A right-wing motivated attack claims victims and triggers a wave of solidarity and fear.\"",
+      "context": "The attack is part of a series of right-wing violence. The question of security agencies' failure looms.",
+      "ticker": "Right-wing extremist attack: Germany mourns and debates",
+      "choices": {
+        "0": { "label": "Action plan against the far right", "desc": "Comprehensive, shows determination", "log": "Action plan against right-wing extremism passed." },
+        "1": { "label": "Strengthen security agencies", "desc": "More personnel and resources", "log": "Intelligence and police forces expanded." },
+        "2": { "label": "Differentiated analysis", "desc": "Considered, appears hesitant", "log": "Wait-and-see stance. Opposition accuses of inaction." }
+      }
+    },
+    "fachkraeftemangel": {
+      "typeLabel": "Skills shortage",
+      "title": "Skills shortage threatens economic competitiveness",
+      "quote": "\"800,000 vacancies cannot be filled — companies warn of relocation.\"",
+      "context": "Trades, IT, care — workers are lacking everywhere. Business associations demand an offensive.",
+      "ticker": "Skills shortage at record high — business sounds alarm",
+      "choices": {
+        "0": { "label": "Immigration offensive", "desc": "Quickly effective, socially controversial", "log": "Skilled immigration facilitated. Business relieved." },
+        "1": { "label": "Training initiative", "desc": "Right long-term, slow", "log": "Training offensive launched. Effects visible in years." },
+        "2": { "label": "Let the market sort it out", "desc": "No costs, no effect", "log": "Wait-and-see stance. Skills shortage worsens." }
+      }
+    },
+    "energiekrise": {
+      "typeLabel": "Energy crisis",
+      "title": "Energy price shock hits industry and consumers",
+      "quote": "\"Gas prices triple overnight — industry scales back production.\"",
+      "context": "International supply bottlenecks drive prices. Consumers protest, companies threaten relocation.",
+      "ticker": "Energy prices explode — Economy Minister warns of deindustrialisation",
+      "choices": {
+        "0": { "label": "Introduce price brake", "desc": "Immediate relief, expensive", "log": "Energy price brake takes effect. Budget heavily burdened." },
+        "1": { "label": "Industry subsidies", "desc": "Saves jobs, controversial", "log": "Industry subsidies passed. Jobs secured." },
+        "2": { "label": "Accept market prices", "desc": "Thrifty, socially harsh", "log": "Market prices enforced. Social hardship follows." }
+      }
+    },
+    "rentendebatte": {
+      "typeLabel": "Pension crisis",
+      "title": "Pension insurance reports billion-euro deficit",
+      "quote": "\"The baby boomers are retiring — the system faces collapse.\"",
+      "context": "The pension report shows a growing deficit. Younger generations fear for their retirement.",
+      "ticker": "Pension insurance: Deficit grows — reform debate ignites",
+      "choices": {
+        "0": { "label": "Raise retirement age", "desc": "Unpopular, financially necessary", "log": "Retirement age raised to 68. Massive union protests." },
+        "1": { "label": "Raise contributions", "desc": "Distributable, lowers net wages", "log": "Pension contributions rise. Net wages drop slightly." },
+        "2": { "label": "Introduce capital funding", "desc": "Modern, risky in crises", "log": "Stock-based pension introduced. Conservatives sceptical." }
+      }
+    },
+    "pandemie_vorbereitung": {
+      "typeLabel": "Pandemic warning",
+      "title": "WHO warns of new virus with pandemic potential",
+      "quote": "\"A new virus variant is spreading rapidly in Asia — the WHO calls for preparation.\"",
+      "context": "Germany has learned from the last pandemic — or has it? Hospitals report bottlenecks.",
+      "ticker": "WHO warning: New pandemic possible — Germany prepares",
+      "choices": {
+        "0": { "label": "Prepare prevention package", "desc": "Vaccines, masks, hospital capacity", "log": "Pandemic prevention package passed. Population feels protected." },
+        "1": { "label": "Strengthen WHO cooperation", "desc": "International but slow", "log": "International cooperation expanded. Wait-and-see in Germany." },
+        "2": { "label": "Wait and observe", "desc": "No costs but risky", "log": "Wait-and-see stance. Critics warn of negligence." }
+      }
+    },
+    "infrastruktur_kollaps": {
+      "typeLabel": "Infrastructure",
+      "title": "Bridge closures paralyse traffic",
+      "quote": "\"Dozens of dilapidated motorway bridges must be closed — traffic collapses.\"",
+      "context": "Infrastructure has been neglected for decades. Truck detours cost the economy billions.",
+      "ticker": "Infrastructure crisis: Crumbling bridges paralyse traffic",
+      "choices": {
+        "0": { "label": "Emergency infrastructure programme", "desc": "Invest immediately, expensive", "log": "Infrastructure emergency programme launched. Billions for bridges and roads." },
+        "1": { "label": "Support municipalities", "desc": "Federal solution, slower", "log": "Municipal infrastructure aid passed." },
+        "2": { "label": "Prioritise and plan", "desc": "Thrifty, but criticism of inaction", "log": "Master plan presented. Critics demand immediate action." }
+      }
+    },
+    "migration_krise": {
+      "typeLabel": "Migration crisis",
+      "title": "Refugee numbers surge dramatically",
+      "quote": "\"Municipalities report overload — reception capacities are exhausted.\"",
+      "context": "New conflicts drive hundreds of thousands to Europe. Local politicians demand federal help.",
+      "ticker": "Refugee crisis: Municipalities at limit — federal government under pressure",
+      "choices": {
+        "0": { "label": "Humanitarian reception", "desc": "Humane, divides society", "log": "Humanitarian reception organised. Society divided." },
+        "1": { "label": "Demand EU distribution", "desc": "Diplomatic, takes time", "log": "EU distribution mechanism demanded. Brussels reacts slowly." },
+        "2": { "label": "Strengthen border controls", "desc": "Popular, EU-legally controversial", "log": "Border controls tightened. EU Commission examines proceedings." }
+      }
+    },
+    "verfassungsklage_schulden": {
+      "typeLabel": "Constitutional complaint",
+      "title": "Opposition sues over debt policy",
+      "quote": "\"The opposition has filed a complaint with the Federal Constitutional Court — violation of the debt brake.\"",
+      "context": "The complaint has prospects of success. A ruling could overturn the budget.",
+      "ticker": "Constitutional complaint against debt policy — government in trouble",
+      "choices": {
+        "0": { "label": "Present supplementary budget", "desc": "Constitutionally correct revision", "log": "Supplementary budget presented. Debt brake complied with." },
+        "1": { "label": "Declare emergency", "desc": "Use exception rule", "log": "Emergency declared. Jurists doubt justification." },
+        "2": { "label": "Sit out complaint", "desc": "Risky but cheap", "log": "Complaint ignored. Constitutional Court angered." }
+      }
+    },
+    "wiederaufbau_debatte": {
+      "typeLabel": "Reconstruction",
+      "title": "Dispute over reconstruction costs after flood",
+      "quote": "\"Who pays the 30 billion euros for reconstruction? Federation and states argue.\"",
+      "context": "Flood victims wait for help while Berlin and state capitals debate responsibilities.",
+      "ticker": "Reconstruction dispute: Federation vs. states — flood victims wait",
+      "choices": {
+        "0": { "label": "Levy solidarity surcharge", "desc": "Fair distribution, unpopular", "log": "Solidarity surcharge for reconstruction. Taxpayers protest." },
+        "1": { "label": "Establish special fund", "desc": "Fast, burdens the future", "log": "Special fund for reconstruction passed." },
+        "2": { "label": "Introduce insurance mandate", "desc": "Market-based, long-term", "log": "Mandatory insurance against natural disasters introduced." }
+      }
+    },
+    "diplomatische_krise": {
+      "typeLabel": "Diplomatic crisis",
+      "title": "Accused state retaliates with countermeasures",
+      "quote": "\"In response to public accusations, the accused state imposes economic sanctions.\"",
+      "context": "Trade relations are at risk. Business urges de-escalation.",
+      "ticker": "Diplomatic crisis escalates — economic sanctions threaten",
+      "choices": {
+        "0": { "label": "De-escalation", "desc": "Save face, rescue trade", "log": "Diplomatic channels reopened. Crisis defused." },
+        "1": { "label": "Counter-sanctions", "desc": "Steadfast, economically costly", "log": "Counter-sanctions imposed. Economy suffers." },
+        "2": { "label": "Demand EU solidarity", "desc": "Multilateral, takes time", "log": "EU partners asked for solidarity. Mixed reactions." }
+      }
+    },
+    "opposition_vorwurf": {
+      "typeLabel": "Opposition",
+      "title": "Opposition accuses government of inaction",
+      "quote": "\"After the right-wing extremist attack, the opposition accuses the government of negligent inaction.\"",
+      "context": "A vote of no confidence is in the air. Media report intensively on security agency failures.",
+      "ticker": "Opposition attacks government — no-confidence vote discussed",
+      "choices": {
+        "0": { "label": "Announce immediate measures", "desc": "Respond decisively", "log": "Immediate measures against right-wing extremism announced." },
+        "1": { "label": "Call vote of confidence", "desc": "All-or-nothing", "log": "Vote of confidence called. High-risk manoeuvre." },
+        "2": { "label": "Lead parliamentary debate", "desc": "Democratic but slow", "log": "Parliamentary debate on internal security. Measured tone." }
+      }
+    },
+    "gewerkschaft_eskalation": {
+      "typeLabel": "Strike escalation",
+      "title": "Unions extend strike indefinitely",
+      "quote": "\"After mediation fails, unions call for indefinite strikes.\"",
+      "context": "Airports, ports and hospitals are affected. Economic damage runs into billions.",
+      "ticker": "Indefinite strike: Economy faces standstill",
+      "choices": {
+        "0": { "label": "Force wage agreement", "desc": "State mediation, costs trust", "log": "Compulsory arbitration ordered. Unions outraged, strike ended." },
+        "1": { "label": "Offer compromise", "desc": "Expensive compromise", "log": "Compromise found. Wages rise, budget burdened." },
+        "2": { "label": "Hold firm", "desc": "Play for time, economic damage", "log": "Government holds course. Economic damage grows." }
+      }
     }
   },
   "charEvents": {

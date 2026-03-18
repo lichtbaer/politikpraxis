@@ -8,6 +8,7 @@ import { startKommunalPilot } from './gesetzLebenszyklus';
 import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell } from './wahlkampf';
 import { applyMedienChoiceDelta } from './medienklima';
+import { featureActive } from './features';
 import i18n from '../../i18n';
 
 /** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
@@ -572,5 +573,67 @@ export function resolveEvent(
 
   s = applyKoalitionspartnerDelta(s, choice);
 
+  // Gesetze freischalten + Follow-up Events planen
+  s = applyUnlocksAndFollowups(s, choice, options);
+
   return finalizeEvent(s, event, choice);
 }
+
+/** Schaltet Gesetze frei und plant Follow-up Events */
+function applyUnlocksAndFollowups(
+  state: GameState,
+  choice: EventChoice,
+  options?: ResolveEventOptions,
+): GameState {
+  let s = state;
+
+  // Gesetze freischalten
+  if (choice.unlocks_laws?.length) {
+    const unlockedLaws = [...(s.unlockedLaws ?? [])];
+    for (const lawId of choice.unlocks_laws) {
+      if (!unlockedLaws.includes(lawId)) {
+        unlockedLaws.push(lawId);
+      }
+    }
+    s = { ...s, unlockedLaws };
+  }
+
+  // Follow-up Events planen (nur bei Komplexität >= 4)
+  const complexity = options?.complexity ?? 4;
+  if (choice.followup_event_id && featureActive(complexity, 'followup_events')) {
+    const delay = choice.followup_delay ?? 2;
+    const pendingFollowups = [...(s.pendingFollowups ?? [])];
+    pendingFollowups.push({
+      eventId: choice.followup_event_id,
+      triggerMonth: s.month + delay,
+    });
+    s = { ...s, pendingFollowups };
+  }
+
+  return s;
+}
+
+/** Prüft ob ein geplanter Follow-up Event fällig ist */
+export function checkFollowupEvents(state: GameState, allEvents: GameEvent[]): GameState {
+  if (state.activeEvent) return state;
+  const pending = state.pendingFollowups ?? [];
+  if (!pending.length) return state;
+
+  const dueIdx = pending.findIndex(p => state.month >= p.triggerMonth);
+  if (dueIdx === -1) return state;
+
+  const due = pending[dueIdx];
+  const ev = allEvents.find(e => e.id === due.eventId);
+  if (!ev) {
+    // Event nicht gefunden — entfernen und weiter
+    return { ...state, pendingFollowups: pending.filter((_, i) => i !== dueIdx) };
+  }
+
+  return {
+    ...state,
+    pendingFollowups: pending.filter((_, i) => i !== dueIdx),
+    activeEvent: ev,
+    ...withPause(state, getAutoPauseLevel(ev)),
+  };
+}
+

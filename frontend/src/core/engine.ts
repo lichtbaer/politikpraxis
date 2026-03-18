@@ -6,7 +6,7 @@ import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
-import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKommunalLaenderEvents, checkSteuerEvents } from './systems/events';
+import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKommunalLaenderEvents, checkSteuerEvents, checkFollowupEvents } from './systems/events';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
 import { resolveEingebrachteAbstimmung } from './systems/parliament';
@@ -201,6 +201,8 @@ export function tick(
   if (content.steuerEvents?.length) {
     s = checkSteuerEvents(s, content.steuerEvents, complexity);
   }
+  // 13b. Follow-up Events (complexity >= 4)
+  s = checkFollowupEvents(s, content.events);
   s = checkRandomEvents(s, content.events);
 
   // 14. Wahlkampf (SMA-278: Monat 43+)
