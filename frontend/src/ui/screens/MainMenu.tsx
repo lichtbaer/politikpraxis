@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { useGameStore } from '../../store/gameStore';
 import { hasSaveAvailable, loadGame } from '../../services/localStorageSave';
-import { EuropeMapChart } from '../components/EuropeMapChart/EuropeMapChart';
+import { StartMapView } from '../components/StartMapView/StartMapView';
 import styles from './MainMenu.module.css';
 
 function toggleLang() {
@@ -62,7 +62,7 @@ export function MainMenu() {
       </button>
       <div className={styles.startScreen}>
         <div className={styles.startLeft} aria-hidden="true">
-          <EuropeMapChart />
+          <StartMapView />
         </div>
 
         <div className={styles.startCenter}>
