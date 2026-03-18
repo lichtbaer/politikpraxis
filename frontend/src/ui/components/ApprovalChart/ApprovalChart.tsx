@@ -10,7 +10,7 @@ interface ApprovalChartProps {
   currentMonth?: number;
 }
 
-export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
+export function ApprovalChart({ history, threshold, currentMonth: _currentMonth }: ApprovalChartProps) {
   const option: EChartsOption = useMemo(() => {
     const months = history.map((_, i) => i + 1);
 
@@ -33,13 +33,13 @@ export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
         data: months,
         boundaryGap: false,
         axisLabel: {
-          color: '#888',
+          color: 'rgba(255,255,255,0.3)',
           fontSize: 8,
           interval: (index: number) => [0, 11, 23, 35, 47].includes(index),
           formatter: (v: string) => {
             const m = Number(v);
             const year = 2025 + Math.floor((m - 1) / 12);
-            return `${m} (${year})`;
+            return `'${String(year).slice(2)}`;
           },
         },
         axisLine: { show: false },
@@ -52,12 +52,12 @@ export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
         max: 100,
         interval: 25,
         axisLabel: {
-          color: '#888',
+          color: 'rgba(255,255,255,0.3)',
           fontSize: 8,
           formatter: '{value}%',
         },
         splitLine: {
-          lineStyle: { color: '#333', type: 'dashed', width: 0.5 },
+          lineStyle: { color: 'rgba(255,255,255,0.07)', type: 'dashed', width: 0.5 },
         },
       },
       tooltip: {
@@ -98,12 +98,12 @@ export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
             silent: true,
             symbol: 'none',
             data: [{ yAxis: threshold }],
-            lineStyle: { color: '#888', type: 'dashed', width: 1 },
+            lineStyle: { color: 'rgba(255,255,255,0.25)', type: 'dashed', width: 1 },
             label: {
               show: true,
               position: 'insideEndTop',
               formatter: `${threshold}%`,
-              color: '#888',
+              color: 'rgba(255,255,255,0.35)',
               fontSize: 8,
             },
           },
@@ -133,6 +133,17 @@ export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
 
   const latestVal = history.length > 0 ? history[history.length - 1] : null;
 
+  // Trend: compare last value with value 3 positions back
+  let trendSymbol = '→';
+  let trendClass = styles.trendFlat;
+  if (latestVal !== null && history.length >= 2) {
+    const lookback = Math.min(3, history.length - 1);
+    const prev = history[history.length - 1 - lookback];
+    const diff = latestVal - prev;
+    if (diff > 1.5) { trendSymbol = '↑'; trendClass = styles.trendUp; }
+    else if (diff < -1.5) { trendSymbol = '↓'; trendClass = styles.trendDown; }
+  }
+
   return (
     <div className={styles.container}>
       {latestVal !== null && (
@@ -140,10 +151,15 @@ export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
           <span className={styles.currentLabel}>Aktuell:</span>
           <span
             className={styles.currentNumber}
-            style={{ color: latestVal >= threshold ? '#5a9870' : '#c05848' }}
+            style={{ color: latestVal >= threshold ? 'var(--green)' : 'var(--red)' }}
           >
             {latestVal.toFixed(1)}%
           </span>
+          {history.length >= 2 && (
+            <span className={`${styles.trendIndicator} ${trendClass}`} aria-hidden="true">
+              {trendSymbol}
+            </span>
+          )}
         </div>
       )}
       <ReactECharts

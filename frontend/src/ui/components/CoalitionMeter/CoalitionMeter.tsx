@@ -79,7 +79,7 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
       <ReactECharts
         option={option}
         theme="politikpraxis"
-        style={{ width: '100%', height: 90 }}
+        style={{ width: '100%', height: 100 }}
         opts={{ renderer: 'canvas' }}
         notMerge={false}
       />

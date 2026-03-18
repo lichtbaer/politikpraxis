@@ -7,13 +7,15 @@
 
 .critical {
   animation: pulseWarning 2s ease-in-out infinite;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--red2), 0 0 16px color-mix(in srgb, var(--red) 18%, transparent);
 }
 
 .statusLabel {
   font-family: var(--sans);
   font-size: 11px;
   text-align: center;
-  margin-top: -8px;
+  margin-top: -4px;
   padding-bottom: 4px;
   transition: color 0.3s ease;
   display: flex;
