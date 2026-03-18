@@ -34,6 +34,15 @@ def upgrade() -> None:
     )
 
     conn = op.get_bind()
+    conn.execute(
+        sa.text("""
+            SELECT setval(
+                pg_get_serial_sequence('verbands_tradeoffs', 'id'),
+                COALESCE((SELECT MAX(id) FROM verbands_tradeoffs), 0) + 1,
+                false
+            )
+        """)
+    )
 
     # Neue Tradeoffs: vid, tkey, cost_pk, ea, eh, eg, ez, fdd, mk_delta, verband_eff, label, desc
     new_tradeoffs = [
@@ -85,10 +94,11 @@ def upgrade() -> None:
 
     for vid, tkey, cpk, ea, eh, eg, ez, fdd, mk_delta, v_eff, label, desc in new_tradeoffs:
         v_eff_val = v_eff if v_eff else None
-        conn.execute(
+        insert_result = conn.execute(
             sa.text("""
                 INSERT INTO verbands_tradeoffs (verband_id, tradeoff_key, cost_pk, effekt_al, effekt_hh, effekt_gi, effekt_zf, feld_druck_delta, medienklima_delta, verband_effekte)
                 VALUES (:vid, :tkey, :cpk, :ea, :eh, :eg, :ez, :fdd, :mk_delta, CAST(:v_eff AS jsonb))
+                RETURNING id
             """),
             {
                 "vid": vid, "tkey": tkey, "cpk": cpk,
@@ -97,8 +107,7 @@ def upgrade() -> None:
                 "v_eff": v_eff_val if v_eff_val else "null",
             },
         )
-        r = conn.execute(sa.text("SELECT lastval()"))
-        tid = r.scalar()
+        tid = insert_result.scalar_one()
         conn.execute(
             sa.text("""
                 INSERT INTO verbands_tradeoffs_i18n (tradeoff_id, locale, label, "desc")
