@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { MessageCircle } from 'lucide-react';
 import type { Character } from '../../../core/types';
 import { useUIStore } from '../../../store/uiStore';
 import { useGameStore } from '../../../store/gameStore';
@@ -80,14 +81,15 @@ export function CharacterRow({ character }: CharacterRowProps) {
             ? `Cooldown: ${cooldownRemaining} Mon.`
             : notEnoughPK
               ? 'Nicht genug PK (8)'
-              : 'Kabinettsgespräch (8 PK)'
+              : t('game:verbaende.gespraechSuchen')
         }
         onClick={(e) => {
           e.stopPropagation();
           doKabinettsgespraech(id);
         }}
       >
-        {onCooldown ? `${cooldownRemaining}M` : 'Gespräch'}
+        <MessageCircle size={16} aria-hidden />
+        {onCooldown && <span className={styles.cooldownBadge}>{cooldownRemaining}M</span>}
       </button>
     </div>
   );
