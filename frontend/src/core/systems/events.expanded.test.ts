@@ -3,7 +3,6 @@ import {
   checkRandomEvents,
   checkBundesratEvents,
   checkKommunalLaenderEvents,
-  checkKommunalEvents,
   resolveEvent,
   isEventAvailable,
   recordEventFired,

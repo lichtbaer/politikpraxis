@@ -14,6 +14,15 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks: (id: string) => {
+          if (id.includes('node_modules/echarts') || id.includes('node_modules/echarts-for-react') || id.includes('node_modules/zrender')) {
+            return 'echarts-vendor';
+          }
+        },
+      },
+    },
   },
   test: {
     setupFiles: ['src/test-setup.ts'],

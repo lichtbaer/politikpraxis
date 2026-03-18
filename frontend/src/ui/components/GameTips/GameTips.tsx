@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useGameStore } from '../../../store/gameStore';
+import type { GameState } from '../../../core/types';
 import { Lightbulb } from '../../icons';
 import styles from './GameTips.module.css';
 
@@ -8,7 +9,7 @@ interface Tip {
   /** Monat ab dem der Tipp angezeigt werden kann */
   triggerMonth: number;
   /** Zusätzliche Bedingung (optional) */
-  condition?: (state: ReturnType<typeof useGameStore>['state']) => boolean;
+  condition?: (state: GameState) => boolean;
   title: string;
   text: string;
 }
@@ -77,30 +78,25 @@ export function GameTips() {
   const state = useGameStore((s) => s.state);
   const phase = useGameStore((s) => s.phase);
   const [dismissed, setDismissed] = useState<Set<string>>(getDismissedTips);
-  const [activeTip, setActiveTip] = useState<Tip | null>(null);
-
-  useEffect(() => {
+  const activeTip = useMemo(() => {
     if (phase !== 'playing' || state.gameOver) {
-      setActiveTip(null);
-      return;
+      return null;
     }
 
     for (const tip of TIPS) {
       if (dismissed.has(tip.id)) continue;
       if (state.month < tip.triggerMonth) continue;
       if (tip.condition && !tip.condition(state)) continue;
-      setActiveTip(tip);
-      return;
+      return tip;
     }
-    setActiveTip(null);
-  }, [state.month, state.pk, state.coalition, state.haushalt?.saldo, state.gesetze, phase, state.gameOver, dismissed]);
+    return null;
+  }, [state, phase, dismissed]);
 
   if (!activeTip) return null;
 
   const handleDismiss = () => {
     dismissTip(activeTip.id);
     setDismissed(prev => new Set([...prev, activeTip.id]));
-    setActiveTip(null);
   };
 
   return (

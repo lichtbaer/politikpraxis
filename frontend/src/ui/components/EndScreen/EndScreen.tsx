@@ -163,7 +163,7 @@ export function EndScreen() {
             {beschlosseneGesetze.length > 0 && (
               <ul className={styles.lawList}>
                 {beschlosseneGesetze.map((g) => (
-                  <li key={g.id} className={styles.lawItem}>{g.kurz || g.titel}</li>
+                  <li key={g.id} className={styles.lawItem}>{g.titel}</li>
                 ))}
               </ul>
             )}
