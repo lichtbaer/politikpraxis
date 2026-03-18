@@ -89,11 +89,26 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
 
   const handleHeaderClick = () => actions.toggleAgenda(law.id);
 
+  const verfassungsgerichtBlockiert = isVerfassungsgerichtBlockiert(state, law);
   const canEinbringen =
     law.status === 'entwurf' &&
     pk >= 20 &&
-    !isVerfassungsgerichtBlockiert(state, law);
+    !verfassungsgerichtBlockiert;
   const canLobbying = (law.status === 'entwurf' || law.status === 'aktiv' || law.status === 'eingebracht') && pk >= 12;
+
+  // Tooltip-Erklärung für deaktivierte Buttons
+  const einbringenTooltip = !canEinbringen && law.status === 'entwurf'
+    ? verfassungsgerichtBlockiert
+      ? t('game:gesetz.blockiertVerfassungsgericht')
+      : pk < 20
+        ? t('game:gesetz.pkNichtGenug', { required: 20, current: pk })
+        : ''
+    : '';
+  const lobbyingTooltip = !canLobbying
+    ? pk < 12
+      ? t('game:gesetz.pkNichtGenug', { required: 12, current: pk })
+      : ''
+    : '';
 
   const eingebrachtInfo = state.eingebrachteGesetze?.find((e) => e.gesetzId === law.id);
   const monateNoch = eingebrachtInfo ? Math.max(0, eingebrachtInfo.abstimmungMonat - state.month) : 0;
@@ -315,6 +330,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
                   type="button"
                   className={styles.btn}
                   disabled={!canEinbringen}
+                  title={einbringenTooltip}
                   onClick={() => {
                     if (hasFraming) {
                       setShowFramingModal(true);
@@ -323,7 +339,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
                     }
                   }}
                 >
-                  {t('game:agenda.einbringen')}
+                  {t('game:agenda.einbringen')} ({geschaetztePkKosten} PK)
                 </button>
               </>
             )}
@@ -332,9 +348,10 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
                 type="button"
                 className={styles.btn}
                 disabled={!canLobbying}
+                title={lobbyingTooltip}
                 onClick={() => actions.lobbying(law.id)}
               >
-                {t('game:agenda.lobbying')}
+                {t('game:agenda.lobbying')} (12 PK)
               </button>
             )}
             {law.status === 'aktiv' && (

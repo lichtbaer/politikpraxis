@@ -809,7 +809,9 @@
     "einnahmeeffekt": "Einnahmen",
     "pkKosten": "Politisch",
     "investivLabel": "Investition (+2 Mo. Lag)",
-    "haushaltAnteil": "{{percent}}% des Jahresbudgets"
+    "haushaltAnteil": "{{percent}}% des Jahresbudgets",
+    "pkNichtGenug": "Benötigt {{required}} PK (du hast {{current}})",
+    "blockiertVerfassungsgericht": "Blockiert durch laufendes Verfassungsgerichtsverfahren"
   },
   "gesetzAgenda": {
     "title": "Gesetz-Agenda",
@@ -826,8 +828,8 @@
   },
   "agenda": {
     "title": "Gesetzliche Agenda",
-    "einbringen": "Einbringen (20 PK)",
-    "lobbying": "Lobbying (12 PK)",
+    "einbringen": "Einbringen",
+    "lobbying": "Lobbying",
     "abstimmen": "Abstimmung ansetzen",
     "ausschussphaseIn": "Ausschussphase — Abstimmung in {{months}} Monat(en)",
     "ausschussphaseProgress": "{{progress}}/{{total}} Monate",
@@ -884,6 +886,8 @@
     "lost": "Abgewählt",
     "wonSubtitle": "Sie haben die Wahl mit {{percent}}% Zustimmung gewonnen.",
     "lostSubtitle": "Die Legislaturperiode endet mit {{percent}}% Zustimmung — unter der erforderlichen Mehrheit.",
+    "lostMisstrauen": "Misstrauensvotum! Sechs Monate unter 20% Zustimmung führen zum Sturz der Regierung.",
+    "lostKoalitionsbruch": "Koalitionsbruch! Die Koalition ist zerbrochen.",
     "beschlosseneGesetze": "Beschlossene Gesetze",
     "finaleKPIs": "Finale KPIs",
     "milieuZustimmung": "Milieu-Zustimmung",
@@ -901,6 +905,9 @@
   "medienklima": {
     "label": "Medienklima",
     "opposition": "Opposition"
+  },
+  "glossar": {
+    "title": "Glossar"
   },
   "framing": {
     "title": "Wie kommunizierst du dieses Gesetz?",

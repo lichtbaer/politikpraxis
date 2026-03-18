@@ -42,7 +42,14 @@ export function RightPanel() {
   const state = useGameStore((s) => s.state);
   const complexity = useGameStore((s) => s.complexity);
   const { doPressemitteilung } = useGameActions();
-  const { kpi, kpiPrev, log } = state;
+  const { kpi, kpiPrev, log, tickLog } = state;
+
+  // Group tick log entries by KPI key for tooltip display
+  const tickLogByKey = (tickLog ?? []).reduce<Record<string, typeof tickLog>>((acc, entry) => {
+    if (!acc[entry.target]) acc[entry.target] = [];
+    acc[entry.target]!.push(entry);
+    return acc;
+  }, {});
 
   const oppositionAktiv = state.opposition?.aktivesThema && featureActive(complexity, 'opposition');
   const canKontern = state.pk >= 5 && state.letztesPressemitteilungMonat !== state.month;
@@ -68,6 +75,8 @@ export function RightPanel() {
             inverted
             barPercent={alBar.barPercent}
             barColor={alBar.barColor}
+            kpiKey="al"
+            changeReasons={tickLogByKey['al']}
           />
           <KPITile
             label={t('game.kpi.budget', { ns: 'common' })}
@@ -77,6 +86,8 @@ export function RightPanel() {
             inverted={false}
             barPercent={hhBar.barPercent}
             barColor={hhBar.barColor}
+            kpiKey="hh"
+            changeReasons={tickLogByKey['hh']}
           />
           <KPITile
             label={t('game.kpi.gini', { ns: 'common' })}
@@ -86,6 +97,8 @@ export function RightPanel() {
             inverted
             barPercent={giBar.barPercent}
             barColor={giBar.barColor}
+            kpiKey="gi"
+            changeReasons={tickLogByKey['gi']}
           />
           <KPITile
             label={t('game.kpi.satisfaction', { ns: 'common' })}
@@ -95,6 +108,8 @@ export function RightPanel() {
             inverted={false}
             barPercent={zfBar.barPercent}
             barColor={zfBar.barColor}
+            kpiKey="zf"
+            changeReasons={tickLogByKey['zf']}
           />
         </div>
       </section>
@@ -110,6 +125,13 @@ export function RightPanel() {
               type="button"
               className={styles.oppositionBtn}
               disabled={!canKontern}
+              title={
+                !canKontern
+                  ? state.pk < 5
+                    ? t('game:gesetz.pkNichtGenug', { required: 5, current: state.pk })
+                    : 'Nur 1× pro Monat möglich'
+                  : ''
+              }
               onClick={() => doPressemitteilung('opposition')}
             >
               {t('game:opposition.kontern')} (5 PK)

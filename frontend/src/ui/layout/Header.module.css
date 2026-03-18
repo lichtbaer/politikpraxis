@@ -99,3 +99,24 @@
   border-color: var(--gold);
   background: rgba(255, 193, 7, 0.08);
 }
+
+.glossarBtn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text2);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.glossarBtn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
