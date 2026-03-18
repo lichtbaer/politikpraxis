@@ -1,0 +1,75 @@
+.root {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wertRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.klimaBar {
+  flex: 1;
+  height: 8px;
+  background: var(--bg3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.klimaFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.positiv .klimaFill {
+  background: var(--green);
+}
+
+.neutral .klimaFill {
+  background: var(--warn);
+}
+
+.negativ .klimaFill {
+  background: var(--red);
+}
+
+.wert {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  min-width: 36px;
+}
+
+.chartWrap {
+  height: 80px;
+  margin-top: 4px;
+}
+
+.opposition {
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.skandal {
+  font-size: 12px;
+  color: var(--red);
+}

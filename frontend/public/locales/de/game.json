@@ -831,7 +831,7 @@
   },
   "media": {
     "title": "Medien",
-    "desc": "Überblick über die Zustimmung der Wählermilieus. Milieus reagieren auf Gesetze und politische Entscheidungen.",
+    "desc": "Medienklima, öffentliche Meinung und Wählermilieus. Medienklima beeinflusst, wie Gesetze wahrgenommen werden.",
     "arbeit": { "name": "Arbeitsmilieu", "desc": "Gewerkschaftsnahe Wähler, Fokus auf soziale Gerechtigkeit." },
     "mitte": { "name": "Mitte", "desc": "Bürgerliche Mitte, wirtschaftsorientiert." },
     "prog": { "name": "Progressive", "desc": "Urban, klimabewusst, diversitätsorientiert." }

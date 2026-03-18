@@ -2,6 +2,32 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  position: relative;
+}
+
+.cardClickable {
+  cursor: pointer;
+}
+
+.cardClickable:hover {
+  border-color: var(--gold);
+}
+
+.trend {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.trendUp {
+  color: var(--green);
+}
+
+.trendDown {
+  color: var(--red);
+}
+
+.trendNeutral {
+  color: var(--text2);
 }
 
 .title {
