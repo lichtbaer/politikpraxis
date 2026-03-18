@@ -54,8 +54,10 @@ export const LEGISLATUR_MONATE = 48;
 export const PK_REPARATUR = 25;
 /** Beziehung ab der Lobbying voll wirkt */
 export const BEREITSCHAFT_TRADEOFF_BONUS = 40;
-/** Beziehung ab der Verbandskonflikt-Malus greift */
+/** Beziehung ab der Verbandskonflikt-Malus greift (Partner reagiert) */
 export const VERBAND_KONFLIKT_BEZIEHUNG = 40;
+/** Beziehung unter der "Konflikt-Partner aktiv" angezeigt wird (SMA-315) */
+export const VERBAND_KONFLIKT_SCHWELLE = 30;
 
 // --- Zeit / Wahlkampf (Platzhalter für zukünftige Features) ---
 /** Wahlkampf startet typischerweise Monat 43 */

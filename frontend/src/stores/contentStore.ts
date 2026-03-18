@@ -265,8 +265,11 @@ function transformVerband(api: VerbandApi): import('../core/types').Verband {
     beziehung_start: api.beziehung_start,
     tradeoffs: (api.tradeoffs ?? []).map((t) => ({
       key: t.key,
+      cost_pk: t.cost_pk ?? 0,
       effekte: t.effekte ?? {},
       feld_druck_delta: t.feld_druck_delta ?? 0,
+      medienklima_delta: t.medienklima_delta ?? 0,
+      verband_effekte: t.verband_effekte ?? {},
       label: t.label,
       desc: t.desc,
     })),

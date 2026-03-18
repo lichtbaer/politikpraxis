@@ -50,4 +50,24 @@ describe('verbandTradeoff', () => {
     const result = verbandTradeoff(state, 'bdi', 't1', verbaende, 3);
     expect(result.politikfeldDruck?.['wirtschaft_finanzen']).toBe(5);
   });
+
+  it('SMA-319: cost_pk > 0 → PK abziehen, verband_effekte anwenden', () => {
+    const verbaendeWithCost: Verband[] = [
+      { id: 'dwv', kurz: 'DWV', politikfeld_id: 'digital', beziehung_start: 50, tradeoffs: [{ key: 'dwv_ki', cost_pk: 15, effekte: {}, feld_druck_delta: 0, verband_effekte: { bdi: 5 } }] },
+    ];
+    const state = createMockState({ pk: 20, verbandsBeziehungen: { dwv: 50, bdi: 40 } });
+    const result = verbandTradeoff(state, 'dwv', 'dwv_ki', verbaendeWithCost, 3);
+    expect(result.pk).toBe(5);
+    expect(result.verbandsBeziehungen?.['dwv']).toBe(65);
+    expect(result.verbandsBeziehungen?.['bdi']).toBe(45);
+  });
+
+  it('SMA-319: cost_pk > 0 und pk < cost_pk → State unverändert', () => {
+    const verbaendeWithCost: Verband[] = [
+      { id: 'dwv', kurz: 'DWV', politikfeld_id: 'digital', beziehung_start: 50, tradeoffs: [{ key: 'dwv_ki', cost_pk: 15, effekte: {}, feld_druck_delta: 0 }] },
+    ];
+    const state = createMockState({ pk: 10 });
+    const result = verbandTradeoff(state, 'dwv', 'dwv_ki', verbaendeWithCost, 3);
+    expect(result.pk).toBe(10);
+  });
 });

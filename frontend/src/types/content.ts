@@ -96,8 +96,11 @@ export interface PolitikfeldApi {
 
 export interface VerbandTradeoffApi {
   key: string;
+  cost_pk?: number;
   effekte: { al?: number; hh?: number; gi?: number; zf?: number };
   feld_druck_delta?: number;
+  medienklima_delta?: number;
+  verband_effekte?: Record<string, number>;
   label?: string;
   desc?: string;
 }

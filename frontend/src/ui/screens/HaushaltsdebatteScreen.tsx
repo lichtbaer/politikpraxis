@@ -4,6 +4,7 @@ import { useGameStore } from '../../store/gameStore';
 import { getKoalitionspartner } from '../../core/systems/koalition';
 import { PolitikfeldGrid } from '../components/PolitikfeldGrid/PolitikfeldGrid';
 import { ProgressBar } from '../components/ProgressBar/ProgressBar';
+import { formatMrdSaldo, normalizeZero } from '../../utils/format';
 import type { ContentBundle } from '../../core/types';
 import styles from './HaushaltsdebatteScreen.module.css';
 
@@ -82,7 +83,7 @@ function HaushaltsGrafik({
       </div>
       <div className={styles.grafikLegende}>
         <span>Pflicht: {pflichtausgaben} Mrd.</span>
-        <span>Gesetze: {laufendeAusgaben.toFixed(1)} Mrd.</span>
+        <span>Gesetze: {normalizeZero(laufendeAusgaben).toFixed(1)} Mrd.</span>
       </div>
     </div>
   );
@@ -160,8 +161,7 @@ export function HaushaltsdebatteScreen() {
               />
             )}
             <div className={styles.saldoKurz}>
-              {t('haushalt.saldo')}: {haushalt.saldo > 0 ? '+' : ''}
-              {haushalt.saldo.toFixed(1)} Mrd.
+              {t('haushalt.saldo')}: {formatMrdSaldo(haushalt.saldo)}
             </div>
             <button type="button" className={styles.btn} onClick={doNext}>
               {t('haushaltsdebatte.weiter')}
