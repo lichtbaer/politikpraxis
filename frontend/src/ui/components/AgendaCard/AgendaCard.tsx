@@ -153,6 +153,24 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
         <span className={`${styles.badge} ${STATUS_CLASS[law.status]}`}>
           {t(STATUS_KEYS[law.status], { ns: 'common' })}
         </span>
+        {/* SMA-336: Steuergesetz Gold-Badge */}
+        {(law.steuer_id || ((law.einnahmeeffekt ?? 0) > 0 && (law.kosten_laufend ?? 0) <= 0)) && (
+          <span className={styles.steuergesetzBadge}>
+            📊 {t('game:gesetz.steuergesetz', 'Steuergesetz')}
+            {(law.einnahmeeffekt ?? 0) > 0 && (
+              <> — +{formatMrd(law.einnahmeeffekt!)} Mrd.</>
+            )}
+          </span>
+        )}
+        {/* SMA-336: Kopplungs-Hinweis wenn Gesetz auf Steuergesetz wartet */}
+        {state.gekoppelteGesetze?.[law.id] && (
+          <span className={styles.kopplungsHinweis}>
+            🔗 {t('game:gesetz.wartetAuf', {
+              gesetz: getGesetzTitel(state.gekoppelteGesetze[law.id]),
+              defaultValue: `Wartet auf: ${getGesetzTitel(state.gekoppelteGesetze[law.id])}`,
+            })}
+          </span>
+        )}
         {isRecommended && (
           <span className={styles.empfohlenBadge}>
             {t('game:gesetzAgenda.empfohlen')}

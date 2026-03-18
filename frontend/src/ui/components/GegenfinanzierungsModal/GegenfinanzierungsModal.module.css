@@ -34,6 +34,18 @@
   line-height: 1.4;
 }
 
+/* SMA-336: Kosten-Hinweis */
+.kostenHinweis {
+  font-size: 14px;
+  color: var(--text2);
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+
+.kostenHinweis strong {
+  color: var(--text);
+}
+
 .options {
   display: flex;
   flex-direction: column;
@@ -41,6 +53,105 @@
   margin-bottom: 12px;
 }
 
+/* SMA-336: OptionCard mit disabled-State */
+.optionCard {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg3);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.optionCard.selected {
+  border-color: var(--gold);
+  background: rgba(255, 193, 7, 0.08);
+}
+
+.optionCard.disabled {
+  opacity: 0.7;
+}
+
+.optionButton {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.optionButton:hover:not(:disabled) {
+  background: var(--bg4);
+}
+
+.optionButton:disabled {
+  cursor: not-allowed;
+}
+
+.optionContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.optionTitle {
+  font-weight: 600;
+  font-size: 15px;
+  margin: 0;
+  color: var(--text);
+}
+
+.optionDesc {
+  font-size: 13px;
+  color: var(--text2);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.lehmannWarning {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--warn);
+  margin-top: 4px;
+}
+
+.verfuegbarGrund {
+  font-size: 12px;
+  color: var(--text3);
+  font-style: italic;
+}
+
+.suboptionLabel {
+  font-weight: 500;
+}
+
+.suboptionMinister {
+  font-size: 12px;
+  color: var(--text2);
+  margin-left: 4px;
+}
+
+.moodMalus {
+  font-size: 11px;
+  color: var(--warn);
+  margin-left: 6px;
+}
+
+.milieuEffekte {
+  font-size: 11px;
+  color: var(--text3);
+  margin-left: 4px;
+}
+
+/* Legacy: option (für Kompatibilität) */
 .option {
   display: flex;
   flex-direction: row;

@@ -10,6 +10,9 @@ import {
   wendeGegenfinanzierungAn,
   type GegenfinanzierungsOption,
 } from '../core/systems/gegenfinanzierung';
+import { applyKongruenzEffekte, getEinbringenPkKosten } from '../core/systems/kongruenz';
+import { getMedienPkZusatzkosten } from '../core/systems/medienklima';
+import { getVorstufenBoni } from '../core/systems/gesetzLebenszyklus';
 import { featureActive } from '../core/systems/features';
 import {
   updateKoalitionsvertragScore,
@@ -235,9 +238,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         brauchtGegenfinanzierung(law)
       ) {
         const optionen = berechneOptionen(prev.state, law, prev.content, prev.complexity);
-        if (optionen.length > 0) {
-          return { state: { ...prev.state, pendingGegenfinanzierung: { gesetzId: lawId, optionen } } };
-        }
+        const kosten = Math.abs(law.kosten_laufend ?? 0) || Math.abs(law.kosten_einmalig ?? 0) / 10;
+        const boni = getVorstufenBoni(prev.state, lawId);
+        const kongruenzEffekt = applyKongruenzEffekte(prev.state, lawId, prev.ausrichtung, prev.complexity);
+        const medienZusatz = featureActive(prev.complexity, 'medienklima')
+          ? getMedienPkZusatzkosten(prev.state.medienKlima ?? 55)
+          : 0;
+        const pkKosten = Math.max(2, getEinbringenPkKosten(kongruenzEffekt.pkModifikator) - boni.pkKostenRabatt + medienZusatz);
+        return { state: { ...prev.state, pendingGegenfinanzierung: { gesetzId: lawId, optionen, kosten, pkKosten } } };
       }
       const ctx: EinbringenContext = {
         ausrichtung: prev.ausrichtung,
@@ -255,6 +263,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const ctx: EinbringenContext = {
         ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
+        framingKey: pendingGegenfinanzierung.framingKey,
         gesetzRelationen: prev.content.gesetzRelationen,
       };
       let state = wendeGegenfinanzierungAn(prev.state, law, option, subOption);
@@ -268,6 +277,33 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
   doEinbringenMitFraming: (lawId, framingKey) =>
     set((prev) => {
+      const law = prev.state.gesetze.find(g => g.id === lawId);
+      if (
+        law &&
+        featureActive(prev.complexity, 'gegenfinanzierung') &&
+        brauchtGegenfinanzierung(law)
+      ) {
+        const optionen = berechneOptionen(prev.state, law, prev.content, prev.complexity);
+        const kosten = Math.abs(law.kosten_laufend ?? 0) || Math.abs(law.kosten_einmalig ?? 0) / 10;
+        const boni = getVorstufenBoni(prev.state, lawId);
+        const kongruenzEffekt = applyKongruenzEffekte(prev.state, lawId, prev.ausrichtung, prev.complexity);
+        const medienZusatz = featureActive(prev.complexity, 'medienklima')
+          ? getMedienPkZusatzkosten(prev.state.medienKlima ?? 55)
+          : 0;
+        const pkKosten = Math.max(2, getEinbringenPkKosten(kongruenzEffekt.pkModifikator) - boni.pkKostenRabatt + medienZusatz);
+        return {
+          state: {
+            ...prev.state,
+            pendingGegenfinanzierung: {
+              gesetzId: lawId,
+              optionen,
+              kosten,
+              pkKosten,
+              framingKey: framingKey ?? undefined,
+            },
+          },
+        };
+      }
       const ctx: EinbringenContext = {
         ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,

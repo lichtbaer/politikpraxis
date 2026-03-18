@@ -251,3 +251,114 @@
 .verbandsForderung {
   color: var(--text2);
 }
+
+/* SMA-336: Steuer-Dashboard */
+.steuerGruppe {
+  margin-bottom: 12px;
+}
+
+.steuerGruppeTitel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.steuerZeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.steuerZeile:last-child {
+  border-bottom: none;
+}
+
+.steuerLabel {
+  flex: 1;
+  color: var(--text);
+}
+
+.steuerSatz {
+  width: 40px;
+  text-align: right;
+  color: var(--text2);
+}
+
+.steuerEinnahmen {
+  width: 90px;
+  text-align: right;
+  font-family: var(--mono);
+  color: var(--green);
+}
+
+.trendUp {
+  font-size: 11px;
+  color: var(--green);
+}
+
+.trendDown {
+  font-size: 11px;
+  color: var(--red);
+}
+
+.steuerSumme {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  margin-top: 8px;
+  border-top: 2px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.steuerSumme strong {
+  color: var(--green);
+}
+
+/* SMA-336: Schuldenbremse-Widget mit Spielraum-Balken */
+.schuldenbremseWidget {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.schuldenbremseWidget h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: var(--text);
+}
+
+.spielraumBalken {
+  height: 12px;
+  background: var(--bg3);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.spielraumUsed {
+  height: 100%;
+  background: var(--warn);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.spielraumUsed.voll {
+  background: var(--red);
+}
+
+.schuldenbremseWidget p {
+  font-size: 12px;
+  color: var(--text2);
+  margin: 0;
+}

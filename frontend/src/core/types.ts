@@ -715,7 +715,7 @@ export interface GameState {
   gesetzBeschlossenMonat?: Record<string, number>;
   /** SMA-335: Konjunktur-Effekte bereits angewendet (kein Doppel-Apply) */
   konjunkturBereitsAngewendet?: Record<string, true>;
-  /** SMA-335: Anstehender Gegenfinanzierungs-Dialog (gesetzId, optionen) */
+  /** SMA-335/SMA-336: Anstehender Gegenfinanzierungs-Dialog (gesetzId, optionen, kosten, pkKosten, framingKey?) */
   pendingGegenfinanzierung?: {
     gesetzId: string;
     optionen: Array<{
@@ -725,6 +725,9 @@ export interface GameState {
       verfuegbar_grund?: string;
       suboptionen?: Array<{ ressort?: string; gesetzId?: string; kosten_einsparung?: number; einnahmeeffekt?: number }>;
     }>;
+    kosten: number;
+    pkKosten: number;
+    framingKey?: string;
   };
   /** Finales Wahlergebnis (bei Spielende) */
   wahlergebnis?: number;
@@ -818,6 +821,16 @@ export interface MedienEventContent {
   cooldownMonths?: number;
 }
 
+/** SMA-336: Steuer-Content für Dashboard (aus SMA-335 Engine/DB) */
+export interface SteuerContent {
+  id: string;
+  name_de: string;
+  typ: 'direkt' | 'indirekt';
+  aktueller_satz: number;
+  einnahmen_basis: number;
+  satz_delta?: number;
+}
+
 /** SMA-312: Gesetz-Relation (requires, excludes, enhances) */
 export interface GesetzRelation {
   typ: 'requires' | 'excludes' | 'enhances';
@@ -857,6 +870,8 @@ export interface ContentBundle {
   steuerEvents?: GameEvent[];
   /** SMA-312: Gesetz-Abhängigkeiten — gesetzId -> Relationen */
   gesetzRelationen?: Record<string, GesetzRelation[]>;
+  /** SMA-336: Steuern für Dashboard (direkte/indirekte Steuern) */
+  steuern?: SteuerContent[];
   scenario: {
     id: string;
     name: string;

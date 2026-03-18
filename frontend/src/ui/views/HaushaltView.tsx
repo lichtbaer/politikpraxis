@@ -9,8 +9,9 @@ import type { EChartsOption } from 'echarts';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { checkSchuldenbremse } from '../../core/systems/haushalt';
+import { SCHULDENBREMSE_SPIELRAUM_BASIS } from '../../core/constants';
 import { formatMrdSaldo, normalizeZero } from '../../utils/format';
-import type { SchuldenbremsenStatus, Verband } from '../../core/types';
+import type { SchuldenbremsenStatus, Verband, Haushalt, SteuerContent } from '../../core/types';
 import { Check, AlertTriangle } from '../icons';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import styles from './HaushaltView.module.css';
@@ -20,6 +21,37 @@ function getSaldoKlasse(saldo: number): string {
   if (saldo >= -15) return 'saldoDefizit';
   if (saldo >= -30) return 'saldoKritisch';
   return 'saldoKrise';
+}
+
+/** SMA-336: Schuldenbremse-Widget mit Spielraum-Balken (verbraucht/erlaubt), Stufe 2+ */
+function SchuldenbremseWidget({
+  spielraum,
+  erlaubt,
+  status,
+}: {
+  spielraum: number;
+  erlaubt: number;
+  status: SchuldenbremsenStatus;
+}) {
+  const { t } = useTranslation('game');
+  const verbraucht = Math.max(0, erlaubt - spielraum);
+  const pct = erlaubt > 0 ? (verbraucht / erlaubt) * 100 : 0;
+
+  return (
+    <section className={styles.schuldenbremseWidget}>
+      <h3>{t('haushalt.schuldenbremse', 'Schuldenbremse')}</h3>
+      <div className={styles.spielraumBalken}>
+        <div
+          className={`${styles.spielraumUsed} ${pct >= 100 ? styles.voll : ''}`}
+          style={{ width: `${Math.min(100, pct)}%` }}
+        />
+      </div>
+      <p>
+        {formatMrdSaldo(verbraucht, 0)} / {formatMrdSaldo(erlaubt, 0)} Mrd. verbraucht
+      </p>
+      {status !== 'inaktiv' && <SchuldenbremsenBadge status={status} />}
+    </section>
+  );
 }
 
 function SchuldenbremsenBadge({ status }: { status: SchuldenbremsenStatus }) {
@@ -105,6 +137,77 @@ function SteuerquoteRegler() {
       {!pkReicht && (
         <span className={styles.steuerquoteHint}>{t('haushalt.steuerquotePk', '15 PK benötigt')}</span>
       )}
+    </section>
+  );
+}
+
+/** SMA-336: Steuer-Dashboard — Direkte/Indirekte Steuern, Gesamtsumme */
+function SteuernDashboard({
+  haushalt,
+  steuern,
+}: {
+  haushalt: Haushalt;
+  steuern?: SteuerContent[];
+}) {
+  const { t } = useTranslation('game');
+  const einnahmen = haushalt.einnahmen;
+
+  if (!steuern || steuern.length === 0) {
+    return (
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t('haushalt.steuereinnahmen', 'Steuereinnahmen')}</h2>
+        <div className={styles.steuerSumme}>
+          <span>{t('haushalt.steuereinnahmenGesamt', 'Steuereinnahmen gesamt')}:</span>
+          <strong>+{einnahmen.toFixed(1)} Mrd.</strong>
+        </div>
+      </section>
+    );
+  }
+
+  const direkteSteuern = steuern.filter((s) => s.typ === 'direkt');
+  const indirekteSteuern = steuern.filter((s) => s.typ === 'indirekt');
+
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>{t('haushalt.steuereinnahmen', 'Steuereinnahmen')}</h2>
+      {direkteSteuern.length > 0 && (
+        <div className={styles.steuerGruppe}>
+          <h3 className={styles.steuerGruppeTitel}>{t('haushalt.direkteSteuern', 'Direkte Steuern')}</h3>
+          {direkteSteuern.map((steuer) => (
+            <div key={steuer.id} className={styles.steuerZeile}>
+              <span className={styles.steuerLabel}>{steuer.name_de}</span>
+              <span className={styles.steuerSatz}>{steuer.aktueller_satz}%</span>
+              <span className={styles.steuerEinnahmen}>+{steuer.einnahmen_basis.toFixed(1)} Mrd.</span>
+              {steuer.satz_delta !== undefined && steuer.satz_delta !== 0 && (
+                <span className={steuer.satz_delta > 0 ? styles.trendUp : styles.trendDown}>
+                  {steuer.satz_delta > 0 ? '↑' : '↓'} {Math.abs(steuer.satz_delta)}%
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {indirekteSteuern.length > 0 && (
+        <div className={styles.steuerGruppe}>
+          <h3 className={styles.steuerGruppeTitel}>{t('haushalt.indirekteSteuern', 'Indirekte Steuern')}</h3>
+          {indirekteSteuern.map((steuer) => (
+            <div key={steuer.id} className={styles.steuerZeile}>
+              <span className={styles.steuerLabel}>{steuer.name_de}</span>
+              <span className={styles.steuerSatz}>{steuer.aktueller_satz}%</span>
+              <span className={styles.steuerEinnahmen}>+{steuer.einnahmen_basis.toFixed(1)} Mrd.</span>
+              {steuer.satz_delta !== undefined && steuer.satz_delta !== 0 && (
+                <span className={steuer.satz_delta > 0 ? styles.trendUp : styles.trendDown}>
+                  {steuer.satz_delta > 0 ? '↑' : '↓'} {Math.abs(steuer.satz_delta)}%
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      <div className={styles.steuerSumme}>
+        <span>{t('haushalt.steuereinnahmenGesamt', 'Steuereinnahmen gesamt')}:</span>
+        <strong>+{einnahmen.toFixed(1)} Mrd.</strong>
+      </div>
     </section>
   );
 }
@@ -266,8 +369,19 @@ export function HaushaltView() {
         </section>
       )}
 
+      {featureActive(complexity, 'schuldenbremse_widget') && (
+        <SchuldenbremseWidget
+          spielraum={haushalt.schuldenbremseSpielraum ?? SCHULDENBREMSE_SPIELRAUM_BASIS}
+          erlaubt={SCHULDENBREMSE_SPIELRAUM_BASIS}
+          status={schuldenbremsenStatus}
+        />
+      )}
       {featureActive(complexity, 'schuldenbremse') && (
         <SchuldenbremsenBadge status={schuldenbremsenStatus} />
+      )}
+
+      {featureActive(complexity, 'steuern_dashboard') && (
+        <SteuernDashboard haushalt={haushalt} steuern={content.steuern} />
       )}
 
       <SteuerquoteRegler />

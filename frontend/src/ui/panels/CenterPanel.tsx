@@ -72,6 +72,8 @@ export function CenterPanel() {
               state.pendingGegenfinanzierung.gesetzId
             }
             optionen={state.pendingGegenfinanzierung.optionen as GegenfinanzierungsOption[]}
+            kosten={state.pendingGegenfinanzierung.kosten}
+            pkKosten={state.pendingGegenfinanzierung.pkKosten}
             getGesetzTitel={(id) => state.gesetze.find((g) => g.id === id)?.titel ?? id}
             onConfirm={(opt, sub) =>
               gegenfinanzierungAuswaehlen(state.pendingGegenfinanzierung!.gesetzId, opt, sub)
