@@ -30,13 +30,6 @@ echarts.use([
   CanvasRenderer,
 ]);
 
-// Resolved at runtime from CSS variables — ECharts themes only support static strings,
-// so we read computed values once when the module loads.
-function cssVar(name: string): string {
-  if (typeof document === 'undefined') return '#888';
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
-}
-
 echarts.registerTheme('politikpraxis', {
   backgroundColor: 'transparent',
   textStyle: {
