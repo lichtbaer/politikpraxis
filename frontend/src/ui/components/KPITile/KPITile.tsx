@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { TickLogEntry, KPI } from '../../../core/types';
+import { Erklaerung } from '../Erklaerung/Erklaerung';
+import { BEGRIFFE, KPI_TO_BEGRIFF } from '../../../constants/begriffe';
 import styles from './KPITile.module.css';
 
 interface KPITileProps {
@@ -35,12 +37,6 @@ function getTrendArrow(history: number[], inverted: boolean): { symbol: string; 
     : { symbol: '↘', class: 'trendDown', label: 'Fallend' };
 }
 
-const KPI_DESCRIPTIONS: Record<keyof KPI, string> = {
-  al: 'Niedrig = gut. Beeinflusst durch Konjunktur und Gesetze.',
-  hh: 'Positiv = Überschuss, negativ = Defizit.',
-  gi: 'Niedrig = weniger Ungleichheit. Beeinflusst durch Sozialpolitik.',
-  zf: 'Hoch = zufriedene Bevölkerung. Beeinflusst durch alle KPIs.',
-};
 
 function getDeltaClass(
   value: number,
@@ -112,7 +108,13 @@ export function KPITile({
       onMouseLeave={() => setShowPopover(false)}
       style={hasPopoverContent ? { cursor: 'pointer' } : undefined}
     >
-      <span className={styles.label}>{label}</span>
+      <span className={styles.label}>
+        {kpiKey && KPI_TO_BEGRIFF[kpiKey] ? (
+          <Erklaerung begriff={KPI_TO_BEGRIFF[kpiKey]} kinder={label} />
+        ) : (
+          label
+        )}
+      </span>
       <div className={styles.valueRow}>
         <span className={`${styles.value} ${flashClass}`}>
           {value.toFixed(1)}
@@ -138,7 +140,9 @@ export function KPITile({
       </div>
       {showPopover && hasPopoverContent && (
         <div className={styles.popover}>
-          {kpiKey && <p className={styles.popoverDesc}>{KPI_DESCRIPTIONS[kpiKey]}</p>}
+          {kpiKey && KPI_TO_BEGRIFF[kpiKey] && BEGRIFFE[KPI_TO_BEGRIFF[kpiKey]] && (
+            <p className={styles.popoverDesc}>{BEGRIFFE[KPI_TO_BEGRIFF[kpiKey]].text}</p>
+          )}
           {changeReasons && changeReasons.length > 0 && (
             <div className={styles.popoverChanges}>
               <span className={styles.popoverTitle}>Änderungen:</span>

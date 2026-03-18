@@ -1,0 +1,79 @@
+/* SMA-331: Tooltip-System für Fachbegriffe */
+
+.wrapper {
+  display: inline;
+  position: relative;
+  cursor: help;
+}
+
+.wrapperInline {
+  border-bottom: 1px dotted var(--border2);
+}
+
+.wrapperIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  background: var(--bg4);
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+}
+
+.wrapperIcon:hover .icon {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  z-index: 1000;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text);
+  pointer-events: none;
+  animation: erklaerungFadeIn 0.15s ease-out;
+}
+
+@keyframes erklaerungFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-6px);
+  }
+}
+
+.tooltipLink {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.tooltipLink:hover {
+  text-decoration: underline;
+}

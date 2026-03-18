@@ -7,6 +7,7 @@ import { featureActive } from '../../core/systems/features';
 import { PK_REGEN_DIVISOR, PK_REGEN_MIN } from '../../core/constants';
 import { PressemitteilungModal } from '../components/PressemitteilungModal/PressemitteilungModal';
 import { Glossar } from '../components/Glossar/Glossar';
+import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import type { SpeedLevel } from '../../core/types';
 import { Megaphone } from '../icons';
 import styles from './Header.module.css';
@@ -70,7 +71,7 @@ export function Header() {
           ))}
         </div>
         <div className={styles.pk} title={pkRegenTooltip}>
-          PK <span>{pk}</span>
+          <Erklaerung begriff="pk" kinder="PK" inline /> <span>{pk}</span>
           <div className={styles.pkBar}>
             <div className={styles.pkBarFill} style={{ width: `${Math.min(100, (pk / 150) * 100)}%` }} />
           </div>
