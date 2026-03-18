@@ -239,6 +239,8 @@ export function tick(
       gi: [...prevKpiHist.gi, s.kpi.gi].slice(-12),
       zf: [...prevKpiHist.zf, s.kpi.zf].slice(-12),
     },
+    // SMA-323: Haushalt-Saldo-Verlauf für Chart (Mrd.)
+    haushaltSaldoHistory: [...(s.haushaltSaldoHistory ?? []), s.haushalt?.saldo ?? 0].slice(-12),
   };
 
   // SMA-280: Verfassungsgericht-Verfahren beenden wenn Frist abgelaufen

@@ -1041,7 +1041,14 @@
     "schuldenbremseVerletzt": "Schuldenbremse verletzt",
     "schuldenbremseKritisch": "Kritisch",
     "konjunktur": "Konjunktur",
-    "konjunkturTooltip": "Konjunkturindex beeinflusst Steuereinnahmen"
+    "konjunkturTooltip": "Konjunkturindex beeinflusst Steuereinnahmen",
+    "keineLaufendenGesetze": "Keine laufenden Gesetzeskosten",
+    "steuerquoteTitle": "Steuerquote anpassen",
+    "steuerquoteDesc": "1× pro Jahr, 15 PK. Erhöhung: BdI -8, GBD +5. Senkung: BdI +8, GBD -8.",
+    "steuerquoteErhoehen": "+2 Mrd./Jahr Einnahmen",
+    "steuerquoteSenken": "-3 Mrd./Jahr Einnahmen",
+    "steuerquotePk": "15 PK benötigt",
+    "verbandsForderungen": "Verbands-Haushaltsforderungen"
   },
   "politikfeldTooltip": {
     "druck": "Politikfeld-Druck: {{value}}/100",

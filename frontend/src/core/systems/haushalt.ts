@@ -353,6 +353,51 @@ export function schliessenHaushaltsdebatte(state: GameState): GameState {
   };
 }
 
+/** SMA-323: Steuerquote-Regler — +2 oder -3 Mrd./Jahr, 1× pro Jahr, 15 PK. Verbands-Effekte: BdI, GBD. */
+export function applySteuerquoteChange(
+  state: GameState,
+  deltaMrd: number,
+  complexity: number,
+): GameState {
+  if (!featureActive(complexity, 'steuerquote')) return state;
+  const haushalt = state.haushalt;
+  if (!haushalt || state.pk < 15) return state;
+
+  const currentJahr = Math.floor((state.month - 1) / 12) + 1;
+  if (state.steuerquoteAktionJahr === currentJahr) return state;
+
+  const deltaMod = deltaMrd / EINNAHMEN_BASIS;
+  const neuerMod = Math.max(0.85, Math.min(1.15, haushalt.steuerpolitikModifikator + deltaMod));
+  const neueEinnahmen = Math.round(
+    haushalt.einnahmen * (neuerMod / haushalt.steuerpolitikModifikator),
+  );
+  const spielraum = neueEinnahmen - haushalt.pflichtausgaben;
+  const saldo = spielraum - haushalt.laufendeAusgaben;
+
+  const verbandsBeziehungen = { ...(state.verbandsBeziehungen ?? {}) };
+  if (deltaMrd > 0) {
+    verbandsBeziehungen['bdi'] = Math.max(0, Math.min(100, (verbandsBeziehungen['bdi'] ?? 50) - 8));
+    verbandsBeziehungen['gbd'] = Math.max(0, Math.min(100, (verbandsBeziehungen['gbd'] ?? 50) + 5));
+  } else {
+    verbandsBeziehungen['bdi'] = Math.max(0, Math.min(100, (verbandsBeziehungen['bdi'] ?? 50) + 8));
+    verbandsBeziehungen['gbd'] = Math.max(0, Math.min(100, (verbandsBeziehungen['gbd'] ?? 50) - 8));
+  }
+
+  return {
+    ...state,
+    pk: state.pk - 15,
+    steuerquoteAktionJahr: currentJahr,
+    verbandsBeziehungen,
+    haushalt: {
+      ...haushalt,
+      steuerpolitikModifikator: neuerMod,
+      einnahmen: neueEinnahmen,
+      spielraum,
+      saldo,
+    },
+  };
+}
+
 /** Aktualisiert jährlich Pflichtausgaben (bei AL-Änderung) */
 export function updateHaushaltPflichtausgaben(state: GameState): GameState {
   const haushalt = state.haushalt;

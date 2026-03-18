@@ -640,6 +640,8 @@ export interface GameState {
   wahlprognose?: number;
   /** Medienoffensive einmalig pro Legislatur genutzt */
   medienoffensiveGenutzt?: boolean;
+  /** SMA-323: Jahr der letzten Steuerquote-Aktion (1× pro Jahr) */
+  steuerquoteAktionJahr?: number;
   /** Finales Wahlergebnis (bei Spielende) */
   wahlergebnis?: number;
   /** Kabinettsgespräch-Cooldowns: charId → frühester verfügbarer Monat */
@@ -648,6 +650,8 @@ export interface GameState {
   approvalHistory?: number[];
   /** KPI-History pro KPI (letzte 12 Monate) für Trendanzeige */
   kpiHistory?: { al: number[]; hh: number[]; gi: number[]; zf: number[] };
+  /** SMA-323: Haushalt-Saldo-Verlauf (letzte 12 Monate) in Mrd. für Chart */
+  haushaltSaldoHistory?: number[];
   /** Event-IDs die in diesem Durchlauf aktiv sind (bei Spielstart zufällig gewählt) */
   activeEventPool?: string[];
   /** Freigeschaltete Gesetz-IDs (durch Events) */

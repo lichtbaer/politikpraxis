@@ -179,3 +179,75 @@
   min-width: 40px;
   text-align: right;
 }
+
+/* SMA-323: Keine laufenden Gesetze */
+.keineGesetze {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text2);
+  font-style: italic;
+}
+
+/* SMA-323: Steuerquote-Regler */
+.steuerquoteDesc {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+.steuerquoteButtons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.steuerquoteBtn {
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.steuerquoteBtn:hover:not(:disabled) {
+  background: var(--bg2);
+}
+
+.steuerquoteBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.steuerquoteHint {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+/* SMA-323: Verbands-Forderungen */
+.verbandsList {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.verbandsItem {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.verbandsKurz {
+  font-weight: 600;
+  color: var(--text);
+  margin-right: 6px;
+}
+
+.verbandsForderung {
+  color: var(--text2);
+}

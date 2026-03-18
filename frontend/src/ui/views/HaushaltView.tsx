@@ -1,6 +1,6 @@
 /**
- * SMA-320: HaushaltView — Einnahmen/Ausgaben, Ampel, Saldo-Verlauf
- * Übernimmt Haushalt-KPIs + Wirtschaftslage aus dem rechten Panel
+ * SMA-320/SMA-323: HaushaltView — Einnahmen/Ausgaben, Ampel, Saldo-Verlauf,
+ * Konjunktur, Schuldenbremse, Steuerquote-Regler, Verbands-Forderungen
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,7 @@ import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { checkSchuldenbremse } from '../../core/systems/haushalt';
 import { formatMrdSaldo, normalizeZero } from '../../utils/format';
-import type { SchuldenbremsenStatus } from '../../core/types';
+import type { SchuldenbremsenStatus, Verband } from '../../core/types';
 import { Check, AlertTriangle } from '../icons';
 import styles from './HaushaltView.module.css';
 
@@ -61,15 +61,88 @@ function KonjunkturIndikator({ value }: { value: number }) {
   );
 }
 
+/** SMA-323: Steuerquote-Regler — +2 oder -3 Mrd./Jahr, 1× pro Jahr, 15 PK */
+function SteuerquoteRegler() {
+  const { t } = useTranslation('game');
+  const { state, complexity, doSteuerquoteChange } = useGameStore();
+  const haushalt = state.haushalt;
+  if (!featureActive(complexity, 'steuerquote') || !haushalt) return null;
+
+  const currentJahr = Math.floor((state.month - 1) / 12) + 1;
+  const bereitsGenutzt = state.steuerquoteAktionJahr === currentJahr;
+  const pkReicht = state.pk >= 15;
+
+  if (bereitsGenutzt) return null;
+
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>{t('haushalt.steuerquoteTitle', 'Steuerquote anpassen')}</h2>
+      <p className={styles.steuerquoteDesc}>
+        {t('haushalt.steuerquoteDesc', '1× pro Jahr, 15 PK. Erhöhung: BdI -8, GBD +5. Senkung: BdI +8, GBD -8.')}
+      </p>
+      <div className={styles.steuerquoteButtons}>
+        <button
+          type="button"
+          className={styles.steuerquoteBtn}
+          disabled={!pkReicht}
+          onClick={() => doSteuerquoteChange(2)}
+          title={t('haushalt.steuerquoteErhoehen', '+2 Mrd./Jahr Einnahmen')}
+        >
+          +2 Mrd./Jahr
+        </button>
+        <button
+          type="button"
+          className={styles.steuerquoteBtn}
+          disabled={!pkReicht}
+          onClick={() => doSteuerquoteChange(-3)}
+          title={t('haushalt.steuerquoteSenken', '-3 Mrd./Jahr Einnahmen')}
+        >
+          −3 Mrd./Jahr
+        </button>
+      </div>
+      {!pkReicht && (
+        <span className={styles.steuerquoteHint}>{t('haushalt.steuerquotePk', '15 PK benötigt')}</span>
+      )}
+    </section>
+  );
+}
+
+/** SMA-323: Verbands-Haushaltsforderungen — Verbände mit cost_pk=0 Trade-offs */
+function VerbandsForderungen({ verbaende }: { verbaende: Verband[] }) {
+  const { t } = useTranslation('game');
+  const forderungen = verbaende.filter((v) =>
+    v.tradeoffs?.some((to) => (to.cost_pk ?? 0) === 0),
+  );
+  if (forderungen.length === 0) return null;
+
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>{t('haushalt.verbandsForderungen', 'Verbands-Haushaltsforderungen')}</h2>
+      <ul className={styles.verbandsList}>
+        {forderungen.map((v) => (
+          <li key={v.id} className={styles.verbandsItem}>
+            <span className={styles.verbandsKurz}>{v.kurz}</span>
+            {v.tradeoffs?.filter((to) => (to.cost_pk ?? 0) === 0).map((to) => (
+              <span key={to.key} className={styles.verbandsForderung}>
+                {to.label ?? to.key}
+              </span>
+            ))}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function HaushaltView() {
   const { t } = useTranslation('game');
-  const { state, complexity } = useGameStore();
+  const { state, complexity, content } = useGameStore();
   const haushalt = state.haushalt;
-  const saldoHistory = state.kpiHistory?.hh ?? [];
+  const saldoHistory = state.haushaltSaldoHistory ?? [];
 
   const chartOption: EChartsOption = useMemo(() => ({
     animation: true,
-    grid: { top: 8, right: 8, bottom: 24, left: 36, containLabel: true },
+    grid: { top: 8, right: 8, bottom: 24, left: 40, containLabel: true },
     xAxis: {
       type: 'category',
       data: saldoHistory.map((_, i) => i + 1),
@@ -79,7 +152,7 @@ export function HaushaltView() {
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#888', fontSize: 10, formatter: '{value}%' },
+      axisLabel: { color: '#888', fontSize: 10, formatter: '{value} Mrd.' },
       splitLine: { lineStyle: { color: '#333', type: 'dashed' } },
     },
     tooltip: {
@@ -87,7 +160,7 @@ export function HaushaltView() {
       formatter: (params: unknown) => {
         const p = params as Array<{ dataIndex: number; value: number }>;
         const v = p[0]?.value;
-        return `Monat ${(p[0]?.dataIndex ?? 0) + 1}: <b>${v?.toFixed(1)}%</b>`;
+        return `Monat ${(p[0]?.dataIndex ?? 0) + 1}: <b>${v != null ? formatMrdSaldo(v) : '—'}</b>`;
       },
     },
     series: [{
@@ -116,11 +189,17 @@ export function HaushaltView() {
   }
 
   const schuldenbremsenStatus = checkSchuldenbremse(state, complexity);
-  const totalAusgaben = haushalt.pflichtausgaben + haushalt.laufendeAusgaben;
-  const maxVal = Math.max(haushalt.einnahmen, totalAusgaben, 400);
-  const einnahmenPct = (haushalt.einnahmen / maxVal) * 100;
-  const pflichtPct = (haushalt.pflichtausgaben / maxVal) * 100;
-  const laufendPct = (haushalt.laufendeAusgaben / maxVal) * 100;
+
+  // SMA-323: Balken proportional — max der drei Werte, alle relativ dazu
+  const maxWert = Math.max(
+    Math.abs(haushalt.einnahmen),
+    Math.abs(haushalt.pflichtausgaben),
+    Math.abs(haushalt.laufendeAusgaben),
+    1,
+  );
+  const einnahmenPct = (haushalt.einnahmen / maxWert) * 100;
+  const pflichtPct = (haushalt.pflichtausgaben / maxWert) * 100;
+  const laufendPct = (haushalt.laufendeAusgaben / maxWert) * 100;
 
   return (
     <div className={styles.root}>
@@ -146,13 +225,17 @@ export function HaushaltView() {
             </div>
             <span className={styles.balkenValue}>-{haushalt.pflichtausgaben} Mrd.</span>
           </div>
-          <div className={styles.balkenRow}>
-            <span className={styles.balkenLabel}>{t('haushalt.laufendeAusgaben')}</span>
-            <div className={styles.balkenTrack}>
-              <div className={styles.balkenFill} style={{ width: `${laufendPct}%`, backgroundColor: 'var(--red)' }} />
+          {haushalt.laufendeAusgaben !== 0 ? (
+            <div className={styles.balkenRow}>
+              <span className={styles.balkenLabel}>{t('haushalt.laufendeAusgaben')}</span>
+              <div className={styles.balkenTrack}>
+                <div className={styles.balkenFill} style={{ width: `${laufendPct}%`, backgroundColor: 'var(--red)' }} />
+              </div>
+              <span className={styles.balkenValue}>-{normalizeZero(haushalt.laufendeAusgaben).toFixed(1)} Mrd.</span>
             </div>
-            <span className={styles.balkenValue}>-{normalizeZero(haushalt.laufendeAusgaben).toFixed(1)} Mrd.</span>
-          </div>
+          ) : (
+            <p className={styles.keineGesetze}>{t('haushalt.keineLaufendenGesetze', 'Keine laufenden Gesetzeskosten')}</p>
+          )}
         </div>
       </section>
 
@@ -175,7 +258,7 @@ export function HaushaltView() {
         </section>
       )}
 
-      {featureActive(complexity, 'konjunkturindex') && (
+      {featureActive(complexity, 'konjunktur_anzeige') && (
         <section className={styles.section}>
           <KonjunkturIndikator value={haushalt.konjunkturIndex} />
         </section>
@@ -183,6 +266,12 @@ export function HaushaltView() {
 
       {featureActive(complexity, 'schuldenbremse') && (
         <SchuldenbremsenBadge status={schuldenbremsenStatus} />
+      )}
+
+      <SteuerquoteRegler />
+
+      {featureActive(complexity, 'verbands_lobbying') && (
+        <VerbandsForderungen verbaende={content.verbaende ?? []} />
       )}
     </div>
   );
