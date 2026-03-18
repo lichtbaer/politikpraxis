@@ -1,3 +1,6 @@
+# Dependencies
+node_modules/
+
 # Environment files (secrets)
 .env
 .env.*
