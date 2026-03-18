@@ -1,4 +1,5 @@
 import type { GameState, GameEvent, EventChoice } from '../types';
+import { getEventNamespace } from '../eventNamespaces';
 import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { applyMoodChange } from './characters';
@@ -364,6 +365,78 @@ export interface ResolveEventOptions {
   complexity?: number;
 }
 
+/** Prüft ob der Spieler genug PK hat */
+function canAfford(state: GameState, choice: EventChoice): boolean {
+  return state.pk >= (choice.cost || 0);
+}
+
+/** Zieht PK-Kosten ab */
+function deductPk(state: GameState, choice: EventChoice): GameState {
+  return { ...state, pk: state.pk - (choice.cost || 0) };
+}
+
+/** Wendet KPI-Effekte aus choice.effect an */
+function applyKpiEffects(state: GameState, choice: EventChoice): GameState {
+  if (!choice.effect) return state;
+  const kpi = { ...state.kpi };
+  for (const [k, v] of Object.entries(choice.effect)) {
+    const key = k as keyof typeof kpi;
+    if (key in kpi) {
+      kpi[key] = +Math.max(0, kpi[key] + v).toFixed(2);
+      if (key === 'zf') kpi.zf = Math.min(100, kpi.zf);
+    }
+  }
+  return { ...state, kpi };
+}
+
+/** Wendet Koalitionspartner-Beziehungsänderung an */
+function applyKoalitionspartnerDelta(state: GameState, choice: EventChoice): GameState {
+  if (choice.koalitionspartnerBeziehung == null || !state.koalitionspartner) return state;
+  return {
+    ...state,
+    koalitionspartner: {
+      ...state.koalitionspartner,
+      beziehung: Math.max(0, Math.min(100, state.koalitionspartner.beziehung + choice.koalitionspartnerBeziehung)),
+    },
+    koalitionsbruchSeitMonat: undefined,
+  };
+}
+
+/** Wendet Bundesrat-Bonus auf alle Fraktionen an */
+function applyBundesratBonusAll(state: GameState, choice: EventChoice): GameState {
+  if (choice.bundesratBonusAll == null || !state.bundesratFraktionen) return state;
+  return {
+    ...state,
+    bundesratFraktionen: state.bundesratFraktionen.map(f =>
+      ({ ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + choice.bundesratBonusAll!)) }),
+    ),
+  };
+}
+
+/** Schreibt Log + Ticker und setzt activeEvent auf null */
+function finalizeEvent(state: GameState, event: GameEvent, choice: EventChoice, logMsg?: string): GameState {
+  const logType = choice.type === 'danger' ? 'r' : 'g';
+  const ns = getEventNamespace(event);
+  const choiceIdx = event.choices.indexOf(choice);
+
+  let msg = logMsg;
+  if (!msg) {
+    const logKey = `game:${ns}.${event.id}.choices.${choiceIdx}.log`;
+    msg = i18n.exists(logKey) ? i18n.t(logKey) : (choice.log || logKey);
+  }
+
+  let s = addLog(state, msg, logType);
+  const tickerKey = `game:${ns}.${event.id}.ticker`;
+  s.ticker = i18n.exists(tickerKey) ? i18n.t(tickerKey) : event.ticker;
+  s.activeEvent = null;
+  return s;
+}
+
+const KOMMUNAL_INITIATIVE_IDS = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
+const STEUER_IDS = new Set(['steuereinnahmen_einbruch', 'haushaltsstreit_opposition', 'steuerstreit_koalition']);
+const KOMMUNAL_LAENDER_IDS = new Set(['kommunal_haushaltskrise', 'kommunal_buergerprotest', 'laender_koalitionskrise']);
+const EXTREMISMUS_IDS = new Set(['koalitionspartner_extremismus_warnung', 'verfassungsgericht_klage']);
+
 export function resolveEvent(
   state: GameState,
   event: GameEvent,
@@ -371,62 +444,10 @@ export function resolveEvent(
   options?: ResolveEventOptions,
 ): GameState {
   const complexity = options?.complexity ?? 4;
+
   // Ministerial-Initiative: eigene Auflösung
   if (choice.ministerialAction && state.aktiveMinisterialInitiative && event.id.startsWith('mi_')) {
     return resolveMinisterialInitiative(state, choice.ministerialAction);
-  }
-
-  // Kommunal-Initiative: als_vorbild — +2% BT auf GesetzProjekt, 0 PK (SMA-274)
-  const kommunalIds = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
-  if (kommunalIds.has(event.id) && choice.key === 'als_vorbild' && event.lawId) {
-    if (state.pk < (choice.cost || 0)) return state;
-    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0) };
-    newState = applyVorbildBonus(newState, event.lawId);
-    const choiceIdx = event.choices.indexOf(choice);
-    const logKey = `game:kommunalEvents.${event.id}.choices.${choiceIdx}.log`;
-    newState = addLog(newState, logKey, 'g');
-    newState.ticker = i18n.exists(`game:kommunalEvents.${event.id}.ticker`) ? i18n.t(`game:kommunalEvents.${event.id}.ticker`) : event.ticker;
-    newState.activeEvent = null;
-    return newState;
-  }
-
-  // Kommunal-Initiative: koordinieren — startKommunalPilot (8 PK, voller Bonus) (SMA-274)
-  if (kommunalIds.has(event.id) && choice.key === 'koordinieren' && event.lawId) {
-    if (state.pk < (choice.cost || 0)) return state;
-    const stadttyp = (event as GameEvent & { stadttyp?: 'progressiv' | 'konservativ' | 'industrie' }).stadttyp ?? 'progressiv';
-    let newState = startKommunalPilot(state, event.lawId, stadttyp, undefined, complexity);
-    const choiceIdx = event.choices.indexOf(choice);
-    newState = addLog(newState, `game:kommunalEvents.${event.id}.choices.${choiceIdx}.log`, 'g');
-    newState.ticker = event.ticker;
-    newState.activeEvent = null;
-    return newState;
-  }
-
-  // Medien-Events (Skandal, positiv): medienklima_delta aus Choice anwenden (SMA-277)
-  if (event.id.startsWith('medien_')) {
-    if (state.pk < (choice.cost || 0)) return state;
-    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0) };
-    newState = applyMedienChoiceDelta(newState, choice);
-    if (choice.charMood) {
-      newState = applyMoodChange(newState, choice.charMood, choice.loyalty);
-    }
-    newState = addLog(newState, choice.log, choice.type === 'danger' ? 'r' : 'g');
-    newState.ticker = event.ticker;
-    newState.activeEvent = null;
-    return newState;
-  }
-
-  // TV-Duell (SMA-278): eigene Auflösung
-  if (event.id === 'tv_duell') {
-    const vorbereitet = choice.key === 'vorbereiten';
-    if (vorbereitet && state.pk < (choice.cost || 0)) return state;
-    const nextPk = vorbereitet ? state.pk - (choice.cost || 0) : state.pk;
-    let newState = { ...state, pk: nextPk };
-    newState = resolveTVDuell(newState, vorbereitet);
-    newState = addLog(newState, choice.log, vorbereitet ? 'g' : 'r');
-    newState.ticker = event.ticker;
-    newState.activeEvent = null;
-    return newState;
   }
 
   // Wahlkampf-Beginn, Koalitionspartner-Alleingang: einfaches Bestätigen
@@ -434,149 +455,106 @@ export function resolveEvent(
     return { ...state, activeEvent: null };
   }
 
-  // SMA-309: Steuer-Events (steuereinnahmen_einbruch, haushaltsstreit_opposition, steuerstreit_koalition)
-  const STEUER_IDS = new Set(['steuereinnahmen_einbruch', 'haushaltsstreit_opposition', 'steuerstreit_koalition']);
+  // Kommunal-Initiative: als_vorbild (SMA-274)
+  if (KOMMUNAL_INITIATIVE_IDS.has(event.id) && choice.key === 'als_vorbild' && event.lawId) {
+    if (!canAfford(state, choice)) return state;
+    let s = applyVorbildBonus(deductPk(state, choice), event.lawId);
+    return finalizeEvent(s, event, choice);
+  }
+
+  // Kommunal-Initiative: koordinieren (SMA-274)
+  if (KOMMUNAL_INITIATIVE_IDS.has(event.id) && choice.key === 'koordinieren' && event.lawId) {
+    if (!canAfford(state, choice)) return state;
+    const stadttyp = (event as GameEvent & { stadttyp?: 'progressiv' | 'konservativ' | 'industrie' }).stadttyp ?? 'progressiv';
+    const s = startKommunalPilot(state, event.lawId, stadttyp, undefined, complexity);
+    return finalizeEvent(s, event, choice);
+  }
+
+  // Medien-Events (SMA-277)
+  if (event.id.startsWith('medien_')) {
+    if (!canAfford(state, choice)) return state;
+    let s = applyMedienChoiceDelta(deductPk(state, choice), choice);
+    if (choice.charMood) s = applyMoodChange(s, choice.charMood, choice.loyalty);
+    return finalizeEvent(s, event, choice, choice.log);
+  }
+
+  // TV-Duell (SMA-278)
+  if (event.id === 'tv_duell') {
+    const vorbereitet = choice.key === 'vorbereiten';
+    if (vorbereitet && !canAfford(state, choice)) return state;
+    let s = vorbereitet ? deductPk(state, choice) : state;
+    s = resolveTVDuell(s, vorbereitet);
+    return finalizeEvent(s, event, choice, choice.log);
+  }
+
+  // Steuer-Events (SMA-309)
   if (STEUER_IDS.has(event.id)) {
-    if (state.pk < (choice.cost || 0)) return state;
-    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0) };
-    newState = applyMedienChoiceDelta(newState, choice);
-    if (choice.koalitionspartnerBeziehung != null && newState.koalitionspartner) {
-      newState = {
-        ...newState,
-        koalitionspartner: {
-          ...newState.koalitionspartner,
-          beziehung: Math.max(0, Math.min(100, newState.koalitionspartner.beziehung + choice.koalitionspartnerBeziehung)),
-        },
-      };
-    }
-    if (event.id === 'steuereinnahmen_einbruch' && newState.haushalt && choice.effect?.hh != null) {
+    if (!canAfford(state, choice)) return state;
+    let s = applyMedienChoiceDelta(deductPk(state, choice), choice);
+    s = applyKoalitionspartnerDelta(s, choice);
+    if (event.id === 'steuereinnahmen_einbruch' && s.haushalt && choice.effect?.hh != null) {
       const hhDelta = choice.effect.hh;
       if (choice.key === 'sparen' && hhDelta > 0) {
-        newState = {
-          ...newState,
-          haushalt: {
-            ...newState.haushalt,
-            laufendeAusgaben: Math.max(0, newState.haushalt.laufendeAusgaben - hhDelta),
-            saldo: newState.haushalt.einnahmen - newState.haushalt.pflichtausgaben - Math.max(0, newState.haushalt.laufendeAusgaben - hhDelta),
-          },
-        };
+        s = { ...s, haushalt: { ...s.haushalt,
+          laufendeAusgaben: Math.max(0, s.haushalt.laufendeAusgaben - hhDelta),
+          saldo: s.haushalt.einnahmen - s.haushalt.pflichtausgaben - Math.max(0, s.haushalt.laufendeAusgaben - hhDelta),
+        }};
       } else if (choice.key === 'steuer' && hhDelta > 0) {
-        newState = {
-          ...newState,
-          haushalt: {
-            ...newState.haushalt,
-            einnahmen: newState.haushalt.einnahmen + hhDelta,
-            saldo: newState.haushalt.einnahmen + hhDelta - newState.haushalt.pflichtausgaben - newState.haushalt.laufendeAusgaben,
-          },
-        };
+        s = { ...s, haushalt: { ...s.haushalt,
+          einnahmen: s.haushalt.einnahmen + hhDelta,
+          saldo: s.haushalt.einnahmen + hhDelta - s.haushalt.pflichtausgaben - s.haushalt.laufendeAusgaben,
+        }};
       }
     }
-    newState = addLog(newState, choice.log, choice.type === 'danger' ? 'r' : 'g');
-    newState.ticker = event.ticker;
-    newState.activeEvent = null;
-    return newState;
+    return finalizeEvent(s, event, choice, choice.log);
   }
 
-  // SMA-298: Kommunal/Länder conditional Events (Haushaltskrise, Bürgerprotest, Länder-Koalitionskrise)
-  const KOMMUNAL_LAENDER_IDS = new Set(['kommunal_haushaltskrise', 'kommunal_buergerprotest', 'laender_koalitionskrise']);
+  // Kommunal/Länder conditional Events (SMA-298)
   if (KOMMUNAL_LAENDER_IDS.has(event.id)) {
-    if (state.pk < (choice.cost || 0)) return state;
-    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0), kpi: { ...state.kpi } };
-    newState = applyMedienChoiceDelta(newState, choice);
-    for (const [k, v] of Object.entries(choice.effect || {})) {
-      const key = k as 'al' | 'hh' | 'gi' | 'zf';
-      if (key in newState.kpi) {
-        newState.kpi[key] = +Math.max(0, newState.kpi[key] + v).toFixed(2);
-        if (key === 'zf') newState.kpi.zf = Math.min(100, newState.kpi.zf);
-      }
-    }
-    if (choice.bundesratBonusAll != null && newState.bundesratFraktionen) {
-      newState = {
-        ...newState,
-        bundesratFraktionen: newState.bundesratFraktionen.map(f =>
-          ({ ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + choice.bundesratBonusAll!)) }),
-        ),
-      };
-    }
-    newState = addLog(newState, choice.log, choice.type === 'danger' ? 'r' : 'g');
-    newState.ticker = event.ticker;
-    newState.activeEvent = null;
-    return newState;
+    if (!canAfford(state, choice)) return state;
+    let s = applyKpiEffects(applyMedienChoiceDelta(deductPk(state, choice), choice), choice);
+    s = applyBundesratBonusAll(s, choice);
+    return finalizeEvent(s, event, choice, choice.log);
   }
 
-  // SMA-280: Extremismus-Events (Koalitionspartner-Warnung, Verfassungsgericht)
-  const EXTREMISMUS_IDS = new Set(['koalitionspartner_extremismus_warnung', 'verfassungsgericht_klage']);
+  // Extremismus-Events (SMA-280)
   if (EXTREMISMUS_IDS.has(event.id)) {
-    if (state.pk < (choice.cost || 0)) return state;
-    let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0) };
-    newState = applyMedienChoiceDelta(newState, choice);
-    if (choice.koalitionspartnerBeziehung != null && newState.koalitionspartner) {
-      newState = {
-        ...newState,
-        koalitionspartner: {
-          ...newState.koalitionspartner,
-          beziehung: Math.min(100, Math.max(0, newState.koalitionspartner.beziehung + choice.koalitionspartnerBeziehung)),
-        },
-      };
-    }
+    if (!canAfford(state, choice)) return state;
+    let s = applyMedienChoiceDelta(deductPk(state, choice), choice);
+    s = applyKoalitionspartnerDelta(s, choice);
     if (event.id === 'verfassungsgericht_klage' && choice.verfahrenDauerMonate != null) {
-      if (choice.verfahrenDauerMonate === 0) {
-        newState = {
-          ...newState,
-          verfassungsgerichtPausiert: true,
-          verfassungsgerichtVerfahrenBisMonat: undefined,
-        };
-      } else {
-        newState = {
-          ...newState,
-          verfassungsgerichtVerfahrenBisMonat: newState.month + choice.verfahrenDauerMonate,
-          verfassungsgerichtPausiert: false,
-        };
-      }
+      s = choice.verfahrenDauerMonate === 0
+        ? { ...s, verfassungsgerichtPausiert: true, verfassungsgerichtVerfahrenBisMonat: undefined }
+        : { ...s, verfassungsgerichtVerfahrenBisMonat: s.month + choice.verfahrenDauerMonate, verfassungsgerichtPausiert: false };
     }
-    newState = addLog(newState, choice.log, choice.type === 'danger' ? 'r' : 'g');
-    newState.ticker = event.ticker;
-    newState.activeEvent = null;
-    return newState;
+    return finalizeEvent(s, event, choice, choice.log);
   }
 
-  if (state.pk < (choice.cost || 0)) return state;
+  // Standard-Event: vollständige Effekt-Kette
+  if (!canAfford(state, choice)) return state;
 
-  let newState: GameState = { ...state, pk: state.pk - (choice.cost || 0), kpi: { ...state.kpi } };
-
-  for (const [k, v] of Object.entries(choice.effect || {})) {
-    const key = k as keyof typeof newState.kpi;
-    newState.kpi[key] = +Math.max(0, newState.kpi[key] + v).toFixed(2);
-    if (key === 'zf') newState.kpi.zf = Math.min(100, newState.kpi.zf);
-  }
+  let s = applyKpiEffects(deductPk(state, choice), choice);
 
   if (choice.charMood) {
-    newState = applyMoodChange(newState, choice.charMood, choice.loyalty);
+    s = applyMoodChange(s, choice.charMood, choice.loyalty);
   }
 
-  if (choice.brRelation && newState.bundesratFraktionen) {
-    newState = {
-      ...newState,
-      bundesratFraktionen: newState.bundesratFraktionen.map(f => {
+  if (choice.brRelation && s.bundesratFraktionen) {
+    s = {
+      ...s,
+      bundesratFraktionen: s.bundesratFraktionen.map(f => {
         const delta = choice.brRelation![f.id];
         if (delta == null) return f;
         return { ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + delta)) };
       }),
     };
   }
-  if (choice.bundesratBonusAll != null && newState.bundesratFraktionen) {
-    newState = {
-      ...newState,
-      bundesratFraktionen: newState.bundesratFraktionen.map(f =>
-        ({ ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + choice.bundesratBonusAll!)) }),
-      ),
-    };
-  }
+  s = applyBundesratBonusAll(s, choice);
 
-  if (choice.brRelationInitiator != null && event.fraktionId && newState.bundesratFraktionen) {
-    newState = {
-      ...newState,
-      bundesratFraktionen: newState.bundesratFraktionen.map(f =>
+  if (choice.brRelationInitiator != null && event.fraktionId && s.bundesratFraktionen) {
+    s = {
+      ...s,
+      bundesratFraktionen: s.bundesratFraktionen.map(f =>
         f.id === event.fraktionId
           ? { ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + choice.brRelationInitiator!)) }
           : f,
@@ -586,36 +564,13 @@ export function resolveEvent(
 
   // Bundesrat-spezifische Effekte
   if (event.id === 'landtagswahl' && event.fraktionId && event.landId && event.landtagswahlToFraktion) {
-    newState = applyLandtagswahlEffect(newState, event);
+    s = applyLandtagswahlEffect(s, event);
   }
   if (event.id === 'sprecher_wechsel' && event.fraktionId && event.sprecherErsatz) {
-    newState = applySprecherWechselEffect(newState, event);
+    s = applySprecherWechselEffect(s, event);
   }
 
-  if (choice.koalitionspartnerBeziehung != null && newState.koalitionspartner) {
-    newState = {
-      ...newState,
-      koalitionspartner: {
-        ...newState.koalitionspartner,
-        beziehung: Math.min(100, Math.max(0, newState.koalitionspartner.beziehung + choice.koalitionspartnerBeziehung)),
-      },
-      koalitionsbruchSeitMonat: undefined,
-    };
-  }
+  s = applyKoalitionspartnerDelta(s, choice);
 
-  const logType = choice.type === 'danger' ? 'r' : 'g';
-  const choiceIdx = event.choices.indexOf(choice);
-  const BR_IDS = new Set(['laenderfinanzausgleich', 'landtagswahl', 'kohl_eskaliert', 'sprecher_wechsel', 'bundesrat_initiative', 'foederalismusgipfel']);
-  const KOMMUNAL_IDS = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
-  const VORSTUFEN_IDS = new Set(['vorstufe_kommunal_erfolg', 'vorstufe_laender_erfolg']);
-  const CHAR_IDS = new Set(['fm_ultimatum', 'braun_ultimatum', 'wolf_ultimatum', 'kern_ultimatum', 'kanzler_ultimatum', 'kohl_bundesrat_sabotage', 'wm_ultimatum', 'am_ultimatum', 'gm_ultimatum', 'bm_ultimatum', 'koalitionsbruch', 'koalitionskrise_ultimatum', 'lehmann_defizit_start', 'haushaltskrise']);
-  const eventNs = event.charId || CHAR_IDS.has(event.id) ? 'charEvents' : BR_IDS.has(event.id) ? 'bundesratEvents' : KOMMUNAL_IDS.has(event.id) ? 'kommunalEvents' : VORSTUFEN_IDS.has(event.id) ? 'vorstufenEvents' : 'events';
-  const logKey = `game:${eventNs}.${event.id}.choices.${choiceIdx}.log`;
-  const logMsg = i18n.exists(logKey) ? i18n.t(logKey) : (choice.log || logKey);
-  newState = addLog(newState, logMsg, logType);
-  const tickerKey = `game:${eventNs}.${event.id}.ticker`;
-  newState.ticker = i18n.exists(tickerKey) ? i18n.t(tickerKey) : event.ticker;
-  newState.activeEvent = null;
-
-  return newState;
+  return finalizeEvent(s, event, choice);
 }

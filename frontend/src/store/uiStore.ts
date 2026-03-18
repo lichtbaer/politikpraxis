@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 
 export type Theme = 'amtsstube' | 'bruessel' | 'redaktion' | 'lageraum';
+export type ToastType = 'info' | 'success' | 'warning' | 'danger';
 
 interface ToastItem {
   id: number;
   msg: string;
+  type: ToastType;
 }
 
 interface UIStore {
@@ -14,7 +16,7 @@ interface UIStore {
 
   showCharDetail: (id: string) => void;
   closeCharDetail: () => void;
-  showToast: (msg: string) => void;
+  showToast: (msg: string, type?: ToastType) => void;
   dismissToast: (id: number) => void;
   setTheme: (theme: Theme) => void;
 }
@@ -31,10 +33,10 @@ export const useUIStore = create<UIStore>((set, get) => ({
   showCharDetail: (id) => set({ charDetailId: id }),
   closeCharDetail: () => set({ charDetailId: null }),
 
-  showToast: (msg) => {
+  showToast: (msg, type = 'info') => {
     const id = ++toastCounter;
     set((state) => ({
-      toastQueue: [...state.toastQueue.slice(-(MAX_TOASTS - 1)), { id, msg }],
+      toastQueue: [...state.toastQueue.slice(-(MAX_TOASTS - 1)), { id, msg, type }],
     }));
     setTimeout(() => get().dismissToast(id), TOAST_DURATION);
   },
