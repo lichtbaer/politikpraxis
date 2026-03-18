@@ -804,8 +804,28 @@
       "ideologie": "Ideologie"
     }
   },
+  "kabinett": {
+    "title": "Kabinett",
+    "desc": "Ihr Kabinett und der Koalitionspartner. Stimmung und Loyalität beeinflussen die Regierungsarbeit.",
+    "ultimatumWarnung": "{{name}} droht mit Ultimatum — Stimmung kritisch.",
+    "initiativeTitle": "Ministerial-Initiative",
+    "initiativeAktiv": "{{char}} bringt {{gesetz}} ein."
+  },
+  "bundestag": {
+    "title": "Bundestag",
+    "desc": "Sitzverteilung und laufende Abstimmungen im Parlament.",
+    "sitzverteilung": "Sitzverteilung",
+    "koalitionOpposition": "Koalition vs. Opposition",
+    "koalition": "Koalition",
+    "opposition": "Opposition",
+    "laufendeAbstimmungen": "Laufende Abstimmungen",
+    "abstimmungDieserMonat": "Abstimmung diesen Monat",
+    "abstimmungIn": "Abstimmung in {{count}} Mo. ({{month}})",
+    "letzteAbstimmungen": "Letzte Abstimmungsergebnisse",
+    "oppositionsAktivitaet": "Oppositions-Aktivität"
+  },
   "media": {
-    "title": "Medien & Milieus",
+    "title": "Medien",
     "desc": "Überblick über die Zustimmung der Wählermilieus. Milieus reagieren auf Gesetze und politische Entscheidungen.",
     "arbeit": { "name": "Arbeitsmilieu", "desc": "Gewerkschaftsnahe Wähler, Fokus auf soziale Gerechtigkeit." },
     "mitte": { "name": "Mitte", "desc": "Bürgerliche Mitte, wirtschaftsorientiert." },
@@ -1003,6 +1023,10 @@
   },
   "haushalt": {
     "title": "Haushalt",
+    "stufe2Info": "Haushaltsübersicht ab Stufe 2 verfügbar.",
+    "desc": "Einnahmen, Pflichtausgaben und Gesetzeskosten. Der Saldo beeinflusst die Wirtschaftslage.",
+    "aufkommen": "Einnahmen vs. Ausgaben",
+    "saldoVerlauf": "Saldo-Verlauf (letzte 12 Monate)",
     "einnahmen": "Einnahmen",
     "pflichtausgaben": "Pflichtausgaben",
     "laufendeAusgaben": "Gesetze (laufend)",
@@ -1079,8 +1103,19 @@
     "routeStarten": "Starten"
   },
   "tabBar": {
-    "ariaLabel": "Ebenen-Navigation",
-    "lockedTooltip": "Freigeschaltet ab Stufe {{level}}"
+    "ariaLabel": "Hauptnavigation",
+    "lockedTooltip": "Verfügbar ab Stufe {{level}}",
+    "agenda": "Agenda",
+    "bundestag": "Bundestag",
+    "kabinett": "Kabinett",
+    "haushalt": "Haushalt",
+    "medien": "Medien",
+    "verbaende": "Verbände",
+    "bundesrat": "Bundesrat",
+    "laender": "Länder",
+    "kommunen": "Kommunen",
+    "eu": "EU-Ebene",
+    "wahlkampf": "Wahlkampf"
   },
   "leftPanel": {
     "wahlprognose": "Wahlprognose",

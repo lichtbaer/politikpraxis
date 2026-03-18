@@ -1,23 +1,37 @@
+/**
+ * SMA-320: Sidebar reduziert — nur permanente KPIs
+ * Behalten: Wahlprognose, MedienklimaBadge, KoalitionsStabilität, HaushaltAmpel, MilieuBalken3, EreignisLog compact
+ * Entfernt: Kabinett-Liste, Politikfeld-Icons, Koalitionspartner-Panel (→ KabinettView)
+ */
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
-import { CharacterRow } from '../components/CharacterRow/CharacterRow';
 import { CoalitionMeter } from '../components/CoalitionMeter/CoalitionMeter';
 import { MedienklimaBadge } from '../components/MedienklimaBadge/MedienklimaBadge';
 import { MilieuSidebar } from '../components/MilieuSidebar/MilieuSidebar';
-import { PolitikfeldGrid } from '../components/PolitikfeldGrid/PolitikfeldGrid';
-import { KoalitionspartnerPanel } from '../components/KoalitionspartnerPanel/KoalitionspartnerPanel';
 import { ApprovalChart } from '../components/ApprovalChart/ApprovalChart';
+import { formatMrdSaldo } from '../../utils/format';
 import styles from './LeftPanel.module.css';
 
 const EMPTY_APPROVAL_HISTORY: number[] = [];
+
+function getSaldoKlasse(saldo: number): string {
+  if (saldo > 0) return 'saldoAusgeglichen';
+  if (saldo >= -15) return 'saldoDefizit';
+  if (saldo >= -30) return 'saldoKritisch';
+  return 'saldoKrise';
+}
 
 export function LeftPanel() {
   const { t } = useTranslation('game');
   const zustG = useGameStore((s) => s.state.zust.g);
   const electionThreshold = useGameStore((s) => s.state.electionThreshold ?? 40);
   const coalition = useGameStore((s) => s.state.coalition);
-  const chars = useGameStore((s) => s.state.chars);
   const approvalHistory = useGameStore((s) => s.state.approvalHistory) ?? EMPTY_APPROVAL_HISTORY;
+  const log = useGameStore((s) => s.state.log);
+  const haushalt = useGameStore((s) => s.state.haushalt);
+  const complexity = useGameStore((s) => s.complexity);
+
+  const logCompact = log.slice(0, 5);
 
   return (
     <aside className={styles.panel}>
@@ -48,22 +62,39 @@ export function LeftPanel() {
         <CoalitionMeter value={coalition} />
       </section>
 
+      {haushalt && complexity >= 2 && (
+        <section className={styles.section}>
+          <h3 className={styles.sectionTitle}>{t('haushalt.saldo')}</h3>
+          <div className={`${styles.haushaltAmpel} ${styles[getSaldoKlasse(haushalt.saldo)]}`}>
+            <span className={styles.haushaltSaldo}>
+              {formatMrdSaldo(haushalt.saldo)}
+            </span>
+          </div>
+        </section>
+      )}
+
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>{t('game:leftPanel.milieus')}</h3>
         <MilieuSidebar />
-        <PolitikfeldGrid />
       </section>
 
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>{t('game:leftPanel.kabinett')}</h3>
-        <div className={styles.kabinett}>
-          {chars.map((char) => (
-            <CharacterRow key={char.id} character={char} />
-          ))}
+        <h3 className={styles.sectionTitle}>{t('game:rightPanel.ereignisprotokoll')}</h3>
+        <div className={styles.logCompact}>
+          {logCompact.length === 0 ? (
+            <p className={styles.logEmpty}>{t('game:rightPanel.logEmpty')}</p>
+          ) : (
+            logCompact.map((entry, i) => (
+              <div key={`${entry.time}-${i}`} className={styles.logEntry}>
+                <span className={styles.logTime}>{entry.time}</span>
+                <span className={styles.logMsg}>
+                  {entry.msg.startsWith('game:') ? t(entry.msg, entry.params) : entry.msg}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </section>
-
-      <KoalitionspartnerPanel />
     </aside>
   );
 }

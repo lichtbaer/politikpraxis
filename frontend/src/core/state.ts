@@ -217,7 +217,10 @@ const MAX_FIRED_EVENTS = 200;
 const MAX_PENDING = 100;
 
 /** Erlaubte View- und Speed-Werte */
-const VALID_VIEWS = new Set<string>(['agenda', 'eu', 'land', 'kommune', 'medien', 'bundesrat', 'verbaende']);
+/** SMA-320: 10 Tabs */
+const VALID_VIEWS = new Set<string>([
+  'agenda', 'bundestag', 'kabinett', 'haushalt', 'medien', 'verbaende', 'bundesrat', 'laender', 'kommunen', 'eu', 'wahlkampf',
+]);
 const VALID_SPEEDS = new Set<number>([0, 1, 2]);
 
 /** Clampt Zahl auf Bereich [min, max] */
@@ -416,6 +419,14 @@ export function migrateGameState(state: GameState): GameState {
         schluesselthemenErfuellt: kp.schluesselthemenErfuellt ?? [],
       },
     };
+  }
+  // SMA-320: View-Migration land->laender, kommune->kommunen
+  const viewMap: Record<string, 'laender' | 'kommunen'> = { land: 'laender', kommune: 'kommunen' };
+  if (result.view && viewMap[result.view as string]) {
+    result = { ...result, view: viewMap[result.view as string] };
+  }
+  if (!VALID_VIEWS.has(result.view)) {
+    result = { ...result, view: 'agenda' };
   }
   return result;
 }

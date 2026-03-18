@@ -709,6 +709,10 @@
   },
   "haushalt": {
     "title": "Budget",
+    "stufe2Info": "Budget overview available from level 2.",
+    "desc": "Revenue, mandatory spending and law costs. Balance affects economic situation.",
+    "aufkommen": "Revenue vs. spending",
+    "saldoVerlauf": "Balance trend (last 12 months)",
     "einnahmen": "Revenue",
     "pflichtausgaben": "Mandatory spending",
     "laufendeAusgaben": "Laws (ongoing)",
@@ -814,8 +818,28 @@
       "ideologie": "Ideology"
     }
   },
+  "kabinett": {
+    "title": "Cabinet",
+    "desc": "Your cabinet and coalition partner. Mood and loyalty affect government work.",
+    "ultimatumWarnung": "{{name}} threatens ultimatum — mood critical.",
+    "initiativeTitle": "Ministerial initiative",
+    "initiativeAktiv": "{{char}} is introducing {{gesetz}}."
+  },
+  "bundestag": {
+    "title": "Bundestag",
+    "desc": "Seat distribution and ongoing votes in parliament.",
+    "sitzverteilung": "Seat distribution",
+    "koalitionOpposition": "Coalition vs. Opposition",
+    "koalition": "Coalition",
+    "opposition": "Opposition",
+    "laufendeAbstimmungen": "Ongoing votes",
+    "abstimmungDieserMonat": "Vote this month",
+    "abstimmungIn": "Vote in {{count}} mo. ({{month}})",
+    "letzteAbstimmungen": "Recent vote results",
+    "oppositionsAktivitaet": "Opposition activity"
+  },
   "media": {
-    "title": "Media & Milieus",
+    "title": "Media",
     "desc": "Overview of voter milieu approval. Milieus react to laws and political decisions.",
     "arbeit": { "name": "Working-class milieu", "desc": "Union-aligned voters, focus on social justice." },
     "mitte": { "name": "Centre", "desc": "Bourgeois centre, economically oriented." },
@@ -983,8 +1007,19 @@
     "routeStarten": "Start"
   },
   "tabBar": {
-    "ariaLabel": "Level navigation",
-    "lockedTooltip": "Unlocked at level {{level}}"
+    "ariaLabel": "Main navigation",
+    "lockedTooltip": "Available from level {{level}}",
+    "agenda": "Agenda",
+    "bundestag": "Bundestag",
+    "kabinett": "Cabinet",
+    "haushalt": "Budget",
+    "medien": "Media",
+    "verbaende": "Associations",
+    "bundesrat": "Federal Council",
+    "laender": "States",
+    "kommunen": "Municipalities",
+    "eu": "EU Level",
+    "wahlkampf": "Campaign"
   },
   "leftPanel": {
     "wahlprognose": "Election forecast",

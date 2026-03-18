@@ -302,7 +302,19 @@ export interface LogEntry {
   params?: Record<string, string | number>;
 }
 
-export type ViewName = 'agenda' | 'eu' | 'land' | 'kommune' | 'medien' | 'bundesrat' | 'verbaende' | 'wahlkampf';
+/** SMA-320: 10 Tabs — agenda, bundestag, kabinett, haushalt, medien, verbaende, bundesrat, laender, kommunen, eu */
+export type ViewName =
+  | 'agenda'
+  | 'bundestag'
+  | 'kabinett'
+  | 'haushalt'
+  | 'medien'
+  | 'verbaende'
+  | 'bundesrat'
+  | 'laender'
+  | 'kommunen'
+  | 'eu'
+  | 'wahlkampf';
 export type SpeedLevel = 0 | 1 | 2;
 
 export interface BundesratLand {
