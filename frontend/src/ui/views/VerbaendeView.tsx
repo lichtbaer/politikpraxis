@@ -20,6 +20,13 @@ function getBeziehungsFarbe(beziehung: number): string {
   return 'var(--red)';
 }
 
+/** SMA-318: Farbkodierung für Politikfeld-Druck (0–39 grün, 40–69 orange, 70–100 rot) */
+function getDruckFarbe(wert: number): string {
+  if (wert <= 39) return 'var(--green)';
+  if (wert <= 69) return 'var(--warn)';
+  return 'var(--red)';
+}
+
 function getEinflussStaerke(): number {
   return 3;
 }
@@ -31,9 +38,12 @@ interface VerbandskarteProps {
   onGespraech: () => void;
   onTradeoff: (key: string) => void;
   pk: number;
+  /** SMA-318: Politikfeld-Druck (nur bei Stufe 2+) */
+  druckWert?: number;
+  showDruck?: boolean;
 }
 
-function Verbandskarte({ verband, beziehung, month, onGespraech, onTradeoff, pk }: VerbandskarteProps) {
+function Verbandskarte({ verband, beziehung, month, onGespraech, onTradeoff, pk, druckWert = 0, showDruck = false }: VerbandskarteProps) {
   const { t } = useTranslation('game');
   const konfliktPartner = KONFLIKTE[verband.id] ?? [];
   /** SMA-315: Konflikt-Warnung nur wenn Beziehung < 30 UND mind. Monat 2 (keine Konflikte in Monat 1) */
@@ -78,6 +88,23 @@ function Verbandskarte({ verband, beziehung, month, onGespraech, onTradeoff, pk 
           />
         </div>
       </div>
+      {showDruck && (
+        <div className={styles.verbandDruck}>
+          <span className={styles.druckLabel}>{t('game:verbaende.politikfeldDruck')}</span>
+          <div className={styles.druckBar}>
+            <div
+              className={styles.druckFill}
+              style={{
+                width: `${Math.min(100, druckWert)}%`,
+                backgroundColor: getDruckFarbe(druckWert),
+              }}
+            />
+          </div>
+          <span className={`${styles.druckZahl} ${druckWert <= 39 ? styles.druckOk : druckWert <= 69 ? styles.druckWarn : styles.druckKritisch}`}>
+            {Math.round(druckWert)}/100
+          </span>
+        </div>
+      )}
       {showKonfliktWarnung && (
         <div className={styles.konfliktWarnung}>
           {t('game:verbaende.konfliktWarnung')}
@@ -130,17 +157,25 @@ export function VerbaendeView() {
         <p className={styles.subtitle}>{t('game:verbaende.subtitle')}</p>
       </div>
       <section className={styles.karten}>
-        {verbaende.map((v) => (
-          <Verbandskarte
-            key={v.id}
-            verband={v}
-            beziehung={state.verbandsBeziehungen?.[v.id] ?? v.beziehung_start}
-            month={state.month}
-            onGespraech={() => doVerbandGespraech(v.id)}
-            onTradeoff={(key) => doVerbandTradeoff(v.id, key)}
-            pk={state.pk}
-          />
-        ))}
+        {verbaende.map((v) => {
+          const politikfeld = (content.politikfelder ?? []).find((f) => f.verbandId === v.id);
+          const feldId = politikfeld?.id ?? v.politikfeld_id;
+          const druckWert = state.politikfeldDruck?.[feldId] ?? 0;
+          const showDruck = complexity >= 2;
+          return (
+            <Verbandskarte
+              key={v.id}
+              verband={v}
+              beziehung={state.verbandsBeziehungen?.[v.id] ?? v.beziehung_start}
+              month={state.month}
+              onGespraech={() => doVerbandGespraech(v.id)}
+              onTradeoff={(key) => doVerbandTradeoff(v.id, key)}
+              pk={state.pk}
+              druckWert={druckWert}
+              showDruck={showDruck}
+            />
+          );
+        })}
       </section>
     </div>
   );

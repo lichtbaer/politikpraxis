@@ -135,6 +135,48 @@
   transition: width 0.2s ease;
 }
 
+/* SMA-318: Politikfeld-Druck unter Beziehungsbalken */
+.verbandDruck {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.druckLabel {
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.druckBar {
+  height: 6px;
+  background: var(--bg2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.druckFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+.druckZahl {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.druckZahl.druckOk {
+  color: var(--green);
+}
+
+.druckZahl.druckWarn {
+  color: var(--warn);
+}
+
+.druckZahl.druckKritisch {
+  color: var(--red);
+}
+
 .konfliktWarnung {
   font-size: 10px;
   color: var(--warn);
