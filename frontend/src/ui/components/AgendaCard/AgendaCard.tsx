@@ -12,6 +12,7 @@ import { getMedienPkZusatzkosten } from '../../../core/systems/medienklima';
 import { VorstufeBadge } from '../VorstufeBadge/VorstufeBadge';
 import { VorbereitungModal } from '../VorbereitungModal/VorbereitungModal';
 import { FramingModal } from '../FramingModal/FramingModal';
+import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
 import type { Law, LawStatus, RouteType } from '../../../core/types';
 import styles from './AgendaCard.module.css';
 
@@ -37,6 +38,8 @@ interface AgendaCardProps {
   isRecommended?: boolean;
   /** SMA-293: Kongruenz-Anzeige (Stufe 2+) neben dem Gesetz */
   showKongruenz?: boolean;
+  /** Recommendation score 0–100 (shown as small indicator on recommended laws) */
+  recommendationScore?: number;
 }
 
 const STATUS_KEYS: Record<LawStatus, string> = {
@@ -59,12 +62,13 @@ const STATUS_CLASS: Record<LawStatus, string> = {
   ausweich: styles.statusAusweich,
 };
 
-export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProps) {
+export function AgendaCard({ law, isRecommended, showKongruenz, recommendationScore }: AgendaCardProps) {
   const { t } = useTranslation(['common', 'game']);
   const { state, complexity, ausrichtung } = useGameStore();
   const actions = useGameActions();
   const [showVorbereitungModal, setShowVorbereitungModal] = useState(false);
   const [showFramingModal, setShowFramingModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{ title: string; message: string; cost: number; action: () => void } | null>(null);
   const expanded = law.expanded;
   const pk = state.pk;
 
@@ -127,7 +131,12 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
           {t(STATUS_KEYS[law.status], { ns: 'common' })}
         </span>
         {isRecommended && (
-          <span className={styles.empfohlenBadge}>{t('game:gesetzAgenda.empfohlen')}</span>
+          <span className={styles.empfohlenBadge}>
+            {t('game:gesetzAgenda.empfohlen')}
+            {recommendationScore != null && (
+              <span className={styles.scoreBadge}>{recommendationScore}</span>
+            )}
+          </span>
         )}
         <h3 className={styles.title}>{law.titel || t(`game:laws.${law.id}.titel`)}</h3>
         {showKongruenz && (
@@ -332,10 +341,22 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
                   disabled={!canEinbringen}
                   title={einbringenTooltip}
                   onClick={() => {
-                    if (hasFraming) {
-                      setShowFramingModal(true);
+                    const doEinbringen = () => {
+                      if (hasFraming) {
+                        setShowFramingModal(true);
+                      } else {
+                        actions.einbringen(law.id);
+                      }
+                    };
+                    if (geschaetztePkKosten > 10) {
+                      setPendingAction({
+                        title: t('game:agenda.einbringen'),
+                        message: t('game:confirm.einbringenMessage', { name: law.titel || t(`game:laws.${law.id}.titel`), defaultValue: `Gesetz "${law.titel || t(`game:laws.${law.id}.titel`)}" wirklich einbringen?` }),
+                        cost: geschaetztePkKosten,
+                        action: doEinbringen,
+                      });
                     } else {
-                      actions.einbringen(law.id);
+                      doEinbringen();
                     }
                   }}
                 >
@@ -349,7 +370,14 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
                 className={styles.btn}
                 disabled={!canLobbying}
                 title={lobbyingTooltip}
-                onClick={() => actions.lobbying(law.id)}
+                onClick={() => {
+                  setPendingAction({
+                    title: t('game:agenda.lobbying'),
+                    message: t('game:confirm.lobbyingMessage', { name: law.titel || t(`game:laws.${law.id}.titel`), defaultValue: `Lobbying für "${law.titel || t(`game:laws.${law.id}.titel`)}" durchführen?` }),
+                    cost: 12,
+                    action: () => actions.lobbying(law.id),
+                  });
+                }}
               >
                 {t('game:agenda.lobbying')} (12 PK)
               </button>
@@ -373,29 +401,58 @@ export function AgendaCard({ law, isRecommended, showKongruenz }: AgendaCardProp
               </button>
             )}
             {law.status === 'blockiert' && law.blockiert === 'bundesrat' && (
-              <>
-                {(['eu', 'land', 'kommune'] as RouteType[]).map((route) => {
-                  const info = ROUTE_INFO[route];
-                  const overrides = law.route_overrides?.[route];
-                  const cost = overrides?.cost ?? info.cost;
-                  const dur = overrides?.dur ?? info.dur;
-                  const canRoute = pk >= cost;
-                  return (
-                    <button
-                      key={route}
-                      type="button"
-                      className={styles.btn}
-                      disabled={!canRoute}
-                      onClick={() => actions.startRoute(law.id, route)}
-                    >
-                      {t(`game:routes.${route}`)} ({cost} PK, {dur} Mo)
-                    </button>
-                  );
-                })}
-              </>
+              <table className={styles.routeTable}>
+                <thead>
+                  <tr>
+                    <th>{t('game:agenda.routeName')}</th>
+                    <th>{t('game:agenda.routeKosten')}</th>
+                    <th>{t('game:agenda.routeDauer')}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(['eu', 'land', 'kommune'] as RouteType[]).map((route) => {
+                    const info = ROUTE_INFO[route];
+                    const overrides = law.route_overrides?.[route];
+                    const cost = overrides?.cost ?? info.cost;
+                    const dur = overrides?.dur ?? info.dur;
+                    const canRoute = pk >= cost;
+                    return (
+                      <tr key={route}>
+                        <td>{t(`game:routes.${route}`)}</td>
+                        <td className={!canRoute ? styles.routeCostInsufficient : undefined}>{cost} PK</td>
+                        <td>{dur}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className={styles.btn}
+                            disabled={!canRoute}
+                            onClick={() => actions.startRoute(law.id, route)}
+                          >
+                            {t('game:agenda.routeStarten')}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             )}
           </div>
 
+          {pendingAction && (
+            <ConfirmDialog
+              title={pendingAction.title}
+              message={pendingAction.message}
+              cost={pendingAction.cost}
+              currentPk={pk}
+              onConfirm={() => {
+                pendingAction.action();
+                setPendingAction(null);
+              }}
+              onCancel={() => setPendingAction(null)}
+            />
+          )}
           {showVorbereitungModal && (
             <VorbereitungModal law={law} onClose={() => setShowVorbereitungModal(false)} />
           )}

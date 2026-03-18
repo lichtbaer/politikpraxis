@@ -1,0 +1,10 @@
+.container {
+  width: 100%;
+  padding: 4px 0;
+}
+
+.chart {
+  width: 100%;
+  height: 120px;
+  display: block;
+}

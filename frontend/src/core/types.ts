@@ -250,6 +250,10 @@ export interface GameEvent {
   min_complexity?: number;
   /** SMA-295: Auto-Pause-Verhalten — always | fast_only | never */
   auto_pause?: 'always' | 'fast_only' | 'never';
+  /** Repeatable event: can fire multiple times with cooldown */
+  repeatable?: boolean;
+  /** Cooldown in months before a repeatable event can fire again (default 12) */
+  cooldownMonths?: number;
 }
 
 export interface KPI {
@@ -516,6 +520,8 @@ export interface GameState {
   firedBundesratEvents: string[];
   /** Kommunal-Initiative Events (SMA-275) */
   firedKommunalEvents?: string[];
+  /** Cooldowns for repeatable events: eventId → month when it can fire again */
+  eventCooldowns?: Record<string, number>;
 
   pending: PendingEffect[];
 
@@ -614,6 +620,10 @@ export interface GameState {
   medienoffensiveGenutzt?: boolean;
   /** Finales Wahlergebnis (bei Spielende) */
   wahlergebnis?: number;
+  /** Kabinettsgespräch-Cooldowns: charId → frühester verfügbarer Monat */
+  charGespraechCooldowns?: Record<string, number>;
+  /** Approval-History: allgemeine Zustimmung pro Monat (max 48 Einträge) */
+  approvalHistory?: number[];
 }
 
 /** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */
@@ -678,6 +688,10 @@ export interface MedienEventContent {
   context: string;
   ticker: string;
   choices: MedienEventChoice[];
+  /** Repeatable event: can fire multiple times with cooldown */
+  repeatable?: boolean;
+  /** Cooldown in months before a repeatable event can fire again (default 12) */
+  cooldownMonths?: number;
 }
 
 export interface ContentBundle {

@@ -76,3 +76,34 @@
   font-size: 16px;
   line-height: 1;
 }
+
+.rowWrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gespraechBtn {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--sans);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg2);
+  color: var(--text2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.gespraechBtn:hover:not(:disabled) {
+  background: var(--bg3);
+  color: var(--text);
+}
+
+.gespraechBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

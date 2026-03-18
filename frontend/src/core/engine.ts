@@ -1,6 +1,6 @@
 import type { GameState, ContentBundle, TickLogEntry } from './types';
 import { withPause, getAutoPauseLevel } from './eventPause';
-import { PK_REGEN_DIVISOR, PK_MAX } from './constants';
+import { PK_REGEN_DIVISOR, PK_REGEN_MIN, PK_MAX } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums } from './systems/characters';
@@ -154,7 +154,7 @@ export function tick(
 
   // 6. PK-Regen (skaliert nach Schwierigkeitsgrad: höhere Stufe = weniger PK)
   const pkRegenDivisor = PK_REGEN_DIVISOR + (complexity - 1) * 3; // Stufe 1: 25, Stufe 2: 28, Stufe 3: 31, Stufe 4: 34
-  const pkRegen = Math.max(1, Math.floor(s.zust.g / pkRegenDivisor));
+  const pkRegen = Math.max(PK_REGEN_MIN, Math.floor(s.zust.g / pkRegenDivisor));
   s = { ...s, pk: Math.min(PK_MAX, s.pk + pkRegen) };
 
   // 7. KPI/Chars
@@ -223,6 +223,10 @@ export function tick(
   }
   s = { ...s, zust: newZust };
 
+  // Approval-History: allgemeine Zustimmung pro Monat tracken (max 48)
+  const approvalHist = [...(s.approvalHistory ?? []), newZust.g].slice(-48);
+  s = { ...s, approvalHistory: approvalHist };
+
   // SMA-280: Verfassungsgericht-Verfahren beenden wenn Frist abgelaufen
   if (
     s.verfassungsgerichtAktiv &&
@@ -243,7 +247,7 @@ export function tick(
     const history = { ...(s.milieuZustimmungHistory ?? {}) };
     for (const [mid, val] of Object.entries(s.milieuZustimmung)) {
       const arr = history[mid] ?? [];
-      const next = [...arr, val].slice(-3);
+      const next = [...arr, val].slice(-48);
       history[mid] = next;
     }
     s = { ...s, milieuZustimmungHistory: history };

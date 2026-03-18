@@ -51,6 +51,7 @@ import {
   wahlkampfMedienoffensive,
 } from '../core/systems/wahlkampf';
 import { pressemitteilung } from '../core/systems/medienklima';
+import { kabinettsgespraech } from '../core/systems/characters';
 
 export type GamePhase = 'onboarding' | 'playing';
 
@@ -115,6 +116,7 @@ interface GameStore {
   doPressemitteilung: (thema: 'haushalt' | 'koalition' | 'politikfeld' | 'opposition') => void;
   doSetWahlkampfBotschaften: (botschaften: string[]) => void;
   doEinbringenMitFraming: (lawId: string, framingKey: string | null) => void;
+  doKabinettsgespraech: (charId: string) => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
 }
@@ -374,6 +376,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const next = pressemitteilung(prev.state, thema, prev.complexity);
       return next ? { state: next } : {};
     }),
+  doKabinettsgespraech: (charId) =>
+    set(prev => ({ state: kabinettsgespraech(prev.state, charId) })),
+
   doSetWahlkampfBotschaften: (botschaften) =>
     set(prev => ({
       state: { ...prev.state, wahlkampfBotschaften: botschaften },
