@@ -25,6 +25,24 @@ docker-compose up --build
 
 Zum Stoppen: `Ctrl+C` oder `docker-compose down`.
 
+### Docker Dev-Umgebung (Vite mit HMR)
+
+Für Frontend-Entwicklung im echten `npm run dev`-Modus:
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+- **Frontend (Vite Dev Server):** http://localhost:5173
+- **Backend (FastAPI mit Reload):** http://localhost:8000
+- **API-Doku:** http://localhost:8000/api/docs
+
+Stoppen:
+
+```bash
+docker compose -f docker-compose.dev.yml down
+```
+
 ---
 
 ## Projektstruktur
