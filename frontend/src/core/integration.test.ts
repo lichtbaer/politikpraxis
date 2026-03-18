@@ -36,6 +36,7 @@ function createInitialState(): GameState {
     view: 'agenda',
     kpi: { al: 5, hh: 0, gi: 50, zf: 50 },
     kpiPrev: null,
+    tickLog: [],
     zust: { g: 52, arbeit: 58, mitte: 54, prog: 44 },
     coalition: 70,
     chars: [],

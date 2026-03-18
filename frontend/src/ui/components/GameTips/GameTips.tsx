@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '../../../store/gameStore';
+import type { GameState } from '../../../core/types';
 import { Lightbulb } from '../../icons';
 import styles from './GameTips.module.css';
 
@@ -8,7 +9,7 @@ interface Tip {
   /** Monat ab dem der Tipp angezeigt werden kann */
   triggerMonth: number;
   /** Zusätzliche Bedingung (optional) */
-  condition?: (state: ReturnType<typeof useGameStore>['state']) => boolean;
+  condition?: (state: GameState) => boolean;
   title: string;
   text: string;
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyAusrichtung, type Ausrichtung } from './ausrichtung';
+import { applyAusrichtung } from './ausrichtung';
 import { createInitialState } from '../state';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
 
