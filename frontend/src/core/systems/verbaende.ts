@@ -60,6 +60,7 @@ export function verbandGespraech(
 /**
  * Trade-off eines Verbands annehmen.
  * Wendet Effekte an, +15 Beziehung, erhöht Politikfeld-Druck, prüft Verbandskonflikt.
+ * SMA-319: cost_pk > 0 → PK abziehen; medienklima_delta, verband_effekte anwenden.
  */
 export function verbandTradeoff(
   state: GameState,
@@ -76,12 +77,32 @@ export function verbandTradeoff(
   const tradeoff = getTradeoff(verband, tradeoffKey);
   if (!tradeoff) return state;
 
-  let newState = applyTradeoffEffekte(state, tradeoff.effekte);
+  const costPk = tradeoff.cost_pk ?? 0;
+  if (costPk > 0 && state.pk < costPk) return state;
+
+  let newState = state;
+  if (costPk > 0) {
+    newState = { ...newState, pk: newState.pk - costPk };
+  }
+
+  newState = applyTradeoffEffekte(newState, tradeoff.effekte);
 
   const bez = newState.verbandsBeziehungen?.[verbandId] ?? verband.beziehung_start;
   const newBez = Math.min(100, bez + 15);
   const newBeziehungen = { ...(newState.verbandsBeziehungen ?? {}), [verbandId]: newBez };
+
+  if (tradeoff.verband_effekte && Object.keys(tradeoff.verband_effekte).length > 0) {
+    for (const [otherId, delta] of Object.entries(tradeoff.verband_effekte)) {
+      const current = newBeziehungen[otherId] ?? getVerband(verbaende, otherId)?.beziehung_start ?? 50;
+      newBeziehungen[otherId] = Math.max(0, Math.min(100, current + delta));
+    }
+  }
   newState = { ...newState, verbandsBeziehungen: newBeziehungen };
+
+  if ((tradeoff.medienklima_delta ?? 0) !== 0) {
+    const mk = (newState.medienKlima ?? 55) + tradeoff.medienklima_delta!;
+    newState = { ...newState, medienKlima: Math.max(0, Math.min(100, mk)) };
+  }
 
   const feldId = verband.politikfeld_id;
   const currentDruck = newState.politikfeldDruck?.[feldId] ?? 0;

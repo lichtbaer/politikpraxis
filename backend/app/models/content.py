@@ -336,11 +336,14 @@ class VerbandsTradeoff(Base):
     id: Mapped[int] = mapped_column(Integer(), primary_key=True, autoincrement=True)
     verband_id: Mapped[str] = mapped_column(Text(), ForeignKey("verbaende(id)"), nullable=False)
     tradeoff_key: Mapped[str] = mapped_column(Text(), nullable=False)
+    cost_pk: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
     effekt_al: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True, server_default="0")
     effekt_hh: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True, server_default="0")
     effekt_gi: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True, server_default="0")
     effekt_zf: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True, server_default="0")
     feld_druck_delta: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    medienklima_delta: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    verband_effekte: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
 
 
 class VerbandsTradeoffI18n(Base):
