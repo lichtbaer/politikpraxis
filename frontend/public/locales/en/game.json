@@ -836,6 +836,7 @@
     "koalitionOpposition": "Coalition vs. Opposition",
     "koalition": "Coalition",
     "opposition": "Opposition",
+    "sitze": "seats",
     "laufendeAbstimmungen": "Ongoing votes",
     "abstimmungDieserMonat": "Vote this month",
     "abstimmungIn": "Vote in {{count}} mo. ({{month}})",

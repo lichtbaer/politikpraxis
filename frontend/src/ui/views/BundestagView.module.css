@@ -90,9 +90,49 @@
   border-bottom: none;
 }
 
-.gesetzKurz {
+.gesetzTitel {
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
+  margin: 0;
+}
+
+.gesetzDesc {
+  font-size: 12px;
+  color: var(--text2);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.fraktionenDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.lobbyBtn {
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 6px 12px;
+  font-size: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.lobbyBtn:hover:not(:disabled) {
+  background: var(--bg);
+  border-color: var(--text3);
+}
+
+.lobbyBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .countdown {
