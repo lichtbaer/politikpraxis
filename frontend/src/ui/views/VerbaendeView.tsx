@@ -92,16 +92,21 @@ function Verbandskarte({ verband, beziehung, month, onGespraech, onTradeoff, pk 
         >
           {t('game:verbaende.gespraechSuchen')} (10 PK)
         </button>
-        {hasTradeoffs && verband.tradeoffs!.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            className={styles.btnSecondary}
-            onClick={() => onTradeoff(t.key)}
-          >
-            {t.label ?? t.key}
-          </button>
-        ))}
+        {hasTradeoffs && verband.tradeoffs!.map((t) => {
+          const costPk = t.cost_pk ?? 0;
+          const canAfford = costPk === 0 || pk >= costPk;
+          return (
+            <button
+              key={t.key}
+              type="button"
+              className={styles.btnSecondary}
+              disabled={!canAfford}
+              onClick={() => onTradeoff(t.key)}
+            >
+              {t.label ?? t.key}
+            </button>
+          );
+        })}
       </div>
     </article>
   );

@@ -659,8 +659,14 @@ export interface Verband {
 /** Trade-off eines Verbands */
 export interface VerbandTradeoff {
   key: string;
+  /** PK-Kosten (0 = Forderung/Haushalt, 15 = Lobby-Aktion) */
+  cost_pk?: number;
   effekte: Partial<KpiDelta>;
   feld_druck_delta: number;
+  /** Medienklima-Delta (z.B. PVD Pflegenotstand +3) */
+  medienklima_delta?: number;
+  /** Beziehungs-Bonus zu anderen Verbänden (z.B. DWV → BdI +5) */
+  verband_effekte?: Record<string, number>;
   label?: string;
   desc?: string;
 }

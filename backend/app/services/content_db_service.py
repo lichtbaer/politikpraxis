@@ -567,8 +567,11 @@ async def fetch_verbaende(db: AsyncSession, locale: str) -> list[dict]:
         for t, ti18n in tradeoffs_raw:
             tradeoffs.append({
                 "key": t.tradeoff_key,
+                "cost_pk": t.cost_pk or 0,
                 "effekte": _effekte(t.effekt_al, t.effekt_hh, t.effekt_gi, t.effekt_zf),
                 "feld_druck_delta": t.feld_druck_delta or 0,
+                "medienklima_delta": t.medienklima_delta or 0,
+                "verband_effekte": t.verband_effekte or {},
                 "label": ti18n.label,
                 "desc": ti18n.desc,
             })
