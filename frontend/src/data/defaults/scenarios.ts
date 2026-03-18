@@ -51,12 +51,12 @@ const DEFAULT_POLITIKFELDER: ContentBundle['politikfelder'] = [
   { id: 'arbeit_soziales', verbandId: 'gbd', druckEventId: null },
 ];
 
-/** Default-Verbände (BDI, UVB, BVL, SGD, GBD) — ab Stufe 3 */
+/** Default-Verbände (BDI, UVB, BVL, SGD, GBD) — ab Stufe 3. SMA-315: Startbeziehungen ≥40. */
 export const DEFAULT_VERBAENDE: Verband[] = [
-  { id: 'bdi', kurz: 'BDI', politikfeld_id: 'wirtschaft', beziehung_start: 50, staerke_eu: 4, tradeoffs: [{ key: 't1', effekte: { hh: -0.2 }, feld_druck_delta: 5 }] },
+  { id: 'bdi', kurz: 'BDI', politikfeld_id: 'wirtschaft', beziehung_start: 40, staerke_eu: 4, tradeoffs: [{ key: 't1', effekte: { hh: -0.2 }, feld_druck_delta: 5 }] },
   { id: 'uvb', kurz: 'UVB', politikfeld_id: 'wirtschaft', beziehung_start: 45, staerke_eu: 4, tradeoffs: [{ key: 't1', effekte: { al: 0.2 }, feld_druck_delta: 3 }] },
-  { id: 'bvl', kurz: 'BVL', politikfeld_id: 'umwelt', beziehung_start: 40, staerke_eu: 3, tradeoffs: [{ key: 't1', effekte: { zf: -2 }, feld_druck_delta: 4 }] },
-  { id: 'sgd', kurz: 'SGD', politikfeld_id: 'arbeit', beziehung_start: 55, staerke_eu: 3, tradeoffs: [{ key: 't1', effekte: { gi: 0.5 }, feld_druck_delta: 2 }] },
+  { id: 'bvl', kurz: 'BVL', politikfeld_id: 'umwelt', beziehung_start: 45, staerke_eu: 3, tradeoffs: [{ key: 't1', effekte: { zf: -2 }, feld_druck_delta: 4 }] },
+  { id: 'sgd', kurz: 'SGD', politikfeld_id: 'arbeit', beziehung_start: 40, staerke_eu: 3, tradeoffs: [{ key: 't1', effekte: { gi: 0.5 }, feld_druck_delta: 2 }] },
   { id: 'gbd', kurz: 'GBD', politikfeld_id: 'arbeit', beziehung_start: 48, staerke_eu: 3, tradeoffs: [{ key: 't1', effekte: { al: -0.3 }, feld_druck_delta: 4 }] },
 ];
 

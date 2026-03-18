@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
+import { VERBAND_KONFLIKT_SCHWELLE } from '../../core/constants';
 import type { Verband } from '../../core/types';
 import { DotRating } from '../components/DotRating/DotRating';
 import styles from './VerbaendeView.module.css';
@@ -26,14 +27,20 @@ function getEinflussStaerke(): number {
 interface VerbandskarteProps {
   verband: Verband;
   beziehung: number;
+  month: number;
   onGespraech: () => void;
   onTradeoff: (key: string) => void;
   pk: number;
 }
 
-function Verbandskarte({ verband, beziehung, onGespraech, onTradeoff, pk }: VerbandskarteProps) {
+function Verbandskarte({ verband, beziehung, month, onGespraech, onTradeoff, pk }: VerbandskarteProps) {
   const { t } = useTranslation('game');
   const konfliktPartner = KONFLIKTE[verband.id] ?? [];
+  /** SMA-315: Konflikt-Warnung nur wenn Beziehung < 30 UND mind. Monat 2 (keine Konflikte in Monat 1) */
+  const showKonfliktWarnung =
+    konfliktPartner.length > 0 &&
+    beziehung < VERBAND_KONFLIKT_SCHWELLE &&
+    month > 1;
   const staerke = getEinflussStaerke();
   const dotsEl = <DotRating value={staerke} max={5} />;
   const canGespraech = pk >= 10;
@@ -71,7 +78,7 @@ function Verbandskarte({ verband, beziehung, onGespraech, onTradeoff, pk }: Verb
           />
         </div>
       </div>
-      {konfliktPartner && konfliktPartner.length > 0 && (
+      {showKonfliktWarnung && (
         <div className={styles.konfliktWarnung}>
           {t('game:verbaende.konfliktWarnung')}
         </div>
@@ -123,6 +130,7 @@ export function VerbaendeView() {
             key={v.id}
             verband={v}
             beziehung={state.verbandsBeziehungen?.[v.id] ?? v.beziehung_start}
+            month={state.month}
             onGespraech={() => doVerbandGespraech(v.id)}
             onTradeoff={(key) => doVerbandTradeoff(v.id, key)}
             pk={state.pk}
