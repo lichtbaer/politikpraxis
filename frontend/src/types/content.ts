@@ -82,6 +82,11 @@ export interface GesetzApi {
   lobby_gain_range?: { min: number; max: number };
   /** Gesetzspezifische Route-Kosten/Dauer-Overrides */
   route_overrides?: Record<string, { cost?: number; dur?: number }>;
+  /** SMA-335: Steuer-ID, Konjunktur-Effekte */
+  steuer_id?: string | null;
+  steuer_delta?: number | null;
+  konjunktur_effekt?: number;
+  konjunktur_lag?: number;
 }
 
 export interface MilieuApi {

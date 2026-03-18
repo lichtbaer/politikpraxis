@@ -135,6 +135,10 @@ function transformGesetz(api: GesetzApi): Law {
     lobby_gain_range: api.lobby_gain_range ?? { min: 2, max: 6 },
     route_overrides: api.route_overrides ?? {},
     min_complexity: (api as { min_complexity?: number }).min_complexity ?? 1,
+    steuer_id: (api as { steuer_id?: string | null }).steuer_id ?? null,
+    steuer_delta: (api as { steuer_delta?: number | null }).steuer_delta ?? null,
+    konjunktur_effekt: (api as { konjunktur_effekt?: number }).konjunktur_effekt ?? 0,
+    konjunktur_lag: (api as { konjunktur_lag?: number }).konjunktur_lag ?? 0,
   };
 }
 

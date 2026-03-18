@@ -143,6 +143,14 @@ export interface Law {
   min_complexity?: number;
   /** Event-ID die dieses Gesetz freischaltet. Gesetz ist bis dahin nicht verfügbar. */
   locked_until_event?: string;
+  /** SMA-335: Konjunktur-Effekt bei Beschluss (mit Lag) */
+  konjunktur_effekt?: number;
+  /** SMA-335: Monate Verzögerung bis Konjunktur-Effekt wirkt */
+  konjunktur_lag?: number;
+  /** SMA-335: Steuer-ID (Referenz auf steuern-Tabelle) */
+  steuer_id?: string | null;
+  /** SMA-335: Steuer-Satz-Delta (z.B. +2 für 2 Prozentpunkte) */
+  steuer_delta?: number | null;
 }
 
 /** Framing-Option für Gesetz-Einbringen (SMA-303: label, slogan) */
@@ -506,6 +514,10 @@ export interface Haushalt {
   haushaltsplanMonat: number;
   haushaltsplanBeschlossen: boolean;
   planPrioritaeten: string[];
+  /** SMA-335: Schuldenbremse-Spielraum in Mrd./Jahr (~13) */
+  schuldenbremseSpielraum?: number;
+  /** SMA-335: Einnahmen-Basis für Konjunktur-Faktor */
+  einnahmen_basis?: number;
 }
 
 /** Aktives Strukturevent (z.B. Haushaltsdebatte) */
@@ -697,6 +709,23 @@ export interface GameState {
   medienoffensiveGenutzt?: boolean;
   /** SMA-323: Jahr der letzten Steuerquote-Aktion (1× pro Jahr) */
   steuerquoteAktionJahr?: number;
+  /** SMA-335: Gekoppelte Gesetze (kostspieliges Gesetz wartet auf Steuergesetz) */
+  gekoppelteGesetze?: Record<string, string>;
+  /** SMA-335: Monat des Beschlusses pro Gesetz (für Konjunktur-Lag) */
+  gesetzBeschlossenMonat?: Record<string, number>;
+  /** SMA-335: Konjunktur-Effekte bereits angewendet (kein Doppel-Apply) */
+  konjunkturBereitsAngewendet?: Record<string, true>;
+  /** SMA-335: Anstehender Gegenfinanzierungs-Dialog (gesetzId, optionen) */
+  pendingGegenfinanzierung?: {
+    gesetzId: string;
+    optionen: Array<{
+      key: string;
+      label_de: string;
+      verfuegbar: boolean;
+      verfuegbar_grund?: string;
+      suboptionen?: Array<{ ressort?: string; gesetzId?: string; kosten_einsparung?: number; einnahmeeffekt?: number }>;
+    }>;
+  };
   /** Finales Wahlergebnis (bei Spielende) */
   wahlergebnis?: number;
   /** Kabinettsgespräch-Cooldowns: charId → frühester verfügbarer Monat */

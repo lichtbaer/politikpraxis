@@ -1,5 +1,5 @@
 import type { GameState, ContentBundle, Haushalt, SchuldenbremsenStatus } from '../types';
-import { EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS, SCHULDENBREMSE_DEFIZIT_MILD } from '../constants';
+import { EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS, SCHULDENBREMSE_DEFIZIT_MILD, SCHULDENBREMSE_SPIELRAUM_BASIS } from '../constants';
 import { featureActive } from './features';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 
@@ -23,6 +23,8 @@ export function createInitialHaushalt(state: GameState): Haushalt {
     haushaltsplanMonat: 10,
     haushaltsplanBeschlossen: false,
     planPrioritaeten: [],
+    schuldenbremseSpielraum: SCHULDENBREMSE_SPIELRAUM_BASIS,
+    einnahmen_basis: EINNAHMEN_BASIS,
   };
 }
 
@@ -80,6 +82,10 @@ export function applyGesetzKosten(state: GameState, gesetzId: string): GameState
     newState = { ...newState, lehmannUltimatumBeschleunigt: true };
   }
 
+  // SMA-335: Monat des Beschlusses für Konjunktur-Lag
+  const gesetzBeschlossenMonat = { ...(state.gesetzBeschlossenMonat ?? {}), [gesetzId]: state.month };
+  newState = { ...newState, gesetzBeschlossenMonat };
+
   const neuerHaushalt: Haushalt = {
     ...haushalt,
     pflichtausgaben: neuePflichtausgaben,
@@ -93,24 +99,74 @@ export function applyGesetzKosten(state: GameState, gesetzId: string): GameState
   return { ...newState, haushalt: neuerHaushalt };
 }
 
-/** Konjunkturindex-Drift (monatlich), jährliche Einnahmen-Neuberechnung */
-export function tickKonjunktur(state: GameState, complexity: number): GameState {
+/** SMA-335: Wendet Konjunktur-Effekte aus beschlossenen Steuergesetzen an (mit Lag) */
+function applyKonjunkturEffekteAusGesetzen(state: GameState): GameState {
   const haushalt = state.haushalt;
   if (!haushalt) return state;
 
-  let neuerHaushalt = { ...haushalt };
+  const beschlossenMonat = state.gesetzBeschlossenMonat ?? {};
+  const bereitsAngewendet = state.konjunkturBereitsAngewendet ?? {};
+  let konjunkturDelta = 0;
+
+  for (const g of state.gesetze) {
+    if (g.status !== 'beschlossen') continue;
+    const lag = g.konjunktur_lag ?? 0;
+    const effekt = g.konjunktur_effekt ?? 0;
+    if (lag <= 0 || effekt === 0 || bereitsAngewendet[g.id]) continue;
+
+    const monat = beschlossenMonat[g.id];
+    if (monat == null || state.month < monat + lag) continue;
+
+    konjunkturDelta += effekt;
+  }
+
+  if (konjunkturDelta === 0) return state;
+
+  const neueKonjunktur = Math.max(-3, Math.min(3, haushalt.konjunkturIndex + konjunkturDelta));
+  const neuerHaushalt = { ...haushalt, konjunkturIndex: neueKonjunktur };
+
+  const neueBereitsAngewendet = { ...bereitsAngewendet };
+  for (const g of state.gesetze) {
+    if (g.status !== 'beschlossen') continue;
+    const lag = g.konjunktur_lag ?? 0;
+    const effekt = g.konjunktur_effekt ?? 0;
+    if (lag <= 0 || effekt === 0 || bereitsAngewendet[g.id]) continue;
+    const monat = beschlossenMonat[g.id];
+    if (monat != null && state.month >= monat + lag) {
+      neueBereitsAngewendet[g.id] = true;
+    }
+  }
+
+  return {
+    ...state,
+    haushalt: neuerHaushalt,
+    konjunkturBereitsAngewendet: neueBereitsAngewendet,
+  };
+}
+
+/** Konjunkturindex-Drift (monatlich), jährliche Einnahmen-Neuberechnung */
+export function tickKonjunktur(state: GameState, complexity: number): GameState {
+  let s = state;
+  const haushalt = s.haushalt;
+  if (!haushalt) return s;
+
+  // SMA-335: Konjunktur-Effekte aus beschlossenen Steuergesetzen (mit Lag)
+  s = applyKonjunkturEffekteAusGesetzen(s);
+  const haushaltNachKonjunktur = s.haushalt!;
+
+  let neuerHaushalt = { ...haushaltNachKonjunktur };
 
   if (featureActive(complexity, 'konjunkturindex')) {
     const drift = (Math.random() - 0.5) * 0.6; // SMA-309: ±0.3 statt ±0.2
     neuerHaushalt = {
       ...neuerHaushalt,
-      konjunkturIndex: Math.max(-3, Math.min(3, haushalt.konjunkturIndex + drift)),
+      konjunkturIndex: Math.max(-3, Math.min(3, haushaltNachKonjunktur.konjunkturIndex + drift)),
     };
   }
 
-  if (state.month % 12 === 0) {
-    const pflichtausgaben = berechnePflichtausgaben(state);
-    const einnahmen = berechneEinnahmen({ ...state, haushalt: neuerHaushalt });
+  if (s.month % 12 === 0) {
+    const pflichtausgaben = berechnePflichtausgaben(s);
+    const einnahmen = berechneEinnahmen({ ...s, haushalt: neuerHaushalt });
     const spielraum = einnahmen - pflichtausgaben;
     const saldo = spielraum - neuerHaushalt.laufendeAusgaben;
     neuerHaushalt = {
@@ -123,7 +179,7 @@ export function tickKonjunktur(state: GameState, complexity: number): GameState 
     };
   }
 
-  return { ...state, haushalt: neuerHaushalt };
+  return { ...s, haushalt: neuerHaushalt };
 }
 
 /** Schuldenbremsen-Check */
