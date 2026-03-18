@@ -286,7 +286,7 @@ export function WahlnachtOnboarding() {
               </div>
             ))}
           </div>
-          <p className={styles.kabinettText}>{t('game:onboarding.kabinettText')}</p>
+          <p className={styles.kabinettText}>{t('game:onboarding.kabinettText', { count: chars.length })}</p>
             <button type="button" className={styles.weiter} onClick={advance}>
               {t('game:onboarding.weiter')}
             </button>
