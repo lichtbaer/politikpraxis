@@ -10,6 +10,7 @@ import { MedienklimaBadge } from '../components/MedienklimaBadge/MedienklimaBadg
 import { MilieuSidebar } from '../components/MilieuSidebar/MilieuSidebar';
 import { ApprovalChart } from '../components/ApprovalChart/ApprovalChart';
 import { formatMrdSaldo } from '../../utils/format';
+import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import styles from './LeftPanel.module.css';
 
 const EMPTY_APPROVAL_HISTORY: number[] = [];
@@ -33,7 +34,7 @@ export function LeftPanel() {
   return (
     <aside className={styles.panel}>
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>{t('game:leftPanel.wahlprognose')}</h3>
+        <h3 className={styles.sectionTitle}><Erklaerung begriff="wahlprognose" kinder={t('game:leftPanel.wahlprognose')} /></h3>
         <div className={styles.wahlprognose}>
           <span
             className={styles.wahlprognoseValue}
@@ -55,13 +56,13 @@ export function LeftPanel() {
       </section>
 
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>{t('game:leftPanel.koalitionsstabilitaet')}</h3>
+        <h3 className={styles.sectionTitle}><Erklaerung begriff="koalitionsstabilitaet" kinder={t('game:leftPanel.koalitionsstabilitaet')} /></h3>
         <CoalitionMeter value={coalition} />
       </section>
 
       {haushalt && complexity >= 2 && (
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>{t('haushalt.saldo')}</h3>
+          <h3 className={styles.sectionTitle}><Erklaerung begriff="haushaltssaldo" kinder={t('haushalt.saldo')} /></h3>
           <div className={`${styles.haushaltAmpel} ${styles[getSaldoKlasse(haushalt.saldo)]}`}>
             <span className={styles.haushaltSaldo}>
               {formatMrdSaldo(haushalt.saldo)}
@@ -71,7 +72,7 @@ export function LeftPanel() {
       )}
 
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>{t('game:leftPanel.milieus')}</h3>
+        <h3 className={styles.sectionTitle}><Erklaerung begriff="milieus" kinder={t('game:leftPanel.milieus')} /></h3>
         <MilieuSidebar />
       </section>
 

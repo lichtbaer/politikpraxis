@@ -12,6 +12,7 @@ import { checkSchuldenbremse } from '../../core/systems/haushalt';
 import { formatMrdSaldo, normalizeZero } from '../../utils/format';
 import type { SchuldenbremsenStatus, Verband } from '../../core/types';
 import { Check, AlertTriangle } from '../icons';
+import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import styles from './HaushaltView.module.css';
 
 function getSaldoKlasse(saldo: number): string {
@@ -37,6 +38,7 @@ function SchuldenbremsenBadge({ status }: { status: SchuldenbremsenStatus }) {
     <div className={`${styles.schuldenbremsenBadge} ${className}`}>
       <span className={styles.sbIcon}>{status === 'ausgeglichen' ? <Check size={14} /> : <AlertTriangle size={14} />}</span>
       <span>{label}</span>
+      <Erklaerung begriff="schuldenbremse" inline={false} />
     </div>
   );
 }
@@ -49,7 +51,7 @@ function KonjunkturIndikator({ value }: { value: number }) {
 
   return (
     <div className={styles.konjunkturIndikator} title={t('haushalt.konjunkturTooltip')}>
-      <span className={styles.konjunkturLabel}>{t('haushalt.konjunktur')}</span>
+      <span className={styles.konjunkturLabel}><Erklaerung begriff="konjunkturindex" kinder={t('haushalt.konjunktur')} /></span>
       <div className={styles.konjunkturBar}>
         <div
           className={styles.konjunkturFill}
@@ -219,7 +221,7 @@ export function HaushaltView() {
             <span className={styles.balkenValue}>+{haushalt.einnahmen} Mrd.</span>
           </div>
           <div className={styles.balkenRow}>
-            <span className={styles.balkenLabel}>{t('haushalt.pflichtausgaben')}</span>
+            <span className={styles.balkenLabel}><Erklaerung begriff="pflichtausgaben" kinder={t('haushalt.pflichtausgaben')} /></span>
             <div className={styles.balkenTrack}>
               <div className={styles.balkenFill} style={{ width: `${pflichtPct}%`, backgroundColor: 'var(--warn)' }} />
             </div>
@@ -240,7 +242,7 @@ export function HaushaltView() {
       </section>
 
       <section className={`${styles.ampelSection} ${styles[getSaldoKlasse(haushalt.saldo)]}`}>
-        <h2 className={styles.sectionTitle}>{t('haushalt.saldo')}</h2>
+        <h2 className={styles.sectionTitle}><Erklaerung begriff="haushaltssaldo" kinder={t('haushalt.saldo')} /></h2>
         <div className={styles.ampelValue}>
           {formatMrdSaldo(haushalt.saldo)}
         </div>

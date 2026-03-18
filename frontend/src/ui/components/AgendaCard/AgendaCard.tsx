@@ -22,6 +22,8 @@ import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
 import type { Law, LawStatus, RouteType } from '../../../core/types';
 import { Coins, RefreshCw, TrendingUp, Zap, Lightbulb, AlertTriangle, Hourglass } from '../../icons';
 import { formatMrd } from '../../../utils/format';
+import { Erklaerung } from '../Erklaerung/Erklaerung';
+import { KPI_TO_BEGRIFF } from '../../../constants/begriffe';
 import styles from './AgendaCard.module.css';
 
 /** SMA-305: Kostenampel basierend auf Haushaltslage (< 5% grün, 5–15% gelb, > 15% rot) */
@@ -203,22 +205,20 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
                 {Object.entries(law.effekte).map(([k, v]) => {
                   if (!v || v === 0) return null;
                   const kpiLabels: Record<string, string> = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF', mk: 'MK' };
-                  const kpiTooltips: Record<string, string> = {
-                    al: 'Arbeitslosigkeit',
-                    hh: 'Haushaltssaldo',
-                    gi: 'Gini-Index',
-                    zf: 'Zufriedenheit',
-                    mk: 'Medienklima',
-                  };
                   const kpiInverted = new Set(['al', 'gi']);
                   const isGood = kpiInverted.has(k) ? v < 0 : v > 0;
+                  const begriff = KPI_TO_BEGRIFF[k];
                   return (
                     <span
                       key={k}
                       className={`${styles.effectPreviewTag} ${isGood ? styles.effectPreviewPos : styles.effectPreviewNeg}`}
-                      title={kpiTooltips[k] ?? k}
                     >
-                      {kpiLabels[k] ?? k} {v > 0 ? '+' : ''}{v.toFixed(1)}
+                      {begriff ? (
+                        <Erklaerung begriff={begriff} kinder={kpiLabels[k] ?? k} inline={false} />
+                      ) : (
+                        kpiLabels[k] ?? k
+                      )}{' '}
+                      {v > 0 ? '+' : ''}{v.toFixed(1)}
                     </span>
                   );
                 })}
@@ -281,7 +281,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
                   <span className={styles.pkKosten}><Zap size={14} /> {t('game:gesetz.pkKosten')}: {geschaetztePkKosten} PK</span>
                 )}
                 {law.investiv && (
-                  <span className={styles.investivBadge}><Lightbulb size={14} /> {t('game:gesetz.investivLabel')}</span>
+                  <span className={styles.investivBadge}><Lightbulb size={14} /> <Erklaerung begriff="investiv" kinder={t('game:gesetz.investivLabel')} /></span>
                 )}
               </div>
             </div>
@@ -405,24 +405,20 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
             const lawPending = state.pending.filter(pe => pe.label === law.kurz);
             if (lawPending.length === 0) return null;
             const KPI_LABELS: Record<string, string> = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF', mk: 'MK' };
-            const KPI_TOOLTIPS: Record<string, string> = {
-              al: 'Arbeitslosigkeit',
-              hh: 'Haushaltssaldo',
-              gi: 'Gini-Index',
-              zf: 'Zufriedenheit',
-              mk: 'Medienklima',
-            };
             return (
               <div className={styles.pendingEffects}>
                 {lawPending.map((pe, i) => {
                   const monthsLeft = Math.max(0, pe.month - state.month);
+                  const begriff = KPI_TO_BEGRIFF[pe.key];
                   return (
-                    <span
-                      key={i}
-                      className={styles.pendingBadge}
-                      title={KPI_TOOLTIPS[pe.key] ?? pe.key}
-                    >
-                      <Hourglass size={14} /> {KPI_LABELS[pe.key] ?? pe.key} {pe.delta > 0 ? '+' : ''}{pe.delta.toFixed(1)} in {monthsLeft} Mo.
+                    <span key={i} className={styles.pendingBadge}>
+                      <Hourglass size={14} />{' '}
+                      {begriff ? (
+                        <Erklaerung begriff={begriff} kinder={KPI_LABELS[pe.key] ?? pe.key} inline={false} />
+                      ) : (
+                        KPI_LABELS[pe.key] ?? pe.key
+                      )}{' '}
+                      {pe.delta > 0 ? '+' : ''}{pe.delta.toFixed(1)} in {monthsLeft} Mo.
                     </span>
                   );
                 })}

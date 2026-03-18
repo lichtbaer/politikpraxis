@@ -14,6 +14,8 @@ import type { LawStatus } from '../../core/types';
 import { gruppiereNachPolitikfeld } from '../../core/gesetzAgenda';
 import { getRecommendedLaws } from '../../core/systems/recommendations';
 import { PolitikfeldIcon, Hourglass } from '../icons';
+import { Erklaerung } from '../components/Erklaerung/Erklaerung';
+import { KPI_TO_BEGRIFF } from '../../constants/begriffe';
 import styles from './GesetzAgendaView.module.css';
 
 type StatusFilterKey = 'alle' | LawStatus;
@@ -34,13 +36,6 @@ const KPI_ABBREV: Record<string, string> = {
   gi: 'GI',
   zf: 'ZF',
   mk: 'MK',
-};
-const KPI_TOOLTIPS: Record<string, string> = {
-  al: 'Arbeitslosigkeit',
-  hh: 'Haushaltssaldo',
-  gi: 'Gini-Index',
-  zf: 'Zufriedenheit',
-  mk: 'Medienklima',
 };
 
 /** Returns true when the delta is "good" for the given KPI key. */
@@ -236,9 +231,13 @@ export function GesetzAgendaView() {
                         <span className={styles.pendingLabel}>{eff.label}</span>
                         <span
                           className={positive ? styles.deltaPositive : styles.deltaNegative}
-                          title={KPI_TOOLTIPS[eff.key] ?? eff.key}
                         >
-                          {KPI_ABBREV[eff.key] ?? eff.key.toUpperCase()} {deltaStr}
+                          {KPI_TO_BEGRIFF[eff.key] ? (
+                            <Erklaerung begriff={KPI_TO_BEGRIFF[eff.key]} kinder={KPI_ABBREV[eff.key] ?? eff.key.toUpperCase()} inline={false} />
+                          ) : (
+                            KPI_ABBREV[eff.key] ?? eff.key.toUpperCase()
+                          )}{' '}
+                          {deltaStr}
                         </span>
                       </div>
                     );

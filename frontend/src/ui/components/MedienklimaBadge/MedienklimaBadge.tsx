@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { Zap, Circle } from '../../icons';
+import { Erklaerung } from '../Erklaerung/Erklaerung';
 import styles from './MedienklimaBadge.module.css';
 
 export function MedienklimaBadge() {
@@ -24,7 +25,7 @@ export function MedienklimaBadge() {
 
   return (
     <div className={styles.badge}>
-      <span className={styles.label}>{t('game:medienklima.label')}</span>
+      <span className={styles.label}><Erklaerung begriff="medienklima" kinder={t('game:medienklima.label')} /></span>
       <div className={`${styles.klimaBar} ${klimaClass}`}>
         <div className={styles.klimaFill} style={{ width: `${medienKlima}%` }} />
       </div>
