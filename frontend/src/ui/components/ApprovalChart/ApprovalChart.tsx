@@ -10,10 +10,9 @@ interface ApprovalChartProps {
   currentMonth?: number;
 }
 
-export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChartProps) {
+export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
   const option: EChartsOption = useMemo(() => {
     const months = history.map((_, i) => i + 1);
-    const latestValue = history.length > 0 ? history[history.length - 1] : null;
 
     // Split data into above/below threshold segments for dual-color rendering
     const aboveData = history.map((v) => (v >= threshold ? v : null));

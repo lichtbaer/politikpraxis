@@ -254,21 +254,21 @@
     align-items: stretch;
   }
 
-  /* Left column: Europe map on subtle gradient */
+  /* Left column: Europa+Deutschland+Bundesländer Karte (dekorativ) */
   .startLeft {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
     background: linear-gradient(135deg, var(--bg2), var(--bg4));
-    padding: 2rem;
+    padding: 0;
     min-height: 0;
     overflow: hidden;
   }
 
-  .europeMap {
-    max-width: 100%;
-    max-height: 80vh;
-    opacity: 0.85;
+  .startLeft > * {
+    flex: 1;
+    min-height: 0;
   }
 
   /* Center column: title + game menu */
