@@ -85,7 +85,7 @@ export function BundesratMap({ laender }: BundesratMapProps) {
         },
         label: {
           show: true,
-          fontSize: 7,
+          fontSize: 8,
           color: '#d0cfc8',
           formatter: (params: unknown) => {
             const p = params as { name: string };
@@ -104,6 +104,15 @@ export function BundesratMap({ laender }: BundesratMapProps) {
     ],
   }), [seriesData]);
 
+  // Vote tallies per alignment for legend display
+  const voteTotals = useMemo(() => {
+    const totals = { koalition: 0, neutral: 0, opposition: 0 };
+    for (const land of laender) {
+      totals[land.alignment] += land.votes;
+    }
+    return totals;
+  }, [laender]);
+
   if (!mapReady) return <div className={styles.placeholder} />;
 
   return (
@@ -116,9 +125,15 @@ export function BundesratMap({ laender }: BundesratMapProps) {
         notMerge={false}
       />
       <div className={styles.legend}>
-        <span className={styles.legendItem} style={{ color: ALIGN_COLORS.koalition }}>● Koalition</span>
-        <span className={styles.legendItem} style={{ color: ALIGN_COLORS.neutral }}>● Neutral</span>
-        <span className={styles.legendItem} style={{ color: ALIGN_COLORS.opposition }}>● Opposition</span>
+        <span className={styles.legendItem} style={{ color: ALIGN_COLORS.koalition }}>
+          ● Koalition {voteTotals.koalition > 0 && <span className={styles.legendVotes}>{voteTotals.koalition}</span>}
+        </span>
+        <span className={styles.legendItem} style={{ color: ALIGN_COLORS.neutral }}>
+          ● Neutral {voteTotals.neutral > 0 && <span className={styles.legendVotes}>{voteTotals.neutral}</span>}
+        </span>
+        <span className={styles.legendItem} style={{ color: ALIGN_COLORS.opposition }}>
+          ● Opposition {voteTotals.opposition > 0 && <span className={styles.legendVotes}>{voteTotals.opposition}</span>}
+        </span>
       </div>
     </div>
   );

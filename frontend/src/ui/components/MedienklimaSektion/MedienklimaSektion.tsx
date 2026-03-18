@@ -8,7 +8,11 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
+import { AlertTriangle } from '../../icons';
 import styles from './MedienklimaSektion.module.css';
+
+// Matches --gold token (#c8a84a) — ECharts can't consume CSS variables directly
+const CHART_GOLD = '#c8a84a';
 
 function medienklimaChartOption(history: number[]): EChartsOption {
   const data = history.slice(-12);
@@ -20,7 +24,7 @@ function medienklimaChartOption(history: number[]): EChartsOption {
       type: 'category',
       data: months,
       boundaryGap: false,
-      axisLabel: { color: '#888', fontSize: 9 },
+      axisLabel: { color: 'rgba(255,255,255,0.3)', fontSize: 9 },
       axisLine: { show: false },
       axisTick: { show: false },
     },
@@ -29,7 +33,7 @@ function medienklimaChartOption(history: number[]): EChartsOption {
       min: 0,
       max: 100,
       show: true,
-      axisLabel: { color: '#888', fontSize: 9, formatter: '{value}' },
+      axisLabel: { color: 'rgba(255,255,255,0.3)', fontSize: 9, formatter: '{value}' },
       splitLine: { show: false },
       axisLine: { show: false },
       axisTick: { show: false },
@@ -41,15 +45,15 @@ function medienklimaChartOption(history: number[]): EChartsOption {
         smooth: 0.3,
         symbol: 'circle',
         symbolSize: 4,
-        lineStyle: { color: '#c9a227', width: 2 },
-        itemStyle: { color: '#c9a227' },
+        lineStyle: { color: CHART_GOLD, width: 2 },
+        itemStyle: { color: CHART_GOLD },
         areaStyle: {
           color: {
             type: 'linear',
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(201,162,39,0.3)' },
-              { offset: 1, color: 'rgba(201,162,39,0.02)' },
+              { offset: 0, color: 'rgba(200,168,74,0.28)' },
+              { offset: 1, color: 'rgba(200,168,74,0.02)' },
             ],
           },
         },
@@ -82,7 +86,7 @@ export function MedienklimaSektion() {
   const chartOption = useMemo(() => medienklimaChartOption(history), [history]);
 
   return (
-    <section className={styles.root}>
+    <section className={`${styles.root} ${klimaClass}`}>
       <h3 className={styles.title}>{t('game:medienklima.label')}</h3>
       <div className={styles.content}>
         <div className={styles.wertRow}>
@@ -107,11 +111,14 @@ export function MedienklimaSektion() {
             {t('game:medienklima.opposition')}:{' '}
             {oppositionLabel === 'stark' && <strong>Stark</strong>}
             {oppositionLabel === 'aktiv' && <>Aktiv</>}
-            {oppositionLabel === 'schwach' && <>— Schwach</>}
+            {oppositionLabel === 'schwach' && <span className={styles.oppositionSchwach}>Schwach</span>}
           </span>
         )}
         {featureActive(complexity, 'skandale') && isSkandalAktiv && (
-          <span className={styles.skandal}>Skandal-Ereignis aktiv</span>
+          <span className={styles.skandal}>
+            <AlertTriangle size={12} />
+            Skandal-Ereignis aktiv
+          </span>
         )}
       </div>
     </section>

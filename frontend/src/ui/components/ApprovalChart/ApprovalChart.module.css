@@ -28,3 +28,15 @@
   height: 120px;
   display: block;
 }
+
+.trendIndicator {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 2px;
+  line-height: 1;
+}
+
+.trendUp   { color: var(--green); }
+.trendDown { color: var(--red); }
+.trendFlat { color: var(--text3); }

@@ -42,11 +42,27 @@ export function MilieuBar({ name, value, color, history }: MilieuBarProps) {
   const clamped = Math.min(100, Math.max(0, value));
   const showSparkline = history && history.length > 2;
 
+  // Trend: compare last value with value up to 3 positions back
+  let trendSymbol = '→';
+  let trendClass = styles.trendFlat;
+  const showTrend = history && history.length >= 2;
+  if (showTrend) {
+    const lookback = Math.min(3, history!.length - 1);
+    const diff = history![history!.length - 1] - history![history!.length - 1 - lookback];
+    if (diff > 2) { trendSymbol = '↑'; trendClass = styles.trendUp; }
+    else if (diff < -2) { trendSymbol = '↓'; trendClass = styles.trendDown; }
+  }
+
   return (
     <div className={styles.root}>
       <div className={styles.header}>
         <span className={styles.name}>{name}</span>
         <span className={styles.value}>{Math.round(clamped)}%</span>
+        {showTrend && (
+          <span className={`${styles.trend} ${trendClass}`} aria-hidden="true">
+            {trendSymbol}
+          </span>
+        )}
       </div>
       <div className={styles.barRow}>
         <div className={styles.track}>

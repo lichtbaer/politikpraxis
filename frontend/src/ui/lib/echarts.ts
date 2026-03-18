@@ -54,7 +54,7 @@ echarts.registerTheme('politikpraxis', {
   valueAxis: {
     axisLine: { show: false },
     axisTick: { show: false },
-    splitLine: { lineStyle: { color: '#333', type: 'dashed' } },
+    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.07)', type: 'dashed' } },
     axisLabel: { color: '#888', fontSize: 9 },
   },
   tooltip: {
@@ -62,7 +62,7 @@ echarts.registerTheme('politikpraxis', {
     borderColor: '#333',
     borderWidth: 1,
     textStyle: { color: '#d0cfc8', fontSize: 11 },
-    extraCssText: 'border-radius:4px;padding:6px 10px;',
+    extraCssText: 'border-radius:4px;padding:6px 10px;box-shadow:0 4px 16px rgba(0,0,0,0.45);',
   },
 });
 
