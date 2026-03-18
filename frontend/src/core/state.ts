@@ -15,6 +15,7 @@ import {
   type SpielerParteiId,
 } from '../data/defaults/parteien';
 import { selectEventPool } from './systems/eventPoolSelection';
+import { bildeKabinett, waehleMinisterAusPool } from './kabinett';
 
 /** Milieu → zust-Feld für initiale Zustimmung (SMA-264) */
 const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
@@ -27,21 +28,32 @@ const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
   traditionelle: 'mitte',
 };
 
+/** SMA-327: Kanzler-Rolle je nach Geschlecht */
+const KANZLER_ROLLE: Record<'sie' | 'er' | 'they', string> = {
+  sie: 'Kanzlerin',
+  er: 'Kanzler',
+  they: 'Kanzler*in',
+};
+
 /**
  * Erstellt den initialen Spielzustand.
  * @param content Content-Bundle (Chars, Gesetze, Events, …)
  * @param complexity Komplexitätsstufe (1–4). Chars mit min_complexity > complexity werden ausgeblendet.
  * @param ausrichtung Optionale Spieler-Ausrichtung für Koalitionsvertrag-Profil (bei init)
  * @param spielerPartei SMA-289: Gewählte Partei (Stufe 1: SDP default)
+ * @param kanzlerName SMA-327: Spieler-Name für Kanzler (überschreibt Content)
+ * @param kanzlerGeschlecht SMA-327: Geschlecht für Pronomen/Anrede (sie/er/they)
  */
 export function createInitialState(
   content: ContentBundle,
   complexity: number = 4,
   ausrichtung?: Ausrichtung,
   spielerPartei?: SpielerParteiState,
+  kanzlerName?: string,
+  kanzlerGeschlecht: 'sie' | 'er' | 'they' = 'sie',
 ): GameState {
   const fraktionen = content.bundesratFraktionen ?? [];
-  const activeChars = content.characters.filter(
+  const allChars = content.characters.filter(
     (c) => (c.min_complexity ?? 1) <= complexity
   );
 
@@ -59,11 +71,52 @@ export function createInitialState(
     ? { id: parteiId, kuerzel: parteiInfo.kuerzel, farbe: parteiInfo.farbe, name: parteiInfo.name }
     : undefined;
 
+  // SMA-327: Dynamisches Kabinett — aus Pool wählen wenn pool_partei vorhanden
+  const hasPoolChars = allChars.some((c) => c.pool_partei && !c.ist_kanzler);
+  let activeChars = allChars;
+  if (hasPoolChars) {
+    const config = bildeKabinett(parteiId, partnerParteiId, complexity);
+    const usedIds = new Set<string>();
+    const selected: typeof allChars = [];
+    const kanzler = allChars.find((c) => c.id === 'kanzler' || c.ist_kanzler);
+    if (kanzler) {
+      selected.push(kanzler);
+      usedIds.add(kanzler.id);
+    }
+    for (const ressort of config.spielerRessorts) {
+      const m = waehleMinisterAusPool(allChars, parteiId, ressort);
+      if (m && !usedIds.has(m.id)) {
+        const c = allChars.find((x) => x.id === m.id);
+        if (c) {
+          selected.push(c);
+          usedIds.add(m.id);
+        }
+      }
+    }
+    for (const ressort of config.partnerRessorts) {
+      if (partnerParteiId) {
+        const m = waehleMinisterAusPool(allChars, partnerParteiId, ressort);
+        if (m && !usedIds.has(m.id)) {
+          const c = allChars.find((x) => x.id === m.id);
+          if (c) {
+            selected.push(c);
+            usedIds.add(m.id);
+          }
+        }
+      }
+    }
+    activeChars = selected.length > 0 ? selected : allChars;
+  }
+
   const charsWithPartei = activeChars.map((c) => {
     const char = { ...c };
-    if (c.id === 'kanzler' && spielerParteiState) {
-      char.partei_kuerzel = spielerParteiState.kuerzel;
-      char.partei_farbe = spielerParteiState.farbe;
+    if (c.id === 'kanzler') {
+      if (spielerParteiState) {
+        char.partei_kuerzel = spielerParteiState.kuerzel;
+        char.partei_farbe = spielerParteiState.farbe;
+      }
+      if (kanzlerName) char.name = kanzlerName;
+      char.role = KANZLER_ROLLE[kanzlerGeschlecht];
     }
     return char;
   });
@@ -142,6 +195,8 @@ export function createInitialState(
     medienKlima: 55,
     opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 },
     ...(spielerParteiState && { spielerPartei: spielerParteiState }),
+    kanzlerGeschlecht,
+    ...(kanzlerName && { kanzlerName }),
   };
 
   if (featureActive(complexity, 'milieus_voll') && (content.milieus?.length ?? 0) > 0) {
@@ -343,7 +398,7 @@ export function validateGameState(raw: unknown): GameState {
 
   // Optionale Felder durchreichen (werden von migrateGameState weitergegeben)
   const optionalKeys = [
-    'gesetzBTStimmen', 'spielerPartei', 'speedBeforePause', 'eingebrachteGesetze',
+    'gesetzBTStimmen', 'spielerPartei', 'kanzlerName', 'kanzlerGeschlecht', 'speedBeforePause', 'eingebrachteGesetze',
     'koalitionspartner', 'koalitionsvertragProfil', 'milieuZustimmungHistory', 'milieuGesetzReaktionen', 'partnerPrioGesetz',
     'btStimmenBonus', 'koalitionsbruchSeitMonat', 'ministerialCooldowns', 'aktiveMinisterialInitiative',
     'eu', 'haushalt', 'lehmannUltimatumBeschleunigt', 'lehmannSparvorschlagAktiv', 'aktivesStrukturEvent',
@@ -427,6 +482,9 @@ export function migrateGameState(state: GameState): GameState {
   }
   if (!VALID_VIEWS.has(result.view)) {
     result = { ...result, view: 'agenda' };
+  }
+  if (!result.kanzlerGeschlecht) {
+    result = { ...result, kanzlerGeschlecht: 'sie' as const };
   }
   return result;
 }

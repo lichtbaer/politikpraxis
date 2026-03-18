@@ -91,6 +91,11 @@ function transformChar(api: CharApi): Character {
   if (api.eingangszitat) char.eingangszitat = api.eingangszitat;
   if (api.partei_kuerzel) char.partei_kuerzel = api.partei_kuerzel;
   if (api.partei_farbe) char.partei_farbe = api.partei_farbe;
+  if (api.pool_partei) char.pool_partei = api.pool_partei;
+  if (api.ressort) char.ressort = api.ressort;
+  if (api.ressort_partner) char.ressort_partner = api.ressort_partner;
+  if (api.agenda) char.agenda = api.agenda;
+  if (api.ist_kanzler) char.ist_kanzler = api.ist_kanzler;
   return char;
 }
 

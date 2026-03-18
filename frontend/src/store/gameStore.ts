@@ -53,6 +53,7 @@ import {
 } from '../core/systems/wahlkampf';
 import { pressemitteilung } from '../core/systems/medienklima';
 import { kabinettsgespraech } from '../core/systems/characters';
+import { entlasseMinister } from '../core/systems/kabinett';
 
 export type GamePhase = 'onboarding' | 'playing';
 
@@ -63,6 +64,8 @@ interface GameStore {
   content: ContentBundle;
   phase: GamePhase;
   playerName: string;
+  /** SMA-327: Kanzler-Geschlecht (sie/er/they) für Pronomen/Anrede */
+  kanzlerGeschlecht: 'sie' | 'er' | 'they';
   complexity: number;
   ausrichtung: Ausrichtung;
   ausrichtungApplied: boolean;
@@ -72,6 +75,7 @@ interface GameStore {
   init: (content?: ContentBundle) => void;
   startGame: () => void;
   setPlayerName: (name: string) => void;
+  setKanzlerGeschlecht: (g: 'sie' | 'er' | 'they') => void;
   setComplexity: (c: number) => void;
   setAusrichtung: (a: Ausrichtung) => void;
   setSpielerPartei: (partei: SpielerParteiState | null) => void;
@@ -119,6 +123,7 @@ interface GameStore {
   doSetWahlkampfBotschaften: (botschaften: string[]) => void;
   doEinbringenMitFraming: (lawId: string, framingKey: string | null) => void;
   doKabinettsgespraech: (charId: string) => void;
+  doEntlasseMinister: (charId: string) => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
 }
@@ -129,13 +134,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   phase: 'onboarding',
   playerName: '',
+  kanzlerGeschlecht: 'sie',
   complexity: 2,
   ausrichtung: DEFAULT_AUSRICHTUNG,
   ausrichtungApplied: false,
   spielerPartei: null,
 
   init: (content?: ContentBundle) => {
-    const { ausrichtung, ausrichtungApplied, complexity, spielerPartei } = get();
+    const { ausrichtung, ausrichtungApplied, complexity, spielerPartei, playerName, kanzlerGeschlecht } = get();
     const c = content ?? getContentBundle();
     const spielerParteiState =
       spielerPartei ??
@@ -143,7 +149,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const p = SPIELBARE_PARTEIEN.find((x) => x.id === 'sdp');
         return p ? { id: p.id, kuerzel: p.kuerzel, farbe: p.farbe, name: p.name } : undefined;
       })();
-    let initial = createInitialState(c, complexity, ausrichtung, spielerParteiState ?? undefined);
+    const kanzlerName = playerName.trim() || undefined;
+    let initial = createInitialState(c, complexity, ausrichtung, spielerParteiState ?? undefined, kanzlerName, kanzlerGeschlecht);
     if (!ausrichtungApplied && (ausrichtung.wirtschaft !== 0 || ausrichtung.gesellschaft !== 0 || ausrichtung.staat !== 0)) {
       initial = applyAusrichtung(initial, ausrichtung);
       set({ ausrichtungApplied: true });
@@ -163,6 +170,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       gesetze: withLogs.gesetze.map((g, i) => i === 0 ? { ...g, expanded: true } : g),
       electionThreshold,
       ticker: ersterMonatTicker,
+      ...(kanzlerName && { kanzlerName }),
+      kanzlerGeschlecht,
     };
     set({ state: withExpanded, content: c });
   },
@@ -170,6 +179,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   startGame: () => set({ phase: 'playing' }),
 
   setPlayerName: (playerName) => set({ playerName }),
+
+  setKanzlerGeschlecht: (kanzlerGeschlecht) => set({ kanzlerGeschlecht }),
 
   setComplexity: (complexity) => set({ complexity }),
 
@@ -184,10 +195,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (phase === 'playing' && !nextState.gameOver) {
       saveGame({
         gameState: nextState,
-        playerName,
+        playerName: nextState.kanzlerName ?? playerName,
         complexity,
         ausrichtung,
         spielerPartei: nextState.spielerPartei,
+        kanzlerGeschlecht: nextState.kanzlerGeschlecht ?? get().kanzlerGeschlecht ?? 'sie',
       });
     }
   },
@@ -414,6 +426,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doKabinettsgespraech: (charId) =>
     set(prev => ({ state: kabinettsgespraech(prev.state, charId) })),
 
+  doEntlasseMinister: (charId) =>
+    set(prev => {
+      const contentChars = prev.content.characters;
+      const next = entlasseMinister(prev.state, charId, prev.complexity, contentChars);
+      return next !== prev.state ? { state: next } : {};
+    }),
+
   doSetWahlkampfBotschaften: (botschaften) =>
     set(prev => ({
       state: { ...prev.state, wahlkampfBotschaften: botschaften },
@@ -447,14 +466,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
         electionThreshold: validated.electionThreshold ?? 40,
       });
       const spielerPartei = save.spielerPartei ?? state.spielerPartei ?? null;
+      const kanzlerGeschlecht = save.kanzlerGeschlecht ?? state.kanzlerGeschlecht ?? 'sie';
       set({
-        state,
+        state: { ...state, kanzlerGeschlecht },
         content: getContentBundle(),
-        playerName: String(save.playerName ?? '').slice(0, 100),
+        playerName: String(save.playerName ?? state.kanzlerName ?? '').slice(0, 100),
         complexity,
         ausrichtung: save.ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
         ausrichtungApplied: true,
         spielerPartei,
+        kanzlerGeschlecht,
         phase: 'playing',
       });
     } catch {

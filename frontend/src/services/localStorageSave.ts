@@ -15,6 +15,8 @@ export interface SaveFile {
   ausrichtung: Ausrichtung;
   /** SMA-289: Spieler-Partei (optional für ältere Saves) */
   spielerPartei?: SpielerParteiState;
+  /** SMA-327: Kanzler-Geschlecht (optional für ältere Saves) */
+  kanzlerGeschlecht?: 'sie' | 'er' | 'they';
 }
 
 function isLocalStorageAvailable(): boolean {

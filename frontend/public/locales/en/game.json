@@ -836,6 +836,7 @@
     }
   },
   "kabinett": {
+    "entlassen": "Dismiss (20 PK)",
     "title": "Cabinet",
     "desc": "Your cabinet and coalition partner. Mood and loyalty affect government work.",
     "ultimatumWarnung": "{{name}} threatens ultimatum — mood critical.",
@@ -945,6 +946,12 @@
     "subtitle": "Configure your candidacy",
     "nameLabel": "Name",
     "namePlaceholder": "Your name (optional)",
+    "geschlechtLabel": "Form of address",
+    "geschlecht": {
+      "sie": "Federal Chancellor (she/her)",
+      "er": "Federal Chancellor (he/him)",
+      "they": "Federal Chancellor (they/them)"
+    },
     "ausrichtungTitle": "Political orientation",
     "wirtschaftLinks": "Redistribution",
     "wirtschaftRechts": "Growth",

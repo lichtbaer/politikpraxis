@@ -1,0 +1,28 @@
+/* SMA-327: Geschlechtsauswahl für Kanzler */
+
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.option {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border, #444);
+  border-radius: 6px;
+  background: var(--bg3, #1a1a1a);
+  color: var(--fg, #e0e0e0);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.option:hover {
+  border-color: var(--accent, #c8a84a);
+  background: var(--bg2, #252525);
+}
+
+.option.selected {
+  border-color: var(--accent, #c8a84a);
+  background: color-mix(in srgb, var(--accent, #c8a84a) 15%, transparent);
+}
