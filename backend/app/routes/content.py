@@ -31,6 +31,7 @@ from app.services.content_db_service import (
     fetch_milieus,
     fetch_politikfelder,
     fetch_verbaende,
+    fetch_gesetz_relationen,
     get_game_content_from_db,
 )
 
@@ -154,3 +155,9 @@ async def get_verbaende(
     """GET /api/content/verbaende?locale=de — Verbände mit Ideologie und Tradeoffs."""
     rows = await fetch_verbaende(db, locale)
     return rows
+
+
+@router.get("/gesetz-relationen")
+async def get_gesetz_relationen(db: AsyncSession = Depends(get_db)):
+    """GET /api/content/gesetz-relationen — SMA-312: requires, excludes, enhances."""
+    return await fetch_gesetz_relationen(db)
