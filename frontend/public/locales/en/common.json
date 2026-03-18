@@ -78,5 +78,8 @@
       "kommune": "Municipal"
     },
     "gratis": "free"
+  },
+  "startMap": {
+    "subtitle": "Federal · States · Municipalities · Europe"
   }
 }

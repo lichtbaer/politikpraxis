@@ -47,7 +47,7 @@ function SchuldenbremseWidget({
         />
       </div>
       <p>
-        {formatMrdSaldo(verbraucht, 0)} / {formatMrdSaldo(erlaubt, 0)} Mrd. verbraucht
+        {t('haushaltView.verbraucht', { used: formatMrdSaldo(verbraucht, 0), allowed: formatMrdSaldo(erlaubt, 0) })}
       </p>
       {status !== 'inaktiv' && <SchuldenbremsenBadge status={status} />}
     </section>
@@ -122,16 +122,16 @@ function SteuerquoteRegler() {
           onClick={() => doSteuerquoteChange(2)}
           title={t('haushalt.steuerquoteErhoehen', '+2 Mrd./Jahr Einnahmen')}
         >
-          +2 Mrd./Jahr
+          {t('haushalt.steuerquoteErhoehen')}
         </button>
         <button
           type="button"
           className={styles.steuerquoteBtn}
           disabled={!pkReicht}
           onClick={() => doSteuerquoteChange(-3)}
-          title={t('haushalt.steuerquoteSenken', '-3 Mrd./Jahr Einnahmen')}
+          title={t('haushalt.steuerquoteSenken')}
         >
-          −3 Mrd./Jahr
+          {t('haushalt.steuerquoteSenken')}
         </button>
       </div>
       {!pkReicht && (
@@ -158,7 +158,7 @@ function SteuernDashboard({
         <h2 className={styles.sectionTitle}>{t('haushalt.steuereinnahmen', 'Steuereinnahmen')}</h2>
         <div className={styles.steuerSumme}>
           <span>{t('haushalt.steuereinnahmenGesamt', 'Steuereinnahmen gesamt')}:</span>
-          <strong>+{einnahmen.toFixed(1)} Mrd.</strong>
+          <strong>+{einnahmen.toFixed(1)} {t('ui.mrd')}</strong>
         </div>
       </section>
     );
@@ -177,7 +177,7 @@ function SteuernDashboard({
             <div key={steuer.id} className={styles.steuerZeile}>
               <span className={styles.steuerLabel}>{steuer.name_de}</span>
               <span className={styles.steuerSatz}>{steuer.aktueller_satz}%</span>
-              <span className={styles.steuerEinnahmen}>+{steuer.einnahmen_basis.toFixed(1)} Mrd.</span>
+              <span className={styles.steuerEinnahmen}>+{steuer.einnahmen_basis.toFixed(1)} {t('ui.mrd')}</span>
               {steuer.satz_delta !== undefined && steuer.satz_delta !== 0 && (
                 <span className={steuer.satz_delta > 0 ? styles.trendUp : styles.trendDown}>
                   {steuer.satz_delta > 0 ? '↑' : '↓'} {Math.abs(steuer.satz_delta)}%
@@ -194,7 +194,7 @@ function SteuernDashboard({
             <div key={steuer.id} className={styles.steuerZeile}>
               <span className={styles.steuerLabel}>{steuer.name_de}</span>
               <span className={styles.steuerSatz}>{steuer.aktueller_satz}%</span>
-              <span className={styles.steuerEinnahmen}>+{steuer.einnahmen_basis.toFixed(1)} Mrd.</span>
+              <span className={styles.steuerEinnahmen}>+{steuer.einnahmen_basis.toFixed(1)} {t('ui.mrd')}</span>
               {steuer.satz_delta !== undefined && steuer.satz_delta !== 0 && (
                 <span className={steuer.satz_delta > 0 ? styles.trendUp : styles.trendDown}>
                   {steuer.satz_delta > 0 ? '↑' : '↓'} {Math.abs(steuer.satz_delta)}%
@@ -206,7 +206,7 @@ function SteuernDashboard({
       )}
       <div className={styles.steuerSumme}>
         <span>{t('haushalt.steuereinnahmenGesamt', 'Steuereinnahmen gesamt')}:</span>
-        <strong>+{einnahmen.toFixed(1)} Mrd.</strong>
+        <strong>+{einnahmen.toFixed(1)} {t('ui.mrd')}</strong>
       </div>
     </section>
   );
@@ -257,7 +257,7 @@ export function HaushaltView() {
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#888', fontSize: 10, formatter: '{value} Mrd.' },
+      axisLabel: { color: '#888', fontSize: 10, formatter: `{value} ${t('ui.mrd')}` },
       splitLine: { lineStyle: { color: '#333', type: 'dashed' } },
     },
     tooltip: {
@@ -265,7 +265,7 @@ export function HaushaltView() {
       formatter: (params: unknown) => {
         const p = params as Array<{ dataIndex: number; value: number }>;
         const v = p[0]?.value;
-        return `Monat ${(p[0]?.dataIndex ?? 0) + 1}: <b>${v != null ? formatMrdSaldo(v) : '—'}</b>`;
+        return t('haushaltView.monatTooltip', { month: (p[0]?.dataIndex ?? 0) + 1, value: v != null ? formatMrdSaldo(v) : '—' });
       },
     },
     series: [{
@@ -321,14 +321,14 @@ export function HaushaltView() {
             <div className={styles.balkenTrack}>
               <div className={styles.balkenFill} style={{ width: `${einnahmenPct}%`, backgroundColor: 'var(--green)' }} />
             </div>
-            <span className={styles.balkenValue}>+{haushalt.einnahmen} Mrd.</span>
+            <span className={styles.balkenValue}>+{haushalt.einnahmen} {t('ui.mrd')}</span>
           </div>
           <div className={styles.balkenRow}>
             <span className={styles.balkenLabel}><Erklaerung begriff="pflichtausgaben" kinder={t('haushalt.pflichtausgaben')} /></span>
             <div className={styles.balkenTrack}>
               <div className={styles.balkenFill} style={{ width: `${pflichtPct}%`, backgroundColor: 'var(--warn)' }} />
             </div>
-            <span className={styles.balkenValue}>-{haushalt.pflichtausgaben} Mrd.</span>
+            <span className={styles.balkenValue}>-{haushalt.pflichtausgaben} {t('ui.mrd')}</span>
           </div>
           {haushalt.laufendeAusgaben !== 0 ? (
             <div className={styles.balkenRow}>
@@ -336,7 +336,7 @@ export function HaushaltView() {
               <div className={styles.balkenTrack}>
                 <div className={styles.balkenFill} style={{ width: `${laufendPct}%`, backgroundColor: 'var(--red)' }} />
               </div>
-              <span className={styles.balkenValue}>-{normalizeZero(haushalt.laufendeAusgaben).toFixed(1)} Mrd.</span>
+              <span className={styles.balkenValue}>-{normalizeZero(haushalt.laufendeAusgaben).toFixed(1)} {t('ui.mrd')}</span>
             </div>
           ) : (
             <p className={styles.keineGesetze}>{t('haushalt.keineLaufendenGesetze', 'Keine laufenden Gesetzeskosten')}</p>

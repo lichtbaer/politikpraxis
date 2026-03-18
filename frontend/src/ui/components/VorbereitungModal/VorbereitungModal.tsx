@@ -12,11 +12,7 @@ import type { Law } from '../../../core/types';
 import { X as XIcon, AlertTriangle } from '../../icons';
 import styles from './VorbereitungModal.module.css';
 
-const STADTTYP_OPTIONS_STUFE2: { key: 'progressiv' | 'konservativ' | 'industrie'; label: string }[] = [
-  { key: 'progressiv', label: 'Progressive Stadt' },
-  { key: 'konservativ', label: 'Konservative Stadt' },
-  { key: 'industrie', label: 'Industriestadt' },
-];
+const STADTTYP_KEYS: ('progressiv' | 'konservativ' | 'industrie')[] = ['progressiv', 'konservativ', 'industrie'];
 
 /** Stufe 3+: Konkrete Städte nach Stadttyp */
 const STAEDTE_STUFE3: Record<string, { name: string; stadttyp: 'progressiv' | 'konservativ' | 'industrie' }[]> = {
@@ -106,15 +102,15 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
         <div className={styles.body}>
           {hasKommunal && (
             <section className={styles.section}>
-              <h3>Kommunal-Pilot</h3>
+              <h3>{t('vorbereitungModal.kommunalPilot')}</h3>
               <p className={styles.meta}>
-                {kommunalKosten} PK, {kommunalDauer} Monate · +8% BT bei Erfolg
+                {t('vorbereitungModal.kommunalPilotDesc', { cost: kommunalKosten, duration: kommunalDauer })}
               </p>
               {zeitdruckWarnung(kommunalDauer) && (
-                <p className={styles.warn}><AlertTriangle size={12} /> Vorstufe endet nach Wahltermin.</p>
+                <p className={styles.warn}><AlertTriangle size={12} /> {t('vorbereitungModal.nachWahltermin')}</p>
               )}
               {kommunalAktiv ? (
-                <p className={styles.aktiv}>Vorstufe läuft bereits.</p>
+                <p className={styles.aktiv}>{t('vorbereitungModal.vorstufeLaeuft')}</p>
               ) : useKonkreteStaedte ? (
                 <div className={styles.stadtGrid}>
                   {Object.entries(STAEDTE_STUFE3).map(([typ, staedte]) => (
@@ -138,15 +134,15 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
                 </div>
               ) : (
                 <div className={styles.stadttypRow}>
-                  {STADTTYP_OPTIONS_STUFE2.map((opt) => (
+                  {STADTTYP_KEYS.map((key) => (
                     <button
-                      key={opt.key}
+                      key={key}
                       type="button"
                       className={styles.stadttypBtn}
                       disabled={pk < kommunalKosten}
-                      onClick={() => handleKommunalStadttyp(opt.key)}
+                      onClick={() => handleKommunalStadttyp(key)}
                     >
-                      {t(`game:vorbereitung.stadttyp.${opt.key}`) ?? opt.label}
+                      {t(`game:vorbereitung.stadttyp.${key}`)}
                     </button>
                   ))}
                 </div>
@@ -156,15 +152,15 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
 
           {hasLaender && (
             <section className={styles.section}>
-              <h3>Länder-Pilot</h3>
+              <h3>{t('vorbereitungModal.laenderPilot')}</h3>
               <p className={styles.meta}>
-                {laenderKosten} PK, {laenderDauer} Monate · +10% BT bei Erfolg
+                {t('vorbereitungModal.laenderPilotDesc', { cost: laenderKosten, duration: laenderDauer })}
               </p>
               {zeitdruckWarnung(laenderDauer) && (
-                <p className={styles.warn}><AlertTriangle size={12} /> Vorstufe endet nach Wahltermin.</p>
+                <p className={styles.warn}><AlertTriangle size={12} /> {t('vorbereitungModal.nachWahltermin')}</p>
               )}
               {laenderAktiv ? (
-                <p className={styles.aktiv}>Vorstufe läuft bereits.</p>
+                <p className={styles.aktiv}>{t('vorbereitungModal.vorstufeLaeuft')}</p>
               ) : (
                 <div className={styles.fraktionGrid}>
                   {fraktionenOk.map((f) => (
@@ -175,11 +171,11 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
                       disabled={pk < laenderKosten}
                       onClick={() => handleLaender(f.id)}
                     >
-                      {f.name} (Beziehung: {f.beziehung ?? 50})
+                      {f.name} ({t('vorbereitungModal.beziehung', { value: f.beziehung ?? 50 })})
                     </button>
                   ))}
                   {fraktionenOk.length === 0 && (
-                    <p className={styles.hinweis}>Keine Fraktion mit Beziehung ≥ 30.</p>
+                    <p className={styles.hinweis}>{t('vorbereitungModal.keineFraktion')}</p>
                   )}
                 </div>
               )}
@@ -188,20 +184,20 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
 
           {hasEU && (
             <section className={styles.section}>
-              <h3>EU-Initiative</h3>
+              <h3>{t('vorbereitungModal.euInitiative')}</h3>
               <p className={styles.meta}>
-                {euDauer} Monate · +12% BT bei Erfolg
+                {t('vorbereitungModal.euInitiativeDesc', { duration: euDauer })}
               </p>
               {euBewertung && (
                 <p className={styles.klima}>
-                  EU-Klima-Indikator: {Math.round(euBewertung.erfolgschance * 100)}% Erfolgschance
+                  {t('vorbereitungModal.euKlimaIndikator', { pct: Math.round(euBewertung.erfolgschance * 100) })}
                 </p>
               )}
               {zeitdruckWarnung(euDauer) && (
-                <p className={styles.warn}><AlertTriangle size={12} /> Vorstufe endet nach Wahltermin.</p>
+                <p className={styles.warn}><AlertTriangle size={12} /> {t('vorbereitungModal.nachWahltermin')}</p>
               )}
               {euAktiv ? (
-                <p className={styles.aktiv}>Vorstufe läuft bereits.</p>
+                <p className={styles.aktiv}>{t('vorbereitungModal.vorstufeLaeuft')}</p>
               ) : (
                 <button
                   type="button"
@@ -209,14 +205,14 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
                   disabled={pk < 1}
                   onClick={handleEU}
                 >
-                  EU-Initiative starten
+                  {t('vorbereitungModal.euStarten')}
                 </button>
               )}
             </section>
           )}
 
           <div className={styles.akkumuliert}>
-            <strong>Akkumulierte Boni:</strong> +{boni.btStimmenBonus}% BT, -{boni.pkKostenRabatt} PK Rabatt
+            <strong>{t('vorbereitungModal.akkumulierteBoni', { bt: boni.btStimmenBonus, pk: boni.pkKostenRabatt })}</strong>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import styles from './ConfirmDialog.module.css';
 
 interface ConfirmDialogProps {
@@ -10,6 +11,7 @@ interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({ title, message, cost, currentPk, onConfirm, onCancel }: ConfirmDialogProps) {
+  const { t } = useTranslation('game');
   const remaining = currentPk - cost;
 
   return (
@@ -19,11 +21,11 @@ export function ConfirmDialog({ title, message, cost, currentPk, onConfirm, onCa
         <p className={styles.message}>{message}</p>
         <div className={styles.costInfo}>
           <div className={styles.costLine}>
-            <span>Kosten</span>
+            <span>{t('ui.cost')}</span>
             <span className={styles.costValue}>{cost} PK</span>
           </div>
           <div className={styles.costLine}>
-            <span>Verbleibend</span>
+            <span>{t('ui.remaining')}</span>
             <span className={remaining < 10 ? styles.remainWarning : styles.remainValue}>
               {remaining} PK
             </span>
@@ -31,10 +33,10 @@ export function ConfirmDialog({ title, message, cost, currentPk, onConfirm, onCa
         </div>
         <div className={styles.buttons}>
           <button type="button" className={styles.btnCancel} onClick={onCancel}>
-            Abbrechen
+            {t('ui.cancel')}
           </button>
           <button type="button" className={styles.btnConfirm} onClick={onConfirm}>
-            Bestätigen
+            {t('ui.confirm')}
           </button>
         </div>
       </div>

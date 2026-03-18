@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TickLogEntry, KPI } from '../../../core/types';
 import { Erklaerung } from '../Erklaerung/Erklaerung';
 import { BEGRIFFE, KPI_TO_BEGRIFF } from '../../../constants/begriffe';
@@ -20,21 +21,21 @@ interface KPITileProps {
   history?: number[];
 }
 
-function getTrendArrow(history: number[], inverted: boolean): { symbol: string; class: string; label: string } | null {
+function getTrendArrow(history: number[], inverted: boolean): { symbol: string; class: string; labelKey: string } | null {
   if (history.length < 3) return null;
   const recent = history.slice(-3);
   const diffs = [recent[1] - recent[0], recent[2] - recent[1]];
   const avgDiff = (diffs[0] + diffs[1]) / 2;
-  if (Math.abs(avgDiff) < 0.15) return { symbol: '→', class: 'trendFlat', label: 'Stabil' };
+  if (Math.abs(avgDiff) < 0.15) return { symbol: '→', class: 'trendFlat', labelKey: 'kpiTrend.stable' };
   const improving = inverted ? avgDiff < 0 : avgDiff > 0;
   if (improving) {
     return Math.abs(avgDiff) > 1
-      ? { symbol: '⬆', class: 'trendStrongUp', label: 'Stark steigend' }
-      : { symbol: '↗', class: 'trendUp', label: 'Steigend' };
+      ? { symbol: '⬆', class: 'trendStrongUp', labelKey: 'kpiTrend.stronglyRising' }
+      : { symbol: '↗', class: 'trendUp', labelKey: 'kpiTrend.rising' };
   }
   return Math.abs(avgDiff) > 1
-    ? { symbol: '⬇', class: 'trendStrongDown', label: 'Stark fallend' }
-    : { symbol: '↘', class: 'trendDown', label: 'Fallend' };
+    ? { symbol: '⬇', class: 'trendStrongDown', labelKey: 'kpiTrend.stronglyFalling' }
+    : { symbol: '↘', class: 'trendDown', labelKey: 'kpiTrend.falling' };
 }
 
 
@@ -67,6 +68,7 @@ export function KPITile({
   kpiKey,
   history,
 }: KPITileProps) {
+  const { t } = useTranslation('game');
   const [showPopover, setShowPopover] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -126,7 +128,7 @@ export function KPITile({
         {history && (() => {
           const trend = getTrendArrow(history, inverted);
           if (!trend) return null;
-          return <span className={styles[trend.class]} title={trend.label}>{trend.symbol}</span>;
+          return <span className={styles[trend.class]} title={t(trend.labelKey)}>{trend.symbol}</span>;
         })()}
       </div>
       <div className={styles.track}>
@@ -145,7 +147,7 @@ export function KPITile({
           )}
           {changeReasons && changeReasons.length > 0 && (
             <div className={styles.popoverChanges}>
-              <span className={styles.popoverTitle}>Änderungen:</span>
+              <span className={styles.popoverTitle}>{t('kpiTrend.changes')}</span>
               {changeReasons.map((r, i) => (
                 <div key={i} className={styles.popoverRow}>
                   <span className={styles.popoverSource}>{r.source}</span>

@@ -9,7 +9,7 @@ import styles from './VorstufeBadge.module.css';
 
 export type VorstufTyp = 'kommunal' | 'laender' | 'eu';
 
-const VORSTUFE_LABELS: Record<VorstufTyp, string> = {
+const VORSTUFE_FALLBACKS: Record<VorstufTyp, string> = {
   kommunal: 'Kommunal',
   laender: 'Länder',
   eu: 'EU',
@@ -29,7 +29,7 @@ export function VorstufeBadge({ typ, projekt, month = 0, onAbbrechen }: Vorstufe
   if (!vorstufe) {
     return (
       <span className={styles.offen}>
-        <Circle size={10} /> {t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
+        <Circle size={10} /> {t(`game:vorstufen.${typ}`) ?? VORSTUFE_FALLBACKS[typ]}
       </span>
     );
   }
@@ -40,8 +40,8 @@ export function VorstufeBadge({ typ, projekt, month = 0, onAbbrechen }: Vorstufe
     return (
       <div className={styles.aktiv}>
         <span className={styles.label}>
-          <RefreshCw size={12} /> {vorstufe.stadtname ?? vorstufe.stadttyp ?? t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
-          {restMonate > 0 && ` (noch ${restMonate} Mo)`}
+          <RefreshCw size={12} /> {vorstufe.stadtname ?? vorstufe.stadttyp ?? t(`game:vorstufen.${typ}`) ?? VORSTUFE_FALLBACKS[typ]}
+          {restMonate > 0 && ` ${t('game:vorstufeBadge.restMonate', { count: restMonate })}`}
         </span>
         <progress
           className={styles.progress}
@@ -66,14 +66,14 @@ export function VorstufeBadge({ typ, projekt, month = 0, onAbbrechen }: Vorstufe
   if (vorstufe.ergebnis === 'erfolg') {
     return (
       <span className={styles.erfolg}>
-        <CheckCircle size={12} /> {vorstufe.stadtname ?? vorstufe.stadttyp ?? t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
+        <CheckCircle size={12} /> {vorstufe.stadtname ?? vorstufe.stadttyp ?? t(`game:vorstufen.${typ}`) ?? VORSTUFE_FALLBACKS[typ]}
       </span>
     );
   }
 
   return (
     <span className={styles.gescheitert}>
-      <XIcon size={12} /> {t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
+      <XIcon size={12} /> {t(`game:vorstufen.${typ}`) ?? VORSTUFE_FALLBACKS[typ]}
     </span>
   );
 }

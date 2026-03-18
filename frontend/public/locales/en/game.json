@@ -870,12 +870,83 @@
     "mitte": { "name": "Centre", "desc": "Bourgeois centre, economically oriented." },
     "prog": { "name": "Progressive", "desc": "Urban, climate-conscious, diversity-oriented." }
   },
+  "kommunalEvents": {
+    "kommunal_klima_initiative": {
+      "typeLabel": "Municipal Initiative",
+      "title": "Hamburg and Munich launch independent climate programme",
+      "quote": "\u201cWe won't wait any longer for the federal government.\u201d",
+      "context": "Major cities have independently adopted climate protection measures. Pressure from civil society and post-materialist milieus is high.",
+      "ticker": "Hamburg and Munich: Own climate programme \u2014 federal government under pressure",
+      "choices": {
+        "0": { "label": "Praise as role model", "desc": "+2% parliament votes for matching laws, no PK cost.", "log": "Municipal initiative praised as role model. Positive signal effect." },
+        "1": { "label": "Coordinate and launch pilot", "desc": "8 PK \u2014 full municipal pilot with the matching law.", "log": "Federal government coordinates municipal initiative. Pilot project launched." },
+        "2": { "label": "Ignore", "desc": "No reaction. Pressure may increase.", "log": "Municipal initiative ignored. Discontent in the cities." }
+      }
+    },
+    "kommunal_sozial_initiative": {
+      "typeLabel": "Municipal Initiative",
+      "title": "Ruhr area cities demand minimum wage increase \u2014 now",
+      "quote": "\u201cOur citizens cannot wait.\u201d",
+      "context": "Industrial cities in the Ruhr area have launched municipal minimum wage initiatives. The social centre feels abandoned by federal politics.",
+      "ticker": "Ruhr area: Cities demand minimum wage increase \u2014 government under observation",
+      "choices": {
+        "0": { "label": "Praise as role model", "desc": "+2% parliament votes for matching laws, no PK cost.", "log": "Municipal initiative praised as role model." },
+        "1": { "label": "Coordinate and launch pilot", "desc": "8 PK \u2014 full municipal pilot.", "log": "Federal government coordinates. Pilot project launched." },
+        "2": { "label": "Ignore", "desc": "No reaction.", "log": "Municipal initiative ignored." }
+      }
+    },
+    "kommunal_sicherheit_initiative": {
+      "typeLabel": "Municipal Initiative",
+      "title": "Cities demand more police presence \u2014 independent measures",
+      "quote": "\u201cThe federal government won't act \u2014 we must.\u201d",
+      "context": "Municipalities have independently announced security measures. Traditional voters demand more capability from the federal government.",
+      "ticker": "Municipalities launch own security initiatives \u2014 federal government responds",
+      "choices": {
+        "0": { "label": "Praise as role model", "desc": "+2% parliament votes for matching laws, no PK cost.", "log": "Municipal initiative praised as role model." },
+        "1": { "label": "Coordinate and launch pilot", "desc": "8 PK \u2014 full municipal pilot.", "log": "Federal government coordinates. Pilot project launched." },
+        "2": { "label": "Ignore", "desc": "No reaction.", "log": "Municipal initiative ignored." }
+      }
+    }
+  },
+  "vorstufenEvents": {
+    "vorstufe_kommunal_erfolg": {
+      "typeLabel": "Pre-stage Success",
+      "title": "Pilot project [city name]: Success confirmed",
+      "quote": "\u201cThe model works \u2014 time for the federal level.\u201d",
+      "context": "The municipal pilot project was successful. The experience confirms effectiveness \u2014 time for nationwide implementation.",
+      "ticker": "Municipal pilot successful \u2014 signal for the federal government",
+      "choices": {
+        "0": { "label": "Acknowledge", "desc": "Success confirmed. Bonus will be applied.", "log": "Pilot project success acknowledged." }
+      }
+    },
+    "vorstufe_laender_erfolg": {
+      "typeLabel": "Pre-stage Success",
+      "title": "[Federal State] passes [law] \u2014 signal for federal level",
+      "quote": "\u201cOther states are watching closely.\u201d",
+      "context": "A federal state has successfully implemented the law as a pilot. The signal effect for other states and the federal level is significant.",
+      "ticker": "State pilot successful \u2014 other states are watching",
+      "choices": {
+        "0": { "label": "Invite more states", "desc": "12 PK \u2014 starts second state pilot with +10% success chance.", "log": "More states invited to pilot." },
+        "1": { "label": "Acknowledge", "desc": "Success confirmed.", "log": "State pilot success acknowledged." }
+      }
+    }
+  },
   "ebene": {
     "eu": "Advance laws via EU level. Longer duration but bypasses Bundesrat (Federal Council).",
     "land": "Launch state pilot projects. Medium duration and costs.",
     "kommune": "Use municipal alliances. Fastest alternative with lower costs.",
     "empty": "No laws on this route.",
-    "monate": "{{progress}}/{{duration}} months"
+    "monate": "{{progress}}/{{duration}} months",
+    "potentialTitle": "Laws eligible for this route",
+    "potentialHint": "Start a pilot project via the Agenda (Preparation).",
+    "staedtebuendnis": "Build city alliance",
+    "staedtebuendnisDesc": "10 PK \u2014 Increases chance for municipal initiatives.",
+    "kommunalKonferenz": "Municipal conference",
+    "kommunalKonferenzDesc": "8 PK, 1\u00d7/year \u2014 Reduces pressure in 2 policy fields.",
+    "laenderGipfel": "Convene state summit",
+    "laenderGipfelDesc": "12 PK \u2014 Improves Bundesrat (Federal Council) relations.",
+    "pilotBeschleunigen": "Accelerate pilot project",
+    "pilotBeschleunigenDesc": "6 PK \u2014 +1 month progress."
   },
   "ticker": {
     "label": "NEWS"
@@ -1117,10 +1188,19 @@
     "lost": "Voted out",
     "wonSubtitle": "You won the election with {{percent}}% approval.",
     "lostSubtitle": "The legislative period ends with {{percent}}% approval — below the required majority.",
+    "lostMisstrauen": "Vote of no confidence! Six months below 20% approval lead to the fall of the government.",
+    "lostKoalitionsbruch": "Coalition collapse! The coalition has broken apart.",
     "beschlosseneGesetze": "Laws passed",
     "finaleKPIs": "Final KPIs",
     "milieuZustimmung": "Milieu approval",
-    "neueLegislatur": "New legislative period"
+    "neueLegislatur": "New legislative period",
+    "confirmRestart": "Really restart?",
+    "confirmYes": "Yes, restart",
+    "confirmNo": "Cancel",
+    "approvalChart": "Approval trend",
+    "monthsPlayed": "{{count}} months played",
+    "ziel": "Target: {{threshold}}%",
+    "monatTooltip": "Month {{month}}: <b>{{value}}%</b>"
   },
   "charDetail": {
     "close": "Close",
@@ -1233,5 +1313,141 @@
       "sicherheit": "Security",
       "wirtschaft": "Economy"
     }
+  },
+  "glossar": {
+    "title": "Glossary",
+    "searchPlaceholder": "Search term\u2026",
+    "all": "All",
+    "categories": {
+      "grundlagen": "Basics",
+      "haushalt": "Budget",
+      "koalition": "Coalition",
+      "medien": "Media & Public"
+    },
+    "entries": {
+      "pk": { "term": "Political Capital (PK)", "explanation": "Your action resource. Every action costs PK. Regenerates monthly based on your approval." },
+      "zustimmung": { "term": "Approval / Election forecast", "explanation": "How popular your government is. At the end of the legislative period (Month 48) you must exceed the election threshold to win." },
+      "kongruenz": { "term": "Congruence", "explanation": "How well a law matches your ideological orientation (0\u2013100%). High congruence = less PK cost, low congruence = more effort and resistance." },
+      "arbeitslosigkeit": { "term": "Unemployment", "explanation": "KPI: Unemployment rate in %. Low = good. Influenced by economic drift and laws." },
+      "haushaltssaldo": { "term": "Budget balance", "explanation": "KPI: Revenue minus expenditure in %. Positive = surplus. Negative = deficit. Influenced by laws and economic conditions." },
+      "gini": { "term": "Gini Index", "explanation": "KPI: Measure of inequality (0\u2013100). Low = less inequality. Influenced by social policy." },
+      "zufriedenheit": { "term": "Satisfaction", "explanation": "KPI: General public satisfaction (0\u2013100%). High = good. Influenced by all KPIs and laws." },
+      "koalition": { "term": "Coalition stability", "explanation": "How stable your governing coalition is (0\u2013100%). Calculated from cabinet mood and partner loyalty. Below 15% \u2192 Coalition collapse = game over!" },
+      "spielraum": { "term": "Fiscal headroom", "explanation": "Budget funds available for new laws. Derived from revenue minus mandatory spending minus ongoing costs." },
+      "schuldenbremse": { "term": "Debt brake", "explanation": "From level 3: Constitutional limit on new debt. Violations risk austerity measures and loss of confidence." },
+      "medienklima": { "term": "Media climate", "explanation": "How positive media coverage is (0\u2013100). Influences PK costs for laws and campaign success." },
+      "milieus": { "term": "Milieus", "explanation": "Voter groups with different ideological profiles. Their approval determines your election forecast." },
+      "kvScore": { "term": "Coalition agreement score", "explanation": "How many points of the coalition agreement are fulfilled. High score = more stable coalition, low score = partner becomes dissatisfied." },
+      "vorstufen": { "term": "Pre-stages", "explanation": "Municipal or state pilots before introducing a law. Grant bonuses on parliament votes, PK costs and Bundesrat approval." },
+      "bundesrat": { "term": "Bundesrat (Federal Council)", "explanation": "4 factions represent 16 federal states. Laws with a state tag require Bundesrat majority. Relationship building and lobbying influence the vote." }
+    }
+  },
+  "tips": {
+    "erstesGesetz": {
+      "title": "Your first law",
+      "text": "Select a law from the Agenda and click \u201cIntroduce\u201d to bring it to parliament. Each introduction costs Political Capital (PK)."
+    },
+    "pkKnapp": {
+      "title": "PK running low",
+      "text": "Your Political Capital regenerates monthly based on your approval. Higher approval = more PK per month. Set priorities!"
+    },
+    "koalitionsSpannungen": {
+      "title": "Coalition tensions",
+      "text": "Your coalition stability is dropping. Watch your cabinet members\u2019 mood and the relationship with the coalition partner. Concessions and conversations help."
+    },
+    "haushaltsDefizit": {
+      "title": "Budget deficit",
+      "text": "Your budget is in the red. Expensive laws strain your fiscal headroom. Watch the cost traffic light on laws: Green = manageable, Yellow = noticeable, Red = risky."
+    },
+    "bundesratInfo": {
+      "title": "Bundesrat vote",
+      "text": "A law has passed parliament and goes to the Bundesrat. Use lobbying with the factions to secure the necessary votes."
+    },
+    "wahlkampfStart": {
+      "title": "Campaign begins!",
+      "text": "The last 6 months of the legislative period! Use speeches, coalition actions and the media offensive to improve your election forecast. The TV debate is coming soon too."
+    },
+    "understood": "Got it"
+  },
+  "koalitionPanel": {
+    "beziehung": {
+      "sehrGut": "Very good",
+      "stabil": "Stable",
+      "angespannt": "Tense",
+      "kritisch": "Critical",
+      "kurzVorBruch": "Near collapse"
+    },
+    "kvScore": {
+      "eskalation": "Escalation looming",
+      "unterDruck": "Under pressure",
+      "imRahmen": "Within bounds"
+    },
+    "beziehungKritischHint": "Relationship critical! Coalition meeting or concession urgently recommended.",
+    "partnerforderung": "Partner demand:",
+    "monateVerbleibend_one": "{{count}} month left",
+    "monateVerbleibend_other": "{{count}} months left"
+  },
+  "kpiTrend": {
+    "stable": "Stable",
+    "stronglyRising": "Strongly rising",
+    "rising": "Rising",
+    "stronglyFalling": "Strongly falling",
+    "falling": "Falling",
+    "changes": "Changes:"
+  },
+  "approvalChart": {
+    "monatTooltip": "Month {{month}}: <b>{{value}}%</b>",
+    "current": "Current:"
+  },
+  "vorstufeBadge": {
+    "restMonate": "({{count}} mo left)"
+  },
+  "vorbereitungModal": {
+    "kommunalPilot": "Municipal Pilot",
+    "kommunalPilotDesc": "{{cost}} PK, {{duration}} months \u00b7 +8% parliament on success",
+    "laenderPilot": "State Pilot",
+    "laenderPilotDesc": "{{cost}} PK, {{duration}} months \u00b7 +10% parliament on success",
+    "euInitiative": "EU Initiative",
+    "euInitiativeDesc": "{{duration}} months \u00b7 +12% parliament on success",
+    "euKlimaIndikator": "EU climate indicator: {{pct}}% success chance",
+    "euStarten": "Launch EU initiative",
+    "akkumulierteBoni": "Accumulated bonuses: +{{bt}}% parliament, -{{pk}} PK discount",
+    "keineFraktion": "No faction with relationship \u2265 30.",
+    "vorstufeLaeuft": "Pre-stage already running.",
+    "nachWahltermin": "Pre-stage ends after election.",
+    "beziehung": "Relationship: {{value}}"
+  },
+  "haushaltView": {
+    "mrdUnit": "bn",
+    "verbraucht": "{{used}} / {{allowed}} bn used",
+    "monatTooltip": "Month {{month}}: <b>{{value}}</b>"
+  },
+  "eventCard": {
+    "nichtGenugPk": "Not enough PK ({{current}}/{{cost}})",
+    "medienklima": "Media climate",
+    "nettoPos": "Net +",
+    "nettoNeg": "Net \u2212",
+    "gemischt": "Mixed"
+  },
+  "mainMenu": {
+    "saveInfo": "Month {{month}} \u00b7 {{approval}}%",
+    "switchToEnglish": "Switch to English",
+    "switchToGerman": "Auf Deutsch wechseln"
+  },
+  "headerUI": {
+    "pkRegen": "+{{regen}}/mo",
+    "glossarTitle": "Glossary \u2014 Game terms explained",
+    "pkRegenTooltip": "PK regeneration: {{regen}}/month ({{approval}}% approval \u00f7 {{divisor}})"
+  },
+  "ui": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "cost": "Cost",
+    "remaining": "Remaining",
+    "understood": "Got it",
+    "reject": "Reject",
+    "retry": "Try again",
+    "close": "Close",
+    "mrd": "bn"
   }
 }
