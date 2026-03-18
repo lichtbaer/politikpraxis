@@ -5,6 +5,13 @@ import { createInitialState } from '../core/state';
 import { tick, addLog } from '../core/engine';
 import { einbringen, lobbying, abstimmen, type EinbringenContext, type GesetzBeschlussContext } from '../core/systems/parliament';
 import {
+  brauchtGegenfinanzierung,
+  berechneOptionen,
+  wendeGegenfinanzierungAn,
+  type GegenfinanzierungsOption,
+} from '../core/systems/gegenfinanzierung';
+import { featureActive } from '../core/systems/features';
+import {
   updateKoalitionsvertragScore,
   koalitionsrunde,
   prioritaetsgespraech,
@@ -86,6 +93,9 @@ interface GameStore {
   setView: (view: ViewName) => void;
 
   doEinbringen: (lawId: string) => void;
+  /** SMA-335: Einbringen mit vorheriger Gegenfinanzierung */
+  doGegenfinanzierungAuswaehlen: (gesetzId: string, option: GegenfinanzierungsOption, subOption?: string) => void;
+  doGegenfinanzierungAbbrechen: () => void;
   doLobbying: (lawId: string) => void;
   doAbstimmen: (lawId: string) => void;
   doStartRoute: (lawId: string, route: RouteType) => void;
@@ -218,6 +228,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   doEinbringen: (lawId) =>
     set((prev) => {
+      const law = prev.state.gesetze.find(g => g.id === lawId);
+      if (
+        law &&
+        featureActive(prev.complexity, 'gegenfinanzierung') &&
+        brauchtGegenfinanzierung(law)
+      ) {
+        const optionen = berechneOptionen(prev.state, law, prev.content, prev.complexity);
+        if (optionen.length > 0) {
+          return { state: { ...prev.state, pendingGegenfinanzierung: { gesetzId: lawId, optionen } } };
+        }
+      }
       const ctx: EinbringenContext = {
         ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
@@ -225,6 +246,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
       };
       return { state: einbringen(prev.state, lawId, ctx) };
     }),
+  doGegenfinanzierungAuswaehlen: (gesetzId, option, subOption) =>
+    set((prev) => {
+      const { pendingGegenfinanzierung } = prev.state;
+      if (!pendingGegenfinanzierung || pendingGegenfinanzierung.gesetzId !== gesetzId) return prev;
+      const law = prev.state.gesetze.find(g => g.id === gesetzId);
+      if (!law) return prev;
+      const ctx: EinbringenContext = {
+        ausrichtung: prev.ausrichtung,
+        complexity: prev.complexity,
+        gesetzRelationen: prev.content.gesetzRelationen,
+      };
+      let state = wendeGegenfinanzierungAn(prev.state, law, option, subOption);
+      state = { ...state, pendingGegenfinanzierung: undefined };
+      state = einbringen(state, gesetzId, ctx);
+      return { state };
+    }),
+  doGegenfinanzierungAbbrechen: () =>
+    set((prev) => ({
+      state: { ...prev.state, pendingGegenfinanzierung: undefined },
+    })),
   doEinbringenMitFraming: (lawId, framingKey) =>
     set((prev) => {
       const ctx: EinbringenContext = {

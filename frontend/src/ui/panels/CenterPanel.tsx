@@ -4,6 +4,8 @@ import { useGameStore } from '../../store/gameStore';
 import { getKoalitionspartner } from '../../core/systems/koalition';
 import { featureActive } from '../../core/systems/features';
 import { EventCard } from '../components/EventCard/EventCard';
+import { GegenfinanzierungsModal } from '../components/GegenfinanzierungsModal/GegenfinanzierungsModal';
+import type { GegenfinanzierungsOption } from '../../core/systems/gegenfinanzierung';
 import { GesetzAgendaView } from '../views/GesetzAgendaView';
 import { BundestagView } from '../views/BundestagView';
 import { KabinettView } from '../views/KabinettView';
@@ -20,7 +22,7 @@ import styles from './CenterPanel.module.css';
 export function CenterPanel() {
   const { t } = useTranslation('game');
   const { state, content, setView, complexity } = useGameStore();
-  const { resolveEvent } = useGameActions();
+  const { resolveEvent, gegenfinanzierungAuswaehlen, gegenfinanzierungAbbrechen } = useGameActions();
 
   const partnerContent = getKoalitionspartner(content, state);
   const isKoalitionEvent = state.activeEvent && ['koalitionsbruch', 'koalitionskrise_ultimatum'].includes(state.activeEvent.id);
@@ -63,7 +65,20 @@ export function CenterPanel() {
         <span className={styles.tickerMessage}>{state.ticker || '—'}</span>
       </div>
       <div className={styles.content}>
-        {state.activeEvent ? (
+        {state.pendingGegenfinanzierung ? (
+          <GegenfinanzierungsModal
+            gesetzTitel={
+              state.gesetze.find((g) => g.id === state.pendingGegenfinanzierung!.gesetzId)?.titel ??
+              state.pendingGegenfinanzierung.gesetzId
+            }
+            optionen={state.pendingGegenfinanzierung.optionen as GegenfinanzierungsOption[]}
+            getGesetzTitel={(id) => state.gesetze.find((g) => g.id === id)?.titel ?? id}
+            onConfirm={(opt, sub) =>
+              gegenfinanzierungAuswaehlen(state.pendingGegenfinanzierung!.gesetzId, opt, sub)
+            }
+            onClose={gegenfinanzierungAbbrechen}
+          />
+        ) : state.activeEvent ? (
           <EventCard event={state.activeEvent} onChoice={handleChoice} headerColor={headerColor} currentPk={state.pk} />
         ) : (
           <>
