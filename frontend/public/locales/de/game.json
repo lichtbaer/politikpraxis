@@ -839,7 +839,12 @@
     "blockerBundesrat": "Bundesrat",
     "brVoteIn": "Bundesratsabstimmung in {{months}} Monaten — Lobbying aktiv",
     "routeFormat": "{{route}}: {{progress}}/{{duration}} Monate",
-    "gratis": "gratis"
+    "gratis": "gratis",
+    "routeVergleich": "Ausweichrouten",
+    "routeName": "Route",
+    "routeKosten": "PK-Kosten",
+    "routeDauer": "Dauer (Mo)",
+    "routeStarten": "Starten"
   },
   "tabBar": {
     "ariaLabel": "Ebenen-Navigation",

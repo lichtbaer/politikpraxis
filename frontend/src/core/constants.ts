@@ -6,6 +6,8 @@
 // --- PK (Politik-Kapital) ---
 /** Divisor für PK-Regen: PK = floor(Zustimmung / PK_REGEN_DIVISOR) */
 export const PK_REGEN_DIVISOR = 25;
+/** Minimum PK-Regen pro Monat — verhindert Handlungsunfähigkeit bei niedriger Zustimmung */
+export const PK_REGEN_MIN = 3;
 /** Maximale PK-Kapazität */
 export const PK_MAX = 150;
 

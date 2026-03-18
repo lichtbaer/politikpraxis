@@ -73,6 +73,21 @@
   border-radius: 4px;
   background: var(--green2, rgba(76, 175, 80, 0.2));
   color: var(--green);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scoreBadge {
+  display: inline-block;
+  min-width: 18px;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--green);
+  color: var(--bg);
 }
 
 .kongruenzBadge {
@@ -301,4 +316,43 @@
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Route comparison table */
+.routeTable {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 12px;
+  background: var(--bg3);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.routeTable th {
+  text-align: left;
+  padding: 6px 10px;
+  font-weight: 600;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.routeTable td {
+  padding: 6px 10px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.routeTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.routeTable tbody tr:hover {
+  background: var(--bg4);
+}
+
+.routeCostInsufficient {
+  color: var(--red);
 }

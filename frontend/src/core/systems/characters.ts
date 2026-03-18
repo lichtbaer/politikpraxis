@@ -1,4 +1,5 @@
 import type { GameState } from '../types';
+import { addLog } from '../log';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 
 export function applyCharBonuses(state: GameState): GameState {
@@ -81,4 +82,42 @@ export function applyMoodChange(
     return newChar;
   });
   return { ...state, chars };
+}
+
+const GESPRAECH_PK_COST = 8;
+const GESPRAECH_COOLDOWN_MONTHS = 6;
+
+export function kabinettsgespraech(state: GameState, charId: string): GameState {
+  // Check PK
+  if (state.pk < GESPRAECH_PK_COST) return state;
+
+  // Find character
+  const char = state.chars.find(c => c.id === charId);
+  if (!char) return state;
+
+  // Check cooldown
+  const cooldowns = state.charGespraechCooldowns ?? {};
+  if (cooldowns[charId] != null && state.month < cooldowns[charId]) return state;
+
+  // Apply mood +1, loyalty +0.5
+  const chars = state.chars.map(c => {
+    if (c.id !== charId) return c;
+    return {
+      ...c,
+      mood: Math.min(4, c.mood + 1),
+      loyalty: Math.min(5, c.loyalty + 0.5),
+    };
+  });
+
+  // Update cooldown and deduct PK
+  const newCooldowns = { ...cooldowns, [charId]: state.month + GESPRAECH_COOLDOWN_MONTHS };
+
+  const newState: GameState = {
+    ...state,
+    pk: state.pk - GESPRAECH_PK_COST,
+    chars,
+    charGespraechCooldowns: newCooldowns,
+  };
+
+  return addLog(newState, `Kabinettsgespräch mit ${char.name}: Stimmung verbessert`, 'g');
 }

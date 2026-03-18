@@ -7,6 +7,7 @@ import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { featureActive } from './features';
 import { verbrauchePK } from '../pk';
+import { isEventAvailable, recordEventFired } from './eventUtils';
 
 /** Medienklima-Multiplikator: moduliert KPI-/Milieu-Effekte */
 export function getMedienMultiplikator(medienKlima: number): number {
@@ -84,6 +85,8 @@ function medienEventToGameEvent(me: MedienEventContent): GameEvent {
       medienklima_delta: c.medienklima_delta,
     })),
     min_complexity: me.min_complexity,
+    repeatable: me.repeatable,
+    cooldownMonths: me.cooldownMonths,
   };
 }
 
@@ -155,11 +158,13 @@ function checkSkandale(
 ): GameState {
   const pool = getMedienEventsPool(content.medienEvents ?? [], 'skandal');
   const eligible = pool.filter(
-    (e) =>
-      !state.firedEvents.includes(e.id) &&
-      e.min_complexity <= complexity &&
-      state.month >= e.trigger_monat_min &&
-      checkSkandalBedingung(state, e),
+    (e) => {
+      const ge = medienEventToGameEvent(e);
+      return isEventAvailable(state, ge) &&
+        e.min_complexity <= complexity &&
+        state.month >= e.trigger_monat_min &&
+        checkSkandalBedingung(state, e);
+    },
   );
 
   if (eligible.length === 0 || Math.random() >= 0.08) return state;
@@ -172,7 +177,7 @@ function checkSkandale(
     ...state,
     medienKlima: newMk,
     letzterSkandal: state.month,
-    firedEvents: [...state.firedEvents, event.id],
+    ...recordEventFired(state, gameEvent),
     activeEvent: gameEvent,
     ...withPause(state, getAutoPauseLevel(gameEvent)),
   };
@@ -189,11 +194,13 @@ function checkPositiveMedienEvents(
 
   const pool = getMedienEventsPool(content.medienEvents ?? [], 'positiv');
   const eligible = pool.filter(
-    (e) =>
-      !state.firedEvents.includes(e.id) &&
-      e.min_complexity <= complexity &&
-      state.month >= e.trigger_monat_min &&
-      checkPositivBedingung(state, e),
+    (e) => {
+      const ge = medienEventToGameEvent(e);
+      return isEventAvailable(state, ge) &&
+        e.min_complexity <= complexity &&
+        state.month >= e.trigger_monat_min &&
+        checkPositivBedingung(state, e);
+    },
   );
 
   if (eligible.length === 0) return state;
@@ -203,7 +210,7 @@ function checkPositiveMedienEvents(
 
   return {
     ...state,
-    firedEvents: [...state.firedEvents, event.id],
+    ...recordEventFired(state, gameEvent),
     activeEvent: gameEvent,
     ...withPause(state, getAutoPauseLevel(gameEvent)),
   };

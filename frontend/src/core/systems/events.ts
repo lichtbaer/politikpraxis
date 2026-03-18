@@ -51,19 +51,22 @@ function applySprecherWechselEffect(state: GameState, event: GameEvent): GameSta
 /** Wahlkampf-Events werden nie zufällig getriggert; nur durch dedizierte Check-Funktionen (Monat 43–48) */
 const WAHLKAMPF_EVENT_IDS = new Set(['wahlkampf_beginn', 'tv_duell', 'koalitionspartner_alleingang']);
 
+export { isOnCooldown, isEventAvailable, recordEventFired } from './eventUtils';
+import { isEventAvailable, recordEventFired } from './eventUtils';
+
 export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): GameState {
   if (state.activeEvent) return state;
   if (Math.random() >= 0.22) return state;
 
   const available = eventPool
     .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
-    .filter(e => !state.firedEvents.includes(e.id));
+    .filter(e => isEventAvailable(state, e));
   if (!available.length) return state;
 
   const ev = available[Math.floor(Math.random() * available.length)];
   return {
     ...state,
-    firedEvents: [...state.firedEvents, ev.id],
+    ...recordEventFired(state, ev),
     activeEvent: ev,
     ...withPause(state, getAutoPauseLevel(ev)),
   };
@@ -209,7 +212,6 @@ export function checkKommunalLaenderEvents(
   if (state.activeEvent) return state;
   if (!events.length) return state;
 
-  const fired = state.firedEvents ?? [];
   const haushaltSaldo = state.haushalt?.saldo ?? 0;
   const politikfeldDruck = state.politikfeldDruck ?? {};
   const minBrBeziehung = state.bundesratFraktionen?.length
@@ -217,7 +219,7 @@ export function checkKommunalLaenderEvents(
     : 100;
 
   for (const ev of events) {
-    if (fired.includes(ev.id)) continue;
+    if (!isEventAvailable(state, ev)) continue;
     const evMinC = (ev as GameEvent & { min_complexity?: number }).min_complexity;
     if (evMinC != null && evMinC > complexity) continue;
 
@@ -233,7 +235,7 @@ export function checkKommunalLaenderEvents(
 
     return {
       ...state,
-      firedEvents: [...fired, ev.id],
+      ...recordEventFired(state, ev),
       activeEvent: ev,
       ...withPause(state, getAutoPauseLevel(ev)),
     };
@@ -251,12 +253,11 @@ export function checkSteuerEvents(
   if (!events.length) return state;
   if (complexity < 2) return state;
 
-  const fired = state.firedEvents ?? [];
   const haushaltSaldo = state.haushalt?.saldo ?? 0;
   const konjunkturIndex = state.haushalt?.konjunkturIndex ?? 0;
 
   for (const ev of events) {
-    if (fired.includes(ev.id)) continue;
+    if (!isEventAvailable(state, ev)) continue;
     const evMinC = (ev as GameEvent & { min_complexity?: number }).min_complexity;
     if (evMinC != null && evMinC > complexity) continue;
 
@@ -270,7 +271,7 @@ export function checkSteuerEvents(
 
     let newState: GameState = {
       ...state,
-      firedEvents: [...fired, ev.id],
+      ...recordEventFired(state, ev),
       activeEvent: ev,
       ...withPause(state, getAutoPauseLevel(ev)),
     };

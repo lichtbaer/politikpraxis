@@ -742,7 +742,12 @@
     "blockerBundesrat": "Bundesrat (Federal Council)",
     "brVoteIn": "Bundesrat (Federal Council) vote in {{months}} months — lobbying active",
     "routeFormat": "{{route}}: {{progress}}/{{duration}} months",
-    "gratis": "free"
+    "gratis": "free",
+    "routeVergleich": "Alternative routes",
+    "routeName": "Route",
+    "routeKosten": "PK cost",
+    "routeDauer": "Duration (mo)",
+    "routeStarten": "Start"
   },
   "tabBar": {
     "ariaLabel": "Level navigation",

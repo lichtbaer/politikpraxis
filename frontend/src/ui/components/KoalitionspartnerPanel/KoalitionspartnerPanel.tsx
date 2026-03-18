@@ -11,6 +11,19 @@ function getBeziehungsFarbe(beziehung: number): string {
   return 'var(--red)';
 }
 
+function getBeziehungsLabel(beziehung: number): string {
+  if (beziehung >= 60) return 'Stabil';
+  if (beziehung >= 30) return 'Angespannt';
+  if (beziehung >= 15) return 'Kritisch';
+  return 'Koalitionsbruch droht!';
+}
+
+function getKvScoreLabel(score: number): string {
+  if (score >= 70) return 'Eskalation droht';
+  if (score >= 40) return 'Unter Druck';
+  return 'Im Rahmen';
+}
+
 export function KoalitionspartnerPanel() {
   const { t } = useTranslation('game');
   const { state, content, complexity } = useGameStore();
@@ -33,17 +46,40 @@ export function KoalitionspartnerPanel() {
   const forderungen = partnerContent.forderungen ?? [];
   const ersteForderung = forderungen[0];
 
+  const partnerFarbe = partnerContent.partei_farbe ?? '#5a9870';
+
+  // Partner priority demand
+  const prioGesetz = state.partnerPrioGesetz;
+  const prioGesetzName = prioGesetz
+    ? state.gesetze.find((g) => g.id === prioGesetz.gesetzId)?.kurz ?? prioGesetz.gesetzId
+    : null;
+  const prioMonateVerbleibend = prioGesetz
+    ? Math.max(0, prioGesetz.bisMonat - state.month)
+    : 0;
+
+  // KV score
+  const showKvScore = featureActive(complexity, 'koalitionsvertrag_score');
+  const kvScore = partnerState.koalitionsvertragScore;
+
   return (
     <div className={styles.panel}>
       <h3 className={styles.title}>{koalitionTitle}</h3>
       <div className={styles.content}>
         <div
           className={styles.avatar}
-          style={{ backgroundColor: '#5a987033', borderColor: '#5a9870' }}
+          style={{ backgroundColor: `${partnerFarbe}33`, borderColor: partnerFarbe }}
         >
-          KP
+          {partnerPartei}
         </div>
         <div className={styles.meta}>
+          <div className={styles.partnerName}>
+            {partnerContent.name}
+            <span className={styles.partnerRole}>
+              ({partnerContent.sprecher})
+            </span>
+          </div>
+
+          {/* Relationship bar */}
           <div className={styles.beziehungsBalken}>
             <div className={styles.balkenTrack}>
               <div
@@ -56,11 +92,55 @@ export function KoalitionspartnerPanel() {
             </div>
             <span className={styles.beziehungValue}>{beziehung}</span>
           </div>
-          {featureActive(complexity, 'koalitionsvertrag_score') && (
-            <div className={styles.kvScore}>
-              KV-Score: {partnerState.koalitionsvertragScore}
+          <span
+            className={styles.beziehungLabel}
+            style={{ color: getBeziehungsFarbe(beziehung) }}
+          >
+            {getBeziehungsLabel(beziehung)}
+          </span>
+
+          {/* Low relationship warning */}
+          {beziehung < 30 && (
+            <div className={styles.warning}>
+              Beziehung kritisch! Koalitionsrunde oder Zugestaendnis dringend empfohlen.
             </div>
           )}
+
+          {/* Koalitionsvertrag-Score (complexity 4) */}
+          {showKvScore && (
+            <div className={styles.kvScoreRow}>
+              <span className={styles.kvLabel}>KV-Abweichung</span>
+              <div className={styles.kvBarTrack}>
+                <div
+                  className={styles.kvBarFill}
+                  style={{
+                    width: `${kvScore}%`,
+                    backgroundColor: kvScore >= 70 ? 'var(--red)' : kvScore >= 40 ? 'var(--warn)' : 'var(--green)',
+                  }}
+                />
+              </div>
+              <span className={styles.kvValue}>{kvScore}</span>
+              <span
+                className={styles.kvStatus}
+                style={{ color: kvScore >= 70 ? 'var(--red)' : kvScore >= 40 ? 'var(--warn)' : 'var(--text2)' }}
+              >
+                {getKvScoreLabel(kvScore)}
+              </span>
+            </div>
+          )}
+
+          {/* Current partner demand */}
+          {prioGesetzName && prioMonateVerbleibend > 0 && (
+            <div className={styles.demand}>
+              <span className={styles.demandLabel}>Partnerforderung:</span>
+              <span className={styles.demandGesetz}>{prioGesetzName}</span>
+              <span className={styles.demandDeadline}>
+                noch {prioMonateVerbleibend} {prioMonateVerbleibend === 1 ? 'Monat' : 'Monate'}
+              </span>
+            </div>
+          )}
+
+          {/* Actions */}
           <div className={styles.actions}>
             <button
               type="button"
@@ -76,7 +156,7 @@ export function KoalitionspartnerPanel() {
                 className={styles.btnSecondary}
                 onClick={() => doKoalitionsZugestaendnis(ersteForderung.id)}
               >
-                {t('game:koalition.zugestaendnis')}
+                {t('game:koalition.zugestaendnis')}: {ersteForderung.label}
               </button>
             )}
           </div>

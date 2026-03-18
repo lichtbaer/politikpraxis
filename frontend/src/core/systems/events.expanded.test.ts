@@ -5,6 +5,8 @@ import {
   checkKommunalLaenderEvents,
   checkKommunalEvents,
   resolveEvent,
+  isEventAvailable,
+  recordEventFired,
 } from './events';
 import { createInitialState } from '../state';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
@@ -304,5 +306,90 @@ describe('resolveEvent', () => {
     const result = resolveEvent(state, event, choice);
     expect(result.bundesratFraktionen[0].beziehung).toBe(45);
     expect(result.bundesratFraktionen[1].beziehung).toBe(65);
+  });
+});
+
+describe('repeatable events', () => {
+  it('isEventAvailable returns true for repeatable event not on cooldown', () => {
+    const event = makeEvent({ id: 'rep_event', repeatable: true, cooldownMonths: 6 });
+    const state = makeState({ month: 10, eventCooldowns: {} });
+    expect(isEventAvailable(state, event)).toBe(true);
+  });
+
+  it('isEventAvailable returns false for repeatable event on cooldown', () => {
+    const event = makeEvent({ id: 'rep_event', repeatable: true, cooldownMonths: 6 });
+    const state = makeState({ month: 10, eventCooldowns: { rep_event: 15 } });
+    expect(isEventAvailable(state, event)).toBe(false);
+  });
+
+  it('isEventAvailable returns true for repeatable event after cooldown expires', () => {
+    const event = makeEvent({ id: 'rep_event', repeatable: true, cooldownMonths: 6 });
+    const state = makeState({ month: 20, eventCooldowns: { rep_event: 15 } });
+    expect(isEventAvailable(state, event)).toBe(true);
+  });
+
+  it('isEventAvailable uses firedEvents for non-repeatable events', () => {
+    const event = makeEvent({ id: 'normal_event' });
+    const state = makeState({ firedEvents: ['normal_event'] });
+    expect(isEventAvailable(state, event)).toBe(false);
+  });
+
+  it('recordEventFired sets cooldown for repeatable events', () => {
+    const event = makeEvent({ id: 'rep_event', repeatable: true, cooldownMonths: 6 });
+    const state = makeState({ month: 10 });
+    const patch = recordEventFired(state, event);
+    expect(patch.eventCooldowns).toBeDefined();
+    expect(patch.eventCooldowns!['rep_event']).toBe(16);
+    expect(patch.firedEvents).toBeUndefined();
+  });
+
+  it('recordEventFired defaults cooldown to 12 months', () => {
+    const event = makeEvent({ id: 'rep_event', repeatable: true });
+    const state = makeState({ month: 5 });
+    const patch = recordEventFired(state, event);
+    expect(patch.eventCooldowns!['rep_event']).toBe(17);
+  });
+
+  it('recordEventFired adds to firedEvents for non-repeatable events', () => {
+    const event = makeEvent({ id: 'normal_event' });
+    const state = makeState({ firedEvents: [] });
+    const patch = recordEventFired(state, event);
+    expect(patch.firedEvents).toContain('normal_event');
+    expect(patch.eventCooldowns).toBeUndefined();
+  });
+
+  it('checkRandomEvents uses cooldown for repeatable events instead of firedEvents', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const event = makeEvent({ id: 'rep_random', repeatable: true, cooldownMonths: 6 });
+    const state = makeState({ month: 10 });
+
+    const result = checkRandomEvents(state, [event]);
+    expect(result.activeEvent).toBeTruthy();
+    expect(result.activeEvent!.id).toBe('rep_random');
+    expect(result.eventCooldowns?.['rep_random']).toBe(16);
+    expect(result.firedEvents).not.toContain('rep_random');
+    vi.restoreAllMocks();
+  });
+
+  it('checkRandomEvents blocks repeatable event on cooldown', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const event = makeEvent({ id: 'rep_random', repeatable: true, cooldownMonths: 6 });
+    const state = makeState({ month: 10, eventCooldowns: { rep_random: 15 } });
+
+    const result = checkRandomEvents(state, [event]);
+    expect(result.activeEvent).toBeNull();
+    vi.restoreAllMocks();
+  });
+
+  it('checkRandomEvents allows repeatable event after cooldown expires', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const event = makeEvent({ id: 'rep_random', repeatable: true, cooldownMonths: 6 });
+    const state = makeState({ month: 20, eventCooldowns: { rep_random: 15 } });
+
+    const result = checkRandomEvents(state, [event]);
+    expect(result.activeEvent).toBeTruthy();
+    expect(result.activeEvent!.id).toBe('rep_random');
+    expect(result.eventCooldowns?.['rep_random']).toBe(26);
+    vi.restoreAllMocks();
   });
 });

@@ -1,0 +1,102 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-width: 380px;
+  width: 90%;
+  padding: 20px;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-family: var(--serif);
+  color: var(--text);
+}
+
+.message {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.costInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 20px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.costLine {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text2);
+}
+
+.costValue {
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.remainValue {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.remainWarning {
+  font-weight: 600;
+  color: var(--red);
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btnCancel {
+  padding: 8px 16px;
+  font-size: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.btnCancel:hover {
+  background: var(--bg4);
+  border-color: var(--text2);
+}
+
+.btnConfirm {
+  padding: 8px 16px;
+  font-size: 12px;
+  background: var(--gold2);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  color: var(--gold);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnConfirm:hover {
+  background: var(--gold);
+  color: var(--bg2);
+}

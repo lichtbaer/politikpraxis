@@ -6,6 +6,7 @@ import { MedienklimaBadge } from '../components/MedienklimaBadge/MedienklimaBadg
 import { MilieuSidebar } from '../components/MilieuSidebar/MilieuSidebar';
 import { PolitikfeldGrid } from '../components/PolitikfeldGrid/PolitikfeldGrid';
 import { KoalitionspartnerPanel } from '../components/KoalitionspartnerPanel/KoalitionspartnerPanel';
+import { ApprovalChart } from '../components/ApprovalChart/ApprovalChart';
 import styles from './LeftPanel.module.css';
 
 export function LeftPanel() {
@@ -14,6 +15,7 @@ export function LeftPanel() {
   const electionThreshold = useGameStore((s) => s.state.electionThreshold ?? 40);
   const coalition = useGameStore((s) => s.state.coalition);
   const chars = useGameStore((s) => s.state.chars);
+  const approvalHistory = useGameStore((s) => s.state.approvalHistory ?? []);
 
   return (
     <aside className={styles.panel}>
@@ -36,6 +38,7 @@ export function LeftPanel() {
           <span className={styles.target}>{t('game:leftPanel.target', { percent: electionThreshold })}</span>
         </div>
         <MedienklimaBadge />
+        <ApprovalChart history={approvalHistory} threshold={electionThreshold} />
       </section>
 
       <section className={styles.section}>
@@ -56,8 +59,9 @@ export function LeftPanel() {
             <CharacterRow key={char.id} character={char} />
           ))}
         </div>
-        <KoalitionspartnerPanel />
       </section>
+
+      <KoalitionspartnerPanel />
     </aside>
   );
 }
