@@ -14,6 +14,25 @@ interface KPITileProps {
   changeReasons?: TickLogEntry[];
   /** KPI-Schlüssel für Tooltip-Beschreibung */
   kpiKey?: keyof KPI;
+  /** Historische Werte für Trendanzeige (letzte 3 Monate) */
+  history?: number[];
+}
+
+function getTrendArrow(history: number[], inverted: boolean): { symbol: string; class: string; label: string } | null {
+  if (history.length < 3) return null;
+  const recent = history.slice(-3);
+  const diffs = [recent[1] - recent[0], recent[2] - recent[1]];
+  const avgDiff = (diffs[0] + diffs[1]) / 2;
+  if (Math.abs(avgDiff) < 0.15) return { symbol: '→', class: 'trendFlat', label: 'Stabil' };
+  const improving = inverted ? avgDiff < 0 : avgDiff > 0;
+  if (improving) {
+    return Math.abs(avgDiff) > 1
+      ? { symbol: '⬆', class: 'trendStrongUp', label: 'Stark steigend' }
+      : { symbol: '↗', class: 'trendUp', label: 'Steigend' };
+  }
+  return Math.abs(avgDiff) > 1
+    ? { symbol: '⬇', class: 'trendStrongDown', label: 'Stark fallend' }
+    : { symbol: '↘', class: 'trendDown', label: 'Fallend' };
 }
 
 const KPI_DESCRIPTIONS: Record<keyof KPI, string> = {
@@ -50,6 +69,7 @@ export function KPITile({
   barColor,
   changeReasons,
   kpiKey,
+  history,
 }: KPITileProps) {
   const [showPopover, setShowPopover] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -101,6 +121,11 @@ export function KPITile({
         {delta && (
           <span className={styles[delta.class]}>{delta.text}</span>
         )}
+        {history && (() => {
+          const trend = getTrendArrow(history, inverted);
+          if (!trend) return null;
+          return <span className={styles[trend.class]} title={trend.label}>{trend.symbol}</span>;
+        })()}
       </div>
       <div className={styles.track}>
         <div

@@ -634,6 +634,8 @@ export interface GameState {
   charGespraechCooldowns?: Record<string, number>;
   /** Approval-History: allgemeine Zustimmung pro Monat (max 48 Einträge) */
   approvalHistory?: number[];
+  /** KPI-History pro KPI (letzte 12 Monate) für Trendanzeige */
+  kpiHistory?: { al: number[]; hh: number[]; gi: number[]; zf: number[] };
   /** Event-IDs die in diesem Durchlauf aktiv sind (bei Spielstart zufällig gewählt) */
   activeEventPool?: string[];
   /** Freigeschaltete Gesetz-IDs (durch Events) */

@@ -55,7 +55,7 @@ export function LeftPanel() {
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>{t('game:leftPanel.kabinett')}</h3>
         <div className={styles.kabinett}>
-          {chars.slice(0, 6).map((char) => (
+          {chars.map((char) => (
             <CharacterRow key={char.id} character={char} />
           ))}
         </div>

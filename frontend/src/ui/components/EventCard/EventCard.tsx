@@ -116,6 +116,17 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, h
                         </span>
                       );
                     })}
+                    {choice.effect && (() => {
+                      const positives = Object.entries(choice.effect).filter(([k, v]) => v && (KPI_INVERTED.has(k) ? v < 0 : v > 0)).length;
+                      const negatives = Object.entries(choice.effect).filter(([k, v]) => v && (KPI_INVERTED.has(k) ? v > 0 : v < 0)).length;
+                      if (positives === 0 && negatives === 0) return null;
+                      const balance = positives - negatives;
+                      return (
+                        <span className={`${styles.effectTag} ${balance > 0 ? styles.effectPos : balance < 0 ? styles.effectNeg : styles.effectNeutral}`}>
+                          {balance > 0 ? 'Netto +' : balance < 0 ? 'Netto −' : 'Gemischt'}
+                        </span>
+                      );
+                    })()}
                   </div>
                 )}
               </button>

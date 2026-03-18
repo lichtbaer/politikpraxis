@@ -152,6 +152,28 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
         <div className={styles.body}>
           <p className={styles.desc}>{law.desc || t(`game:laws.${law.id}.desc`)}</p>
 
+          {law.status === 'entwurf' && law.effekte && Object.values(law.effekte).some(v => v !== 0) && (
+            <div className={styles.effectPreview}>
+              <span className={styles.effectPreviewLabel}>{t('game:gesetz.erwarteteWirkung', { defaultValue: 'Erwartete Wirkung' })}:</span>
+              <div className={styles.effectPreviewTags}>
+                {Object.entries(law.effekte).map(([k, v]) => {
+                  if (!v || v === 0) return null;
+                  const kpiLabels: Record<string, string> = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF' };
+                  const kpiInverted = new Set(['al', 'gi']);
+                  const isGood = kpiInverted.has(k) ? v < 0 : v > 0;
+                  return (
+                    <span key={k} className={`${styles.effectPreviewTag} ${isGood ? styles.effectPreviewPos : styles.effectPreviewNeg}`}>
+                      {kpiLabels[k] ?? k} {v > 0 ? '+' : ''}{v.toFixed(1)}
+                    </span>
+                  );
+                })}
+                <span className={styles.effectPreviewLag}>
+                  <Hourglass size={12} /> {t('game:gesetz.wirkungNach', { defaultValue: 'nach {{months}} Mo.', months: law.lag })}
+                </span>
+              </div>
+            </div>
+          )}
+
           {complexity >= 2 &&
             ((law.kosten_einmalig ?? 0) !== 0 ||
               (law.kosten_laufend ?? 0) !== 0 ||

@@ -45,6 +45,8 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
   const showGespraechBtn = fullView && lobbyingActive && !lobbyGesperrt;
 
   const bereitschaft = voteDetail?.bereitschaft ?? fraktion.basisBereitschaft;
+  const lobby = law?.lobbyFraktionen?.[fraktion.id];
+  const hasLobbyAction = lobby?.pkInvestiert || lobby?.tradeoffAngenommen;
 
   return (
     <article className={styles.karte}>
@@ -83,8 +85,17 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
       </div>
       <div className={styles.bereitschaft}>
         <span>{t('game:bundesrat.abstimmungsbereitschaft')}</span>
-        <span className={styles.bereitschaftValue}>{bereitschaft}%</span>
+        <span className={`${styles.bereitschaftValue} ${bereitschaft >= 50 ? styles.bereitschaftHoch : ''}`}>{bereitschaft}%</span>
       </div>
+      {hasLobbyAction && (
+        <div className={styles.lobbyStatus}>
+          {lobby?.pkInvestiert && <span className={styles.lobbyBadge}>{t('game:bundesrat.pkInvestiert', { defaultValue: 'PK investiert' })}</span>}
+          {lobby?.tradeoffAngenommen && <span className={styles.lobbyBadge}>{t('game:bundesrat.tradeoffAkzeptiert', { defaultValue: 'Forderung akzeptiert' })}</span>}
+        </div>
+      )}
+      {lobbyGesperrt && fullView && (
+        <div className={styles.gesperrtBadge}>{t('game:bundesrat.gesperrt', { defaultValue: 'Gesperrt' })}</div>
+      )}
       {showGespraechBtn && (
         <button type="button" className={styles.btnGespraech} onClick={onGespraechSuchen}>
           {t('game:bundesrat.gespraechSuchen')}

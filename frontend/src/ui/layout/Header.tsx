@@ -29,6 +29,12 @@ export function Header() {
 
   const pkRegenDivisor = PK_REGEN_DIVISOR + (complexity - 1) * 3;
   const pkRegen = Math.max(PK_REGEN_MIN, Math.floor(zustG / pkRegenDivisor));
+  const pkRegenTooltip = t('header.pkRegenTooltip', {
+    defaultValue: 'PK-Regeneration: {{regen}}/Monat ({{approval}}% Zustimmung ÷ {{divisor}})',
+    regen: pkRegen,
+    approval: Math.round(zustG),
+    divisor: pkRegenDivisor,
+  });
 
   const canPressemitteilung =
     featureActive(complexity, 'pressemitteilung') &&
@@ -63,8 +69,11 @@ export function Header() {
             </button>
           ))}
         </div>
-        <div className={styles.pk} title={t('header.pkTooltip')}>
+        <div className={styles.pk} title={pkRegenTooltip}>
           PK <span>{pk}</span>
+          <div className={styles.pkBar}>
+            <div className={styles.pkBarFill} style={{ width: `${Math.min(100, (pk / 150) * 100)}%` }} />
+          </div>
           <span className={styles.pkRegen}>+{pkRegen}/Mo</span>
         </div>
         {canPressemitteilung && (
