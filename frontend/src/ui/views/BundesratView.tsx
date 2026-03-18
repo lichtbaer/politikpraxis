@@ -12,6 +12,7 @@ import {
 import type { BundesratFraktion, Law } from '../../core/types';
 import { useUIStore } from '../../store/uiStore';
 import { LobbyingOverlay } from '../components/LobbyingOverlay/LobbyingOverlay';
+import { BundesratMap } from '../components/BundesratMap/BundesratMap';
 import styles from './BundesratView.module.css';
 
 function getBeziehungsFarbe(beziehung: number): string {
@@ -218,6 +219,8 @@ export function BundesratView() {
           {t('game:bundesrat.subtitle')}
         </p>
       </div>
+
+      <BundesratMap laender={state.bundesrat} />
 
       <section className={styles.fraktionskarten}>
         {state.bundesratFraktionen.map((f) => (
