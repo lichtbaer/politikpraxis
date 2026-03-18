@@ -5,6 +5,7 @@ import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import { PK_REGEN_DIVISOR, PK_REGEN_MIN } from '../../core/constants';
+import { PLAYTEST_CONFIG } from '../../config/playtest';
 import { PressemitteilungModal } from '../components/PressemitteilungModal/PressemitteilungModal';
 import { Glossar } from '../components/Glossar/Glossar';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
@@ -53,6 +54,15 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.title}>{t('app.title')}</div>
       <div className={styles.meta}>
+        {PLAYTEST_CONFIG.playtest_modus && (
+          <button
+            type="button"
+            className={styles.playtestFeedbackBtn}
+            onClick={() => window.open(PLAYTEST_CONFIG.feedbackUrl, '_blank')}
+          >
+            🐛 {t('header.playtestFeedback')}
+          </button>
+        )}
         <div>
           {t('header.monthFormat', { month, year })}
         </div>

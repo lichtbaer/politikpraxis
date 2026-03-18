@@ -5,6 +5,7 @@ import { useGameStore } from '../../store/gameStore';
 import { useUIStore, type Theme } from '../../store/uiStore';
 import { PARTEI_STARTPUNKTE, SPIELBARE_PARTEIEN } from '../../data/defaults/parteien';
 import { GeschlechtAuswahl, type KanzlerGeschlecht } from '../components/GeschlechtAuswahl/GeschlechtAuswahl';
+import { istStufeVerfuegbar } from '../../config/playtest';
 import styles from './GameSetup.module.css';
 
 const THEMES: { id: Theme; swatches: [string, string, string] }[] = [
@@ -50,7 +51,9 @@ export function GameSetup() {
   const { theme, setTheme } = useUIStore();
   const [name, setName] = useState('');
   const [geschlecht, setGeschlecht] = useState<KanzlerGeschlecht>('sie');
-  const [selectedComplexity, setSelectedComplexity] = useState(1);
+  const [selectedComplexity, setSelectedComplexity] = useState(() =>
+    COMPLEXITY_LEVELS.find((l) => istStufeVerfuegbar(l.id))?.id ?? 1,
+  );
 
   const handleKandidaturAnnehmen = () => {
     setPlayerName(name.trim().slice(0, 30));
@@ -99,25 +102,32 @@ export function GameSetup() {
         <section className={styles.block}>
           <h2 className={styles.blockTitle}>{t('gameSetup.complexityTitle')}</h2>
           <div className={styles.complexityGrid}>
-            {COMPLEXITY_LEVELS.map((level) => (
-              <button
-                key={level.id}
-                type="button"
-                className={`${styles.complexityTile} ${selectedComplexity === level.id ? styles.complexityTileSelected : ''}`}
-                onClick={() => setSelectedComplexity(level.id)}
-              >
-                <span className={styles.complexityNum}>{level.id}</span>
-                <span className={styles.complexityTitle}>{t(level.titleKey)}</span>
-                <ul className={styles.complexityBullets}>
-                  {level.bulletsKey.map((key) => (
-                    <li key={key}>{t(key)}</li>
-                  ))}
-                </ul>
-                <span className={styles.complexityThreshold}>
-                  {t('gameSetup.wahlhuerde', { percent: level.threshold })}
-                </span>
-              </button>
-            ))}
+            {COMPLEXITY_LEVELS.map((level) => {
+              const verfuegbar = istStufeVerfuegbar(level.id);
+              return (
+                <button
+                  key={level.id}
+                  type="button"
+                  className={`${styles.complexityTile} ${selectedComplexity === level.id ? styles.complexityTileSelected : ''} ${!verfuegbar ? styles.complexityTileLocked : ''}`}
+                  onClick={() => verfuegbar && setSelectedComplexity(level.id)}
+                  disabled={!verfuegbar}
+                  title={!verfuegbar ? t('gameSetup.baldVerfuegbar') : undefined}
+                >
+                  <span className={styles.complexityNum}>{level.id}</span>
+                  <span className={styles.complexityTitle}>{t(level.titleKey)}</span>
+                  <ul className={styles.complexityBullets}>
+                    {level.bulletsKey.map((key) => (
+                      <li key={key}>{t(key)}</li>
+                    ))}
+                  </ul>
+                  <span className={styles.complexityThreshold}>
+                    {verfuegbar
+                      ? t('gameSetup.wahlhuerde', { percent: level.threshold })
+                      : t('gameSetup.baldVerfuegbar')}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </section>
 

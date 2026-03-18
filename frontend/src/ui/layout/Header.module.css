@@ -124,6 +124,24 @@
   text-shadow: none;
 }
 
+/* SMA-332: Prominenter Feedback-Button im Playtest-Modus */
+.playtestFeedbackBtn {
+  padding: 6px 12px;
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+
+.playtestFeedbackBtn:hover {
+  background: rgba(234, 179, 8, 0.25);
+  transform: scale(1.02);
+}
+
 .pressemitteilungBtn {
   padding: 6px 12px;
   background: var(--bg3);

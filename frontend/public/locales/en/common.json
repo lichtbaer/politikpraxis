@@ -14,7 +14,8 @@
   },
   "header": {
     "monthFormat": "Month {{month}}/48 · {{year}}",
-    "pkTooltip": "Political capital — your action resource"
+    "pkTooltip": "Political capital — your action resource",
+    "playtestFeedback": "Give feedback"
   },
   "menu": {
     "newGame": "New Game",
