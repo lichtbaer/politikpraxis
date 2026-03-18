@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
+import { formatMrdSaldo } from '../../utils/format';
 import type { LegislaturBilanz } from '../../core/types';
 import { CheckCircle, AlertTriangle } from '../icons';
 import styles from './LegislaturBilanzScreen.module.css';
@@ -83,7 +84,7 @@ export function LegislaturBilanzScreen() {
               <div className={styles.bilanzItem}>
                 <span className={styles.bilanzLabel}>{t('game:legislaturBilanz.haushalt')}</span>
                 <span className={styles.bilanzValue} style={{ color: bilanz.haushaltsaldo >= 0 ? 'var(--green)' : 'var(--red)' }}>
-                  {bilanz.haushaltsaldo >= 0 ? '+' : ''}{bilanz.haushaltsaldo.toFixed(0)} Mrd.
+                  {formatMrdSaldo(bilanz.haushaltsaldo, 0)}
                 </span>
               </div>
               <div className={styles.bilanzItem}>

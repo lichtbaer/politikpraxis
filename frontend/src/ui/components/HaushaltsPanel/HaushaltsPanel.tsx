@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { checkSchuldenbremse } from '../../../core/systems/haushalt';
+import { formatMrdSaldo, normalizeZero } from '../../../utils/format';
 import type { SchuldenbremsenStatus } from '../../../core/types';
 import { Check, AlertTriangle } from '../../icons';
 import styles from './HaushaltsPanel.module.css';
@@ -49,7 +50,7 @@ function KonjunkturIndikator({ value }: { value: number }) {
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
       </div>
-      <span className={styles.konjunkturValue}>{value > 0 ? '+' : ''}{value.toFixed(1)}</span>
+      <span className={styles.konjunkturValue}>{normalizeZero(value) > 0 ? '+' : ''}{normalizeZero(value).toFixed(1)}</span>
     </div>
   );
 }
@@ -78,7 +79,7 @@ export function HaushaltsPanel() {
         <div className={styles.row}>
           <span>{t('haushalt.laufendeAusgaben')}</span>
           <span className={styles.negative}>
-            -{haushalt.laufendeAusgaben.toFixed(1)} Mrd.
+            -{normalizeZero(haushalt.laufendeAusgaben).toFixed(1)} Mrd.
           </span>
         </div>
         <div className={`${styles.saldo} ${styles[getSaldoKlasse(haushalt.saldo)]}`}>
@@ -88,8 +89,7 @@ export function HaushaltsPanel() {
               haushalt.saldo >= 0 ? styles.positive : styles.negative
             }
           >
-            {haushalt.saldo > 0 ? '+' : ''}
-            {haushalt.saldo.toFixed(1)} Mrd.
+            {formatMrdSaldo(haushalt.saldo)}
           </span>
         </div>
       </div>

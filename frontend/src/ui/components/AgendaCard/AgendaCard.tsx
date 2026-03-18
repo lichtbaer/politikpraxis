@@ -21,14 +21,8 @@ import { FramingModal } from '../FramingModal/FramingModal';
 import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
 import type { Law, LawStatus, RouteType } from '../../../core/types';
 import { Coins, RefreshCw, TrendingUp, Zap, Lightbulb, AlertTriangle, Hourglass } from '../../icons';
+import { formatMrd } from '../../../utils/format';
 import styles from './AgendaCard.module.css';
-
-/** SMA-305: Formatiert Milliarden-Beträge mit Vorzeichen */
-function formatMrd(wert: number): string {
-  if (wert === 0) return '0';
-  const prefix = wert < 0 ? '−' : '+';
-  return `${prefix}${Math.abs(wert).toFixed(1)} Mrd. €`;
-}
 
 /** SMA-305: Kostenampel basierend auf Haushaltslage (< 5% grün, 5–15% gelb, > 15% rot) */
 function getKostenFarbe(kosten: number, spielraum: number): 'gruen' | 'gelb' | 'rot' | null {
