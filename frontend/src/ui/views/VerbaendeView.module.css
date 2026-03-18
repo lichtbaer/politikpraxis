@@ -177,6 +177,12 @@
   color: var(--red);
 }
 
+.druckLeer {
+  font-size: 11px;
+  color: var(--text2);
+  font-style: italic;
+}
+
 .konfliktWarnung {
   font-size: 10px;
   color: var(--warn);

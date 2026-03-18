@@ -202,11 +202,22 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
               <div className={styles.effectPreviewTags}>
                 {Object.entries(law.effekte).map(([k, v]) => {
                   if (!v || v === 0) return null;
-                  const kpiLabels: Record<string, string> = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF' };
+                  const kpiLabels: Record<string, string> = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF', mk: 'MK' };
+                  const kpiTooltips: Record<string, string> = {
+                    al: 'Arbeitslosigkeit',
+                    hh: 'Haushaltssaldo',
+                    gi: 'Gini-Index',
+                    zf: 'Zufriedenheit',
+                    mk: 'Medienklima',
+                  };
                   const kpiInverted = new Set(['al', 'gi']);
                   const isGood = kpiInverted.has(k) ? v < 0 : v > 0;
                   return (
-                    <span key={k} className={`${styles.effectPreviewTag} ${isGood ? styles.effectPreviewPos : styles.effectPreviewNeg}`}>
+                    <span
+                      key={k}
+                      className={`${styles.effectPreviewTag} ${isGood ? styles.effectPreviewPos : styles.effectPreviewNeg}`}
+                      title={kpiTooltips[k] ?? k}
+                    >
                       {kpiLabels[k] ?? k} {v > 0 ? '+' : ''}{v.toFixed(1)}
                     </span>
                   );
@@ -393,13 +404,24 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
           {law.status === 'beschlossen' && (() => {
             const lawPending = state.pending.filter(pe => pe.label === law.kurz);
             if (lawPending.length === 0) return null;
-            const KPI_LABELS: Record<string, string> = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF' };
+            const KPI_LABELS: Record<string, string> = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF', mk: 'MK' };
+            const KPI_TOOLTIPS: Record<string, string> = {
+              al: 'Arbeitslosigkeit',
+              hh: 'Haushaltssaldo',
+              gi: 'Gini-Index',
+              zf: 'Zufriedenheit',
+              mk: 'Medienklima',
+            };
             return (
               <div className={styles.pendingEffects}>
                 {lawPending.map((pe, i) => {
                   const monthsLeft = Math.max(0, pe.month - state.month);
                   return (
-                    <span key={i} className={styles.pendingBadge}>
+                    <span
+                      key={i}
+                      className={styles.pendingBadge}
+                      title={KPI_TOOLTIPS[pe.key] ?? pe.key}
+                    >
                       <Hourglass size={14} /> {KPI_LABELS[pe.key] ?? pe.key} {pe.delta > 0 ? '+' : ''}{pe.delta.toFixed(1)} in {monthsLeft} Mo.
                     </span>
                   );

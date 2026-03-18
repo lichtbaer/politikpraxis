@@ -28,11 +28,19 @@ const STATUS_FILTERS: Array<{ key: StatusFilterKey; labelKey: string; fallback: 
   { key: 'beschlossen', labelKey: 'game:gesetzAgenda.filterBeschlossen', fallback: 'Beschlossen' },
 ];
 
-const KPI_LABELS: Record<string, string> = {
+const KPI_ABBREV: Record<string, string> = {
+  al: 'AL',
+  hh: 'HH',
+  gi: 'GI',
+  zf: 'ZF',
+  mk: 'MK',
+};
+const KPI_TOOLTIPS: Record<string, string> = {
   al: 'Arbeitslosigkeit',
-  hh: 'Haushalt',
+  hh: 'Haushaltssaldo',
   gi: 'Gini-Index',
   zf: 'Zufriedenheit',
+  mk: 'Medienklima',
 };
 
 /** Returns true when the delta is "good" for the given KPI key. */
@@ -226,8 +234,11 @@ export function GesetzAgendaView() {
                           />
                         </div>
                         <span className={styles.pendingLabel}>{eff.label}</span>
-                        <span className={positive ? styles.deltaPositive : styles.deltaNegative}>
-                          {KPI_LABELS[eff.key] ?? eff.key.toUpperCase()} {deltaStr}
+                        <span
+                          className={positive ? styles.deltaPositive : styles.deltaNegative}
+                          title={KPI_TOOLTIPS[eff.key] ?? eff.key}
+                        >
+                          {KPI_ABBREV[eff.key] ?? eff.key.toUpperCase()} {deltaStr}
                         </span>
                       </div>
                     );

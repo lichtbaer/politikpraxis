@@ -91,18 +91,24 @@ function Verbandskarte({ verband, beziehung, month, onGespraech, onTradeoff, pk,
       {showDruck && (
         <div className={styles.verbandDruck}>
           <span className={styles.druckLabel}>{t('game:verbaende.politikfeldDruck')}</span>
-          <div className={styles.druckBar}>
-            <div
-              className={styles.druckFill}
-              style={{
-                width: `${Math.min(100, druckWert)}%`,
-                backgroundColor: getDruckFarbe(druckWert),
-              }}
-            />
-          </div>
-          <span className={`${styles.druckZahl} ${druckWert <= 39 ? styles.druckOk : druckWert <= 69 ? styles.druckWarn : styles.druckKritisch}`}>
-            {Math.round(druckWert)}/100
-          </span>
+          {druckWert === 0 ? (
+            <span className={styles.druckLeer}>{t('game:verbaende.keinAktiverDruck', 'Kein aktiver Druck')}</span>
+          ) : (
+            <>
+              <div className={styles.druckBar}>
+                <div
+                  className={styles.druckFill}
+                  style={{
+                    width: `${Math.min(100, druckWert)}%`,
+                    backgroundColor: getDruckFarbe(druckWert),
+                  }}
+                />
+              </div>
+              <span className={`${styles.druckZahl} ${druckWert <= 39 ? styles.druckOk : druckWert <= 69 ? styles.druckWarn : styles.druckKritisch}`}>
+                {Math.round(druckWert)}/100
+              </span>
+            </>
+          )}
         </div>
       )}
       {showKonfliktWarnung && (

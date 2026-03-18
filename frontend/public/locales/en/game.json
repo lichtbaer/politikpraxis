@@ -797,7 +797,17 @@
     "leer": "No laws.",
     "gesetzeCount": "laws",
     "ohneFeld": "Other",
-    "kongruenz": "{{percent}}"
+    "kongruenz": "{{percent}}",
+    "filterAlle": "All",
+    "filterEntwurf": "Draft",
+    "filterEingebracht": "Introduced",
+    "filterAktiv": "Active",
+    "filterBlockiert": "Blocked",
+    "filterBeschlossen": "Passed",
+    "sortStandard": "Standard",
+    "sortEmpfohlen": "Recommended",
+    "searchPlaceholder": "Search law…",
+    "keineErgebnisse": "No laws found."
   },
   "routes": {
     "eu": "EU level",
@@ -1107,7 +1117,8 @@
     "forderungAnnehmen": "Accept demand",
     "einfluss": "Influence",
     "konfliktWarnung": "Conflict partner active",
-    "politikfeldDruck": "Policy field pressure"
+    "politikfeldDruck": "Policy field pressure",
+    "keinAktiverDruck": "No active pressure"
   },
   "framing": {
     "title": "How do you communicate this law?",

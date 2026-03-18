@@ -1007,7 +1007,8 @@
     "forderungAnnehmen": "Forderung annehmen",
     "einfluss": "Einfluss",
     "konfliktWarnung": "Konflikt-Partner aktiv",
-    "politikfeldDruck": "Politikfeld-Druck"
+    "politikfeldDruck": "Politikfeld-Druck",
+    "keinAktiverDruck": "Kein aktiver Druck"
   },
   "haushaltsdebatte": {
     "entwurfTitle": "Haushaltsentwurf {{jahr}}",
@@ -1092,7 +1093,17 @@
     "leer": "Keine Gesetze.",
     "gesetzeCount": "Gesetze",
     "ohneFeld": "Sonstige",
-    "kongruenz": "{{percent}}"
+    "kongruenz": "{{percent}}",
+    "filterAlle": "Alle",
+    "filterEntwurf": "Entwurf",
+    "filterEingebracht": "Eingebracht",
+    "filterAktiv": "Aktiv",
+    "filterBlockiert": "Blockiert",
+    "filterBeschlossen": "Beschlossen",
+    "sortStandard": "Standard",
+    "sortEmpfohlen": "Empfohlen",
+    "searchPlaceholder": "Gesetz suchen…",
+    "keineErgebnisse": "Keine Gesetze gefunden."
   },
   "agenda": {
     "title": "Gesetzliche Agenda",
