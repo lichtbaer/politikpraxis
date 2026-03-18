@@ -1,0 +1,36 @@
+name: Balance Check
+
+on:
+  push:
+    paths:
+      - 'backend/app/content/**'
+      - 'frontend/src/core/**'
+  pull_request:
+    paths:
+      - 'backend/app/content/**'
+      - 'frontend/src/core/**'
+
+jobs:
+  monte-carlo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-test.txt
+
+      - name: Run Balance Report
+        run: |
+          cd backend && python -m tests.simulation.balance_report --n 500 -o ../balance_report.json
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: balance-report
+          path: balance_report.json

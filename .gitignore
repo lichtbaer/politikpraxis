@@ -13,6 +13,9 @@ site/
 coverage/
 frontend/coverage/
 
+# Balance-Report (generiert von tests.simulation)
+balance_report.json
+
 # Python
 __pycache__/
 *.py[cod]
