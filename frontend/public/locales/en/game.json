@@ -844,7 +844,7 @@
   },
   "media": {
     "title": "Media",
-    "desc": "Overview of voter milieu approval. Milieus react to laws and political decisions.",
+    "desc": "Media climate, public opinion and voter milieus. Media climate affects how laws are perceived.",
     "arbeit": { "name": "Working-class milieu", "desc": "Union-aligned voters, focus on social justice." },
     "mitte": { "name": "Centre", "desc": "Bourgeois centre, economically oriented." },
     "prog": { "name": "Progressive", "desc": "Urban, climate-conscious, diversity-oriented." }
