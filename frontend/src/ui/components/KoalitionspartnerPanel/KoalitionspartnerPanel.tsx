@@ -5,17 +5,20 @@ import { featureActive } from '../../../core/systems/features';
 import { getKoalitionspartner } from '../../../core/systems/koalition';
 import styles from './KoalitionspartnerPanel.module.css';
 
+/** SMA-321: Beziehung 55 = Stabil (nicht Angespannt). Schwellen: 70/50/30/15 */
 function getBeziehungsFarbe(beziehung: number): string {
-  if (beziehung >= 60) return 'var(--green)';
+  if (beziehung >= 70) return 'var(--green)';
+  if (beziehung >= 50) return 'var(--green)';
   if (beziehung >= 30) return 'var(--warn)';
   return 'var(--red)';
 }
 
 function getBeziehungsLabel(beziehung: number): string {
-  if (beziehung >= 60) return 'Stabil';
+  if (beziehung >= 70) return 'Sehr gut';
+  if (beziehung >= 50) return 'Stabil';
   if (beziehung >= 30) return 'Angespannt';
   if (beziehung >= 15) return 'Kritisch';
-  return 'Koalitionsbruch droht!';
+  return 'Kurz vor Bruch';
 }
 
 function getKvScoreLabel(score: number): string {

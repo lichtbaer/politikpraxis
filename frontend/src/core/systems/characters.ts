@@ -39,6 +39,8 @@ export function checkUltimatums(
   charEvents: Record<string, import('../types').GameEvent>,
 ): GameState {
   if (state.activeEvent) return state;
+  /** SMA-321: Ultimatum frühestens ab Monat 4 — Regierung hat noch nichts getan */
+  if (state.month < 4) return state;
 
   for (const c of state.chars) {
     const thresh = c.ultimatum?.moodThresh ?? -1;

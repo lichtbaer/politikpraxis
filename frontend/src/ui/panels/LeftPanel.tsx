@@ -27,11 +27,8 @@ export function LeftPanel() {
   const electionThreshold = useGameStore((s) => s.state.electionThreshold ?? 40);
   const coalition = useGameStore((s) => s.state.coalition);
   const approvalHistory = useGameStore((s) => s.state.approvalHistory) ?? EMPTY_APPROVAL_HISTORY;
-  const log = useGameStore((s) => s.state.log);
   const haushalt = useGameStore((s) => s.state.haushalt);
   const complexity = useGameStore((s) => s.complexity);
-
-  const logCompact = log.slice(0, 5);
 
   return (
     <aside className={styles.panel}>
@@ -78,23 +75,7 @@ export function LeftPanel() {
         <MilieuSidebar />
       </section>
 
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>{t('game:rightPanel.ereignisprotokoll')}</h3>
-        <div className={styles.logCompact}>
-          {logCompact.length === 0 ? (
-            <p className={styles.logEmpty}>{t('game:rightPanel.logEmpty')}</p>
-          ) : (
-            logCompact.map((entry, i) => (
-              <div key={`${entry.time}-${i}`} className={styles.logEntry}>
-                <span className={styles.logTime}>{entry.time}</span>
-                <span className={styles.logMsg}>
-                  {entry.msg.startsWith('game:') ? t(entry.msg, entry.params) : entry.msg}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
+      {/* SMA-321: Ereignisprotokoll nur im rechten Panel, nicht in der Sidebar */}
     </aside>
   );
 }
