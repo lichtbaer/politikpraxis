@@ -1,5 +1,6 @@
 /**
- * SMA-327: Dynamisches Kabinett — Partei-gebundene Minister-Pools & Ressort-Vergabe
+ * SMA-327/SMA-329: Dynamisches Kabinett — Partei-gebundene Minister-Pools & Ressort-Vergabe
+ * LP+SDP Koalition: Lehmann/Braun (CDP) sind automatisch ausgeschlossen, da nur Spieler- und Partner-Pools gewählt werden.
  */
 
 import type { KoalitionspartnerParteiId } from './types';
@@ -22,19 +23,18 @@ export const ALLE_RESSORTS = [
 
 export type RessortId = (typeof ALLE_RESSORTS)[number];
 
-/** SMA-328: Ressort-Präferenzen pro Partei — muss/will/akzeptiert. GP bekommt immer Umwelt. */
+/** SMA-329: Ressort-Präferenzen pro Partei — Top-2 für Partner, Rest für Spieler. GP bekommt immer Umwelt. */
 interface RessortPraeferenzen {
-  muss: RessortId[];
-  will: RessortId[];
-  akzeptiert: RessortId[];
+  /** Top-Präferenzen (Partner wählt Top-2 aus dieser Liste) */
+  praeferenz: RessortId[];
 }
 
 const RESSORT_PRAEFERENZEN: Record<string, RessortPraeferenzen> = {
-  sdp: { muss: ['arbeit'], will: ['finanzen', 'gesundheit'], akzeptiert: ['justiz'] },
-  cdp: { muss: ['innen'], will: ['finanzen', 'wirtschaft'], akzeptiert: ['justiz'] },
-  gp: { muss: ['umwelt'], will: ['wirtschaft', 'justiz'], akzeptiert: ['bildung'] },
-  ldp: { muss: ['wirtschaft'], will: ['finanzen', 'justiz'], akzeptiert: ['digital'] },
-  lp: { muss: ['arbeit'], will: ['gesundheit', 'wohnen'], akzeptiert: ['justiz'] },
+  gp: { praeferenz: ['umwelt', 'wirtschaft', 'justiz'] },
+  sdp: { praeferenz: ['arbeit', 'finanzen', 'innen'] },
+  cdp: { praeferenz: ['finanzen', 'innen', 'wirtschaft'] },
+  ldp: { praeferenz: ['wirtschaft', 'finanzen', 'justiz'] },
+  lp: { praeferenz: ['arbeit', 'justiz', 'umwelt'] },
 };
 
 /** Kabinett-Größe pro Stufe: 1→2, 2→5, 3→7, 4→8 (SMA-328) */
@@ -47,7 +47,8 @@ export interface KabinettConfig {
 
 /**
  * Bildet die Ressort-Aufteilung zwischen Spieler-Partei und Koalitionspartner.
- * Partner bekommt muss + erstes will, Spieler den Rest. GP als Partner bekommt immer Umwelt.
+ * SMA-329: Partner wählt Top-2 aus Präferenz (wenn verfügbar), Spieler bekommt Rest.
+ * GP als Partner bekommt immer Umwelt.
  * @param spielerPartei Spieler-Partei-ID
  * @param koalitionspartner Koalitionspartner-Partei-ID (oder null bei Stufe 1)
  * @param complexity Komplexitätsstufe 1–4
@@ -61,28 +62,18 @@ export function bildeKabinett(
 
   if (!koalitionspartner) {
     const pref = RESSORT_PRAEFERENZEN[spielerPartei];
-    const spielerRessorts = [
-      ...(pref?.muss ?? []),
-      ...(pref?.will ?? []).slice(0, 1),
-      ...(pref?.akzeptiert ?? []),
-    ]
-      .filter((r, i, arr) => arr.indexOf(r) === i)
-      .slice(0, kabinettGroesse) as RessortId[];
+    const spielerRessorts = (pref?.praeferenz ?? []).slice(0, kabinettGroesse) as RessortId[];
     return { spielerRessorts, partnerRessorts: [] };
   }
 
   const partnerPref = RESSORT_PRAEFERENZEN[koalitionspartner];
-  const partnerRessorts: RessortId[] = [
-    ...(partnerPref?.muss ?? []),
-    ...(partnerPref?.will ?? []).slice(0, 1),
-  ].filter((r, i, arr) => arr.indexOf(r) === i) as RessortId[];
+  const partnerRessorts: RessortId[] = (partnerPref?.praeferenz ?? []).slice(0, 2) as RessortId[];
 
   const spielerPref = RESSORT_PRAEFERENZEN[spielerPartei];
   const spielerVerfuegbar = ALLE_RESSORTS.filter((r) => !partnerRessorts.includes(r));
   const spielerRessorts = [
-    ...(spielerPref?.muss ?? []).filter((r) => spielerVerfuegbar.includes(r)),
-    ...(spielerPref?.will ?? []).filter((r) => spielerVerfuegbar.includes(r)),
-    ...spielerVerfuegbar.filter((r) => !(spielerPref?.muss ?? []).includes(r) && !(spielerPref?.will ?? []).includes(r)),
+    ...(spielerPref?.praeferenz ?? []).filter((r) => spielerVerfuegbar.includes(r)),
+    ...spielerVerfuegbar.filter((r) => !(spielerPref?.praeferenz ?? []).includes(r)),
   ]
     .filter((r, i, arr) => arr.indexOf(r) === i)
     .slice(0, kabinettGroesse - partnerRessorts.length) as RessortId[];

@@ -64,6 +64,10 @@ class Char(Base):
     ressort_partner: Mapped[str | None] = mapped_column(Text(), nullable=True)
     agenda: Mapped[dict | None] = mapped_column(JSONB(), nullable=True)
     ist_kanzler: Mapped[bool] = mapped_column(Boolean(), nullable=False, server_default="false")
+    # SMA-329: Partner-Minister, Agenda-Stufen
+    ist_partner_minister: Mapped[bool] = mapped_column(Boolean(), nullable=False, server_default="false")
+    agenda_stufe_aktuell: Mapped[int | None] = mapped_column(Integer(), nullable=True, server_default="0")
+    agenda_ablehnungen: Mapped[int] = mapped_column(Integer(), nullable=False, server_default="0")
 
 
 class CharI18n(Base):

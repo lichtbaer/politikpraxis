@@ -185,13 +185,13 @@
   type: danger
   icon: "\U0001F3DB\uFE0F"
   typeLabel: Vertrauensfrage
-  title: Hoffmann erwägt Vertrauensfrage
+  title: Kanzler/in erwägt Vertrauensfrage
   charId: kanzler
   quote: >-
     Wenn die Koalition keine gemeinsame Linie findet, werde ich die Vertrauensfrage stellen.
   context: >-
-    Die interne Zerrissenheit ist öffentlich geworden. Hoffmann will ein klares Bekenntnis.
-  ticker: 'Kanzlerin erwägt Vertrauensfrage — Koalition unter Druck'
+    Die interne Zerrissenheit ist öffentlich geworden. Das Kanzleramt will ein klares Bekenntnis.
+  ticker: 'Kanzler/in erwägt Vertrauensfrage — Koalition unter Druck'
   choices:
     - label: Koalitionsgipfel einberufen
       desc: 'Alle Konflikte auf den Tisch'

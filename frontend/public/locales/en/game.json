@@ -3,7 +3,7 @@
   "_institutionConvention": "Bundesrat → Bundesrat (Federal Council); Bundestag → Bundestag (Federal Parliament); Bundesland/Länder → Federal States",
   "chars": {
     "kanzler": {
-      "name": "Anna Hoffmann",
+      "name": "Chancellor",
       "role": "Chancellor",
       "bio": "Leads the coalition with a pragmatic course. Holds the threads together — but expects loyalty in return.",
       "tag": "Stability",
@@ -447,10 +447,10 @@
     },
     "kanzler_ultimatum": {
       "typeLabel": "Vote of confidence",
-      "title": "Hoffmann considers vote of confidence",
+      "title": "Chancellor considers vote of confidence",
       "quote": "\"If the coalition cannot find a common line, I will call a vote of confidence.\"",
-      "context": "Internal divisions have become public. Hoffmann wants a clear commitment.",
-      "ticker": "Chancellor Hoffmann considers vote of confidence — coalition under pressure",
+      "context": "Internal divisions have become public. The Chancellery wants a clear commitment.",
+      "ticker": "Chancellor considers vote of confidence — coalition under pressure",
       "choices": {
         "0": { "label": "Call coalition summit", "desc": "All conflicts on the table", "log": "Coalition summit creates new unity." },
         "1": { "label": "Risk vote of confidence", "desc": "Gamble — win or early election", "log": "Vote of confidence called. Coalition holds narrowly." }
@@ -934,7 +934,7 @@
     "cta2": "Now the real work begins.",
     "insKanzleramt": "To the Chancellery",
     "stepProgress": "Step {{current}} of {{total}}",
-    "defaultGovName": "The new government",
+    "defaultGovName": "Chancellor",
     "erster_monat": "First month in office. The coalition is sworn in, ministries are staffed. Now the work begins.",
     "erstes_gesetz": "Your first law. Political capital (PK) is your central resource — for introducing, lobbying and votes.",
     "bundesrat_intro": "The Bundesrat (Federal Council) is active. 16 states, 4 factions. Lobbying affects willingness to vote.",

@@ -1,7 +1,7 @@
 {
   "chars": {
     "kanzler": {
-      "name": "Anna Hoffmann",
+      "name": "Kanzler/in",
       "role": "Kanzlerin",
       "bio": "Führt die Koalition mit pragmatischem Kurs. Hält die Fäden zusammen — aber erwartet Loyalität zurück.",
       "tag": "Stabilität",
@@ -457,10 +457,10 @@
     },
     "kanzler_ultimatum": {
       "typeLabel": "Vertrauensfrage",
-      "title": "Hoffmann erwägt Vertrauensfrage",
+      "title": "Kanzler/in erwägt Vertrauensfrage",
       "quote": "„Wenn die Koalition keine gemeinsame Linie findet, werde ich die Vertrauensfrage stellen.“",
-      "context": "Die interne Zerrissenheit ist öffentlich geworden. Hoffmann will ein klares Bekenntnis.",
-      "ticker": "Kanzlerin Hoffmann erwägt Vertrauensfrage — Koalition unter Druck",
+      "context": "Die interne Zerrissenheit ist öffentlich geworden. Das Kanzleramt will ein klares Bekenntnis.",
+      "ticker": "Kanzler/in erwägt Vertrauensfrage — Koalition unter Druck",
       "choices": {
         "0": { "label": "Koalitionsgipfel einberufen", "desc": "Alle Konflikte auf den Tisch", "log": "Koalitionsgipfel schafft neue Einigkeit." },
         "1": { "label": "Vertrauensfrage riskieren", "desc": "Gamble — gewinnen oder Neuwahl", "log": "Vertrauensfrage gestellt. Koalition hält knapp." }
@@ -920,7 +920,7 @@
     "cta2": "Jetzt geht die Arbeit richtig los.",
     "insKanzleramt": "Ins Kanzleramt",
     "stepProgress": "Schritt {{current}} von {{total}}",
-    "defaultGovName": "Die neue Regierung",
+    "defaultGovName": "Kanzler/in",
     "erster_monat": "Erster Monat im Amt. Die Koalition ist vereidigt, die Ministerien besetzt. Jetzt geht es an die Arbeit.",
     "erstes_gesetz": "Dein erstes Gesetz. Politisches Kapital (PK) ist deine zentrale Ressource — für Einbringen, Lobbying und Abstimmungen.",
     "bundesrat_intro": "Der Bundesrat ist aktiv. 16 Länder, 4 Fraktionen. Lobbying beeinflusst die Abstimmungsbereitschaft.",
