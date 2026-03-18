@@ -5,6 +5,9 @@ import { getKoalitionspartner } from '../../core/systems/koalition';
 import { featureActive } from '../../core/systems/features';
 import { EventCard } from '../components/EventCard/EventCard';
 import { GesetzAgendaView } from '../views/GesetzAgendaView';
+import { BundestagView } from '../views/BundestagView';
+import { KabinettView } from '../views/KabinettView';
+import { HaushaltView } from '../views/HaushaltView';
 import { EbeneView } from '../views/EbeneView';
 import { MediaView } from '../views/MediaView';
 import { BundesratView } from '../views/BundesratView';
@@ -30,6 +33,15 @@ export function CenterPanel() {
     if (state.view === 'verbaende' && !featureActive(complexity, 'verbands_lobbying')) {
       setView('agenda');
     }
+    if (state.view === 'haushalt' && complexity < 2) {
+      setView('agenda');
+    }
+    if ((state.view === 'laender' || state.view === 'kommunen') && complexity < 3) {
+      setView('agenda');
+    }
+    if (state.view === 'eu' && !featureActive(complexity, 'eu_route')) {
+      setView('agenda');
+    }
   }, [state.view, complexity, setView]);
 
   const handleChoice = (event: GameEvent, choice: EventChoice) => {
@@ -48,8 +60,11 @@ export function CenterPanel() {
         ) : (
           <>
             {state.view === 'agenda' && <GesetzAgendaView />}
-            {(state.view === 'eu' || state.view === 'land' || state.view === 'kommune') && (
-              <EbeneView type={state.view} />
+            {state.view === 'bundestag' && <BundestagView />}
+            {state.view === 'kabinett' && <KabinettView />}
+            {state.view === 'haushalt' && <HaushaltView />}
+            {(state.view === 'eu' || state.view === 'laender' || state.view === 'kommunen') && (
+              <EbeneView type={state.view === 'laender' ? 'land' : state.view === 'kommunen' ? 'kommune' : 'eu'} />
             )}
             {state.view === 'medien' && <MediaView />}
             {state.view === 'bundesrat' && <BundesratView />}

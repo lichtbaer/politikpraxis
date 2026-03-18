@@ -1,0 +1,131 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: 24px;
+  color: var(--text);
+  margin: 0;
+}
+
+.desc {
+  color: var(--text2);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text2);
+  margin: 0 0 12px 0;
+}
+
+.balkenContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.balkenRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.balkenLabel {
+  flex: 0 0 90px;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.balkenTrack {
+  flex: 1;
+  height: 20px;
+  background: var(--bg3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.balkenFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.balkenValue {
+  flex: 0 0 40px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  text-align: right;
+}
+
+.abstimmungsListe {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.abstimmungsItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.abstimmungsItem:last-child {
+  border-bottom: none;
+}
+
+.gesetzKurz {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.countdown {
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.logListe {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.logEntry {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.logTime {
+  flex-shrink: 0;
+  color: var(--text3);
+}
+
+.logMsg {
+  color: var(--text2);
+}
+
+.oppositionBadge {
+  padding: 12px;
+  background: color-mix(in srgb, var(--warn) 15%, transparent);
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
