@@ -1039,7 +1039,10 @@
     "investivLabel": "Investition (+2 Mo. Lag)",
     "haushaltAnteil": "{{percent}}% des Jahresbudgets",
     "pkNichtGenug": "Benötigt {{required}} PK (du hast {{current}})",
-    "blockiertVerfassungsgericht": "Blockiert durch laufendes Verfassungsgerichtsverfahren"
+    "blockiertVerfassungsgericht": "Blockiert durch laufendes Verfassungsgerichtsverfahren",
+    "benoetigt": "Benötigt: {{gesetz}}",
+    "ausgeschlossen": "Nicht möglich: Du hast bereits {{gesetz}} beschlossen",
+    "synergie": "Synergieeffekt +{{pct}}% mit {{gesetz}}"
   },
   "gesetzAgenda": {
     "title": "Gesetz-Agenda",
