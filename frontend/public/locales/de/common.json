@@ -14,7 +14,8 @@
   },
   "header": {
     "monthFormat": "Monat {{month}}/48 · {{year}}",
-    "pkTooltip": "Politisches Kapital — deine Handlungsressource"
+    "pkTooltip": "Politisches Kapital — deine Handlungsressource",
+    "playtestFeedback": "Feedback geben"
   },
   "menu": {
     "newGame": "Neues Spiel",
