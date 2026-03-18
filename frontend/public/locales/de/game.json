@@ -981,7 +981,8 @@
     "gespraechSuchen": "Gespräch suchen",
     "forderungAnnehmen": "Forderung annehmen",
     "einfluss": "Einfluss",
-    "konfliktWarnung": "Konflikt-Partner aktiv"
+    "konfliktWarnung": "Konflikt-Partner aktiv",
+    "politikfeldDruck": "Politikfeld-Druck"
   },
   "haushaltsdebatte": {
     "entwurfTitle": "Haushaltsentwurf {{jahr}}",

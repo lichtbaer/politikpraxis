@@ -1051,6 +1051,15 @@
     "koalitionsrunde": "Coalition meeting",
     "zugestaendnis": "Concession"
   },
+  "verbaende": {
+    "title": "Associations",
+    "subtitle": "Business associations and interest groups. Conversations and trade-offs affect relationships and policy field pressure.",
+    "gespraechSuchen": "Seek conversation",
+    "forderungAnnehmen": "Accept demand",
+    "einfluss": "Influence",
+    "konfliktWarnung": "Conflict partner active",
+    "politikfeldDruck": "Policy field pressure"
+  },
   "framing": {
     "title": "How do you communicate this law?",
     "keinFraming": "No framing",
