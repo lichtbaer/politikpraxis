@@ -72,17 +72,24 @@ export function createInitialState(
     ? { id: parteiId, kuerzel: parteiInfo.kuerzel, farbe: parteiInfo.farbe, name: parteiInfo.name }
     : undefined;
 
-  // SMA-327/328: Dynamisches Kabinett — aus Pool wählen wenn pool_partei vorhanden
-  const hasPoolChars = allChars.some((c) => c.pool_partei && !c.ist_kanzler);
-  let activeChars = allChars;
+  // SMA-337: Pool-Filter — nur Chars der Spieler-Partei + Koalitionspartner
+  const relevantParteien = new Set<string>([parteiId]);
+  if (partnerParteiId) relevantParteien.add(partnerParteiId);
+  const relevanteChars = allChars.filter(
+    (c) => !c.pool_partei || relevantParteien.has(c.pool_partei)
+  );
+
+  // SMA-327/328: Dynamisches Kabinett — automatisch aus Pool bilden
+  const hasPoolChars = relevanteChars.some((c) => c.pool_partei && !c.ist_kanzler);
+  let activeChars = relevanteChars;
   if (hasPoolChars) {
     const config = bildeKabinett(parteiId, partnerParteiId, complexity);
     const usedIds = new Set<string>();
-    const selected: typeof allChars = [];
+    const selected: typeof relevanteChars = [];
     // SMA-328: Kanzler ist immer der Spieler — synthetischer Char, kein DB-Char
     const kanzlerNameDisplay = kanzlerName?.trim() || 'Kanzler/in';
-    const kanzlerChar = allChars.find((c) => c.id === 'kanzler' || c.ist_kanzler);
-    const kanzlerBase = kanzlerChar ?? allChars[0];
+    const kanzlerChar = relevanteChars.find((c) => c.id === 'kanzler' || c.ist_kanzler);
+    const kanzlerBase = kanzlerChar ?? relevanteChars[0];
     const kanzlerSynthetic = {
       ...(kanzlerBase ?? {}),
       id: 'kanzler',
@@ -96,13 +103,13 @@ export function createInitialState(
       loyalty: kanzlerBase?.loyalty ?? 5,
       initials: kanzlerNameDisplay.slice(0, 2).toUpperCase() || '??',
       color: spielerParteiState?.farbe ?? '#8a7030',
-    } as typeof allChars[0];
+    } as typeof relevanteChars[0];
     selected.push(kanzlerSynthetic);
     usedIds.add('kanzler');
     for (const ressort of config.spielerRessorts) {
-      const m = waehleMinisterAusPool(allChars, parteiId, ressort);
+      const m = waehleMinisterAusPool(relevanteChars, parteiId, ressort);
       if (m && !usedIds.has(m.id)) {
-        const c = allChars.find((x) => x.id === m.id);
+        const c = relevanteChars.find((x) => x.id === m.id);
         if (c) {
           selected.push(c);
           usedIds.add(m.id);
@@ -111,9 +118,9 @@ export function createInitialState(
     }
     for (const ressort of config.partnerRessorts) {
       if (partnerParteiId) {
-        const m = waehleMinisterAusPool(allChars, partnerParteiId, ressort);
+        const m = waehleMinisterAusPool(relevanteChars, partnerParteiId, ressort);
         if (m && !usedIds.has(m.id)) {
-          const c = allChars.find((x) => x.id === m.id);
+          const c = relevanteChars.find((x) => x.id === m.id);
           if (c) {
             selected.push(c);
             usedIds.add(m.id);
@@ -121,7 +128,8 @@ export function createInitialState(
         }
       }
     }
-    activeChars = selected.length > 0 ? selected : allChars;
+    // SMA-337: Nie ungefilterte Liste — Fallback nur auf gefilterte relevanteChars
+    activeChars = selected.length > 0 ? selected : relevanteChars;
   }
 
   const charsWithPartei = activeChars.map((c) => {
