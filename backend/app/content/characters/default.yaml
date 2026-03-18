@@ -1,7 +1,7 @@
 - id: kanzler
-  name: Anna Hoffmann
+  name: Kanzler/in
   role: Kanzlerin
-  initials: AH
+  initials: ??
   color: "#8a7030"
   mood: 3
   loyalty: 5

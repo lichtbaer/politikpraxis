@@ -96,6 +96,9 @@ function transformChar(api: CharApi): Character {
   if (api.ressort_partner) char.ressort_partner = api.ressort_partner;
   if (api.agenda) char.agenda = api.agenda;
   if (api.ist_kanzler) char.ist_kanzler = api.ist_kanzler;
+  if (api.ist_partner_minister) char.ist_partner_minister = api.ist_partner_minister;
+  if (api.agenda_stufe_aktuell != null) char.agenda_stufe_aktuell = api.agenda_stufe_aktuell;
+  if (api.agenda_ablehnungen != null) char.agenda_ablehnungen = api.agenda_ablehnungen;
   return char;
 }
 

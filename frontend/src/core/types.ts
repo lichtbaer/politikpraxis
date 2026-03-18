@@ -50,6 +50,12 @@ export interface Character {
   agenda?: unknown;
   /** SMA-327: Ist Kanzler (Spieler) */
   ist_kanzler?: boolean;
+  /** SMA-329: Partner-Minister (Juniorpartner) */
+  ist_partner_minister?: boolean;
+  /** SMA-329: Aktuelle Agenda-Stufe (0 = wartend) */
+  agenda_stufe_aktuell?: number;
+  /** SMA-329: Anzahl Ablehnungen in aktueller Stufe */
+  agenda_ablehnungen?: number;
 }
 
 export interface LawEffects {

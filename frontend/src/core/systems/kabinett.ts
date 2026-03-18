@@ -33,8 +33,8 @@ export function entlasseMinister(
   complexity: number,
   contentChars: Character[]
 ): GameState {
+  /** SMA-329: Minister-Entlassung ab Komplexitätsstufe 3, kostet 20 PK */
   if (!featureActive(complexity, 'ministerial_initiativen')) return state;
-  if (state.month < 20) return state;
   if (state.pk < 20) return state;
 
   const char = getChar(state, charId);

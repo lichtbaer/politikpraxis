@@ -42,6 +42,10 @@ export interface CharApi {
   ressort_partner?: string | null;
   agenda?: unknown;
   ist_kanzler?: boolean;
+  /** SMA-329: Partner-Minister (Juniorpartner) */
+  ist_partner_minister?: boolean;
+  agenda_stufe_aktuell?: number | null;
+  agenda_ablehnungen?: number;
 }
 
 export interface GesetzApi {
