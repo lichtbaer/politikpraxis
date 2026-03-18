@@ -1,23 +1,126 @@
+import { useMemo } from 'react';
+import ReactECharts from 'echarts-for-react';
+import type { EChartsOption } from 'echarts';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import styles from './EndScreen.module.css';
 
-function ApprovalSparkline({ data, threshold }: { data: number[]; threshold?: number }) {
-  if (!data.length) return null;
-  const w = 200;
-  const h = 60;
-  const max = 100;
-  const points = data
-    .map((v, i) => `${(i / Math.max(data.length - 1, 1)) * w},${h - (v / max) * h}`)
-    .join(' ');
-  const thresholdY = threshold != null ? h - (threshold / max) * h : null;
+function ApprovalHistoryChart({ data, threshold }: { data: number[]; threshold?: number }) {
+  const option: EChartsOption = useMemo(() => ({
+    animation: true,
+    animationDuration: 1000,
+    grid: { top: 12, right: 10, bottom: 24, left: 36 },
+    xAxis: {
+      type: 'category',
+      data: data.map((_, i) => i + 1),
+      boundaryGap: false,
+      axisLabel: {
+        color: '#888', fontSize: 9,
+        interval: (i: number) => [0, 11, 23, 35, data.length - 1].includes(i),
+        formatter: (v: string) => `M${v}`,
+      },
+      axisLine: { show: false }, axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value', min: 0, max: 100, interval: 25,
+      axisLabel: { color: '#888', fontSize: 9, formatter: '{value}%' },
+      splitLine: { lineStyle: { color: '#333', type: 'dashed' } },
+    },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#1e1c18', borderColor: '#444', borderWidth: 1,
+      textStyle: { color: '#d0cfc8', fontSize: 11 },
+      formatter: (p: unknown) => {
+        const arr = p as Array<{ dataIndex: number; value: number }>;
+        const pt = arr[0];
+        if (!pt) return '';
+        return `Monat ${pt.dataIndex + 1}: <b>${(pt.value as number).toFixed(1)}%</b>`;
+      },
+    },
+    series: [
+      {
+        type: 'line',
+        data,
+        smooth: 0.3,
+        symbol: 'none',
+        lineStyle: { color: '#5a9870', width: 2 },
+        areaStyle: {
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(90,152,112,0.4)' },
+              { offset: 1, color: 'rgba(90,152,112,0.03)' },
+            ],
+          },
+        },
+        markLine: threshold != null ? {
+          silent: true, symbol: 'none',
+          data: [{ yAxis: threshold }],
+          lineStyle: { color: '#c8a84b', type: 'dashed', width: 1 },
+          label: {
+            show: true, position: 'insideEndTop',
+            formatter: `Ziel: ${threshold}%`, color: '#c8a84b', fontSize: 9,
+          },
+        } : undefined,
+      },
+    ],
+  }), [data, threshold]);
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className={styles.sparkline} preserveAspectRatio="none">
-      {thresholdY != null && (
-        <line x1="0" y1={thresholdY} x2={w} y2={thresholdY} stroke="var(--gold)" strokeWidth="1" strokeDasharray="4 3" opacity="0.6" />
-      )}
-      <polyline points={points} fill="none" stroke="var(--green)" strokeWidth="2" />
-    </svg>
+    <ReactECharts
+      option={option}
+      theme="politikpraxis"
+      style={{ width: '100%', height: 160 }}
+      opts={{ renderer: 'canvas' }}
+    />
+  );
+}
+
+function KPIBarChart({ kpi }: { kpi: { al: number; hh: number; gi: number; zf: number } }) {
+  const option: EChartsOption = useMemo(() => ({
+    animation: true,
+    animationDuration: 800,
+    animationDelay: 400,
+    grid: { top: 6, right: 16, bottom: 4, left: 40 },
+    xAxis: { type: 'value', show: false, min: 0, max: 100 },
+    yAxis: {
+      type: 'category',
+      data: ['ZF', 'GI', 'HH', 'AL'],
+      axisLabel: { color: '#888', fontSize: 10 },
+      axisLine: { show: false }, axisTick: { show: false },
+    },
+    series: [
+      {
+        type: 'bar',
+        barMaxWidth: 14,
+        data: [
+          { value: Math.min(100, kpi.zf), itemStyle: { color: kpi.zf > 50 ? '#5a9870' : kpi.zf > 25 ? '#c8a84b' : '#c05848', borderRadius: [0, 3, 3, 0] } },
+          { value: Math.min(100, kpi.gi), itemStyle: { color: kpi.gi < 30 ? '#5a9870' : kpi.gi < 50 ? '#c8a84b' : '#c05848', borderRadius: [0, 3, 3, 0] } },
+          { value: Math.max(0, Math.min(100, 50 + kpi.hh)), itemStyle: { color: kpi.hh > 0 ? '#5a9870' : kpi.hh > -5 ? '#c8a84b' : '#c05848', borderRadius: [0, 3, 3, 0] } },
+          { value: Math.min(100, kpi.al * 5), itemStyle: { color: kpi.al < 5 ? '#5a9870' : kpi.al < 10 ? '#c8a84b' : '#c05848', borderRadius: [0, 3, 3, 0] } },
+        ],
+        label: {
+          show: true, position: 'right', color: '#888', fontSize: 9,
+          formatter: (_p: unknown) => {
+            const p = _p as { dataIndex: number };
+            const vals = [kpi.zf, kpi.gi, kpi.hh, kpi.al];
+            const labels = ['%', '', '%', '%'];
+            const v = vals[3 - p.dataIndex];
+            const l = labels[3 - p.dataIndex];
+            return `${v.toFixed(1)}${l}`;
+          },
+        },
+      },
+    ],
+  }), [kpi]);
+
+  return (
+    <ReactECharts
+      option={option}
+      theme="politikpraxis"
+      style={{ width: '100%', height: 100 }}
+      opts={{ renderer: 'canvas' }}
+    />
   );
 }
 
@@ -43,16 +146,20 @@ export function EndScreen() {
         </p>
 
         {approvalHistory.length > 1 && (
-          <div className={styles.sparklineWrap}>
-            <span className={styles.sparklineLabel}>Zustimmungsverlauf</span>
-            <ApprovalSparkline data={approvalHistory} threshold={state.electionThreshold} />
+          <div className={styles.chartSection}>
+            <span className={styles.chartSectionLabel}>Zustimmungsverlauf</span>
+            <ApprovalHistoryChart data={approvalHistory} threshold={state.electionThreshold} />
           </div>
         )}
 
-        <div className={styles.stats}>
-          <div className={styles.stat}>
+        <div className={styles.statsRow}>
+          <div className={styles.statBlock}>
+            <span className={styles.statLabel}>{t('game:endScreen.finaleKPIs')}</span>
+            <KPIBarChart kpi={state.kpi} />
+          </div>
+          <div className={styles.statBlock}>
             <span className={styles.statLabel}>{t('game:endScreen.beschlosseneGesetze')}</span>
-            <span className={styles.statValue}>{beschlosseneGesetze.length}</span>
+            <span className={styles.statBig}>{beschlosseneGesetze.length}</span>
             {beschlosseneGesetze.length > 0 && (
               <ul className={styles.lawList}>
                 {beschlosseneGesetze.map((g) => (
@@ -60,18 +167,6 @@ export function EndScreen() {
                 ))}
               </ul>
             )}
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>{t('game:endScreen.finaleKPIs')}</span>
-            <span className={styles.statValue}>
-              AL {state.kpi.al.toFixed(1)}% · HH {state.kpi.hh.toFixed(1)}% · GI {state.kpi.gi.toFixed(1)} · ZF {state.kpi.zf.toFixed(1)}%
-            </span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>{t('game:endScreen.milieuZustimmung')}</span>
-            <span className={styles.statValue}>
-              G {state.zust.g}% · Arbeit {state.zust.arbeit}% · Mitte {state.zust.mitte}% · Prog {state.zust.prog}%
-            </span>
           </div>
         </div>
 

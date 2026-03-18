@@ -114,7 +114,7 @@ export function MilieuSidebar() {
               tabIndex={0}
               title={t('game:milieu.milieuDetail.openHint')}
             >
-              <MilieuBar name={label} value={value} color={getBarColor(value)} />
+              <MilieuBar name={label} value={value} color={getBarColor(value)} history={history} />
             </div>
           );
         })}

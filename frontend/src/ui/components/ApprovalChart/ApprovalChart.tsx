@@ -1,3 +1,6 @@
+import { useMemo } from 'react';
+import ReactECharts from 'echarts-for-react';
+import type { EChartsOption } from 'echarts';
 import styles from './ApprovalChart.module.css';
 
 interface ApprovalChartProps {
@@ -5,137 +8,132 @@ interface ApprovalChartProps {
   threshold: number;
 }
 
-const PAD_LEFT = 32;
-const PAD_RIGHT = 8;
-const PAD_TOP = 8;
-const PAD_BOTTOM = 20;
-
-const Y_LABELS = [0, 25, 50, 75, 100];
-const X_LABELS = [1, 12, 24, 36, 48];
-
 export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
-  const viewW = 300;
-  const viewH = 120;
-  const chartW = viewW - PAD_LEFT - PAD_RIGHT;
-  const chartH = viewH - PAD_TOP - PAD_BOTTOM;
+  const option: EChartsOption = useMemo(() => {
+    const months = history.map((_, i) => i + 1);
 
-  const toX = (month: number) => PAD_LEFT + ((month - 1) / 47) * chartW;
-  const toY = (val: number) => PAD_TOP + chartH - (val / 100) * chartH;
+    // Split data into above/below threshold segments for dual-color rendering
+    const aboveData = history.map((v) => (v >= threshold ? v : null));
+    const belowData = history.map((v) => (v < threshold ? v : null));
 
-  // Build segments colored by threshold
-  const segments: { points: string; above: boolean }[] = [];
-  if (history.length > 1) {
-    let currentAbove = history[0] >= threshold;
-    let segPoints = [`${toX(1)},${toY(history[0])}`];
-
-    for (let i = 1; i < history.length; i++) {
-      const above = history[i] >= threshold;
-      const x = toX(i + 1);
-      const y = toY(history[i]);
-
-      if (above !== currentAbove) {
-        // Interpolate crossing point
-        const prevVal = history[i - 1];
-        const curVal = history[i];
-        const ratio = (threshold - prevVal) / (curVal - prevVal);
-        const crossX = toX(i) + ratio * (toX(i + 1) - toX(i));
-        const crossY = toY(threshold);
-
-        segPoints.push(`${crossX},${crossY}`);
-        segments.push({ points: segPoints.join(' '), above: currentAbove });
-
-        segPoints = [`${crossX},${crossY}`, `${x},${y}`];
-        currentAbove = above;
-      } else {
-        segPoints.push(`${x},${y}`);
-      }
-    }
-    segments.push({ points: segPoints.join(' '), above: currentAbove });
-  }
-
-  const thresholdY = toY(threshold);
+    return {
+      animation: true,
+      animationDuration: 600,
+      grid: {
+        top: 8,
+        right: 6,
+        bottom: 20,
+        left: 28,
+        containLabel: false,
+      },
+      xAxis: {
+        type: 'category',
+        data: months,
+        boundaryGap: false,
+        axisLabel: {
+          color: '#888',
+          fontSize: 8,
+          interval: (index: number) => [0, 11, 23, 35, 47].includes(index),
+          formatter: (v: string) => v,
+        },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        splitLine: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 100,
+        interval: 25,
+        axisLabel: {
+          color: '#888',
+          fontSize: 8,
+          formatter: '{value}%',
+        },
+        splitLine: {
+          lineStyle: { color: '#333', type: 'dashed', width: 0.5 },
+        },
+      },
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: '#1e1c18',
+        borderColor: '#444',
+        borderWidth: 1,
+        textStyle: { color: '#d0cfc8', fontSize: 11 },
+        formatter: (params: unknown) => {
+          const p = params as Array<{ dataIndex: number; value: number | null }>;
+          const first = p.find((x) => x.value != null);
+          if (!first) return '';
+          const month = first.dataIndex + 1;
+          const val = first.value as number;
+          return `Monat ${month}: <b>${val.toFixed(1)}%</b>`;
+        },
+      },
+      series: [
+        // Above-threshold segment (green)
+        {
+          type: 'line',
+          data: aboveData,
+          smooth: 0.3,
+          symbol: 'none',
+          lineStyle: { color: '#5a9870', width: 2 },
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(90,152,112,0.35)' },
+                { offset: 1, color: 'rgba(90,152,112,0.04)' },
+              ],
+            },
+          },
+          connectNulls: false,
+          markLine: {
+            silent: true,
+            symbol: 'none',
+            data: [{ yAxis: threshold }],
+            lineStyle: { color: '#888', type: 'dashed', width: 1 },
+            label: {
+              show: true,
+              position: 'insideEndTop',
+              formatter: `${threshold}%`,
+              color: '#888',
+              fontSize: 8,
+            },
+          },
+        },
+        // Below-threshold segment (red)
+        {
+          type: 'line',
+          data: belowData,
+          smooth: 0.3,
+          symbol: 'none',
+          lineStyle: { color: '#c05848', width: 2 },
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: 'rgba(192,88,72,0.35)' },
+                { offset: 1, color: 'rgba(192,88,72,0.04)' },
+              ],
+            },
+          },
+          connectNulls: false,
+        },
+      ],
+    };
+  }, [history, threshold]);
 
   return (
     <div className={styles.container}>
-      <svg
-        className={styles.chart}
-        viewBox={`0 0 ${viewW} ${viewH}`}
-        preserveAspectRatio="none"
-      >
-        {/* Y-axis labels and grid lines */}
-        {Y_LABELS.map((v) => (
-          <g key={`y-${v}`}>
-            <line
-              x1={PAD_LEFT}
-              y1={toY(v)}
-              x2={viewW - PAD_RIGHT}
-              y2={toY(v)}
-              stroke="var(--border)"
-              strokeWidth="0.5"
-              opacity="0.4"
-            />
-            <text
-              x={PAD_LEFT - 4}
-              y={toY(v) + 1}
-              textAnchor="end"
-              fill="var(--text2)"
-              fontSize="7"
-              dominantBaseline="middle"
-            >
-              {v}%
-            </text>
-          </g>
-        ))}
-
-        {/* X-axis labels */}
-        {X_LABELS.map((m) => (
-          <text
-            key={`x-${m}`}
-            x={toX(m)}
-            y={viewH - 2}
-            textAnchor="middle"
-            fill="var(--text2)"
-            fontSize="7"
-          >
-            {m}
-          </text>
-        ))}
-
-        {/* Threshold dashed line */}
-        <line
-          x1={PAD_LEFT}
-          y1={thresholdY}
-          x2={viewW - PAD_RIGHT}
-          y2={thresholdY}
-          stroke="var(--text2)"
-          strokeWidth="0.8"
-          strokeDasharray="4 2"
-          opacity="0.7"
-        />
-
-        {/* Colored line segments */}
-        {segments.map((seg, i) => (
-          <polyline
-            key={i}
-            points={seg.points}
-            fill="none"
-            stroke={seg.above ? 'var(--green)' : 'var(--red)'}
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-        ))}
-
-        {/* Single-point dot when only 1 data point */}
-        {history.length === 1 && (
-          <circle
-            cx={toX(1)}
-            cy={toY(history[0])}
-            r="2"
-            fill={history[0] >= threshold ? 'var(--green)' : 'var(--red)'}
-          />
-        )}
-      </svg>
+      <ReactECharts
+        option={option}
+        theme="politikpraxis"
+        style={{ width: '100%', height: 120 }}
+        opts={{ renderer: 'canvas' }}
+        notMerge={false}
+      />
     </div>
   );
 }
