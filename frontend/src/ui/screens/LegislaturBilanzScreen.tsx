@@ -82,13 +82,13 @@ export function LegislaturBilanzScreen() {
               </div>
               <div className={styles.bilanzItem}>
                 <span className={styles.bilanzLabel}>{t('game:legislaturBilanz.haushalt')}</span>
-                <span className={styles.bilanzValue}>
+                <span className={styles.bilanzValue} style={{ color: bilanz.haushaltsaldo >= 0 ? 'var(--green)' : 'var(--red)' }}>
                   {bilanz.haushaltsaldo >= 0 ? '+' : ''}{bilanz.haushaltsaldo.toFixed(0)} Mrd.
                 </span>
               </div>
               <div className={styles.bilanzItem}>
                 <span className={styles.bilanzLabel}>{t('game:legislaturBilanz.koalition')}</span>
-                <span className={styles.bilanzValue}>
+                <span className={styles.bilanzValue} style={{ color: bilanz.koalitionsvertragErfuellt >= 0.7 ? 'var(--green)' : bilanz.koalitionsvertragErfuellt >= 0.4 ? 'var(--warn)' : 'var(--red)' }}>
                   {Math.round(bilanz.koalitionsvertragErfuellt * 100)}%
                 </span>
               </div>
@@ -99,32 +99,41 @@ export function LegislaturBilanzScreen() {
           </>
         )}
 
-        {beat === 2 && (
+        {beat === 2 && (() => {
+          const getQualColor = (val: string) => {
+            const valMap: Record<string, string> = {
+              'sehr gut': 'var(--green)', 'gut': 'var(--green)',
+              'mittel': 'var(--warn)', 'mäßig': 'var(--warn)',
+              'schlecht': 'var(--red)', 'sehr schlecht': 'var(--red)',
+            };
+            return valMap[val.toLowerCase()] ?? 'var(--text)';
+          };
+          return (
           <>
             <h1 className={styles.title}>{t('game:legislaturBilanz.beat2Title')}</h1>
             <div className={styles.qualitaet}>
               <div className={styles.qualItem}>
                 <span className={styles.qualLabel}>{t('game:legislaturBilanz.reform')}</span>
-                <span className={styles.qualValue}>{bilanz.reformStaerke}</span>
+                <span className={styles.qualValue} style={{ color: getQualColor(String(bilanz.reformStaerke)) }}>{bilanz.reformStaerke}</span>
               </div>
               <div className={styles.qualItem}>
                 <span className={styles.qualLabel}>{t('game:legislaturBilanz.stabilitaet')}</span>
-                <span className={styles.qualValue}>{bilanz.stabilitaet}</span>
+                <span className={styles.qualValue} style={{ color: getQualColor(String(bilanz.stabilitaet)) }}>{bilanz.stabilitaet}</span>
               </div>
               <div className={styles.qualItem}>
                 <span className={styles.qualLabel}>{t('game:legislaturBilanz.wirtschaft')}</span>
-                <span className={styles.qualValue}>{bilanz.wirtschaftsBilanz}</span>
+                <span className={styles.qualValue} style={{ color: getQualColor(String(bilanz.wirtschaftsBilanz)) }}>{bilanz.wirtschaftsBilanz}</span>
               </div>
               <div className={styles.qualItem}>
                 <span className={styles.qualLabel}>{t('game:legislaturBilanz.medien')}</span>
-                <span className={styles.qualValue}>{bilanz.medienbilanz}</span>
+                <span className={styles.qualValue} style={{ color: getQualColor(String(bilanz.medienbilanz)) }}>{bilanz.medienbilanz}</span>
               </div>
             </div>
             <button type="button" className={styles.btn} onClick={() => setBeat(3)}>
               {t('game:legislaturBilanz.weiter')}
             </button>
           </>
-        )}
+        );})()}
 
         {beat === 3 && (
           <>

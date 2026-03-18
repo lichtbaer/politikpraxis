@@ -229,6 +229,18 @@ export function tick(
   const approvalHist = [...(s.approvalHistory ?? []), newZust.g].slice(-48);
   s = { ...s, approvalHistory: approvalHist };
 
+  // KPI-History: letzte 12 Monate pro KPI für Trendanzeige
+  const prevKpiHist = s.kpiHistory ?? { al: [], hh: [], gi: [], zf: [] };
+  s = {
+    ...s,
+    kpiHistory: {
+      al: [...prevKpiHist.al, s.kpi.al].slice(-12),
+      hh: [...prevKpiHist.hh, s.kpi.hh].slice(-12),
+      gi: [...prevKpiHist.gi, s.kpi.gi].slice(-12),
+      zf: [...prevKpiHist.zf, s.kpi.zf].slice(-12),
+    },
+  };
+
   // SMA-280: Verfassungsgericht-Verfahren beenden wenn Frist abgelaufen
   if (
     s.verfassungsgerichtAktiv &&

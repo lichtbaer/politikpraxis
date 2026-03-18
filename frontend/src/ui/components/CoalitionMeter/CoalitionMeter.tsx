@@ -72,8 +72,10 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
     ],
   }), [clamped, color]);
 
+  const isCritical = clamped < 25;
+
   return (
-    <div className={styles.root}>
+    <div className={`${styles.root} ${isCritical ? styles.critical : ''}`}>
       <ReactECharts
         option={option}
         theme="politikpraxis"
@@ -82,8 +84,14 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
         notMerge={false}
       />
       <div className={styles.statusLabel} style={{ color }}>
+        {isCritical && <span className={styles.warningIcon}>&#9888;</span>}
         {getLabel(clamped)}
       </div>
+      {clamped < 15 && (
+        <div className={styles.collapseWarning}>
+          Koalitionsbruch droht!
+        </div>
+      )}
     </div>
   );
 }

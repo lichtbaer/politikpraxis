@@ -6,11 +6,14 @@ import styles from './ApprovalChart.module.css';
 interface ApprovalChartProps {
   history: number[];
   threshold: number;
+  /** Current month number (1-based) for label display */
+  currentMonth?: number;
 }
 
-export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
+export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChartProps) {
   const option: EChartsOption = useMemo(() => {
     const months = history.map((_, i) => i + 1);
+    const latestValue = history.length > 0 ? history[history.length - 1] : null;
 
     // Split data into above/below threshold segments for dual-color rendering
     const aboveData = history.map((v) => (v >= threshold ? v : null));
@@ -34,7 +37,11 @@ export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
           color: '#888',
           fontSize: 8,
           interval: (index: number) => [0, 11, 23, 35, 47].includes(index),
-          formatter: (v: string) => v,
+          formatter: (v: string) => {
+            const m = Number(v);
+            const year = 2025 + Math.floor((m - 1) / 12);
+            return `${m} (${year})`;
+          },
         },
         axisLine: { show: false },
         axisTick: { show: false },
@@ -125,8 +132,21 @@ export function ApprovalChart({ history, threshold }: ApprovalChartProps) {
     };
   }, [history, threshold]);
 
+  const latestVal = history.length > 0 ? history[history.length - 1] : null;
+
   return (
     <div className={styles.container}>
+      {latestVal !== null && (
+        <div className={styles.currentValue}>
+          <span className={styles.currentLabel}>Aktuell:</span>
+          <span
+            className={styles.currentNumber}
+            style={{ color: latestVal >= threshold ? '#5a9870' : '#c05848' }}
+          >
+            {latestVal.toFixed(1)}%
+          </span>
+        </div>
+      )}
       <ReactECharts
         option={option}
         theme="politikpraxis"

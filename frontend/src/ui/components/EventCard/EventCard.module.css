@@ -188,6 +188,11 @@
   color: var(--red);
 }
 
+.effectNeutral {
+  background: color-mix(in srgb, var(--warn) 15%, transparent);
+  color: var(--warn);
+}
+
 .choiceDisabled {
   opacity: 0.45;
   cursor: not-allowed;

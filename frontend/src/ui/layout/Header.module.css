@@ -88,6 +88,24 @@
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pkBar {
+  width: 40px;
+  height: 4px;
+  background: var(--bg4);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.pkBarFill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width 0.3s ease;
 }
 
 .pk span {

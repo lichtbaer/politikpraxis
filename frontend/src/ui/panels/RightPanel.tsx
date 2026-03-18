@@ -43,7 +43,7 @@ export function RightPanel() {
   const state = useGameStore((s) => s.state);
   const complexity = useGameStore((s) => s.complexity);
   const { doPressemitteilung } = useGameActions();
-  const { kpi, kpiPrev, log, tickLog } = state;
+  const { kpi, kpiPrev, log, tickLog, kpiHistory } = state;
 
   // Group tick log entries by KPI key for tooltip display
   const tickLogByKey = (tickLog ?? []).reduce<Record<string, typeof tickLog>>((acc, entry) => {
@@ -78,6 +78,7 @@ export function RightPanel() {
             barColor={alBar.barColor}
             kpiKey="al"
             changeReasons={tickLogByKey['al']}
+            history={kpiHistory?.al}
           />
           <KPITile
             label={t('game.kpi.budget', { ns: 'common' })}
@@ -89,6 +90,7 @@ export function RightPanel() {
             barColor={hhBar.barColor}
             kpiKey="hh"
             changeReasons={tickLogByKey['hh']}
+            history={kpiHistory?.hh}
           />
           <KPITile
             label={t('game.kpi.gini', { ns: 'common' })}
@@ -100,6 +102,7 @@ export function RightPanel() {
             barColor={giBar.barColor}
             kpiKey="gi"
             changeReasons={tickLogByKey['gi']}
+            history={kpiHistory?.gi}
           />
           <KPITile
             label={t('game.kpi.satisfaction', { ns: 'common' })}
@@ -111,6 +114,7 @@ export function RightPanel() {
             barColor={zfBar.barColor}
             kpiKey="zf"
             changeReasons={tickLogByKey['zf']}
+            history={kpiHistory?.zf}
           />
         </div>
       </section>

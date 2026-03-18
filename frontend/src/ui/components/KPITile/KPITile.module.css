@@ -52,6 +52,30 @@
   color: var(--text2);
 }
 
+/* Trend indicators */
+.trendUp,
+.trendStrongUp {
+  font-size: 12px;
+  color: var(--green);
+}
+
+.trendDown,
+.trendStrongDown {
+  font-size: 12px;
+  color: var(--red);
+}
+
+.trendFlat {
+  font-size: 12px;
+  color: var(--text3);
+}
+
+.trendStrongUp,
+.trendStrongDown {
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .track {
   height: 4px;
   background: var(--bg4);

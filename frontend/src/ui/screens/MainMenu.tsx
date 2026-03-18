@@ -13,11 +13,22 @@ function toggleLang() {
   localStorage.setItem('politikpraxis_lang', next);
 }
 
+function getSaveInfo(): { month: number; savedAt: string; approval: number } | null {
+  const result = loadGame();
+  if (!result.ok) return null;
+  const s = result.data;
+  const month = s.gameState.month ?? 0;
+  const approval = s.gameState.zust?.g ?? 0;
+  return { month, savedAt: s.savedAt, approval };
+}
+
 export function MainMenu() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const loadSaveFromFile = useGameStore((s) => s.loadSaveFromFile);
   const [saveAvailable] = useState(hasSaveAvailable);
+  const [saveInfo] = useState(getSaveInfo);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const handleNewGame = () => {
     navigate('/setup');
@@ -29,7 +40,9 @@ export function MainMenu() {
       loadSaveFromFile(result.data);
       navigate('/game');
     } else if (result.reason === 'version_mismatch') {
-      console.warn('[politikpraxis] Save-Version inkompatibel – Laden übersprungen');
+      setLoadError(t('menu.loadVersionError', { defaultValue: 'Spielstand ist nicht kompatibel mit dieser Version.' }));
+    } else if (result.reason === 'parse_error') {
+      setLoadError(t('menu.loadParseError', { defaultValue: 'Spielstand konnte nicht gelesen werden.' }));
     }
   };
 
@@ -71,7 +84,15 @@ export function MainMenu() {
                 onClick={handleLoadGame}
               >
                 {t('menu.loadGame')}
+                {saveInfo && (
+                  <span className={styles.saveInfo}>
+                    Monat {saveInfo.month} · {Math.round(saveInfo.approval)}% · {new Date(saveInfo.savedAt).toLocaleDateString('de-DE')}
+                  </span>
+                )}
               </button>
+            )}
+            {loadError && (
+              <p className={styles.loadError}>{loadError}</p>
             )}
             <button type="button" className={styles.secondary} disabled>
               {t('menu.settings')}
