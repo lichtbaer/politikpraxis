@@ -40,10 +40,16 @@ interface GlossarProps {
 export function Glossar({ onClose }: GlossarProps) {
   const { t } = useTranslation('game');
   const [filter, setFilter] = useState<GlossarEntry['category'] | 'alle'>('alle');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filtered = filter === 'alle'
-    ? GLOSSAR_ENTRIES
-    : GLOSSAR_ENTRIES.filter(e => e.category === filter);
+  const filtered = GLOSSAR_ENTRIES.filter(e => {
+    if (filter !== 'alle' && e.category !== filter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return e.term.toLowerCase().includes(q) || e.explanation.toLowerCase().includes(q);
+    }
+    return true;
+  });
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -52,6 +58,16 @@ export function Glossar({ onClose }: GlossarProps) {
           <h2 className={styles.title}>{t('glossar.title', 'Glossar')}</h2>
           <button type="button" className={styles.closeBtn} onClick={onClose}>✕</button>
         </header>
+        <div className={styles.searchRow}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Begriff suchen…"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            autoFocus
+          />
+        </div>
         <div className={styles.filters}>
           <button
             type="button"

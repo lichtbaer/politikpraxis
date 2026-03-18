@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
+import { PK_REGEN_DIVISOR, PK_REGEN_MIN } from '../../core/constants';
 import { PressemitteilungModal } from '../components/PressemitteilungModal/PressemitteilungModal';
 import { Glossar } from '../components/Glossar/Glossar';
 import type { SpeedLevel } from '../../core/types';
@@ -13,16 +14,20 @@ export function Header() {
   const { t } = useTranslation();
   const [showPressemitteilungModal, setShowPressemitteilungModal] = useState(false);
   const [showGlossar, setShowGlossar] = useState(false);
-  const { month, speed, pk, letztesPressemitteilungMonat } = useGameStore(
+  const { month, speed, pk, letztesPressemitteilungMonat, zustG } = useGameStore(
     useShallow(s => ({
       month: s.state.month,
       speed: s.state.speed,
       pk: s.state.pk,
       letztesPressemitteilungMonat: s.state.letztesPressemitteilungMonat,
+      zustG: s.state.zust.g,
     })),
   );
   const complexity = useGameStore((s) => s.complexity);
   const { setSpeed, doPressemitteilung } = useGameActions();
+
+  const pkRegenDivisor = PK_REGEN_DIVISOR + (complexity - 1) * 3;
+  const pkRegen = Math.max(PK_REGEN_MIN, Math.floor(zustG / pkRegenDivisor));
 
   const canPressemitteilung =
     featureActive(complexity, 'pressemitteilung') &&
@@ -30,10 +35,10 @@ export function Header() {
     pk >= 5;
   const year = 2025 + Math.floor((month - 1) / 12);
 
-  const speeds: { level: SpeedLevel; label: string; titleKey: string }[] = [
-    { level: 0, label: '⏸', titleKey: 'game.speed.pauseTitle' },
-    { level: 1, label: t('game.speed.slow'), titleKey: 'game.speed.slowTitle' },
-    { level: 2, label: t('game.speed.fast'), titleKey: 'game.speed.fastTitle' },
+  const speeds: { level: SpeedLevel; label: string; titleKey: string; shortcut: string }[] = [
+    { level: 0, label: '⏸', titleKey: 'game.speed.pauseTitle', shortcut: '␣' },
+    { level: 1, label: t('game.speed.slow'), titleKey: 'game.speed.slowTitle', shortcut: '1' },
+    { level: 2, label: t('game.speed.fast'), titleKey: 'game.speed.fastTitle', shortcut: '3' },
   ];
 
   return (
@@ -53,11 +58,13 @@ export function Header() {
               title={t(s.titleKey)}
             >
               {s.label}
+              <kbd className={styles.kbd}>{s.shortcut}</kbd>
             </button>
           ))}
         </div>
         <div className={styles.pk} title={t('header.pkTooltip')}>
           PK <span>{pk}</span>
+          <span className={styles.pkRegen}>+{pkRegen}/Mo</span>
         </div>
         {canPressemitteilung && (
           <button

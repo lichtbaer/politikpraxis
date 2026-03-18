@@ -11,6 +11,8 @@ interface EventCardProps {
   headerColor?: string;
   icon?: string;
   showMedienklimaDelta?: boolean;
+  /** Aktuelles PK-Budget — wenn angegeben, werden unbezahlbare Choices deaktiviert */
+  currentPk?: number;
 }
 
 const TYPE_CLASS: Record<GameEvent['type'], string> = {
@@ -45,7 +47,7 @@ const SKANDAL_IDS = new Set([
 
 const KOALITION_EVENT_IDS = new Set(['koalitionsbruch', 'koalitionskrise_ultimatum']);
 
-export function EventCard({ event, onChoice, headerClass: headerClassOverride, headerColor, icon: iconOverride, showMedienklimaDelta }: EventCardProps) {
+export function EventCard({ event, onChoice, headerClass: headerClassOverride, headerColor, icon: iconOverride, showMedienklimaDelta, currentPk }: EventCardProps) {
   const { t } = useTranslation('game');
   const isSkandal = SKANDAL_IDS.has(event.id);
   const isKoalition = KOALITION_EVENT_IDS.has(event.id);
@@ -77,12 +79,15 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, h
           {event.choices.map((choice, i) => {
             const choiceLabel = choice.label || t(`game:${ns}.${event.id}.choices.${i}.label`);
             const choiceDesc = choice.desc || t(`game:${ns}.${event.id}.choices.${i}.desc`);
+            const canAfford = currentPk == null || choice.cost <= 0 || choice.cost <= currentPk;
             return (
               <button
                 key={i}
                 type="button"
-                className={`${styles.choice} ${CHOICE_CLASS[choice.type]}`}
-                onClick={() => onChoice(event, choice)}
+                className={`${styles.choice} ${CHOICE_CLASS[choice.type]} ${!canAfford ? styles.choiceDisabled : ''}`}
+                onClick={() => canAfford && onChoice(event, choice)}
+                disabled={!canAfford}
+                title={!canAfford ? `Nicht genug PK (${currentPk}/${choice.cost})` : undefined}
               >
                 <div className={styles.choiceMain}>
                   <span className={styles.choiceLabel}>{choiceLabel}</span>
