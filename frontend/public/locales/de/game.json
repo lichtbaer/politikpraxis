@@ -176,6 +176,234 @@
         "1": { "label": "Wohnungsbau priorisieren", "desc": "Populär, schnell sichtbar", "log": "EU-Gelder stärken Wohnungsbauoffensive." },
         "2": { "label": "Schuldentilgung", "desc": "Finanzministerium begeistert", "log": "Schulden getilgt. Haushalt verbessert, Spielraum für Reformen." }
       }
+    },
+    "verfassungsgericht": {
+      "typeLabel": "Verfassungsgericht",
+      "title": "Bundesverfassungsgericht kippt zentrale Regelung",
+      "quote": "„Das Bundesverfassungsgericht erklärt ein Kerngesetz der Regierung für verfassungswidrig.“",
+      "context": "Die Richter in Karlsruhe sehen Grundrechte verletzt. Die Opposition triumphiert, die Koalition muss reagieren.",
+      "ticker": "Karlsruhe kippt Regierungsgesetz — Koalition unter Druck",
+      "choices": {
+        "0": { "label": "Urteil respektieren", "desc": "Rechtsstaatlich korrekt, politischer Schaden", "log": "Urteil akzeptiert. Vertrauen in Rechtsstaat gestärkt." },
+        "1": { "label": "Gesetzesnovelle einbringen", "desc": "Nachbesserung kostet PK und Haushalt", "log": "Gesetzesnovelle in Arbeit. Verfassungskonform nachgebessert." },
+        "2": { "label": "Verfassungsänderung prüfen", "desc": "Riskant — Grundgesetz anfassen spaltet", "log": "Grundgesetzänderung angekündigt. Juristen und Opposition alarmiert." }
+      }
+    },
+    "naturkatastrophe": {
+      "typeLabel": "Naturkatastrophe",
+      "title": "Jahrhunderthochwasser verwüstet Süddeutschland",
+      "quote": "„Die schlimmste Flutkatastrophe seit Jahrzehnten fordert Dutzende Opfer und Milliardenschäden.“",
+      "context": "Ganze Ortschaften stehen unter Wasser. Der Katastrophenschutz ist am Limit. Die Bundesregierung muss schnell handeln.",
+      "ticker": "Hochwasser-Katastrophe: Bundesregierung aktiviert Krisenstab",
+      "choices": {
+        "0": { "label": "Soforthilfe-Paket", "desc": "Schnelle Hilfe, belastet Haushalt", "log": "Soforthilfe-Paket beschlossen. Schnelle Hilfe für Betroffene." },
+        "1": { "label": "Bundeswehr-Einsatz koordinieren", "desc": "Effektiv, aber begrenzte Mittel", "log": "Bundeswehr im Hilfseinsatz. Bevölkerung dankbar." },
+        "2": { "label": "Ländersache — abwarten", "desc": "Föderalismus betonen, riskiert Kritik", "log": "Bund verweist auf Länderzuständigkeit. Massive Kritik folgt." }
+      }
+    },
+    "cyberangriff": {
+      "typeLabel": "Cyberangriff",
+      "title": "Massive Cyberattacke legt Bundesministerien lahm",
+      "quote": "„Ein koordinierter Hackerangriff hat zentrale IT-Systeme der Bundesverwaltung kompromittiert.“",
+      "context": "Geheimdienste vermuten einen staatlichen Akteur. Sensible Daten könnten abgeflossen sein.",
+      "ticker": "Cyberangriff auf Bundesregierung — IT-Systeme lahmgelegt",
+      "choices": {
+        "0": { "label": "Krisenstab & IT-Offensive", "desc": "Sofort handeln, investieren", "log": "IT-Krisenstab eingerichtet. Cybersicherheit wird Chefsache." },
+        "1": { "label": "Geheimdienste ermitteln lassen", "desc": "Leise, aber langsam", "log": "Ermittlungen eingeleitet. Öffentlichkeit erfährt wenig." },
+        "2": { "label": "Diplomatische Eskalation", "desc": "Öffentlich beschuldigen, Risiko einer Krise", "log": "Diplomatische Konfrontation. Internationale Spannungen steigen." }
+      }
+    },
+    "g7_krise": {
+      "typeLabel": "Internationale Krise",
+      "title": "G7-Gipfel unter dem Schatten globaler Spannungen",
+      "quote": "„Internationale Konflikte überschatten den G7-Gipfel unter deutscher Präsidentschaft.“",
+      "context": "Die Weltöffentlichkeit blickt auf Berlin. Ein Scheitern des Gipfels wäre ein diplomatisches Desaster.",
+      "ticker": "G7-Gipfel in Berlin: Kanzler unter internationalem Druck",
+      "choices": {
+        "0": { "label": "Vermittlerrolle einnehmen", "desc": "Diplomatisch geschickt, kostet PK", "log": "Deutschland als Vermittler. Internationales Ansehen steigt." },
+        "1": { "label": "Bündnistreue demonstrieren", "desc": "Sichere Wahl, begrenzte Wirkung", "log": "Bündnistreue demonstriert. Partnerstaat zufrieden." },
+        "2": { "label": "Deutsche Interessen priorisieren", "desc": "Populär im Inland, isoliert international", "log": "Nationale Interessen betont. Internationale Kritik wächst." }
+      }
+    },
+    "whistleblower": {
+      "typeLabel": "Whistleblower-Affäre",
+      "title": "Beamter enthüllt systematische Überwachung",
+      "quote": "„Ein hochrangiger Beamter veröffentlicht brisante Dokumente über illegale Überwachungsprogramme.“",
+      "context": "Die Enthüllungen treffen den Verfassungsschutz ins Mark. Bürgerrechtler fordern Konsequenzen.",
+      "ticker": "Überwachungsskandal: Bürgerrechte vs. Sicherheit",
+      "choices": {
+        "0": { "label": "Untersuchungsausschuss", "desc": "Transparenz, kostet politisch", "log": "Untersuchungsausschuss eingesetzt. Aufklärung beginnt." },
+        "1": { "label": "Whistleblower schützen", "desc": "Mutig, spaltet Koalition", "log": "Whistleblower unter Schutz gestellt. Verfassungsschutz empört." },
+        "2": { "label": "Sicherheitsinteressen betonen", "desc": "Behörden stärken, Kritik ignorieren", "log": "Sicherheit über Transparenz gestellt. Bürgerrechtler protestieren." }
+      }
+    },
+    "streikwelle": {
+      "typeLabel": "Streikwelle",
+      "title": "Gewerkschaften rufen zum Generalstreik",
+      "quote": "„Nahverkehr, Kitas, Krankenhäuser — eine Streikwelle lähmt das öffentliche Leben.“",
+      "context": "Die Tarifverhandlungen sind gescheitert. Gewerkschaften fordern zweistellige Lohnerhöhungen.",
+      "ticker": "Generalstreik lähmt Deutschland — Millionen betroffen",
+      "choices": {
+        "0": { "label": "Schlichtung anbieten", "desc": "Kompromiss suchen, kostet PK", "log": "Schlichtungsverfahren eingeleitet. Sozialpartner am Verhandlungstisch." },
+        "1": { "label": "Arbeitgeberseite unterstützen", "desc": "Wirtschaftsnah, provoziert Eskalation", "log": "Arbeitgeberposition gestärkt. Gewerkschaften drohen mit Eskalation." },
+        "2": { "label": "Gesetzlichen Rahmen stärken", "desc": "Langfristig, kurzfristig wirkungslos", "log": "Tarifrecht-Reform angekündigt. Langfristige Lösung in Aussicht." }
+      }
+    },
+    "wohnungsnot": {
+      "typeLabel": "Wohnungskrise",
+      "title": "Zehntausende protestieren gegen explodierende Mieten",
+      "quote": "„In 50 Städten gehen Menschen auf die Straße — bezahlbarer Wohnraum ist die zentrale Forderung.“",
+      "context": "Die Mieten in Großstädten haben sich in 10 Jahren verdoppelt. Familien werden an den Stadtrand verdrängt.",
+      "ticker": "Wohnungsproteste in 50 Städten — Regierung unter Zugzwang",
+      "choices": {
+        "0": { "label": "Mietpreisbremse verschärfen", "desc": "Populär, belastet Investoren", "log": "Mietpreisbremse verschärft. Mieterverbände zufrieden, Investoren verärgert." },
+        "1": { "label": "Sozialen Wohnungsbau fördern", "desc": "Langfristig wirksam, teuer", "log": "Sozialwohnungsprogramm aufgelegt. Effekte erst in Jahren spürbar." },
+        "2": { "label": "Marktlösung betonen", "desc": "Wirtschaftsfreundlich, unpopulär", "log": "Markt soll es richten. Proteste verschärfen sich." }
+      }
+    },
+    "rechtsextremismus": {
+      "typeLabel": "Rechtsextremismus",
+      "title": "Rechtsextremer Anschlag erschüttert das Land",
+      "quote": "„Ein rechtsmotivierter Anschlag fordert Opfer und löst eine Welle der Solidarität und Angst aus.“",
+      "context": "Die Tat reiht sich in eine Serie rechter Gewalt ein. Die Frage nach dem Versagen der Sicherheitsbehörden steht im Raum.",
+      "ticker": "Rechtsextremer Anschlag: Deutschland trauert und debattiert",
+      "choices": {
+        "0": { "label": "Aktionsplan gegen Rechts", "desc": "Umfassend, zeigt Entschlossenheit", "log": "Aktionsplan gegen Rechtsextremismus beschlossen." },
+        "1": { "label": "Sicherheitsbehörden stärken", "desc": "Mehr Personal und Mittel", "log": "Verfassungsschutz und Polizei werden aufgestockt." },
+        "2": { "label": "Differenzierte Analyse", "desc": "Abwägend, wirkt zögerlich", "log": "Abwartende Haltung. Opposition wirft Untätigkeit vor." }
+      }
+    },
+    "fachkraeftemangel": {
+      "typeLabel": "Fachkräftemangel",
+      "title": "Fachkräftemangel bedroht Wirtschaftsstandort",
+      "quote": "„800.000 offene Stellen können nicht besetzt werden — Unternehmen warnen vor Abwanderung.“",
+      "context": "Handwerk, IT, Pflege — überall fehlen Arbeitskräfte. Die Wirtschaftsverbände fordern eine Offensive.",
+      "ticker": "Fachkräftemangel auf Rekordhoch — Wirtschaft schlägt Alarm",
+      "choices": {
+        "0": { "label": "Einwanderungsoffensive", "desc": "Schnell wirksam, gesellschaftlich umstritten", "log": "Fachkräfteeinwanderung erleichtert. Wirtschaft erleichtert." },
+        "1": { "label": "Ausbildungsinitiative", "desc": "Langfristig richtig, langsam", "log": "Ausbildungsoffensive gestartet. Effekte in Jahren spürbar." },
+        "2": { "label": "Markt regelt", "desc": "Keine Kosten, kein Effekt", "log": "Abwartende Haltung. Fachkräftemangel verschärft sich." }
+      }
+    },
+    "energiekrise": {
+      "typeLabel": "Energiekrise",
+      "title": "Energiepreisschock trifft Industrie und Verbraucher",
+      "quote": "„Gaspreise verdreifachen sich über Nacht — Industrie fährt Produktion herunter.“",
+      "context": "Internationale Lieferengpässe treiben die Preise. Verbraucher protestieren, Unternehmen drohen mit Verlagerung.",
+      "ticker": "Energiepreise explodieren — Wirtschaftsminister warnt vor Deindustrialisierung",
+      "choices": {
+        "0": { "label": "Preisbremse einführen", "desc": "Sofortige Entlastung, teuer", "log": "Energiepreisbremse greift. Haushalt stark belastet." },
+        "1": { "label": "Industrie-Subventionen", "desc": "Rettet Arbeitsplätze, umstritten", "log": "Industriesubventionen beschlossen. Arbeitsplätze gesichert." },
+        "2": { "label": "Marktpreise akzeptieren", "desc": "Sparwillig, sozial hart", "log": "Marktpreise durchgesetzt. Soziale Härten folgen." }
+      }
+    },
+    "rentendebatte": {
+      "typeLabel": "Rentenkrise",
+      "title": "Rentenversicherung meldet Milliardendefizit",
+      "quote": "„Die Babyboomer gehen in Rente — das System steht vor dem Kollaps.“",
+      "context": "Der Rentenversicherungsbericht zeigt ein wachsendes Defizit. Jüngere Generationen fürchten um ihre Altersvorsorge.",
+      "ticker": "Rentenversicherung: Defizit wächst — Reformdebatte entbrennt",
+      "choices": {
+        "0": { "label": "Rentenalter anheben", "desc": "Unpopulär, finanziell notwendig", "log": "Rentenalter auf 68 angehoben. Massive Proteste der Gewerkschaften." },
+        "1": { "label": "Beiträge erhöhen", "desc": "Verteilbar, senkt Nettolöhne", "log": "Rentenbeiträge steigen. Nettolöhne sinken leicht." },
+        "2": { "label": "Kapitaldeckung einführen", "desc": "Modern, riskant bei Krisen", "log": "Aktienrente eingeführt. Konservative skeptisch." }
+      }
+    },
+    "pandemie_vorbereitung": {
+      "typeLabel": "Pandemie-Warnung",
+      "title": "WHO warnt vor neuem Virus mit Pandemiepotenzial",
+      "quote": "„Eine neue Virusvariante breitet sich in Asien rasant aus — die WHO ruft zur Vorbereitung auf.“",
+      "context": "Deutschland hat aus der letzten Pandemie gelernt — oder doch nicht? Krankenhäuser melden Engpässe.",
+      "ticker": "WHO-Warnung: Neue Pandemie möglich — Deutschland bereitet sich vor",
+      "choices": {
+        "0": { "label": "Vorsorgepaket schnüren", "desc": "Impfstoffe, Masken, Krankenhaus-Kapazitäten", "log": "Pandemie-Vorsorgepaket beschlossen. Bevölkerung fühlt sich geschützt." },
+        "1": { "label": "WHO-Kooperation verstärken", "desc": "International, aber langsam", "log": "Internationale Kooperation ausgebaut. Abwarten in Deutschland." },
+        "2": { "label": "Abwarten und beobachten", "desc": "Keine Kosten, aber riskant", "log": "Abwartende Haltung. Kritiker warnen vor Fahrlässigkeit." }
+      }
+    },
+    "infrastruktur_kollaps": {
+      "typeLabel": "Infrastruktur",
+      "title": "Brückensperrungen legen Verkehr lahm",
+      "quote": "„Dutzende marode Autobahnbrücken müssen gesperrt werden — der Verkehr bricht zusammen.“",
+      "context": "Jahrzehntelang wurde die Infrastruktur vernachlässigt. LKW-Umleitungen kosten die Wirtschaft Milliarden.",
+      "ticker": "Infrastruktur-Krise: Marode Brücken lahmlegen Verkehr",
+      "choices": {
+        "0": { "label": "Notfallprogramm Infrastruktur", "desc": "Sofort investieren, teuer", "log": "Infrastruktur-Notfallprogramm aufgelegt. Milliarden für Brücken und Straßen." },
+        "1": { "label": "Kommunen entlasten", "desc": "Föderale Lösung, langsamer", "log": "Kommunale Infrastrukturhilfen beschlossen." },
+        "2": { "label": "Priorisieren und planen", "desc": "Sparsam, aber Kritik an Untätigkeit", "log": "Masterplan vorgelegt. Kritiker fordern sofortiges Handeln." }
+      }
+    },
+    "migration_krise": {
+      "typeLabel": "Migrationskrise",
+      "title": "Flüchtlingszahlen steigen sprunghaft an",
+      "quote": "„Kommunen melden Überlastung — die Aufnahmekapazitäten sind erschöpft.“",
+      "context": "Neue Konflikte treiben Hunderttausende nach Europa. Kommunalpolitiker fordern Hilfe vom Bund.",
+      "ticker": "Flüchtlingskrise: Kommunen am Limit — Bund unter Druck",
+      "choices": {
+        "0": { "label": "Humanitäre Aufnahme", "desc": "Menschlich, spaltet Gesellschaft", "log": "Humanitäre Aufnahme organisiert. Gesellschaft gespalten." },
+        "1": { "label": "EU-Verteilung einfordern", "desc": "Diplomatisch, dauert lang", "log": "EU-Verteilungsmechanismus gefordert. Brüssel reagiert zögerlich." },
+        "2": { "label": "Grenzkontrollen verstärken", "desc": "Populär, EU-rechtlich umstritten", "log": "Grenzkontrollen verschärft. EU-Kommission prüft Verfahren." }
+      }
+    },
+    "verfassungsklage_schulden": {
+      "typeLabel": "Verfassungsklage",
+      "title": "Opposition klagt gegen Schuldenaufnahme",
+      "quote": "„Die Opposition hat Klage beim Bundesverfassungsgericht eingereicht — Verstoß gegen die Schuldenbremse.“",
+      "context": "Die Klage hat Aussicht auf Erfolg. Ein Urteil könnte den Haushalt kippen.",
+      "ticker": "Verfassungsklage gegen Schuldenpolitik — Regierung in Bedrängnis",
+      "choices": {
+        "0": { "label": "Nachtragshaushalt vorlegen", "desc": "Verfassungskonform nachbessern", "log": "Nachtragshaushalt vorgelegt. Schuldenbremse eingehalten." },
+        "1": { "label": "Notlage erklären", "desc": "Ausnahmeregel nutzen", "log": "Notlage erklärt. Juristen zweifeln an Begründung." },
+        "2": { "label": "Klage aussitzen", "desc": "Riskant, aber billig", "log": "Klage ignoriert. Verfassungsgericht verärgert." }
+      }
+    },
+    "wiederaufbau_debatte": {
+      "typeLabel": "Wiederaufbau",
+      "title": "Streit über Wiederaufbaukosten nach Flutkatastrophe",
+      "quote": "„Wer zahlt die 30 Milliarden Euro Wiederaufbau? Bund und Länder streiten.“",
+      "context": "Die Flutopfer warten auf Hilfe, während Berlin und die Landeshauptstädte über Zuständigkeiten debattieren.",
+      "ticker": "Wiederaufbau-Streit: Bund vs. Länder — Flutopfer warten",
+      "choices": {
+        "0": { "label": "Solidaritätszuschlag erheben", "desc": "Faire Verteilung, unpopulär", "log": "Solidaritätszuschlag für Wiederaufbau. Steuerzahler protestieren." },
+        "1": { "label": "Sondervermögen einrichten", "desc": "Schnell, belastet Zukunft", "log": "Sondervermögen für Wiederaufbau beschlossen." },
+        "2": { "label": "Versicherungspflicht einführen", "desc": "Marktwirtschaftlich, langfristig", "log": "Pflichtversicherung gegen Elementarschäden eingeführt." }
+      }
+    },
+    "diplomatische_krise": {
+      "typeLabel": "Diplomatische Krise",
+      "title": "Beschuldigter Staat reagiert mit Gegenmaßnahmen",
+      "quote": "„Als Reaktion auf die öffentlichen Schuldzuweisungen verhängt der beschuldigte Staat Wirtschaftssanktionen.“",
+      "context": "Handelsbeziehungen sind gefährdet. Die Wirtschaft drängt auf Deeskalation.",
+      "ticker": "Diplomatische Krise eskaliert — Wirtschaftssanktionen drohen",
+      "choices": {
+        "0": { "label": "Deeskalation", "desc": "Gesicht wahren, Handel retten", "log": "Diplomatische Kanäle wieder geöffnet. Krise entschärft." },
+        "1": { "label": "Gegensanktionen", "desc": "Standhaft, wirtschaftlich teuer", "log": "Gegensanktionen verhängt. Wirtschaft leidet." },
+        "2": { "label": "EU-Solidarität einfordern", "desc": "Multilateral, braucht Zeit", "log": "EU-Partner um Solidarität gebeten. Reaktionen gemischt." }
+      }
+    },
+    "opposition_vorwurf": {
+      "typeLabel": "Opposition",
+      "title": "Opposition wirft Regierung Untätigkeit vor",
+      "quote": "„Nach dem rechtsextremen Anschlag wirft die Opposition der Regierung fahrlässige Untätigkeit vor.“",
+      "context": "Ein Misstrauensantrag steht im Raum. Die Medien berichten intensiv über das Versagen der Sicherheitsbehörden.",
+      "ticker": "Opposition attackiert Regierung — Misstrauensantrag im Gespräch",
+      "choices": {
+        "0": { "label": "Sofort-Maßnahmen verkünden", "desc": "Entschlossen reagieren", "log": "Sofortmaßnahmen gegen Rechtsextremismus verkündet." },
+        "1": { "label": "Vertrauensfrage stellen", "desc": "Alles auf eine Karte", "log": "Vertrauensfrage gestellt. Hochriskantes Manöver." },
+        "2": { "label": "Debatte im Parlament führen", "desc": "Demokratisch, aber langsam", "log": "Parlamentsdebatte über innere Sicherheit. Sachlicher Ton." }
+      }
+    },
+    "gewerkschaft_eskalation": {
+      "typeLabel": "Streik-Eskalation",
+      "title": "Gewerkschaften weiten Streik aus",
+      "quote": "„Nach dem Scheitern der Schlichtung rufen die Gewerkschaften zu unbefristeten Streiks auf.“",
+      "context": "Flughäfen, Häfen und Krankenhäuser sind betroffen. Die wirtschaftlichen Schäden gehen in die Milliarden.",
+      "ticker": "Unbefristeter Streik: Wirtschaft droht Stillstand",
+      "choices": {
+        "0": { "label": "Tarifeinigung erzwingen", "desc": "Staatliche Schlichtung, kostet Vertrauen", "log": "Zwangsschlichtung angeordnet. Gewerkschaften empört, Streik beendet." },
+        "1": { "label": "Kompromiss anbieten", "desc": "Teurer Kompromiss", "log": "Kompromiss gefunden. Löhne steigen, Haushalt belastet." },
+        "2": { "label": "Durchhalten", "desc": "Auf Zeit spielen, wirtschaftlicher Schaden", "log": "Regierung hält Kurs. Wirtschaftliche Schäden wachsen." }
+      }
     }
   },
   "charEvents": {

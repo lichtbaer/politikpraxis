@@ -57,3 +57,153 @@
     gi: -0.8
     al: -0.1
   lag: 8
+
+# === Event-freigeschaltete Gesetze ===
+
+- id: verfassungsreform
+  titel: Grundgesetzmodernisierung
+  kurz: GGMod
+  desc: "Reform grundrechtlicher Schutzstandards und Digitalisierung der Verwaltung."
+  tags: [bund]
+  status: entwurf
+  ja: 45
+  nein: 55
+  effekte:
+    hh: -0.2
+    zf: 4
+    gi: -0.3
+  lag: 10
+  locked_until_event: verfassungsgericht
+
+- id: katastrophenschutz
+  titel: Katastrophenschutz-Modernisierung
+  kurz: KatSchG
+  desc: "Bundesweite Koordination, Warnsysteme, Notfallreserven."
+  tags: [bund, land]
+  status: entwurf
+  ja: 65
+  nein: 35
+  effekte:
+    hh: -0.4
+    zf: 3
+    al: -0.1
+  lag: 6
+  locked_until_event: naturkatastrophe
+
+- id: cybersicherheit
+  titel: Cybersicherheitsstärkungsgesetz
+  kurz: CySiG
+  desc: "Pflicht-Sicherheitsstandards für Behörden und kritische Infrastruktur."
+  tags: [bund, eu]
+  status: entwurf
+  ja: 58
+  nein: 42
+  effekte:
+    hh: -0.3
+    zf: 2
+  lag: 5
+  locked_until_event: cyberangriff
+
+- id: whistleblowerschutz
+  titel: Hinweisgeberschutzgesetz
+  kurz: HinSchG
+  desc: "Schutz für Whistleblower in Behörden und Unternehmen."
+  tags: [bund, eu]
+  status: entwurf
+  ja: 52
+  nein: 48
+  effekte:
+    hh: -0.1
+    zf: 3
+    gi: -0.2
+  lag: 4
+  locked_until_event: whistleblower
+
+- id: tarifbindung
+  titel: Tarifbindungsstärkungsgesetz
+  kurz: TarifG
+  desc: "Allgemeinverbindlicherklärung erleichtern, Tarifverträge stärken."
+  tags: [bund]
+  status: entwurf
+  ja: 50
+  nein: 50
+  effekte:
+    hh: -0.1
+    zf: 3
+    gi: -0.6
+    al: -0.2
+  lag: 5
+  locked_until_event: streikwelle
+
+- id: mietrecht
+  titel: Mietrechtsreform
+  kurz: MietR
+  desc: "Verschärfung der Mietpreisbremse, Kündigungsschutz ausweiten."
+  tags: [bund, land]
+  status: entwurf
+  ja: 56
+  nein: 44
+  effekte:
+    hh: -0.2
+    zf: 5
+    gi: -0.8
+  lag: 5
+  locked_until_event: wohnungsnot
+
+- id: demokratiefoerderung
+  titel: Demokratiefördergesetz
+  kurz: DemFG
+  desc: "Dauerhafte Finanzierung von Demokratieprojekten und Extremismusprävention."
+  tags: [bund]
+  status: entwurf
+  ja: 60
+  nein: 40
+  effekte:
+    hh: -0.3
+    zf: 4
+  lag: 4
+  locked_until_event: rechtsextremismus
+
+- id: fachkraefte
+  titel: Fachkräfteeinwanderungsgesetz
+  kurz: FEG
+  desc: "Punktebasiertes System, beschleunigte Visa, Berufsanerkennung."
+  tags: [bund, eu]
+  status: entwurf
+  ja: 48
+  nein: 52
+  effekte:
+    hh: 0.1
+    zf: 2
+    al: -0.6
+  lag: 6
+  locked_until_event: fachkraeftemangel
+
+- id: rentenreform
+  titel: Generationengerechte Rentenreform
+  kurz: RenRef
+  desc: "Nachhaltiges Rentensystem: Beitragsdeckel, Kapitalkomponente, Demografiefaktor."
+  tags: [bund]
+  status: entwurf
+  ja: 44
+  nein: 56
+  effekte:
+    hh: -0.3
+    zf: 4
+    gi: -0.4
+  lag: 10
+  locked_until_event: rentendebatte
+
+- id: pandemieschutz
+  titel: Pandemieschutzgesetz
+  kurz: PanSchG
+  desc: "Bundesweite Pandemie-Vorsorge: Impfstoffreserven, Krisenprotokolle."
+  tags: [bund, eu]
+  status: entwurf
+  ja: 62
+  nein: 38
+  effekte:
+    hh: -0.4
+    zf: 3
+  lag: 5
+  locked_until_event: pandemie_vorbereitung

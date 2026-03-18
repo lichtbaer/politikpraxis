@@ -125,6 +125,8 @@ export interface Law {
   route_overrides?: Record<string, { cost?: number; dur?: number }>;
   /** SMA-309: Min. Komplexitätsstufe (z.B. schuldenbremse_reform ab Stufe 3) */
   min_complexity?: number;
+  /** Event-ID die dieses Gesetz freischaltet. Gesetz ist bis dahin nicht verfügbar. */
+  locked_until_event?: string;
 }
 
 /** Framing-Option für Gesetz-Einbringen (SMA-303: label, slogan) */
@@ -204,6 +206,12 @@ export interface EventChoice {
   log: string;
   /** Choice-Key aus API (z.B. als_vorbild, koordinieren) */
   key?: string;
+  /** Gesetze-IDs die durch diese Wahl freigeschaltet werden */
+  unlocks_laws?: string[];
+  /** Follow-up Event-ID, das nach Delay ausgelöst wird (complexity >= 4) */
+  followup_event_id?: string;
+  /** Monate Verzögerung bis Follow-up (default: 2) */
+  followup_delay?: number;
   /** Medien-Event-Choice: Delta für Medienklima (SMA-277) */
   medienklima_delta?: number;
   /** SMA-280: Verfassungsgericht — Verfahrensdauer in Monaten (0 = pausiert) */
@@ -254,6 +262,8 @@ export interface GameEvent {
   repeatable?: boolean;
   /** Cooldown in months before a repeatable event can fire again (default 12) */
   cooldownMonths?: number;
+  /** Event ist immer im Pool (wird nie bei Pool-Selektion aussortiert) */
+  always_include?: boolean;
 }
 
 export interface KPI {
@@ -624,6 +634,12 @@ export interface GameState {
   charGespraechCooldowns?: Record<string, number>;
   /** Approval-History: allgemeine Zustimmung pro Monat (max 48 Einträge) */
   approvalHistory?: number[];
+  /** Event-IDs die in diesem Durchlauf aktiv sind (bei Spielstart zufällig gewählt) */
+  activeEventPool?: string[];
+  /** Freigeschaltete Gesetz-IDs (durch Events) */
+  unlockedLaws?: string[];
+  /** Anstehende Follow-up Events (complexity >= 4) */
+  pendingFollowups?: Array<{ eventId: string; triggerMonth: number }>;
 }
 
 /** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */

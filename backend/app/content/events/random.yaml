@@ -3,6 +3,7 @@
   icon: "\U0001F4B0"
   typeLabel: Haushaltskrise
   title: Milliardenloch im Bundeshaushalt
+  always_include: true
   quote: >-
     Überraschende Steuermindereinnahmen reißen ein Loch von 14 Milliarden Euro.
   context: >-
@@ -30,6 +31,8 @@
       charMood:
         jm: -1
       log: 'Schuldenbremse gedehnt. Verfassungsklage droht.'
+      followup_event_id: verfassungsklage_schulden
+      followup_delay: 2
     - label: Steuererhöhung ankündigen
       desc: 'Belastet Mitte-Milieu, stabilisiert Haushalt'
       cost: 5
@@ -125,6 +128,7 @@
   icon: "\U0001F4C9"
   typeLabel: Wirtschaftsabschwung
   title: EZB-Zinserhöhung trifft deutsche Wirtschaft
+  always_include: true
   quote: >-
     Investitionen brechen ein, Kurzarbeit steigt — Rezessionsrisiko wächst.
   context: >-
@@ -291,3 +295,812 @@
       charMood:
         fm: 2
       log: 'Schulden getilgt. Haushalt verbessert, Spielraum für Reformen.'
+
+# === Neue Events (GDD-geplant) ===
+
+- id: verfassungsgericht
+  type: warn
+  icon: "\u2696\uFE0F"
+  typeLabel: Verfassungsgericht
+  title: Bundesverfassungsgericht kippt zentrale Regelung
+  quote: >-
+    Das Bundesverfassungsgericht erklärt ein Kerngesetz der Regierung für verfassungswidrig.
+  context: >-
+    Die Richter in Karlsruhe sehen Grundrechte verletzt. Die Opposition triumphiert, die Koalition muss reagieren.
+  ticker: 'Karlsruhe kippt Regierungsgesetz — Koalition unter Druck'
+  choices:
+    - label: Urteil respektieren
+      desc: 'Rechtsstaatlich korrekt, politischer Schaden'
+      cost: 0
+      type: safe
+      effect:
+        zf: -3
+      charMood:
+        jm: 1
+      log: 'Urteil akzeptiert. Vertrauen in Rechtsstaat gestärkt.'
+    - label: Gesetzesnovelle einbringen
+      desc: 'Nachbesserung kostet PK und Haushalt'
+      cost: 15
+      type: primary
+      effect:
+        zf: 1
+        hh: -0.2
+      charMood: {}
+      log: 'Gesetzesnovelle in Arbeit. Verfassungskonform nachgebessert.'
+      unlocks_laws: [verfassungsreform]
+    - label: Verfassungsänderung prüfen
+      desc: 'Riskant — Grundgesetz anfassen spaltet'
+      cost: 20
+      type: danger
+      effect:
+        zf: -1
+      charMood:
+        jm: -2
+      log: 'Grundgesetzänderung angekündigt. Juristen und Opposition alarmiert.'
+      unlocks_laws: [verfassungsreform]
+
+- id: naturkatastrophe
+  type: danger
+  icon: "\U0001F30A"
+  typeLabel: Naturkatastrophe
+  title: Jahrhunderthochwasser verwüstet Süddeutschland
+  quote: >-
+    Die schlimmste Flutkatastrophe seit Jahrzehnten fordert Dutzende Opfer und Milliardenschäden.
+  context: >-
+    Ganze Ortschaften stehen unter Wasser. Der Katastrophenschutz ist am Limit. Die Bundesregierung muss schnell handeln.
+  ticker: 'Hochwasser-Katastrophe: Bundesregierung aktiviert Krisenstab'
+  choices:
+    - label: Soforthilfe-Paket
+      desc: 'Schnelle Hilfe, belastet Haushalt'
+      cost: 5
+      type: primary
+      effect:
+        hh: -0.5
+        zf: 5
+      charMood:
+        fm: -1
+      log: 'Soforthilfe-Paket beschlossen. Schnelle Hilfe für Betroffene.'
+      unlocks_laws: [katastrophenschutz]
+      followup_event_id: wiederaufbau_debatte
+      followup_delay: 2
+    - label: Bundeswehr-Einsatz koordinieren
+      desc: 'Effektiv, aber begrenzte Mittel'
+      cost: 10
+      type: safe
+      effect:
+        zf: 3
+      charMood:
+        im: 1
+      log: 'Bundeswehr im Hilfseinsatz. Bevölkerung dankbar.'
+      unlocks_laws: [katastrophenschutz]
+    - label: Ländersache — abwarten
+      desc: 'Föderalismus betonen, riskiert Kritik'
+      cost: 0
+      type: danger
+      effect:
+        zf: -6
+      charMood:
+        im: -1
+      log: 'Bund verweist auf Länderzuständigkeit. Massive Kritik folgt.'
+
+- id: cyberangriff
+  type: danger
+  icon: "\U0001F4BB"
+  typeLabel: Cyberangriff
+  title: Massive Cyberattacke legt Bundesministerien lahm
+  quote: >-
+    Ein koordinierter Hackerangriff hat zentrale IT-Systeme der Bundesverwaltung kompromittiert.
+  context: >-
+    Geheimdienste vermuten einen staatlichen Akteur. Sensible Daten könnten abgeflossen sein. Die digitale Infrastruktur ist verwundbar.
+  ticker: 'Cyberangriff auf Bundesregierung — IT-Systeme lahmgelegt'
+  choices:
+    - label: Krisenstab & IT-Offensive
+      desc: 'Sofort handeln, investieren'
+      cost: 15
+      type: primary
+      effect:
+        hh: -0.3
+        zf: 2
+      charMood:
+        im: 1
+      log: 'IT-Krisenstab eingerichtet. Cybersicherheit wird Chefsache.'
+      unlocks_laws: [cybersicherheit]
+    - label: Geheimdienste ermitteln lassen
+      desc: 'Leise, aber langsam'
+      cost: 5
+      type: safe
+      effect:
+        zf: -2
+      charMood:
+        jm: -1
+      log: 'Ermittlungen eingeleitet. Öffentlichkeit erfährt wenig.'
+      unlocks_laws: [cybersicherheit]
+    - label: Diplomatische Eskalation
+      desc: 'Öffentlich beschuldigen, Risiko einer Krise'
+      cost: 10
+      type: danger
+      effect:
+        zf: -1
+      charMood: {}
+      log: 'Diplomatische Konfrontation. Internationale Spannungen steigen.'
+      followup_event_id: diplomatische_krise
+      followup_delay: 3
+
+- id: g7_krise
+  type: warn
+  icon: "\U0001F30D"
+  typeLabel: Internationale Krise
+  title: G7-Gipfel unter dem Schatten globaler Spannungen
+  quote: >-
+    Internationale Konflikte überschatten den G7-Gipfel unter deutscher Präsidentschaft.
+  context: >-
+    Die Weltöffentlichkeit blickt auf Berlin. Ein Scheitern des Gipfels wäre ein diplomatisches Desaster.
+  ticker: 'G7-Gipfel in Berlin: Kanzler unter internationalem Druck'
+  choices:
+    - label: Vermittlerrolle einnehmen
+      desc: 'Diplomatisch geschickt, kostet PK'
+      cost: 10
+      type: primary
+      effect:
+        zf: 3
+        hh: -0.1
+      charMood: {}
+      log: 'Deutschland als Vermittler. Internationales Ansehen steigt.'
+    - label: Bündnistreue demonstrieren
+      desc: 'Sichere Wahl, begrenzte Wirkung'
+      cost: 5
+      type: safe
+      effect:
+        zf: 1
+      charMood:
+        im: 1
+      log: 'Bündnistreue demonstriert. Partnerstaat zufrieden.'
+    - label: Deutsche Interessen priorisieren
+      desc: 'Populär im Inland, isoliert international'
+      cost: 0
+      type: danger
+      effect:
+        zf: -2
+      charMood:
+        um: -1
+      log: 'Nationale Interessen betont. Internationale Kritik wächst.'
+
+- id: whistleblower
+  type: danger
+  icon: "\U0001F50D"
+  typeLabel: Whistleblower-Affäre
+  title: Beamter enthüllt systematische Überwachung
+  quote: >-
+    Ein hochrangiger Beamter veröffentlicht brisante Dokumente über illegale Überwachungsprogramme.
+  context: >-
+    Die Enthüllungen treffen den Verfassungsschutz ins Mark. Bürgerrechtler fordern Konsequenzen, Sicherheitsbehörden warnen vor Schwächung.
+  ticker: 'Überwachungsskandal: Bürgerrechte vs. Sicherheit'
+  choices:
+    - label: Untersuchungsausschuss
+      desc: 'Transparenz, kostet politisch'
+      cost: 10
+      type: primary
+      effect:
+        zf: 2
+      charMood:
+        jm: 1
+        im: -2
+      log: 'Untersuchungsausschuss eingesetzt. Aufklärung beginnt.'
+      unlocks_laws: [whistleblowerschutz]
+    - label: Whistleblower schützen
+      desc: 'Mutig, spaltet Koalition'
+      cost: 5
+      type: safe
+      effect:
+        zf: 1
+      charMood:
+        jm: 2
+        im: -1
+      log: 'Whistleblower unter Schutz gestellt. Verfassungsschutz empört.'
+      unlocks_laws: [whistleblowerschutz]
+    - label: Sicherheitsinteressen betonen
+      desc: 'Behörden stärken, Kritik ignorieren'
+      cost: 0
+      type: danger
+      effect:
+        zf: -4
+      charMood:
+        im: 1
+        jm: -1
+      log: 'Sicherheit über Transparenz gestellt. Bürgerrechtler protestieren.'
+
+- id: streikwelle
+  type: warn
+  icon: "\u270A"
+  typeLabel: Streikwelle
+  title: Gewerkschaften rufen zum Generalstreik
+  quote: >-
+    Nahverkehr, Kitas, Krankenhäuser — eine Streikwelle lähmt das öffentliche Leben.
+  context: >-
+    Die Tarifverhandlungen sind gescheitert. Gewerkschaften fordern zweistellige Lohnerhöhungen, Arbeitgeber warnen vor Standortgefährdung.
+  ticker: 'Generalstreik lähmt Deutschland — Millionen betroffen'
+  choices:
+    - label: Schlichtung anbieten
+      desc: 'Kompromiss suchen, kostet PK'
+      cost: 10
+      type: primary
+      effect:
+        zf: 2
+        al: -0.2
+      charMood:
+        wm: 1
+      log: 'Schlichtungsverfahren eingeleitet. Sozialpartner am Verhandlungstisch.'
+      unlocks_laws: [tarifbindung]
+    - label: Arbeitgeberseite unterstützen
+      desc: 'Wirtschaftsnah, provoziert Eskalation'
+      cost: 5
+      type: danger
+      effect:
+        zf: -3
+        al: -0.4
+        gi: 0.5
+      charMood: {}
+      log: 'Arbeitgeberposition gestärkt. Gewerkschaften drohen mit Eskalation.'
+      followup_event_id: gewerkschaft_eskalation
+      followup_delay: 2
+    - label: Gesetzlichen Rahmen stärken
+      desc: 'Langfristig, kurzfristig wirkungslos'
+      cost: 15
+      type: safe
+      effect:
+        zf: 1
+      charMood: {}
+      log: 'Tarifrecht-Reform angekündigt. Langfristige Lösung in Aussicht.'
+      unlocks_laws: [tarifbindung]
+
+- id: wohnungsnot
+  type: info
+  icon: "\U0001F3E0"
+  typeLabel: Wohnungskrise
+  title: Zehntausende protestieren gegen explodierende Mieten
+  quote: >-
+    In 50 Städten gehen Menschen auf die Straße — bezahlbarer Wohnraum ist die zentrale Forderung.
+  context: >-
+    Die Mieten in Großstädten haben sich in 10 Jahren verdoppelt. Familien werden an den Stadtrand verdrängt, Sozialverbände schlagen Alarm.
+  ticker: 'Wohnungsproteste in 50 Städten — Regierung unter Zugzwang'
+  choices:
+    - label: Mietpreisbremse verschärfen
+      desc: 'Populär, belastet Investoren'
+      cost: 5
+      type: primary
+      effect:
+        zf: 4
+        gi: -0.5
+        hh: -0.1
+      charMood: {}
+      log: 'Mietpreisbremse verschärft. Mieterverbände zufrieden, Investoren verärgert.'
+      unlocks_laws: [mietrecht]
+    - label: Sozialen Wohnungsbau fördern
+      desc: 'Langfristig wirksam, teuer'
+      cost: 10
+      type: safe
+      effect:
+        hh: -0.4
+        zf: 3
+        al: -0.2
+      charMood: {}
+      log: 'Sozialwohnungsprogramm aufgelegt. Effekte erst in Jahren spürbar.'
+      unlocks_laws: [mietrecht]
+    - label: Marktlösung betonen
+      desc: 'Wirtschaftsfreundlich, unpopulär'
+      cost: 0
+      type: danger
+      effect:
+        zf: -4
+        gi: 0.3
+      charMood: {}
+      log: 'Markt soll es richten. Proteste verschärfen sich.'
+
+- id: rechtsextremismus
+  type: danger
+  icon: "\U0001F6A8"
+  typeLabel: Rechtsextremismus
+  title: Rechtsextremer Anschlag erschüttert das Land
+  quote: >-
+    Ein rechtsmotivierter Anschlag fordert Opfer und löst eine Welle der Solidarität und Angst aus.
+  context: >-
+    Die Tat reiht sich in eine Serie rechter Gewalt ein. Die Frage nach dem Versagen der Sicherheitsbehörden steht im Raum.
+  ticker: 'Rechtsextremer Anschlag: Deutschland trauert und debattiert'
+  choices:
+    - label: Aktionsplan gegen Rechts
+      desc: 'Umfassend, zeigt Entschlossenheit'
+      cost: 15
+      type: primary
+      effect:
+        zf: 3
+      charMood:
+        jm: 1
+        im: 1
+      log: 'Aktionsplan gegen Rechtsextremismus beschlossen.'
+      unlocks_laws: [demokratiefoerderung]
+    - label: Sicherheitsbehörden stärken
+      desc: 'Mehr Personal und Mittel'
+      cost: 10
+      type: safe
+      effect:
+        zf: 1
+        hh: -0.2
+      charMood:
+        im: 2
+      log: 'Verfassungsschutz und Polizei werden aufgestockt.'
+      unlocks_laws: [demokratiefoerderung]
+    - label: Differenzierte Analyse
+      desc: 'Abwägend, wirkt zögerlich'
+      cost: 0
+      type: danger
+      effect:
+        zf: -5
+      charMood: {}
+      log: 'Abwartende Haltung. Opposition wirft Untätigkeit vor.'
+      followup_event_id: opposition_vorwurf
+      followup_delay: 1
+
+# === Zusätzliche Events (Varianz) ===
+
+- id: fachkraeftemangel
+  type: warn
+  icon: "\U0001F477"
+  typeLabel: Fachkräftemangel
+  title: Fachkräftemangel bedroht Wirtschaftsstandort
+  quote: >-
+    800.000 offene Stellen können nicht besetzt werden — Unternehmen warnen vor Abwanderung.
+  context: >-
+    Handwerk, IT, Pflege — überall fehlen Arbeitskräfte. Die Wirtschaftsverbände fordern eine Offensive.
+  ticker: 'Fachkräftemangel auf Rekordhoch — Wirtschaft schlägt Alarm'
+  choices:
+    - label: Einwanderungsoffensive
+      desc: 'Schnell wirksam, gesellschaftlich umstritten'
+      cost: 10
+      type: primary
+      effect:
+        zf: 2
+        al: -0.4
+      charMood:
+        wm: 1
+        im: -1
+      log: 'Fachkräfteeinwanderung erleichtert. Wirtschaft erleichtert.'
+      unlocks_laws: [fachkraefte]
+    - label: Ausbildungsinitiative
+      desc: 'Langfristig richtig, langsam'
+      cost: 10
+      type: safe
+      effect:
+        zf: 1
+        al: -0.1
+      charMood:
+        wm: 1
+      log: 'Ausbildungsoffensive gestartet. Effekte in Jahren spürbar.'
+      unlocks_laws: [fachkraefte]
+    - label: Markt regelt
+      desc: 'Keine Kosten, kein Effekt'
+      cost: 0
+      type: danger
+      effect:
+        zf: -3
+        al: 0.3
+      charMood:
+        wm: -1
+      log: 'Abwartende Haltung. Fachkräftemangel verschärft sich.'
+
+- id: energiekrise
+  type: danger
+  icon: "\u26A1"
+  typeLabel: Energiekrise
+  title: Energiepreisschock trifft Industrie und Verbraucher
+  quote: >-
+    Gaspreise verdreifachen sich über Nacht — Industrie fährt Produktion herunter.
+  context: >-
+    Internationale Lieferengpässe treiben die Preise. Verbraucher protestieren, Unternehmen drohen mit Verlagerung.
+  ticker: 'Energiepreise explodieren — Wirtschaftsminister warnt vor Deindustrialisierung'
+  choices:
+    - label: Preisbremse einführen
+      desc: 'Sofortige Entlastung, teuer'
+      cost: 10
+      type: primary
+      effect:
+        hh: -0.5
+        zf: 4
+        gi: -0.3
+      charMood:
+        fm: -1
+        wm: 1
+      log: 'Energiepreisbremse greift. Haushalt stark belastet.'
+    - label: Industrie-Subventionen
+      desc: 'Rettet Arbeitsplätze, umstritten'
+      cost: 15
+      type: safe
+      effect:
+        hh: -0.4
+        al: -0.3
+        zf: 2
+      charMood:
+        wm: 1
+      log: 'Industriesubventionen beschlossen. Arbeitsplätze gesichert.'
+    - label: Marktpreise akzeptieren
+      desc: 'Sparwillig, sozial hart'
+      cost: 0
+      type: danger
+      effect:
+        zf: -5
+        al: 0.4
+        gi: 0.2
+      charMood:
+        fm: 1
+      log: 'Marktpreise durchgesetzt. Soziale Härten folgen.'
+
+- id: rentendebatte
+  type: warn
+  icon: "\U0001F474"
+  typeLabel: Rentenkrise
+  title: Rentenversicherung meldet Milliardendefizit
+  quote: >-
+    Die Babyboomer gehen in Rente — das System steht vor dem Kollaps.
+  context: >-
+    Der Rentenversicherungsbericht zeigt ein wachsendes Defizit. Jüngere Generationen fürchten um ihre Altersvorsorge.
+  ticker: 'Rentenversicherung: Defizit wächst — Reformdebatte entbrennt'
+  choices:
+    - label: Rentenalter anheben
+      desc: 'Unpopulär, finanziell notwendig'
+      cost: 10
+      type: primary
+      effect:
+        zf: -4
+        hh: 0.3
+      charMood:
+        fm: 1
+      log: 'Rentenalter auf 68 angehoben. Massive Proteste der Gewerkschaften.'
+      unlocks_laws: [rentenreform]
+    - label: Beiträge erhöhen
+      desc: 'Verteilbar, senkt Nettolöhne'
+      cost: 5
+      type: safe
+      effect:
+        zf: -2
+        hh: 0.2
+        al: 0.1
+      charMood: {}
+      log: 'Rentenbeiträge steigen. Nettolöhne sinken leicht.'
+      unlocks_laws: [rentenreform]
+    - label: Kapitaldeckung einführen
+      desc: 'Modern, riskant bei Krisen'
+      cost: 15
+      type: danger
+      effect:
+        zf: -1
+        hh: -0.2
+      charMood:
+        fm: -1
+      log: 'Aktienrente eingeführt. Konservative skeptisch.'
+      unlocks_laws: [rentenreform]
+
+- id: pandemie_vorbereitung
+  type: warn
+  icon: "\U0001F9A0"
+  typeLabel: Pandemie-Warnung
+  title: WHO warnt vor neuem Virus mit Pandemiepotenzial
+  quote: >-
+    Eine neue Virusvariante breitet sich in Asien rasant aus — die WHO ruft zur Vorbereitung auf.
+  context: >-
+    Deutschland hat aus der letzten Pandemie gelernt — oder doch nicht? Krankenhäuser melden Engpässe, Impfstoffreserven sind begrenzt.
+  ticker: 'WHO-Warnung: Neue Pandemie möglich — Deutschland bereitet sich vor'
+  choices:
+    - label: Vorsorgepaket schnüren
+      desc: 'Impfstoffe, Masken, Krankenhaus-Kapazitäten'
+      cost: 15
+      type: primary
+      effect:
+        hh: -0.4
+        zf: 3
+      charMood: {}
+      log: 'Pandemie-Vorsorgepaket beschlossen. Bevölkerung fühlt sich geschützt.'
+      unlocks_laws: [pandemieschutz]
+    - label: WHO-Kooperation verstärken
+      desc: 'International, aber langsam'
+      cost: 5
+      type: safe
+      effect:
+        zf: 1
+      charMood: {}
+      log: 'Internationale Kooperation ausgebaut. Abwarten in Deutschland.'
+      unlocks_laws: [pandemieschutz]
+    - label: Abwarten und beobachten
+      desc: 'Keine Kosten, aber riskant'
+      cost: 0
+      type: danger
+      effect:
+        zf: -3
+      charMood: {}
+      log: 'Abwartende Haltung. Kritiker warnen vor Fahrlässigkeit.'
+
+- id: infrastruktur_kollaps
+  type: danger
+  icon: "\U0001F309"
+  typeLabel: Infrastruktur
+  title: Brückensperrungen legen Verkehr lahm
+  quote: >-
+    Dutzende marode Autobahnbrücken müssen gesperrt werden — der Verkehr bricht zusammen.
+  context: >-
+    Jahrzehntelang wurde die Infrastruktur vernachlässigt. LKW-Umleitungen kosten die Wirtschaft Milliarden.
+  ticker: 'Infrastruktur-Krise: Marode Brücken lahmlegen Verkehr'
+  choices:
+    - label: Notfallprogramm Infrastruktur
+      desc: 'Sofort investieren, teuer'
+      cost: 10
+      type: primary
+      effect:
+        hh: -0.5
+        zf: 3
+        al: -0.2
+      charMood:
+        wm: 1
+        fm: -1
+      log: 'Infrastruktur-Notfallprogramm aufgelegt. Milliarden für Brücken und Straßen.'
+    - label: Kommunen entlasten
+      desc: 'Föderale Lösung, langsamer'
+      cost: 5
+      type: safe
+      effect:
+        zf: 1
+        hh: -0.2
+      charMood: {}
+      log: 'Kommunale Infrastrukturhilfen beschlossen.'
+    - label: Priorisieren und planen
+      desc: 'Sparsam, aber Kritik an Untätigkeit'
+      cost: 0
+      type: danger
+      effect:
+        zf: -3
+      charMood:
+        wm: -1
+      log: 'Masterplan vorgelegt. Kritiker fordern sofortiges Handeln.'
+
+- id: migration_krise
+  type: warn
+  icon: "\U0001F6A2"
+  typeLabel: Migrationskrise
+  title: Flüchtlingszahlen steigen sprunghaft an
+  quote: >-
+    Kommunen melden Überlastung — die Aufnahmekapazitäten sind erschöpft.
+  context: >-
+    Neue Konflikte treiben Hunderttausende nach Europa. Kommunalpolitiker fordern Hilfe vom Bund, die Stimmung in der Bevölkerung ist gespalten.
+  ticker: 'Flüchtlingskrise: Kommunen am Limit — Bund unter Druck'
+  choices:
+    - label: Humanitäre Aufnahme
+      desc: 'Menschlich, spaltet Gesellschaft'
+      cost: 10
+      type: primary
+      effect:
+        hh: -0.3
+        zf: -2
+      charMood:
+        jm: 1
+        im: -1
+      log: 'Humanitäre Aufnahme organisiert. Gesellschaft gespalten.'
+    - label: EU-Verteilung einfordern
+      desc: 'Diplomatisch, dauert lang'
+      cost: 5
+      type: safe
+      effect:
+        zf: 1
+      charMood: {}
+      log: 'EU-Verteilungsmechanismus gefordert. Brüssel reagiert zögerlich.'
+    - label: Grenzkontrollen verstärken
+      desc: 'Populär, EU-rechtlich umstritten'
+      cost: 5
+      type: danger
+      effect:
+        zf: 2
+        gi: -0.2
+      charMood:
+        im: 2
+        jm: -2
+      log: 'Grenzkontrollen verschärft. EU-Kommission prüft Verfahren.'
+
+# === Follow-up Events ===
+
+- id: verfassungsklage_schulden
+  type: danger
+  icon: "\u2696\uFE0F"
+  typeLabel: Verfassungsklage
+  title: Opposition klagt gegen Schuldenaufnahme
+  quote: >-
+    Die Opposition hat Klage beim Bundesverfassungsgericht eingereicht — Verstoß gegen die Schuldenbremse.
+  context: >-
+    Die Klage hat Aussicht auf Erfolg. Ein Urteil könnte den Haushalt kippen und Neuwahlen erzwingen.
+  ticker: 'Verfassungsklage gegen Schuldenpolitik — Regierung in Bedrängnis'
+  choices:
+    - label: Nachtragshaushalt vorlegen
+      desc: 'Verfassungskonform nachbessern'
+      cost: 15
+      type: primary
+      effect:
+        hh: 0.2
+        zf: -2
+      charMood:
+        fm: 1
+      log: 'Nachtragshaushalt vorgelegt. Schuldenbremse eingehalten.'
+    - label: Notlage erklären
+      desc: 'Ausnahmeregel nutzen'
+      cost: 5
+      type: safe
+      effect:
+        zf: -3
+      charMood:
+        jm: -1
+      log: 'Notlage erklärt. Juristen zweifeln an Begründung.'
+    - label: Klage aussitzen
+      desc: 'Riskant, aber billig'
+      cost: 0
+      type: danger
+      effect:
+        zf: -5
+      charMood:
+        jm: -2
+      log: 'Klage ignoriert. Verfassungsgericht verärgert.'
+
+- id: wiederaufbau_debatte
+  type: warn
+  icon: "\U0001F3D7\uFE0F"
+  typeLabel: Wiederaufbau
+  title: Streit über Wiederaufbaukosten nach Flutkatastrophe
+  quote: >-
+    Wer zahlt die 30 Milliarden Euro Wiederaufbau? Bund und Länder streiten.
+  context: >-
+    Die Flutopfer warten auf Hilfe, während Berlin und die Landeshauptsstädte über Zuständigkeiten debattieren.
+  ticker: 'Wiederaufbau-Streit: Bund vs. Länder — Flutopfer warten'
+  choices:
+    - label: Solidaritätszuschlag erheben
+      desc: 'Faire Verteilung, unpopulär'
+      cost: 5
+      type: primary
+      effect:
+        hh: 0.3
+        zf: -3
+      charMood:
+        fm: 1
+      log: 'Solidaritätszuschlag für Wiederaufbau. Steuerzahler protestieren.'
+    - label: Sondervermögen einrichten
+      desc: 'Schnell, belastet Zukunft'
+      cost: 10
+      type: safe
+      effect:
+        hh: -0.3
+        zf: 2
+      charMood: {}
+      log: 'Sondervermögen für Wiederaufbau beschlossen.'
+    - label: Versicherungspflicht einführen
+      desc: 'Marktwirtschaftlich, langfristig'
+      cost: 5
+      type: safe
+      effect:
+        zf: -1
+      charMood: {}
+      log: 'Pflichtversicherung gegen Elementarschäden eingeführt.'
+
+- id: diplomatische_krise
+  type: warn
+  icon: "\U0001F30D"
+  typeLabel: Diplomatische Krise
+  title: Beschuldigter Staat reagiert mit Gegenmaßnahmen
+  quote: >-
+    Als Reaktion auf die öffentlichen Schuldzuweisungen verhängt der beschuldigte Staat Wirtschaftssanktionen.
+  context: >-
+    Handelsbeziehungen sind gefährdet. Die Wirtschaft drängt auf Deeskalation, Sicherheitsexperten fordern Standhaftigkeit.
+  ticker: 'Diplomatische Krise eskaliert — Wirtschaftssanktionen drohen'
+  choices:
+    - label: Deeskalation
+      desc: 'Gesicht wahren, Handel retten'
+      cost: 10
+      type: primary
+      effect:
+        zf: 1
+        gi: -0.2
+      charMood: {}
+      log: 'Diplomatische Kanäle wieder geöffnet. Krise entschärft.'
+    - label: Gegensanktionen
+      desc: 'Standhaft, wirtschaftlich teuer'
+      cost: 5
+      type: danger
+      effect:
+        zf: -2
+        gi: -0.5
+        hh: -0.2
+      charMood:
+        im: 1
+      log: 'Gegensanktionen verhängt. Wirtschaft leidet.'
+    - label: EU-Solidarität einfordern
+      desc: 'Multilateral, braucht Zeit'
+      cost: 5
+      type: safe
+      effect:
+        zf: 0
+      charMood: {}
+      log: 'EU-Partner um Solidarität gebeten. Reaktionen gemischt.'
+
+- id: opposition_vorwurf
+  type: danger
+  icon: "\U0001F4E2"
+  typeLabel: Opposition
+  title: Opposition wirft Regierung Untätigkeit vor
+  quote: >-
+    Nach dem rechtsextremen Anschlag wirft die Opposition der Regierung fahrlässige Untätigkeit vor.
+  context: >-
+    Ein Misstrauensantrag steht im Raum. Die Medien berichten intensiv über das Versagen der Sicherheitsbehörden.
+  ticker: 'Opposition attackiert Regierung — Misstrauensantrag im Gespräch'
+  choices:
+    - label: Sofort-Maßnahmen verkünden
+      desc: 'Entschlossen reagieren'
+      cost: 15
+      type: primary
+      effect:
+        zf: 2
+        hh: -0.2
+      charMood:
+        im: 1
+      log: 'Sofortmaßnahmen gegen Rechtsextremismus verkündet.'
+      unlocks_laws: [demokratiefoerderung]
+    - label: Vertrauensfrage stellen
+      desc: 'Alles auf eine Karte'
+      cost: 0
+      type: danger
+      effect:
+        zf: -4
+      charMood: {}
+      log: 'Vertrauensfrage gestellt. Hochriskantes Manöver.'
+    - label: Debatte im Parlament führen
+      desc: 'Demokratisch, aber langsam'
+      cost: 5
+      type: safe
+      effect:
+        zf: -1
+      charMood:
+        jm: 1
+      log: 'Parlamentsdebatte über innere Sicherheit. Sachlicher Ton.'
+
+- id: gewerkschaft_eskalation
+  type: danger
+  icon: "\u270A"
+  typeLabel: Streik-Eskalation
+  title: Gewerkschaften weiten Streik aus
+  quote: >-
+    Nach dem Scheitern der Schlichtung rufen die Gewerkschaften zu unbefristeten Streiks auf.
+  context: >-
+    Flughäfen, Häfen und Krankenhäuser sind betroffen. Die wirtschaftlichen Schäden gehen in die Milliarden.
+  ticker: 'Unbefristeter Streik: Wirtschaft droht Stillstand'
+  choices:
+    - label: Tarifeinigung erzwingen
+      desc: 'Staatliche Schlichtung, kostet Vertrauen'
+      cost: 15
+      type: primary
+      effect:
+        zf: 1
+        al: -0.3
+        hh: -0.1
+      charMood: {}
+      log: 'Zwangsschlichtung angeordnet. Gewerkschaften empört, Streik beendet.'
+    - label: Kompromiss anbieten
+      desc: 'Teurer Kompromiss'
+      cost: 10
+      type: safe
+      effect:
+        zf: 2
+        hh: -0.3
+      charMood:
+        wm: 1
+      log: 'Kompromiss gefunden. Löhne steigen, Haushalt belastet.'
+    - label: Durchhalten
+      desc: 'Auf Zeit spielen, wirtschaftlicher Schaden'
+      cost: 0
+      type: danger
+      effect:
+        zf: -4
+        al: 0.3
+        gi: -0.3
+      charMood:
+        wm: -1
+      log: 'Regierung hält Kurs. Wirtschaftliche Schäden wachsen.'

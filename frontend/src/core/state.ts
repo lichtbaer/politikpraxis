@@ -14,6 +14,7 @@ import {
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
 } from '../data/defaults/parteien';
+import { selectEventPool } from './systems/eventPoolSelection';
 
 /** Milieu → zust-Feld für initiale Zustimmung (SMA-264) */
 const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
@@ -69,7 +70,9 @@ export function createInitialState(
 
   const partnerIdeologie = partner?.ideologie ?? null;
   const gesetzBTStimmen: Record<string, number> = {};
-  const gesetze = content.laws.map((g) => {
+  // Gesperrte Gesetze (locked_until_event) werden nicht in den initialen State aufgenommen
+  const availableLaws = content.laws.filter(g => !g.locked_until_event);
+  const gesetze = availableLaws.map((g) => {
     const basis = g.ja;
     const effektiv = berechneEffektiveBTStimmen(g, basis, ideologie, partnerIdeologie);
     gesetzBTStimmen[g.id] = effektiv;
@@ -111,6 +114,9 @@ export function createInitialState(
     firedCharEvents: [],
     firedBundesratEvents: [],
     firedKommunalEvents: [],
+    activeEventPool: selectEventPool(content.events),
+    unlockedLaws: [],
+    pendingFollowups: [],
 
     pending: [],
 
@@ -342,6 +348,7 @@ export function validateGameState(raw: unknown): GameState {
     'tvDuellAbgehalten', 'tvDuellGewonnen', 'medienKlimaHistory', 'letzterSkandal', 'letztesPressemitteilungMonat',
     'opposition', 'medienoffensiveGenutzt',
     'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate', 'lowApprovalMonths',
+    'activeEventPool', 'unlockedLaws', 'pendingFollowups',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
