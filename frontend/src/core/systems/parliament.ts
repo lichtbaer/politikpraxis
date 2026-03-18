@@ -1,4 +1,5 @@
 import type { GameState, Ideologie, Law } from '../types';
+import type { GesetzRelation } from '../types';
 import { withPause } from '../eventPause';
 import { scheduleEffects } from './economy';
 import { addLog } from '../engine';
@@ -13,6 +14,7 @@ import { applyEUKofinanzierung } from './eu';
 import { applyFraming, getMedienPkZusatzkosten } from './medienklima';
 import { berechneKongruenz } from '../ideologie';
 import { getGesetzIdeologie } from './koalition';
+import { kannGesetzEingebracht } from '../gesetz';
 
 /** SMA-307: Berechnet effektive BT-Stimmen aus Koalitions-Kongruenz (dynamisch statt statisch). */
 export function berechneEffektiveBTStimmen(
@@ -38,11 +40,15 @@ export interface EinbringenContext {
   complexity: number;
   /** Optional: Framing-Key beim Einbringen (SMA-277) */
   framingKey?: string | null;
+  /** SMA-312: Gesetz-Relationen für requires/excludes-Prüfung */
+  gesetzRelationen?: Record<string, GesetzRelation[]>;
 }
 
 export interface GesetzBeschlussContext {
   milieus: { id: string; ideologie: { wirtschaft: number; gesellschaft: number; staat: number }; min_complexity: number }[];
   complexity: number;
+  /** SMA-312: Gesetz-Relationen für Synergie-Berechnung */
+  gesetzRelationen?: Record<string, GesetzRelation[]>;
 }
 
 export type EinbringenOptions = EinbringenContext | { pkRabatt?: number };
@@ -71,6 +77,12 @@ export function einbringen(
   if (idx === -1) return state;
   const law = state.gesetze[idx];
   if (law.status !== 'entwurf') return state;
+
+  // SMA-312: requires/excludes blockieren Einbringen
+  const relationen = isEinbringenContext(options) ? options.gesetzRelationen : undefined;
+  if (!kannGesetzEingebracht(state, lawId, relationen)) {
+    return state;
+  }
 
   // SMA-280: Verfassungsgericht-Verfahren blockiert Einbringen in betroffenen Politikfeldern
   if (isVerfassungsgerichtBlockiert(state, law)) {
@@ -221,7 +233,13 @@ export function abstimmen(
       newState = scheduleEffects(newState, lawForEffects);
 
       if (beschlussContext?.milieus) {
-        newState = applyMilieuEffekte(newState, lawId, beschlussContext.milieus, beschlussContext.complexity);
+        newState = applyMilieuEffekte(
+          newState,
+          lawId,
+          beschlussContext.milieus,
+          beschlussContext.complexity,
+          beschlussContext.gesetzRelationen,
+        );
       }
       if (law.politikfeldId) {
         newState = setPolitikfeldBeschluss(newState, law.politikfeldId);
@@ -316,6 +334,7 @@ export function resolveEingebrachteAbstimmung(
           eg.gesetzId,
           beschlussContext.milieus,
           beschlussContext.complexity,
+          beschlussContext.gesetzRelationen,
         );
       }
       if (law.politikfeldId) {

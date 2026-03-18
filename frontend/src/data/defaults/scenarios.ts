@@ -94,6 +94,7 @@ export const DEFAULT_CONTENT: ContentBundle = {
   ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
   euKlimaStartwerte: DEFAULT_EU_KLIMA_STARTWERTE,
   euEvents: [],
+  gesetzRelationen: {},
   medienEvents: DEFAULT_MEDIEN_EVENTS,
   scenario: DEFAULT_SCENARIO,
 };

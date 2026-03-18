@@ -207,7 +207,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   doEinbringen: (lawId) =>
     set((prev) => {
-      const ctx: EinbringenContext = { ausrichtung: prev.ausrichtung, complexity: prev.complexity };
+      const ctx: EinbringenContext = {
+        ausrichtung: prev.ausrichtung,
+        complexity: prev.complexity,
+        gesetzRelationen: prev.content.gesetzRelationen,
+      };
       return { state: einbringen(prev.state, lawId, ctx) };
     }),
   doEinbringenMitFraming: (lawId, framingKey) =>
@@ -216,6 +220,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
         framingKey: framingKey ?? undefined,
+        gesetzRelationen: prev.content.gesetzRelationen,
       };
       return { state: einbringen(prev.state, lawId, ctx) };
     }),
@@ -223,7 +228,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doAbstimmen: (lawId) =>
     set((prev) => {
       const ctx: GesetzBeschlussContext | undefined = prev.content.milieus
-        ? { milieus: prev.content.milieus, complexity: prev.complexity }
+        ? {
+            milieus: prev.content.milieus,
+            complexity: prev.complexity,
+            gesetzRelationen: prev.content.gesetzRelationen,
+          }
         : undefined;
       let state = abstimmen(prev.state, lawId, ctx);
       const newLaw = state.gesetze.find(g => g.id === lawId);

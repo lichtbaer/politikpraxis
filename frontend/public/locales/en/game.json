@@ -768,7 +768,12 @@
     "einnahmeeffekt": "Revenue",
     "pkKosten": "Political",
     "investivLabel": "Investment (+2 mo. lag)",
-    "haushaltAnteil": "{{percent}}% of annual budget"
+    "haushaltAnteil": "{{percent}}% of annual budget",
+    "pkNichtGenug": "Requires {{required}} PK (you have {{current}})",
+    "blockiertVerfassungsgericht": "Blocked by ongoing constitutional court proceedings",
+    "benoetigt": "Requires: {{gesetz}}",
+    "ausgeschlossen": "Not possible: You have already passed {{gesetz}}",
+    "synergie": "Synergy effect +{{pct}}% with {{gesetz}}"
   },
   "gesetzAgenda": {
     "title": "Law Agenda",

@@ -13,6 +13,45 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
+/* SMA-312: Gesperrt/ausgeschlossen ausgegraut */
+.gesetzLocked {
+  opacity: 0.7;
+  filter: grayscale(0.3);
+}
+
+/* SMA-312: Synergie aktiv — grüner Rahmen */
+.gesetzSynergy {
+  border-color: var(--green);
+  box-shadow: 0 0 0 1px var(--green);
+}
+
+.gesetzLockedBadge {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  background: var(--bg4);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.gesetzExcludedBadge {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  background: color-mix(in srgb, var(--red) 15%, transparent);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--red);
+}
+
+.gesetzSynergyBadge {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  background: color-mix(in srgb, var(--green) 15%, transparent);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--green);
+}
+
 .header {
   display: flex;
   align-items: center;

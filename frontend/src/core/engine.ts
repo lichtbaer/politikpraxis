@@ -100,7 +100,7 @@ export function tick(
   for (const eg of eingebrachte) {
     if (s.month >= eg.abstimmungMonat) {
       const voteContext = content.milieus
-        ? { milieus: content.milieus, complexity }
+        ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen }
         : undefined;
       s = resolveEingebrachteAbstimmung(s, eg, voteContext);
       const newLaw = s.gesetze.find(g => g.id === eg.gesetzId);
@@ -298,7 +298,7 @@ export function tick(
 function processBundesratVotes(state: GameState, content: ContentBundle, complexity: number): GameState {
   let s = state;
   const voteContext = content.milieus
-    ? { milieus: content.milieus, complexity }
+    ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen }
     : undefined;
   for (const law of s.gesetze) {
     if (law.status === 'bt_passed' && law.brVoteMonth != null && s.month >= law.brVoteMonth) {

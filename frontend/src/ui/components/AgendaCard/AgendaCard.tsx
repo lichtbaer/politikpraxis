@@ -9,6 +9,12 @@ import { getVorstufenBoni } from '../../../core/systems/gesetzLebenszyklus';
 import { isVerfassungsgerichtBlockiert } from '../../../core/systems/parliament';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from '../../../core/systems/kongruenz';
 import { getMedienPkZusatzkosten } from '../../../core/systems/medienklima';
+import {
+  kannGesetzEingebracht,
+  getFehlendeRequires,
+  getAusschliessendeExcludes,
+  getAktiveEnhances,
+} from '../../../core/gesetz';
 import { VorstufeBadge } from '../VorstufeBadge/VorstufeBadge';
 import { VorbereitungModal } from '../VorbereitungModal/VorbereitungModal';
 import { FramingModal } from '../FramingModal/FramingModal';
@@ -65,8 +71,9 @@ const STATUS_CLASS: Record<LawStatus, string> = {
 
 export function AgendaCard({ law, isRecommended, showKongruenz, recommendationScore }: AgendaCardProps) {
   const { t } = useTranslation(['common', 'game']);
-  const { state, complexity, ausrichtung } = useGameStore();
+  const { state, content, complexity, ausrichtung } = useGameStore();
   const actions = useGameActions();
+  const gesetzRelationen = content.gesetzRelationen;
   const [showVorbereitungModal, setShowVorbereitungModal] = useState(false);
   const [showFramingModal, setShowFramingModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ title: string; message: string; cost: number; action: () => void } | null>(null);
@@ -95,19 +102,35 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
   const handleHeaderClick = () => actions.toggleAgenda(law.id);
 
   const verfassungsgerichtBlockiert = isVerfassungsgerichtBlockiert(state, law);
+  const canEinbringenRelationen = kannGesetzEingebracht(state, law.id, gesetzRelationen);
   const canEinbringen =
     law.status === 'entwurf' &&
     pk >= 20 &&
-    !verfassungsgerichtBlockiert;
+    !verfassungsgerichtBlockiert &&
+    canEinbringenRelationen;
   const canLobbying = (law.status === 'entwurf' || law.status === 'aktiv' || law.status === 'eingebracht') && pk >= 12;
+
+  // SMA-312: requires/excludes Status für UI
+  const fehlendeRequires = law.status === 'entwurf' ? getFehlendeRequires(state, law.id, gesetzRelationen) : null;
+  const ausschliessendeExcludes = law.status === 'entwurf' ? getAusschliessendeExcludes(state, law.id, gesetzRelationen) : null;
+  const aktiveEnhances = law.status === 'entwurf' ? getAktiveEnhances(state, law.id, gesetzRelationen) : [];
+  const isLocked = !!fehlendeRequires;
+  const isExcluded = !!ausschliessendeExcludes;
+  const hasSynergy = aktiveEnhances.length > 0;
+
+  const getGesetzTitel = (id: string) => content.laws?.find((l) => l.id === id)?.titel ?? t(`game:laws.${id}.titel`, id);
 
   // Tooltip-Erklärung für deaktivierte Buttons
   const einbringenTooltip = !canEinbringen && law.status === 'entwurf'
     ? verfassungsgerichtBlockiert
       ? t('game:gesetz.blockiertVerfassungsgericht')
-      : pk < 20
-        ? t('game:gesetz.pkNichtGenug', { required: 20, current: pk })
-        : ''
+      : !canEinbringenRelationen && fehlendeRequires
+        ? t('game:gesetz.benoetigt', { gesetz: getGesetzTitel(fehlendeRequires.targetId), defaultValue: `Benötigt: ${getGesetzTitel(fehlendeRequires.targetId)}` })
+        : !canEinbringenRelationen && ausschliessendeExcludes
+          ? t('game:gesetz.ausgeschlossen', { gesetz: getGesetzTitel(ausschliessendeExcludes.targetId), defaultValue: `Nicht möglich: Du hast bereits ${getGesetzTitel(ausschliessendeExcludes.targetId)} beschlossen` })
+          : pk < 20
+            ? t('game:gesetz.pkNichtGenug', { required: 20, current: pk })
+            : ''
     : '';
   const lobbyingTooltip = !canLobbying
     ? pk < 12
@@ -126,7 +149,10 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
   const effectivePct = Math.min(95, pct + boni.btStimmenBonus);
 
   return (
-    <div className={styles.card}>
+    <div
+      className={`${styles.card} ${isLocked || isExcluded ? styles.gesetzLocked : ''} ${hasSynergy ? styles.gesetzSynergy : ''}`}
+      title={isLocked && fehlendeRequires ? getGesetzTitel(fehlendeRequires.targetId) : isExcluded && ausschliessendeExcludes ? getGesetzTitel(ausschliessendeExcludes.targetId) : undefined}
+    >
       <header className={styles.header} onClick={handleHeaderClick}>
         <span className={`${styles.badge} ${STATUS_CLASS[law.status]}`}>
           {t(STATUS_KEYS[law.status], { ns: 'common' })}
@@ -150,6 +176,30 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
 
       {expanded && (
         <div className={styles.body}>
+          {/* SMA-312: requires/excludes/enhances Badges */}
+          {law.status === 'entwurf' && (
+            <>
+              {fehlendeRequires && (
+                <div className={styles.gesetzLockedBadge}>
+                  🔒 {t('game:gesetz.benoetigt', { gesetz: getGesetzTitel(fehlendeRequires.targetId), defaultValue: `Benötigt: ${getGesetzTitel(fehlendeRequires.targetId)}` })}
+                </div>
+              )}
+              {ausschliessendeExcludes && (
+                <div className={styles.gesetzExcludedBadge}>
+                  ⛔ {t('game:gesetz.ausgeschlossen', { gesetz: getGesetzTitel(ausschliessendeExcludes.targetId), defaultValue: `Ausgeschlossen durch: ${getGesetzTitel(ausschliessendeExcludes.targetId)}` })}
+                </div>
+              )}
+              {hasSynergy && aktiveEnhances.map((rel) => (
+                <div key={rel.targetId} className={styles.gesetzSynergyBadge}>
+                  ⚡ {t('game:gesetz.synergie', {
+                    pct: Math.round(((rel.enhancesFaktor ?? 1) - 1) * 100),
+                    gesetz: getGesetzTitel(rel.targetId),
+                    defaultValue: `Synergieeffekt +${Math.round(((rel.enhancesFaktor ?? 1) - 1) * 100)}% mit ${getGesetzTitel(rel.targetId)}`,
+                  })}
+                </div>
+              ))}
+            </>
+          )}
           <p className={styles.desc}>{law.desc || t(`game:laws.${law.id}.desc`)}</p>
 
           {law.status === 'entwurf' && law.effekte && Object.values(law.effekte).some(v => v !== 0) && (

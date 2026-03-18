@@ -740,3 +740,30 @@ async def _get_tradeoff_key_mapping(db: AsyncSession) -> dict[int, str]:
     """Map tradeoff_id -> tradeoff_key from bundesrat_tradeoffs."""
     rows = await db.execute(text("SELECT id, tradeoff_key FROM bundesrat_tradeoffs ORDER BY id"))
     return {r[0]: r[1] for r in rows}
+
+
+async def fetch_gesetz_relationen(db: AsyncSession) -> list[dict]:
+    """SMA-312: Lädt Gesetz-Relationen (requires, excludes, enhances)."""
+    cache_key = ("gesetz_relationen", "all")
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
+
+    rows = await db.execute(
+        text("""
+            SELECT gesetz_a_id, gesetz_b_id, relation_typ, beschreibung_de, enhances_faktor
+            FROM gesetz_relationen
+        """)
+    )
+    result = [
+        {
+            "gesetz_a_id": r[0],
+            "gesetz_b_id": r[1],
+            "relation_typ": r[2],
+            "beschreibung_de": r[3],
+            "enhances_faktor": float(r[4]) if r[4] is not None else 1.0,
+        }
+        for r in rows
+    ]
+    _set_cached(cache_key, result)
+    return result
