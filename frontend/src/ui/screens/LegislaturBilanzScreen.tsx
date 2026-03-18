@@ -7,6 +7,7 @@ import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import type { LegislaturBilanz } from '../../core/types';
+import { CheckCircle, AlertTriangle } from '../icons';
 import styles from './LegislaturBilanzScreen.module.css';
 
 const FALLBACK_BOTSCHAFTEN = ['klima', 'wirtschaft', 'soziales', 'sicherheit'];
@@ -141,7 +142,7 @@ export function LegislaturBilanzScreen() {
                     onClick={() => toggleBotschaft(id)}
                   >
                     <span className={styles.glaubwuerdigkeit}>
-                      {glaubwuerdig ? '✅' : '⚠'}
+                      {glaubwuerdig ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}
                     </span>
                     <span>{t(`game:legislaturBilanz.botschaft.${id}`, id)}</span>
                   </button>

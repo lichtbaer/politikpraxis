@@ -68,7 +68,7 @@ function medienEventToGameEvent(me: MedienEventContent): GameEvent {
   return {
     id: me.id,
     type,
-    icon: type === 'danger' ? '🔴' : '✅',
+    icon: type === 'danger' ? 'danger' : 'good',
     typeLabel: me.event_subtype === 'skandal' ? 'Skandal' : 'Positiv',
     title: me.title,
     quote: me.quote,

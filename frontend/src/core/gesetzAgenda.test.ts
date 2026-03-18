@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 import {
   gruppiereNachPolitikfeld,
   getTop3Empfohlen,
-  POLITIKFELD_ICONS,
+  POLITIKFELD_ICON_KEYS,
 } from './gesetzAgenda';
 import type { Law, Ideologie, Politikfeld } from './types';
 
@@ -88,7 +88,7 @@ describe('getTop3Empfohlen', () => {
   });
 });
 
-describe('POLITIKFELD_ICONS', () => {
+describe('POLITIKFELD_ICON_KEYS', () => {
   it('enthält alle 8 Politikfelder', () => {
     const ids = [
       'wirtschaft_finanzen',
@@ -101,7 +101,7 @@ describe('POLITIKFELD_ICONS', () => {
       'landwirtschaft',
     ];
     for (const id of ids) {
-      expect(POLITIKFELD_ICONS[id]).toBeDefined();
+      expect(POLITIKFELD_ICON_KEYS[id]).toBeDefined();
     }
   });
 });

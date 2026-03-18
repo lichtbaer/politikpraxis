@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { GameEvent, EventChoice } from '../../../core/types';
 import { getEventNamespace } from '../../../core/eventNamespaces';
+import { EventIcon } from '../../icons';
 import styles from './EventCard.module.css';
 
 interface EventCardProps {
@@ -45,7 +46,7 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, h
   const isSkandal = SKANDAL_IDS.has(event.id);
   const isKoalition = KOALITION_EVENT_IDS.has(event.id);
   const headerClass = headerClassOverride ?? (isSkandal ? `${styles.header} ${styles.headerSkandal}` : isKoalition && headerColor ? `${styles.header}` : `${styles.header} ${TYPE_CLASS[event.type]}`);
-  const icon = iconOverride ?? (isSkandal ? '📰' : event.icon);
+  const iconKey = iconOverride ?? (isSkandal ? 'skandal' : event.icon);
   const showDelta = showMedienklimaDelta ?? isSkandal;
   const ns = getEventNamespace(event);
 
@@ -57,7 +58,7 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, h
   return (
     <article className={styles.card}>
       <header className={headerClass} style={headerColor ? { backgroundColor: headerColor, color: '#fff' } : undefined}>
-        <span className={styles.icon}>{icon}</span>
+        <span className={styles.icon}><EventIcon iconKey={iconKey} size={20} /></span>
         <div className={styles.headerText}>
           <span className={styles.typeLabel}>{typeLabel.toUpperCase()}</span>
           <h2 className={styles.title}>{title}</h2>

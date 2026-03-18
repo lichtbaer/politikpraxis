@@ -69,7 +69,7 @@ export function checkMinisterialInitiativen(
       activeEvent: {
         id: `mi_${init.id}`,
         type: 'warn',
-        icon: '💼',
+        icon: 'ministerial',
         typeLabel: 'Ministerial-Initiative',
         title: `${char!.name} bringt Initiative ein`,
         quote: '',

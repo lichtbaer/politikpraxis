@@ -11,11 +11,9 @@ import { useContentStore } from '../../stores/contentStore';
 import { AgendaCard } from '../components/AgendaCard/AgendaCard';
 import { featureActive } from '../../core/systems/features';
 import type { LawStatus } from '../../core/types';
-import {
-  gruppiereNachPolitikfeld,
-  POLITIKFELD_ICONS,
-} from '../../core/gesetzAgenda';
+import { gruppiereNachPolitikfeld } from '../../core/gesetzAgenda';
 import { getRecommendedLaws } from '../../core/systems/recommendations';
+import { PolitikfeldIcon, Hourglass } from '../icons';
 import styles from './GesetzAgendaView.module.css';
 
 type StatusFilterKey = 'alle' | LawStatus;
@@ -199,7 +197,7 @@ export function GesetzAgendaView() {
             role="button"
             aria-expanded={!pendingCollapsed}
           >
-            <span className={styles.pendingIcon}>&#9200;</span>
+            <span className={styles.pendingIcon}><Hourglass size={14} /></span>
             <span className={styles.pendingTitle}>
               {t('game:gesetzAgenda.pendingTitle', 'Ausstehende Wirkungen')}
             </span>
@@ -252,7 +250,7 @@ export function GesetzAgendaView() {
           {filteredClusters.map(({ feldId, gesetze }) => {
             const isCollapsed = showCollapsible && collapsedIds.has(feldId);
             const druck = showDruck ? (politikfeldDruck[feldId] ?? 0) : 0;
-            const icon = POLITIKFELD_ICONS[feldId] ?? '📋';
+            const icon = feldId;
             const feldName =
               feldId === '_ohne_feld'
                 ? t('game:gesetzAgenda.ohneFeld', 'Sonstige')
@@ -266,7 +264,7 @@ export function GesetzAgendaView() {
                   role={showCollapsible ? 'button' : undefined}
                   aria-expanded={!isCollapsed}
                 >
-                  <span className={styles.politikfeldIcon}>{icon}</span>
+                  <span className={styles.politikfeldIcon}><PolitikfeldIcon feldId={icon} size={16} /></span>
                   <span className={styles.politikfeldName}>{feldName}</span>
                   <span className={styles.politikfeldCount}>
                     ({gesetze.length} {t('game:gesetzAgenda.gesetzeCount', 'Gesetze')})

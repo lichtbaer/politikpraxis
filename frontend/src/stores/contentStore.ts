@@ -39,16 +39,16 @@ import {
 } from '../data/defaults/wahlkampfEvents';
 import { DEFAULT_MEDIEN_EVENTS } from '../data/defaults/medienEvents';
 
-const EVENT_TYPE_ICONS: Record<string, string> = {
-  danger: '🔴',
-  warn: '⚠️',
-  good: '✅',
-  info: '📢',
-  random: '📰',
-  char_ultimatum: '💼',
-  bundesrat: '🏛️',
-  kommunal_initiative: '🏙️',
-  vorstufe_erfolg: '✅',
+const EVENT_TYPE_ICON_KEYS: Record<string, string> = {
+  danger: 'danger',
+  warn: 'warn',
+  good: 'good',
+  info: 'info',
+  random: 'random',
+  char_ultimatum: 'char_ultimatum',
+  bundesrat: 'bundesrat',
+  kommunal_initiative: 'kommunal_initiative',
+  vorstufe_erfolg: 'vorstufe_erfolg',
 };
 
 const EVENT_TYPE_MAP: Record<string, 'danger' | 'warn' | 'good' | 'info'> = {
@@ -175,7 +175,7 @@ function transformEventChoice(api: {
 
 function transformEvent(api: EventApi): GameEvent {
   const eventType = EVENT_TYPE_MAP[api.event_type] ?? 'info';
-  const icon = EVENT_TYPE_ICONS[api.event_type] ?? '📰';
+  const icon = EVENT_TYPE_ICON_KEYS[api.event_type] ?? 'random';
   const ev: GameEvent = {
     id: api.id,
     type: eventType,

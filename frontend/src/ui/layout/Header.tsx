@@ -8,6 +8,7 @@ import { PK_REGEN_DIVISOR, PK_REGEN_MIN } from '../../core/constants';
 import { PressemitteilungModal } from '../components/PressemitteilungModal/PressemitteilungModal';
 import { Glossar } from '../components/Glossar/Glossar';
 import type { SpeedLevel } from '../../core/types';
+import { Megaphone } from '../icons';
 import styles from './Header.module.css';
 
 export function Header() {
@@ -72,7 +73,7 @@ export function Header() {
             className={styles.pressemitteilungBtn}
             onClick={() => setShowPressemitteilungModal(true)}
           >
-            📢 {t('game:pressemitteilung.button')}
+            <Megaphone size={14} /> {t('game:pressemitteilung.button')}
           </button>
         )}
         <button

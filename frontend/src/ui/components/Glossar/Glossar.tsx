@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { X as XIcon } from '../../icons';
 import styles from './Glossar.module.css';
 
 interface GlossarEntry {
@@ -56,7 +57,7 @@ export function Glossar({ onClose }: GlossarProps) {
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <header className={styles.header}>
           <h2 className={styles.title}>{t('glossar.title', 'Glossar')}</h2>
-          <button type="button" className={styles.closeBtn} onClick={onClose}>✕</button>
+          <button type="button" className={styles.closeBtn} onClick={onClose}><XIcon size={16} /></button>
         </header>
         <div className={styles.searchRow}>
           <input

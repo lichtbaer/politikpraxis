@@ -113,7 +113,7 @@ export function buildKoalitionspartnerContent(
 export const KOALITIONSBRUCH_EVENT: GameEvent = {
   id: 'koalitionsbruch',
   type: 'danger',
-  icon: '🔴',
+  icon: 'danger',
   typeLabel: 'Koalitionskrise',
   title: 'Koalitionspartner droht mit Austritt',
   quote: '„Ohne spürbare Zugeständnisse können wir diese Koalition nicht fortsetzen.“',
@@ -144,7 +144,7 @@ export const KOALITIONSBRUCH_EVENT: GameEvent = {
 export const KOALITIONSKRISE_ULTIMATUM_EVENT: GameEvent = {
   id: 'koalitionskrise_ultimatum',
   type: 'warn',
-  icon: '⚠️',
+  icon: 'warn',
   typeLabel: 'Koalitionsvertrag',
   title: 'Partner fordert Einhaltung des Koalitionsvertrags',
   quote: '„Wir haben einen Vertrag unterzeichnet. Die aktuelle Politik weicht zu stark ab.“',

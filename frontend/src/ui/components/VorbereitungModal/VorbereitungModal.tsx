@@ -9,6 +9,7 @@ import { featureActive } from '../../../core/systems/features';
 import { getVorstufenBoni } from '../../../core/systems/gesetzLebenszyklus';
 import { bewerteEURoute } from '../../../core/systems/eu';
 import type { Law } from '../../../core/types';
+import { X as XIcon, AlertTriangle } from '../../icons';
 import styles from './VorbereitungModal.module.css';
 
 const STADTTYP_OPTIONS_STUFE2: { key: 'progressiv' | 'konservativ' | 'industrie'; label: string }[] = [
@@ -98,7 +99,7 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
         <header className={styles.header}>
           <h2 id="vorbereitung-title">{t('game:vorbereitung.title', { gesetz: law.kurz })}</h2>
           <button type="button" className={styles.close} onClick={onClose} aria-label={t('game:bundesrat.close')}>
-            ✕
+            <XIcon size={16} />
           </button>
         </header>
 
@@ -110,7 +111,7 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
                 {kommunalKosten} PK, {kommunalDauer} Monate · +8% BT bei Erfolg
               </p>
               {zeitdruckWarnung(kommunalDauer) && (
-                <p className={styles.warn}>⚠ Vorstufe endet nach Wahltermin.</p>
+                <p className={styles.warn}><AlertTriangle size={12} /> Vorstufe endet nach Wahltermin.</p>
               )}
               {kommunalAktiv ? (
                 <p className={styles.aktiv}>Vorstufe läuft bereits.</p>
@@ -160,7 +161,7 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
                 {laenderKosten} PK, {laenderDauer} Monate · +10% BT bei Erfolg
               </p>
               {zeitdruckWarnung(laenderDauer) && (
-                <p className={styles.warn}>⚠ Vorstufe endet nach Wahltermin.</p>
+                <p className={styles.warn}><AlertTriangle size={12} /> Vorstufe endet nach Wahltermin.</p>
               )}
               {laenderAktiv ? (
                 <p className={styles.aktiv}>Vorstufe läuft bereits.</p>
@@ -197,7 +198,7 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
                 </p>
               )}
               {zeitdruckWarnung(euDauer) && (
-                <p className={styles.warn}>⚠ Vorstufe endet nach Wahltermin.</p>
+                <p className={styles.warn}><AlertTriangle size={12} /> Vorstufe endet nach Wahltermin.</p>
               )}
               {euAktiv ? (
                 <p className={styles.aktiv}>Vorstufe läuft bereits.</p>

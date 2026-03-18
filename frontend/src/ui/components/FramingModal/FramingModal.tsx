@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Law, FramingOption } from '../../../core/types';
+import { Users, Newspaper } from '../../icons';
 import styles from './FramingModal.module.css';
 
 interface FramingModalProps {
@@ -56,7 +57,7 @@ export function FramingModal({ law, onConfirm, onClose }: FramingModalProps) {
                         key={mid}
                         className={delta > 0 ? styles.effektPositiv : styles.effektNegativ}
                       >
-                        👥 {getMilieuName(t, mid)} {delta > 0 ? '+' : ''}{delta}%
+                        <Users size={14} /> {getMilieuName(t, mid)} {delta > 0 ? '+' : ''}{delta}%
                       </span>
                     ))}
                   </>
@@ -67,7 +68,7 @@ export function FramingModal({ law, onConfirm, onClose }: FramingModalProps) {
                       option.medienklima_delta > 0 ? styles.effektPositiv : styles.effektNegativ
                     }
                   >
-                    📰 {t('game:medienklima.label')} {option.medienklima_delta > 0 ? '+' : ''}
+                    <Newspaper size={14} /> {t('game:medienklima.label')} {option.medienklima_delta > 0 ? '+' : ''}
                     {option.medienklima_delta}
                   </span>
                 )}

@@ -1,9 +1,10 @@
 /**
  * SMA-274: VorstufeBadge — Status einer Vorstufe (Kommunal, Länder, EU).
- * ○ Nicht gestartet | 🔄 In Bearbeitung | ✅ Erfolgreich | ✗ Gescheitert | ⚠ Abgebrochen
+ * Circle = Nicht gestartet | RefreshCw = In Bearbeitung | CheckCircle = Erfolgreich | X = Gescheitert
  */
 import { useTranslation } from 'react-i18next';
 import type { GesetzProjekt } from '../../../core/types';
+import { Circle, RefreshCw, CheckCircle, X as XIcon } from '../../icons';
 import styles from './VorstufeBadge.module.css';
 
 export type VorstufTyp = 'kommunal' | 'laender' | 'eu';
@@ -28,7 +29,7 @@ export function VorstufeBadge({ typ, projekt, month = 0, onAbbrechen }: Vorstufe
   if (!vorstufe) {
     return (
       <span className={styles.offen}>
-        ○ {t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
+        <Circle size={10} /> {t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
       </span>
     );
   }
@@ -39,7 +40,7 @@ export function VorstufeBadge({ typ, projekt, month = 0, onAbbrechen }: Vorstufe
     return (
       <div className={styles.aktiv}>
         <span className={styles.label}>
-          🔄 {vorstufe.stadtname ?? vorstufe.stadttyp ?? t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
+          <RefreshCw size={12} /> {vorstufe.stadtname ?? vorstufe.stadttyp ?? t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
           {restMonate > 0 && ` (noch ${restMonate} Mo)`}
         </span>
         <progress
@@ -55,7 +56,7 @@ export function VorstufeBadge({ typ, projekt, month = 0, onAbbrechen }: Vorstufe
             title={t('game:vorstufen.abbrechen')}
             aria-label={t('game:vorstufen.abbrechen')}
           >
-            ✕
+            <XIcon size={10} />
           </button>
         )}
       </div>
@@ -65,14 +66,14 @@ export function VorstufeBadge({ typ, projekt, month = 0, onAbbrechen }: Vorstufe
   if (vorstufe.ergebnis === 'erfolg') {
     return (
       <span className={styles.erfolg}>
-        ✅ {vorstufe.stadtname ?? vorstufe.stadttyp ?? t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
+        <CheckCircle size={12} /> {vorstufe.stadtname ?? vorstufe.stadttyp ?? t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
       </span>
     );
   }
 
   return (
     <span className={styles.gescheitert}>
-      ✗ {t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
+      <XIcon size={12} /> {t(`game:vorstufen.${typ}`) ?? VORSTUFE_LABELS[typ]}
     </span>
   );
 }

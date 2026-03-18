@@ -3,6 +3,7 @@ import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import type { Verband } from '../../core/types';
+import { DotRating } from '../components/DotRating/DotRating';
 import styles from './VerbaendeView.module.css';
 
 const KONFLIKTE: Record<string, string[]> = {
@@ -34,7 +35,7 @@ function Verbandskarte({ verband, beziehung, onGespraech, onTradeoff, pk }: Verb
   const { t } = useTranslation('game');
   const konfliktPartner = KONFLIKTE[verband.id] ?? [];
   const staerke = getEinflussStaerke();
-  const dots = '●'.repeat(staerke) + '○'.repeat(5 - staerke);
+  const dotsEl = <DotRating value={staerke} max={5} />;
   const canGespraech = pk >= 10;
   const hasTradeoffs = (verband.tradeoffs?.length ?? 0) > 0;
 
@@ -53,7 +54,7 @@ function Verbandskarte({ verband, beziehung, onGespraech, onTradeoff, pk }: Verb
       </div>
       <div className={styles.einfluss}>
         <span className={styles.einflussLabel}>{t('game:verbaende.einfluss')}</span>
-        <span className={styles.einflussDots}>{dots}</span>
+        <span className={styles.einflussDots}>{dotsEl}</span>
       </div>
       <div className={styles.beziehungsBalken}>
         <div className={styles.balkenLabel}>

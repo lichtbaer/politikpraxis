@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '../../../store/gameStore';
+import { Lightbulb } from '../../icons';
 import styles from './GameTips.module.css';
 
 interface Tip {
@@ -104,7 +105,7 @@ export function GameTips() {
 
   return (
     <div className={styles.tip}>
-      <div className={styles.tipIcon}>💡</div>
+      <div className={styles.tipIcon}><Lightbulb size={18} /></div>
       <div className={styles.tipContent}>
         <strong className={styles.tipTitle}>{activeTip.title}</strong>
         <p className={styles.tipText}>{activeTip.text}</p>

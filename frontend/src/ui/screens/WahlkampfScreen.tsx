@@ -6,6 +6,7 @@ import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { useContentStore } from '../../stores/contentStore';
 import { featureActive } from '../../core/systems/features';
+import { Tv, Check, Circle } from '../icons';
 import styles from './WahlkampfScreen.module.css';
 
 function AktionsSlots({ genutzt, max }: { genutzt: number; max: number }) {
@@ -14,7 +15,7 @@ function AktionsSlots({ genutzt, max }: { genutzt: number; max: number }) {
     <span className={styles.slots}>
       {slots.map((used, i) => (
         <span key={i} className={used ? styles.slotUsed : styles.slotFree}>
-          ●
+          <Circle size={8} fill={used ? 'currentColor' : 'none'} />
         </span>
       ))}
     </span>
@@ -59,7 +60,7 @@ export function WahlkampfScreen() {
 
       {showTVDuell && (
         <div className={styles.tvDuellBanner}>
-          📺 {t('game:wahlkampf.tvDuellBanner')}
+          <Tv size={16} /> {t('game:wahlkampf.tvDuellBanner')}
         </div>
       )}
 
@@ -128,7 +129,7 @@ export function WahlkampfScreen() {
               onClick={() => doWahlkampfMedienoffensive()}
             >
               {t('game:wahlkampf.medienoffensiveAktion')} (15 PK){' '}
-              {state.medienoffensiveGenutzt && '✓'}
+              {state.medienoffensiveGenutzt && <Check size={14} />}
             </button>
           </div>
         </div>

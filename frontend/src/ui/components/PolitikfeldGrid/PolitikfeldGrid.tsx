@@ -4,23 +4,10 @@ import type { TFunction } from 'i18next';
 import { useContentStore } from '../../../stores/contentStore';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
+import { PolitikfeldIcon, Check, CircleAlert, AlertTriangle } from '../../icons';
 import styles from './PolitikfeldGrid.module.css';
 
 const EMPTY_DRUCK: Record<string, number> = {};
-
-const FELD_ICONS: Record<string, string> = {
-  umwelt_energie: '🌱',
-  wirtschaft_finanzen: '📊',
-  bildung_forschung: '📚',
-  arbeit_soziales: '👷',
-  innere_sicherheit: '🔒',
-  gesundheit_pflege: '🏥',
-  digital_infrastruktur: '📡',
-  landwirtschaft: '🌾',
-  umwelt: '🌱',
-  wirtschaft: '📊',
-  arbeit: '👷',
-};
 
 interface PolitikfeldGridProps {
   /** Auswahlmodus: max. N Felder wählbar */
@@ -133,7 +120,7 @@ export function PolitikfeldGrid(props?: PolitikfeldGridProps) {
           >
             <div className={styles.feldRow}>
               <span className={styles.feldIcon}>
-                {FELD_ICONS[feld.id] ?? '📋'}
+                <PolitikfeldIcon feldId={feld.id} size={16} />
               </span>
               <span className={styles.feldName}>
                 {t(`politikfeld.${feld.id}`, feld.id)}
@@ -149,15 +136,15 @@ export function PolitikfeldGrid(props?: PolitikfeldGridProps) {
               {showDruckZahl && (
                 <span className={`${styles.druckZahl} ${druckClass}`}>
                   {Math.round(druckVal)}
-                  {druckVal > 70 && <span className={styles.druckWarn}> 🔴</span>}
-                  {druckVal > 40 && druckVal <= 70 && <span className={styles.druckWarn}> ⚠️</span>}
+                  {druckVal > 70 && <span className={styles.druckWarn}> <CircleAlert size={12} /></span>}
+                  {druckVal > 40 && druckVal <= 70 && <span className={styles.druckWarn}> <AlertTriangle size={12} /></span>}
                 </span>
               )}
               {showVerband && verbandKurz && (
                 <span className={styles.verbandBadge}>[{verbandKurz}]</span>
               )}
             </div>
-            {isSelected && <span className={styles.check}>✓</span>}
+            {isSelected && <span className={styles.check}><Check size={14} /></span>}
             {showTooltip && (
               <div className={styles.tooltip}>
                 <PolitikfeldTooltipContent

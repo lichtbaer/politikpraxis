@@ -4,6 +4,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
+import { Zap, Circle } from '../../icons';
 import styles from './MedienklimaBadge.module.css';
 
 export function MedienklimaBadge() {
@@ -19,7 +20,7 @@ export function MedienklimaBadge() {
 
   const oppositionStaerke = state.opposition?.staerke ?? 0;
   const oppositionLabel =
-    oppositionStaerke > 70 ? '⚡ Stark' : oppositionStaerke > 40 ? '○ Aktiv' : '— Schwach';
+    oppositionStaerke > 70 ? 'stark' : oppositionStaerke > 40 ? 'aktiv' : 'schwach';
 
   return (
     <div className={styles.badge}>
@@ -30,7 +31,10 @@ export function MedienklimaBadge() {
       <span className={styles.wert}>{medienKlima}/100</span>
       {featureActive(complexity, 'opposition') && (
         <span className={styles.oppositionStaerke}>
-          {t('game:medienklima.opposition')}: {oppositionLabel}
+          {t('game:medienklima.opposition')}:{' '}
+          {oppositionLabel === 'stark' && <><Zap size={12} /> Stark</>}
+          {oppositionLabel === 'aktiv' && <><Circle size={8} /> Aktiv</>}
+          {oppositionLabel === 'schwach' && <>— Schwach</>}
         </span>
       )}
     </div>

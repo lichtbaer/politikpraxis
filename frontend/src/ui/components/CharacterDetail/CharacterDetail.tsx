@@ -2,9 +2,9 @@ import { useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useUIStore } from '../../../store/uiStore';
+import { MOOD_ICONS } from '../../icons';
+import { DotRating } from '../DotRating/DotRating';
 import styles from './CharacterDetail.module.css';
-
-const MOOD_EMOJIS = ['😠', '😟', '😐', '🙂', '😊'];
 
 export function CharacterDetail() {
   const { t } = useTranslation('game');
@@ -25,7 +25,7 @@ export function CharacterDetail() {
 
   const moodIdx = Math.min(4, Math.max(0, character.mood));
   const moodText = t(`game:mood.${moodIdx}`);
-  const moodEmoji = MOOD_EMOJIS[moodIdx];
+  const MoodIcon = MOOD_ICONS[moodIdx];
   const nearUltimatum = character.mood <= character.ultimatum.moodThresh + 1;
 
   return (
@@ -73,19 +73,12 @@ export function CharacterDetail() {
         <p className={styles.bio}>{character.bio || t(`game:chars.${character.id}.bio`)}</p>
 
         <div className={styles.mood}>
-          <span className={styles.moodEmoji}>{moodEmoji}</span>
+          <span className={styles.moodEmoji}><MoodIcon size={18} /></span>
           <span>{moodText}</span>
         </div>
 
         <div className={styles.loyalty}>
-          {[1, 2, 3, 4, 5].map((i) => (
-            <span
-              key={i}
-              className={i <= character.loyalty ? styles.loyaltyFilled : styles.loyaltyEmpty}
-            >
-              {i <= character.loyalty ? '●' : '○'}
-            </span>
-          ))}
+          <DotRating value={character.loyalty} max={5} />
         </div>
 
         <div className={styles.bonus}>
