@@ -323,6 +323,24 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
             </div>
           )}
 
+          {law.status === 'beschlossen' && (() => {
+            const lawPending = state.pending.filter(pe => pe.label === law.kurz);
+            if (lawPending.length === 0) return null;
+            const KPI_LABELS: Record<string, string> = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF' };
+            return (
+              <div className={styles.pendingEffects}>
+                {lawPending.map((pe, i) => {
+                  const monthsLeft = Math.max(0, pe.month - state.month);
+                  return (
+                    <span key={i} className={styles.pendingBadge}>
+                      ⏳ {KPI_LABELS[pe.key] ?? pe.key} {pe.delta > 0 ? '+' : ''}{pe.delta.toFixed(1)} in {monthsLeft} Mo.
+                    </span>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
           <div className={styles.actions}>
             {law.status === 'entwurf' && (
               <>

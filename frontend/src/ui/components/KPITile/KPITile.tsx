@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import type { TickLogEntry, KPI } from '../../../core/types';
 import styles from './KPITile.module.css';
 
@@ -39,24 +40,6 @@ function formatDelta(value: number, prevValue: number): string {
   return `${sign}${diff.toFixed(1)}`;
 }
 
-function buildTooltip(
-  kpiKey: keyof KPI | undefined,
-  changeReasons: TickLogEntry[] | undefined,
-): string {
-  const parts: string[] = [];
-  if (kpiKey) {
-    parts.push(KPI_DESCRIPTIONS[kpiKey]);
-  }
-  if (changeReasons && changeReasons.length > 0) {
-    parts.push('Änderungen:');
-    for (const r of changeReasons) {
-      const sign = r.delta > 0 ? '+' : '';
-      parts.push(`  ${r.source}: ${sign}${r.delta.toFixed(1)}`);
-    }
-  }
-  return parts.join('\n');
-}
-
 export function KPITile({
   label,
   value,
@@ -68,6 +51,20 @@ export function KPITile({
   changeReasons,
   kpiKey,
 }: KPITileProps) {
+  const [showPopover, setShowPopover] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showPopover) return;
+    const handleClick = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setShowPopover(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showPopover]);
+
   const delta =
     prevValue !== null
       ? { text: formatDelta(value, prevValue), class: getDeltaClass(value, prevValue, inverted) }
@@ -84,10 +81,17 @@ export function KPITile({
           : ''
       : '';
 
-  const tooltip = buildTooltip(kpiKey, changeReasons);
+  const hasPopoverContent = kpiKey || (changeReasons && changeReasons.length > 0);
 
   return (
-    <div className={styles.root} title={tooltip || undefined}>
+    <div
+      className={styles.root}
+      ref={rootRef}
+      onClick={() => hasPopoverContent && setShowPopover(!showPopover)}
+      onMouseEnter={() => hasPopoverContent && setShowPopover(true)}
+      onMouseLeave={() => setShowPopover(false)}
+      style={hasPopoverContent ? { cursor: 'pointer' } : undefined}
+    >
       <span className={styles.label}>{label}</span>
       <div className={styles.valueRow}>
         <span className={`${styles.value} ${flashClass}`}>
@@ -107,6 +111,24 @@ export function KPITile({
           }}
         />
       </div>
+      {showPopover && hasPopoverContent && (
+        <div className={styles.popover}>
+          {kpiKey && <p className={styles.popoverDesc}>{KPI_DESCRIPTIONS[kpiKey]}</p>}
+          {changeReasons && changeReasons.length > 0 && (
+            <div className={styles.popoverChanges}>
+              <span className={styles.popoverTitle}>Änderungen:</span>
+              {changeReasons.map((r, i) => (
+                <div key={i} className={styles.popoverRow}>
+                  <span className={styles.popoverSource}>{r.source}</span>
+                  <span className={r.delta > 0 ? styles.popoverPos : styles.popoverNeg}>
+                    {r.delta > 0 ? '+' : ''}{r.delta.toFixed(1)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

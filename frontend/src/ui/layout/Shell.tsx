@@ -21,6 +21,7 @@ export function Shell() {
   const aktivesStrukturEvent = useGameStore((s) => s.state.aktivesStrukturEvent);
   const setSpeed = useGameStore((s) => s.setSpeed);
   const togglePause = useGameStore((s) => s.togglePause);
+  const doResolveEvent = useGameStore((s) => s.doResolveEvent);
 
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
@@ -30,10 +31,41 @@ export function Shell() {
     setRightOpen(false);
   };
 
-  // SMA-295: Keyboard-Shortcuts für Zeitsteuerung
+  // SMA-295: Keyboard-Shortcuts für Zeitsteuerung + Event-Auswahl
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      // Escape: Drawers schließen
+      if (e.key === 'Escape') {
+        closeDrawers();
+        return;
+      }
+
+      const { activeEvent, pk } = useGameStore.getState().state;
+
+      // Event-Shortcuts: Ziffern 1-3 wählen Choice, Enter bestätigt bei einzelner Choice
+      if (activeEvent) {
+        if (e.key === 'Enter' && activeEvent.choices.length === 1) {
+          const choice = activeEvent.choices[0];
+          if (pk >= (choice.cost || 0)) {
+            e.preventDefault();
+            doResolveEvent(activeEvent, choice);
+          }
+          return;
+        }
+        const choiceIdx = parseInt(e.key, 10) - 1;
+        if (choiceIdx >= 0 && choiceIdx < activeEvent.choices.length) {
+          const choice = activeEvent.choices[choiceIdx];
+          if (pk >= (choice.cost || 0)) {
+            e.preventDefault();
+            doResolveEvent(activeEvent, choice);
+          }
+          return;
+        }
+      }
+
+      // Geschwindigkeits-Steuerung (nur wenn kein Event aktiv)
       if (e.code === 'Space') {
         e.preventDefault();
         togglePause();
@@ -43,7 +75,7 @@ export function Shell() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [setSpeed, togglePause]);
+  }, [setSpeed, togglePause, doResolveEvent]);
 
   return (
     <>

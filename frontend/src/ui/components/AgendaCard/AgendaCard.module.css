@@ -290,6 +290,23 @@
   color: var(--red);
 }
 
+.pendingEffects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.pendingBadge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  color: var(--gold);
+  border: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { GameEvent, EventChoice } from '../../../core/types';
+import { getEventNamespace } from '../../../core/eventNamespaces';
 import styles from './EventCard.module.css';
 
 interface EventCardProps {
@@ -28,17 +29,9 @@ const CHOICE_CLASS: Record<EventChoice['type'], string> = {
   safe: styles.choiceSafe,
 };
 
-function getEventNs(event: GameEvent): 'events' | 'charEvents' | 'bundesratEvents' | 'kommunalEvents' | 'vorstufenEvents' {
-  const BR_IDS = new Set(['laenderfinanzausgleich', 'landtagswahl', 'kohl_eskaliert', 'sprecher_wechsel', 'bundesrat_initiative', 'foederalismusgipfel']);
-  const KOMMUNAL_IDS = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
-  const VORSTUFEN_IDS = new Set(['vorstufe_kommunal_erfolg', 'vorstufe_laender_erfolg']);
-  const CHAR_IDS = new Set(['fm_ultimatum', 'braun_ultimatum', 'wolf_ultimatum', 'kern_ultimatum', 'kanzler_ultimatum', 'kohl_bundesrat_sabotage', 'wm_ultimatum', 'am_ultimatum', 'gm_ultimatum', 'bm_ultimatum', 'koalitionsbruch', 'koalitionskrise_ultimatum']);
-  if (event.charId || CHAR_IDS.has(event.id)) return 'charEvents';
-  if (BR_IDS.has(event.id)) return 'bundesratEvents';
-  if (KOMMUNAL_IDS.has(event.id)) return 'kommunalEvents';
-  if (VORSTUFEN_IDS.has(event.id)) return 'vorstufenEvents';
-  return 'events';
-}
+const KPI_LABELS: Record<string, string> = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF' };
+/** KPIs wo niedrig = besser (invertiert) */
+const KPI_INVERTED = new Set(['al', 'gi']);
 
 const SKANDAL_IDS = new Set([
   'medien_skandal_spesen', 'medien_skandal_datenpanne', 'medien_skandal_koalitionsleck',
@@ -54,7 +47,7 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, h
   const headerClass = headerClassOverride ?? (isSkandal ? `${styles.header} ${styles.headerSkandal}` : isKoalition && headerColor ? `${styles.header}` : `${styles.header} ${TYPE_CLASS[event.type]}`);
   const icon = iconOverride ?? (isSkandal ? '📰' : event.icon);
   const showDelta = showMedienklimaDelta ?? isSkandal;
-  const ns = getEventNs(event);
+  const ns = getEventNamespace(event);
 
   const typeLabel = event.typeLabel || t(`game:${ns}.${event.id}.typeLabel`);
   const title = event.title || t(`game:${ns}.${event.id}.title`);
@@ -102,6 +95,27 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, h
                 </div>
                 {choiceDesc && (
                   <span className={styles.choiceDesc}>{choiceDesc}</span>
+                )}
+                {(choice.effect || choice.charMood) && (
+                  <div className={styles.effectTags}>
+                    {choice.effect && Object.entries(choice.effect).map(([k, v]) => {
+                      if (!v || v === 0) return null;
+                      const isGood = KPI_INVERTED.has(k) ? v < 0 : v > 0;
+                      return (
+                        <span key={k} className={`${styles.effectTag} ${isGood ? styles.effectPos : styles.effectNeg}`}>
+                          {KPI_LABELS[k] ?? k} {v > 0 ? '+' : ''}{v}
+                        </span>
+                      );
+                    })}
+                    {choice.charMood && Object.entries(choice.charMood).map(([charId, delta]) => {
+                      if (!delta || delta === 0) return null;
+                      return (
+                        <span key={charId} className={`${styles.effectTag} ${delta > 0 ? styles.effectPos : styles.effectNeg}`}>
+                          {charId.toUpperCase()} {delta > 0 ? '+' : ''}{delta}
+                        </span>
+                      );
+                    })}
+                  </div>
                 )}
               </button>
             );
