@@ -8,6 +8,7 @@ import { applyMoodChange } from './characters';
 import { applyMilieuEffekte } from './milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { applyGesetzKosten } from './haushalt';
+import { checkProaktiveErfuellung } from './ministerAgenden';
 import { getVorstufenBoni } from './gesetzLebenszyklus';
 import { featureActive } from './features';
 import { applyEUKofinanzierung } from './eu';
@@ -158,6 +159,9 @@ export function einbringen(
     newState = applyFraming(newState, lawId, options.framingKey, options.complexity);
   }
 
+  // SMA-330: Proaktive Erfüllung — Gesetz passt zu Minister-Agenda
+  newState = checkProaktiveErfuellung(newState, lawId);
+
   return addLog(newState, `${law.kurz} in Bundestag eingebracht`, 'hi');
 }
 
@@ -244,6 +248,8 @@ export function abstimmen(
       if (law.politikfeldId) {
         newState = setPolitikfeldBeschluss(newState, law.politikfeldId);
       }
+      // SMA-330: Proaktive Erfüllung bei Beschluss
+      newState = checkProaktiveErfuellung(newState, lawId);
 
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
     }
@@ -340,6 +346,8 @@ export function resolveEingebrachteAbstimmung(
       if (law.politikfeldId) {
         newState = setPolitikfeldBeschluss(newState, law.politikfeldId);
       }
+      // SMA-330: Proaktive Erfüllung bei Beschluss
+      newState = checkProaktiveErfuellung(newState, eg.gesetzId);
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
     }
     return addLog(

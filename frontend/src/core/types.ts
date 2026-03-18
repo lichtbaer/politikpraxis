@@ -46,7 +46,7 @@ export interface Character {
   ressort?: string;
   /** SMA-327: Ressort als Partner-Minister */
   ressort_partner?: string;
-  /** SMA-327: Phasen-Agenda (JSON) */
+  /** SMA-327: Phasen-Agenda (JSON). SMA-330: phase2 für kontinuierliche Forderungen */
   agenda?: unknown;
   /** SMA-327: Ist Kanzler (Spieler) */
   ist_kanzler?: boolean;
@@ -213,6 +213,8 @@ export interface EventChoice {
   koalitionspartnerBeziehung?: number;
   /** Bei Ministerial-Initiative: Aktion für resolveMinisterialInitiative */
   ministerialAction?: 'unterstuetzen' | 'ablehnen' | 'ignorieren';
+  /** SMA-330: Bei Minister-Agenda: Aktion für resolveMinisterAgenda */
+  agendaAction?: 'annehmen' | 'ablehnen';
   log: string;
   /** Choice-Key aus API (z.B. als_vorbild, koordinieren) */
   key?: string;
@@ -524,6 +526,35 @@ export interface LegislaturBilanz {
   glaubwuerdigkeitsBonus: number;
 }
 
+/** SMA-330: Minister-Agenda Status — kontinuierliche Erzählung */
+export type AgendaStatus =
+  | 'wartend'
+  | 'erste_forderung'
+  | 'wiederholung'
+  | 'ultimatum'
+  | 'erfuellt'
+  | 'aufgegeben';
+
+/** SMA-330: Laufender Agenda-State pro Minister */
+export interface MinisterAgendaState {
+  status: AgendaStatus;
+  letzte_forderung_monat: number;
+  ablehnungen_count: number;
+}
+
+/** SMA-330: Agenda-Config aus Content (phase2) */
+export interface MinisterAgendaConfig {
+  trigger_monat: number;
+  wiederholung_intervall: number;
+  max_ablehnungen: number;
+  /** Gesetz-ID die gefordert wird (z.B. co2_steuer) */
+  gesetz_ref_id?: string | null;
+  /** fixed = ab Monat X, conditional = z.B. Saldo < -15 */
+  trigger_type: 'fixed' | 'conditional';
+  /** Bei conditional: Saldo-Schwelle in Mrd. (negativ) */
+  saldo_schwelle?: number;
+}
+
 export interface GameState {
   month: number;
   speed: SpeedLevel;
@@ -592,6 +623,10 @@ export interface GameState {
   ministerialCooldowns?: Record<string, number>;
   /** Aktive Ministerial-Initiative (max. 1 gleichzeitig) */
   aktiveMinisterialInitiative?: { initId: string; charId: string; gesetzId: string } | null;
+  /** SMA-330: Minister-Agenden State (charId → State) */
+  ministerAgenden?: Record<string, MinisterAgendaState>;
+  /** SMA-330: Aktive Agenda-Forderung (Event läuft) */
+  aktiveMinisterAgenda?: { charId: string; status: AgendaStatus } | null;
   /** EU-System (ab Stufe 2): Klima, Ratsvorsitz, Ausweichroute */
   eu?: EUState;
   /** Haushalt (ab Stufe 2, SMA-268) */

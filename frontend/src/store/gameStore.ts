@@ -278,7 +278,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   doResolveEvent: (event, choice) =>
     set(prev => {
-      let next = resolveEvent(prev.state, event, choice, { complexity: prev.complexity });
+      let next = resolveEvent(prev.state, event, choice, { complexity: prev.complexity, content: prev.content });
       // SMA-295: Auto-Resume nach Event-Auflösung
       if (next.speed === 0 && next.speedBeforePause != null) {
         next = { ...next, speed: next.speedBeforePause, speedBeforePause: undefined };

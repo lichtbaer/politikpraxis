@@ -24,7 +24,15 @@ export function CenterPanel() {
 
   const partnerContent = getKoalitionspartner(content, state);
   const isKoalitionEvent = state.activeEvent && ['koalitionsbruch', 'koalitionskrise_ultimatum'].includes(state.activeEvent.id);
-  const headerColor = isKoalitionEvent && partnerContent?.partei_farbe ? partnerContent.partei_farbe : undefined;
+  const isAgendaEvent = state.activeEvent?.id?.startsWith('agenda_');
+  const agendaChar = isAgendaEvent && state.activeEvent?.charId
+    ? state.chars.find(c => c.id === state.activeEvent!.charId)
+    : null;
+  const headerColor = isKoalitionEvent && partnerContent?.partei_farbe
+    ? partnerContent.partei_farbe
+    : isAgendaEvent && agendaChar?.color
+      ? agendaChar.color
+      : undefined;
 
   useEffect(() => {
     if (state.view === 'bundesrat' && !featureActive(complexity, 'bundesrat_sichtbar')) {
