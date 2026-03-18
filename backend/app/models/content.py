@@ -132,6 +132,15 @@ class Gesetz(Base):
     min_complexity: Mapped[int | None] = mapped_column(
         Integer(), nullable=True, server_default="1"
     )
+    # SMA-335: Steuer-System, Konjunktur-Feedback
+    steuer_id: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    steuer_delta: Mapped[Decimal | None] = mapped_column(Numeric(6, 2), nullable=True)
+    konjunktur_effekt: Mapped[Decimal | None] = mapped_column(
+        Numeric(4, 2), nullable=True, server_default="0"
+    )
+    konjunktur_lag: Mapped[int | None] = mapped_column(
+        Integer(), nullable=True, server_default="0"
+    )
 
 
 class GesetzI18n(Base):

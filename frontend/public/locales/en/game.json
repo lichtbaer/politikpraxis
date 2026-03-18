@@ -1016,6 +1016,20 @@
     "disclaimer": "Politikpraxis is a fictional politics simulation game for educational purposes. All depicted persons, parties and institutions are fictitious. Politikpraxis does not load any external resources; all fonts and map data are served locally.",
     "back": "Back"
   },
+  "gegenfinanzierung": {
+    "title": "Counter-financing",
+    "desc": "The law \"{{gesetz}}\" causes significant budget strain. How should it be financed?",
+    "ressortWaehlen": "Select ministry",
+    "steuergesetzWaehlen": "Select tax law",
+    "ressort": {
+      "bildung": "Education",
+      "gesundheit": "Health",
+      "arbeit": "Labour",
+      "umwelt": "Environment",
+      "wirtschaft": "Economy",
+      "digital": "Digital"
+    }
+  },
   "agenda": {
     "title": "Legislative agenda",
     "einbringen": "Introduce (20 PK)",

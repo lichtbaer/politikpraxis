@@ -1113,6 +1113,20 @@
     "searchPlaceholder": "Gesetz suchen…",
     "keineErgebnisse": "Keine Gesetze gefunden."
   },
+  "gegenfinanzierung": {
+    "title": "Gegenfinanzierung",
+    "desc": "Das Gesetz „{{gesetz}}“ verursacht erhebliche Haushaltsbelastung. Wie soll es finanziert werden?",
+    "ressortWaehlen": "Ressort auswählen",
+    "steuergesetzWaehlen": "Steuergesetz auswählen",
+    "ressort": {
+      "bildung": "Bildung",
+      "gesundheit": "Gesundheit",
+      "arbeit": "Arbeit",
+      "umwelt": "Umwelt",
+      "wirtschaft": "Wirtschaft",
+      "digital": "Digital"
+    }
+  },
   "agenda": {
     "title": "Gesetzliche Agenda",
     "einbringen": "Einbringen",

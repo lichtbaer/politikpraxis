@@ -7,6 +7,8 @@ export function useGameActions() {
   return {
     einbringen: store.doEinbringen,
     einbringenMitFraming: store.doEinbringenMitFraming,
+    gegenfinanzierungAuswaehlen: store.doGegenfinanzierungAuswaehlen,
+    gegenfinanzierungAbbrechen: store.doGegenfinanzierungAbbrechen,
     doPressemitteilung: store.doPressemitteilung,
     doSetWahlkampfBotschaften: store.doSetWahlkampfBotschaften,
     doWahlkampfRede: store.doWahlkampfRede,

@@ -40,6 +40,8 @@ export const EINNAHMEN_BASIS = 350;
 export const PFLICHTAUSGABEN_BASIS = 370;
 /** Defizit-Grenze für milde Schuldenbremse (ab -18: stark) */
 export const SCHULDENBREMSE_DEFIZIT_MILD = -18;
+/** SMA-335: Schuldenbremse-Spielraum in Mrd./Jahr (~13) */
+export const SCHULDENBREMSE_SPIELRAUM_BASIS = 13;
 
 // --- Bundestag / Sitzverteilung (SMA-322) ---
 /** Sitzanteil Koalition (Spieler + Partner) — typisch ~53%, nicht Koalitionsstabilität */

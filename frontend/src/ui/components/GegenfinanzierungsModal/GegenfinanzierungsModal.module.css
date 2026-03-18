@@ -1,0 +1,159 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--bg2);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 24px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.desc {
+  font-size: 14px;
+  color: var(--text2);
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg3);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.option:hover {
+  background: var(--bg4);
+}
+
+.option.selected {
+  border-color: var(--gold);
+  background: rgba(255, 193, 7, 0.08);
+}
+
+.optionIcon {
+  flex-shrink: 0;
+  color: var(--text2);
+}
+
+.optionLabel {
+  font-weight: 600;
+  font-size: 15px;
+  flex: 1;
+  color: var(--text);
+}
+
+.verfuegbarGrund {
+  font-size: 12px;
+  color: var(--text3);
+}
+
+.suboptions {
+  margin-bottom: 16px;
+}
+
+.suboptionsLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+.suboptionsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suboption {
+  padding: 8px 14px;
+  background: var(--bg3);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.suboption:hover {
+  background: var(--bg4);
+}
+
+.suboption.selected {
+  border-color: var(--gold);
+  background: rgba(255, 193, 7, 0.08);
+}
+
+.einsparung {
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--green);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btnSecondary {
+  padding: 8px 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text2);
+  cursor: pointer;
+}
+
+.btnPrimary {
+  padding: 8px 16px;
+  background: var(--gold);
+  border: none;
+  border-radius: 6px;
+  color: var(--bg1);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
