@@ -4,26 +4,13 @@ import { useContentStore } from '../../stores/contentStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import type { RouteType } from '../../core/types';
+import { PolitikfeldIcon } from '../icons';
 import styles from './EbeneView.module.css';
 
 const STAEDTEBUENDNIS_PK = 10;
 const KOMMUNAL_KONFERENZ_PK = 8;
 const LAENDER_GIPFEL_PK = 12;
 const PILOT_BESCHLEUNIGEN_PK = 6;
-
-const FELD_ICONS: Record<string, string> = {
-  umwelt_energie: '🌱',
-  wirtschaft_finanzen: '📊',
-  bildung_forschung: '📚',
-  arbeit_soziales: '👷',
-  innere_sicherheit: '🛡️',
-  gesundheit_pflege: '🏥',
-  digital_infrastruktur: '📡',
-  landwirtschaft: '🌾',
-  umwelt: '🌱',
-  wirtschaft: '📊',
-  arbeit: '👷',
-};
 
 interface EbeneViewProps {
   type: 'eu' | 'land' | 'kommune';
@@ -94,7 +81,7 @@ export function EbeneView({ type }: EbeneViewProps) {
                   klimaVal > 60 ? styles.klimaGut : klimaVal > 40 ? styles.klimaMittel : styles.klimaSchlecht;
                 return (
                   <div key={feld.id} className={styles.euKlimaItem}>
-                    <span className={styles.feldIcon}>{FELD_ICONS[feld.id] ?? '📋'}</span>
+                    <span className={styles.feldIcon}><PolitikfeldIcon feldId={feld.id} size={16} /></span>
                     <div className={styles.euKlimaBar}>
                       <div
                         className={`${styles.euKlimaFill} ${klimaClass}`}

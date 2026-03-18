@@ -1,0 +1,22 @@
+.dots {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.filled,
+.empty {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.filled {
+  background-color: var(--gold);
+}
+
+.empty {
+  background-color: transparent;
+  border: 1.5px solid var(--text3);
+}

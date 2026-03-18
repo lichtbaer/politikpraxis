@@ -3,6 +3,7 @@ import { useContentStore } from '../../../stores/contentStore';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import type { Milieu } from '../../../core/types';
+import { CheckCircle, AlertTriangle, ArrowRight } from '../../icons';
 import styles from './MilieuDetailPanel.module.css';
 
 interface MilieuDetailPanelProps {
@@ -66,7 +67,7 @@ export function MilieuDetailPanel({ milieu, onClose }: MilieuDetailPanelProps) {
             {reaktionen.slice().reverse().map((r, i) => {
               const gesetz = gesetze.find((g) => g.id === r.gesetzId);
               const kurz = gesetz?.kurz ?? r.gesetzId;
-              const icon = r.delta > 0 ? '✅' : r.delta < 0 ? '⚠️' : '→';
+              const icon = r.delta > 0 ? <CheckCircle size={12} /> : r.delta < 0 ? <AlertTriangle size={12} /> : <ArrowRight size={12} />;
               const sign = r.delta > 0 ? '+' : '';
               return (
                 <li key={`${r.gesetzId}-${i}`} className={styles.reaktionItem}>

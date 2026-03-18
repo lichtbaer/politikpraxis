@@ -4,6 +4,7 @@ import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import { KPITile } from '../components/KPITile/KPITile';
 import { HaushaltsPanel } from '../components/HaushaltsPanel/HaushaltsPanel';
+import { Zap } from '../icons';
 import styles from './RightPanel.module.css';
 
 function getBarStyle(
@@ -119,7 +120,7 @@ export function RightPanel() {
         {oppositionAktiv && (
           <div className={styles.oppositionAngriff}>
             <span className={styles.oppositionText}>
-              ⚡ {t('game:opposition.angriff', { thema: t(`game:opposition.thema.${state.opposition!.aktivesThema}`) })}
+              <Zap size={14} /> {t('game:opposition.angriff', { thema: t(`game:opposition.thema.${state.opposition!.aktivesThema}`) })}
             </span>
             <button
               type="button"

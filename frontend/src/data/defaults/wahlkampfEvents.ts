@@ -4,7 +4,7 @@ import type { GameEvent } from '../../core/types';
 export const WAHLKAMPF_BEGINN_EVENT: GameEvent = {
   id: 'wahlkampf_beginn',
   type: 'info',
-  icon: '🗳️',
+  icon: 'wahlkampf',
   typeLabel: 'Wahlkampf',
   title: 'Wahlkampf beginnt',
   quote: '„Noch 6 Monate bis zur Wahl. Jetzt zählt jede Stimme.“',
@@ -26,7 +26,7 @@ export const WAHLKAMPF_BEGINN_EVENT: GameEvent = {
 export const TV_DUELL_EVENT: GameEvent = {
   id: 'tv_duell',
   type: 'warn',
-  icon: '📺',
+  icon: 'tvDuell',
   typeLabel: 'TV-Duell',
   title: 'TV-Duell steht an',
   quote: '„Die Nation schaut zu. Eine gute Vorbereitung kann den Ausschlag geben.“',
@@ -58,7 +58,7 @@ export const TV_DUELL_EVENT: GameEvent = {
 export const KOALITIONSPARTNER_ALLEINGANG_EVENT: GameEvent = {
   id: 'koalitionspartner_alleingang',
   type: 'warn',
-  icon: '⚠️',
+  icon: 'warn',
   typeLabel: 'Koalition',
   title: 'Koalitionspartner macht Alleingang',
   quote: '„Wir müssen unsere Position klar machen — auch ohne Absprache.“',

@@ -5,7 +5,7 @@ export const BUNDESRAT_EVENTS: GameEvent[] = [
   {
     id: 'laenderfinanzausgleich',
     type: 'warn',
-    icon: '💰',
+    icon: 'warn',
     typeLabel: 'Länderfinanzausgleich',
     title: 'Länderfinanzausgleich-Streit eskaliert',
     quote: '„Pragmatische Mitte und Ostblock fordern Neuverteilung der Finanzströme — sonst Blockade."',
@@ -44,7 +44,7 @@ export const BUNDESRAT_EVENTS: GameEvent[] = [
   {
     id: 'landtagswahl',
     type: 'warn',
-    icon: '🗳️',
+    icon: 'wahlkampf',
     typeLabel: 'Landtagswahl',
     title: 'Landtagswahl kippt Fraktion',
     quote: '„Überraschender Regierungswechsel — die politische Landkarte verschiebt sich."',
@@ -65,7 +65,7 @@ export const BUNDESRAT_EVENTS: GameEvent[] = [
   {
     id: 'kohl_eskaliert',
     type: 'danger',
-    icon: '🏛️',
+    icon: 'bundesrat',
     typeLabel: 'Sondersitzung',
     title: 'Kohl eskaliert — Sondersitzung einberufen',
     quote: '„Ohne Zugeständnisse an den Osten werde ich jeden Vermittlungsausschuss beantragen."',
@@ -104,7 +104,7 @@ export const BUNDESRAT_EVENTS: GameEvent[] = [
   {
     id: 'sprecher_wechsel',
     type: 'info',
-    icon: '👤',
+    icon: 'char_ultimatum',
     typeLabel: 'Sprecher-Wechsel',
     title: 'Neuer Fraktionssprecher im Bundesrat',
     quote: '„Die Fraktion hat einen neuen Sprecher gewählt — mit anderen Prioritäten."',
@@ -125,7 +125,7 @@ export const BUNDESRAT_EVENTS: GameEvent[] = [
   {
     id: 'bundesrat_initiative',
     type: 'warn',
-    icon: '📜',
+    icon: 'bundesrat',
     typeLabel: 'Bundesrat-Initiative',
     title: 'Länder bringen eigenes Gesetz ein',
     quote: '„Die Länder wollen nicht nur reagieren — sie wollen gestalten."',
@@ -156,7 +156,7 @@ export const BUNDESRAT_EVENTS: GameEvent[] = [
   {
     id: 'foederalismusgipfel',
     type: 'good',
-    icon: '🤝',
+    icon: 'good',
     typeLabel: 'Föderalismusgipfel',
     title: 'Föderalismusgipfel — alle Sprecher an einem Tisch',
     quote: '„Historische Gelegenheit: Alle vier Fraktionssprecher gleichzeitig empfangen."',

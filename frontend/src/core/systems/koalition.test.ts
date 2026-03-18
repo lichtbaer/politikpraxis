@@ -112,7 +112,7 @@ describe('checkKoalitionsbruch', () => {
         koalitionsbruch: {
           id: 'koalitionsbruch',
           type: 'danger',
-          icon: '🔴',
+          icon: 'danger',
           typeLabel: 'Krise',
           title: 'Koalitionsbruch',
           quote: '',

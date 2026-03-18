@@ -3,6 +3,7 @@ import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { checkSchuldenbremse } from '../../../core/systems/haushalt';
 import type { SchuldenbremsenStatus } from '../../../core/types';
+import { Check, AlertTriangle } from '../../icons';
 import styles from './HaushaltsPanel.module.css';
 
 function SchuldenbremsenBadge({ status }: { status: SchuldenbremsenStatus }) {
@@ -19,7 +20,7 @@ function SchuldenbremsenBadge({ status }: { status: SchuldenbremsenStatus }) {
 
   return (
     <div className={`${styles.schuldenbremsenBadge} ${className}`}>
-      <span className={styles.sbIcon}>{status === 'ausgeglichen' ? '✓' : '⚠'}</span>
+      <span className={styles.sbIcon}>{status === 'ausgeglichen' ? <Check size={14} /> : <AlertTriangle size={14} />}</span>
       <span>{label}</span>
     </div>
   );

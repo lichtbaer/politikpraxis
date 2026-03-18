@@ -14,6 +14,7 @@ import { VorbereitungModal } from '../VorbereitungModal/VorbereitungModal';
 import { FramingModal } from '../FramingModal/FramingModal';
 import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
 import type { Law, LawStatus, RouteType } from '../../../core/types';
+import { Coins, RefreshCw, TrendingUp, Zap, Lightbulb, AlertTriangle, Hourglass } from '../../icons';
 import styles from './AgendaCard.module.css';
 
 /** SMA-305: Formatiert Milliarden-Beträge mit Vorzeichen */
@@ -167,7 +168,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
                         : styles.kostenEinmalig
                     }
                   >
-                    💰 {t('game:gesetz.kostenEinmalig')}: {formatMrd(-law.kosten_einmalig)}
+                    <Coins size={14} /> {t('game:gesetz.kostenEinmalig')}: {formatMrd(-law.kosten_einmalig)}
                     {spielraum > 0 && law.kosten_einmalig > 0 && jahresbudget > 0 && (
                       <span className={styles.haushaltKontext}>
                         {' '}
@@ -189,21 +190,21 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
                           : styles.kostenPositiv
                     }
                   >
-                    🔄 {t('game:gesetz.kostenLaufend')}: {formatMrd(-law.kosten_laufend)}/J
+                    <RefreshCw size={14} /> {t('game:gesetz.kostenLaufend')}: {formatMrd(-law.kosten_laufend)}/J
                   </span>
                 )}
               </div>
               <div className={styles.gesetzKostenZeile}>
                 {(law.einnahmeeffekt ?? 0) !== 0 && (
                   <span className={styles.kostenPositiv}>
-                    📈 {t('game:gesetz.einnahmeeffekt')}: +{Math.abs(law.einnahmeeffekt!).toFixed(1)} Mrd. €/J
+                    <TrendingUp size={14} /> {t('game:gesetz.einnahmeeffekt')}: +{Math.abs(law.einnahmeeffekt!).toFixed(1)} Mrd. €/J
                   </span>
                 )}
                 {law.status === 'entwurf' && geschaetztePkKosten > 0 && (
-                  <span className={styles.pkKosten}>⚡ {t('game:gesetz.pkKosten')}: {geschaetztePkKosten} PK</span>
+                  <span className={styles.pkKosten}><Zap size={14} /> {t('game:gesetz.pkKosten')}: {geschaetztePkKosten} PK</span>
                 )}
                 {law.investiv && (
-                  <span className={styles.investivBadge}>💡 {t('game:gesetz.investivLabel')}</span>
+                  <span className={styles.investivBadge}><Lightbulb size={14} /> {t('game:gesetz.investivLabel')}</span>
                 )}
               </div>
             </div>
@@ -211,7 +212,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
 
           {kongruenz < 60 && featureActive(complexity, 'kongruenz_effekte') && (
             <div className={`${styles.kongruenzSignal} ${kongruenz < 40 ? styles.kongruenzRot : styles.kongruenzAmber}`}>
-              <span className={styles.kongruenzIcon}>{kongruenz < 40 ? '⚠' : '!'}</span>
+              <span className={styles.kongruenzIcon}><AlertTriangle size={14} /></span>
               <span>{kongruenz < 40 ? t('game:gesetz.gegenKurs') : t('game:gesetz.erhoehterAufwand')}</span>
             </div>
           )}
@@ -333,7 +334,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
                   const monthsLeft = Math.max(0, pe.month - state.month);
                   return (
                     <span key={i} className={styles.pendingBadge}>
-                      ⏳ {KPI_LABELS[pe.key] ?? pe.key} {pe.delta > 0 ? '+' : ''}{pe.delta.toFixed(1)} in {monthsLeft} Mo.
+                      <Hourglass size={14} /> {KPI_LABELS[pe.key] ?? pe.key} {pe.delta > 0 ? '+' : ''}{pe.delta.toFixed(1)} in {monthsLeft} Mo.
                     </span>
                   );
                 })}

@@ -2,15 +2,8 @@ import { useTranslation } from 'react-i18next';
 import type { Character } from '../../../core/types';
 import { useUIStore } from '../../../store/uiStore';
 import { useGameStore } from '../../../store/gameStore';
+import { MOOD_ICONS } from '../../icons';
 import styles from './CharacterRow.module.css';
-
-const MOOD_EMOJI: Record<number, string> = {
-  0: '😠',
-  1: '😟',
-  2: '😐',
-  3: '🙂',
-  4: '😊',
-};
 
 interface CharacterRowProps {
   character: Character;
@@ -30,7 +23,7 @@ export function CharacterRow({ character }: CharacterRowProps) {
   const cooldowns = useGameStore((s) => s.state.charGespraechCooldowns);
   const doKabinettsgespraech = useGameStore((s) => s.doKabinettsgespraech);
   const { id, initials, color, mood, loyalty } = character;
-  const emoji = MOOD_EMOJI[Math.min(4, Math.max(0, mood))] ?? '😐';
+  const MoodIcon = MOOD_ICONS[Math.min(4, Math.max(0, mood))];
 
   const badgeColor = character.partei_farbe ?? color;
 
@@ -76,7 +69,7 @@ export function CharacterRow({ character }: CharacterRowProps) {
             {character.role || t(`game:chars.${id}.role`)}
           </span>
         </div>
-        <span className={styles.mood}>{emoji}</span>
+        <span className={styles.mood}><MoodIcon size={16} /></span>
       </button>
       <button
         type="button"

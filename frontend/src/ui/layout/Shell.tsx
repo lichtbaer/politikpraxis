@@ -13,6 +13,7 @@ import { LegislaturBilanzScreen } from '../screens/LegislaturBilanzScreen';
 import { useGameTick } from '../hooks/useGameTick';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useGameStore } from '../../store/gameStore';
+import { Users } from '../icons';
 import styles from './Shell.module.css';
 
 export function Shell() {
@@ -109,7 +110,7 @@ export function Shell() {
         onClick={() => { setRightOpen(!rightOpen); setLeftOpen(false); }}
         aria-label="Kabinett anzeigen"
       >
-        👥
+        <Users size={18} />
       </button>
 
       <CharacterDetail />

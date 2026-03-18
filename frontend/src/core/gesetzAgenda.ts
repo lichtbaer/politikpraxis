@@ -5,16 +5,16 @@
 import type { Law, Ideologie, Politikfeld } from './types';
 import { gesetzKongruenz } from './ideologie';
 
-/** Politikfeld-Icons (SMA-293) */
-export const POLITIKFELD_ICONS: Record<string, string> = {
-  wirtschaft_finanzen: '📊',
-  arbeit_soziales: '👷',
-  umwelt_energie: '🌱',
-  innere_sicherheit: '🔒',
-  bildung_forschung: '🎓',
-  gesundheit_pflege: '🏥',
-  digital_infrastruktur: '💻',
-  landwirtschaft: '🌾',
+/** Politikfeld-Icon-Keys — aufgelöst via POLITIKFELD_ICONS aus ui/icons.tsx */
+export const POLITIKFELD_ICON_KEYS: Record<string, string> = {
+  wirtschaft_finanzen: 'wirtschaft_finanzen',
+  arbeit_soziales: 'arbeit_soziales',
+  umwelt_energie: 'umwelt_energie',
+  innere_sicherheit: 'innere_sicherheit',
+  bildung_forschung: 'bildung_forschung',
+  gesundheit_pflege: 'gesundheit_pflege',
+  digital_infrastruktur: 'digital_infrastruktur',
+  landwirtschaft: 'landwirtschaft',
 };
 
 const FALLBACK_FELD_ID = '_ohne_feld';
