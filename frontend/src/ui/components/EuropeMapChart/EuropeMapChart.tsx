@@ -6,6 +6,14 @@ import styles from './EuropeMapChart.module.css';
 
 const MAP_NAME = 'europe-politikpraxis';
 
+const EU_COUNTRIES = new Set([
+  'Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic',
+  'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary',
+  'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Malta',
+  'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
+  'Spain', 'Sweden',
+]);
+
 export function EuropeMapChart() {
   const [mapReady, setMapReady] = useState(false);
   const loadedRef = useRef(false);
@@ -17,7 +25,13 @@ export function EuropeMapChart() {
     fetch('/europe.geo.json')
       .then((r) => r.json())
       .then((geoJson) => {
-        echarts.registerMap(MAP_NAME, geoJson);
+        const euOnly = {
+          ...geoJson,
+          features: geoJson.features.filter(
+            (f: { properties?: { name?: string } }) => EU_COUNTRIES.has(f.properties?.name ?? '')
+          ),
+        };
+        echarts.registerMap(MAP_NAME, euOnly);
         setMapReady(true);
       })
       .catch(() => {
@@ -84,10 +98,10 @@ export function EuropeMapChart() {
             },
           },
         ],
-        zoom: 1.1,
-        center: [14, 54],
+        zoom: 1.4,
+        center: [10, 52],
         layoutCenter: ['50%', '50%'],
-        layoutSize: '120%',
+        layoutSize: '140%',
       },
     ],
   }), []);
