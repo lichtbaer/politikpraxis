@@ -86,10 +86,15 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
         <div className={styles.portrait}>
           <div
             className={styles.avatar}
-            style={{
-              backgroundColor: `${fraktion.sprecher.color}33`,
-              borderColor: fraktion.sprecher.color,
-            }}
+            style={(() => {
+              const color = fraktion.sprecher.color || (fraktion.sprecher.partei === 'CDP' ? '#2D2D2D' : '#7a7870');
+              const isDark = color === '#2D2D2D' || color === '#000000' || color.toLowerCase().startsWith('#2');
+              return {
+                backgroundColor: `${color}33`,
+                borderColor: color,
+                color: isDark ? '#f0efe8' : 'var(--text)',
+              };
+            })()}
           >
             {fraktion.sprecher.initials}
           </div>
