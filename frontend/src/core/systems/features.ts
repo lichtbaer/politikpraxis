@@ -48,6 +48,8 @@ const FEATURES: Record<string, { minLevel: number }> = {
   haushaltsdebatte: { minLevel: 2 },
   /** SMA-268: Schuldenbremsen-Check und Lehmann-Reaktionen */
   schuldenbremse: { minLevel: 3 },
+  /** SMA-336: Schuldenbremse-Widget mit Spielraum-Balken (Stufe 2+) */
+  schuldenbremse_widget: { minLevel: 2 },
   /** SMA-268: Konjunkturindex sichtbar und in Einnahmen */
   konjunkturindex: { minLevel: 3 },
   /** SMA-323: Konjunktur-Anzeige im Haushalt-Tab (Stufe 2+) */
@@ -56,6 +58,8 @@ const FEATURES: Record<string, { minLevel: number }> = {
   steuerquote: { minLevel: 3 },
   /** SMA-268: Gegenfinanzierung bei Gesetzen */
   gegenfinanzierung: { minLevel: 2 },
+  /** SMA-336: Steuer-Dashboard im Haushalt-Tab (Stufe 3+) */
+  steuern_dashboard: { minLevel: 3 },
   /** SMA-269: EU-Ausweichroute (3 Phasen) */
   eu_route: { minLevel: 2 },
   /** EU-Klima-System (sichtbar, Drift) */

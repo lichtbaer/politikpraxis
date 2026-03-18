@@ -67,17 +67,35 @@ const RESSORT_KUERZUNGEN: Record<string, RessortKuerzung> = {
   },
 };
 
+/** SMA-336: Suboption für Ressort-Kürzung mit Minister- und Milieu-Infos */
+export interface RessortKuerzungSuboption {
+  ressort: string;
+  kosten_einsparung: number;
+  minister_mood: number;
+  milieu_reaktionen: Record<string, number>;
+  minister_name?: string;
+}
+
 export interface GegenfinanzierungsOption {
   key: 'ministerium_kuerzen' | 'schulden' | 'steuergesetz' | 'ueberschuss';
   label_de: string;
   verfuegbar: boolean;
   verfuegbar_grund?: string;
-  suboptionen?: Array<{ ressort?: string; gesetzId?: string; kosten_einsparung?: number; einnahmeeffekt?: number }>;
+  suboptionen?: Array<
+    | { ressort?: string; gesetzId?: string; kosten_einsparung?: number; einnahmeeffekt?: number }
+    | RessortKuerzungSuboption
+  >;
   effekte?: {
     schuldenbremse_belastung?: number;
     minister_mood?: Record<string, number>;
     saldo_delta?: number;
   };
+  /** SMA-336: Schuldenbremse-Spielraum in Mrd. (für Schulden-Option) */
+  schuldenbremse_spielraum?: number;
+  /** SMA-336: Haushaltssaldo in Mrd. (für Überschuss-Option) */
+  haushalt_saldo?: number;
+  /** SMA-336: Lehmann (Finanzminister) im Kabinett — warnt bei Schulden */
+  hat_lehmann?: boolean;
 }
 
 /** Prüft ob Gesetz Gegenfinanzierung braucht */
@@ -113,10 +131,17 @@ export function berechneOptionen(
 
   const optionen: GegenfinanzierungsOption[] = [];
 
-  // Option A: Ministerium kürzen
+  // Option A: Ministerium kürzen (SMA-336: mit Minister-Name, Mood-Malus, Milieu-Effekte)
   const kuerzungsOptionen = Object.entries(RESSORT_KUERZUNGEN)
     .filter(([, r]) => r.kosten_einsparung >= kosten * 0.8)
-    .map(([ressort, r]) => ({ ressort, ...r }));
+    .map(([ressort, r]) => {
+      const minister = getMinisterByRessort(state, ressort);
+      return {
+        ressort,
+        ...r,
+        minister_name: minister ? state.chars.find((c) => c.id === minister.id)?.name : undefined,
+      };
+    });
   optionen.push({
     key: 'ministerium_kuerzen',
     label_de: 'Ministerium kürzen',
@@ -125,8 +150,9 @@ export function berechneOptionen(
     suboptionen: kuerzungsOptionen,
   });
 
-  // Option B: Schulden
+  // Option B: Schulden (SMA-336: Spielraum, Lehmann-Warnung)
   const schuldenVerfuegbar = schuldenbremseSpielraum >= kosten;
+  const hatLehmann = hatMinisterLehmann(state);
   optionen.push({
     key: 'schulden',
     label_de: 'Schulden aufnehmen',
@@ -134,8 +160,10 @@ export function berechneOptionen(
     verfuegbar_grund: !schuldenVerfuegbar ? 'Schuldenbremse-Spielraum erschöpft' : undefined,
     effekte: {
       schuldenbremse_belastung: kosten,
-      minister_mood: hatMinisterLehmann(state) ? { lehmann: -1 } : {},
+      minister_mood: hatLehmann ? { lehmann: -1 } : {},
     },
+    schuldenbremse_spielraum: schuldenbremseSpielraum,
+    hat_lehmann: hatLehmann,
   });
 
   // Option C: Steuergesetz verknüpfen (einnahmeeffekt >= 80% der Kosten)
@@ -157,16 +185,18 @@ export function berechneOptionen(
     })),
   });
 
-  // Option D: Überschuss
+  // Option D: Überschuss (SMA-336: aktueller Saldo anzeigen)
   optionen.push({
     key: 'ueberschuss',
     label_de: 'Aus Überschuss finanzieren',
     verfuegbar: saldo > 0,
     verfuegbar_grund: saldo <= 0 ? 'Kein Haushaltsüberschuss vorhanden' : undefined,
     effekte: { saldo_delta: -kosten },
+    haushalt_saldo: saldo,
   });
 
-  return optionen.filter((o) => o.verfuegbar);
+  // SMA-336: Alle 4 Optionen zurückgeben (disabled-State in UI)
+  return optionen;
 }
 
 function hatMinisterLehmann(state: GameState): boolean {

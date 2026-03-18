@@ -784,7 +784,9 @@
     "blockiertVerfassungsgericht": "Blocked by ongoing constitutional court proceedings",
     "benoetigt": "Requires: {{gesetz}}",
     "ausgeschlossen": "Not possible: You have already passed {{gesetz}}",
-    "synergie": "Synergy effect +{{pct}}% with {{gesetz}}"
+    "synergie": "Synergy effect +{{pct}}% with {{gesetz}}",
+    "steuergesetz": "Tax law",
+    "wartetAuf": "Waiting for: {{gesetz}}"
   },
   "gesetzAgenda": {
     "title": "Law Agenda",
@@ -1017,10 +1019,17 @@
     "back": "Back"
   },
   "gegenfinanzierung": {
-    "title": "Counter-financing",
+    "title": "Counter-financing required",
     "desc": "The law \"{{gesetz}}\" causes significant budget strain. How should it be financed?",
+    "kostenHinweis": "This law costs {{kosten}}/year. How should it be financed?",
     "ressortWaehlen": "Select ministry",
     "steuergesetzWaehlen": "Select tax law",
+    "ressortDesc": "Cuts in one ministry cover the costs.",
+    "schuldenSpielraum": "Debt brake headroom: {{spielraum}} bn remaining",
+    "steuergesetzDesc": "The law only takes effect once the tax law is passed.",
+    "ueberschussSpielraum": "Current surplus: {{saldo}} bn",
+    "lehmannWarnung": "Robert Lehmann will react negatively",
+    "bestaetigenEinbringen": "Confirm & introduce ({{pk}} PK)",
     "ressort": {
       "bildung": "Education",
       "gesundheit": "Health",
