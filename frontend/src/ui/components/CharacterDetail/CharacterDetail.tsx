@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useUIStore } from '../../../store/uiStore';
@@ -12,6 +13,14 @@ export function CharacterDetail() {
   const { state } = useGameStore();
   const character = state.chars.find((c) => c.id === charDetailId);
 
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (charDetailId && character) {
+      cardRef.current?.focus();
+    }
+  }, [charDetailId, character]);
+
   if (!charDetailId || !character) return null;
 
   const moodIdx = Math.min(4, Math.max(0, character.mood));
@@ -23,15 +32,17 @@ export function CharacterDetail() {
     <div
       className={styles.overlay}
       onClick={closeCharDetail}
-      onKeyDown={(e) => e.key === 'Escape' && closeCharDetail()}
       role="presentation"
     >
       <div
+        ref={cardRef}
         className={styles.card}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.key === 'Escape' && closeCharDetail()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="char-detail-name"
+        tabIndex={-1}
       >
         <button
           type="button"

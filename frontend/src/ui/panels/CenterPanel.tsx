@@ -44,7 +44,7 @@ export function CenterPanel() {
       </div>
       <div className={styles.content}>
         {state.activeEvent ? (
-          <EventCard event={state.activeEvent} onChoice={handleChoice} headerColor={headerColor} />
+          <EventCard event={state.activeEvent} onChoice={handleChoice} headerColor={headerColor} currentPk={state.pk} />
         ) : (
           <>
             {state.view === 'agenda' && <GesetzAgendaView />}

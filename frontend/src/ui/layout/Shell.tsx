@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Header } from './Header';
 import { EbenenTabBar } from '../components/EbenenTabBar/EbenenTabBar';
 import { LeftPanel } from '../panels/LeftPanel';
@@ -22,6 +22,14 @@ export function Shell() {
   const setSpeed = useGameStore((s) => s.setSpeed);
   const togglePause = useGameStore((s) => s.togglePause);
 
+  const [leftOpen, setLeftOpen] = useState(false);
+  const [rightOpen, setRightOpen] = useState(false);
+
+  const closeDrawers = () => {
+    setLeftOpen(false);
+    setRightOpen(false);
+  };
+
   // SMA-295: Keyboard-Shortcuts für Zeitsteuerung
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -42,10 +50,36 @@ export function Shell() {
       <Header />
       <EbenenTabBar />
       <div className={styles.shell}>
-        <LeftPanel />
+        <div className={`${styles.left} ${leftOpen ? styles.open : ''}`}>
+          <LeftPanel />
+        </div>
         <CenterPanel />
-        <RightPanel />
+        <div className={`${styles.right} ${rightOpen ? styles.open : ''}`}>
+          <RightPanel />
+        </div>
       </div>
+
+      {(leftOpen || rightOpen) && (
+        <div className={styles.drawerOverlay} onClick={closeDrawers} />
+      )}
+
+      <button
+        type="button"
+        className={`${styles.drawerToggle} ${styles.toggleLeft}`}
+        onClick={() => { setLeftOpen(!leftOpen); setRightOpen(false); }}
+        aria-label="Agenda anzeigen"
+      >
+        ☰
+      </button>
+      <button
+        type="button"
+        className={`${styles.drawerToggle} ${styles.toggleRight}`}
+        onClick={() => { setRightOpen(!rightOpen); setLeftOpen(false); }}
+        aria-label="Kabinett anzeigen"
+      >
+        👥
+      </button>
+
       <CharacterDetail />
       <WahlnachtScreen />
       <Toast />

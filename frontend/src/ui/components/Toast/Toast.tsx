@@ -2,13 +2,21 @@ import { useUIStore } from '../../../store/uiStore';
 import styles from './Toast.module.css';
 
 export function Toast() {
-  const toastMessage = useUIStore((s) => s.toastMessage);
+  const toastQueue = useUIStore((s) => s.toastQueue);
 
-  if (!toastMessage) return null;
+  if (toastQueue.length === 0) return null;
 
   return (
-    <div className={styles.root} aria-live="polite">
-      {toastMessage}
+    <div className={styles.container} aria-live="polite">
+      {toastQueue.map((toast, index) => (
+        <div
+          key={toast.id}
+          className={styles.root}
+          style={{ bottom: `${24 + index * 48}px` }}
+        >
+          {toast.msg}
+        </div>
+      ))}
     </div>
   );
 }

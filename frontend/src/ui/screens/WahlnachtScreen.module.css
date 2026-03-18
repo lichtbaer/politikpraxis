@@ -214,3 +214,17 @@
   font-weight: 600;
   color: var(--text);
 }
+
+.confirmRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+}
+
+.confirmRow span {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 4px;
+}

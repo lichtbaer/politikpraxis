@@ -15,6 +15,7 @@ export function WahlnachtScreen() {
   const { state, complexity } = useGameStore();
   const [beat, setBeat] = useState(1);
   const [displayPercent, setDisplayPercent] = useState(0);
+  const [confirmRestart, setConfirmRestart] = useState(false);
 
   const wahlergebnis = state.wahlergebnis ?? state.zust.g;
   const threshold = state.electionThreshold ?? THRESHOLD_DISPLAY;
@@ -110,13 +111,25 @@ export function WahlnachtScreen() {
           </div>
 
           {beat === 2 && !showTiefenanalyse && (
-            <button
-              type="button"
-              className={styles.restart}
-              onClick={() => location.reload()}
-            >
-              {t('game:endScreen.neueLegislatur')}
-            </button>
+            confirmRestart ? (
+              <div className={styles.confirmRow}>
+                <span>{t('game:endScreen.confirmRestart', 'Wirklich neu starten?')}</span>
+                <button type="button" className={styles.restart} onClick={() => location.reload()}>
+                  {t('game:endScreen.confirmYes', 'Ja, neu starten')}
+                </button>
+                <button type="button" className={styles.btnSecondary} onClick={() => setConfirmRestart(false)}>
+                  {t('game:endScreen.confirmNo', 'Abbrechen')}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={styles.restart}
+                onClick={() => setConfirmRestart(true)}
+              >
+                {t('game:endScreen.neueLegislatur')}
+              </button>
+            )
           )}
 
           {beat === 2 && showTiefenanalyse && (
@@ -151,13 +164,25 @@ export function WahlnachtScreen() {
                   </div>
                 )}
               </div>
-              <button
-                type="button"
-                className={styles.restart}
-                onClick={() => location.reload()}
-              >
-                {t('game:endScreen.neueLegislatur')}
-              </button>
+              {confirmRestart ? (
+                <div className={styles.confirmRow}>
+                  <span>{t('game:endScreen.confirmRestart', 'Wirklich neu starten?')}</span>
+                  <button type="button" className={styles.restart} onClick={() => location.reload()}>
+                    {t('game:endScreen.confirmYes', 'Ja, neu starten')}
+                  </button>
+                  <button type="button" className={styles.btnSecondary} onClick={() => setConfirmRestart(false)}>
+                    {t('game:endScreen.confirmNo', 'Abbrechen')}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.restart}
+                  onClick={() => setConfirmRestart(true)}
+                >
+                  {t('game:endScreen.neueLegislatur')}
+                </button>
+              )}
             </>
           )}
         </div>

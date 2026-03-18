@@ -47,6 +47,32 @@
   color: var(--text);
 }
 
+.searchRow {
+  padding: 12px 20px 0;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.searchInput::placeholder {
+  color: var(--text2);
+  opacity: 0.6;
+}
+
+.searchInput:focus {
+  border-color: var(--gold);
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;
