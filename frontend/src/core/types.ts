@@ -259,6 +259,13 @@ export interface KPI {
   zf: number;
 }
 
+/** Eintrag im Tick-Change-Log: erklärt, warum sich ein KPI-Wert geändert hat */
+export interface TickLogEntry {
+  source: string;
+  target: keyof KPI;
+  delta: number;
+}
+
 export interface Approval {
   g: number;
   arbeit: number;
@@ -491,6 +498,8 @@ export interface GameState {
 
   kpi: KPI;
   kpiPrev: KPI | null;
+  /** Change-Log pro Tick: erklärt Ursachen von KPI-Änderungen */
+  tickLog: TickLogEntry[];
   zust: Approval;
   coalition: number;
 
@@ -517,6 +526,8 @@ export interface GameState {
   won: boolean;
   /** Wahlhürde in % (35/38/40/42 je nach Komplexitätsstufe) */
   electionThreshold?: number;
+  /** Aufeinanderfolgende Monate mit Zustimmung < 20% (für Misstrauensvotum) */
+  lowApprovalMonths?: number;
   /** Koalitionspartner (ab Stufe 2) */
   koalitionspartner?: KoalitionspartnerState;
   /** Berechnetes Koalitionsvertrag-Profil (60% Spieler, 40% Partner) */

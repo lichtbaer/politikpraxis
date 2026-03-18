@@ -93,6 +93,7 @@ export function createInitialState(
 
     kpi: { ...content.scenario.startKPI },
     kpiPrev: null,
+    tickLog: [],
     zust: { g: 52, arbeit: 58, mitte: 54, prog: 44 },
     coalition: content.scenario.startCoalition,
 
@@ -304,6 +305,7 @@ export function validateGameState(raw: unknown): GameState {
     view,
     kpi,
     kpiPrev: get('kpiPrev', null) as GameState['kpiPrev'],
+    tickLog: [],
     zust,
     coalition,
     chars: Array.isArray(get('chars', [])) ? (get('chars', []) as GameState['chars']) : [],
@@ -339,7 +341,7 @@ export function validateGameState(raw: unknown): GameState {
     'gesetzProjekte', 'wahlkampfAktiv', 'wahlkampfAktionenGenutzt', 'legislaturBilanz', 'wahlkampfBotschaften',
     'tvDuellAbgehalten', 'tvDuellGewonnen', 'medienKlimaHistory', 'letzterSkandal', 'letztesPressemitteilungMonat',
     'opposition', 'medienoffensiveGenutzt',
-    'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate',
+    'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate', 'lowApprovalMonths',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);

@@ -1,3 +1,4 @@
+import type { TickLogEntry, KPI } from '../../../core/types';
 import styles from './KPITile.module.css';
 
 interface KPITileProps {
@@ -8,7 +9,18 @@ interface KPITileProps {
   inverted: boolean;
   barPercent: number;
   barColor: string;
+  /** Erklärung der Änderungen aus dem Tick-Log */
+  changeReasons?: TickLogEntry[];
+  /** KPI-Schlüssel für Tooltip-Beschreibung */
+  kpiKey?: keyof KPI;
 }
+
+const KPI_DESCRIPTIONS: Record<keyof KPI, string> = {
+  al: 'Niedrig = gut. Beeinflusst durch Konjunktur und Gesetze.',
+  hh: 'Positiv = Überschuss, negativ = Defizit.',
+  gi: 'Niedrig = weniger Ungleichheit. Beeinflusst durch Sozialpolitik.',
+  zf: 'Hoch = zufriedene Bevölkerung. Beeinflusst durch alle KPIs.',
+};
 
 function getDeltaClass(
   value: number,
@@ -27,6 +39,24 @@ function formatDelta(value: number, prevValue: number): string {
   return `${sign}${diff.toFixed(1)}`;
 }
 
+function buildTooltip(
+  kpiKey: keyof KPI | undefined,
+  changeReasons: TickLogEntry[] | undefined,
+): string {
+  const parts: string[] = [];
+  if (kpiKey) {
+    parts.push(KPI_DESCRIPTIONS[kpiKey]);
+  }
+  if (changeReasons && changeReasons.length > 0) {
+    parts.push('Änderungen:');
+    for (const r of changeReasons) {
+      const sign = r.delta > 0 ? '+' : '';
+      parts.push(`  ${r.source}: ${sign}${r.delta.toFixed(1)}`);
+    }
+  }
+  return parts.join('\n');
+}
+
 export function KPITile({
   label,
   value,
@@ -35,6 +65,8 @@ export function KPITile({
   inverted,
   barPercent,
   barColor,
+  changeReasons,
+  kpiKey,
 }: KPITileProps) {
   const delta =
     prevValue !== null
@@ -52,8 +84,10 @@ export function KPITile({
           : ''
       : '';
 
+  const tooltip = buildTooltip(kpiKey, changeReasons);
+
   return (
-    <div className={styles.root}>
+    <div className={styles.root} title={tooltip || undefined}>
       <span className={styles.label}>{label}</span>
       <div className={styles.valueRow}>
         <span className={`${styles.value} ${flashClass}`}>

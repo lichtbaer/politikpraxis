@@ -1,4 +1,4 @@
-import type { GameState, ContentBundle } from './types';
+import type { GameState, ContentBundle, TickLogEntry } from './types';
 import { withPause, getAutoPauseLevel } from './eventPause';
 import { PK_REGEN_DIVISOR, PK_MAX } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
@@ -38,6 +38,12 @@ import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStor
 
 export { addLog } from './log';
 
+function formatTickTime(month: number): string {
+  const yr = 2025 + Math.floor((month - 1) / 12);
+  const mo = ((month - 1) % 12) + 1;
+  return `${String(mo).padStart(2, '0')}/${yr}`;
+}
+
 /**
  * Monatlicher Engine-Tick: Reihenfolge der Systeme.
  *
@@ -66,7 +72,8 @@ export function tick(
 ): GameState {
   if (state.gameOver) return state;
 
-  let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi } };
+  const tickLog: TickLogEntry[] = [];
+  let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi }, tickLog: [] };
 
   // 1. Zeit: Spielende prüfen
   s = checkGameEnd(s);
@@ -78,7 +85,15 @@ export function tick(
   s = { ...s, medienKlimaHistory: medienHist };
   if (s.medienKlima == null) s = { ...s, medienKlima: 55 };
 
+  const kpiBeforePending = { ...s.kpi };
   s = applyPendingEffects(s);
+  // Track KPI changes from pending effects
+  for (const key of ['al', 'hh', 'gi', 'zf'] as const) {
+    const delta = +(s.kpi[key] - kpiBeforePending[key]).toFixed(2);
+    if (delta !== 0) {
+      tickLog.push({ source: 'Gesetzwirkung', target: key, delta });
+    }
+  }
 
   // SMA-304: Eingebrachte Gesetze — Abstimmung wenn Abstimmungsmonat erreicht
   const eingebrachte = s.eingebrachteGesetze ?? [];
@@ -110,6 +125,7 @@ export function tick(
   s = tickGesetzVorstufen(s, content, complexity);
 
   // 4. Haushalt
+  const kpiBeforeHaushalt = { ...s.kpi };
   s = tickKonjunktur(s, complexity);
   s = applySchuldenbremsenEffekte(s, complexity, content);
   s = checkLehmannSparvorschlag(s, complexity);
@@ -117,6 +133,12 @@ export function tick(
   s = checkHaushaltskrise(s, content, complexity);
   s = triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []);
 
+  for (const key of ['al', 'hh', 'gi', 'zf'] as const) {
+    const delta = +(s.kpi[key] - kpiBeforeHaushalt[key]).toFixed(2);
+    if (delta !== 0) {
+      tickLog.push({ source: 'Haushalt & Konjunktur', target: key, delta });
+    }
+  }
   // 5. Politikfeld-Druck
   const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
   s = checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents);
@@ -130,12 +152,20 @@ export function tick(
     s = tickExtremismusDruck(s, ausrichtung, content.extremismusEvents, complexity);
   }
 
-  // 6. PK-Regen
-  const pkRegen = Math.max(1, Math.floor(s.zust.g / PK_REGEN_DIVISOR));
+  // 6. PK-Regen (skaliert nach Schwierigkeitsgrad: höhere Stufe = weniger PK)
+  const pkRegenDivisor = PK_REGEN_DIVISOR + (complexity - 1) * 3; // Stufe 1: 25, Stufe 2: 28, Stufe 3: 31, Stufe 4: 34
+  const pkRegen = Math.max(1, Math.floor(s.zust.g / pkRegenDivisor));
   s = { ...s, pk: Math.min(PK_MAX, s.pk + pkRegen) };
 
   // 7. KPI/Chars
+  const kpiBeforeDrift = { ...s.kpi };
   s = { ...s, kpi: applyKPIDrift(s.kpi) };
+  for (const key of ['al', 'hh', 'gi', 'zf'] as const) {
+    const delta = +(s.kpi[key] - kpiBeforeDrift[key]).toFixed(2);
+    if (delta !== 0) {
+      tickLog.push({ source: 'Konjunkturdrift', target: key, delta });
+    }
+  }
   s = applyCharBonuses(s);
   s = updateCoalitionStability(s);
 
@@ -226,6 +256,22 @@ export function tick(
   if (s.month === 48) {
     s = triggerWahlnacht(s, complexity);
   }
+
+  // Misstrauensvotum-Warnung im Log
+  const lowMonths = s.lowApprovalMonths ?? 0;
+  if (lowMonths >= 3 && lowMonths < 6) {
+    const remaining = 6 - lowMonths;
+    s = {
+      ...s,
+      log: [
+        { time: formatTickTime(s.month), msg: `⚠ Misstrauensvotum droht! Noch ${remaining} Monat(e) unter 20% bis zum Sturz.`, type: 'danger' },
+        ...s.log,
+      ].slice(0, 60),
+    };
+  }
+
+  // Attach the tick change log
+  s = { ...s, tickLog };
 
   return s;
 }

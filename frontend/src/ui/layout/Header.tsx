@@ -5,12 +5,14 @@ import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import { PressemitteilungModal } from '../components/PressemitteilungModal/PressemitteilungModal';
+import { Glossar } from '../components/Glossar/Glossar';
 import type { SpeedLevel } from '../../core/types';
 import styles from './Header.module.css';
 
 export function Header() {
   const { t } = useTranslation();
   const [showPressemitteilungModal, setShowPressemitteilungModal] = useState(false);
+  const [showGlossar, setShowGlossar] = useState(false);
   const { month, speed, pk, letztesPressemitteilungMonat } = useGameStore(
     useShallow(s => ({
       month: s.state.month,
@@ -66,6 +68,14 @@ export function Header() {
             📢 {t('game:pressemitteilung.button')}
           </button>
         )}
+        <button
+          type="button"
+          className={styles.glossarBtn}
+          onClick={() => setShowGlossar(true)}
+          title="Glossar — Spielbegriffe erklärt"
+        >
+          ?
+        </button>
       </div>
       {showPressemitteilungModal && (
         <PressemitteilungModal
@@ -73,6 +83,7 @@ export function Header() {
           onClose={() => setShowPressemitteilungModal(false)}
         />
       )}
+      {showGlossar && <Glossar onClose={() => setShowGlossar(false)} />}
     </header>
   );
 }

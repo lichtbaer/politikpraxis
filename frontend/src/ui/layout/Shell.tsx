@@ -7,6 +7,7 @@ import { RightPanel } from '../panels/RightPanel';
 import { CharacterDetail } from '../components/CharacterDetail/CharacterDetail';
 import { WahlnachtScreen } from '../screens/WahlnachtScreen';
 import { Toast } from '../components/Toast/Toast';
+import { GameTips } from '../components/GameTips/GameTips';
 import { HaushaltsdebatteScreen } from '../screens/HaushaltsdebatteScreen';
 import { LegislaturBilanzScreen } from '../screens/LegislaturBilanzScreen';
 import { useGameTick } from '../hooks/useGameTick';
@@ -48,6 +49,7 @@ export function Shell() {
       <CharacterDetail />
       <WahlnachtScreen />
       <Toast />
+      <GameTips />
       {aktivesStrukturEvent && <HaushaltsdebatteScreen />}
       <LegislaturBilanzScreen />
     </>
