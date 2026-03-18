@@ -21,7 +21,7 @@ export function applyAusrichtung(state: GameState, ausrichtung: Ausrichtung): Ga
         mitte: Math.max(0, Math.min(100, next.zust.mitte - 5 * scale)),
       },
       chars: next.chars.map((c) =>
-        c.id === 'fm' ? { ...c, loyalty: Math.max(0, Math.min(5, Math.round(c.loyalty - 1 * scale))) } : c
+        (c.ressort === 'finanzen' || c.id === 'fm') ? { ...c, loyalty: Math.max(0, Math.min(5, Math.round(c.loyalty - 1 * scale))) } : c
       ),
     };
   } else if (ausrichtung.wirtschaft > 0) {
@@ -34,7 +34,7 @@ export function applyAusrichtung(state: GameState, ausrichtung: Ausrichtung): Ga
         arbeit: Math.max(0, Math.min(100, next.zust.arbeit - 5 * scale)),
       },
       chars: next.chars.map((c) =>
-        c.id === 'wm' ? { ...c, loyalty: Math.min(5, Math.round(c.loyalty + 1 * scale)) } : c
+        (c.ressort === 'wirtschaft' || c.id === 'wm') ? { ...c, loyalty: Math.min(5, Math.round(c.loyalty + 1 * scale)) } : c
       ),
     };
   }
@@ -49,8 +49,8 @@ export function applyAusrichtung(state: GameState, ausrichtung: Ausrichtung): Ga
         prog: Math.max(0, Math.min(100, next.zust.prog + 10 * scale)),
       },
       chars: next.chars.map((c) => {
-        if (c.id === 'im') return { ...c, mood: Math.max(0, Math.round(c.mood - 1 * scale)) };
-        if (c.id === 'jm') return { ...c, mood: Math.min(4, Math.round(c.mood + 1 * scale)) };
+        if (c.ressort === 'innen' || c.id === 'im') return { ...c, mood: Math.max(0, Math.round(c.mood - 1 * scale)) };
+        if (c.ressort === 'justiz' || c.id === 'jm') return { ...c, mood: Math.min(4, Math.round(c.mood + 1 * scale)) };
         return c;
       }),
     };
@@ -63,7 +63,7 @@ export function applyAusrichtung(state: GameState, ausrichtung: Ausrichtung): Ga
         prog: Math.max(0, Math.min(100, next.zust.prog - 8 * scale)),
       },
       chars: next.chars.map((c) =>
-        c.id === 'im' ? { ...c, mood: Math.min(4, Math.round(c.mood + 1 * scale)) } : c
+        (c.ressort === 'innen' || c.id === 'im') ? { ...c, mood: Math.min(4, Math.round(c.mood + 1 * scale)) } : c
       ),
     };
   }

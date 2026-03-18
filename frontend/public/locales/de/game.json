@@ -931,7 +931,7 @@
     "title": "Spielstart",
     "subtitle": "Konfiguriere deine Kandidatur",
     "nameLabel": "Name",
-    "namePlaceholder": "Dein Name (optional)",
+    "namePlaceholder": "Ihr Name als Kanzler/in",
     "geschlechtLabel": "Anrede",
     "geschlecht": {
       "sie": "Bundeskanzlerin (sie/ihr)",

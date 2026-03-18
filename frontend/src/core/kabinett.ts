@@ -22,14 +22,23 @@ export const ALLE_RESSORTS = [
 
 export type RessortId = (typeof ALLE_RESSORTS)[number];
 
-/** Ressort-Präferenzen pro Partei (Reihenfolge = Priorität) */
-const RESSORT_PRAEFERENZEN: Record<string, RessortId[]> = {
-  sdp: ['arbeit', 'soziales', 'justiz', 'bildung', 'finanzen'],
-  cdp: ['innen', 'finanzen', 'wirtschaft', 'justiz', 'bildung'],
-  gp: ['umwelt', 'wirtschaft', 'justiz', 'bildung', 'digital'],
-  ldp: ['wirtschaft', 'finanzen', 'digital', 'justiz', 'innen'],
-  lp: ['arbeit', 'soziales', 'umwelt', 'justiz', 'wohnen'],
+/** SMA-328: Ressort-Präferenzen pro Partei — muss/will/akzeptiert. GP bekommt immer Umwelt. */
+interface RessortPraeferenzen {
+  muss: RessortId[];
+  will: RessortId[];
+  akzeptiert: RessortId[];
+}
+
+const RESSORT_PRAEFERENZEN: Record<string, RessortPraeferenzen> = {
+  sdp: { muss: ['arbeit'], will: ['finanzen', 'gesundheit'], akzeptiert: ['justiz'] },
+  cdp: { muss: ['innen'], will: ['finanzen', 'wirtschaft'], akzeptiert: ['justiz'] },
+  gp: { muss: ['umwelt'], will: ['wirtschaft', 'justiz'], akzeptiert: ['bildung'] },
+  ldp: { muss: ['wirtschaft'], will: ['finanzen', 'justiz'], akzeptiert: ['digital'] },
+  lp: { muss: ['arbeit'], will: ['gesundheit', 'wohnen'], akzeptiert: ['justiz'] },
 };
+
+/** Kabinett-Größe pro Stufe: 1→2, 2→5, 3→7, 4→8 (SMA-328) */
+const KABINETT_GROESSE: Record<number, number> = { 1: 2, 2: 5, 3: 7, 4: 8 };
 
 export interface KabinettConfig {
   spielerRessorts: RessortId[];
@@ -38,7 +47,7 @@ export interface KabinettConfig {
 
 /**
  * Bildet die Ressort-Aufteilung zwischen Spieler-Partei und Koalitionspartner.
- * Partner bekommt seine bevorzugten Ressorts, Spieler den Rest.
+ * Partner bekommt muss + erstes will, Spieler den Rest. GP als Partner bekommt immer Umwelt.
  * @param spielerPartei Spieler-Partei-ID
  * @param koalitionspartner Koalitionspartner-Partei-ID (oder null bei Stufe 1)
  * @param complexity Komplexitätsstufe 1–4
@@ -48,24 +57,35 @@ export function bildeKabinett(
   koalitionspartner: KoalitionspartnerParteiId | null,
   complexity: number
 ): KabinettConfig {
-  const partnerAnzahl = [0, 0, 2, 3, 3][complexity] ?? 0;
-  const spielerAnzahl = [2, 2, 4, 4, 5][complexity] ?? 4;
+  const kabinettGroesse = KABINETT_GROESSE[complexity] ?? 5;
 
-  if (partnerAnzahl === 0 || !koalitionspartner) {
-    const praeferenzen = RESSORT_PRAEFERENZEN[spielerPartei] ?? ALLE_RESSORTS;
-    const spielerRessorts = praeferenzen.slice(0, spielerAnzahl) as RessortId[];
+  if (!koalitionspartner) {
+    const pref = RESSORT_PRAEFERENZEN[spielerPartei];
+    const spielerRessorts = [
+      ...(pref?.muss ?? []),
+      ...(pref?.will ?? []).slice(0, 1),
+      ...(pref?.akzeptiert ?? []),
+    ]
+      .filter((r, i, arr) => arr.indexOf(r) === i)
+      .slice(0, kabinettGroesse) as RessortId[];
     return { spielerRessorts, partnerRessorts: [] };
   }
 
-  const partnerPraeferenzen = RESSORT_PRAEFERENZEN[koalitionspartner] ?? [];
-  const partnerRessorts = partnerPraeferenzen.slice(0, partnerAnzahl) as RessortId[];
+  const partnerPref = RESSORT_PRAEFERENZEN[koalitionspartner];
+  const partnerRessorts: RessortId[] = [
+    ...(partnerPref?.muss ?? []),
+    ...(partnerPref?.will ?? []).slice(0, 1),
+  ].filter((r, i, arr) => arr.indexOf(r) === i) as RessortId[];
 
-  const spielerPraeferenzen = RESSORT_PRAEFERENZEN[spielerPartei] ?? [...ALLE_RESSORTS];
-  const verfuegbar = ALLE_RESSORTS.filter((r) => !partnerRessorts.includes(r));
+  const spielerPref = RESSORT_PRAEFERENZEN[spielerPartei];
+  const spielerVerfuegbar = ALLE_RESSORTS.filter((r) => !partnerRessorts.includes(r));
   const spielerRessorts = [
-    ...spielerPraeferenzen.filter((r) => verfuegbar.includes(r)),
-    ...verfuegbar.filter((r) => !spielerPraeferenzen.includes(r)),
-  ].slice(0, spielerAnzahl) as RessortId[];
+    ...(spielerPref?.muss ?? []).filter((r) => spielerVerfuegbar.includes(r)),
+    ...(spielerPref?.will ?? []).filter((r) => spielerVerfuegbar.includes(r)),
+    ...spielerVerfuegbar.filter((r) => !(spielerPref?.muss ?? []).includes(r) && !(spielerPref?.will ?? []).includes(r)),
+  ]
+    .filter((r, i, arr) => arr.indexOf(r) === i)
+    .slice(0, kabinettGroesse - partnerRessorts.length) as RessortId[];
 
   return { spielerRessorts, partnerRessorts };
 }
