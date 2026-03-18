@@ -4,10 +4,9 @@ import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
 import styles from './StartMapView.module.css';
 
-const EUROPE_GEO_URL =
-  'https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson';
-const GERMANY_GEO_URL =
-  'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/2_bundeslaender/3_mittel.geo.json';
+/** SMA-314: Lokale GeoJSON-Dateien (DSGVO-konform, offline-fähig) */
+const EUROPE_GEO_URL = '/geo/europe.geojson';
+const GERMANY_GEO_URL = '/geo/germany-bundeslaender.geojson';
 
 const MAP_EUROPE = 'startmap-europe';
 const MAP_GERMANY = 'startmap-germany';
