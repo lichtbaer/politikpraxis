@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './i18n';
+import './ui/lib/echarts'; // ECharts tree-shaken modules + theme registration
 import App from './App';
 import './styles/global.css';
 
