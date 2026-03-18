@@ -16,6 +16,7 @@ PFLICHTAUSGABEN_BASIS = 370
 EINNAHMEN_BASIS = 350
 DEFAULT_ELECTION_THRESHOLD = 40
 LEGISLATUR_MONATE = 48
+MIN_KOALITION_FORTGANG = 15  # Koalitionsbruch wenn darunter
 
 
 @dataclass
@@ -30,14 +31,15 @@ class SimGameState:
     gesetz_kosten: float = 0.0
     wahlprognose: float = 52.0
     medienklima: float = 55.0
-    koalition: float = 78.0
+    koalition: float = 78.0  # Partner-Beziehung (decay wenn keine Koalitionsrunde)
     arbeitslosigkeit: float = 5.2
     gini: float = 31.2
     zufriedenheit: float = 62.0
     beschlossene_gesetze: list = field(default_factory=list)
     eingebrachte_gesetze: list = field(default_factory=list)
-    log: list = field(default_factory=list)
+    log: list = field(default_factory=list)  # [{pk, monat}, ...] + koalitionsbruch-Einträge
     eingebrachte_ablauf: list = field(default_factory=list)  # {gesetz_id, abstimmung_monat}
+    koalitionsbruch_seit_monat: int | None = None  # SMA-334: Ultimatum-Tracking
 
 
 # Spargesetze aus Migration 028 (falls nicht in YAML)
@@ -119,26 +121,35 @@ class HeadlessRunner:
 
     def run(self) -> dict:
         """Führt einen vollständigen 48-Monats-Durchlauf aus."""
-        G = SimGameState()
-        gesetze = _lade_gesetze()
+        try:
+            G = SimGameState()
+            gesetze = _lade_gesetze()
 
-        for monat in range(1, LEGISLATUR_MONATE + 1):
-            G.monat = monat
+            for monat in range(1, LEGISLATUR_MONATE + 1):
+                G.monat = monat
 
-            # Strategie entscheidet welche Aktion diese Runde
-            aktion = self.strategie(G, gesetze)
-            self._verarbeite_aktion(G, aktion, gesetze)
+                # Strategie entscheidet welche Aktion diese Runde
+                aktion = self.strategie(G, gesetze)
+                self._verarbeite_aktion(G, aktion, gesetze)
 
-            # Ablaufende Abstimmungen: eingebrachte Gesetze prüfen
-            self._abstimmungen_abschliessen(G, gesetze)
+                # Ablaufende Abstimmungen: eingebrachte Gesetze prüfen
+                self._abstimmungen_abschliessen(G, gesetze)
 
-            # Monat-Tick
-            self._tick(G)
+                # Monat-Tick
+                self._tick(G)
 
-            # Random Events (vereinfacht)
-            self._random_events(G)
+                # Random Events (vereinfacht)
+                self._random_events(G)
 
-        return self._berechne_ergebnis(G)
+                # SMA-334: PK pro Monat im Log für Invarianten-Tests
+                G.log.append({"pk": G.pk, "monat": G.monat})
+
+                # Koalitionsbruch-Check (vereinfacht)
+                self._check_koalitionsbruch(G)
+
+            return self._berechne_ergebnis(G)
+        except Exception as e:
+            return self._berechne_ergebnis_crash(str(e))
 
     def _verarbeite_aktion(self, G: SimGameState, aktion: Any, gesetze: list) -> None:
         if isinstance(aktion, dict):
@@ -162,6 +173,9 @@ class HeadlessRunner:
         elif typ == "pressemitteilung" and G.pk >= 8:
             G.pk -= 8
             G.medienklima = min(100, G.medienklima + random.uniform(1, 4))
+        elif typ == "koalitionsrunde" and G.pk >= 15:
+            G.pk -= 15
+            G.koalition = min(100, G.koalition + 8)
 
     def _abstimmungen_abschliessen(self, G: SimGameState, gesetze: list) -> None:
         """Prüft ob eingebrachte Gesetze in diesem Monat abstimmen."""
@@ -181,6 +195,9 @@ class HeadlessRunner:
                         G.zufriedenheit = min(100, G.zufriedenheit + eff.get("zf", 0))
                         G.gini = max(0, G.gini + eff.get("gi", 0))
                         G.arbeitslosigkeit = max(0, G.arbeitslosigkeit + eff.get("al", 0))
+                        # SMA-334: Gesetz ideologisch gegen Partner (CDP) → Koalition -5
+                        if _kongruenz(gesetz, "cdp") < 30:
+                            G.koalition = max(0, G.koalition - 5)
                 fertig.append(e)
         for e in fertig:
             G.eingebrachte_ablauf.remove(e)
@@ -192,6 +209,8 @@ class HeadlessRunner:
         G.wahlprognose += (G.medienklima - 55) * 0.02
         G.wahlprognose = max(0, min(100, G.wahlprognose))
         G.medienklima += (55 - G.medienklima) * 0.05
+        # SMA-334: Koalition natürlicher Verfall (-2/Monat) wenn keine Koalitionsrunde
+        G.koalition = max(0, G.koalition - 2)
 
     def _random_events(self, G: SimGameState) -> None:
         """Vereinfachte Zufalls-Events."""
@@ -202,6 +221,16 @@ class HeadlessRunner:
             G.medienklima += (random.random() - 0.5) * 6
             G.medienklima = max(0, min(100, G.medienklima))
 
+    def _check_koalitionsbruch(self, G: SimGameState) -> None:
+        """SMA-334: Koalitionsbruch wenn Partner-Beziehung < 15."""
+        if G.koalition >= MIN_KOALITION_FORTGANG:
+            G.koalitionsbruch_seit_monat = None
+            return
+        if G.koalitionsbruch_seit_monat is None:
+            G.koalitionsbruch_seit_monat = G.monat
+            G.log.append("koalitionsbruch")  # Für Test: 'koalitionsbruch' in ergebnis['log']
+        # Nach 3 Monaten Ultimatum: Spielende (vereinfacht: wir laufen weiter)
+
     def _berechne_ergebnis(self, G: SimGameState) -> dict:
         return {
             "gewonnen": G.wahlprognose >= DEFAULT_ELECTION_THRESHOLD,
@@ -210,5 +239,24 @@ class HeadlessRunner:
             "gesetze_beschlossen": len(G.beschlossene_gesetze),
             "pk_verbraucht": 100 - G.pk + (G.monat * G.pk_regen),
             "koalition_final": G.koalition,
+            "medienklima_final": G.medienklima,
+            "monat_final": G.monat,
+            "crash": False,
             "log": G.log,
+        }
+
+    def _berechne_ergebnis_crash(self, error: str) -> dict:
+        """Ergebnis bei Exception/Absturz."""
+        return {
+            "gewonnen": False,
+            "wahlprognose_final": 0.0,
+            "saldo_final": None,
+            "gesetze_beschlossen": 0,
+            "pk_verbraucht": 0,
+            "koalition_final": 0.0,
+            "medienklima_final": 55.0,
+            "monat_final": 0,
+            "crash": True,
+            "error": error,
+            "log": [],
         }
