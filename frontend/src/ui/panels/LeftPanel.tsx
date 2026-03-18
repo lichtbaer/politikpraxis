@@ -9,13 +9,15 @@ import { KoalitionspartnerPanel } from '../components/KoalitionspartnerPanel/Koa
 import { ApprovalChart } from '../components/ApprovalChart/ApprovalChart';
 import styles from './LeftPanel.module.css';
 
+const EMPTY_APPROVAL_HISTORY: number[] = [];
+
 export function LeftPanel() {
   const { t } = useTranslation('game');
   const zustG = useGameStore((s) => s.state.zust.g);
   const electionThreshold = useGameStore((s) => s.state.electionThreshold ?? 40);
   const coalition = useGameStore((s) => s.state.coalition);
   const chars = useGameStore((s) => s.state.chars);
-  const approvalHistory = useGameStore((s) => s.state.approvalHistory ?? []);
+  const approvalHistory = useGameStore((s) => s.state.approvalHistory) ?? EMPTY_APPROVAL_HISTORY;
 
   return (
     <aside className={styles.panel}>
