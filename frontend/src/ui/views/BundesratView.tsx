@@ -21,6 +21,19 @@ function getBeziehungsFarbe(beziehung: number): string {
   return 'var(--red)';
 }
 
+/** SMA-325: CDP-Farbe #2D2D2D mit hellem Text für dunkle Avatare */
+const CDP_FARBE = '#2D2D2D';
+function getAvatarColor(fraktion: BundesratFraktion): { bg: string; border: string; text: string } {
+  const raw = fraktion.sprecher.color || (fraktion.sprecher.partei === 'CDP' ? CDP_FARBE : undefined);
+  const color = raw || '#7a7870';
+  const isDark = color === CDP_FARBE || color === '#000000' || color.toLowerCase().startsWith('#2');
+  return {
+    bg: `${color}33`,
+    border: color,
+    text: isDark ? '#f0efe8' : 'var(--text)',
+  };
+}
+
 function canLobby(fraktion: BundesratFraktion, state: { month: number }): boolean {
   if (fraktion.beziehung >= 20) return true;
   if (fraktion.reparaturEndMonth != null && state.month >= fraktion.reparaturEndMonth) return true;
@@ -42,7 +55,9 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
   const fullView = featureActive(complexity, 'bundesrat_detail');
   const lobbyingActive = law && isLobbyingActive(state, law.id);
   const lobbyGesperrt = !canLobby(fraktion, state);
-  const showGespraechBtn = fullView && lobbyingActive && !lobbyGesperrt;
+  const pk = useGameStore((s) => s.state.pk);
+  const showLobbyBtn = fullView;
+  const lobbyBtnEnabled = !!law && lobbyingActive && !lobbyGesperrt && pk >= 10;
 
   const bereitschaft = voteDetail?.bereitschaft ?? fraktion.basisBereitschaft;
   const lobby = law?.lobbyFraktionen?.[fraktion.id];
@@ -53,10 +68,10 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
       <div className={styles.karteHeader}>
         <div
           className={styles.avatar}
-          style={{
-            backgroundColor: `${fraktion.sprecher.color}33`,
-            borderColor: fraktion.sprecher.color,
-          }}
+          style={(() => {
+            const c = getAvatarColor(fraktion);
+            return { backgroundColor: c.bg, borderColor: c.border, color: c.text };
+          })()}
         >
           {fraktion.sprecher.initials}
         </div>
@@ -96,9 +111,15 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
       {lobbyGesperrt && fullView && (
         <div className={styles.gesperrtBadge}>{t('game:bundesrat.gesperrt', { defaultValue: 'Gesperrt' })}</div>
       )}
-      {showGespraechBtn && (
-        <button type="button" className={styles.btnGespraech} onClick={onGespraechSuchen}>
-          {t('game:bundesrat.gespraechSuchen')}
+      {showLobbyBtn && (
+        <button
+          type="button"
+          className={styles.btnGespraech}
+          onClick={onGespraechSuchen}
+          disabled={!lobbyBtnEnabled}
+          title={!law ? t('game:bundesrat.keineAbstimmungLobbyHint', { defaultValue: 'Noch kein Gesetz im Bundesratsverfahren' }) : undefined}
+        >
+          {t('game:bundesrat.lobbyingButton', { defaultValue: 'Lobbying (10 PK)' })}
         </button>
       )}
     </article>
@@ -231,7 +252,9 @@ export function BundesratView() {
         </p>
       </div>
 
-      <BundesratMap laender={state.bundesrat} />
+      <div className={styles.bundesratKarteContainer}>
+        <BundesratMap laender={state.bundesrat} />
+      </div>
 
       <section className={styles.fraktionskarten}>
         {state.bundesratFraktionen.map((f) => (

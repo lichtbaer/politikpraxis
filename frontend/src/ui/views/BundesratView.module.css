@@ -19,6 +19,16 @@
   line-height: 1.6;
 }
 
+/* SMA-325: Karte zentriert in der Box */
+.bundesratKarteContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 300px;
+  margin-bottom: 20px;
+}
+
 .fraktionskarten {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -184,10 +194,15 @@
   transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
-.btnGespraech:hover {
+.btnGespraech:hover:not(:disabled) {
   opacity: 0.9;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px color-mix(in srgb, var(--gold) 25%, transparent);
+}
+
+.btnGespraech:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .abstimmung {
