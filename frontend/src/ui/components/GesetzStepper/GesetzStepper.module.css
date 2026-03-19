@@ -1,0 +1,106 @@
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 8px 0;
+  position: relative;
+}
+
+.stepWrap {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.dot.done {
+  background: var(--green);
+  border: 2px solid var(--green);
+}
+
+.dot.active {
+  background: var(--gold);
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--gold) 40%, transparent);
+}
+
+.dot.pending {
+  background: transparent;
+  border: 2px solid var(--border);
+}
+
+.dot.blocked {
+  background: var(--red);
+  border: 2px solid var(--red);
+}
+
+.dot.ausweich {
+  background: var(--warn);
+  border: 2px solid var(--warn);
+}
+
+.label {
+  font-family: var(--sans);
+  font-size: 9px;
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.label.done { color: var(--green); }
+.label.active { color: var(--gold); font-weight: 600; }
+.label.pending { color: var(--text3); }
+.label.blocked { color: var(--red); }
+.label.ausweich { color: var(--warn); }
+
+.connector {
+  flex: 1;
+  height: 2px;
+  margin: 0 4px;
+  transition: background 0.2s;
+}
+
+.connector.done { background: var(--green); }
+.connector.active { background: var(--gold); }
+.connector.pending { background: var(--border); }
+.connector.blocked { background: var(--red); }
+.connector.ausweich { background: var(--warn); }
+
+.blockedBadge {
+  position: absolute;
+  right: 0;
+  top: -2px;
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+.ausweichBadge {
+  position: absolute;
+  right: 0;
+  top: -2px;
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent);
+  border-radius: 3px;
+  padding: 1px 5px;
+}

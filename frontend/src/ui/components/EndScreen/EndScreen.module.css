@@ -181,6 +181,67 @@
   color: var(--text2);
 }
 
+.kpiComparison {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.kpiUp {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--green);
+  padding: 2px 6px;
+  background: color-mix(in srgb, var(--green) 10%, transparent);
+  border-radius: 3px;
+}
+
+.kpiDown {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--red);
+  padding: 2px 6px;
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  border-radius: 3px;
+}
+
+.milestonesSection {
+  width: 100%;
+  max-width: 520px;
+  margin-bottom: 20px;
+  animation: slideIn 0.5s ease-out 0.5s both;
+}
+
+.milestonesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.milestone {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--text);
+  padding: 4px 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.achievementBadge {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
+  padding: 4px 10px;
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  border-radius: 12px;
+  cursor: help;
+}
+
 .spielzeit {
   font-family: var(--mono);
   font-size: 12px;

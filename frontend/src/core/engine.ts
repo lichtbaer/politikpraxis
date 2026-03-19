@@ -73,6 +73,7 @@ export function tick(
 ): GameState {
   if (state.gameOver) return state;
 
+  const t0 = performance.now();
   const tickLog: TickLogEntry[] = [];
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi }, tickLog: [] };
 
@@ -295,6 +296,12 @@ export function tick(
 
   // Attach the tick change log
   s = { ...s, tickLog };
+
+  // Performance monitoring: log slow ticks (>50ms)
+  const tickDuration = performance.now() - t0;
+  if (tickDuration > 50) {
+    console.warn(`[Engine] Tick ${s.month} took ${tickDuration.toFixed(1)}ms`);
+  }
 
   return s;
 }

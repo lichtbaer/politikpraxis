@@ -95,6 +95,81 @@
   }
 }
 
+/* --- Keyboard Shortcuts Modal --- */
+.shortcutOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.shortcutModal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90vw;
+  animation: scaleIn 0.2s ease-out;
+}
+
+.shortcutTitle {
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--gold);
+  margin: 0 0 16px;
+}
+
+.shortcutGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  align-items: center;
+}
+
+.shortcutGrid kbd {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.shortcutGrid span {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.shortcutClose {
+  margin-top: 16px;
+  padding: 8px 20px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 /* --- Mobil: Vertikales Stacking --- */
 @media (max-width: 768px) {
   .shell {

@@ -67,6 +67,24 @@
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--gold) 40%, transparent);
 }
 
+.pauseBadge {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent);
+  border-radius: 4px;
+  padding: 3px 8px;
+  animation: pausePulse 2s ease-in-out infinite;
+}
+
+@keyframes pausePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 .kbd {
   font-size: 9px;
   font-family: var(--mono);
