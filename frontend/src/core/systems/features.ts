@@ -102,6 +102,8 @@ const FEATURES: Record<string, { minLevel: number }> = {
   opposition: { minLevel: 3 },
   /** SMA-280: Extremismus-Eskalation (Koalitionspartner-Warnung, Verfassungsgericht) */
   extremismus_eskalation: { minLevel: 2 },
+  /** SMA-344: Bundestag — Fraktionstabelle mit Sitzzahlen */
+  bundestag_detail: { minLevel: 2 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {

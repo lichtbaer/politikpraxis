@@ -16,6 +16,7 @@ import { applyFraming, getMedienPkZusatzkosten } from './medienklima';
 import { berechneKongruenz } from '../ideologie';
 import { getGesetzIdeologie } from './koalition';
 import { kannGesetzEingebracht } from '../gesetz';
+import { getNfBundestagBtModifikator, getNfBundestagMedienDelta } from './bundestagNf';
 
 /** SMA-307: Berechnet effektive BT-Stimmen aus Koalitions-Kongruenz (dynamisch statt statisch). */
 export function berechneEffektiveBTStimmen(
@@ -56,6 +57,15 @@ export type EinbringenOptions = EinbringenContext | { pkRabatt?: number };
 
 function isEinbringenContext(opts: EinbringenOptions | undefined): opts is EinbringenContext {
   return opts != null && 'ausrichtung' in opts && 'complexity' in opts;
+}
+
+/** SMA-344: Medienklima-Malus + Log wenn Gesetz NF-Positionen sehr nahekommt */
+function applyNfBundestagMedienNachBeschluss(state: GameState, law: Law): GameState {
+  const delta = getNfBundestagMedienDelta(law);
+  if (delta >= 0) return state;
+  const mk = Math.max(0, Math.min(100, (state.medienKlima ?? 55) + delta));
+  const s = { ...state, medienKlima: mk };
+  return addLog(s, 'game:bundestag.logNfMedienkritik', 'r');
 }
 
 /** SMA-280: Prüft ob Einbringen durch Verfassungsgericht-Verfahren blockiert ist */
@@ -219,7 +229,8 @@ export function abstimmen(
       ? state.btStimmenBonus.pct
       : 0;
   const vorstufenBtBonus = state.gesetzProjekte?.[lawId]?.boni?.btStimmenBonus ?? 0;
-  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus);
+  const nfBtMod = getNfBundestagBtModifikator(law);
+  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod);
 
   if (effectiveJa > 50) {
     const complexity = beschlussContext?.complexity ?? 4;
@@ -250,6 +261,7 @@ export function abstimmen(
       }
       // SMA-330: Proaktive Erfüllung bei Beschluss
       newState = checkProaktiveErfuellung(newState, lawId);
+      newState = applyNfBundestagMedienNachBeschluss(newState, law);
 
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
     }
@@ -259,8 +271,10 @@ export function abstimmen(
         ? { ...g, status: 'bt_passed' as const, brVoteMonth: state.month + 3, lobbyFraktionen: {} }
         : g,
     );
+    let brState: GameState = { ...state, gesetze };
+    brState = applyNfBundestagMedienNachBeschluss(brState, law);
     return addLog(
-      { ...state, gesetze },
+      brState,
       `${law.kurz} durch Bundestag — Bundesratsabstimmung in 3 Monaten. Lobbying möglich.`,
       'g',
     );
@@ -298,7 +312,8 @@ export function resolveEingebrachteAbstimmung(
       ? state.btStimmenBonus.pct
       : 0;
   const vorstufenBtBonus = state.gesetzProjekte?.[eg.gesetzId]?.boni?.btStimmenBonus ?? 0;
-  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus);
+  const nfBtMod = getNfBundestagBtModifikator(law);
+  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod);
 
   const complexity = beschlussContext?.complexity ?? 4;
   const bundesratAktiv = featureActive(complexity, 'bundesrat_sichtbar');
@@ -348,8 +363,10 @@ export function resolveEingebrachteAbstimmung(
       }
       // SMA-330: Proaktive Erfüllung bei Beschluss
       newState = checkProaktiveErfuellung(newState, eg.gesetzId);
+      newState = applyNfBundestagMedienNachBeschluss(newState, law);
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
     }
+    newState = applyNfBundestagMedienNachBeschluss(newState, law);
     return addLog(
       newState,
       `${law.kurz} durch Bundestag — Bundesratsabstimmung in 3 Monaten. Lobbying möglich.`,

@@ -37,6 +37,11 @@ describe('featureActive', () => {
     expect(featureActive(2, 'kommunal_pilot')).toBe(true);
   });
 
+  it('bundestag_detail aktiv ab Stufe 2', () => {
+    expect(featureActive(1, 'bundestag_detail')).toBe(false);
+    expect(featureActive(2, 'bundestag_detail')).toBe(true);
+  });
+
   it('extremismus_eskalation aktiv ab Stufe 2', () => {
     expect(featureActive(1, 'extremismus_eskalation')).toBe(false);
     expect(featureActive(2, 'extremismus_eskalation')).toBe(true);

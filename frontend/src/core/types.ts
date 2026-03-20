@@ -691,6 +691,8 @@ export interface GameState {
   letztesPressemitteilungMonat?: number;
   /** Opposition als abstrakter Akteur (SMA-277) */
   opposition?: OppositionState;
+  /** SMA-344: Einmaliger Hinweis zum Bundestag/NF wurde angezeigt */
+  bundestagTabHinweisGezeigt?: boolean;
   /** SMA-280: Koalitionspartner-Extremismus-Warnung bereits ausgelöst */
   extremismusWarnung?: boolean;
   /** SMA-280: Verfassungsgericht-Klage aktiv */
