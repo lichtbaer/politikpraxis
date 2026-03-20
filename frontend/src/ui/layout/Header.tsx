@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
+import { useAuthStore } from '../../store/authStore';
+import { useUIStore } from '../../store/uiStore';
+import { upsertSaveSlot } from '../../services/saves';
+import { saveGame } from '../../services/localStorageSave';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import { PK_REGEN_DIVISOR, PK_REGEN_MIN } from '../../core/constants';
@@ -15,6 +19,8 @@ import styles from './Header.module.css';
 
 export function Header() {
   const { t } = useTranslation();
+  const token = useAuthStore((s) => s.token);
+  const [manualSlot, setManualSlot] = useState(2);
   const [showPressemitteilungModal, setShowPressemitteilungModal] = useState(false);
   const [showGlossar, setShowGlossar] = useState(false);
   const { month, speed, pk, letztesPressemitteilungMonat, zustG } = useGameStore(
@@ -27,7 +33,39 @@ export function Header() {
     })),
   );
   const complexity = useGameStore((s) => s.complexity);
+  const playerName = useGameStore((s) => s.playerName);
+  const ausrichtung = useGameStore((s) => s.ausrichtung);
+  const spielerPartei = useGameStore((s) => s.spielerPartei);
+  const kanzlerGeschlecht = useGameStore((s) => s.kanzlerGeschlecht);
   const { setSpeed, doPressemitteilung } = useGameActions();
+
+  const manualSave = () => {
+    const tok = useAuthStore.getState().token;
+    if (!tok) return;
+    const { state } = useGameStore.getState();
+    void upsertSaveSlot(tok, manualSlot, {
+      gameState: state,
+      complexity,
+      playerName,
+      ausrichtung,
+      spielerPartei,
+      kanzlerGeschlecht: state.kanzlerGeschlecht ?? kanzlerGeschlecht,
+    })
+      .then(() => {
+        useUIStore.getState().showToast(t('game.manualSaveOk', { defaultValue: 'Spielstand in der Cloud gespeichert' }), 'success');
+      })
+      .catch(() => {
+        saveGame({
+          gameState: state,
+          playerName: state.kanzlerName ?? playerName,
+          complexity,
+          ausrichtung,
+          spielerPartei: state.spielerPartei,
+          kanzlerGeschlecht: state.kanzlerGeschlecht ?? kanzlerGeschlecht,
+        });
+        useUIStore.getState().showToast(t('game.manualSaveFallback', { defaultValue: 'Server nicht erreichbar – lokal gespeichert' }), 'warning');
+      });
+  };
 
   const pkRegenDivisor = PK_REGEN_DIVISOR + (complexity - 1) * 3;
   const pkRegen = Math.max(PK_REGEN_MIN, Math.floor(zustG / pkRegenDivisor));
@@ -97,6 +135,28 @@ export function Header() {
           >
             <Megaphone size={14} /> {t('game:pressemitteilung.button')}
           </button>
+        )}
+        {token && (
+          <div className={styles.cloudSave}>
+            <select
+              className={styles.saveSlotSelect}
+              value={manualSlot}
+              onChange={(e) => setManualSlot(Number(e.target.value))}
+              aria-label={t('game.manualSaveSlotLabel', { defaultValue: 'Speicher-Slot' })}
+            >
+              <option value={1}>1</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+            </select>
+            <button
+              type="button"
+              className={styles.saveCloudBtn}
+              onClick={manualSave}
+              title={t('game.manualSaveTooltip', { defaultValue: 'Spielstand speichern (Cloud)' })}
+            >
+              💾
+            </button>
+          </div>
         )}
         <button
           type="button"
