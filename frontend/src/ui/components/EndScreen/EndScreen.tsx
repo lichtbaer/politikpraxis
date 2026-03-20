@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
+import { checkAchievements } from '../../../core/systems/achievements';
 import styles from './EndScreen.module.css';
 
 function ApprovalHistoryChart({ data, threshold }: { data: number[]; threshold?: number }) {
@@ -133,7 +134,26 @@ export function EndScreen() {
   if (!state.gameOver) return null;
 
   const beschlosseneGesetze = state.gesetze.filter((g) => g.status === 'beschlossen');
+  const blockierteGesetze = state.gesetze.filter((g) => g.status === 'blockiert');
   const approvalHistory = state.approvalHistory ?? [];
+
+  // Milestones — summarize key achievements
+  const milestones: string[] = useMemo(() => {
+    const m: string[] = [];
+    if (beschlosseneGesetze.length > 0) m.push(`${beschlosseneGesetze.length} Gesetze beschlossen`);
+    if (blockierteGesetze.length > 0) m.push(`${blockierteGesetze.length} Gesetze blockiert`);
+    const firedEvents = state.firedEvents?.length ?? 0;
+    if (firedEvents > 0) m.push(`${firedEvents} Ereignisse bewältigt`);
+    if (state.koalitionspartner && state.koalitionspartner.beziehung >= 50) m.push('Koalition stabil gehalten');
+    if (state.koalitionspartner && state.koalitionspartner.beziehung < 15) m.push('Koalitionskrise erlebt');
+    if ((state.haushalt?.saldo ?? 0) >= 0) m.push('Haushalt im Plus');
+    if ((state.haushalt?.saldo ?? 0) < -15) m.push('Schuldenbremse gerissen');
+    if (state.wahlkampfAktiv) m.push('Wahlkampf durchlaufen');
+    return m;
+  }, [beschlosseneGesetze.length, blockierteGesetze.length, state.firedEvents, state.koalitionspartner, state.haushalt, state.wahlkampfAktiv]);
+
+  // Start KPI snapshot from game initialization
+  const startKpi = state.kpiStart ?? null;
 
   return (
     <div className={styles.overlay}>
@@ -158,6 +178,21 @@ export function EndScreen() {
           <div className={styles.statBlock}>
             <span className={styles.statLabel}>{t('game:endScreen.finaleKPIs')}</span>
             <KPIBarChart kpi={state.kpi} />
+            {startKpi && (
+              <div className={styles.kpiComparison}>
+                {(['al', 'hh', 'gi', 'zf'] as const).map((key) => {
+                  const diff = state.kpi[key] - startKpi[key];
+                  if (Math.abs(diff) < 0.1) return null;
+                  const sign = diff > 0 ? '+' : '';
+                  const labels = { al: 'AL', hh: 'HH', gi: 'GI', zf: 'ZF' };
+                  return (
+                    <span key={key} className={diff > 0 ? styles.kpiUp : styles.kpiDown}>
+                      {labels[key]} {sign}{diff.toFixed(1)}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
           <div className={styles.statBlock}>
             <span className={styles.statLabel}>{t('game:endScreen.beschlosseneGesetze')}</span>
@@ -171,6 +206,36 @@ export function EndScreen() {
             )}
           </div>
         </div>
+
+        {/* Milestones */}
+        {milestones.length > 0 && (
+          <div className={styles.milestonesSection}>
+            <span className={styles.chartSectionLabel}>Meilensteine</span>
+            <div className={styles.milestonesList}>
+              {milestones.map((m, i) => (
+                <span key={i} className={styles.milestone}>{m}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Achievements — newly unlocked */}
+        {(() => {
+          const newAchievements = checkAchievements(state);
+          if (newAchievements.length === 0) return null;
+          return (
+            <div className={styles.milestonesSection}>
+              <span className={styles.chartSectionLabel}>Neue Erfolge freigeschaltet!</span>
+              <div className={styles.milestonesList}>
+                {newAchievements.map((a) => (
+                  <span key={a.id} className={styles.achievementBadge} title={a.desc}>
+                    {a.title}
+                  </span>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         <p className={styles.spielzeit}>{t('game:endScreen.monthsPlayed', { count: state.month })}</p>
 

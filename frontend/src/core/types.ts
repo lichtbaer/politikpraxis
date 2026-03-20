@@ -582,6 +582,8 @@ export interface GameState {
   view: ViewName;
 
   kpi: KPI;
+  /** Snapshot of initial KPI values at game start for end-screen comparison */
+  kpiStart?: KPI;
   kpiPrev: KPI | null;
   /** Change-Log pro Tick: erklärt Ursachen von KPI-Änderungen */
   tickLog: TickLogEntry[];

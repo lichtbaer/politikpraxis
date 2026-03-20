@@ -66,6 +66,9 @@ export function Header() {
           {t('header.monthFormat', { month, year })}
         </div>
         <div className={styles.speedRow}>
+          {speed === 0 && (
+            <span className={styles.pauseBadge}>{t('header.paused', { defaultValue: 'PAUSIERT' })}</span>
+          )}
           {speeds.map(s => (
             <button
               key={s.level}

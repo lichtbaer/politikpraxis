@@ -15,6 +15,7 @@ import {
   getAusschliessendeExcludes,
   getAktiveEnhances,
 } from '../../../core/gesetz';
+import { GesetzStepper } from '../GesetzStepper/GesetzStepper';
 import { VorstufeBadge } from '../VorstufeBadge/VorstufeBadge';
 import { VorbereitungModal } from '../VorbereitungModal/VorbereitungModal';
 import { FramingModal } from '../FramingModal/FramingModal';
@@ -174,9 +175,14 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
         {isRecommended && (
           <span className={styles.empfohlenBadge}>
             {t('game:gesetzAgenda.empfohlen')}
-            {recommendationScore != null && (
-              <span className={styles.scoreBadge}>{recommendationScore}</span>
-            )}
+          </span>
+        )}
+        {recommendationScore != null && (
+          <span
+            className={styles.scoreBadge}
+            title={t('game:gesetzAgenda.scoreTip', { score: recommendationScore, defaultValue: `Empfehlungswert: ${recommendationScore}/100 (KPI-Bedarf, Erfolgschance, Kongruenz, Effizienz)` })}
+          >
+            {recommendationScore}
           </span>
         )}
         <h3 className={styles.title}>{law.titel || t(`game:laws.${law.id}.titel`)}</h3>
@@ -190,6 +196,13 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
 
       {expanded && (
         <div className={styles.body}>
+          {/* Gesetz-Lifecycle Stepper */}
+          {law.status !== 'entwurf' && (
+            <GesetzStepper
+              status={law.status}
+              brauchtBundesrat={law.tags?.includes('bund') && law.brVoteMonth != null}
+            />
+          )}
           {/* SMA-312: requires/excludes/enhances Badges */}
           {law.status === 'entwurf' && (
             <>

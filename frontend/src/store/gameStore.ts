@@ -64,8 +64,13 @@ import {
 import { pressemitteilung } from '../core/systems/medienklima';
 import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
+import { useUIStore } from './uiStore';
 
 export type GamePhase = 'onboarding' | 'playing';
+
+/** Convenience: fire-and-forget toast from game actions */
+const toast = (msg: string, type?: 'info' | 'success' | 'warning' | 'danger') =>
+  useUIStore.getState().showToast(msg, type);
 
 const DEFAULT_AUSRICHTUNG: Ausrichtung = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 
@@ -252,7 +257,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
         complexity: prev.complexity,
         gesetzRelationen: prev.content.gesetzRelationen,
       };
-      return { state: einbringen(prev.state, lawId, ctx) };
+      const nextState = einbringen(prev.state, lawId, ctx);
+      const newLaw = nextState.gesetze.find(g => g.id === lawId);
+      if (newLaw && newLaw.status !== 'entwurf') {
+        const pkUsed = prev.state.pk - nextState.pk;
+        toast(`${newLaw.kurz} eingebracht (−${pkUsed} PK)`, 'success');
+      }
+      return { state: nextState };
     }),
   doGegenfinanzierungAuswaehlen: (gesetzId, option, subOption) =>
     set((prev) => {
@@ -310,9 +321,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
         framingKey: framingKey ?? undefined,
         gesetzRelationen: prev.content.gesetzRelationen,
       };
-      return { state: einbringen(prev.state, lawId, ctx) };
+      const nextState = einbringen(prev.state, lawId, ctx);
+      const newLaw = nextState.gesetze.find(g => g.id === lawId);
+      if (newLaw && newLaw.status !== 'entwurf') {
+        const pkUsed = prev.state.pk - nextState.pk;
+        toast(`${newLaw.kurz} eingebracht (−${pkUsed} PK)`, 'success');
+      }
+      return { state: nextState };
     }),
-  doLobbying: (lawId) => set(prev => ({ state: lobbying(prev.state, lawId) })),
+  doLobbying: (lawId) => set(prev => {
+    const nextState = lobbying(prev.state, lawId);
+    const newLaw = nextState.gesetze.find(g => g.id === lawId);
+    const oldLaw = prev.state.gesetze.find(g => g.id === lawId);
+    if (newLaw && oldLaw) {
+      const gain = newLaw.ja - oldLaw.ja;
+      if (gain > 0) toast(`Lobbying: Zustimmung +${gain}%`, 'info');
+    }
+    return { state: nextState };
+  }),
   doAbstimmen: (lawId) =>
     set((prev) => {
       const ctx: GesetzBeschlussContext | undefined = prev.content.milieus
@@ -326,6 +352,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const newLaw = state.gesetze.find(g => g.id === lawId);
       if (newLaw?.status === 'beschlossen') {
         state = updateKoalitionsvertragScore(state, lawId, prev.content, prev.complexity);
+        toast(`${newLaw.kurz} beschlossen! Wirkung in ${newLaw.lag} Monaten`, 'success');
+      } else if (newLaw?.status === 'blockiert') {
+        toast(`${newLaw.kurz}: Mehrheit verfehlt (${newLaw.ja}%)`, 'danger');
+      } else if (newLaw?.status === 'bt_passed') {
+        toast(`${newLaw.kurz} passiert Bundestag — weiter zum Bundesrat`, 'info');
       }
       return { state };
     }),
@@ -356,6 +387,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doResolveEvent: (event, choice) =>
     set(prev => {
       let next = resolveEvent(prev.state, event, choice, { complexity: prev.complexity, content: prev.content });
+      const pkDelta = next.pk - prev.state.pk;
+      if (pkDelta !== 0) {
+        const sign = pkDelta > 0 ? '+' : '';
+        toast(`${event.title ?? 'Ereignis'}: ${sign}${pkDelta} PK`, pkDelta > 0 ? 'success' : 'warning');
+      }
       // SMA-295: Auto-Resume nach Event-Auflösung
       if (next.speed === 0 && next.speedBeforePause != null) {
         next = { ...next, speed: next.speedBeforePause, speedBeforePause: undefined };

@@ -13,8 +13,23 @@ import { LegislaturBilanzScreen } from '../screens/LegislaturBilanzScreen';
 import { useGameTick } from '../hooks/useGameTick';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useGameStore } from '../../store/gameStore';
+import type { ViewName } from '../../core/types';
 import { Users } from '../icons';
 import styles from './Shell.module.css';
+
+/** Alt+number → view tab mapping */
+const ALT_VIEW_MAP: Record<string, ViewName> = {
+  '1': 'agenda',
+  '2': 'bundestag',
+  '3': 'kabinett',
+  '4': 'haushalt',
+  '5': 'medien',
+  '6': 'verbaende',
+  '7': 'bundesrat',
+  '8': 'laender',
+  '9': 'kommunen',
+  '0': 'eu',
+};
 
 export function Shell() {
   useGameTick();
@@ -23,9 +38,11 @@ export function Shell() {
   const setSpeed = useGameStore((s) => s.setSpeed);
   const togglePause = useGameStore((s) => s.togglePause);
   const doResolveEvent = useGameStore((s) => s.doResolveEvent);
+  const setView = useGameStore((s) => s.setView);
 
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   const closeDrawers = () => {
     setLeftOpen(false);
@@ -64,6 +81,20 @@ export function Shell() {
           }
           return;
         }
+      }
+
+      // ? — Shortcut-Hilfe anzeigen
+      if (e.key === '?' || (e.shiftKey && e.code === 'Slash')) {
+        e.preventDefault();
+        setShowShortcuts((prev) => !prev);
+        return;
+      }
+
+      // Alt + Ziffer — Tab-Wechsel
+      if (e.altKey && ALT_VIEW_MAP[e.key]) {
+        e.preventDefault();
+        setView(ALT_VIEW_MAP[e.key]);
+        return;
       }
 
       // Geschwindigkeits-Steuerung (nur wenn kein Event aktiv)
@@ -119,6 +150,32 @@ export function Shell() {
       <GameTips />
       {aktivesStrukturEvent && <HaushaltsdebatteScreen />}
       <LegislaturBilanzScreen />
+
+      {/* Keyboard Shortcuts Help */}
+      {showShortcuts && (
+        <div className={styles.shortcutOverlay} onClick={() => setShowShortcuts(false)}>
+          <div className={styles.shortcutModal} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.shortcutTitle}>Tastaturkürzel</h3>
+            <div className={styles.shortcutGrid}>
+              <kbd>Leertaste</kbd><span>Pause / Fortsetzen</span>
+              <kbd>1</kbd><span>Langsame Geschwindigkeit</span>
+              <kbd>3</kbd><span>Schnelle Geschwindigkeit</span>
+              <kbd>Esc</kbd><span>Drawer schließen</span>
+              <kbd>1-3</kbd><span>Event-Auswahl (bei Event)</span>
+              <kbd>Enter</kbd><span>Einzige Option bestätigen</span>
+              <kbd>Alt+1–0</kbd><span>Tab wechseln (Agenda…EU)</span>
+              <kbd>?</kbd><span>Diese Hilfe anzeigen</span>
+            </div>
+            <button
+              type="button"
+              className={styles.shortcutClose}
+              onClick={() => setShowShortcuts(false)}
+            >
+              Schließen
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

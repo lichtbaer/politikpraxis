@@ -299,7 +299,7 @@ export function GesetzAgendaView() {
                         law={law}
                         isRecommended={top5Empfohlen.has(law.id)}
                         showKongruenz={complexity >= 2}
-                        recommendationScore={top5Empfohlen.has(law.id) ? scoreMap.get(law.id) : undefined}
+                        recommendationScore={law.status === 'entwurf' ? scoreMap.get(law.id) : undefined}
                       />
                     ))}
                   </div>

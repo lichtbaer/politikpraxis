@@ -186,6 +186,7 @@ export function createInitialState(
     view: 'agenda',
 
     kpi: { ...content.scenario.startKPI },
+    kpiStart: { ...content.scenario.startKPI },
     kpiPrev: null,
     tickLog: [],
     zust: { g: 52, arbeit: 58, mitte: 54, prog: 44 },

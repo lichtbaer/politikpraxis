@@ -102,10 +102,19 @@ export function KoalitionspartnerPanel() {
             {t(getBeziehungsLabelKey(beziehung))}
           </span>
 
-          {/* Low relationship warning */}
+          {/* Low relationship warning — escalating urgency */}
           {beziehung < 30 && (
-            <div className={styles.warning}>
-              {t('koalitionPanel.beziehungKritischHint')}
+            <div className={beziehung < 15 ? styles.warningCritical : styles.warning}>
+              {beziehung < 15
+                ? t('koalitionPanel.koalitionsbruchDroht', { defaultValue: 'Koalitionsbruch droht! Sofort handeln — Koalitionsrunde oder Zugeständnis!' })
+                : t('koalitionPanel.beziehungKritischHint')}
+            </div>
+          )}
+
+          {/* Coalition health summary — visible when relationship is weakening */}
+          {beziehung < 50 && beziehung >= 30 && (
+            <div className={styles.healthHint}>
+              {t('koalitionPanel.beziehungAngespannt', { defaultValue: 'Beziehung angespannt — regelmäßige Koalitionsrunden stabilisieren die Partnerschaft.' })}
             </div>
           )}
 
