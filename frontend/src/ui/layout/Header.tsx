@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
+import { useAuthStore } from '../../store/authStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import { PK_REGEN_DIVISOR, PK_REGEN_MIN } from '../../core/constants';
@@ -9,6 +10,7 @@ import { PLAYTEST_CONFIG } from '../../config/playtest';
 import { PressemitteilungModal } from '../components/PressemitteilungModal/PressemitteilungModal';
 import { Glossar } from '../components/Glossar/Glossar';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
+import { LoginModal } from '../components/LoginModal/LoginModal';
 import type { SpeedLevel } from '../../core/types';
 import { Megaphone } from '../icons';
 import styles from './Header.module.css';
@@ -17,6 +19,11 @@ export function Header() {
   const { t } = useTranslation();
   const [showPressemitteilungModal, setShowPressemitteilungModal] = useState(false);
   const [showGlossar, setShowGlossar] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const email = useAuthStore((s) => s.email);
+  const logout = useAuthStore((s) => s.logout);
+  const deleteAccount = useAuthStore((s) => s.deleteAccount);
   const { month, speed, pk, letztesPressemitteilungMonat, zustG } = useGameStore(
     useShallow(s => ({
       month: s.state.month,
@@ -89,6 +96,33 @@ export function Header() {
           </div>
           <span className={styles.pkRegen}>{t('game:headerUI.pkRegen', { regen: pkRegen })}</span>
         </div>
+        <div className={styles.authSlot}>
+          {!isLoggedIn ? (
+            <button type="button" className={styles.authBtn} onClick={() => setShowLoginModal(true)}>
+              {t('auth.signIn')}
+            </button>
+          ) : (
+            <div className={styles.userMenu}>
+              <span className={styles.userEmail} title={email ?? ''}>
+                {email && email.length > 28 ? `${email.slice(0, 26)}…` : email}
+              </span>
+              <button type="button" className={styles.authBtnSecondary} onClick={() => void logout()}>
+                {t('auth.signOut')}
+              </button>
+              <button
+                type="button"
+                className={styles.authBtnDanger}
+                onClick={() => {
+                  if (window.confirm(t('auth.deleteConfirm'))) {
+                    void deleteAccount();
+                  }
+                }}
+              >
+                {t('auth.deleteAccount')}
+              </button>
+            </div>
+          )}
+        </div>
         {canPressemitteilung && (
           <button
             type="button"
@@ -114,6 +148,7 @@ export function Header() {
         />
       )}
       {showGlossar && <Glossar onClose={() => setShowGlossar(false)} />}
+      {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
     </header>
   );
 }

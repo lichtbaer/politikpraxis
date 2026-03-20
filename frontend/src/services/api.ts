@@ -1,13 +1,15 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 interface RequestOptions {
   method?: string;
   body?: unknown;
   token?: string | null;
+  /** Default: 'include' (HttpOnly Refresh-Cookie) */
+  credentials?: RequestCredentials;
 }
 
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', body, token } = options;
+  const { method = 'GET', body, token, credentials = 'include' } = options;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -21,12 +23,27 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
+    credentials,
   });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
+    const detail =
+      typeof error.detail === 'string'
+        ? error.detail
+        : Array.isArray(error.detail)
+          ? error.detail.map((d: { msg?: string }) => d.msg).join(', ')
+          : error.detail;
+    throw new Error(detail || `HTTP ${response.status}`);
   }
 
-  return response.json();
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const text = await response.text();
+  if (!text) {
+    return undefined as T;
+  }
+  return JSON.parse(text) as T;
 }
