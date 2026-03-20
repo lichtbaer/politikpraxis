@@ -104,21 +104,23 @@ def upgrade() -> None:
     # CO2 +25€, Vermögenssteuer einführen, Digitalsteuer einführen, Spitzensteuersatz (Duplikat)
     # Wir nutzen bestehende IDs wo möglich und fügen neue hinzu
     gesetze_steuer = [
-        ("est_plus_2", ["bund"], 52, 0, 0, 0, 4, False, -20, -30, -20, "wirtschaft_finanzen",
+        # gid, tags, bt, ea, eh, eg, ez, lag, foed, iw, ig, is_, pf,
+        # ke, kl, einn, inv, minc, steuer_id, steuer_delta, konj_eff, konj_lag
+        ("est_plus_2", ["bund"], 52, 0, 0, 0, 4, 3, False, -20, -30, -20, "wirtschaft_finanzen",
          0.0, 0.0, 17.0, False, 1, "einkommensteuer", 2.0, -0.1, 3),
-        ("est_minus_2", ["bund"], 54, 0, 0, 0, 4, False, 20, 30, 20, "wirtschaft_finanzen",
+        ("est_minus_2", ["bund"], 54, 0, 0, 0, 4, 3, False, 20, 30, 20, "wirtschaft_finanzen",
          0.0, 0.0, -17.0, False, 1, "einkommensteuer", -2.0, 0.1, 3),
-        ("koerp_minus_3", ["bund"], 50, 0, 0, 0, 4, False, 70, 5, 50, "wirtschaft_finanzen",
+        ("koerp_minus_3", ["bund"], 50, 0, 0, 0, 4, 3, False, 70, 5, 50, "wirtschaft_finanzen",
          0.0, 0.0, -12.0, False, 1, "koerperschaftsteuer", -3.0, 0.15, 4),
-        ("mwst_plus_1", ["bund"], 53, 0, 0, 0, 4, False, -30, -20, -30, "wirtschaft_finanzen",
+        ("mwst_plus_1", ["bund"], 53, 0, 0, 0, 4, 2, False, -30, -20, -30, "wirtschaft_finanzen",
          0.0, 0.0, 8.0, False, 1, "mwst_standard", 1.0, -0.05, 3),
-        ("co2_plus_25", ["bund", "eu"], 51, 0, 0, 0, 4, False, -30, -60, -20, "umwelt_energie",
+        ("co2_plus_25", ["bund", "eu"], 51, 0, 0, 0, 4, 2, False, -30, -60, -20, "umwelt_energie",
          0.0, 0.0, 5.0, False, 1, "co2_steuer", 25.0, -0.05, 2),
-        ("vermoegensteuer_einfuehren", ["bund"], 48, 0, 0, 0, 6, False, -75, -10, -30, "wirtschaft_finanzen",
+        ("vermoegensteuer_einfuehren", ["bund"], 48, 0, 0, 0, 6, 4, False, -75, -10, -30, "wirtschaft_finanzen",
          0.0, 0.0, 15.0, False, 1, "vermoegensteuer", 1.0, -0.1, 6),
-        ("digitalsteuer_einfuehren", ["bund", "eu"], 55, 0, 0, 0, 4, False, -40, -20, -30, "digital_infrastruktur",
+        ("digitalsteuer_einfuehren", ["bund", "eu"], 55, 0, 0, 0, 4, 3, False, -40, -20, -30, "digital_infrastruktur",
          0.0, 0.0, 3.0, False, 1, "digitalsteuer", 3.0, -0.02, 4),
-        ("spitzensteuersatz_plus", ["bund"], 46, 0, 0, 0, 3, False, -65, -10, -30, "wirtschaft_finanzen",
+        ("spitzensteuersatz_plus", ["bund"], 46, 0, 0, 0, 3, 3, False, -65, -10, -30, "wirtschaft_finanzen",
          0.0, 0.0, 10.0, False, 1, "einkommensteuer", 2.0, -0.15, 3),
     ]
 
