@@ -108,7 +108,8 @@ export function tickExtremismusDruck(
   if (!extremismusEvents.length) return state;
   if (state.activeEvent) return state;
 
-  const malus = getGesamtExtremismusMalus(ausrichtung);
+  // SMA-344: NF-Bundestagspräsenz verstärkt Extremismus-Druck leicht (atmosphärisch)
+  const malus = getGesamtExtremismusMalus(ausrichtung) + 1;
 
   // Koalitionspartner-Warnung (einmalig ab Malus > 8, min_complexity 2)
   if (malus > 8 && !state.extremismusWarnung) {

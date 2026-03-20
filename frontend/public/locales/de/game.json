@@ -828,7 +828,20 @@
     "abstimmungDieserMonat": "Abstimmung diesen Monat",
     "abstimmungIn": "Abstimmung in {{count}} Mo. ({{month}})",
     "letzteAbstimmungen": "Letzte Abstimmungsergebnisse",
-    "oppositionsAktivitaet": "Oppositions-Aktivität"
+    "oppositionsAktivitaet": "Oppositions-Aktivität",
+    "halbkreisAria": "Sitzverteilung Bundestag, Halbkreis",
+    "halbkreisTitle": "Sitzverteilung im Halbkreis",
+    "sitzeGesamt": "{{count}} Sitze gesamt",
+    "legendeSitzeProzent": "{{sitze}} Sitze ({{prozent}} %)",
+    "fraktionenTabelle": "Fraktionen",
+    "tabelleSitzeProzent": "{{sitze}} Sitze · {{prozent}} %",
+    "nfKeineKooperation": "keine Kooperation",
+    "nfTitel": "Nationale Front (NF)",
+    "nfSitzeAnteil": "{{sitze}} Sitze · {{prozent}} %",
+    "nfDisclaimer": "Die NF steht außerhalb der demokratischen Zusammenarbeit. Keine Koalition, keine Gespräche, kein Lobbying möglich.",
+    "ersterTabHinweis": "Der Bundestag spiegelt die politische Realität wider. Die Nationale Front (NF) ist im Parlament präsent, steht aber außerhalb jeder demokratischen Zusammenarbeit.",
+    "hinweisVerstanden": "Verstanden",
+    "logNfMedienkritik": "Kritik: Gesetz kommt NF-Positionen entgegen — Medienklima belastet."
   },
   "media": {
     "title": "Medien",

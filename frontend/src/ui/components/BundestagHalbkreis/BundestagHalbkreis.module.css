@@ -1,0 +1,66 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.svg {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+}
+
+.segmentPassiv {
+  filter: saturate(1.05);
+  opacity: 0.98;
+}
+
+.centerLabel {
+  fill: var(--text2);
+  font-family: var(--sans, system-ui, sans-serif);
+}
+
+.legende {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.legendeItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.farbePunkt {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendeName {
+  font-weight: 500;
+  min-width: 0;
+}
+
+.legendeSitze {
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.passivBadge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--danger, #b00020) 12%, transparent);
+  color: var(--text2);
+  border: 1px solid color-mix(in srgb, var(--danger, #b00020) 35%, transparent);
+}

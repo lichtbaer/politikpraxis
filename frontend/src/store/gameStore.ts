@@ -101,6 +101,8 @@ interface GameStore {
   /** SMA-295: Pause/Play umschalten — bei Pause wird vorheriger Speed wiederhergestellt */
   togglePause: () => void;
   setView: (view: ViewName) => void;
+  /** SMA-344: Einmaliger Bundestag-/NF-Hinweis */
+  acknowledgeBundestagHinweis: () => void;
 
   doEinbringen: (lawId: string) => void;
   /** SMA-335: Einbringen mit vorheriger Gegenfinanzierung */
@@ -242,6 +244,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return { state: { ...prev.state, speed: 0, speedBeforePause: speed } };
     }),
   setView: (view) => set(prev => ({ state: { ...prev.state, view } })),
+
+  acknowledgeBundestagHinweis: () =>
+    set((prev) => ({
+      state: { ...prev.state, bundestagTabHinweisGezeigt: true },
+    })),
 
   doEinbringen: (lawId) =>
     set((prev) => {

@@ -169,3 +169,105 @@
   font-size: 13px;
   color: var(--text);
 }
+
+.onboardingHint {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--blue) 10%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.onboardingHintText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.onboardingHintBtn {
+  align-self: flex-start;
+  padding: 6px 14px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.onboardingHintBtn:hover {
+  border-color: var(--text3);
+}
+
+.nfCard {
+  background: color-mix(in srgb, #8b0000 8%, var(--bg2));
+  border: 1px solid color-mix(in srgb, #8b0000 35%, var(--border));
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.nfTitle {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-family: var(--serif);
+  color: #8b0000;
+}
+
+.nfMeta {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.nfDisclaimer {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text2);
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: 6px;
+  border-left: 3px solid #8b0000;
+}
+
+.fraktionenTabelle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fraktionsZeile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.fraktionsZeile:last-child {
+  border-bottom: none;
+}
+
+.fraktionsName {
+  font-weight: 600;
+  min-width: 140px;
+}
+
+.fraktionsZahlen {
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.passivBadge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, #8b0000 12%, transparent);
+  color: var(--text2);
+  border: 1px solid color-mix(in srgb, #8b0000 30%, transparent);
+}

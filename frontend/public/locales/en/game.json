@@ -861,7 +861,20 @@
     "abstimmungDieserMonat": "Vote this month",
     "abstimmungIn": "Vote in {{count}} mo. ({{month}})",
     "letzteAbstimmungen": "Recent vote results",
-    "oppositionsAktivitaet": "Opposition activity"
+    "oppositionsAktivitaet": "Opposition activity",
+    "halbkreisAria": "Bundestag seat distribution, semicircle",
+    "halbkreisTitle": "Seat distribution in semicircle",
+    "sitzeGesamt": "{{count}} seats total",
+    "legendeSitzeProzent": "{{sitze}} seats ({{prozent}} %)",
+    "fraktionenTabelle": "Factions",
+    "tabelleSitzeProzent": "{{sitze}} seats · {{prozent}} %",
+    "nfKeineKooperation": "no cooperation",
+    "nfTitel": "National Front (NF)",
+    "nfSitzeAnteil": "{{sitze}} seats · {{prozent}} %",
+    "nfDisclaimer": "The NF stands outside democratic cooperation. No coalition, no talks, no lobbying.",
+    "ersterTabHinweis": "The Bundestag reflects political reality. The National Front (NF) is present in parliament but outside any democratic cooperation.",
+    "hinweisVerstanden": "Got it",
+    "logNfMedienkritik": "Criticism: law aligns with NF positions — media climate strained."
   },
   "media": {
     "title": "Media",
