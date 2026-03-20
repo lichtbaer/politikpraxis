@@ -154,6 +154,21 @@
   line-height: 1.4;
 }
 
+.authRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.userLabel {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text2);
+}
+
 .startButtons {
   display: flex;
   flex-direction: column;

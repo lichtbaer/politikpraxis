@@ -2,7 +2,7 @@ import type { GameState, SpielerParteiState } from '../core/types';
 import type { Ausrichtung } from '../core/systems/ausrichtung';
 
 /** Kompatibel mit v0.5.x */
-const SAVE_VERSION = '0.5.0';
+export const SAVE_VERSION = '0.5.0';
 
 export const SAVE_KEY = 'politikpraxis_save' as const;
 
@@ -101,4 +101,13 @@ export function loadGame(): LoadResult {
 export function hasSaveAvailable(): boolean {
   const result = loadGame();
   return result.ok;
+}
+
+/** Entfernt den persistierten Spielstand in localStorage (z. B. nach Cloud-Migration). */
+export function clearSave(): void {
+  try {
+    localStorage.removeItem(SAVE_KEY);
+  } catch {
+    /* ignore */
+  }
 }

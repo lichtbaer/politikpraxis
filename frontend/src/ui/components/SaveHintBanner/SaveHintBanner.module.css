@@ -1,0 +1,37 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--gold) 25%, transparent);
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text2);
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.text {
+  flex: 1;
+  min-width: 200px;
+}
+
+.btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: var(--bg);
+  cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.92;
+}

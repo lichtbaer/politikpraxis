@@ -34,20 +34,25 @@ def _send_smtp_sync(
     smtp_port: int,
     smtp_user: str,
     smtp_password: str,
+    smtp_use_tls: bool,
+    mail_from: str,
     recipient: str,
     subject: str,
     reply_to: str,
     body: str,
 ) -> None:
     msg = MIMEText(body, "plain", "utf-8")
-    msg["From"] = smtp_user
+    msg["From"] = mail_from or smtp_user
     msg["To"] = recipient
     msg["Subject"] = subject
     msg["Reply-To"] = reply_to
 
-    with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
-        server.login(smtp_user, smtp_password)
-        server.send_message(msg)
+    with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as smtp:
+        if smtp_use_tls:
+            smtp.starttls()
+        if smtp_user:
+            smtp.login(smtp_user, smtp_password)
+        smtp.send_message(msg)
 
 
 @router.post("/kontakt", response_model=KontaktResponse)
@@ -98,6 +103,8 @@ async def kontakt_senden(request: Request, body: dict[str, Any] = Body(...)) -> 
             smtp_port=settings.smtp_port,
             smtp_user=settings.smtp_user,
             smtp_password=settings.smtp_password,
+            smtp_use_tls=settings.smtp_use_tls,
+            mail_from=settings.mail_from,
             recipient=settings.contact_recipient,
             subject=subject,
             reply_to=str(anfrage.email),

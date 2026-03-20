@@ -8,15 +8,18 @@ import { Credits } from './ui/screens/Credits';
 import { Datenschutz } from './ui/screens/Datenschutz';
 import { Impressum } from './ui/screens/Impressum';
 import { Kontakt } from './ui/screens/Kontakt';
+import { AuthCallback } from './ui/screens/AuthCallback';
 import { LoadingScreen } from './ui/screens/LoadingScreen';
 import { ErrorScreen } from './ui/screens/ErrorScreen';
 import { useUIStore } from './store/uiStore';
 import { useContentStore } from './stores/contentStore';
+import { useAuthStore } from './store/authStore';
 
 export default function App() {
   const theme = useUIStore((s) => s.theme);
   const { i18n } = useTranslation();
   const { load, loaded, error } = useContentStore();
+  const bootstrapAuth = useAuthStore((s) => s.bootstrap);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -25,6 +28,10 @@ export default function App() {
   useEffect(() => {
     load(i18n.language);
   }, [i18n.language, load]);
+
+  useEffect(() => {
+    void bootstrapAuth();
+  }, [bootstrapAuth]);
 
   if (!loaded && !error) {
     return <LoadingScreen />;
@@ -43,6 +50,7 @@ export default function App() {
         <Route path="/datenschutz" element={<Datenschutz />} />
         <Route path="/impressum" element={<Impressum />} />
         <Route path="/kontakt" element={<Kontakt />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
     </BrowserRouter>
   );

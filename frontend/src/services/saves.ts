@@ -1,61 +1,89 @@
 import { apiFetch } from './api';
 import type { GameState } from '../core/types';
+import type { Ausrichtung } from '../core/systems/ausrichtung';
+import type { SpielerParteiState } from '../core/types';
+import { SAVE_VERSION, type SaveFile } from './localStorageSave';
 
-interface SaveResponse {
+export interface SaveListItem {
   id: string;
-  name: string;
-  month: number;
-  approval: number;
-  scenario_id: string;
+  slot: number;
+  name: string | null;
+  partei: string | null;
+  monat: number | null;
+  wahlprognose: number | null;
+  complexity: number | null;
   updated_at: string;
 }
 
-interface SaveDetailResponse extends SaveResponse {
-  state: GameState;
+export interface SaveDetailResponse {
+  id: string;
+  slot: number;
+  name: string | null;
+  partei: string | null;
+  monat: number | null;
+  wahlprognose: number | null;
+  complexity: number | null;
+  updated_at: string;
+  game_state: GameState;
+  client_meta: {
+    player_name?: string;
+    ausrichtung?: Ausrichtung;
+    kanzler_geschlecht?: 'sie' | 'er' | 'they';
+  };
 }
 
-export async function listSaves(token: string): Promise<SaveResponse[]> {
-  return apiFetch<SaveResponse[]>('/saves', { token });
+export async function listSaves(token: string): Promise<SaveListItem[]> {
+  return apiFetch<SaveListItem[]>('/saves', { token });
 }
 
-export async function getSave(token: string, saveId: string): Promise<SaveDetailResponse> {
-  return apiFetch<SaveDetailResponse>(`/saves/${saveId}`, { token });
+export async function getSaveBySlot(token: string, slot: number): Promise<SaveDetailResponse> {
+  return apiFetch<SaveDetailResponse>(`/saves/${slot}`, { token });
 }
 
-export async function createSave(
+export interface UpsertPayload {
+  gameState: GameState;
+  name?: string | null;
+  complexity: number;
+  playerName: string;
+  ausrichtung: Ausrichtung;
+  spielerPartei: SpielerParteiState | null;
+  kanzlerGeschlecht: 'sie' | 'er' | 'they';
+}
+
+export async function upsertSaveSlot(
   token: string,
-  name: string,
-  state: GameState,
-): Promise<SaveResponse> {
-  return apiFetch<SaveResponse>('/saves', {
+  slot: number,
+  payload: UpsertPayload,
+): Promise<SaveListItem> {
+  return apiFetch<SaveListItem>(`/saves/${slot}`, {
     method: 'POST',
     token,
     body: {
-      name,
-      state,
-      month: state.month,
-      approval: state.zust.g,
-      scenario_id: 'standard',
+      game_state: payload.gameState,
+      name: payload.name ?? undefined,
+      complexity: payload.complexity,
+      player_name: payload.playerName,
+      ausrichtung: payload.ausrichtung,
+      kanzler_geschlecht: payload.kanzlerGeschlecht,
     },
   });
 }
 
-export async function updateSave(
-  token: string,
-  saveId: string,
-  state: GameState,
-): Promise<SaveResponse> {
-  return apiFetch<SaveResponse>(`/saves/${saveId}`, {
-    method: 'PUT',
-    token,
-    body: {
-      state,
-      month: state.month,
-      approval: state.zust.g,
-    },
-  });
+export async function deleteSaveSlot(token: string, slot: number): Promise<void> {
+  await apiFetch(`/saves/${slot}`, { method: 'DELETE', token });
 }
 
-export async function deleteSave(token: string, saveId: string): Promise<void> {
-  await apiFetch(`/saves/${saveId}`, { method: 'DELETE', token });
+/** Server-Antwort als SaveFile für loadSaveFromFile */
+export function serverDetailToSaveFile(detail: SaveDetailResponse): SaveFile {
+  const meta = detail.client_meta ?? {};
+  return {
+    version: SAVE_VERSION,
+    savedAt: detail.updated_at,
+    gameState: detail.game_state,
+    playerName: String(meta.player_name ?? detail.game_state.kanzlerName ?? ''),
+    complexity: detail.complexity ?? 4,
+    ausrichtung: meta.ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
+    spielerPartei: detail.game_state.spielerPartei,
+    kanzlerGeschlecht: meta.kanzler_geschlecht ?? detail.game_state.kanzlerGeschlecht ?? 'sie',
+  };
 }

@@ -1,88 +1,106 @@
-from uuid import UUID
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.save import SaveCreateRequest, SaveUpdateRequest, SaveResponse, SaveDetailResponse
+from app.schemas.save import SaveDetailResponse, SaveListItem, SaveUpsertRequest
 from app.services.auth_service import get_current_user
-from app.services.save_service import get_user_saves, get_save_by_id, create_save, update_save, delete_save
+from app.services.save_service import delete_save, get_save_by_slot, get_user_saves, upsert_save
 
 router = APIRouter()
 
 
-@router.get("", response_model=list[SaveResponse])
+@router.get("", response_model=list[SaveListItem])
 async def list_saves(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     saves = await get_user_saves(db, user.id)
     return [
-        SaveResponse(
-            id=str(s.id), name=s.name, month=s.month,
-            approval=s.approval, scenario_id=s.scenario_id, updated_at=s.updated_at,
+        SaveListItem(
+            id=str(s.id),
+            slot=s.slot,
+            name=s.name,
+            partei=s.partei,
+            monat=s.monat,
+            wahlprognose=float(s.wahlprognose) if s.wahlprognose is not None else None,
+            complexity=s.complexity,
+            updated_at=s.updated_at,
         )
         for s in saves
     ]
 
 
-@router.get("/{save_id}", response_model=SaveDetailResponse)
+@router.get("/{slot}", response_model=SaveDetailResponse)
 async def get_save(
-    save_id: UUID,
+    slot: int,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    save = await get_save_by_id(db, save_id, user.id)
+    if slot not in (1, 2, 3):
+        raise HTTPException(status_code=400, detail="Ungültiger Slot (1–3)")
+    save = await get_save_by_slot(db, user.id, slot)
     if not save:
-        raise HTTPException(status_code=404, detail="Save not found")
+        raise HTTPException(status_code=404, detail="Spielstand nicht gefunden")
     return SaveDetailResponse(
-        id=str(save.id), name=save.name, month=save.month,
-        approval=save.approval, scenario_id=save.scenario_id,
-        updated_at=save.updated_at, state=save.state,
+        id=str(save.id),
+        slot=save.slot,
+        name=save.name,
+        partei=save.partei,
+        monat=save.monat,
+        wahlprognose=float(save.wahlprognose) if save.wahlprognose is not None else None,
+        complexity=save.complexity,
+        updated_at=save.updated_at,
+        game_state=save.game_state,
+        client_meta=save.client_meta or {},
     )
 
 
-@router.post("", response_model=SaveResponse)
-async def save_game(
-    req: SaveCreateRequest,
+@router.post("/{slot}", response_model=SaveListItem)
+async def save_game_slot(
+    slot: int,
+    req: SaveUpsertRequest,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    save = await create_save(
-        db, user.id, req.name, req.state, req.month, req.approval, req.scenario_id,
+    if slot not in (1, 2, 3):
+        raise HTTPException(status_code=400, detail="Ungültiger Slot (1–3)")
+    try:
+        save = await upsert_save(
+            db,
+            user.id,
+            slot,
+            req.game_state,
+            req.name,
+            req.complexity,
+            req.player_name,
+            req.ausrichtung,
+            req.kanzler_geschlecht,
+        )
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Ungültiger Slot") from None
+    return SaveListItem(
+        id=str(save.id),
+        slot=save.slot,
+        name=save.name,
+        partei=save.partei,
+        monat=save.monat,
+        wahlprognose=float(save.wahlprognose) if save.wahlprognose is not None else None,
+        complexity=save.complexity,
+        updated_at=save.updated_at,
     )
-    return SaveResponse(
-        id=str(save.id), name=save.name, month=save.month,
-        approval=save.approval, scenario_id=save.scenario_id, updated_at=save.updated_at,
-    )
 
 
-@router.put("/{save_id}", response_model=SaveResponse)
-async def update_game_save(
-    save_id: UUID,
-    req: SaveUpdateRequest,
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    save = await get_save_by_id(db, save_id, user.id)
-    if not save:
-        raise HTTPException(status_code=404, detail="Save not found")
-    save = await update_save(db, save, req.name, req.state, req.month, req.approval)
-    return SaveResponse(
-        id=str(save.id), name=save.name, month=save.month,
-        approval=save.approval, scenario_id=save.scenario_id, updated_at=save.updated_at,
-    )
-
-
-@router.delete("/{save_id}")
+@router.delete("/{slot}")
 async def remove_save(
-    save_id: UUID,
+    slot: int,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    save = await get_save_by_id(db, save_id, user.id)
+    if slot not in (1, 2, 3):
+        raise HTTPException(status_code=400, detail="Ungültiger Slot (1–3)")
+    save = await get_save_by_slot(db, user.id, slot)
     if not save:
-        raise HTTPException(status_code=404, detail="Save not found")
+        raise HTTPException(status_code=404, detail="Spielstand nicht gefunden")
     await delete_save(db, save)
     return {"ok": True}

@@ -1,31 +1,40 @@
-from pydantic import BaseModel, Field
-from typing import Any
+import json
 from datetime import datetime
+from typing import Any
+
+from pydantic import BaseModel, Field, field_validator
+
+MAX_GAME_STATE_BYTES = 500 * 1024
 
 
-class SaveCreateRequest(BaseModel):
-    name: str = Field(min_length=1, max_length=200)
-    state: dict[str, Any]
-    month: int = Field(ge=1, le=48)
-    approval: float = Field(ge=0, le=100)
-    scenario_id: str = "standard"
+class SaveUpsertRequest(BaseModel):
+    game_state: dict[str, Any]
+    name: str | None = Field(None, max_length=200)
+    complexity: int | None = Field(None, ge=1, le=4)
+    player_name: str | None = Field(None, max_length=100)
+    ausrichtung: dict[str, float] | None = None
+    kanzler_geschlecht: str | None = Field(None, max_length=10)
+
+    @field_validator("game_state")
+    @classmethod
+    def check_game_state_size(cls, v: dict[str, Any]) -> dict[str, Any]:
+        raw = json.dumps(v, separators=(",", ":"))
+        if len(raw.encode("utf-8")) > MAX_GAME_STATE_BYTES:
+            raise ValueError("game_state darf maximal 500 KB groß sein")
+        return v
 
 
-class SaveUpdateRequest(BaseModel):
-    name: str | None = None
-    state: dict[str, Any] | None = None
-    month: int | None = None
-    approval: float | None = None
-
-
-class SaveResponse(BaseModel):
+class SaveListItem(BaseModel):
     id: str
-    name: str
-    month: int
-    approval: float
-    scenario_id: str
+    slot: int
+    name: str | None
+    partei: str | None
+    monat: int | None
+    wahlprognose: float | None
+    complexity: int | None
     updated_at: datetime
 
 
-class SaveDetailResponse(SaveResponse):
-    state: dict[str, Any]
+class SaveDetailResponse(SaveListItem):
+    game_state: dict[str, Any]
+    client_meta: dict[str, Any] = Field(default_factory=dict)
