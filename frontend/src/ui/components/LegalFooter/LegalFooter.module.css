@@ -1,0 +1,38 @@
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text3);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.nav a {
+  color: var(--text2);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.nav a:hover {
+  color: var(--gold);
+}
+
+.sep {
+  user-select: none;
+  opacity: 0.5;
+}
+
+.copy {
+  margin: 0;
+  text-align: center;
+}

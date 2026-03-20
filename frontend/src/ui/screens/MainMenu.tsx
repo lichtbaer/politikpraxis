@@ -7,6 +7,7 @@ import { useAuthStore } from '../../store/authStore';
 import { hasSaveAvailable, loadGame, clearSave, type SaveFile } from '../../services/localStorageSave';
 import { upsertSaveSlot } from '../../services/saves';
 import { StartMapView } from '../components/StartMapView/StartMapView';
+import { LegalFooter } from '../components/LegalFooter/LegalFooter';
 import { SaveSlots } from '../components/SaveSlots/SaveSlots';
 import { LoginModal } from '../components/LoginModal/LoginModal';
 import { SimpleConfirm } from '../components/SimpleConfirm/SimpleConfirm';
@@ -195,7 +196,10 @@ export function MainMenu() {
         </div>
       </div>
 
-      <span className={styles.version}>v{__APP_VERSION__}</span>
+      <div className={styles.bottomBar}>
+        <LegalFooter />
+        <span className={styles.version}>v{__APP_VERSION__}</span>
+      </div>
 
       {authOpen && (
         <LoginModal

@@ -18,13 +18,15 @@ class Settings(BaseSettings):
     # Öffentliche API-Basis für E-Mail-Links (ohne trailing slash)
     public_api_base_url: str = "http://localhost:8000/api"
 
-    # Optional: SMTP — wenn leer, wird der Magic-Link nur geloggt (debug)
+    # Optional: SMTP — Magic-Link; Kontaktformular nutzt dieselben Zugangsdaten
     smtp_host: str = ""
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
     smtp_use_tls: bool = True
     mail_from: str = "noreply@localhost"
+    # Empfänger für Kontaktformular (getrennt von Absender mail_from)
+    contact_recipient: str = ""
 
     content_dir: str = "app/content"
 

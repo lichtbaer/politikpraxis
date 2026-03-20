@@ -5,6 +5,9 @@ import { MainMenu } from './ui/screens/MainMenu';
 import { GameSetup } from './ui/screens/GameSetup';
 import { GameView } from './ui/screens/GameView';
 import { Credits } from './ui/screens/Credits';
+import { Datenschutz } from './ui/screens/Datenschutz';
+import { Impressum } from './ui/screens/Impressum';
+import { Kontakt } from './ui/screens/Kontakt';
 import { AuthCallback } from './ui/screens/AuthCallback';
 import { LoadingScreen } from './ui/screens/LoadingScreen';
 import { ErrorScreen } from './ui/screens/ErrorScreen';
@@ -44,6 +47,9 @@ export default function App() {
         <Route path="/setup" element={<GameSetup />} />
         <Route path="/game" element={<GameView />} />
         <Route path="/credits" element={<Credits />} />
+        <Route path="/datenschutz" element={<Datenschutz />} />
+        <Route path="/impressum" element={<Impressum />} />
+        <Route path="/kontakt" element={<Kontakt />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
     </BrowserRouter>
