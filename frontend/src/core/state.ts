@@ -76,7 +76,7 @@ export function createInitialState(
   const relevantParteien = new Set<string>([parteiId]);
   if (partnerParteiId) relevantParteien.add(partnerParteiId);
   const relevanteChars = allChars.filter(
-    (c) => !c.pool_partei || relevantParteien.has(c.pool_partei)
+    (c) => c.pool_partei != null && relevantParteien.has(c.pool_partei)
   );
 
   // SMA-327/328: Dynamisches Kabinett — automatisch aus Pool bilden
@@ -128,8 +128,11 @@ export function createInitialState(
         }
       }
     }
-    // SMA-337: Nie ungefilterte Liste — Fallback nur auf gefilterte relevanteChars
-    activeChars = selected.length > 0 ? selected : relevanteChars;
+    if (selected.length <= 1) {
+      console.warn('[state] Kabinett-Pool leer — prüfe pool_partei in der DB für Partei:', parteiId, partnerParteiId);
+    }
+    // SMA-337: Fallback nur auf synthetischen Kanzler, nie auf ungefilterte Liste
+    activeChars = selected.length > 0 ? selected : [kanzlerSynthetic];
   }
 
   const charsWithPartei = activeChars.map((c) => {
