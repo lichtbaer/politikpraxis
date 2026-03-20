@@ -54,6 +54,96 @@ export const TV_DUELL_EVENT: GameEvent = {
   ],
 };
 
+/**
+ * Wahlkampf-Themenwahl (Monat 44) — Welches Thema setzt die Regierung im Wahlkampf?
+ * Beeinflusst Milieu-Zustimmung für die Schlussphase.
+ */
+export const WAHLKAMPF_THEMA_WAHL_EVENT: GameEvent = {
+  id: 'wahlkampf_thema_wahl',
+  type: 'info',
+  icon: 'wahlkampf',
+  typeLabel: 'Wahlkampf-Strategie',
+  title: 'Wahlkampfthema festlegen',
+  quote: '„Womit wollen wir die Wählerinnen und Wähler überzeugen?"',
+  context:
+    'Ihr Wahlkampfteam rät, ein klares Hauptthema zu setzen. Die Wahl beeinflusst, welche Milieus in den letzten Wochen mobilisiert werden.',
+  ticker: 'Wahlkampfteam fordert klare Themenführung',
+  choices: [
+    {
+      label: 'Wirtschaft & Arbeit',
+      desc: 'Mobilisiert Arbeitsmilieu und soziale Mitte',
+      cost: 5,
+      type: 'primary',
+      effect: {},
+      log: 'Wahlkampfthema: Wirtschaft & Arbeit. Arbeitsmilieu und Mitte mobilisiert.',
+      key: 'wirtschaft',
+    },
+    {
+      label: 'Klimaschutz & Zukunft',
+      desc: 'Mobilisiert Progressive und Postmaterielle',
+      cost: 5,
+      type: 'safe',
+      effect: {},
+      log: 'Wahlkampfthema: Klimaschutz. Progressive und Postmaterielle mobilisiert.',
+      key: 'klima',
+    },
+    {
+      label: 'Innere Sicherheit & Stabilität',
+      desc: 'Mobilisiert bürgerliche Mitte und Traditionelle',
+      cost: 5,
+      type: 'safe',
+      effect: {},
+      log: 'Wahlkampfthema: Innere Sicherheit. Bürgerliche Mitte und Traditionelle mobilisiert.',
+      key: 'sicherheit',
+    },
+  ],
+};
+
+/**
+ * Last-Minute-Versprechen (Monat 47) — Letzter großer Wahlkampf-Move.
+ * Kurzfristiger Boost, aber mittelfristige Kosten wenn Regierung wiedergewählt.
+ */
+export const WAHLKAMPF_VERSPRECHEN_EVENT: GameEvent = {
+  id: 'wahlkampf_versprechen',
+  type: 'warn',
+  icon: 'wahlkampf',
+  typeLabel: 'Wahlkampf-Finale',
+  title: 'Last-Minute-Versprechen',
+  quote: '„Eine letzte Chance, die Wählerinnen zu überzeugen — oder die Glaubwürdigkeit aufs Spiel zu setzen."',
+  context:
+    'Ihr Beraterteam empfiehlt ein großes Wahlversprechen in der Schlussphase. Ein Versprechen ist verlockend — aber Überversprechen kostet danach.',
+  ticker: 'Schlussphase des Wahlkampfs: Wahlversprechen im Raum',
+  choices: [
+    {
+      label: 'Sofortprogramm versprechen',
+      desc: '+4% Zustimmung jetzt — aber -10 PK nach Wahl bei Regierungsbildung',
+      cost: 0,
+      type: 'primary',
+      effect: { zf: 4 },
+      log: 'Sofortprogramm versprochen. Zustimmungsschub, aber Regierung danach unter Druck.',
+      key: 'versprechen',
+    },
+    {
+      label: 'Auf Bilanz setzen',
+      desc: 'Glaubwürdig, kein Risiko — +2% Zustimmung',
+      cost: 0,
+      type: 'safe',
+      effect: { zf: 2 },
+      log: 'Auf Regierungsbilanz gesetzt. Solide aber unspektakuläre Schlussphase.',
+      key: 'bilanz',
+    },
+    {
+      label: 'Nichts versprechen',
+      desc: 'Seriös, aber riskant im engen Rennen',
+      cost: 0,
+      type: 'danger',
+      effect: {},
+      log: 'Keine Extraversprechungen. Wahlergebnis hängt an der Grundzustimmung.',
+      key: 'nichts',
+    },
+  ],
+};
+
 /** Koalitionspartner-Alleingang (Stufe 4, Beziehung < 50) */
 export const KOALITIONSPARTNER_ALLEINGANG_EVENT: GameEvent = {
   id: 'koalitionspartner_alleingang',

@@ -312,6 +312,89 @@ export function resolveTVDuell(
   return next;
 }
 
+/**
+ * Wahlkampf-Themenwahl prüfen (Monat 44, einmalig).
+ * Löst das `wahlkampf_thema_wahl`-Event aus.
+ */
+export function checkWahlkampfThemaWahl(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): GameState {
+  if (!featureActive(complexity, 'wahlkampf')) return state;
+  if (!state.wahlkampfAktiv) return state;
+  if (state.month !== 44) return state;
+  if (state.firedEvents.includes('wahlkampf_thema_wahl')) return state;
+  if (state.activeEvent) return state;
+
+  const ev = content.events?.find(e => e.id === 'wahlkampf_thema_wahl');
+  if (ev) {
+    return {
+      ...state,
+      activeEvent: ev,
+      firedEvents: [...state.firedEvents, 'wahlkampf_thema_wahl'],
+      ...withPause(state, getAutoPauseLevel(ev)),
+    };
+  }
+  return state;
+}
+
+/**
+ * Wendet Milieu-Mobilisierung nach Themenwahl-Entscheidung an.
+ * Wird aufgerufen wenn der Spieler das wahlkampf_thema_wahl-Event entscheidet.
+ */
+export function applyWahlkampfThema(
+  state: GameState,
+  choiceKey: string,
+): GameState {
+  const milieuZustimmung = { ...(state.milieuZustimmung ?? {}) };
+
+  const THEMA_MILIEUS: Record<string, string[]> = {
+    wirtschaft: ['soziale_mitte', 'arbeit', 'prekaere'],
+    klima: ['postmaterielle', 'soziale_mitte'],
+    sicherheit: ['buergerliche_mitte', 'traditionelle', 'leistungstraeger'],
+  };
+
+  const zielMilieus = THEMA_MILIEUS[choiceKey] ?? [];
+  for (const mid of zielMilieus) {
+    const current = milieuZustimmung[mid] ?? 50;
+    milieuZustimmung[mid] = Math.min(100, current + 4);
+  }
+
+  return addLog(
+    { ...state, milieuZustimmung },
+    `Wahlkampfthema "${choiceKey}" mobilisiert Ziel-Milieus.`,
+    'g',
+  );
+}
+
+/**
+ * Wahlkampf-Versprechen prüfen (Monat 47, einmalig).
+ * Löst das `wahlkampf_versprechen`-Event aus.
+ */
+export function checkWahlkampfVersprechen(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): GameState {
+  if (!featureActive(complexity, 'wahlkampf')) return state;
+  if (!state.wahlkampfAktiv) return state;
+  if (state.month !== 47) return state;
+  if (state.firedEvents.includes('wahlkampf_versprechen')) return state;
+  if (state.activeEvent) return state;
+
+  const ev = content.events?.find(e => e.id === 'wahlkampf_versprechen');
+  if (ev) {
+    return {
+      ...state,
+      activeEvent: ev,
+      firedEvents: [...state.firedEvents, 'wahlkampf_versprechen'],
+      ...withPause(state, getAutoPauseLevel(ev)),
+    };
+  }
+  return state;
+}
+
 /** Koalitionspartner-Alleingang (nur Stufe 4, Monat 43–48, 20% Chance) */
 export function checkKoalitionspartnerAlleingang(
   state: GameState,
