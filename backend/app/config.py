@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     admin_user: str = "admin"
     admin_password: str = ""
 
+    # Kontaktformular (SMTP, nur in .env setzen — nie im Code)
+    smtp_host: str = ""
+    smtp_port: int = 465
+    smtp_user: str = ""
+    smtp_password: str = ""
+    contact_recipient: str = ""
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
