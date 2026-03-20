@@ -13,18 +13,18 @@ function getBeziehungsFarbe(beziehung: number): string {
   return 'var(--red)';
 }
 
-function getBeziehungsLabel(beziehung: number): string {
-  if (beziehung >= 70) return 'Sehr gut';
-  if (beziehung >= 50) return 'Stabil';
-  if (beziehung >= 30) return 'Angespannt';
-  if (beziehung >= 15) return 'Kritisch';
-  return 'Kurz vor Bruch';
+function getBeziehungsLabelKey(beziehung: number): string {
+  if (beziehung >= 70) return 'koalitionPanel.beziehung.sehrGut';
+  if (beziehung >= 50) return 'koalitionPanel.beziehung.stabil';
+  if (beziehung >= 30) return 'koalitionPanel.beziehung.angespannt';
+  if (beziehung >= 15) return 'koalitionPanel.beziehung.kritisch';
+  return 'koalitionPanel.beziehung.kurzVorBruch';
 }
 
-function getKvScoreLabel(score: number): string {
-  if (score >= 70) return 'Eskalation droht';
-  if (score >= 40) return 'Unter Druck';
-  return 'Im Rahmen';
+function getKvScoreLabelKey(score: number): string {
+  if (score >= 70) return 'koalitionPanel.kvScore.eskalation';
+  if (score >= 40) return 'koalitionPanel.kvScore.unterDruck';
+  return 'koalitionPanel.kvScore.imRahmen';
 }
 
 export function KoalitionspartnerPanel() {
@@ -99,22 +99,22 @@ export function KoalitionspartnerPanel() {
             className={styles.beziehungLabel}
             style={{ color: getBeziehungsFarbe(beziehung) }}
           >
-            {getBeziehungsLabel(beziehung)}
+            {t(getBeziehungsLabelKey(beziehung))}
           </span>
 
           {/* Low relationship warning — escalating urgency */}
           {beziehung < 30 && (
             <div className={beziehung < 15 ? styles.warningCritical : styles.warning}>
               {beziehung < 15
-                ? 'Koalitionsbruch droht! Sofort handeln — Koalitionsrunde oder Zugeständnis!'
-                : 'Beziehung kritisch! Koalitionsrunde oder Zugeständnis dringend empfohlen.'}
+                ? t('koalitionPanel.koalitionsbruchDroht', { defaultValue: 'Koalitionsbruch droht! Sofort handeln — Koalitionsrunde oder Zugeständnis!' })
+                : t('koalitionPanel.beziehungKritischHint')}
             </div>
           )}
 
           {/* Coalition health summary — visible when relationship is weakening */}
           {beziehung < 50 && beziehung >= 30 && (
             <div className={styles.healthHint}>
-              Beziehung angespannt — regelmäßige Koalitionsrunden stabilisieren die Partnerschaft.
+              {t('koalitionPanel.beziehungAngespannt', { defaultValue: 'Beziehung angespannt — regelmäßige Koalitionsrunden stabilisieren die Partnerschaft.' })}
             </div>
           )}
 
@@ -136,7 +136,7 @@ export function KoalitionspartnerPanel() {
                 className={styles.kvStatus}
                 style={{ color: kvScore >= 70 ? 'var(--red)' : kvScore >= 40 ? 'var(--warn)' : 'var(--text2)' }}
               >
-                {getKvScoreLabel(kvScore)}
+                {t(getKvScoreLabelKey(kvScore))}
               </span>
             </div>
           )}
@@ -144,10 +144,10 @@ export function KoalitionspartnerPanel() {
           {/* Current partner demand */}
           {prioGesetzName && prioMonateVerbleibend > 0 && (
             <div className={styles.demand}>
-              <span className={styles.demandLabel}>Partnerforderung:</span>
+              <span className={styles.demandLabel}>{t('koalitionPanel.partnerforderung')}</span>
               <span className={styles.demandGesetz}>{prioGesetzName}</span>
               <span className={styles.demandDeadline}>
-                noch {prioMonateVerbleibend} {prioMonateVerbleibend === 1 ? 'Monat' : 'Monate'}
+                {t('koalitionPanel.monateVerbleibend', { count: prioMonateVerbleibend })}
               </span>
             </div>
           )}

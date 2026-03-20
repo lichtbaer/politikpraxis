@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
+import { useTranslation } from 'react-i18next';
 import styles from './ApprovalChart.module.css';
 
 interface ApprovalChartProps {
@@ -11,6 +12,7 @@ interface ApprovalChartProps {
 }
 
 export function ApprovalChart({ history, threshold, currentMonth: _currentMonth }: ApprovalChartProps) {
+  const { t } = useTranslation('game');
   const option: EChartsOption = useMemo(() => {
     const months = history.map((_, i) => i + 1);
 
@@ -72,7 +74,7 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
           if (!first) return '';
           const month = first.dataIndex + 1;
           const val = first.value as number;
-          return `Monat ${month}: <b>${val.toFixed(1)}%</b>`;
+          return t('approvalChart.monatTooltip', { month, value: val.toFixed(1) });
         },
       },
       series: [
@@ -129,7 +131,8 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
         },
       ],
     };
-  }, [history, threshold]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [history, threshold, t]);
 
   const latestVal = history.length > 0 ? history[history.length - 1] : null;
 
@@ -148,7 +151,7 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
     <div className={styles.container}>
       {latestVal !== null && (
         <div className={styles.currentValue}>
-          <span className={styles.currentLabel}>Aktuell:</span>
+          <span className={styles.currentLabel}>{t('approvalChart.current')}</span>
           <span
             className={styles.currentNumber}
             style={{ color: latestVal >= threshold ? 'var(--green)' : 'var(--red)' }}

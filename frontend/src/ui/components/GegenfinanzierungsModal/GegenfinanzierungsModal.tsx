@@ -26,8 +26,9 @@ const OPTION_ICONS: Record<string, React.ComponentType<{ size?: number; classNam
   ueberschuss: Landmark,
 };
 
-function formatMrdShort(wert: number): string {
-  return `${wert >= 0 ? '+' : ''}${wert.toFixed(1)} Mrd.`;
+// formatMrdShort needs a t function to be bilingual; callers pass it
+function formatMrdShort(wert: number, unit: string): string {
+  return `${wert >= 0 ? '+' : ''}${wert.toFixed(1)} ${unit}`;
 }
 
 export function GegenfinanzierungsModal({
@@ -40,6 +41,7 @@ export function GegenfinanzierungsModal({
   onClose,
 }: GegenfinanzierungsModalProps) {
   const { t } = useTranslation('game');
+  const mrdUnit = t('ui.mrd');
   const [selectedOption, setSelectedOption] = useState<GegenfinanzierungsOption | null>(null);
   const [selectedSubOption, setSelectedSubOption] = useState<string | null>(null);
 
@@ -71,8 +73,7 @@ export function GegenfinanzierungsModal({
         <h3 className={styles.title}>{t('game:gegenfinanzierung.title')} — {gesetzTitel}</h3>
         <p className={styles.kostenHinweis}>
           {t('game:gegenfinanzierung.kostenHinweis', {
-            kosten: formatMrdShort(kosten),
-            defaultValue: `Dieses Gesetz kostet ${formatMrdShort(kosten)}/Jahr. Wie soll es finanziert werden?`,
+            kosten: formatMrdShort(kosten, mrdUnit),
           })}
         </p>
         <div className={styles.options}>
@@ -105,8 +106,7 @@ export function GegenfinanzierungsModal({
                     {opt.key === 'schulden' && (
                       <p className={styles.optionDesc}>
                         {t('game:gegenfinanzierung.schuldenSpielraum', {
-                          spielraum: (opt.schuldenbremse_spielraum ?? 0).toFixed(1),
-                          defaultValue: `Schuldenbremse-Spielraum: ${formatMrdShort(opt.schuldenbremse_spielraum ?? 0)} verbleibend`,
+                          spielraum: formatMrdShort(opt.schuldenbremse_spielraum ?? 0, mrdUnit),
                         })}
                       </p>
                     )}
@@ -116,8 +116,7 @@ export function GegenfinanzierungsModal({
                     {opt.key === 'ueberschuss' && (
                       <p className={styles.optionDesc}>
                         {t('game:gegenfinanzierung.ueberschussSpielraum', {
-                          saldo: (opt.haushalt_saldo ?? 0).toFixed(1),
-                          defaultValue: `Aktueller Überschuss: ${formatMrdShort(opt.haushalt_saldo ?? 0)}`,
+                          saldo: formatMrdShort(opt.haushalt_saldo ?? 0, mrdUnit),
                         })}
                       </p>
                     )}
@@ -163,10 +162,10 @@ export function GegenfinanzierungsModal({
                               <span className={styles.suboptionMinister}>{ministerName}</span>
                             )}
                             {einsparung != null && (
-                              <span className={styles.einsparung}>+{einsparung} Mrd.</span>
+                              <span className={styles.einsparung}>+{einsparung} {mrdUnit}</span>
                             )}
                             {moodMalus != null && moodMalus < 0 && (
-                              <span className={styles.moodMalus}>Mood {moodMalus}</span>
+                              <span className={styles.moodMalus}>Mood {moodMalus < 0 ? '' : '+'}{moodMalus}</span>
                             )}
                             {milieuReaktionen && Object.keys(milieuReaktionen).length > 0 && (
                               <span className={styles.milieuEffekte}>

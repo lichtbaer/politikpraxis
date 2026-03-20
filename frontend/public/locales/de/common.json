@@ -78,5 +78,8 @@
       "kommune": "Kommune"
     },
     "gratis": "gratis"
+  },
+  "startMap": {
+    "subtitle": "Bund · Länder · Kommunen · Europa"
   }
 }

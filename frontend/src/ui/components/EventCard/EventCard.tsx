@@ -81,7 +81,7 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, h
                 className={`${styles.choice} ${CHOICE_CLASS[choice.type]} ${!canAfford ? styles.choiceDisabled : ''}`}
                 onClick={() => canAfford && onChoice(event, choice)}
                 disabled={!canAfford}
-                title={!canAfford ? `Nicht genug PK (${currentPk}/${choice.cost})` : undefined}
+                title={!canAfford ? t('eventCard.nichtGenugPk', { current: currentPk, cost: choice.cost }) : undefined}
               >
                 <div className={styles.choiceMain}>
                   <span className={styles.choiceLabel}>{choiceLabel}</span>
@@ -89,7 +89,7 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, h
                     {choice.cost > 0 ? `${choice.cost} PK` : t('game.gratis', { ns: 'common' })}
                     {showDelta && choice.medienklima_delta != null && choice.medienklima_delta !== 0 && (
                       <span className={choice.medienklima_delta > 0 ? styles.medienKlimaPos : styles.medienKlimaNeg}>
-                        {' '}Medienklima {choice.medienklima_delta > 0 ? '+' : ''}{choice.medienklima_delta}
+                        {' '}{t('eventCard.medienklima')} {choice.medienklima_delta > 0 ? '+' : ''}{choice.medienklima_delta}
                       </span>
                     )}
                   </span>
@@ -123,7 +123,7 @@ export function EventCard({ event, onChoice, headerClass: headerClassOverride, h
                       const balance = positives - negatives;
                       return (
                         <span className={`${styles.effectTag} ${balance > 0 ? styles.effectPos : balance < 0 ? styles.effectNeg : styles.effectNeutral}`}>
-                          {balance > 0 ? 'Netto +' : balance < 0 ? 'Netto −' : 'Gemischt'}
+                          {balance > 0 ? t('eventCard.nettoPos') : balance < 0 ? t('eventCard.nettoNeg') : t('eventCard.gemischt')}
                         </span>
                       );
                     })()}

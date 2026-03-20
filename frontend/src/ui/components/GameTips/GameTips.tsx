@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import type { GameState } from '../../../core/types';
 import { Lightbulb } from '../../icons';
@@ -6,6 +7,8 @@ import styles from './GameTips.module.css';
 
 interface Tip {
   id: string;
+  /** i18n key suffix for title/text under "tips.*" */
+  i18nKey?: string;
   /** Monat ab dem der Tipp angezeigt werden kann */
   triggerMonth: number;
   /** Zusätzliche Bedingung (optional) */
@@ -14,8 +17,10 @@ interface Tip {
   minComplexity?: number;
   /** Max-Komplexitätsstufe (optional — Tipp nur bis zu dieser Stufe) */
   maxComplexity?: number;
-  title: string;
-  text: string;
+  /** Fallback title (used if i18nKey is not set) */
+  title?: string;
+  /** Fallback text (used if i18nKey is not set) */
+  text?: string;
   /** Optionaler Hinweis auf relevanten Tab/View */
   viewHint?: string;
 }
@@ -24,19 +29,20 @@ const TIPS: Tip[] = [
   // === Stufe 1: Grundlagen ===
   {
     id: 'erstes_gesetz',
+    i18nKey: 'erstesGesetz',
     triggerMonth: 1,
-    title: 'Dein erstes Gesetz',
-    text: 'Wähle ein Gesetz aus der Agenda und klicke "Einbringen", um es in den Bundestag einzubringen. Jede Einbringung kostet Politisches Kapital (PK).',
     viewHint: 'agenda',
   },
   {
     id: 'geschwindigkeit',
+    i18nKey: 'geschwindigkeit',
     triggerMonth: 1,
     title: 'Spielgeschwindigkeit',
     text: 'Drücke Leertaste zum Pausieren/Fortsetzen. Mit den Tasten 1 und 3 steuerst du die Geschwindigkeit. Das Spiel pausiert automatisch bei wichtigen Ereignissen.',
   },
   {
     id: 'kabinett_intro',
+    i18nKey: 'kabinettIntro',
     triggerMonth: 2,
     title: 'Dein Kabinett',
     text: 'Deine Minister haben eine eigene Stimmung und Loyalität. Zufriedene Minister geben Boni — unzufriedene stellen Ultimaten. Klicke auf einen Minister für Details.',
@@ -44,13 +50,13 @@ const TIPS: Tip[] = [
   },
   {
     id: 'pk_knapp',
+    i18nKey: 'pkKnapp',
     triggerMonth: 3,
     condition: (s) => s.pk < 30,
-    title: 'PK wird knapp',
-    text: 'Dein Politisches Kapital regeneriert sich monatlich basierend auf deiner Zustimmung. Höhere Zustimmung = mehr PK pro Monat. Setze Prioritäten!',
   },
   {
     id: 'gesetz_wirkung',
+    i18nKey: 'gesetzWirkung',
     triggerMonth: 4,
     condition: (s) => s.gesetze.some(g => g.status === 'eingebracht' || g.status === 'aktiv'),
     title: 'Gesetze brauchen Zeit',
@@ -59,14 +65,14 @@ const TIPS: Tip[] = [
   // === Stufe 2: Koalition & Haushalt ===
   {
     id: 'koalition_warnung',
+    i18nKey: 'koalitionsSpannungen',
     triggerMonth: 5,
     minComplexity: 2,
     condition: (s) => s.coalition < 40,
-    title: 'Koalitionsspannungen',
-    text: 'Deine Koalitionsstabilität sinkt. Achte auf die Stimmung deiner Kabinettsmitglieder und die Beziehung zum Koalitionspartner. Zugeständnisse und Gespräche helfen.',
   },
   {
     id: 'haushalt_erklaerung',
+    i18nKey: 'haushaltErklaerung',
     triggerMonth: 4,
     minComplexity: 2,
     title: 'Der Haushalt',
@@ -75,15 +81,14 @@ const TIPS: Tip[] = [
   },
   {
     id: 'haushalt_defizit',
+    i18nKey: 'haushaltsDefizit',
     triggerMonth: 6,
     minComplexity: 2,
     condition: (s) => (s.haushalt?.saldo ?? 0) < -10,
-    title: 'Haushaltsdefizit',
-    text: 'Dein Haushalt ist im Minus. Teure Gesetze belasten den Spielraum. Achte auf die Kostenampel bei Gesetzen: Grün = tragbar, Gelb = spürbar, Rot = riskant.',
-    viewHint: 'haushalt',
   },
   {
     id: 'medienklima_intro',
+    i18nKey: 'medienklimaIntro',
     triggerMonth: 3,
     minComplexity: 2,
     title: 'Das Medienklima',
@@ -92,15 +97,15 @@ const TIPS: Tip[] = [
   },
   {
     id: 'bundesrat_info',
+    i18nKey: 'bundesratInfo',
     triggerMonth: 8,
     minComplexity: 2,
     condition: (s) => s.gesetze.some(g => g.status === 'bt_passed'),
-    title: 'Bundesrat-Abstimmung',
-    text: 'Ein Gesetz hat den Bundestag passiert und geht in den Bundesrat. Nutze Lobbying bei den Fraktionen, um die nötigen Stimmen zu sichern.',
     viewHint: 'bundesrat',
   },
   {
     id: 'eu_route_info',
+    i18nKey: 'euRouteInfo',
     triggerMonth: 10,
     minComplexity: 2,
     condition: (s) => s.gesetze.some(g => g.status === 'blockiert'),
@@ -110,6 +115,7 @@ const TIPS: Tip[] = [
   // === Stufe 3: Verbände & Fortgeschritten ===
   {
     id: 'verbaende_intro',
+    i18nKey: 'verbaendeIntro',
     triggerMonth: 5,
     minComplexity: 3,
     title: 'Verbände & Interessengruppen',
@@ -118,6 +124,7 @@ const TIPS: Tip[] = [
   },
   {
     id: 'minister_agenda',
+    i18nKey: 'ministerAgenda',
     triggerMonth: 8,
     minComplexity: 3,
     condition: (s) => s.chars.some(c => (c.agenda_stufe_aktuell ?? 0) > 0),
@@ -127,15 +134,15 @@ const TIPS: Tip[] = [
   // === Zeitbasierte Tipps ===
   {
     id: 'halbzeit',
+    i18nKey: 'halbzeit',
     triggerMonth: 24,
     title: 'Halbzeit der Legislatur',
     text: 'Die Hälfte deiner Amtszeit ist vorbei. Prüfe deine Zustimmungswerte und den Haushalt. Noch 24 Monate bis zur Wahl — jetzt ist die beste Zeit für große Reformen.',
   },
   {
     id: 'wahlkampf_start',
+    i18nKey: 'wahlkampfStart',
     triggerMonth: 43,
-    title: 'Wahlkampf beginnt!',
-    text: 'Die letzten 6 Monate der Legislatur! Nutze Reden, Koalitions-Aktionen und die Medienoffensive, um deine Wahlprognose zu verbessern. Das TV-Duell kommt auch bald.',
     viewHint: 'wahlkampf',
   },
 ];
@@ -158,6 +165,7 @@ function dismissTip(id: string) {
 }
 
 export function GameTips() {
+  const { t } = useTranslation('game');
   const state = useGameStore((s) => s.state);
   const phase = useGameStore((s) => s.phase);
   const complexity = useGameStore((s) => s.complexity);
@@ -185,18 +193,26 @@ export function GameTips() {
     setDismissed(prev => new Set([...prev, activeTip.id]));
   };
 
+  // Use i18n key if available, otherwise fall back to hardcoded text
+  const tipTitle = activeTip.i18nKey
+    ? t(`tips.${activeTip.i18nKey}.title`, { defaultValue: activeTip.title ?? '' })
+    : (activeTip.title ?? '');
+  const tipText = activeTip.i18nKey
+    ? t(`tips.${activeTip.i18nKey}.text`, { defaultValue: activeTip.text ?? '' })
+    : (activeTip.text ?? '');
+
   return (
     <div className={styles.tip}>
       <div className={styles.tipIcon}><Lightbulb size={18} /></div>
       <div className={styles.tipContent}>
-        <strong className={styles.tipTitle}>{activeTip.title}</strong>
-        <p className={styles.tipText}>{activeTip.text}</p>
+        <strong className={styles.tipTitle}>{tipTitle}</strong>
+        <p className={styles.tipText}>{tipText}</p>
         {activeTip.viewHint && (
           <span className={styles.tipViewHint}>→ {activeTip.viewHint}</span>
         )}
       </div>
       <button type="button" className={styles.tipDismiss} onClick={handleDismiss}>
-        Verstanden
+        {t('tips.understood')}
       </button>
     </div>
   );

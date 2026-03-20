@@ -31,8 +31,7 @@ export function Header() {
 
   const pkRegenDivisor = PK_REGEN_DIVISOR + (complexity - 1) * 3;
   const pkRegen = Math.max(PK_REGEN_MIN, Math.floor(zustG / pkRegenDivisor));
-  const pkRegenTooltip = t('header.pkRegenTooltip', {
-    defaultValue: 'PK-Regeneration: {{regen}}/Monat ({{approval}}% Zustimmung ÷ {{divisor}})',
+  const pkRegenTooltip = t('game:headerUI.pkRegenTooltip', {
     regen: pkRegen,
     approval: Math.round(zustG),
     divisor: pkRegenDivisor,
@@ -88,7 +87,7 @@ export function Header() {
           <div className={styles.pkBar}>
             <div className={styles.pkBarFill} style={{ width: `${Math.min(100, (pk / 150) * 100)}%` }} />
           </div>
-          <span className={styles.pkRegen}>+{pkRegen}/Mo</span>
+          <span className={styles.pkRegen}>{t('game:headerUI.pkRegen', { regen: pkRegen })}</span>
         </div>
         {canPressemitteilung && (
           <button
@@ -103,7 +102,7 @@ export function Header() {
           type="button"
           className={styles.glossarBtn}
           onClick={() => setShowGlossar(true)}
-          title="Glossar — Spielbegriffe erklärt"
+          title={t('game:headerUI.glossarTitle')}
         >
           ?
         </button>

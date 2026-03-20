@@ -56,7 +56,7 @@ export function MainMenu() {
         type="button"
         className={styles.langToggle}
         onClick={toggleLang}
-        aria-label={i18n.language === 'de' ? 'Switch to English' : 'Auf Deutsch wechseln'}
+        aria-label={i18n.language === 'de' ? t('game:mainMenu.switchToEnglish') : t('game:mainMenu.switchToGerman')}
       >
         {i18n.language === 'de' ? 'EN' : 'DE'}
       </button>
@@ -86,7 +86,7 @@ export function MainMenu() {
                 {t('menu.loadGame')}
                 {saveInfo && (
                   <span className={styles.saveInfo}>
-                    Monat {saveInfo.month} · {Math.round(saveInfo.approval)}% · {new Date(saveInfo.savedAt).toLocaleDateString('de-DE')}
+                    {t('game:mainMenu.saveInfo', { month: saveInfo.month, approval: Math.round(saveInfo.approval) })} · {new Date(saveInfo.savedAt).toLocaleDateString(i18n.language === 'de' ? 'de-DE' : 'en-US')}
                   </span>
                 )}
               </button>

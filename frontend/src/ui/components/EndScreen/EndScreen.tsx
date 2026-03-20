@@ -7,6 +7,7 @@ import { checkAchievements } from '../../../core/systems/achievements';
 import styles from './EndScreen.module.css';
 
 function ApprovalHistoryChart({ data, threshold }: { data: number[]; threshold?: number }) {
+  const { t } = useTranslation('game');
   const option: EChartsOption = useMemo(() => ({
     animation: true,
     animationDuration: 1000,
@@ -35,7 +36,7 @@ function ApprovalHistoryChart({ data, threshold }: { data: number[]; threshold?:
         const arr = p as Array<{ dataIndex: number; value: number }>;
         const pt = arr[0];
         if (!pt) return '';
-        return `Monat ${pt.dataIndex + 1}: <b>${(pt.value as number).toFixed(1)}%</b>`;
+        return t('endScreen.monatTooltip', { month: pt.dataIndex + 1, value: (pt.value as number).toFixed(1) });
       },
     },
     series: [
@@ -60,12 +61,13 @@ function ApprovalHistoryChart({ data, threshold }: { data: number[]; threshold?:
           lineStyle: { color: '#c8a84b', type: 'dashed', width: 1 },
           label: {
             show: true, position: 'insideEndTop',
-            formatter: `Ziel: ${threshold}%`, color: '#c8a84b', fontSize: 9,
+            formatter: t('endScreen.ziel', { threshold }), color: '#c8a84b', fontSize: 9,
           },
         } : undefined,
       },
     ],
-  }), [data, threshold]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [data, threshold, t]);
 
   return (
     <ReactECharts
@@ -167,7 +169,7 @@ export function EndScreen() {
 
         {approvalHistory.length > 1 && (
           <div className={styles.chartSection}>
-            <span className={styles.chartSectionLabel}>Zustimmungsverlauf</span>
+            <span className={styles.chartSectionLabel}>{t('game:endScreen.approvalChart')}</span>
             <ApprovalHistoryChart data={approvalHistory} threshold={state.electionThreshold} />
           </div>
         )}
@@ -235,7 +237,7 @@ export function EndScreen() {
           );
         })()}
 
-        <p className={styles.spielzeit}>{state.month} Monate gespielt</p>
+        <p className={styles.spielzeit}>{t('game:endScreen.monthsPlayed', { count: state.month })}</p>
 
         <button
           type="button"

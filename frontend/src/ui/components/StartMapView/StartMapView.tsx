@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
+import { useTranslation } from 'react-i18next';
 import { echarts } from '../../lib/echarts';
 import styles from './StartMapView.module.css';
 
@@ -29,6 +30,7 @@ async function loadGeoJson(): Promise<{ europe: unknown; germany: unknown }> {
 }
 
 export function StartMapView() {
+  const { t } = useTranslation();
   const [mapReady, setMapReady] = useState(false);
   const loadedRef = useRef(false);
 
@@ -58,7 +60,7 @@ export function StartMapView() {
             {
               type: 'text',
               style: {
-                text: 'Bund · Länder · Kommunen · Europa',
+                text: t('startMap.subtitle'),
                 font: '11px var(--sans)',
                 fill: '#4a6a30',
                 textAlign: 'center',
