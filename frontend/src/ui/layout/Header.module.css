@@ -142,6 +142,76 @@
   text-shadow: none;
 }
 
+.authSlot {
+  display: flex;
+  align-items: center;
+  max-width: min(360px, 42vw);
+}
+
+.userMenu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.userEmail {
+  font-size: 10px;
+  color: var(--text2);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.authBtn {
+  padding: 6px 12px;
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  border-radius: 6px;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+}
+
+.authBtn:hover {
+  background: color-mix(in srgb, var(--gold) 22%, transparent);
+}
+
+.authBtnSecondary {
+  padding: 4px 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text2);
+  font-size: 10px;
+  cursor: pointer;
+  font-family: var(--sans);
+}
+
+.authBtnSecondary:hover {
+  border-color: var(--border2);
+  color: var(--text);
+}
+
+.authBtnDanger {
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--danger, #c62828) 35%, transparent);
+  border-radius: 6px;
+  color: var(--danger, #c62828);
+  font-size: 10px;
+  cursor: pointer;
+  font-family: var(--sans);
+}
+
+.authBtnDanger:hover {
+  background: color-mix(in srgb, var(--danger, #c62828) 10%, transparent);
+}
+
 /* SMA-332: Prominenter Feedback-Button im Playtest-Modus */
 .playtestFeedbackBtn {
   padding: 6px 12px;

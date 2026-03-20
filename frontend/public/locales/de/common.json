@@ -23,6 +23,23 @@
     "settings": "Einstellungen",
     "credits": "Credits"
   },
+  "auth": {
+    "title": "Anmelden / Registrieren",
+    "subtitle": "Mit Magic Link ohne Passwort — oder optional mit E-Mail und Passwort.",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "sendMagicLink": "Magic Link senden",
+    "magicSent": "Wir haben dir einen Link geschickt. Bitte prüfe dein Postfach.",
+    "showPassword": "Lieber mit Passwort anmelden?",
+    "hidePassword": "Passwort-Anmeldung ausblenden",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "close": "Schließen",
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "deleteAccount": "Konto löschen",
+    "deleteConfirm": "Konto und alle gespeicherten Daten auf dem Server unwiderruflich löschen?"
+  },
   "game": {
     "month": "Monat",
     "pk": "PK",
