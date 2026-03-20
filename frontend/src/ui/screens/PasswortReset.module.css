@@ -1,0 +1,84 @@
+.lead {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+
+.form {
+  max-width: 400px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.label {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: var(--sans);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+.submit {
+  margin-top: 8px;
+  background: color-mix(in srgb, var(--gold) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+  color: var(--gold);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.submit:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--gold) 28%, transparent);
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.errorBlock {
+  margin-bottom: 14px;
+}
+
+.error {
+  font-size: 13px;
+  color: var(--danger, #c62828);
+  margin: 0 0 8px;
+}
+
+.inlineLink {
+  font-size: 13px;
+  color: var(--gold);
+}
+
+.backLink {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--gold);
+}
