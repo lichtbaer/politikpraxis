@@ -3,7 +3,7 @@ import { withPause, getAutoPauseLevel } from './eventPause';
 import { PK_REGEN_DIVISOR, PK_REGEN_MIN, PK_MAX } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
-import { applyCharBonuses, checkUltimatums } from './systems/characters';
+import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKommunalLaenderEvents, checkSteuerEvents, checkFollowupEvents } from './systems/events';
@@ -29,6 +29,8 @@ import {
   checkWahlkampfBeginn,
   checkTVDuell,
   checkKoalitionspartnerAlleingang,
+  checkWahlkampfThemaWahl,
+  checkWahlkampfVersprechen,
   tickWahlkampfPrognose,
   triggerWahlnacht,
 } from './systems/wahlkampf';
@@ -108,6 +110,7 @@ export function tick(
       const newLaw = s.gesetze.find(g => g.id === eg.gesetzId);
       if (newLaw?.status === 'beschlossen') {
         s = updateKoalitionsvertragScore(s, eg.gesetzId, content, complexity);
+        s = applyRessortKonflikt(s, newLaw.politikfeldId);
       }
     }
   }
@@ -213,7 +216,9 @@ export function tick(
   s = checkWahlkampfBeginn(s, content, complexity);
   if (s.wahlkampfAktiv) {
     s = { ...s, wahlkampfAktionenGenutzt: 0 };
+    if (!s.activeEvent) s = checkWahlkampfThemaWahl(s, content, complexity);
     if (!s.activeEvent) s = checkTVDuell(s, content, complexity);
+    if (!s.activeEvent) s = checkWahlkampfVersprechen(s, content, complexity);
     if (!s.activeEvent) s = checkKoalitionspartnerAlleingang(s, content, complexity);
   }
 
@@ -319,6 +324,7 @@ function processBundesratVotes(state: GameState, content: ContentBundle, complex
       const newLaw = s.gesetze.find(g => g.id === law.id);
       if (prevLaw?.status === 'bt_passed' && newLaw?.status === 'beschlossen') {
         s = updateKoalitionsvertragScore(s, law.id, content, complexity);
+        s = applyRessortKonflikt(s, newLaw?.politikfeldId);
       }
     }
   }

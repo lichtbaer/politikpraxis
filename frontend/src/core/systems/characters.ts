@@ -90,6 +90,49 @@ export function applyMoodChange(
   return { ...state, chars };
 }
 
+/**
+ * Ressortkonflikt-Tabelle: Wenn Politikfeld X erfolgreich ist, reagieren Minister aus Konflikts-Ressorts.
+ * Format: politikfeldId → Array von Ressorts die negativ reagieren (mood -1).
+ */
+const RESSORT_KONFLIKTE: Record<string, string[]> = {
+  klima: ['wirtschaft', 'finanzen'],
+  wirtschaft: ['umwelt', 'arbeit'],
+  soziales: ['finanzen', 'wirtschaft'],
+  innere_sicherheit: ['justiz'],
+  justiz: ['innen'],
+  arbeit: ['wirtschaft'],
+  digitalisierung: ['finanzen'],
+};
+
+/**
+ * Wendet Ressortkonflikt-Effekte an wenn ein Gesetz beschlossen wird.
+ * Minister aus Konflikts-Ressorts verlieren 1 Stimmungspunkt.
+ * Gibt null zurück wenn keine Konflikte ausgelöst wurden (keine Änderung nötig).
+ */
+export function applyRessortKonflikt(state: GameState, politikfeldId: string | null | undefined): GameState {
+  if (!politikfeldId) return state;
+
+  const konfliktRessorts = RESSORT_KONFLIKTE[politikfeldId];
+  if (!konfliktRessorts || konfliktRessorts.length === 0) return state;
+
+  let changed = false;
+  const chars = state.chars.map((c) => {
+    if (!c.ressort || c.ist_kanzler) return c;
+    if (konfliktRessorts.includes(c.ressort) && c.mood > 0) {
+      changed = true;
+      return { ...c, mood: Math.max(0, c.mood - 1) };
+    }
+    return c;
+  });
+
+  if (!changed) return state;
+  return addLog(
+    { ...state, chars },
+    `Ressortkonflikt: Minister aus ${konfliktRessorts.join(', ')} unzufrieden`,
+    'r',
+  );
+}
+
 const GESPRAECH_PK_COST = 8;
 const GESPRAECH_COOLDOWN_MONTHS = 6;
 

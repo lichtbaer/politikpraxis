@@ -37,6 +37,8 @@ import {
   WAHLKAMPF_BEGINN_EVENT,
   TV_DUELL_EVENT,
   KOALITIONSPARTNER_ALLEINGANG_EVENT,
+  WAHLKAMPF_THEMA_WAHL_EVENT,
+  WAHLKAMPF_VERSPRECHEN_EVENT,
 } from '../data/defaults/wahlkampfEvents';
 import { DEFAULT_MEDIEN_EVENTS } from '../data/defaults/medienEvents';
 
@@ -451,6 +453,8 @@ export function getContentBundle(): ContentBundle {
     WAHLKAMPF_BEGINN_EVENT,
     TV_DUELL_EVENT,
     KOALITIONSPARTNER_ALLEINGANG_EVENT,
+    WAHLKAMPF_THEMA_WAHL_EVENT,
+    WAHLKAMPF_VERSPRECHEN_EVENT,
   ];
   return {
     characters: s.chars,
