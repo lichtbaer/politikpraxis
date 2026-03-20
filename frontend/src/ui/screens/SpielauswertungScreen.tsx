@@ -20,6 +20,8 @@ import type { Milieu } from '../../core/types';
 const EMPTY_MILIEUS: Milieu[] = [];
 import { fetchCommunityStats, getOrCreateStatsSessionId, postGameStats } from '../../services/stats';
 import { useUIStore } from '../../store/uiStore';
+import { PLAYTEST_CONFIG } from '../../config/playtest';
+import { UserTestFeedbackModal } from '../components/UserTestFeedbackModal/UserTestFeedbackModal';
 import styles from './SpielauswertungScreen.module.css';
 
 type Props = {
@@ -38,6 +40,8 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
   const showToast = useUIStore((s) => s.showToast);
 
   const [optIn, setOptIn] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [gameStatId, setGameStatId] = useState<string | null>(null);
   const submittedRef = useRef(false);
   const [community, setCommunity] = useState<Awaited<ReturnType<typeof fetchCommunityStats>> | null>(
     null,
@@ -113,7 +117,8 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
     if (submittedRef.current) return true;
     submittedRef.current = true;
     try {
-      await postGameStats({ ...buildPayload(), opt_in_community: optIn }, accessToken);
+      const result = await postGameStats({ ...buildPayload(), opt_in_community: optIn }, accessToken);
+      setGameStatId(result.id ?? null);
       return true;
     } catch (e) {
       submittedRef.current = false;
@@ -330,6 +335,19 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
         </label>
       </div>
 
+      {PLAYTEST_CONFIG.playtest_modus && (
+        <div className={styles.feedbackHint}>
+          <span>{t('common:userTestFeedback.spielendeHinweis', 'Wie war dein Erlebnis?')}</span>
+          <button
+            type="button"
+            className={styles.feedbackHintBtn}
+            onClick={() => setShowFeedbackModal(true)}
+          >
+            🐛 {t('common:userTestFeedback.spielendeLink', 'Feedback geben')}
+          </button>
+        </div>
+      )}
+
       <div className={styles.actions}>
         <button type="button" className={styles.btnPrimary} onClick={() => void handleNeuesSpiel()}>
           {t('game:endScreen.neueLegislatur', 'Neues Spiel')}
@@ -345,6 +363,14 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
           </button>
         )}
       </div>
+
+      {showFeedbackModal && (
+        <UserTestFeedbackModal
+          kontext="spielende"
+          gameStatId={gameStatId}
+          onClose={() => setShowFeedbackModal(false)}
+        />
+      )}
     </div>
   );
 }

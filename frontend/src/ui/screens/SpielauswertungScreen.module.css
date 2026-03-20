@@ -143,3 +143,31 @@
   opacity: 0.9;
   margin-top: 0.5rem;
 }
+
+.feedbackHint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 1rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--gold) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gold) 20%, transparent);
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+
+.feedbackHintBtn {
+  background: none;
+  border: 1px solid color-mix(in srgb, var(--gold) 40%, transparent);
+  color: var(--gold);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.feedbackHintBtn:hover {
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+}
