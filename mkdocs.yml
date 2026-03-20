@@ -43,3 +43,4 @@ nav:
     - Projektstruktur: entwicklung/projektstruktur.md
     - Architektur: entwicklung/architektur.md
     - Balance-Simulation: entwicklung/balance-simulation.md
+    - Deployment (Produktion): deployment.md
