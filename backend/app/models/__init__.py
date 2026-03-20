@@ -4,6 +4,7 @@ from app.models.analytics import AnalyticsEvent
 from app.models.mod import Mod
 from app.models.magic_link import MagicLink
 from app.models.refresh_token import RefreshToken
+from app.models.password_reset_token import PasswordResetToken
 from app.models.content import (  # noqa: F401
     Char,
     CharI18n,
@@ -26,4 +27,5 @@ __all__ = [
     "Mod",
     "MagicLink",
     "RefreshToken",
+    "PasswordResetToken",
 ]

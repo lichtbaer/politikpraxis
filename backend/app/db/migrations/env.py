@@ -5,7 +5,15 @@ from sqlalchemy import engine_from_config, create_engine, pool
 from alembic import context
 
 from app.db.database import Base
-from app.models import User, GameSave, AnalyticsEvent, Mod, MagicLink, RefreshToken  # noqa: F401
+from app.models import (  # noqa: F401
+    User,
+    GameSave,
+    AnalyticsEvent,
+    Mod,
+    MagicLink,
+    RefreshToken,
+    PasswordResetToken,
+)
 from app.models.content import (  # noqa: F401
     Partei,
     ParteiI18n,

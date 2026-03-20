@@ -13,25 +13,30 @@ from app.schemas.auth import (
     LoginRequest,
     MagicLinkEmailRequest,
     MessageResponse,
+    PasswordResetConfirmRequest,
+    PasswordResetRequestBody,
     RegisterRequest,
     UserResponse,
 )
 from app.services.auth_service import (
     authenticate_user,
     consume_magic_link_token,
+    consume_password_reset_token,
     create_access_token,
     create_magic_link_token,
+    create_password_reset_token,
     create_refresh_session,
     delete_user_account,
     get_current_user,
     get_or_create_user_for_magic_link,
+    get_user_with_password_by_email,
     purge_expired_refresh_tokens,
     register_user,
     revoke_all_refresh_tokens,
     revoke_refresh_cookie,
     validate_refresh_cookie,
 )
-from app.services.email_service import send_magic_link_email
+from app.services.email_service import send_magic_link_email, send_password_reset_email
 
 router = APIRouter()
 settings = get_settings()
@@ -91,6 +96,42 @@ async def verify_magic_link(
     cb = f"{settings.frontend_base_url.rstrip('/')}/auth/callback"
     url = f"{cb}?{urlencode({'magic': 'success'})}"
     response = RedirectResponse(url=url, status_code=302)
+    attach_refresh_cookie(response, raw)
+    return response
+
+
+@router.post("/password-reset/request", response_model=MessageResponse)
+@limiter.limit("3 per hour")
+async def password_reset_request(
+    request: Request,
+    req: PasswordResetRequestBody,
+    db: AsyncSession = Depends(get_db),
+):
+    """Immer 200 — keine User-Enumeration. Mail nur wenn Konto mit Passwort existiert."""
+    user = await get_user_with_password_by_email(db, req.email)
+    if user:
+        raw = await create_password_reset_token(db, user)
+        reset_url = f"{settings.frontend_base_url.rstrip('/')}/passwort-reset?token={raw}"
+        await send_password_reset_email(req.email, reset_url)
+    return MessageResponse(detail="ok")
+
+
+@router.post("/password-reset/confirm", response_model=AccessTokenResponse)
+@limiter.limit("10/minute")
+async def password_reset_confirm(
+    request: Request,
+    req: PasswordResetConfirmRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    user = await consume_password_reset_token(db, req.token.strip(), req.new_password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ungültiger oder abgelaufener Link",
+        )
+    access = create_access_token(str(user.id))
+    raw = await create_refresh_session(db, user)
+    response = JSONResponse(content=AccessTokenResponse(access_token=access).model_dump())
     attach_refresh_cookie(response, raw)
     return response
 

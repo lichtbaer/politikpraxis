@@ -14,6 +14,7 @@ from app.auth.security import generate_secure_token, hash_password, hash_secret,
 from app.config import get_settings
 from app.db.database import get_db
 from app.models.magic_link import MagicLink
+from app.models.password_reset_token import PasswordResetToken
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
 
@@ -21,6 +22,7 @@ settings = get_settings()
 security = HTTPBearer()
 
 MAGIC_LINK_EXPIRE_MINUTES = 15
+PASSWORD_RESET_EXPIRE_MINUTES = 30
 
 
 def create_access_token(user_id: str) -> str:
@@ -53,6 +55,69 @@ async def get_current_user(
     user = result.scalar_one_or_none()
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    return user
+
+
+def validate_password_strength(password: str) -> None:
+    """Mindestlänge 8 — weitere Regeln absichtlich nicht."""
+    if len(password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Passwort muss mindestens 8 Zeichen haben",
+        )
+
+
+async def purge_expired_password_reset_tokens(db: AsyncSession) -> None:
+    await db.execute(
+        delete(PasswordResetToken).where(PasswordResetToken.expires_at < datetime.now(timezone.utc))
+    )
+
+
+async def get_user_with_password_by_email(db: AsyncSession, email: str) -> User | None:
+    """Nur Konten mit gesetztem Passwort (kein reiner Magic-Link-Account)."""
+    email = email.lower().strip()
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+    if not user or not user.password_hash:
+        return None
+    return user
+
+
+async def create_password_reset_token(db: AsyncSession, user: User) -> str:
+    await purge_expired_password_reset_tokens(db)
+    raw = generate_secure_token()
+    expires = datetime.now(timezone.utc) + timedelta(minutes=PASSWORD_RESET_EXPIRE_MINUTES)
+    row = PasswordResetToken(user_id=user.id, token=raw, expires_at=expires, used=False)
+    db.add(row)
+    await db.flush()
+    return raw
+
+
+async def consume_password_reset_token(
+    db: AsyncSession, token: str, new_password: str
+) -> User | None:
+    """Setzt neues Passwort, markiert Token als used, löscht übrige Reset-Tokens des Users."""
+    validate_password_strength(new_password)
+    await purge_expired_password_reset_tokens(db)
+    result = await db.execute(select(PasswordResetToken).where(PasswordResetToken.token == token))
+    row = result.scalar_one_or_none()
+    if not row or row.used or row.expires_at < datetime.now(timezone.utc):
+        return None
+    uresult = await db.execute(select(User).where(User.id == row.user_id))
+    user = uresult.scalar_one_or_none()
+    if not user or not user.is_active or not user.password_hash:
+        return None
+    user.password_hash = hash_password(new_password)
+    user.last_login = datetime.now(timezone.utc)
+    row.used = True
+    await db.execute(
+        delete(PasswordResetToken).where(
+            PasswordResetToken.user_id == user.id,
+            PasswordResetToken.id != row.id,
+        )
+    )
+    await revoke_all_refresh_tokens(db, user.id)
+    await db.flush()
     return user
 
 
