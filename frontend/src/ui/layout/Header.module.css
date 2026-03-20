@@ -246,6 +246,41 @@
   background: rgba(255, 193, 7, 0.08);
 }
 
+.cloudSave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.saveSlotSelect {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+}
+
+.saveCloudBtn {
+  min-width: 36px;
+  min-height: 32px;
+  padding: 4px 8px;
+  font-size: 16px;
+  line-height: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.saveCloudBtn:hover {
+  border-color: var(--gold);
+  background: rgba(255, 193, 7, 0.08);
+}
+
 .glossarBtn {
   width: 28px;
   height: 28px;

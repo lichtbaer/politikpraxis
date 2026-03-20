@@ -6,9 +6,11 @@ import styles from './LoginModal.module.css';
 
 interface LoginModalProps {
   onClose: () => void;
+  /** Nach erfolgreichem Login/Registrierung (Passwort-Flow) */
+  onAuthenticated?: () => void;
 }
 
-export function LoginModal({ onClose }: LoginModalProps) {
+export function LoginModal({ onClose, onAuthenticated }: LoginModalProps) {
   const { t } = useTranslation();
   const applyUser = useAuthStore((s) => s.applyUser);
 
@@ -35,6 +37,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
   const finishAuth = async (accessToken: string) => {
     const me = await getMe(accessToken);
     applyUser(me, accessToken);
+    onAuthenticated?.();
     onClose();
   };
 

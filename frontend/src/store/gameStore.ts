@@ -37,6 +37,8 @@ import { getContentBundle } from '../stores/contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { SPIELBARE_PARTEIEN } from '../data/defaults/parteien';
 import { saveGame, type SaveFile } from '../services/localStorageSave';
+import { useAuthStore } from './authStore';
+import { checkAutosave } from '../core/autosave';
 import { migrateGameState, validateGameState } from '../core/state';
 import {
   setHaushaltsdebattePrioritaeten,
@@ -206,7 +208,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setSpielerPartei: (spielerPartei) => set({ spielerPartei }),
 
   gameTick: () => {
-    const { state: s, content, phase, playerName, complexity, ausrichtung } = get();
+    const { state: s, content, phase, playerName, complexity, ausrichtung, spielerPartei, kanzlerGeschlecht } = get();
     if (s.gameOver || s.speed === 0) return;
     const nextState = tick(s, content, complexity, ausrichtung);
     set({ state: nextState });
@@ -217,7 +219,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         complexity,
         ausrichtung,
         spielerPartei: nextState.spielerPartei,
-        kanzlerGeschlecht: nextState.kanzlerGeschlecht ?? get().kanzlerGeschlecht ?? 'sie',
+        kanzlerGeschlecht: nextState.kanzlerGeschlecht ?? kanzlerGeschlecht ?? 'sie',
+      });
+      checkAutosave(nextState.month, useAuthStore.getState().accessToken, nextState, {
+        playerName: nextState.kanzlerName ?? playerName,
+        complexity,
+        ausrichtung,
+        spielerPartei: nextState.spielerPartei ?? spielerPartei,
+        kanzlerGeschlecht: nextState.kanzlerGeschlecht ?? kanzlerGeschlecht ?? 'sie',
       });
     }
   },

@@ -3,8 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
 import { useGameStore } from '../../store/gameStore';
-import { hasSaveAvailable, loadGame } from '../../services/localStorageSave';
+import { useAuthStore } from '../../store/authStore';
+import { hasSaveAvailable, loadGame, clearSave, type SaveFile } from '../../services/localStorageSave';
+import { upsertSaveSlot } from '../../services/saves';
 import { StartMapView } from '../components/StartMapView/StartMapView';
+import { SaveSlots } from '../components/SaveSlots/SaveSlots';
+import { LoginModal } from '../components/LoginModal/LoginModal';
+import { SimpleConfirm } from '../components/SimpleConfirm/SimpleConfirm';
 import styles from './MainMenu.module.css';
 
 function toggleLang() {
@@ -26,9 +31,17 @@ export function MainMenu() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const loadSaveFromFile = useGameStore((s) => s.loadSaveFromFile);
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const email = useAuthStore((s) => s.email);
+  const logout = useAuthStore((s) => s.logout);
+
   const [saveAvailable] = useState(hasSaveAvailable);
   const [saveInfo] = useState(getSaveInfo);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [migrateOpen, setMigrateOpen] = useState(false);
+  const [migrateBusy, setMigrateBusy] = useState(false);
 
   const handleNewGame = () => {
     navigate('/setup');
@@ -50,6 +63,40 @@ export function MainMenu() {
     navigate('/credits');
   };
 
+  const handleCloudLoad = (save: SaveFile) => {
+    loadSaveFromFile(save);
+    navigate('/game');
+  };
+
+  const handleMigrateConfirm = async () => {
+    const tok = useAuthStore.getState().accessToken;
+    const local = loadGame();
+    if (!tok || !local.ok) {
+      setMigrateOpen(false);
+      return;
+    }
+    setMigrateBusy(true);
+    try {
+      const d = local.data;
+      await upsertSaveSlot(tok, 1, {
+        gameState: d.gameState,
+        name: d.playerName || undefined,
+        complexity: d.complexity,
+        playerName: d.playerName,
+        ausrichtung: d.ausrichtung,
+        spielerPartei: d.spielerPartei ?? null,
+        kanzlerGeschlecht: d.kanzlerGeschlecht ?? 'sie',
+      });
+      clearSave();
+      setMigrateOpen(false);
+    } catch {
+      setLoadError(t('menu.migrateError', { defaultValue: 'Übertragung fehlgeschlagen.' }));
+      setMigrateOpen(false);
+    } finally {
+      setMigrateBusy(false);
+    }
+  };
+
   return (
     <div className={styles.root}>
       <button
@@ -68,6 +115,23 @@ export function MainMenu() {
         <div className={styles.startCenter}>
           <h1 className={styles.title}>{t('app.title')}</h1>
           <p className={styles.subtitle}>{t('app.subtitle')}</p>
+
+          <div className={styles.authRow}>
+            {isLoggedIn && email ? (
+              <>
+                <span className={styles.userLabel} title={email}>
+                  {email.length > 32 ? `${email.slice(0, 30)}…` : email}
+                </span>
+                <button type="button" className={styles.secondary} onClick={() => void logout()}>
+                  {t('menu.logout', { defaultValue: 'Abmelden' })}
+                </button>
+              </>
+            ) : (
+              <button type="button" className={styles.secondary} onClick={() => setAuthOpen(true)}>
+                {t('menu.login', { defaultValue: 'Anmelden' })}
+              </button>
+            )}
+          </div>
 
           <nav className={styles.startButtons}>
             <button
@@ -105,6 +169,10 @@ export function MainMenu() {
               {t('menu.credits')}
             </button>
           </nav>
+
+          {isLoggedIn && accessToken && (
+            <SaveSlots token={accessToken} onLoadSave={handleCloudLoad} />
+          )}
         </div>
 
         <div className={styles.startRight}>
@@ -128,6 +196,29 @@ export function MainMenu() {
       </div>
 
       <span className={styles.version}>v{__APP_VERSION__}</span>
+
+      {authOpen && (
+        <LoginModal
+          onClose={() => setAuthOpen(false)}
+          onAuthenticated={() => {
+            if (loadGame().ok) setMigrateOpen(true);
+          }}
+        />
+      )}
+
+      {migrateOpen && (
+        <SimpleConfirm
+          title={t('menu.migrateTitle', { defaultValue: 'Lokalen Spielstand übertragen?' })}
+          message={t('menu.migrateMessage', {
+            defaultValue: 'Es wurde ein lokaler Spielstand gefunden. In die Cloud (Slot 1) übertragen? Der lokale Stand wird danach entfernt.',
+          })}
+          confirmLabel={migrateBusy ? '…' : t('menu.migrateConfirm', { defaultValue: 'Übertragen' })}
+          cancelLabel={t('menu.migrateSkip', { defaultValue: 'Später' })}
+          confirmDisabled={migrateBusy}
+          onConfirm={() => void handleMigrateConfirm()}
+          onCancel={() => setMigrateOpen(false)}
+        />
+      )}
     </div>
   );
 }
