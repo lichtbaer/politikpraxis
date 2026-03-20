@@ -38,7 +38,22 @@
     "signIn": "Anmelden",
     "signOut": "Abmelden",
     "deleteAccount": "Konto löschen",
-    "deleteConfirm": "Konto und alle gespeicherten Daten auf dem Server unwiderruflich löschen?"
+    "deleteConfirm": "Konto und alle gespeicherten Daten auf dem Server unwiderruflich löschen?",
+    "forgotPassword": "Passwort vergessen?",
+    "passwordResetModalTitle": "Passwort zurücksetzen",
+    "passwordResetModalHint": "Gib deine E-Mail-Adresse ein. Falls ein Konto mit Passwort existiert, schicken wir dir einen Link.",
+    "passwordResetModalSent": "Falls ein Konto existiert, haben wir dir einen Link gesendet.",
+    "passwordResetSendLink": "Link senden",
+    "passwordResetModalBack": "Zurück zur Anmeldung",
+    "passwordResetTitle": "Neues Passwort setzen",
+    "passwordResetIntro": "Wähle ein neues Passwort für dein Konto.",
+    "passwordResetNoToken": "Dieser Link ist ungültig oder es fehlt der Token in der Adresse.",
+    "passwordResetBackHome": "Zur Startseite (anmelden)",
+    "passwordResetSave": "Passwort speichern",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "passwordMismatch": "Passwörter stimmen nicht überein",
+    "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben"
   },
   "game": {
     "month": "Monat",

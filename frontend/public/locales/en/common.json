@@ -38,7 +38,22 @@
     "signIn": "Sign in",
     "signOut": "Sign out",
     "deleteAccount": "Delete account",
-    "deleteConfirm": "Permanently delete your account and all server-side data?"
+    "deleteConfirm": "Permanently delete your account and all server-side data?",
+    "forgotPassword": "Forgot password?",
+    "passwordResetModalTitle": "Reset password",
+    "passwordResetModalHint": "Enter your email. If an account with a password exists, we will send you a link.",
+    "passwordResetModalSent": "If an account exists, we have sent you a link.",
+    "passwordResetSendLink": "Send link",
+    "passwordResetModalBack": "Back to sign-in",
+    "passwordResetTitle": "Set a new password",
+    "passwordResetIntro": "Choose a new password for your account.",
+    "passwordResetNoToken": "This link is invalid or the token is missing from the URL.",
+    "passwordResetBackHome": "Back to home (sign in)",
+    "passwordResetSave": "Save password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters"
   },
   "game": {
     "month": "Month",

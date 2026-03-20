@@ -17,6 +17,20 @@ export async function requestMagicLink(email: string): Promise<void> {
   });
 }
 
+export async function requestPasswordReset(email: string): Promise<void> {
+  await apiFetch('/auth/password-reset/request', {
+    method: 'POST',
+    body: { email },
+  });
+}
+
+export async function confirmPasswordReset(token: string, newPassword: string): Promise<AccessTokenPayload> {
+  return apiFetch<AccessTokenPayload>('/auth/password-reset/confirm', {
+    method: 'POST',
+    body: { token, new_password: newPassword },
+  });
+}
+
 export async function register(email: string, password: string): Promise<AccessTokenPayload> {
   return apiFetch<AccessTokenPayload>('/auth/register', {
     method: 'POST',

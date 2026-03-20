@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getMe, login, register, requestMagicLink } from '../../../services/auth';
+import { getMe, login, register, requestMagicLink, requestPasswordReset } from '../../../services/auth';
 import { useAuthStore } from '../../../store/authStore';
 import styles from './LoginModal.module.css';
 
@@ -18,6 +18,8 @@ export function LoginModal({ onClose, onAuthenticated }: LoginModalProps) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
+  const [passwordResetView, setPasswordResetView] = useState(false);
+  const [passwordResetSent, setPasswordResetSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +56,19 @@ export function LoginModal({ onClose, onAuthenticated }: LoginModalProps) {
     }
   };
 
+  const handlePasswordResetRequest = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await requestPasswordReset(email.trim());
+      setPasswordResetSent(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRegister = async () => {
     setError(null);
     setLoading(true);
@@ -66,6 +81,70 @@ export function LoginModal({ onClose, onAuthenticated }: LoginModalProps) {
       setLoading(false);
     }
   };
+
+  if (passwordResetView) {
+    return (
+      <div className={styles.backdrop} role="dialog" aria-modal="true" aria-labelledby="login-title">
+        <div className={styles.dialog}>
+          <button type="button" className={styles.close} onClick={onClose} aria-label={t('auth.close')}>
+            ×
+          </button>
+          <h2 id="login-title" className={styles.title}>
+            {t('auth.passwordResetModalTitle')}
+          </h2>
+          <p className={styles.subtitle}>{t('auth.passwordResetModalHint')}</p>
+
+          {passwordResetSent && (
+            <p className={styles.success} role="status">
+              {t('auth.passwordResetModalSent')}
+            </p>
+          )}
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="auth-email-reset">
+              {t('auth.email')}
+            </label>
+            <input
+              id="auth-email-reset"
+              className={styles.input}
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+            />
+          </div>
+
+          <div className={styles.row}>
+            <button
+              type="button"
+              className={styles.primary}
+              disabled={loading || !email.trim()}
+              onClick={() => void handlePasswordResetRequest()}
+            >
+              {t('auth.passwordResetSendLink')}
+            </button>
+          </div>
+
+          <div className={styles.passwordBlock}>
+            <button
+              type="button"
+              className={styles.linkBtn}
+              onClick={() => {
+                setPasswordResetView(false);
+                setPasswordResetSent(false);
+                setError(null);
+              }}
+            >
+              {t('auth.passwordResetModalBack')}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.backdrop} role="dialog" aria-modal="true" aria-labelledby="login-title">
@@ -133,6 +212,16 @@ export function LoginModal({ onClose, onAuthenticated }: LoginModalProps) {
                   minLength={8}
                 />
               </div>
+              <button
+                type="button"
+                className={styles.linkSmall}
+                onClick={() => {
+                  setPasswordResetView(true);
+                  setError(null);
+                }}
+              >
+                {t('auth.forgotPassword')}
+              </button>
               <div className={styles.passwordActions}>
                 <button
                   type="button"

@@ -23,3 +23,6 @@ class User(Base):
     analytics_events = relationship("AnalyticsEvent", back_populates="user", cascade="all, delete-orphan")
     magic_links = relationship("MagicLink", back_populates="user", cascade="all, delete-orphan")
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
+    password_reset_tokens = relationship(
+        "PasswordResetToken", back_populates="user", cascade="all, delete-orphan"
+    )

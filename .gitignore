@@ -17,6 +17,7 @@ frontend/coverage/
 balance_report.json
 
 # Python
+.venv/
 __pycache__/
 *.py[cod]
 *.pyo
