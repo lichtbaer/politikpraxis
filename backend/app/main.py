@@ -5,7 +5,7 @@ from slowapi import _rate_limit_exceeded_handler
 
 from app.config import get_settings
 from app.limiter import limiter
-from app.routes import auth, saves, content, analytics, mods, admin, kontakt
+from app.routes import auth, saves, content, analytics, mods, admin, kontakt, stats
 
 settings = get_settings()
 
@@ -43,6 +43,7 @@ app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"]
 app.include_router(mods.router, prefix="/api/mods", tags=["mods"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 app.include_router(kontakt.router, prefix="/api", tags=["kontakt"])
+app.include_router(stats.router, prefix="/api/stats", tags=["stats"])
 
 
 @app.get("/api/health")

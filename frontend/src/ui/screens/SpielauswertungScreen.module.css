@@ -1,0 +1,145 @@
+.wrap {
+  width: 100%;
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 0 0.5rem 2rem;
+  text-align: left;
+}
+
+.noteRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md, 8px);
+  background: color-mix(in srgb, var(--color-surface-elevated) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  font-size: 0.9rem;
+}
+
+.noteRow input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--color-accent, #3d6fd9);
+}
+
+.block {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-md, 8px);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+}
+
+.block h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.dimGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.dimItem {
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--color-surface-elevated) 80%, transparent);
+}
+
+.grade {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.35rem;
+}
+
+.titel {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-text) 92%, var(--color-accent));
+}
+
+.chartRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 64px;
+  margin-top: 0.5rem;
+}
+
+.bar {
+  flex: 1;
+  min-width: 4px;
+  background: color-mix(in srgb, var(--color-accent) 65%, #666);
+  border-radius: 2px 2px 0 0;
+  opacity: 0.85;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.btn {
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-md, 8px);
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.btnPrimary {
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-md, 8px);
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: var(--color-accent, #3d6fd9);
+  color: #fff;
+}
+
+.btnSecondary {
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--color-surface-elevated) 100%, transparent);
+  color: var(--color-text);
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+}
+
+.muted {
+  font-size: 0.82rem;
+  opacity: 0.85;
+  margin-top: 0.35rem;
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.9rem;
+}
+
+.communityHint {
+  font-size: 0.82rem;
+  opacity: 0.9;
+  margin-top: 0.5rem;
+}

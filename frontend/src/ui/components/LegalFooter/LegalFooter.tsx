@@ -14,6 +14,14 @@ export function LegalFooter() {
           ·
         </span>
         <Link to="/kontakt">Kontakt</Link>
+        <span className={styles.sep} aria-hidden="true">
+          ·
+        </span>
+        <Link to="/statistiken">Statistiken</Link>
+        <span className={styles.sep} aria-hidden="true">
+          ·
+        </span>
+        <Link to="/highscores">Highscores</Link>
       </nav>
       <p className={styles.copy}>© 2025 Nexclue UG (haftungsbeschränkt)</p>
     </footer>

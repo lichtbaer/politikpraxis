@@ -178,10 +178,12 @@ function checkSkandale(
   const newMk = Math.max(0, (state.medienKlima ?? 55) + event.medienklima_delta);
   const gameEvent = medienEventToGameEvent(event);
 
+  const sk = (state.skandaleGesamt ?? 0) + 1;
   return {
     ...state,
     medienKlima: newMk,
     letzterSkandal: state.month,
+    skandaleGesamt: sk,
     ...recordEventFired(state, gameEvent),
     activeEvent: gameEvent,
     ...withPause(state, getAutoPauseLevel(gameEvent)),

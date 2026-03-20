@@ -183,6 +183,8 @@ export function createInitialState(
     month: content.scenario.startMonth,
     speed: 0,
     pk: content.scenario.startPK,
+    pkVerbrauchtGesamt: 0,
+    skandaleGesamt: 0,
     view: 'agenda',
 
     kpi: { ...content.scenario.startKPI },
@@ -444,6 +446,7 @@ export function validateGameState(raw: unknown): GameState {
     'eu', 'haushalt', 'lehmannUltimatumBeschleunigt', 'lehmannSparvorschlagAktiv', 'aktivesStrukturEvent',
     'gesetzProjekte', 'wahlkampfAktiv', 'wahlkampfAktionenGenutzt', 'legislaturBilanz', 'wahlkampfBotschaften',
     'tvDuellAbgehalten', 'tvDuellGewonnen', 'medienKlimaHistory', 'letzterSkandal', 'letztesPressemitteilungMonat',
+    'pkVerbrauchtGesamt', 'skandaleGesamt',
     'opposition', 'medienoffensiveGenutzt',
     'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate', 'lowApprovalMonths',
     'activeEventPool', 'unlockedLaws', 'pendingFollowups',

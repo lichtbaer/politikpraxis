@@ -579,6 +579,10 @@ export interface GameState {
   /** SMA-295: Speed vor Auto-Pause (für Auto-Resume nach Event) */
   speedBeforePause?: SpeedLevel;
   pk: number;
+  /** SMA-343: Summe verbrauchten PK (Hauptpfad über verbrauchePK) */
+  pkVerbrauchtGesamt?: number;
+  /** SMA-343: Anzahl ausgelöster Medien-Skandale */
+  skandaleGesamt?: number;
   view: ViewName;
 
   kpi: KPI;

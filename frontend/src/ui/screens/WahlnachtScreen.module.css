@@ -81,8 +81,10 @@
   background: var(--bg2);
   border-radius: 16px;
   padding: 40px;
-  max-width: 520px;
+  max-width: min(56rem, 96vw);
   width: 90%;
+  max-height: 92vh;
+  overflow-y: auto;
   border: 1px solid var(--border);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
