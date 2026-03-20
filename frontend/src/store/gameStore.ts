@@ -221,7 +221,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         spielerPartei: nextState.spielerPartei,
         kanzlerGeschlecht: nextState.kanzlerGeschlecht ?? kanzlerGeschlecht ?? 'sie',
       });
-      checkAutosave(nextState.month, useAuthStore.getState().token, nextState, {
+      checkAutosave(nextState.month, useAuthStore.getState().accessToken, nextState, {
         playerName: nextState.kanzlerName ?? playerName,
         complexity,
         ausrichtung,

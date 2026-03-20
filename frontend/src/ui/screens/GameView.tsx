@@ -6,7 +6,7 @@ import { SaveHintBanner } from '../components/SaveHintBanner/SaveHintBanner';
 
 export function GameView() {
   const phase = useGameStore((s) => s.phase);
-  const token = useAuthStore((s) => s.token);
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
 
   if (phase === 'onboarding') {
     return <WahlnachtOnboarding />;
@@ -14,7 +14,7 @@ export function GameView() {
 
   return (
     <>
-      {!token && <SaveHintBanner />}
+      {!isLoggedIn && <SaveHintBanner />}
       <Shell />
     </>
   );

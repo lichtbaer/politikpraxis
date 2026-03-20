@@ -1,7 +1,7 @@
 """SMA-339: Tabelle game_saves (3 Slots pro User, serverseitige Spielstände).
 
 Revision ID: 037_game_saves_sma339
-Revises: 036_merge_035_heads
+Revises: 036_sma338_auth
 Create Date: 2026-03-20
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = "037_game_saves_sma339"
-down_revision: Union[str, Sequence[str], None] = "036_merge_035_heads"
+down_revision: Union[str, Sequence[str], None] = "036_sma338_auth"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

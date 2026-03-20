@@ -1,33 +1,90 @@
 import { create } from 'zustand';
+import {
+  deleteAccountApi,
+  getMe,
+  logoutApi,
+  refreshAccessToken,
+  type UserResponse,
+} from '../services/auth';
+
+export interface AuthSession {
+  userId: string;
+  email: string;
+  accessToken: string;
+}
 
 interface AuthStore {
-  token: string | null;
-  username: string | null;
+  userId: string | null;
+  email: string | null;
+  isLoggedIn: boolean;
+  /** Nur im Arbeitsspeicher — kein localStorage */
+  accessToken: string | null;
 
-  setAuth: (token: string, username: string) => void;
-  logout: () => void;
+  setSession: (session: AuthSession) => void;
+  clear: () => void;
+  applyUser: (user: UserResponse, accessToken: string) => void;
+  bootstrap: () => Promise<void>;
+  logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
-const STORAGE_KEY = 'bundesrepublik_auth';
+export const useAuthStore = create<AuthStore>((set, get) => ({
+  userId: null,
+  email: null,
+  isLoggedIn: false,
+  accessToken: null,
 
-function loadFromStorage(): { token: string | null; username: string | null } {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) return JSON.parse(data);
-  } catch { /* ignore */ }
-  return { token: null, username: null };
-}
+  setSession: (session) =>
+    set({
+      userId: session.userId,
+      email: session.email,
+      accessToken: session.accessToken,
+      isLoggedIn: true,
+    }),
 
-export const useAuthStore = create<AuthStore>((set) => ({
-  ...loadFromStorage(),
+  applyUser: (user, accessToken) =>
+    set({
+      userId: user.id,
+      email: user.email,
+      accessToken,
+      isLoggedIn: true,
+    }),
 
-  setAuth: (token, username) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ token, username }));
-    set({ token, username });
+  clear: () =>
+    set({
+      userId: null,
+      email: null,
+      accessToken: null,
+      isLoggedIn: false,
+    }),
+
+  bootstrap: async () => {
+    try {
+      const { access_token } = await refreshAccessToken();
+      const me = await getMe(access_token);
+      set({
+        accessToken: access_token,
+        userId: me.id,
+        email: me.email,
+        isLoggedIn: true,
+      });
+    } catch {
+      get().clear();
+    }
   },
 
-  logout: () => {
-    localStorage.removeItem(STORAGE_KEY);
-    set({ token: null, username: null });
+  logout: async () => {
+    try {
+      await logoutApi();
+    } finally {
+      get().clear();
+    }
+  },
+
+  deleteAccount: async () => {
+    const token = get().accessToken;
+    if (!token) return;
+    await deleteAccountApi(token);
+    get().clear();
   },
 }));

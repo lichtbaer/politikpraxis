@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AuthModal } from '../AuthModal/AuthModal';
+import { LoginModal } from '../LoginModal/LoginModal';
 import styles from './SaveHintBanner.module.css';
 
 export function SaveHintBanner() {
@@ -21,7 +21,7 @@ export function SaveHintBanner() {
         </button>
       </div>
       {showAuth && (
-        <AuthModal onClose={() => setShowAuth(false)} />
+        <LoginModal onClose={() => setShowAuth(false)} />
       )}
     </>
   );

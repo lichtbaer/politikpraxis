@@ -23,6 +23,23 @@
     "settings": "Settings",
     "credits": "Credits"
   },
+  "auth": {
+    "title": "Sign in / Register",
+    "subtitle": "Use a magic link without a password — or optionally sign in with email and password.",
+    "email": "Email",
+    "password": "Password",
+    "sendMagicLink": "Send magic link",
+    "magicSent": "We sent you a link. Please check your inbox.",
+    "showPassword": "Prefer password sign-in?",
+    "hidePassword": "Hide password sign-in",
+    "login": "Sign in",
+    "register": "Register",
+    "close": "Close",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "deleteAccount": "Delete account",
+    "deleteConfirm": "Permanently delete your account and all server-side data?"
+  },
   "game": {
     "month": "Month",
     "pk": "PK",

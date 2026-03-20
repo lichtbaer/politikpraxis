@@ -8,7 +8,7 @@ import { hasSaveAvailable, loadGame, clearSave, type SaveFile } from '../../serv
 import { upsertSaveSlot } from '../../services/saves';
 import { StartMapView } from '../components/StartMapView/StartMapView';
 import { SaveSlots } from '../components/SaveSlots/SaveSlots';
-import { AuthModal } from '../components/AuthModal/AuthModal';
+import { LoginModal } from '../components/LoginModal/LoginModal';
 import { SimpleConfirm } from '../components/SimpleConfirm/SimpleConfirm';
 import styles from './MainMenu.module.css';
 
@@ -31,8 +31,9 @@ export function MainMenu() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const loadSaveFromFile = useGameStore((s) => s.loadSaveFromFile);
-  const token = useAuthStore((s) => s.token);
-  const username = useAuthStore((s) => s.username);
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const email = useAuthStore((s) => s.email);
   const logout = useAuthStore((s) => s.logout);
 
   const [saveAvailable] = useState(hasSaveAvailable);
@@ -68,7 +69,7 @@ export function MainMenu() {
   };
 
   const handleMigrateConfirm = async () => {
-    const tok = useAuthStore.getState().token;
+    const tok = useAuthStore.getState().accessToken;
     const local = loadGame();
     if (!tok || !local.ok) {
       setMigrateOpen(false);
@@ -116,10 +117,12 @@ export function MainMenu() {
           <p className={styles.subtitle}>{t('app.subtitle')}</p>
 
           <div className={styles.authRow}>
-            {token ? (
+            {isLoggedIn && email ? (
               <>
-                <span className={styles.userLabel}>{username}</span>
-                <button type="button" className={styles.secondary} onClick={() => logout()}>
+                <span className={styles.userLabel} title={email}>
+                  {email.length > 32 ? `${email.slice(0, 30)}…` : email}
+                </span>
+                <button type="button" className={styles.secondary} onClick={() => void logout()}>
                   {t('menu.logout', { defaultValue: 'Abmelden' })}
                 </button>
               </>
@@ -167,8 +170,8 @@ export function MainMenu() {
             </button>
           </nav>
 
-          {token && (
-            <SaveSlots token={token} onLoadSave={handleCloudLoad} />
+          {isLoggedIn && accessToken && (
+            <SaveSlots token={accessToken} onLoadSave={handleCloudLoad} />
           )}
         </div>
 
@@ -195,9 +198,9 @@ export function MainMenu() {
       <span className={styles.version}>v{__APP_VERSION__}</span>
 
       {authOpen && (
-        <AuthModal
+        <LoginModal
           onClose={() => setAuthOpen(false)}
-          onLoggedIn={() => {
+          onAuthenticated={() => {
             if (loadGame().ok) setMigrateOpen(true);
           }}
         />
