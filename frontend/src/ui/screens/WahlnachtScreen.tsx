@@ -1,10 +1,11 @@
 /**
  * SMA-279: Wahlnacht-Screen (Monat 48) — animierte Hochrechnung, Sieg/Niederlage
+ * SMA-343: Anschließend vollständige Spielauswertung
  */
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
-import { featureActive } from '../../core/systems/features';
+import { SpielauswertungScreen } from './SpielauswertungScreen';
 import styles from './WahlnachtScreen.module.css';
 
 const HOCHRECHNUNG_DURATION_MS = 2500;
@@ -12,16 +13,14 @@ const THRESHOLD_DISPLAY = 40;
 
 export function WahlnachtScreen() {
   const { t } = useTranslation('game');
-  const { state, complexity } = useGameStore();
+  const { state } = useGameStore();
   const [beat, setBeat] = useState(1);
   const [displayPercent, setDisplayPercent] = useState(0);
-  const [confirmRestart, setConfirmRestart] = useState(false);
 
   const wahlergebnis = state.wahlergebnis ?? state.zust.g;
   const threshold = state.electionThreshold ?? THRESHOLD_DISPLAY;
   const won = state.won ?? wahlergebnis >= threshold;
 
-  // Beat 1: Animate 0 → wahlergebnis
   useEffect(() => {
     if (!state.gameOver || beat !== 1) return;
 
@@ -32,7 +31,7 @@ export function WahlnachtScreen() {
     const animate = () => {
       const elapsed = Date.now() - start;
       const progress = Math.min(1, elapsed / HOCHRECHNUNG_DURATION_MS);
-      const eased = 1 - (1 - progress) ** 2; // ease-out
+      const eased = 1 - (1 - progress) ** 2;
       setDisplayPercent(Math.round(eased * wahlergebnis));
 
       if (progress < 1) {
@@ -51,9 +50,6 @@ export function WahlnachtScreen() {
   }, [state.gameOver, beat, wahlergebnis]);
 
   if (!state.gameOver) return null;
-
-  const beschlossen = state.gesetze.filter((g) => g.status === 'beschlossen').length;
-  const showTiefenanalyse = featureActive(complexity, 'wahlnacht_analyse') && beat >= 3;
 
   return (
     <div className={`${styles.overlay} ${won ? styles.overlayWon : styles.overlayLost}`}>
@@ -91,100 +87,7 @@ export function WahlnachtScreen() {
               : t('game:endScreen.lostSubtitle', { percent: wahlergebnis.toFixed(1) })}
           </p>
 
-          <div className={styles.stats}>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>{t('game:endScreen.beschlosseneGesetze')}</span>
-              <span className={styles.statValue}>{beschlossen}</span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>{t('game:endScreen.finaleKPIs')}</span>
-              <span className={styles.statValue}>
-                AL {state.kpi.al.toFixed(1)}% · HH {state.kpi.hh.toFixed(1)}% · GI {state.kpi.gi.toFixed(1)} · ZF {state.kpi.zf.toFixed(1)}%
-              </span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statLabel}>{t('game:endScreen.milieuZustimmung')}</span>
-              <span className={styles.statValue}>
-                G {state.zust.g}% · Arbeit {state.zust.arbeit}% · Mitte {state.zust.mitte}% · Prog {state.zust.prog}%
-              </span>
-            </div>
-          </div>
-
-          {beat === 2 && !showTiefenanalyse && (
-            confirmRestart ? (
-              <div className={styles.confirmRow}>
-                <span>{t('game:endScreen.confirmRestart', 'Wirklich neu starten?')}</span>
-                <button type="button" className={styles.restart} onClick={() => location.reload()}>
-                  {t('game:endScreen.confirmYes', 'Ja, neu starten')}
-                </button>
-                <button type="button" className={styles.btnSecondary} onClick={() => setConfirmRestart(false)}>
-                  {t('game:endScreen.confirmNo', 'Abbrechen')}
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className={styles.restart}
-                onClick={() => setConfirmRestart(true)}
-              >
-                {t('game:endScreen.neueLegislatur')}
-              </button>
-            )
-          )}
-
-          {beat === 2 && showTiefenanalyse && (
-            <button
-              type="button"
-              className={styles.btnSecondary}
-              onClick={() => setBeat(3)}
-            >
-              {t('game:wahlnacht.tiefenanalyse')}
-            </button>
-          )}
-
-          {beat === 3 && showTiefenanalyse && (
-            <>
-              <div className={styles.tiefenanalyse}>
-                <h3>{t('game:wahlnacht.analyseTitle')}</h3>
-                <p>{t('game:wahlnacht.analyseDesc')}</p>
-                {state.legislaturBilanz && (
-                  <div className={styles.analyseGrid}>
-                    <div className={styles.analyseItem}>
-                      <span>{t('game:legislaturBilanz.reform')}</span>
-                      <span>{state.legislaturBilanz.reformStaerke}</span>
-                    </div>
-                    <div className={styles.analyseItem}>
-                      <span>{t('game:legislaturBilanz.medien')}</span>
-                      <span>{state.legislaturBilanz.medienbilanz}</span>
-                    </div>
-                    <div className={styles.analyseItem}>
-                      <span>{t('game:legislaturBilanz.wirtschaft')}</span>
-                      <span>{state.legislaturBilanz.wirtschaftsBilanz}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-              {confirmRestart ? (
-                <div className={styles.confirmRow}>
-                  <span>{t('game:endScreen.confirmRestart', 'Wirklich neu starten?')}</span>
-                  <button type="button" className={styles.restart} onClick={() => location.reload()}>
-                    {t('game:endScreen.confirmYes', 'Ja, neu starten')}
-                  </button>
-                  <button type="button" className={styles.btnSecondary} onClick={() => setConfirmRestart(false)}>
-                    {t('game:endScreen.confirmNo', 'Abbrechen')}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className={styles.restart}
-                  onClick={() => setConfirmRestart(true)}
-                >
-                  {t('game:endScreen.neueLegislatur')}
-                </button>
-              )}
-            </>
-          )}
+          <SpielauswertungScreen wahlergebnis={wahlergebnis} gewonnen={won} threshold={threshold} />
         </div>
       )}
     </div>

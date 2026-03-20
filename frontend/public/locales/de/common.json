@@ -113,5 +113,36 @@
   },
   "startMap": {
     "subtitle": "Bund · Länder · Kommunen · Europa"
+  },
+  "yes": "Ja",
+  "no": "Nein",
+  "stats": {
+    "pageTitle": "Community-Statistiken",
+    "privacyHint": "Alle Daten sind anonymisiert. Nur Spielende, die dem zugestimmt haben, fließen in die Auswertung ein.",
+    "loading": "Lade …",
+    "overall": "Gesamt",
+    "totalGames": "Spiele insgesamt",
+    "winrate": "Gewinnrate",
+    "avgForecast": "Durchschnittliche Wahlprognose",
+    "byParty": "Nach Partei",
+    "topFields": "Häufigste Politikfelder (Top-Gesetze)",
+    "titles": "Häufigste Spieler-Titel",
+    "submitError": "Statistik konnte nicht gesendet werden.",
+    "savedHint": "Auswertung wurde übermittelt."
+  },
+  "highscores": {
+    "pageTitle": "Highscores",
+    "privacyHint": "Anonyme Rangliste: keine Namen, nur Titel und Spielkennzahlen. Nur Einträge mit Community-Opt-in.",
+    "filterParty": "Partei",
+    "filterComplexity": "Komplexität",
+    "all": "Alle",
+    "colTitle": "Titel",
+    "colParty": "Partei",
+    "colForecast": "Wahlprognose",
+    "colLaws": "Gesetze",
+    "colSaldo": "Saldo (Mrd.)",
+    "colStufe": "Stufe",
+    "colDate": "Datum",
+    "empty": "Noch keine Einträge."
   }
 }

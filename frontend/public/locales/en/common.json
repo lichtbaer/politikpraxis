@@ -113,5 +113,36 @@
   },
   "startMap": {
     "subtitle": "Federal · States · Municipalities · Europe"
+  },
+  "yes": "Yes",
+  "no": "No",
+  "stats": {
+    "pageTitle": "Community statistics",
+    "privacyHint": "All data is anonymised. Only players who opt in are included.",
+    "loading": "Loading…",
+    "overall": "Overall",
+    "totalGames": "Games total",
+    "winrate": "Win rate",
+    "avgForecast": "Average election forecast",
+    "byParty": "By party",
+    "topFields": "Most common policy fields",
+    "titles": "Most common player titles",
+    "submitError": "Could not submit statistics.",
+    "savedHint": "Summary submitted."
+  },
+  "highscores": {
+    "pageTitle": "Highscores",
+    "privacyHint": "Anonymous leaderboard: titles and stats only, no names. Opt-in entries only.",
+    "filterParty": "Party",
+    "filterComplexity": "Complexity",
+    "all": "All",
+    "colTitle": "Title",
+    "colParty": "Party",
+    "colForecast": "Forecast",
+    "colLaws": "Laws",
+    "colSaldo": "Balance (bn)",
+    "colStufe": "Level",
+    "colDate": "Date",
+    "empty": "No entries yet."
   }
 }

@@ -26,3 +26,4 @@ class User(Base):
     password_reset_tokens = relationship(
         "PasswordResetToken", back_populates="user", cascade="all, delete-orphan"
     )
+    game_stats = relationship("GameStat", back_populates="user", cascade="all, delete-orphan")

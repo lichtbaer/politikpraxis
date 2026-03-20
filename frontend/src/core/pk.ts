@@ -7,5 +7,6 @@ import type { GameState } from './types';
 /** Verbraucht PK wenn genug vorhanden, sonst null. Rückgabe: neuer State oder null. */
 export function verbrauchePK(state: GameState, cost: number): GameState | null {
   if (state.pk < cost) return null;
-  return { ...state, pk: state.pk - cost };
+  const prev = state.pkVerbrauchtGesamt ?? 0;
+  return { ...state, pk: state.pk - cost, pkVerbrauchtGesamt: prev + cost };
 }

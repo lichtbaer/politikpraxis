@@ -5,6 +5,7 @@ import { featureActive } from './features';
 import { getKoalitionspartner } from './koalition';
 import { berechneWahlprognose } from './wahlprognose';
 import { berechneKongruenz } from '../ideologie';
+import { verbrauchePK } from '../pk';
 
 /** Opposition-Stärke aus Bundesrat (Anteil Opposition-Stimmen in %) */
 function berechneOppositionStaerke(state: GameState): number {
@@ -136,12 +137,6 @@ export function checkWahlkampfBeginn(
   }
 
   return next;
-}
-
-/** Verbraucht PK wenn genug vorhanden */
-function verbrauchePK(state: GameState, cost: number): GameState | null {
-  if (state.pk < cost) return null;
-  return { ...state, pk: state.pk - cost };
 }
 
 /** Wahlkampf-Rede: 8 PK → +5 Milieu-Zustimmung, ggf. +3 Medienklima */
