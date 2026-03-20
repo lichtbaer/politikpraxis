@@ -130,6 +130,28 @@
     "submitError": "Statistik konnte nicht gesendet werden.",
     "savedHint": "Auswertung wurde übermittelt."
   },
+  "userTestFeedback": {
+    "titel": "Playtest-Feedback",
+    "untertitel": "Alle Antworten sind freiwillig und werden nur intern ausgewertet.",
+    "gesamtbewertung": "Gesamteindruck",
+    "verstaendlichkeit": "Verständlichkeit",
+    "fehlerFrage": "Fehler oder Probleme erlebt?",
+    "fehlerBeschreibung": "Was ist passiert?",
+    "fehlerPlaceholder": "Beschreibe den Fehler kurz …",
+    "positives": "Was hat gut funktioniert?",
+    "positivesPlaceholder": "Optional …",
+    "verbesserungen": "Was war verwirrend oder schwierig?",
+    "verbesserungenPlaceholder": "Optional …",
+    "sonstiges": "Sonstiges",
+    "sonstigesPlaceholder": "Optional …",
+    "absenden": "Feedback absenden",
+    "senden": "Senden …",
+    "abbrechen": "Abbrechen",
+    "danke": "Vielen Dank für dein Feedback!",
+    "fehler": "Feedback konnte nicht gesendet werden. Bitte erneut versuchen.",
+    "spielendeHinweis": "Wie war dein Erlebnis?",
+    "spielendeLink": "Feedback geben"
+  },
   "highscores": {
     "pageTitle": "Highscores",
     "privacyHint": "Anonyme Rangliste: keine Namen, nur Titel und Spielkennzahlen. Nur Einträge mit Community-Opt-in.",

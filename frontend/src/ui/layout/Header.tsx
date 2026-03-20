@@ -14,6 +14,7 @@ import { PressemitteilungModal } from '../components/PressemitteilungModal/Press
 import { Glossar } from '../components/Glossar/Glossar';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import { LoginModal } from '../components/LoginModal/LoginModal';
+import { UserTestFeedbackModal } from '../components/UserTestFeedbackModal/UserTestFeedbackModal';
 import type { SpeedLevel } from '../../core/types';
 import { Megaphone } from '../icons';
 import styles from './Header.module.css';
@@ -25,6 +26,7 @@ export function Header() {
   const [showPressemitteilungModal, setShowPressemitteilungModal] = useState(false);
   const [showGlossar, setShowGlossar] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const email = useAuthStore((s) => s.email);
   const logout = useAuthStore((s) => s.logout);
@@ -101,7 +103,7 @@ export function Header() {
           <button
             type="button"
             className={styles.playtestFeedbackBtn}
-            onClick={() => window.open(PLAYTEST_CONFIG.feedbackUrl, '_blank')}
+            onClick={() => setShowFeedbackModal(true)}
           >
             🐛 {t('header.playtestFeedback')}
           </button>
@@ -208,6 +210,9 @@ export function Header() {
       )}
       {showGlossar && <Glossar onClose={() => setShowGlossar(false)} />}
       {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
+      {showFeedbackModal && (
+        <UserTestFeedbackModal kontext="header" onClose={() => setShowFeedbackModal(false)} />
+      )}
     </header>
   );
 }

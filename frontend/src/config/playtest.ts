@@ -8,8 +8,6 @@ export const PLAYTEST_CONFIG = {
   gesperrte_stufen: [2, 3] as number[],
   /** Zeigt Feedback-Button prominent im Header */
   playtest_modus: true,
-  /** URL für Playtest-Feedback-Formular (Google Form o.ä.) */
-  feedbackUrl: 'https://forms.gle/placeholder',
 };
 
 export function istStufeVerfuegbar(stufe: number): boolean {
