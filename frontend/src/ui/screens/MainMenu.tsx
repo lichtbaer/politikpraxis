@@ -5,6 +5,7 @@ import i18n from '../../i18n';
 import { useGameStore } from '../../store/gameStore';
 import { hasSaveAvailable, loadGame } from '../../services/localStorageSave';
 import { StartMapView } from '../components/StartMapView/StartMapView';
+import { LegalFooter } from '../components/LegalFooter/LegalFooter';
 import styles from './MainMenu.module.css';
 
 function toggleLang() {
@@ -127,7 +128,10 @@ export function MainMenu() {
         </div>
       </div>
 
-      <span className={styles.version}>v{__APP_VERSION__}</span>
+      <div className={styles.bottomBar}>
+        <LegalFooter />
+        <span className={styles.version}>v{__APP_VERSION__}</span>
+      </div>
     </div>
   );
 }
