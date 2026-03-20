@@ -1219,7 +1219,14 @@
     "beschlosseneGesetze": "Beschlossene Gesetze",
     "finaleKPIs": "Finale KPIs",
     "milieuZustimmung": "Milieu-Zustimmung",
-    "neueLegislatur": "Neue Legislaturperiode"
+    "neueLegislatur": "Neue Legislaturperiode",
+    "confirmRestart": "Wirklich neu starten?",
+    "confirmYes": "Ja, neu starten",
+    "confirmNo": "Abbrechen",
+    "approvalChart": "Zustimmungsverlauf",
+    "monthsPlayed": "{{count}} Monate gespielt",
+    "ziel": "Ziel: {{threshold}}%",
+    "monatTooltip": "Monat {{month}}: <b>{{value}}%</b>"
   },
   "charDetail": {
     "close": "Schließen",
@@ -1235,7 +1242,32 @@
     "opposition": "Opposition"
   },
   "glossar": {
-    "title": "Glossar"
+    "title": "Glossar",
+    "searchPlaceholder": "Begriff suchen…",
+    "all": "Alle",
+    "categories": {
+      "grundlagen": "Grundlagen",
+      "haushalt": "Haushalt",
+      "koalition": "Koalition",
+      "medien": "Medien & Öffentlichkeit"
+    },
+    "entries": {
+      "pk": { "term": "Politisches Kapital (PK)", "explanation": "Deine Handlungsressource. Jede Aktion kostet PK. Regeneriert monatlich basierend auf deiner Zustimmung." },
+      "zustimmung": { "term": "Zustimmung / Wahlprognose", "explanation": "Wie beliebt deine Regierung ist. Am Ende der Legislatur (Monat 48) musst du die Wahlhürde überschreiten um zu gewinnen." },
+      "kongruenz": { "term": "Kongruenz", "explanation": "Wie gut ein Gesetz zu deiner ideologischen Ausrichtung passt (0–100%). Hohe Kongruenz = weniger PK-Kosten, niedrige Kongruenz = mehr Aufwand und Widerstand." },
+      "arbeitslosigkeit": { "term": "Arbeitslosigkeit", "explanation": "KPI: Arbeitslosenquote in %. Niedrig = gut. Wird durch Konjunkturdrift und Gesetze beeinflusst." },
+      "haushaltssaldo": { "term": "Haushaltssaldo", "explanation": "KPI: Einnahmen minus Ausgaben in %. Positiv = Überschuss. Negativ = Defizit. Beeinflusst durch Gesetze und Konjunktur." },
+      "gini": { "term": "Gini-Index", "explanation": "KPI: Maß für Ungleichheit (0–100). Niedrig = weniger Ungleichheit. Beeinflusst durch Sozialpolitik." },
+      "zufriedenheit": { "term": "Zufriedenheit", "explanation": "KPI: Allgemeine Bevölkerungszufriedenheit (0–100%). Hoch = gut. Wird durch alle KPIs und Gesetze beeinflusst." },
+      "koalition": { "term": "Koalitionsstabilität", "explanation": "Wie stabil deine Regierungskoalition ist (0–100%). Berechnet aus Kabinett-Stimmung und Partner-Loyalität. Unter 15% → Koalitionsbruch = Spielverlust!" },
+      "spielraum": { "term": "Spielraum", "explanation": "Haushaltsmittel, die für neue Gesetze verfügbar sind. Ergibt sich aus Einnahmen minus Pflichtausgaben minus laufende Kosten." },
+      "schuldenbremse": { "term": "Schuldenbremse", "explanation": "Ab Stufe 3: Verfassungsgrenze für Neuverschuldung. Bei Verletzung drohen Sparmaßnahmen und Vertrauensverlust." },
+      "medienklima": { "term": "Medienklima", "explanation": "Wie positiv die Medienberichterstattung ist (0–100). Beeinflusst PK-Kosten für Gesetze und Wahlkampf-Erfolg." },
+      "milieus": { "term": "Milieus", "explanation": "Wählergruppen mit unterschiedlichen ideologischen Profilen. Ihre Zustimmung bestimmt deine Wahlprognose." },
+      "kvScore": { "term": "Koalitionsvertrag-Score", "explanation": "Wie viele Punkte des Koalitionsvertrags erfüllt sind. Hoher Score = stabilere Koalition, niedriger Score = Partner wird unzufrieden." },
+      "vorstufen": { "term": "Vorstufen", "explanation": "Kommunal- oder Länderpiloten vor dem Einbringen eines Gesetzes. Geben Boni auf BT-Stimmen, PK-Kosten und Bundesrat-Zustimmung." },
+      "bundesrat": { "term": "Bundesrat", "explanation": "4 Fraktionen vertreten 16 Bundesländer. Gesetze mit Land-Tag benötigen Bundesrats-Mehrheit. Beziehungspflege und Lobbying beeinflussen die Abstimmung." }
+    }
   },
   "framing": {
     "title": "Wie kommunizierst du dieses Gesetz?",
@@ -1319,5 +1351,113 @@
       "sicherheit": "Sicherheit",
       "wirtschaft": "Wirtschaft"
     }
+  },
+  "tips": {
+    "erstesGesetz": {
+      "title": "Dein erstes Gesetz",
+      "text": "Wähle ein Gesetz aus der Agenda und klicke \"Einbringen\", um es in den Bundestag einzubringen. Jede Einbringung kostet Politisches Kapital (PK)."
+    },
+    "pkKnapp": {
+      "title": "PK wird knapp",
+      "text": "Dein Politisches Kapital regeneriert sich monatlich basierend auf deiner Zustimmung. Höhere Zustimmung = mehr PK pro Monat. Setze Prioritäten!"
+    },
+    "koalitionsSpannungen": {
+      "title": "Koalitionsspannungen",
+      "text": "Deine Koalitionsstabilität sinkt. Achte auf die Stimmung deiner Kabinettsmitglieder und die Beziehung zum Koalitionspartner. Zugeständnisse und Gespräche helfen."
+    },
+    "haushaltsDefizit": {
+      "title": "Haushaltsdefizit",
+      "text": "Dein Haushalt ist im Minus. Teure Gesetze belasten den Spielraum. Achte auf die Kostenampel bei Gesetzen: Grün = tragbar, Gelb = spürbar, Rot = riskant."
+    },
+    "bundesratInfo": {
+      "title": "Bundesrat-Abstimmung",
+      "text": "Ein Gesetz hat den Bundestag passiert und geht in den Bundesrat. Nutze Lobbying bei den Fraktionen, um die nötigen Stimmen zu sichern."
+    },
+    "wahlkampfStart": {
+      "title": "Wahlkampf beginnt!",
+      "text": "Die letzten 6 Monate der Legislatur! Nutze Reden, Koalitions-Aktionen und die Medienoffensive, um deine Wahlprognose zu verbessern. Das TV-Duell kommt auch bald."
+    },
+    "understood": "Verstanden"
+  },
+  "koalitionPanel": {
+    "beziehung": {
+      "sehrGut": "Sehr gut",
+      "stabil": "Stabil",
+      "angespannt": "Angespannt",
+      "kritisch": "Kritisch",
+      "kurzVorBruch": "Kurz vor Bruch"
+    },
+    "kvScore": {
+      "eskalation": "Eskalation droht",
+      "unterDruck": "Unter Druck",
+      "imRahmen": "Im Rahmen"
+    },
+    "beziehungKritischHint": "Beziehung kritisch! Koalitionsrunde oder Zugeständnis dringend empfohlen.",
+    "partnerforderung": "Partnerforderung:",
+    "monateVerbleibend_one": "noch {{count}} Monat",
+    "monateVerbleibend_other": "noch {{count}} Monate"
+  },
+  "kpiTrend": {
+    "stable": "Stabil",
+    "stronglyRising": "Stark steigend",
+    "rising": "Steigend",
+    "stronglyFalling": "Stark fallend",
+    "falling": "Fallend",
+    "changes": "Änderungen:"
+  },
+  "approvalChart": {
+    "monatTooltip": "Monat {{month}}: <b>{{value}}%</b>",
+    "current": "Aktuell:"
+  },
+  "vorstufeBadge": {
+    "restMonate": "(noch {{count}} Mo)"
+  },
+  "vorbereitungModal": {
+    "kommunalPilot": "Kommunal-Pilot",
+    "kommunalPilotDesc": "{{cost}} PK, {{duration}} Monate · +8% BT bei Erfolg",
+    "laenderPilot": "Länder-Pilot",
+    "laenderPilotDesc": "{{cost}} PK, {{duration}} Monate · +10% BT bei Erfolg",
+    "euInitiative": "EU-Initiative",
+    "euInitiativeDesc": "{{duration}} Monate · +12% BT bei Erfolg",
+    "euKlimaIndikator": "EU-Klima-Indikator: {{pct}}% Erfolgschance",
+    "euStarten": "EU-Initiative starten",
+    "akkumulierteBoni": "Akkumulierte Boni: +{{bt}}% BT, -{{pk}} PK Rabatt",
+    "keineFraktion": "Keine Fraktion mit Beziehung ≥ 30.",
+    "vorstufeLaeuft": "Vorstufe läuft bereits.",
+    "nachWahltermin": "Vorstufe endet nach Wahltermin.",
+    "beziehung": "Beziehung: {{value}}"
+  },
+  "haushaltView": {
+    "mrdUnit": "Mrd.",
+    "verbraucht": "{{used}} / {{allowed}} Mrd. verbraucht",
+    "monatTooltip": "Monat {{month}}: <b>{{value}}</b>"
+  },
+  "eventCard": {
+    "nichtGenugPk": "Nicht genug PK ({{current}}/{{cost}})",
+    "medienklima": "Medienklima",
+    "nettoPos": "Netto +",
+    "nettoNeg": "Netto −",
+    "gemischt": "Gemischt"
+  },
+  "mainMenu": {
+    "saveInfo": "Monat {{month}} · {{approval}}%",
+    "switchToEnglish": "Switch to English",
+    "switchToGerman": "Auf Deutsch wechseln"
+  },
+  "headerUI": {
+    "pkRegen": "+{{regen}}/Mo",
+    "glossarTitle": "Glossar — Spielbegriffe erklärt",
+    "pkRegenTooltip": "PK-Regeneration: {{regen}}/Monat ({{approval}}% Zustimmung ÷ {{divisor}})"
+  },
+  "ui": {
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "cost": "Kosten",
+    "remaining": "Verbleibend",
+    "understood": "Verstanden",
+    "reject": "Ablehnen",
+    "retry": "Erneut versuchen",
+    "close": "Schließen",
+    "mrd": "Mrd."
   }
 }

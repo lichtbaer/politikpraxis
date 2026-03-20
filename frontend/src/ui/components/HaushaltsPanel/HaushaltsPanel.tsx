@@ -70,16 +70,16 @@ export function HaushaltsPanel() {
       <div className={styles.rows}>
         <div className={styles.row}>
           <span>{t('haushalt.einnahmen')}</span>
-          <span className={styles.positive}>+{haushalt.einnahmen} Mrd.</span>
+          <span className={styles.positive}>+{haushalt.einnahmen} {t('ui.mrd')}</span>
         </div>
         <div className={styles.row}>
           <span>{t('haushalt.pflichtausgaben')}</span>
-          <span className={styles.negative}>-{haushalt.pflichtausgaben} Mrd.</span>
+          <span className={styles.negative}>-{haushalt.pflichtausgaben} {t('ui.mrd')}</span>
         </div>
         <div className={styles.row}>
           <span>{t('haushalt.laufendeAusgaben')}</span>
           <span className={styles.negative}>
-            -{normalizeZero(haushalt.laufendeAusgaben).toFixed(1)} Mrd.
+            -{normalizeZero(haushalt.laufendeAusgaben).toFixed(1)} {t('ui.mrd')}
           </span>
         </div>
         <div className={`${styles.saldo} ${styles[getSaldoKlasse(haushalt.saldo)]}`}>

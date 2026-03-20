@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import type { GameState } from '../../../core/types';
 import { Lightbulb } from '../../icons';
@@ -6,54 +7,48 @@ import styles from './GameTips.module.css';
 
 interface Tip {
   id: string;
+  /** i18n key suffix for title/text under "tips.*" */
+  i18nKey: string;
   /** Monat ab dem der Tipp angezeigt werden kann */
   triggerMonth: number;
   /** Zusätzliche Bedingung (optional) */
   condition?: (state: GameState) => boolean;
-  title: string;
-  text: string;
 }
 
 const TIPS: Tip[] = [
   {
     id: 'erstes_gesetz',
+    i18nKey: 'erstesGesetz',
     triggerMonth: 1,
-    title: 'Dein erstes Gesetz',
-    text: 'Wähle ein Gesetz aus der Agenda und klicke "Einbringen", um es in den Bundestag einzubringen. Jede Einbringung kostet Politisches Kapital (PK).',
   },
   {
     id: 'pk_knapp',
+    i18nKey: 'pkKnapp',
     triggerMonth: 3,
     condition: (s) => s.pk < 30,
-    title: 'PK wird knapp',
-    text: 'Dein Politisches Kapital regeneriert sich monatlich basierend auf deiner Zustimmung. Höhere Zustimmung = mehr PK pro Monat. Setze Prioritäten!',
   },
   {
     id: 'koalition_warnung',
+    i18nKey: 'koalitionsSpannungen',
     triggerMonth: 5,
     condition: (s) => s.coalition < 40,
-    title: 'Koalitionsspannungen',
-    text: 'Deine Koalitionsstabilität sinkt. Achte auf die Stimmung deiner Kabinettsmitglieder und die Beziehung zum Koalitionspartner. Zugeständnisse und Gespräche helfen.',
   },
   {
     id: 'haushalt_defizit',
+    i18nKey: 'haushaltsDefizit',
     triggerMonth: 6,
     condition: (s) => (s.haushalt?.saldo ?? 0) < -10,
-    title: 'Haushaltsdefizit',
-    text: 'Dein Haushalt ist im Minus. Teure Gesetze belasten den Spielraum. Achte auf die Kostenampel bei Gesetzen: Grün = tragbar, Gelb = spürbar, Rot = riskant.',
   },
   {
     id: 'bundesrat_info',
+    i18nKey: 'bundesratInfo',
     triggerMonth: 8,
     condition: (s) => s.gesetze.some(g => g.status === 'bt_passed'),
-    title: 'Bundesrat-Abstimmung',
-    text: 'Ein Gesetz hat den Bundestag passiert und geht in den Bundesrat. Nutze Lobbying bei den Fraktionen, um die nötigen Stimmen zu sichern.',
   },
   {
     id: 'wahlkampf_start',
+    i18nKey: 'wahlkampfStart',
     triggerMonth: 43,
-    title: 'Wahlkampf beginnt!',
-    text: 'Die letzten 6 Monate der Legislatur! Nutze Reden, Koalitions-Aktionen und die Medienoffensive, um deine Wahlprognose zu verbessern. Das TV-Duell kommt auch bald.',
   },
 ];
 
@@ -75,6 +70,7 @@ function dismissTip(id: string) {
 }
 
 export function GameTips() {
+  const { t } = useTranslation('game');
   const state = useGameStore((s) => s.state);
   const phase = useGameStore((s) => s.phase);
   const [dismissed, setDismissed] = useState<Set<string>>(getDismissedTips);
@@ -103,11 +99,11 @@ export function GameTips() {
     <div className={styles.tip}>
       <div className={styles.tipIcon}><Lightbulb size={18} /></div>
       <div className={styles.tipContent}>
-        <strong className={styles.tipTitle}>{activeTip.title}</strong>
-        <p className={styles.tipText}>{activeTip.text}</p>
+        <strong className={styles.tipTitle}>{t(`tips.${activeTip.i18nKey}.title`)}</strong>
+        <p className={styles.tipText}>{t(`tips.${activeTip.i18nKey}.text`)}</p>
       </div>
       <button type="button" className={styles.tipDismiss} onClick={handleDismiss}>
-        Verstanden
+        {t('tips.understood')}
       </button>
     </div>
   );

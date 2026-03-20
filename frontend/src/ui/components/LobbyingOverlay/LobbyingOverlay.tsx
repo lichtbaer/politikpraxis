@@ -150,7 +150,7 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
                     {t('game:bundesrat.forderungAnnehmen')}
                   </button>
                   <button type="button" className={styles.btnSecondary} onClick={handleAblehnen}>
-                    Ablehnen
+                    {t('game:bundesrat.ablehnen')}
                   </button>
                 </>
               )}
