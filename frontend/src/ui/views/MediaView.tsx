@@ -6,6 +6,7 @@ import { featureActive } from '../../core/systems/features';
 import { MilieuBar } from '../components/MilieuBar/MilieuBar';
 import { MedienklimaSektion } from '../components/MedienklimaSektion/MedienklimaSektion';
 import { MilieuDetailPanel } from '../components/MilieuDetailPanel/MilieuDetailPanel';
+import { MedienklimaTrendChart } from '../components/MedienklimaTrendChart/MedienklimaTrendChart';
 import type { Milieu } from '../../core/types';
 import styles from './MediaView.module.css';
 
@@ -94,6 +95,13 @@ export function MediaView() {
       <p className={styles.desc}>{t('game:media.desc')}</p>
 
       <MedienklimaSektion />
+
+      {(state.medienKlimaHistory ?? []).length > 1 && (
+        <MedienklimaTrendChart
+          history={state.medienKlimaHistory ?? []}
+          current={state.medienKlima ?? 50}
+        />
+      )}
 
       <div className={styles.cards}>
         {gruppen.type === 'aggregated' ? (
