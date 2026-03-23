@@ -79,8 +79,8 @@ export function StartMapView() {
           silent: true,
           roam: false,
           aspectScale: 1,
-          layoutCenter: ['50%', '42%'],
-          layoutSize: '160%',
+          layoutCenter: ['50%', '48%'],
+          layoutSize: '90%',
           zlevel: 0,
           itemStyle: {
             areaColor: '#1a1a14',
@@ -97,8 +97,8 @@ export function StartMapView() {
           silent: true,
           roam: false,
           aspectScale: 1,
-          layoutCenter: ['50%', '42%'],
-          layoutSize: '160%',
+          layoutCenter: ['50%', '48%'],
+          layoutSize: '90%',
           zlevel: 1,
           itemStyle: {
             areaColor: '#2d4a1e',
