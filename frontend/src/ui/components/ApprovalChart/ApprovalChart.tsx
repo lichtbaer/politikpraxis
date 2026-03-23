@@ -131,7 +131,7 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
         },
       ],
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [history, threshold, t]);
 
   const latestVal = history.length > 0 ? history[history.length - 1] : null;

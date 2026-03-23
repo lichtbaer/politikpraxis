@@ -67,10 +67,12 @@ export function MedienklimaSektion() {
   const complexity = useGameStore((s) => s.complexity);
   const state = useGameStore((s) => s.state);
 
+  const history = state.medienKlimaHistory ?? [];
+  const chartOption = useMemo(() => medienklimaChartOption(history), [history]);
+
   if (!featureActive(complexity, 'medienklima')) return null;
 
   const medienKlima = state.medienKlima ?? 55;
-  const history = state.medienKlimaHistory ?? [];
   const verlauf = history.slice(-12);
   const showChart = featureActive(complexity, 'milieus_4') && verlauf.length >= 2;
 
@@ -82,8 +84,6 @@ export function MedienklimaSektion() {
     oppositionStaerke > 70 ? 'stark' : oppositionStaerke > 40 ? 'aktiv' : 'schwach';
 
   const isSkandalAktiv = state.activeEvent?.id?.startsWith('medien_skandal') ?? false;
-
-  const chartOption = useMemo(() => medienklimaChartOption(history), [history]);
 
   return (
     <section className={`${styles.root} ${klimaClass}`}>

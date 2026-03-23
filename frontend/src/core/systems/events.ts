@@ -429,7 +429,7 @@ function finalizeEvent(state: GameState, event: GameEvent, choice: EventChoice, 
     msg = i18n.exists(logKey) ? i18n.t(logKey) : (choice.log || logKey);
   }
 
-  let s = addLog(state, msg, logType);
+  const s = addLog(state, msg, logType);
   const tickerKey = `game:${ns}.${event.id}.ticker`;
   s.ticker = i18n.exists(tickerKey) ? i18n.t(tickerKey) : event.ticker;
   s.activeEvent = null;
@@ -467,7 +467,7 @@ export function resolveEvent(
   // Kommunal-Initiative: als_vorbild (SMA-274)
   if (KOMMUNAL_INITIATIVE_IDS.has(event.id) && choice.key === 'als_vorbild' && event.lawId) {
     if (!canAfford(state, choice)) return state;
-    let s = applyVorbildBonus(deductPk(state, choice), event.lawId);
+    const s = applyVorbildBonus(deductPk(state, choice), event.lawId);
     return finalizeEvent(s, event, choice);
   }
 

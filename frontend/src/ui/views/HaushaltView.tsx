@@ -244,6 +244,7 @@ export function HaushaltView() {
   const { state, complexity, content } = useGameStore();
   const haushalt = state.haushalt;
   const saldoHistory = state.haushaltSaldoHistory ?? [];
+  const haushaltSaldo = haushalt?.saldo ?? 0;
 
   const chartOption: EChartsOption = useMemo(() => ({
     animation: true,
@@ -273,14 +274,14 @@ export function HaushaltView() {
       data: saldoHistory,
       smooth: 0.3,
       symbol: 'none',
-      lineStyle: { color: (haushalt?.saldo ?? 0) >= 0 ? '#5a9870' : '#c05848', width: 2 },
+      lineStyle: { color: haushaltSaldo >= 0 ? '#5a9870' : '#c05848', width: 2 },
       areaStyle: {
-        color: (haushalt?.saldo ?? 0) >= 0
+        color: haushaltSaldo >= 0
           ? { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(90,152,112,0.3)' }, { offset: 1, color: 'rgba(90,152,112,0.02)' }] }
           : { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(192,88,72,0.3)' }, { offset: 1, color: 'rgba(192,88,72,0.02)' }] },
       },
     }],
-  }), [saldoHistory, haushalt?.saldo ?? 0]);
+  }), [saldoHistory, haushaltSaldo, t]);
 
   if (!haushalt || complexity < 2) {
     return (
