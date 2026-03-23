@@ -14,6 +14,9 @@ import styles from './MedienklimaSektion.module.css';
 // Matches --gold token (#c8a84a) — ECharts can't consume CSS variables directly
 const CHART_GOLD = '#c8a84a';
 
+/** Stabile Fallback-Referenz — vermeidet neues `[]` pro Render (exhaustive-deps / useMemo). */
+const EMPTY_MEDIEN_HISTORY: number[] = [];
+
 function medienklimaChartOption(history: number[]): EChartsOption {
   const data = history.slice(-12);
   const months = data.map((_, i) => i + 1);
@@ -67,7 +70,7 @@ export function MedienklimaSektion() {
   const complexity = useGameStore((s) => s.complexity);
   const state = useGameStore((s) => s.state);
 
-  const history = state.medienKlimaHistory ?? [];
+  const history = state.medienKlimaHistory ?? EMPTY_MEDIEN_HISTORY;
   const chartOption = useMemo(() => medienklimaChartOption(history), [history]);
 
   if (!featureActive(complexity, 'medienklima')) return null;

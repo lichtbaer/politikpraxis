@@ -107,7 +107,7 @@ export function Shell() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [setSpeed, togglePause, doResolveEvent]);
+  }, [setSpeed, togglePause, doResolveEvent, setView]);
 
   return (
     <>

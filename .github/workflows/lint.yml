@@ -17,14 +17,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Ruff
-        run: pip install "ruff>=0.8.0"
+      - name: Install backend and lint tools
+        run: pip install -r requirements-test.txt
 
       - name: Ruff check
         run: cd backend && ruff check app tests
 
       - name: Ruff format (check)
         run: cd backend && ruff format --check app tests
+
+      - name: Mypy
+        run: cd backend && mypy app
 
   frontend-eslint:
     runs-on: ubuntu-latest

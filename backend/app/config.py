@@ -1,9 +1,14 @@
 from functools import lru_cache
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+    )
+
     app_name: str = "Bundesrepublik API"
     debug: bool = True
 
@@ -36,10 +41,6 @@ class Settings(BaseSettings):
     # Admin-API (Basic-Auth)
     admin_user: str = "admin"
     admin_password: str = ""
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
 
 @lru_cache

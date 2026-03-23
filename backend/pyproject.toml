@@ -31,3 +31,18 @@ ignore = [
 
 [tool.ruff.format]
 quote-style = "double"
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "."
+explicit_package_bases = true
+namespace_packages = true
+plugins = ["pydantic.mypy"]
+# Schrittweise verschärfen; Third-Party-Stubs teils optional
+warn_return_any = false
+ignore_missing_imports = true
+exclude = "(?x)(^|.*/)(migrations)(/|$)"
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true

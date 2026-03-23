@@ -16,6 +16,9 @@ import { Check, AlertTriangle } from '../icons';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import styles from './HaushaltView.module.css';
 
+/** Stabile Fallback-Referenz — vermeidet neues `[]` pro Render (exhaustive-deps / useMemo). */
+const EMPTY_SALDO_HISTORY: number[] = [];
+
 function getSaldoKlasse(saldo: number): string {
   if (saldo > 0) return 'saldoAusgeglichen';
   if (saldo >= -15) return 'saldoDefizit';
@@ -243,7 +246,7 @@ export function HaushaltView() {
   const { t } = useTranslation('game');
   const { state, complexity, content } = useGameStore();
   const haushalt = state.haushalt;
-  const saldoHistory = state.haushaltSaldoHistory ?? [];
+  const saldoHistory = state.haushaltSaldoHistory ?? EMPTY_SALDO_HISTORY;
   const haushaltSaldo = haushalt?.saldo ?? 0;
 
   const chartOption: EChartsOption = useMemo(() => ({
