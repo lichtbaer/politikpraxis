@@ -4,6 +4,7 @@ Revision ID: 037_game_saves_sma339
 Revises: 036_sma338_auth
 Create Date: 2026-03-20
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -34,7 +35,9 @@ def upgrade() -> None:
         ),
         sa.Column("slot", sa.Integer(), nullable=False, server_default="1"),
         sa.Column("name", sa.Text(), nullable=True),
-        sa.Column("game_state", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column(
+            "game_state", postgresql.JSONB(astext_type=sa.Text()), nullable=False
+        ),
         sa.Column("partei", sa.Text(), nullable=True),
         sa.Column("monat", sa.Integer(), nullable=True),
         sa.Column("wahlprognose", sa.Numeric(5, 2), nullable=True),
@@ -59,8 +62,12 @@ def upgrade() -> None:
         ),
     )
     op.create_index("ix_game_saves_user_id", "game_saves", ["user_id"], unique=False)
-    op.create_unique_constraint("game_saves_user_slot", "game_saves", ["user_id", "slot"])
-    op.create_check_constraint("game_saves_slot_range", "game_saves", "slot >= 1 AND slot <= 3")
+    op.create_unique_constraint(
+        "game_saves_user_slot", "game_saves", ["user_id", "slot"]
+    )
+    op.create_check_constraint(
+        "game_saves_slot_range", "game_saves", "slot >= 1 AND slot <= 3"
+    )
 
 
 def downgrade() -> None:

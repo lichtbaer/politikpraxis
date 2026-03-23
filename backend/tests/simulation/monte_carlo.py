@@ -1,10 +1,11 @@
 """Monte Carlo Simulation für Balance-Testing."""
+
 from __future__ import annotations
 
 import concurrent.futures
 import statistics
+from collections.abc import Callable
 from functools import partial
-from typing import Callable
 
 from .headless_runner import HeadlessRunner
 
@@ -12,9 +13,14 @@ from .headless_runner import HeadlessRunner
 def _run_single(seed: int, strategie_name: str, stufe: int) -> dict:
     """Worker für ProcessPoolExecutor — nimmt Strategie-Name (picklbar)."""
     from .strategien import alle_strategien
+
     strat = alle_strategien().get(strategie_name)
     if not strat:
-        return {"gewonnen": False, "crash": True, "error": f"Unbekannte Strategie: {strategie_name}"}
+        return {
+            "gewonnen": False,
+            "crash": True,
+            "error": f"Unbekannte Strategie: {strategie_name}",
+        }
     runner = HeadlessRunner(strat, stufe=stufe, seed=seed)
     try:
         return runner.run()
@@ -35,6 +41,7 @@ def monte_carlo(
         strategie_name = strategie
     else:
         from .strategien import alle_strategien
+
         strategie_name = strategie.__name__
         for name, s in alle_strategien().items():
             if s is strategie:
@@ -48,6 +55,7 @@ def monte_carlo(
             ergebnisse = list(executor.map(fn, seeds))
     else:
         from .strategien import alle_strategien
+
         strat = alle_strategien()[strategie_name]
         ergebnisse = []
         for seed in seeds:
@@ -63,7 +71,9 @@ def monte_carlo(
 def _aggregiere(ergebnisse: list, n: int) -> dict:
     gewonnen = sum(1 for e in ergebnisse if e.get("gewonnen", False))
     crashes = sum(1 for e in ergebnisse if e.get("crash", False))
-    prognosen = [e["wahlprognose_final"] for e in ergebnisse if "wahlprognose_final" in e]
+    prognosen = [
+        e["wahlprognose_final"] for e in ergebnisse if "wahlprognose_final" in e
+    ]
     saldi = [e["saldo_final"] for e in ergebnisse if "saldo_final" in e]
 
     if not prognosen:
@@ -72,7 +82,7 @@ def _aggregiere(ergebnisse: list, n: int) -> dict:
         saldi = [0]
 
     sorted_prog = sorted(prognosen)
-    sorted_saldi = sorted(saldi)
+    sorted(saldi)
 
     return {
         "n": n,

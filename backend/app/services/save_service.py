@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import select
@@ -10,12 +10,16 @@ from app.services.save_metadata import extract_from_game_state
 
 async def get_user_saves(db: AsyncSession, user_id: UUID) -> list[GameSave]:
     result = await db.execute(
-        select(GameSave).where(GameSave.user_id == user_id).order_by(GameSave.slot.asc())
+        select(GameSave)
+        .where(GameSave.user_id == user_id)
+        .order_by(GameSave.slot.asc())
     )
     return list(result.scalars().all())
 
 
-async def get_save_by_slot(db: AsyncSession, user_id: UUID, slot: int) -> GameSave | None:
+async def get_save_by_slot(
+    db: AsyncSession, user_id: UUID, slot: int
+) -> GameSave | None:
     if slot not in (1, 2, 3):
         return None
     result = await db.execute(
@@ -39,7 +43,7 @@ async def upsert_save(
         raise ValueError("invalid slot")
 
     monat, partei, wahlprognose = extract_from_game_state(game_state)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     existing = await get_save_by_slot(db, user_id, slot)
     new_meta: dict = {}

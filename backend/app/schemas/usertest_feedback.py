@@ -22,7 +22,9 @@ class UserTestFeedbackCreate(BaseModel):
     @classmethod
     def validate_kontext(cls, v: str) -> str:
         if v not in KONTEXT_OPTIONEN:
-            raise ValueError(f"Ungültiger Kontext. Erlaubt: {', '.join(KONTEXT_OPTIONEN)}")
+            raise ValueError(
+                f"Ungültiger Kontext. Erlaubt: {', '.join(KONTEXT_OPTIONEN)}"
+            )
         return v
 
     @field_validator("game_stat_id")

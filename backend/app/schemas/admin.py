@@ -3,10 +3,10 @@
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
-
+from pydantic import BaseModel, Field
 
 # --- Chars ---
+
 
 class CharCreate(BaseModel):
     id: str
@@ -56,6 +56,7 @@ class CharI18nUpdate(BaseModel):
 
 # --- Gesetze ---
 
+
 class GesetzCreate(BaseModel):
     id: str
     tags: list[str] = Field(default_factory=list)
@@ -86,6 +87,7 @@ class GesetzI18nUpdate(BaseModel):
 
 
 # --- Events ---
+
 
 class EventCreate(BaseModel):
     id: str
@@ -140,6 +142,7 @@ class EventChoiceI18nUpdate(BaseModel):
 
 
 # --- Bundesrat ---
+
 
 class BundesratFraktionCreate(BaseModel):
     id: str

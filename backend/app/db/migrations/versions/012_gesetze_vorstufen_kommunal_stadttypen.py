@@ -8,6 +8,7 @@ Migration 1: Neue Felder in gesetze (kommunal_pilot_moeglich, laender_pilot_moeg
 Migration 2: Seed Vorstufen-Erlaubnis für bestehende Gesetze
 Migration 3: Tabelle kommunal_stadttypen + i18n, Seed 3 Stadttypen (DE + EN)
 """
+
 import json
 from typing import Sequence, Union
 

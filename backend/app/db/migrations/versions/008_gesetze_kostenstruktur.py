@@ -6,6 +6,7 @@ Create Date: 2025-03-17
 
 Migration 1 + 2: Kostenstruktur-Spalten für gesetze und Seed-Daten.
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -42,10 +43,10 @@ def upgrade() -> None:
     conn = op.get_bind()
     # id, einmalig, laufend, einnahmeeffekt, investiv
     GESETZ_KOSTEN = [
-        ("ee", 8.0, 2.0, 0.0, True),   # EE-Beschleunigung
+        ("ee", 8.0, 2.0, 0.0, True),  # EE-Beschleunigung
         ("wb", 5.0, 4.0, 0.0, False),  # Wohnungsbau
         ("sr", 0.0, 0.0, -12.0, False),  # Steuerreform
-        ("bp", 3.0, 2.0, 0.0, True),   # Bildungspaket
+        ("bp", 3.0, 2.0, 0.0, True),  # Bildungspaket
         ("mindestlohn", 0.0, 3.0, 4.0, False),
         ("pflegereform", 5.0, 4.0, 0.0, False),
         ("kh_reform", 4.0, 3.5, 0.0, False),

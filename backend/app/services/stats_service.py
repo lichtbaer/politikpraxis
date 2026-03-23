@@ -52,7 +52,9 @@ async def create_game_stat(
 
 async def get_community_stats(db: AsyncSession) -> CommunityStatsResponse:
     total_r = await db.execute(
-        select(func.count()).select_from(GameStat).where(GameStat.opt_in_community.is_(True))
+        select(func.count())
+        .select_from(GameStat)
+        .where(GameStat.opt_in_community.is_(True))
     )
     gesamt = int(total_r.scalar_one() or 0)
 
@@ -75,7 +77,9 @@ async def get_community_stats(db: AsyncSession) -> CommunityStatsResponse:
     gewinnrate = round(100.0 * won_n / gesamt, 1)
 
     avg_wp_r = await db.execute(
-        select(func.avg(GameStat.wahlprognose)).where(GameStat.opt_in_community.is_(True))
+        select(func.avg(GameStat.wahlprognose)).where(
+            GameStat.opt_in_community.is_(True)
+        )
     )
     wahlprognose_avg = round(float(avg_wp_r.scalar_one() or 0), 1)
 

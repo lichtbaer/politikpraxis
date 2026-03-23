@@ -1,10 +1,9 @@
 """Pytest-Tests für Admin-API (SMA-258)."""
 
 import pytest
-from httpx import AsyncClient, ASGITransport
-
 from app.config import get_settings
 from app.main import app
+from httpx import ASGITransport, AsyncClient
 from tests.conftest import requires_db
 
 

@@ -6,6 +6,7 @@ Create Date: 2025-03-17
 
 Migration 3: Tabellen wahlkampf_aktionen, wahlkampf_aktionen_i18n.
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -32,7 +33,12 @@ def upgrade() -> None:
 
     op.create_table(
         "wahlkampf_aktionen_i18n",
-        sa.Column("aktion_id", sa.Text(), sa.ForeignKey("wahlkampf_aktionen.id"), primary_key=True),
+        sa.Column(
+            "aktion_id",
+            sa.Text(),
+            sa.ForeignKey("wahlkampf_aktionen.id"),
+            primary_key=True,
+        ),
         sa.Column("locale", sa.String(5), primary_key=True),
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("desc", sa.Text(), nullable=False),

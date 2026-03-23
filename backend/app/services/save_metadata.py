@@ -1,8 +1,11 @@
 """Metadaten aus game_state (JSON) für Listenansicht ableiten."""
+
 from typing import Any
 
 
-def extract_from_game_state(game_state: dict[str, Any]) -> tuple[int | None, str | None, float | None]:
+def extract_from_game_state(
+    game_state: dict[str, Any],
+) -> tuple[int | None, str | None, float | None]:
     monat_raw = game_state.get("month")
     monat: int | None
     try:
@@ -13,11 +16,8 @@ def extract_from_game_state(game_state: dict[str, Any]) -> tuple[int | None, str
     partei: str | None = None
     sp = game_state.get("spielerPartei")
     if isinstance(sp, dict):
-        partei = sp.get("kuerzel") or sp.get("name")
-        if isinstance(partei, str):
-            partei = partei[:120]
-        else:
-            partei = None
+        raw_partei = sp.get("kuerzel") or sp.get("name")
+        partei = raw_partei[:120] if isinstance(raw_partei, str) else None
 
     wg_raw = game_state.get("wahlprognose")
     wahlprognose: float | None

@@ -5,6 +5,7 @@ Revises: 005_seed_ideologie
 Create Date: 2025-03-17
 
 """
+
 import json
 from typing import Sequence, Union
 
@@ -33,7 +34,9 @@ def upgrade() -> None:
         sa.text("UPDATE chars SET min_complexity = 1 WHERE id IN ('kanzler', 'fm')")
     )
     conn.execute(
-        sa.text("UPDATE chars SET min_complexity = 2 WHERE id IN ('wm', 'im', 'jm', 'um')")
+        sa.text(
+            "UPDATE chars SET min_complexity = 2 WHERE id IN ('wm', 'im', 'jm', 'um')"
+        )
     )
 
     # --- 3 neue Chars: am, gm, bm ---
@@ -138,7 +141,11 @@ def upgrade() -> None:
                 "role": "Gesundheits- und Pflegeminister",
                 "bio": "Klinischer Pragmatiker. Neumann denkt in Systemen und sucht nachhaltige Lösungen für Pflege und Krankenversicherung.",
                 "bonus_desc": "Gesundheitsfeld-Druck steigt langsamer wenn Mood ≥ 3",
-                "interests": ["Pflegefinanzierung", "Krankenversicherung", "Prävention"],
+                "interests": [
+                    "Pflegefinanzierung",
+                    "Krankenversicherung",
+                    "Prävention",
+                ],
                 "keyword": "Systematiker",
             },
             {
@@ -148,7 +155,11 @@ def upgrade() -> None:
                 "role": "Bildungs- und Forschungsministerin",
                 "bio": "Unermüdliche Reformerin mit Föderalismusfrust. Becker will Bund und Länder zusammenbringen — oft vergeblich.",
                 "bonus_desc": "Bundesrat-Blockade bei Bildungsgesetzen -15% wenn Mood ≥ 3",
-                "interests": ["Bildungsföderalismus", "Kitaausbau", "Forschungsförderung"],
+                "interests": [
+                    "Bildungsföderalismus",
+                    "Kitaausbau",
+                    "Forschungsförderung",
+                ],
                 "keyword": "Reformerin",
             },
         ],
@@ -175,7 +186,11 @@ def upgrade() -> None:
                 "role": "Minister for Labour and Social Affairs",
                 "bio": "Union-friendly and combative. Schulze knows the companies from the inside and consistently demands minimum wage and collective bargaining.",
                 "bonus_desc": "GBD relationship regenerates passively when Mood ≥ 3",
-                "interests": ["Minimum wage", "Collective bargaining", "Social benefits"],
+                "interests": [
+                    "Minimum wage",
+                    "Collective bargaining",
+                    "Social benefits",
+                ],
                 "keyword": "Fighter",
             },
             {
@@ -195,7 +210,11 @@ def upgrade() -> None:
                 "role": "Minister for Education and Research",
                 "bio": "Tireless reformer with federalism frustration. Becker wants to bring federal and state levels together — often in vain.",
                 "bonus_desc": "Bundesrat blockade for education laws -15% when Mood ≥ 3",
-                "interests": ["Education federalism", "Childcare expansion", "Research funding"],
+                "interests": [
+                    "Education federalism",
+                    "Childcare expansion",
+                    "Research funding",
+                ],
                 "keyword": "Reformer",
             },
         ],
@@ -209,7 +228,7 @@ def upgrade() -> None:
             "am",
             "Arbeitsministerium",
             "Schulze fordert Mindestlohn-Sofortprogramm",
-            "„Ohne ein Sofortprogramm zum Mindestlohn kann ich dieses Kabinett nicht mehr vertreten.\"",
+            '„Ohne ein Sofortprogramm zum Mindestlohn kann ich dieses Kabinett nicht mehr vertreten."',
             "Schulze ist am Ende ihrer Geduld. Die Gewerkschaften erwarten Taten.",
             "KABINETTSKRISE: Arbeitsministerin Schulze droht mit Rücktritt",
         ),
@@ -219,7 +238,7 @@ def upgrade() -> None:
             "gm",
             "Gesundheitsministerium",
             "Neumann fordert Pflegenotstand anerkennen",
-            "„Wenn wir den Pflegenotstand nicht offiziell anerkennen, verliere ich jede Glaubwürdigkeit.\"",
+            '„Wenn wir den Pflegenotstand nicht offiziell anerkennen, verliere ich jede Glaubwürdigkeit."',
             "Neumann sieht die Gesundheitspolitik am Scheideweg.",
             "KABINETTSKRISE: Gesundheitsminister Neumann droht mit Rücktritt",
         ),
@@ -229,7 +248,7 @@ def upgrade() -> None:
             "bm",
             "Bildungsministerium",
             "Becker fordert Bildungsnotstand",
-            "„Der Föderalismus blockiert jede Reform. Ohne Anerkennung des Notstands bin ich raus.\"",
+            '„Der Föderalismus blockiert jede Reform. Ohne Anerkennung des Notstands bin ich raus."',
             "Becker ist frustriert über die fehlenden Fortschritte in der Bildungspolitik.",
             "KABINETTSKRISE: Bildungsministerin Becker droht mit Rücktritt",
         ),
@@ -267,25 +286,142 @@ def upgrade() -> None:
         (
             "am_ultimatum",
             [
-                ("sofortprogramm", "safe", 0, 0, -0.2, -0.3, -2, {"am": 2}, {"am": 1}, "Sofortprogramm beschließen", "Schulze zufrieden, Haushalt belastet", "Mindestlohn-Sofortprogramm beschlossen. Schulze besänftigt."),
-                ("verhandeln", "primary", 15, 0, 0, 0, 0, {"am": 1}, {"am": 0}, "Verhandlung anbieten", "Zeitgewinn, kostet politisches Kapital", "Koalitionsgipfel zu Sozialpolitik. Kompromiss gefunden."),
-                ("ablehnen", "danger", 0, 0, 0, 0, -5, {"am": -2}, {"am": -2}, "Ablehnen", "Schulze droht Rücktritt", "Forderung abgelehnt. Schulze droht mit Rücktritt."),
+                (
+                    "sofortprogramm",
+                    "safe",
+                    0,
+                    0,
+                    -0.2,
+                    -0.3,
+                    -2,
+                    {"am": 2},
+                    {"am": 1},
+                    "Sofortprogramm beschließen",
+                    "Schulze zufrieden, Haushalt belastet",
+                    "Mindestlohn-Sofortprogramm beschlossen. Schulze besänftigt.",
+                ),
+                (
+                    "verhandeln",
+                    "primary",
+                    15,
+                    0,
+                    0,
+                    0,
+                    0,
+                    {"am": 1},
+                    {"am": 0},
+                    "Verhandlung anbieten",
+                    "Zeitgewinn, kostet politisches Kapital",
+                    "Koalitionsgipfel zu Sozialpolitik. Kompromiss gefunden.",
+                ),
+                (
+                    "ablehnen",
+                    "danger",
+                    0,
+                    0,
+                    0,
+                    0,
+                    -5,
+                    {"am": -2},
+                    {"am": -2},
+                    "Ablehnen",
+                    "Schulze droht Rücktritt",
+                    "Forderung abgelehnt. Schulze droht mit Rücktritt.",
+                ),
             ],
         ),
         (
             "gm_ultimatum",
             [
-                ("pflegenotstand", "safe", 0, 0, 0, 0, 2, {"gm": 2}, {"gm": 1}, "Pflegenotstand anerkennen", "Neumann zufrieden, Druck steigt", "Pflegenotstand offiziell anerkannt. Neumann bleibt."),
-                ("kommission", "primary", 10, 0, 0, 0, 0, {"gm": 1}, {"gm": 0}, "Expertenkommission einsetzen", "Zeitgewinn, Neumann kooperiert", "Kommision eingesetzt. Neumann vorläufig zufrieden."),
-                ("ignorieren", "danger", 0, 0, 0, 0, -4, {"gm": -2}, {"gm": -2}, "Ignorieren", "Neumann verärgert", "Forderung ignoriert. Neumann droht mit Rücktritt."),
+                (
+                    "pflegenotstand",
+                    "safe",
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    {"gm": 2},
+                    {"gm": 1},
+                    "Pflegenotstand anerkennen",
+                    "Neumann zufrieden, Druck steigt",
+                    "Pflegenotstand offiziell anerkannt. Neumann bleibt.",
+                ),
+                (
+                    "kommission",
+                    "primary",
+                    10,
+                    0,
+                    0,
+                    0,
+                    0,
+                    {"gm": 1},
+                    {"gm": 0},
+                    "Expertenkommission einsetzen",
+                    "Zeitgewinn, Neumann kooperiert",
+                    "Kommision eingesetzt. Neumann vorläufig zufrieden.",
+                ),
+                (
+                    "ignorieren",
+                    "danger",
+                    0,
+                    0,
+                    0,
+                    0,
+                    -4,
+                    {"gm": -2},
+                    {"gm": -2},
+                    "Ignorieren",
+                    "Neumann verärgert",
+                    "Forderung ignoriert. Neumann droht mit Rücktritt.",
+                ),
             ],
         ),
         (
             "bm_ultimatum",
             [
-                ("bildungsnotstand", "safe", 0, 0, 0, 0, 1, {"bm": 2}, {"bm": 1}, "Bildungsnotstand anerkennen", "Becker zufrieden, Länder alarmiert", "Bildungsnotstand anerkannt. Becker bleibt."),
-                ("foederalismus_reform", "primary", 20, 0, 0, 0, 0, {"bm": 1}, {"bm": 0}, "Föderalismusreform ankündigen", "Zeitgewinn, Becker kooperiert", "Föderalismusreform angekündigt. Becker vorläufig zufrieden."),
-                ("ablehnen_bm", "danger", 0, 0, 0, 0, -3, {"bm": -2}, {"bm": -2}, "Ablehnen", "Becker verärgert", "Forderung abgelehnt. Becker droht mit Rücktritt."),
+                (
+                    "bildungsnotstand",
+                    "safe",
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    {"bm": 2},
+                    {"bm": 1},
+                    "Bildungsnotstand anerkennen",
+                    "Becker zufrieden, Länder alarmiert",
+                    "Bildungsnotstand anerkannt. Becker bleibt.",
+                ),
+                (
+                    "foederalismus_reform",
+                    "primary",
+                    20,
+                    0,
+                    0,
+                    0,
+                    0,
+                    {"bm": 1},
+                    {"bm": 0},
+                    "Föderalismusreform ankündigen",
+                    "Zeitgewinn, Becker kooperiert",
+                    "Föderalismusreform angekündigt. Becker vorläufig zufrieden.",
+                ),
+                (
+                    "ablehnen_bm",
+                    "danger",
+                    0,
+                    0,
+                    0,
+                    0,
+                    -3,
+                    {"bm": -2},
+                    {"bm": -2},
+                    "Ablehnen",
+                    "Becker verärgert",
+                    "Forderung abgelehnt. Becker droht mit Rücktritt.",
+                ),
             ],
         ),
     ]
@@ -323,7 +459,10 @@ def upgrade() -> None:
             )
             choice_id += 1
 
-    conn.execute(sa.text("SELECT setval('event_choices_id_seq', :max_id)"), {"max_id": choice_id - 1})
+    conn.execute(
+        sa.text("SELECT setval('event_choices_id_seq', :max_id)"),
+        {"max_id": choice_id - 1},
+    )
 
 
 def downgrade() -> None:
@@ -332,14 +471,25 @@ def downgrade() -> None:
 
     # --- Event-Choices und Events für neue Chars ---
     for eid in ("am_ultimatum", "gm_ultimatum", "bm_ultimatum"):
-        conn.execute(sa.text("DELETE FROM event_choices_i18n WHERE choice_id IN (SELECT id FROM event_choices WHERE event_id = :eid)"), {"eid": eid})
-        conn.execute(sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid})
-        conn.execute(sa.text("DELETE FROM events_i18n WHERE event_id = :eid"), {"eid": eid})
+        conn.execute(
+            sa.text(
+                "DELETE FROM event_choices_i18n WHERE choice_id IN (SELECT id FROM event_choices WHERE event_id = :eid)"
+            ),
+            {"eid": eid},
+        )
+        conn.execute(
+            sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid}
+        )
+        conn.execute(
+            sa.text("DELETE FROM events_i18n WHERE event_id = :eid"), {"eid": eid}
+        )
         conn.execute(sa.text("DELETE FROM events WHERE id = :eid"), {"eid": eid})
 
     # --- chars_i18n und chars ---
     for cid in ("am", "gm", "bm"):
-        conn.execute(sa.text("DELETE FROM chars_i18n WHERE char_id = :cid"), {"cid": cid})
+        conn.execute(
+            sa.text("DELETE FROM chars_i18n WHERE char_id = :cid"), {"cid": cid}
+        )
         conn.execute(sa.text("DELETE FROM chars WHERE id = :cid"), {"cid": cid})
 
     op.drop_column("chars", "min_complexity")

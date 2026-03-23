@@ -6,6 +6,7 @@ Create Date: 2026-03-18
 
 Buergerliche Mitte hatte fälschlich die Beschreibung der Traditionellen.
 """
+
 from typing import Sequence, Union
 
 from alembic import op

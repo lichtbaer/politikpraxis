@@ -5,6 +5,7 @@ Revises: 035_merge_034_heads, 035_steuern_sma335
 Create Date: 2026-03-20
 
 """
+
 from typing import Sequence, Union
 
 

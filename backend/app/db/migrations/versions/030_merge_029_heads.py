@@ -4,9 +4,9 @@ Revision ID: 030_merge_029_heads
 Revises: 029_gesetz_relationen, 029_gesetze_erweiterung
 Create Date: 2026-03-18
 """
+
 from typing import Sequence, Union
 
-from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "030_merge_029_heads"

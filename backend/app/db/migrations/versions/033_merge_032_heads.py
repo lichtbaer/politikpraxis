@@ -4,6 +4,7 @@ Revision ID: 033_merge_032_heads
 Revises: 032_bundesrat_sma325, 032_milieu_beschr, 032_merge_031_heads
 Create Date: 2026-03-18
 """
+
 from typing import Sequence, Union
 
 

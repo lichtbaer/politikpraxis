@@ -56,7 +56,9 @@ def _send_smtp_sync(
 
 
 @router.post("/kontakt", response_model=KontaktResponse)
-async def kontakt_senden(request: Request, body: dict[str, Any] = Body(...)) -> KontaktResponse:
+async def kontakt_senden(
+    request: Request, body: dict[str, Any] = Body(...)
+) -> KontaktResponse:
     website = (body.get("website") or "").strip()
     if website:
         return KontaktResponse(success=True)
@@ -64,7 +66,9 @@ async def kontakt_senden(request: Request, body: dict[str, Any] = Body(...)) -> 
     try:
         anfrage = KontaktAnfrage.model_validate(body)
     except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=e.errors()) from e
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=e.errors()
+        ) from e
 
     ip = _client_ip(request)
     if not check_and_record(ip, max_requests=3, window_seconds=3600):
@@ -80,7 +84,9 @@ async def kontakt_senden(request: Request, body: dict[str, Any] = Body(...)) -> 
         and settings.smtp_password
         and settings.contact_recipient
     ):
-        logger.error("Kontaktformular: SMTP nicht konfiguriert (Umgebungsvariablen fehlen)")
+        logger.error(
+            "Kontaktformular: SMTP nicht konfiguriert (Umgebungsvariablen fehlen)"
+        )
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Kontaktformular vorübergehend nicht verfügbar.",

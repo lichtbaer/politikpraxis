@@ -75,7 +75,9 @@ async def request_magic_link(
     """Sendet Magic Link — immer 200 (keine User-Enumeration)."""
     user = await get_or_create_user_for_magic_link(db, req.email.lower().strip())
     raw = await create_magic_link_token(db, user)
-    verify_url = f"{settings.public_api_base_url.rstrip('/')}/auth/magic-link/verify?token={raw}"
+    verify_url = (
+        f"{settings.public_api_base_url.rstrip('/')}/auth/magic-link/verify?token={raw}"
+    )
     await send_magic_link_email(req.email, verify_url)
     return MessageResponse(detail="ok")
 
@@ -88,7 +90,9 @@ async def verify_magic_link(
     """Einmal-Link; setzt Refresh-Cookie und leitet ins Frontend."""
     user = await consume_magic_link_token(db, token)
     if not user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token"
+        )
 
     await revoke_all_refresh_tokens(db, user.id)
     raw = await create_refresh_session(db, user)
@@ -111,7 +115,9 @@ async def password_reset_request(
     user = await get_user_with_password_by_email(db, req.email)
     if user:
         raw = await create_password_reset_token(db, user)
-        reset_url = f"{settings.frontend_base_url.rstrip('/')}/passwort-reset?token={raw}"
+        reset_url = (
+            f"{settings.frontend_base_url.rstrip('/')}/passwort-reset?token={raw}"
+        )
         await send_password_reset_email(req.email, reset_url)
     return MessageResponse(detail="ok")
 
@@ -131,7 +137,9 @@ async def password_reset_confirm(
         )
     access = create_access_token(str(user.id))
     raw = await create_refresh_session(db, user)
-    response = JSONResponse(content=AccessTokenResponse(access_token=access).model_dump())
+    response = JSONResponse(
+        content=AccessTokenResponse(access_token=access).model_dump()
+    )
     attach_refresh_cookie(response, raw)
     return response
 
@@ -146,7 +154,9 @@ async def register(
     user = await register_user(db, req.email.lower().strip(), req.password)
     access = create_access_token(str(user.id))
     raw = await create_refresh_session(db, user)
-    response = JSONResponse(content=AccessTokenResponse(access_token=access).model_dump())
+    response = JSONResponse(
+        content=AccessTokenResponse(access_token=access).model_dump()
+    )
     attach_refresh_cookie(response, raw)
     return response
 
@@ -162,7 +172,9 @@ async def login(
     access = create_access_token(str(user.id))
     await revoke_all_refresh_tokens(db, user.id)
     raw = await create_refresh_session(db, user)
-    response = JSONResponse(content=AccessTokenResponse(access_token=access).model_dump())
+    response = JSONResponse(
+        content=AccessTokenResponse(access_token=access).model_dump()
+    )
     attach_refresh_cookie(response, raw)
     return response
 
@@ -175,7 +187,9 @@ async def refresh_token(
     await purge_expired_refresh_tokens(db)
     user = await validate_refresh_cookie(db, refresh_cookie)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
     access = create_access_token(str(user.id))
     return AccessTokenResponse(access_token=access)
 

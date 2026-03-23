@@ -17,8 +17,13 @@ async def verify_admin(credentials: HTTPBasicCredentials = Depends(security)) ->
             detail="Admin-API nicht konfiguriert (ADMIN_PASSWORD fehlt)",
         )
     import secrets
-    user_ok = secrets.compare_digest(credentials.username.encode("utf-8"), settings.admin_user.encode("utf-8"))
-    pass_ok = secrets.compare_digest(credentials.password.encode("utf-8"), settings.admin_password.encode("utf-8"))
+
+    user_ok = secrets.compare_digest(
+        credentials.username.encode("utf-8"), settings.admin_user.encode("utf-8")
+    )
+    pass_ok = secrets.compare_digest(
+        credentials.password.encode("utf-8"), settings.admin_password.encode("utf-8")
+    )
     if not (user_ok and pass_ok):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

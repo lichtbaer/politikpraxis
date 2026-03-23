@@ -3,11 +3,10 @@
 from unittest.mock import patch
 
 import pytest
-from httpx import ASGITransport, AsyncClient
-
 from app.config import get_settings
 from app.main import app
 from app.services.rate_limit import reset_for_tests
+from httpx import ASGITransport, AsyncClient
 
 VALID_BODY = {
     "name": "Test Nutzer",
@@ -34,7 +33,9 @@ def clear_buckets():
 
 @pytest.fixture
 async def client(clear_settings_cache, clear_buckets):
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac
 
 
@@ -47,7 +48,9 @@ async def test_honeypot_returns_success_without_smtp(client: AsyncClient):
 
 
 @pytest.mark.anyio
-async def test_smtp_not_configured_503(client: AsyncClient, monkeypatch: pytest.MonkeyPatch):
+async def test_smtp_not_configured_503(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+):
     monkeypatch.delenv("SMTP_HOST", raising=False)
     monkeypatch.delenv("SMTP_USER", raising=False)
     monkeypatch.delenv("SMTP_PASSWORD", raising=False)
@@ -90,10 +93,17 @@ async def test_rate_limit_fourth_request_429(
     try:
         with patch("app.routes.kontakt._send_smtp_sync"):
             for i in range(3):
-                body = {**VALID_BODY, "email": f"u{i}@example.com", "nachricht": VALID_BODY["nachricht"] + f" {i}"}
+                body = {
+                    **VALID_BODY,
+                    "email": f"u{i}@example.com",
+                    "nachricht": VALID_BODY["nachricht"] + f" {i}",
+                }
                 r = await client.post("/api/kontakt", json=body)
                 assert r.status_code == 200, f"request {i}"
-            r4 = await client.post("/api/kontakt", json={**VALID_BODY, "nachricht": VALID_BODY["nachricht"] + " x"})
+            r4 = await client.post(
+                "/api/kontakt",
+                json={**VALID_BODY, "nachricht": VALID_BODY["nachricht"] + " x"},
+            )
             assert r4.status_code == 429
     finally:
         get_settings.cache_clear()

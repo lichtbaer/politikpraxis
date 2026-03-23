@@ -50,7 +50,9 @@ async def post_stats(
     db: AsyncSession = Depends(get_db),
 ):
     if not user and not req.session_id.strip():
-        raise HTTPException(status_code=400, detail="session_id erforderlich ohne Login")
+        raise HTTPException(
+            status_code=400, detail="session_id erforderlich ohne Login"
+        )
     row = await create_game_stat(db, req, user.id if user else None)
     return GameStatCreateResponse(id=str(row.id))
 
