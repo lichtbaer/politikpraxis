@@ -14,6 +14,7 @@ import type { LawStatus } from '../../core/types';
 import { gruppiereNachPolitikfeld } from '../../core/gesetzAgenda';
 import { getRecommendedLaws } from '../../core/systems/recommendations';
 import { PolitikfeldIcon, Hourglass } from '../icons';
+import { PendingEffekteChart } from '../components/PendingEffekteChart/PendingEffekteChart';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import { KPI_TO_BEGRIFF } from '../../constants/begriffe';
 import styles from './GesetzAgendaView.module.css';
@@ -211,6 +212,7 @@ export function GesetzAgendaView() {
           </header>
           {!pendingCollapsed && (
             <div className={styles.pendingList}>
+              <PendingEffekteChart pending={state.pending ?? []} currentMonth={state.month} />
               {pendingMonths.map((month) => (
                 <div key={month} className={styles.pendingMonthGroup}>
                   <div className={styles.pendingMonthLabel}>{formatMonth(month)}</div>

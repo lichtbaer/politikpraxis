@@ -14,6 +14,7 @@ import { formatMrdSaldo, normalizeZero } from '../../utils/format';
 import type { SchuldenbremsenStatus, Verband, Haushalt, SteuerContent } from '../../core/types';
 import { Check, AlertTriangle } from '../icons';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
+import { KpiVerlaufChart } from '../components/KpiVerlaufChart/KpiVerlaufChart';
 import styles from './HaushaltView.module.css';
 
 /** Stabile Fallback-Referenz — vermeidet neues `[]` pro Render (exhaustive-deps / useMemo). */
@@ -363,6 +364,16 @@ export function HaushaltView() {
             theme="politikpraxis"
             style={{ width: '100%', height: 160 }}
             opts={{ renderer: 'canvas' }}
+          />
+        </section>
+      )}
+
+      {state.kpiHistory && (
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>{t('haushalt.kpiVerlauf', 'KPI-Entwicklung')}</h2>
+          <KpiVerlaufChart
+            history={state.kpiHistory}
+            current={state.kpi}
           />
         </section>
       )}

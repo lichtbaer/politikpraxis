@@ -16,6 +16,7 @@ import { useGameStore } from '../../store/gameStore';
 import { useAuthStore } from '../../store/authStore';
 import { useContentStore } from '../../stores/contentStore';
 import type { Milieu } from '../../core/types';
+import { BewertungRadarChart } from '../components/BewertungRadarChart/BewertungRadarChart';
 
 const EMPTY_MILIEUS: Milieu[] = [];
 import { fetchCommunityStats, getOrCreateStatsSessionId, postGameStats } from '../../services/stats';
@@ -175,6 +176,7 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
         <p className={styles.muted}>
           {t('game:auswertung.noteHint', 'Note aus fünf Dimensionen (Demokratie, Wirtschaft, …).')}
         </p>
+        <BewertungRadarChart dimensionen={bewertung.dimensionen} />
         <div className={styles.dimGrid}>
           {(
             [
