@@ -2,43 +2,43 @@
 
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.dependencies import verify_admin
 from app.models.content import (
-    Char,
-    CharI18n,
-    Gesetz,
-    GesetzI18n,
-    Event,
-    EventI18n,
-    EventChoice,
-    EventChoiceI18n,
     BundesratFraktion,
     BundesratFraktionI18n,
     BundesratTradeoff,
     BundesratTradeoffI18n,
+    Char,
+    CharI18n,
+    Event,
+    EventChoice,
+    EventChoiceI18n,
+    EventI18n,
+    Gesetz,
+    GesetzI18n,
 )
 from app.schemas.admin import (
-    CharCreate,
-    CharUpdate,
-    CharI18nCreate,
-    CharI18nUpdate,
-    GesetzCreate,
-    GesetzUpdate,
-    GesetzI18nUpdate,
-    EventCreate,
-    EventUpdate,
-    EventI18nUpdate,
-    EventChoiceCreate,
-    EventChoiceI18nUpdate,
     BundesratFraktionCreate,
     BundesratFraktionI18nUpdate,
     BundesratTradeoffCreate,
     BundesratTradeoffI18nUpdate,
+    CharCreate,
+    CharI18nCreate,
+    CharI18nUpdate,
+    CharUpdate,
+    EventChoiceCreate,
+    EventChoiceI18nUpdate,
+    EventCreate,
+    EventI18nUpdate,
+    EventUpdate,
+    GesetzCreate,
+    GesetzI18nUpdate,
+    GesetzUpdate,
 )
 from app.services.content_db_service import VALID_LOCALES, content_cache_clear
 
@@ -56,6 +56,7 @@ def _to_float(v: Decimal | float | None) -> float:
 
 
 # --- Chars ---
+
 
 @router.get("/chars")
 async def admin_list_chars(db: AsyncSession = Depends(get_db)):
@@ -123,7 +124,9 @@ async def admin_get_char(char_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/chars/{char_id}")
-async def admin_update_char(char_id: str, data: CharUpdate, db: AsyncSession = Depends(get_db)):
+async def admin_update_char(
+    char_id: str, data: CharUpdate, db: AsyncSession = Depends(get_db)
+):
     result = await db.execute(select(Char).where(Char.id == char_id))
     char = result.scalar_one_or_none()
     if not char:
@@ -240,6 +243,7 @@ async def admin_update_char_i18n(
 
 
 # --- Gesetze ---
+
 
 @router.get("/gesetze")
 async def admin_list_gesetze(db: AsyncSession = Depends(get_db)):
@@ -367,6 +371,7 @@ async def admin_upsert_gesetz_i18n(
 
 
 # --- Events ---
+
 
 @router.get("/events")
 async def admin_list_events(db: AsyncSession = Depends(get_db)):
@@ -585,11 +590,7 @@ async def admin_upsert_event_choice_i18n(
     )
     i18n = r.scalar_one_or_none()
     if not i18n:
-        if (
-            data.label is None
-            or data.desc is None
-            or data.log_msg is None
-        ):
+        if data.label is None or data.desc is None or data.log_msg is None:
             raise HTTPException(
                 400,
                 detail="label, desc, log_msg erforderlich für neue i18n-Zeile",
@@ -615,6 +616,7 @@ async def admin_upsert_event_choice_i18n(
 
 
 # --- Bundesrat ---
+
 
 @router.get("/bundesrat")
 async def admin_list_bundesrat(db: AsyncSession = Depends(get_db)):

@@ -2,11 +2,13 @@
 
 Repliziert die Frontend-Engine-Logik in Python. Ziel: maximale Geschwindigkeit.
 """
+
 from __future__ import annotations
 
 import random
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 # Konstanten aus frontend/src/core/constants.ts
 PK_REGEN_DIVISOR = 25
@@ -22,6 +24,7 @@ MIN_KOALITION_FORTGANG = 15  # Koalitionsbruch wenn darunter
 @dataclass
 class SimGameState:
     """Vereinfachter Spielzustand für Simulation."""
+
     monat: int = 1
     pk: int = 100
     pk_regen: int = 3
@@ -37,18 +40,53 @@ class SimGameState:
     zufriedenheit: float = 62.0
     beschlossene_gesetze: list = field(default_factory=list)
     eingebrachte_gesetze: list = field(default_factory=list)
-    log: list = field(default_factory=list)  # [{pk, monat}, ...] + koalitionsbruch-Einträge
-    eingebrachte_ablauf: list = field(default_factory=list)  # {gesetz_id, abstimmung_monat}
+    log: list = field(
+        default_factory=list
+    )  # [{pk, monat}, ...] + koalitionsbruch-Einträge
+    eingebrachte_ablauf: list = field(
+        default_factory=list
+    )  # {gesetz_id, abstimmung_monat}
     koalitionsbruch_seit_monat: int | None = None  # SMA-334: Ultimatum-Tracking
 
 
 # Spargesetze aus Migration 028 (falls nicht in YAML)
 _SPARGESETZE_FALLBACK = [
-    {"id": "sozialleistungen_kuerzen", "effekte": {"hh": -0.1, "zf": 2, "gi": -0.1}, "lag": 4, "pflichtausgaben_delta": -5.0, "ideologie": {"wirtschaft": 40, "gesellschaft": 30, "staat": 30}},
-    {"id": "beamtenbesoldung_einfrieren", "effekte": {"zf": 1}, "lag": 4, "pflichtausgaben_delta": -3.0, "ideologie": {"wirtschaft": 20, "gesellschaft": 10, "staat": 20}},
-    {"id": "subventionen_abbau", "effekte": {"hh": -0.1, "zf": 3, "gi": -0.2}, "lag": 4, "einnahmeeffekt": 4.0, "ideologie": {"wirtschaft": -10, "gesellschaft": -30, "staat": -10}},
-    {"id": "rente_stabilisierung", "effekte": {"hh": -0.2, "zf": 2, "gi": -0.1}, "lag": 4, "pflichtausgaben_delta": -8.0, "ideologie": {"wirtschaft": 30, "gesellschaft": 20, "staat": 10}},
-    {"id": "effizienzprogramm_bund", "effekte": {"zf": 2, "gi": 0.2}, "lag": 4, "kosten_einmalig": -2.0, "pflichtausgaben_delta": -4.0, "ideologie": {"wirtschaft": 10, "gesellschaft": 0, "staat": 20}},
+    {
+        "id": "sozialleistungen_kuerzen",
+        "effekte": {"hh": -0.1, "zf": 2, "gi": -0.1},
+        "lag": 4,
+        "pflichtausgaben_delta": -5.0,
+        "ideologie": {"wirtschaft": 40, "gesellschaft": 30, "staat": 30},
+    },
+    {
+        "id": "beamtenbesoldung_einfrieren",
+        "effekte": {"zf": 1},
+        "lag": 4,
+        "pflichtausgaben_delta": -3.0,
+        "ideologie": {"wirtschaft": 20, "gesellschaft": 10, "staat": 20},
+    },
+    {
+        "id": "subventionen_abbau",
+        "effekte": {"hh": -0.1, "zf": 3, "gi": -0.2},
+        "lag": 4,
+        "einnahmeeffekt": 4.0,
+        "ideologie": {"wirtschaft": -10, "gesellschaft": -30, "staat": -10},
+    },
+    {
+        "id": "rente_stabilisierung",
+        "effekte": {"hh": -0.2, "zf": 2, "gi": -0.1},
+        "lag": 4,
+        "pflichtausgaben_delta": -8.0,
+        "ideologie": {"wirtschaft": 30, "gesellschaft": 20, "staat": 10},
+    },
+    {
+        "id": "effizienzprogramm_bund",
+        "effekte": {"zf": 2, "gi": 0.2},
+        "lag": 4,
+        "kosten_einmalig": -2.0,
+        "pflichtausgaben_delta": -4.0,
+        "ideologie": {"wirtschaft": 10, "gesellschaft": 0, "staat": 20},
+    },
 ]
 
 
@@ -56,14 +94,25 @@ def _lade_gesetze() -> list[dict[str, Any]]:
     """Lädt Gesetze aus Content (YAML oder DB)."""
     try:
         from app.services.content_service import load_laws
+
         laws = load_laws()
     except Exception:
         # Fallback: YAML direkt laden (falls außerhalb Backend-Kontext)
         import os
+
         import yaml
-        path = os.path.join(os.path.dirname(__file__), "..", "..", "app", "content", "laws", "default.yaml")
+
+        path = os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "..",
+            "app",
+            "content",
+            "laws",
+            "default.yaml",
+        )
         if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 laws = yaml.safe_load(f) or []
         else:
             laws = []
@@ -79,33 +128,45 @@ def _lade_gesetze() -> list[dict[str, Any]]:
     for g in laws:
         if isinstance(g, dict):
             eff = g.get("effekte") or {}
-            ideo = g.get("ideologie") or {"wirtschaft": 0, "gesellschaft": 0, "staat": 0}
-            result.append({
-                "id": g.get("id", ""),
-                "titel": g.get("titel", ""),
-                "kurz": g.get("kurz", ""),
-                "effekte": eff,
-                "lag": g.get("lag", g.get("effekt_lag", 4)),
-                "ja": g.get("ja", g.get("bt_stimmen_ja", 50)),
-                "kosten_laufend": float(g.get("kosten_laufend", 0)),
-                "kosten_einmalig": float(g.get("kosten_einmalig", 0)),
-                "einnahmeeffekt": float(g.get("einnahmeeffekt", 0)),
-                "pflichtausgaben_delta": float(g.get("pflichtausgaben_delta", 0)),
-                "ideologie": ideo if isinstance(ideo, dict) else {"wirtschaft": 0, "gesellschaft": 0, "staat": 0},
-                "locked_until_event": g.get("locked_until_event"),
-                "min_complexity": g.get("min_complexity", 1),
-            })
+            ideo = g.get("ideologie") or {
+                "wirtschaft": 0,
+                "gesellschaft": 0,
+                "staat": 0,
+            }
+            result.append(
+                {
+                    "id": g.get("id", ""),
+                    "titel": g.get("titel", ""),
+                    "kurz": g.get("kurz", ""),
+                    "effekte": eff,
+                    "lag": g.get("lag", g.get("effekt_lag", 4)),
+                    "ja": g.get("ja", g.get("bt_stimmen_ja", 50)),
+                    "kosten_laufend": float(g.get("kosten_laufend", 0)),
+                    "kosten_einmalig": float(g.get("kosten_einmalig", 0)),
+                    "einnahmeeffekt": float(g.get("einnahmeeffekt", 0)),
+                    "pflichtausgaben_delta": float(g.get("pflichtausgaben_delta", 0)),
+                    "ideologie": ideo
+                    if isinstance(ideo, dict)
+                    else {"wirtschaft": 0, "gesellschaft": 0, "staat": 0},
+                    "locked_until_event": g.get("locked_until_event"),
+                    "min_complexity": g.get("min_complexity", 1),
+                }
+            )
     return result
 
 
 def _kongruenz(gesetz: dict, partei: str) -> float:
     """Kongruenz-Score Gesetz vs. Partei (SDP: links, CDP: rechts)."""
     ideo = gesetz.get("ideologie") or {}
-    w, g, s = ideo.get("wirtschaft", 0), ideo.get("gesellschaft", 0), ideo.get("staat", 0)
+    w, g, s = (
+        ideo.get("wirtschaft", 0),
+        ideo.get("gesellschaft", 0),
+        ideo.get("staat", 0),
+    )
     if partei == "sdp":
-        return (w * 0.4 + g * 0.35 + s * 0.25)  # SDP mag positive Werte (links)
+        return w * 0.4 + g * 0.35 + s * 0.25  # SDP mag positive Werte (links)
     if partei == "cdp":
-        return -((w * 0.4 + g * 0.35 + s * 0.25))  # CDP mag negative (rechts)
+        return -(w * 0.4 + g * 0.35 + s * 0.25)  # CDP mag negative (rechts)
     return 0
 
 
@@ -166,7 +227,9 @@ class HeadlessRunner:
                 G.pk -= 15
                 G.eingebrachte_gesetze.append(gid)
                 lag = gesetz.get("lag", 4)
-                G.eingebrachte_ablauf.append({"gesetz_id": gid, "abstimmung_monat": G.monat + lag})
+                G.eingebrachte_ablauf.append(
+                    {"gesetz_id": gid, "abstimmung_monat": G.monat + lag}
+                )
         elif typ == "lobbying" and G.pk >= 12:
             G.pk -= 12
             G.medienklima = min(100, G.medienklima + random.uniform(2, 6))
@@ -194,7 +257,9 @@ class HeadlessRunner:
                         eff = gesetz.get("effekte") or {}
                         G.zufriedenheit = min(100, G.zufriedenheit + eff.get("zf", 0))
                         G.gini = max(0, G.gini + eff.get("gi", 0))
-                        G.arbeitslosigkeit = max(0, G.arbeitslosigkeit + eff.get("al", 0))
+                        G.arbeitslosigkeit = max(
+                            0, G.arbeitslosigkeit + eff.get("al", 0)
+                        )
                         # SMA-334: Gesetz ideologisch gegen Partner (CDP) → Koalition -5
                         if _kongruenz(gesetz, "cdp") < 30:
                             G.koalition = max(0, G.koalition - 5)
@@ -228,7 +293,9 @@ class HeadlessRunner:
             return
         if G.koalitionsbruch_seit_monat is None:
             G.koalitionsbruch_seit_monat = G.monat
-            G.log.append("koalitionsbruch")  # Für Test: 'koalitionsbruch' in ergebnis['log']
+            G.log.append(
+                "koalitionsbruch"
+            )  # Für Test: 'koalitionsbruch' in ergebnis['log']
         # Nach 3 Monaten Ultimatum: Spielende (vereinfacht: wir laufen weiter)
 
     def _berechne_ergebnis(self, G: SimGameState) -> dict:

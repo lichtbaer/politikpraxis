@@ -7,6 +7,7 @@ Ausführung:
 Oder mit weniger Durchläufen (schneller):
   cd backend && python -m tests.simulation.balance_report --n 200
 """
+
 from __future__ import annotations
 
 import argparse
@@ -14,8 +15,8 @@ import json
 import sys
 from pathlib import Path
 
-from .strategien import alle_strategien
 from .monte_carlo import monte_carlo
+from .strategien import alle_strategien
 
 
 def erstelle_balance_report(n: int = 500, parallel: bool = True) -> dict:
@@ -23,7 +24,7 @@ def erstelle_balance_report(n: int = 500, parallel: bool = True) -> dict:
     strategien = alle_strategien()
     report = {}
 
-    for name, strat in strategien.items():
+    for name, _ in strategien.items():
         print(f"Simuliere {name}...", flush=True)
         report[name] = monte_carlo(name, n=n, parallel=parallel)
 
@@ -54,7 +55,7 @@ def _check_haushalt_crashes(report: dict) -> None:
         crashes = r.get("crashes", 0)
         n = r.get("n", 1)
         if crashes > 0:
-            print(f"⚠️  {name}: {crashes}/{n} Crashes ({100*crashes/n:.1f}%)")
+            print(f"⚠️  {name}: {crashes}/{n} Crashes ({100 * crashes / n:.1f}%)")
         else:
             print(f"✅ {name}: Keine Crashes")
 
@@ -72,8 +73,12 @@ def _check_extremwerte(report: dict) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Balance-Report für Bundesrepublik")
-    parser.add_argument("--n", type=int, default=500, help="Anzahl Simulationen pro Strategie")
-    parser.add_argument("--no-parallel", action="store_true", help="Keine Parallelisierung")
+    parser.add_argument(
+        "--n", type=int, default=500, help="Anzahl Simulationen pro Strategie"
+    )
+    parser.add_argument(
+        "--no-parallel", action="store_true", help="Keine Parallelisierung"
+    )
     parser.add_argument("--output", "-o", type=str, help="JSON-Report speichern")
     args = parser.parse_args()
 
@@ -99,7 +104,9 @@ def main() -> int:
         print(f"\nReport gespeichert: {out_path}")
     else:
         # Standard: balance_report.json im Projekt-Root (workspace)
-        root = Path(__file__).resolve().parents[3]  # backend/tests/simulation -> workspace
+        root = (
+            Path(__file__).resolve().parents[3]
+        )  # backend/tests/simulation -> workspace
         out_path = root / "balance_report.json"
         out_path.write_text(json.dumps(output_data, indent=2), encoding="utf-8")
         print(f"\nReport gespeichert: {out_path}")

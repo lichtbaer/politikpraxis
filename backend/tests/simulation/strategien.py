@@ -2,13 +2,13 @@
 
 SMA-334: 8 Scripted Scenarios als automatisierte Balance-Tests.
 """
+
 from __future__ import annotations
 
 import random
-from typing import Any, Callable
+from collections.abc import Callable
 
 from .headless_runner import SimGameState, _kongruenz
-
 
 # =============================================================================
 # Szenario 1 — Musterschüler (Baseline)
@@ -32,7 +32,8 @@ def strategie_musterschueler(G: SimGameState, gesetze: list) -> dict:
     if bereits_gebracht < gesetze_erwartet:
         # Ideologisch kongruent für SDP (links)
         verfuegbar = [
-            g for g in gesetze
+            g
+            for g in gesetze
             if g["id"] not in G.eingebrachte_gesetze and not g.get("locked_until_event")
         ]
         if verfuegbar:
@@ -84,7 +85,8 @@ def strategie_koalitionsbrecher(G: SimGameState, gesetze: list) -> dict:
         return {"typ": "nichts"}
 
     verfuegbar = [
-        g for g in gesetze
+        g
+        for g in gesetze
         if g["id"] not in G.eingebrachte_gesetze and not g.get("locked_until_event")
     ]
     if not verfuegbar:
@@ -125,14 +127,19 @@ def strategie_verbands_freund(G: SimGameState, gesetze: list) -> dict:
     (HeadlessRunner hat keine Verbandslogik — hier: positive Gesetze priorisieren).
     """
     verfuegbar = [
-        g for g in gesetze
+        g
+        for g in gesetze
         if g["id"] not in G.eingebrachte_gesetze and not g.get("locked_until_event")
     ]
     if not verfuegbar or G.pk < 15:
         return {"typ": "nichts"}
 
-    eff = lambda g: (g.get("effekte") or {})
-    score = lambda g: eff(g).get("zf", 0) + eff(g).get("gi", 0) * 0.5
+    def eff(g):
+        return g.get("effekte") or {}
+
+    def score(g):
+        return eff(g).get("zf", 0) + eff(g).get("gi", 0) * 0.5
+
     best = sorted(verfuegbar, key=score, reverse=True)
     return {"typ": "gesetz_einbringen", "gesetz_id": best[0]["id"]}
 
@@ -156,7 +163,8 @@ def strategie_speed_runner(G: SimGameState, gesetze: list) -> dict:
     Invariante: PK-Regeneration schützt vor dauerhaft leerem PK.
     """
     verfuegbar = [
-        g for g in gesetze
+        g
+        for g in gesetze
         if g["id"] not in G.eingebrachte_gesetze and not g.get("locked_until_event")
     ]
     if verfuegbar and G.pk >= 15:
@@ -174,9 +182,16 @@ def strategie_random(G: SimGameState, gesetze: list) -> dict:
     aktionen = ["nichts", "gesetz_einbringen", "lobbying", "pressemitteilung"]
     a = random.choice(aktionen)
     if a == "gesetz_einbringen":
-        verfuegbar = [g for g in gesetze if g["id"] not in G.eingebrachte_gesetze and not g.get("locked_until_event")]
+        verfuegbar = [
+            g
+            for g in gesetze
+            if g["id"] not in G.eingebrachte_gesetze and not g.get("locked_until_event")
+        ]
         if verfuegbar and G.pk >= 15:
-            return {"typ": "gesetz_einbringen", "gesetz_id": random.choice(verfuegbar)["id"]}
+            return {
+                "typ": "gesetz_einbringen",
+                "gesetz_id": random.choice(verfuegbar)["id"],
+            }
         return {"typ": "nichts"}
     else:
         return {"typ": a}
@@ -185,7 +200,8 @@ def strategie_random(G: SimGameState, gesetze: list) -> dict:
 def strategie_immer_einbringen(G: SimGameState, gesetze: list) -> dict:
     """Bringt immer das erste verfügbare Gesetz ein."""
     verfuegbar = [
-        g for g in gesetze
+        g
+        for g in gesetze
         if g["id"] not in G.eingebrachte_gesetze and not g.get("locked_until_event")
     ]
     if verfuegbar and G.pk >= 15:
@@ -196,7 +212,8 @@ def strategie_immer_einbringen(G: SimGameState, gesetze: list) -> dict:
 def strategie_nur_sparen(G: SimGameState, gesetze: list) -> dict:
     """Bringt nur Spargesetze ein (pflichtausgaben_delta < 0)."""
     spargesetze = [
-        g for g in gesetze
+        g
+        for g in gesetze
         if g.get("pflichtausgaben_delta", 0) < 0
         and g["id"] not in G.eingebrachte_gesetze
         and not g.get("locked_until_event")
@@ -210,12 +227,19 @@ def strategie_nur_ausgaben(G: SimGameState, gesetze: list) -> dict:
     """Bringt nur teure Ausgaben-Gesetze ein — Worst Case für Haushalt."""
     ausgaben = sorted(
         [
-            g for g in gesetze
-            if (g.get("kosten_laufend", 0) > 2 or g.get("effekte", {}).get("hh", 0) < -0.3)
+            g
+            for g in gesetze
+            if (
+                g.get("kosten_laufend", 0) > 2
+                or g.get("effekte", {}).get("hh", 0) < -0.3
+            )
             and g["id"] not in G.eingebrachte_gesetze
             and not g.get("locked_until_event")
         ],
-        key=lambda g: g.get("kosten_laufend", 0) * 12 + (g.get("effekte", {}).get("hh", 0) or 0) * 10,
+        key=lambda g: (
+            g.get("kosten_laufend", 0) * 12
+            + (g.get("effekte", {}).get("hh", 0) or 0) * 10
+        ),
     )
     if ausgaben and G.pk >= 15:
         return {"typ": "gesetz_einbringen", "gesetz_id": ausgaben[0]["id"]}
@@ -232,7 +256,8 @@ def _strategie_ideologisch_kongruent(
 ) -> dict:
     """Wählt immer das ideologisch passendste Gesetz."""
     verfuegbar = [
-        g for g in gesetze
+        g
+        for g in gesetze
         if g["id"] not in G.eingebrachte_gesetze and not g.get("locked_until_event")
     ]
     if not verfuegbar or G.pk < 15:

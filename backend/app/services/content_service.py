@@ -1,6 +1,6 @@
 import os
-from pathlib import Path
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 import yaml
@@ -11,7 +11,7 @@ settings = get_settings()
 
 
 def _load_yaml(filepath: str) -> Any:
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 

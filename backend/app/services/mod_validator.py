@@ -1,10 +1,42 @@
 """Validates mod content against expected schemas."""
+
 from typing import Any
 
-
-REQUIRED_CHARACTER_FIELDS = {"id", "name", "role", "initials", "color", "mood", "loyalty", "bio", "interests", "bonus", "ultimatum"}
-REQUIRED_EVENT_FIELDS = {"id", "type", "icon", "typeLabel", "title", "quote", "context", "choices", "ticker"}
-REQUIRED_LAW_FIELDS = {"id", "titel", "kurz", "desc", "tags", "ja", "nein", "effekte", "lag"}
+REQUIRED_CHARACTER_FIELDS = {
+    "id",
+    "name",
+    "role",
+    "initials",
+    "color",
+    "mood",
+    "loyalty",
+    "bio",
+    "interests",
+    "bonus",
+    "ultimatum",
+}
+REQUIRED_EVENT_FIELDS = {
+    "id",
+    "type",
+    "icon",
+    "typeLabel",
+    "title",
+    "quote",
+    "context",
+    "choices",
+    "ticker",
+}
+REQUIRED_LAW_FIELDS = {
+    "id",
+    "titel",
+    "kurz",
+    "desc",
+    "tags",
+    "ja",
+    "nein",
+    "effekte",
+    "lag",
+}
 VALID_EVENT_TYPES = {"danger", "warn", "good", "info"}
 VALID_CHOICE_TYPES = {"safe", "primary", "danger"}
 VALID_TAGS = {"bund", "eu", "land", "kommune", "kommunen"}
@@ -24,9 +56,15 @@ def validate_mod_content(content: dict[str, Any]) -> list[str]:
             missing = REQUIRED_CHARACTER_FIELDS - set(char.keys())
             if missing:
                 errors.append(f"Character [{i}]: missing fields {missing}")
-            if not isinstance(char.get("mood", 0), int) or not 0 <= char.get("mood", -1) <= 4:
+            if (
+                not isinstance(char.get("mood", 0), int)
+                or not 0 <= char.get("mood", -1) <= 4
+            ):
                 errors.append(f"Character [{i}]: mood must be 0-4")
-            if not isinstance(char.get("loyalty", 0), int) or not 0 <= char.get("loyalty", -1) <= 5:
+            if (
+                not isinstance(char.get("loyalty", 0), int)
+                or not 0 <= char.get("loyalty", -1) <= 5
+            ):
                 errors.append(f"Character [{i}]: loyalty must be 0-5")
 
     if "events" in content:
@@ -38,8 +76,13 @@ def validate_mod_content(content: dict[str, Any]) -> list[str]:
                 errors.append(f"Event [{i}]: invalid type '{ev.get('type')}'")
             for j, ch in enumerate(ev.get("choices", [])):
                 if ch.get("type") not in VALID_CHOICE_TYPES:
-                    errors.append(f"Event [{i}] choice [{j}]: invalid type '{ch.get('type')}'")
-                if not isinstance(ch.get("cost", 0), (int, float)) or ch.get("cost", 0) < 0:
+                    errors.append(
+                        f"Event [{i}] choice [{j}]: invalid type '{ch.get('type')}'"
+                    )
+                if (
+                    not isinstance(ch.get("cost", 0), (int, float))
+                    or ch.get("cost", 0) < 0
+                ):
                     errors.append(f"Event [{i}] choice [{j}]: cost must be >= 0")
 
     if "laws" in content:

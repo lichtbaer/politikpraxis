@@ -17,7 +17,10 @@ from app.db.database import get_db
 from app.dependencies import verify_admin
 from app.models.user import User
 from app.models.usertest_feedback import UserTestFeedback
-from app.schemas.usertest_feedback import UserTestFeedbackCreate, UserTestFeedbackResponse
+from app.schemas.usertest_feedback import (
+    UserTestFeedbackCreate,
+    UserTestFeedbackResponse,
+)
 from app.services.auth_service import decode_token
 from app.services.rate_limit import check_and_record
 
@@ -51,7 +54,11 @@ async def _get_optional_user(
     return user
 
 
-@router.post("/usertest-feedback", response_model=UserTestFeedbackResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/usertest-feedback",
+    response_model=UserTestFeedbackResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def submit_feedback(
     req: UserTestFeedbackCreate,
     request: Request,
@@ -93,6 +100,7 @@ async def submit_feedback(
 
 
 # --- Admin-geschützte Endpoints ---
+
 
 @router.get("/admin/usertest-feedback", dependencies=[Depends(verify_admin)])
 async def list_feedback(
@@ -144,20 +152,37 @@ async def export_feedback_csv(db: AsyncSession = Depends(get_db)) -> StreamingRe
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow([
-        "id", "kontext", "bewertung_gesamt", "verstaendlichkeit",
-        "fehler_gemeldet", "fehler_beschreibung", "positives",
-        "verbesserungen", "sonstiges", "game_stat_id", "created_at",
-    ])
+    writer.writerow(
+        [
+            "id",
+            "kontext",
+            "bewertung_gesamt",
+            "verstaendlichkeit",
+            "fehler_gemeldet",
+            "fehler_beschreibung",
+            "positives",
+            "verbesserungen",
+            "sonstiges",
+            "game_stat_id",
+            "created_at",
+        ]
+    )
     for r in rows:
-        writer.writerow([
-            str(r.id), r.kontext, r.bewertung_gesamt, r.verstaendlichkeit,
-            r.fehler_gemeldet, r.fehler_beschreibung or "",
-            r.positives or "", r.verbesserungen or "",
-            r.sonstiges or "",
-            str(r.game_stat_id) if r.game_stat_id else "",
-            r.created_at.isoformat(),
-        ])
+        writer.writerow(
+            [
+                str(r.id),
+                r.kontext,
+                r.bewertung_gesamt,
+                r.verstaendlichkeit,
+                r.fehler_gemeldet,
+                r.fehler_beschreibung or "",
+                r.positives or "",
+                r.verbesserungen or "",
+                r.sonstiges or "",
+                str(r.game_stat_id) if r.game_stat_id else "",
+                r.created_at.isoformat(),
+            ]
+        )
 
     output.seek(0)
     return StreamingResponse(

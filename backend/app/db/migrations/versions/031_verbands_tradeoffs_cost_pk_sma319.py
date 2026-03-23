@@ -6,6 +6,7 @@ Create Date: 2026-03-18
 
 Jeder Verband min. 2 Aktionen. Neue 15-PK-Lobby-Aktionen für UVB, BVD, PVD, DWV.
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -50,7 +51,10 @@ def upgrade() -> None:
             "uvb",
             "uvb_eu_klima",
             15,
-            0, 0, 0, 0,
+            0,
+            0,
+            0,
+            0,
             0,
             None,
             None,
@@ -61,7 +65,10 @@ def upgrade() -> None:
             "bvd",
             "bvd_ganztag",
             15,
-            0, -0.2, 0, 0,
+            0,
+            -0.2,
+            0,
+            0,
             2,
             None,
             None,
@@ -72,7 +79,10 @@ def upgrade() -> None:
             "pvd",
             "pvd_pflegenotstand",
             15,
-            0, 0, 0, 0,
+            0,
+            0,
+            0,
+            0,
             0,
             3,
             None,
@@ -83,7 +93,10 @@ def upgrade() -> None:
             "dwv",
             "dwv_ki_regulierung",
             15,
-            0, 0, 0, 0,
+            0,
+            0,
+            0,
+            0,
             0,
             None,
             '{"bdi": 5}',
@@ -92,7 +105,20 @@ def upgrade() -> None:
         ),
     ]
 
-    for vid, tkey, cpk, ea, eh, eg, ez, fdd, mk_delta, v_eff, label, desc in new_tradeoffs:
+    for (
+        vid,
+        tkey,
+        cpk,
+        ea,
+        eh,
+        eg,
+        ez,
+        fdd,
+        mk_delta,
+        v_eff,
+        label,
+        desc,
+    ) in new_tradeoffs:
         v_eff_val = v_eff if v_eff else None
         insert_result = conn.execute(
             sa.text("""
@@ -101,8 +127,14 @@ def upgrade() -> None:
                 RETURNING id
             """),
             {
-                "vid": vid, "tkey": tkey, "cpk": cpk,
-                "ea": ea, "eh": eh, "eg": eg, "ez": ez, "fdd": fdd,
+                "vid": vid,
+                "tkey": tkey,
+                "cpk": cpk,
+                "ea": ea,
+                "eh": eh,
+                "eg": eg,
+                "ez": ez,
+                "fdd": fdd,
                 "mk_delta": mk_delta or 0,
                 "v_eff": v_eff_val if v_eff_val else "null",
             },
@@ -120,17 +152,21 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Entferne neue Tradeoffs und neue Spalten."""
     conn = op.get_bind()
-    conn.execute(sa.text("""
+    conn.execute(
+        sa.text("""
         DELETE FROM verbands_tradeoffs_i18n
         WHERE tradeoff_id IN (
             SELECT id FROM verbands_tradeoffs
             WHERE tradeoff_key IN ('uvb_eu_klima', 'bvd_ganztag', 'pvd_pflegenotstand', 'dwv_ki_regulierung')
         )
-    """))
-    conn.execute(sa.text("""
+    """)
+    )
+    conn.execute(
+        sa.text("""
         DELETE FROM verbands_tradeoffs
         WHERE tradeoff_key IN ('uvb_eu_klima', 'bvd_ganztag', 'pvd_pflegenotstand', 'dwv_ki_regulierung')
-    """))
+    """)
+    )
     op.drop_column("verbands_tradeoffs", "verband_effekte")
     op.drop_column("verbands_tradeoffs", "medienklima_delta")
     op.drop_column("verbands_tradeoffs", "cost_pk")

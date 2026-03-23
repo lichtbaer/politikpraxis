@@ -7,6 +7,7 @@ Create Date: 2026-03-18
 - gesetz_relationen Tabelle
 - Seed: Relationen für bestehende Gesetze (requires, excludes, enhances)
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -23,20 +24,38 @@ def upgrade() -> None:
     """Create gesetz_relationen table and seed relations."""
     op.create_table(
         "gesetz_relationen",
-        sa.Column("id", sa.Uuid(), primary_key=True, server_default=sa.text("gen_random_uuid()")),
-        sa.Column("gesetz_a_id", sa.Text(), sa.ForeignKey("gesetze.id"), nullable=False),
-        sa.Column("gesetz_b_id", sa.Text(), sa.ForeignKey("gesetze.id"), nullable=False),
+        sa.Column(
+            "id",
+            sa.Uuid(),
+            primary_key=True,
+            server_default=sa.text("gen_random_uuid()"),
+        ),
+        sa.Column(
+            "gesetz_a_id", sa.Text(), sa.ForeignKey("gesetze.id"), nullable=False
+        ),
+        sa.Column(
+            "gesetz_b_id", sa.Text(), sa.ForeignKey("gesetze.id"), nullable=False
+        ),
         sa.Column(
             "relation_typ",
             sa.Text(),
-            sa.CheckConstraint("relation_typ IN ('requires', 'excludes', 'enhances')", name="ck_relation_typ"),
+            sa.CheckConstraint(
+                "relation_typ IN ('requires', 'excludes', 'enhances')",
+                name="ck_relation_typ",
+            ),
             nullable=False,
         ),
         sa.Column("beschreibung_de", sa.Text(), nullable=True),
-        sa.Column("enhances_faktor", sa.Numeric(4, 2), nullable=True, server_default="1.0"),
+        sa.Column(
+            "enhances_faktor", sa.Numeric(4, 2), nullable=True, server_default="1.0"
+        ),
     )
-    op.create_index("ix_gesetz_relationen_gesetz_a", "gesetz_relationen", ["gesetz_a_id"])
-    op.create_index("ix_gesetz_relationen_gesetz_b", "gesetz_relationen", ["gesetz_b_id"])
+    op.create_index(
+        "ix_gesetz_relationen_gesetz_a", "gesetz_relationen", ["gesetz_a_id"]
+    )
+    op.create_index(
+        "ix_gesetz_relationen_gesetz_b", "gesetz_relationen", ["gesetz_b_id"]
+    )
 
     conn = op.get_bind()
 

@@ -5,6 +5,7 @@ Revises: 003_seed_en
 Create Date: 2025-03-17
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -24,15 +25,24 @@ def upgrade() -> None:
     for table in ("gesetze", "chars"):
         op.add_column(
             table,
-            sa.Column("ideologie_wirtschaft", sa.Integer(), nullable=True, server_default="0"),
+            sa.Column(
+                "ideologie_wirtschaft", sa.Integer(), nullable=True, server_default="0"
+            ),
         )
         op.add_column(
             table,
-            sa.Column("ideologie_gesellschaft", sa.Integer(), nullable=True, server_default="0"),
+            sa.Column(
+                "ideologie_gesellschaft",
+                sa.Integer(),
+                nullable=True,
+                server_default="0",
+            ),
         )
         op.add_column(
             table,
-            sa.Column("ideologie_staat", sa.Integer(), nullable=True, server_default="0"),
+            sa.Column(
+                "ideologie_staat", sa.Integer(), nullable=True, server_default="0"
+            ),
         )
 
     # --- politikfelder (vor gesetze-Erweiterung, da FK) ---
@@ -40,8 +50,12 @@ def upgrade() -> None:
         "politikfelder",
         sa.Column("id", sa.Text(), primary_key=True),
         sa.Column("verband_id", sa.Text(), nullable=True),
-        sa.Column("vernachlaessigung_start", sa.Integer(), nullable=True, server_default="0"),
-        sa.Column("druck_event_id", sa.Text(), sa.ForeignKey("events.id"), nullable=True),
+        sa.Column(
+            "vernachlaessigung_start", sa.Integer(), nullable=True, server_default="0"
+        ),
+        sa.Column(
+            "druck_event_id", sa.Text(), sa.ForeignKey("events.id"), nullable=True
+        ),
         sa.Column("eu_relevanz", sa.Integer(), nullable=True, server_default="1"),
         sa.Column("kommunal_relevanz", sa.Integer(), nullable=True, server_default="1"),
         sa.Column("min_complexity", sa.Integer(), nullable=True, server_default="1"),
@@ -49,7 +63,9 @@ def upgrade() -> None:
 
     op.create_table(
         "politikfelder_i18n",
-        sa.Column("feld_id", sa.Text(), sa.ForeignKey("politikfelder.id"), primary_key=True),
+        sa.Column(
+            "feld_id", sa.Text(), sa.ForeignKey("politikfelder.id"), primary_key=True
+        ),
         sa.Column(
             "locale",
             postgresql.ENUM("de", "en", name="content_locale", create_type=False),
@@ -68,7 +84,12 @@ def upgrade() -> None:
     # --- Politikfeld-Zuordnung für Gesetze ---
     op.add_column(
         "gesetze",
-        sa.Column("politikfeld_id", sa.Text(), sa.ForeignKey("politikfelder.id"), nullable=True),
+        sa.Column(
+            "politikfeld_id",
+            sa.Text(),
+            sa.ForeignKey("politikfelder.id"),
+            nullable=True,
+        ),
     )
     op.add_column(
         "gesetze",
@@ -86,8 +107,12 @@ def upgrade() -> None:
         sa.Column("id", sa.Text(), primary_key=True),
         sa.Column("gewicht", sa.Integer(), nullable=False),
         sa.Column("basisbeteiligung", sa.Integer(), nullable=False),
-        sa.Column("ideologie_wirtschaft", sa.Integer(), nullable=True, server_default="0"),
-        sa.Column("ideologie_gesellschaft", sa.Integer(), nullable=True, server_default="0"),
+        sa.Column(
+            "ideologie_wirtschaft", sa.Integer(), nullable=True, server_default="0"
+        ),
+        sa.Column(
+            "ideologie_gesellschaft", sa.Integer(), nullable=True, server_default="0"
+        ),
         sa.Column("ideologie_staat", sa.Integer(), nullable=True, server_default="0"),
         sa.Column("min_complexity", sa.Integer(), nullable=True, server_default="1"),
         sa.Column("aggregat_gruppe", sa.Text(), nullable=True),
@@ -95,7 +120,9 @@ def upgrade() -> None:
 
     op.create_table(
         "milieus_i18n",
-        sa.Column("milieu_id", sa.Text(), sa.ForeignKey("milieus.id"), primary_key=True),
+        sa.Column(
+            "milieu_id", sa.Text(), sa.ForeignKey("milieus.id"), primary_key=True
+        ),
         sa.Column(
             "locale",
             postgresql.ENUM("de", "en", name="content_locale", create_type=False),
@@ -116,22 +143,38 @@ def upgrade() -> None:
     op.create_table(
         "verbaende",
         sa.Column("id", sa.Text(), primary_key=True),
-        sa.Column("politikfeld_id", sa.Text(), sa.ForeignKey("politikfelder.id"), nullable=False),
-        sa.Column("ideologie_wirtschaft", sa.Integer(), nullable=True, server_default="0"),
-        sa.Column("ideologie_gesellschaft", sa.Integer(), nullable=True, server_default="0"),
+        sa.Column(
+            "politikfeld_id",
+            sa.Text(),
+            sa.ForeignKey("politikfelder.id"),
+            nullable=False,
+        ),
+        sa.Column(
+            "ideologie_wirtschaft", sa.Integer(), nullable=True, server_default="0"
+        ),
+        sa.Column(
+            "ideologie_gesellschaft", sa.Integer(), nullable=True, server_default="0"
+        ),
         sa.Column("ideologie_staat", sa.Integer(), nullable=True, server_default="0"),
         sa.Column("beziehung_start", sa.Integer(), nullable=False),
         sa.Column("staerke_bund", sa.Integer(), nullable=True, server_default="1"),
         sa.Column("staerke_eu", sa.Integer(), nullable=True, server_default="1"),
         sa.Column("staerke_laender", sa.Integer(), nullable=True, server_default="1"),
         sa.Column("staerke_kommunen", sa.Integer(), nullable=True, server_default="1"),
-        sa.Column("konflikt_mit", postgresql.ARRAY(sa.Text()), nullable=False, server_default="{}"),
+        sa.Column(
+            "konflikt_mit",
+            postgresql.ARRAY(sa.Text()),
+            nullable=False,
+            server_default="{}",
+        ),
         sa.Column("min_complexity", sa.Integer(), nullable=True, server_default="2"),
     )
 
     op.create_table(
         "verbaende_i18n",
-        sa.Column("verband_id", sa.Text(), sa.ForeignKey("verbaende.id"), primary_key=True),
+        sa.Column(
+            "verband_id", sa.Text(), sa.ForeignKey("verbaende.id"), primary_key=True
+        ),
         sa.Column(
             "locale",
             postgresql.ENUM("de", "en", name="content_locale", create_type=False),
@@ -151,7 +194,9 @@ def upgrade() -> None:
     op.create_table(
         "verbands_tradeoffs",
         sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
-        sa.Column("verband_id", sa.Text(), sa.ForeignKey("verbaende.id"), nullable=False),
+        sa.Column(
+            "verband_id", sa.Text(), sa.ForeignKey("verbaende.id"), nullable=False
+        ),
         sa.Column("tradeoff_key", sa.Text(), nullable=False),
         sa.Column("effekt_al", sa.Numeric(5, 2), nullable=True, server_default="0"),
         sa.Column("effekt_hh", sa.Numeric(5, 2), nullable=True, server_default="0"),
@@ -188,7 +233,9 @@ def upgrade() -> None:
         "ministerial_initiativen",
         sa.Column("id", sa.Text(), primary_key=True),
         sa.Column("char_id", sa.Text(), sa.ForeignKey("chars.id"), nullable=False),
-        sa.Column("gesetz_ref_id", sa.Text(), sa.ForeignKey("gesetze.id"), nullable=True),
+        sa.Column(
+            "gesetz_ref_id", sa.Text(), sa.ForeignKey("gesetze.id"), nullable=True
+        ),
         sa.Column("trigger_type", sa.Text(), nullable=False),
         sa.Column("min_complexity", sa.Integer(), nullable=True, server_default="3"),
         sa.Column("cooldown_months", sa.Integer(), nullable=True, server_default="8"),
@@ -223,11 +270,16 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Remove ideologie columns and new tables."""
-    op.drop_index("ix_ministerial_initiativen_i18n_initiative_id_locale", "ministerial_initiativen_i18n")
+    op.drop_index(
+        "ix_ministerial_initiativen_i18n_initiative_id_locale",
+        "ministerial_initiativen_i18n",
+    )
     op.drop_table("ministerial_initiativen_i18n")
     op.drop_table("ministerial_initiativen")
 
-    op.drop_index("ix_verbands_tradeoffs_i18n_tradeoff_id_locale", "verbands_tradeoffs_i18n")
+    op.drop_index(
+        "ix_verbands_tradeoffs_i18n_tradeoff_id_locale", "verbands_tradeoffs_i18n"
+    )
     op.drop_table("verbands_tradeoffs_i18n")
     op.drop_table("verbands_tradeoffs")
 

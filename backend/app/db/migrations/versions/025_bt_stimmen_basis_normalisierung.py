@@ -7,6 +7,7 @@ Create Date: 2025-03-17
 Dynamische BT-Stimmen: Basis-Werte werden zu neutralen Ausgangswerten.
 Die Partei-Kongruenz-Boni verschieben dann je nach Koalition.
 """
+
 from typing import Sequence, Union
 
 from alembic import op

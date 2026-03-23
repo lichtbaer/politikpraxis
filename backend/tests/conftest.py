@@ -1,9 +1,8 @@
 """Pytest-Fixtures für Backend-Tests."""
 
 import pytest
-from httpx import ASGITransport, AsyncClient
-
 from app.main import app
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.fixture
@@ -15,6 +14,7 @@ def _db_available() -> bool:
     """Prüft ob PostgreSQL erreichbar ist (sync mit psycopg2)."""
     try:
         import psycopg2
+
         conn = psycopg2.connect(
             "postgresql://postgres:postgres@localhost:5432/bundesrepublik",
             connect_timeout=2,

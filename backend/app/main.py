@@ -1,11 +1,25 @@
+from collections.abc import Callable
+from typing import cast
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from starlette.responses import Response
 
 from app.config import get_settings
 from app.limiter import limiter
-from app.routes import auth, saves, content, analytics, mods, admin, kontakt, stats, usertest_feedback
+from app.routes import (
+    admin,
+    analytics,
+    auth,
+    content,
+    kontakt,
+    mods,
+    saves,
+    stats,
+    usertest_feedback,
+)
 
 settings = get_settings()
 
@@ -16,7 +30,13 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(
+    RateLimitExceeded,
+    cast(
+        Callable[[Request, Exception], Response],
+        _rate_limit_exceeded_handler,
+    ),
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,6 +55,7 @@ async def auth_security_headers(request: Request, call_next):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
     return response
+
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(saves.router, prefix="/api/saves", tags=["saves"])

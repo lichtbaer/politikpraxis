@@ -9,6 +9,7 @@ Create Date: 2026-03-17
 - lehmann_defizit_start Event (Monat 1)
 - haushaltskrise Event (Saldo < -30)
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -28,21 +29,141 @@ def upgrade() -> None:
     # --- pflichtausgaben_delta in gesetze ---
     op.add_column(
         "gesetze",
-        sa.Column("pflichtausgaben_delta", sa.Numeric(8, 2), nullable=True, server_default="0"),
+        sa.Column(
+            "pflichtausgaben_delta", sa.Numeric(8, 2), nullable=True, server_default="0"
+        ),
     )
 
     # --- 5 neue Sparmaßnahmen-Gesetze ---
     # id, tags, bt, ea, eh, eg, ez, lag, foed, iw, ig, is_, pf, ke, kl, einn, pfl_delta, inv, minc
     gesetze_data = [
-        ("sozialleistungen_kuerzen", ["bund"], 48, -0.1, 0, -0.1, 2, 4, False, 40, 30, 30, "arbeit_soziales", 0.0, 0.0, 5.0, -5.0, False, 1),
-        ("beamtenbesoldung_einfrieren", ["bund"], 52, 0, 0, 0, 1, 4, False, 20, 10, 20, "wirtschaft_finanzen", 0.0, 0.0, 0.0, -3.0, False, 1),
-        ("subventionen_abbau", ["bund"], 46, -0.1, 0, -0.2, 3, 4, False, -10, -30, -10, "wirtschaft_finanzen", 0.0, 0.0, 4.0, 0.0, False, 1),
-        ("rente_stabilisierung", ["bund"], 44, -0.2, 0, -0.1, 2, 4, False, 30, 20, 10, "arbeit_soziales", 0.0, 0.0, 0.0, -8.0, False, 1),
-        ("effizienzprogramm_bund", ["bund"], 54, 0, 0, 0.2, 2, 4, False, 10, 0, 20, "digital_infrastruktur", -2.0, 0.0, 0.0, -4.0, True, 1),
+        (
+            "sozialleistungen_kuerzen",
+            ["bund"],
+            48,
+            -0.1,
+            0,
+            -0.1,
+            2,
+            4,
+            False,
+            40,
+            30,
+            30,
+            "arbeit_soziales",
+            0.0,
+            0.0,
+            5.0,
+            -5.0,
+            False,
+            1,
+        ),
+        (
+            "beamtenbesoldung_einfrieren",
+            ["bund"],
+            52,
+            0,
+            0,
+            0,
+            1,
+            4,
+            False,
+            20,
+            10,
+            20,
+            "wirtschaft_finanzen",
+            0.0,
+            0.0,
+            0.0,
+            -3.0,
+            False,
+            1,
+        ),
+        (
+            "subventionen_abbau",
+            ["bund"],
+            46,
+            -0.1,
+            0,
+            -0.2,
+            3,
+            4,
+            False,
+            -10,
+            -30,
+            -10,
+            "wirtschaft_finanzen",
+            0.0,
+            0.0,
+            4.0,
+            0.0,
+            False,
+            1,
+        ),
+        (
+            "rente_stabilisierung",
+            ["bund"],
+            44,
+            -0.2,
+            0,
+            -0.1,
+            2,
+            4,
+            False,
+            30,
+            20,
+            10,
+            "arbeit_soziales",
+            0.0,
+            0.0,
+            0.0,
+            -8.0,
+            False,
+            1,
+        ),
+        (
+            "effizienzprogramm_bund",
+            ["bund"],
+            54,
+            0,
+            0,
+            0.2,
+            2,
+            4,
+            False,
+            10,
+            0,
+            20,
+            "digital_infrastruktur",
+            -2.0,
+            0.0,
+            0.0,
+            -4.0,
+            True,
+            1,
+        ),
     ]
 
     for (
-        gid, tags, bt, ea, eh, eg, ez, lag, foed, iw, ig, is_, pf, ke, kl, einn, pfl_delta, inv, minc
+        gid,
+        tags,
+        bt,
+        ea,
+        eh,
+        eg,
+        ez,
+        lag,
+        foed,
+        iw,
+        ig,
+        is_,
+        pf,
+        ke,
+        kl,
+        einn,
+        pfl_delta,
+        inv,
+        minc,
     ) in gesetze_data:
         tags_sql = "{" + ",".join(f'"{t}"' for t in tags) + "}"
         conn.execute(
@@ -55,24 +176,60 @@ def upgrade() -> None:
                     :ke, :kl, :einn, :pfl_delta, :inv, :minc)
             """),
             {
-                "id": gid, "tags": tags_sql, "bt": bt, "ea": ea, "eh": eh, "eg": eg, "ez": ez, "lag": lag,
-                "foed": foed, "iw": iw, "ig": ig, "is_": is_, "pf": pf, "ke": ke, "kl": kl, "einn": einn,
-                "pfl_delta": pfl_delta, "inv": inv, "minc": minc,
+                "id": gid,
+                "tags": tags_sql,
+                "bt": bt,
+                "ea": ea,
+                "eh": eh,
+                "eg": eg,
+                "ez": ez,
+                "lag": lag,
+                "foed": foed,
+                "iw": iw,
+                "ig": ig,
+                "is_": is_,
+                "pf": pf,
+                "ke": ke,
+                "kl": kl,
+                "einn": einn,
+                "pfl_delta": pfl_delta,
+                "inv": inv,
+                "minc": minc,
             },
         )
 
     # --- gesetze_i18n (DE) ---
     gesetze_i18n_de = [
-        ("sozialleistungen_kuerzen", "Sozialleistungs-Konsolidierungsgesetz", "SozKonsG",
-         "Kürzung von Sozialleistungen und Streichung von Subventionen zur Haushaltskonsolidierung."),
-        ("beamtenbesoldung_einfrieren", "Besoldungsmoratorium", "BesoldMor",
-         "Einfrierung der Beamtenbesoldung für 2 Jahre zur Haushaltsentlastung."),
-        ("subventionen_abbau", "Subventionsabbau-Gesetz", "SubvAbbG",
-         "Streichung klimaschädlicher Subventionen und Steuerbefreiungen."),
-        ("rente_stabilisierung", "Rentenstabilisierungsgesetz", "RentStabG",
-         "Anhebung des Renteneintrittsalters auf 68 Jahre und Anpassung der Rentenformel."),
-        ("effizienzprogramm_bund", "Bundeseffizienzprogramm", "BundEffProg",
-         "Digitalisierung und Verschlankung der Bundesverwaltung — weniger Bürokratie, weniger Kosten."),
+        (
+            "sozialleistungen_kuerzen",
+            "Sozialleistungs-Konsolidierungsgesetz",
+            "SozKonsG",
+            "Kürzung von Sozialleistungen und Streichung von Subventionen zur Haushaltskonsolidierung.",
+        ),
+        (
+            "beamtenbesoldung_einfrieren",
+            "Besoldungsmoratorium",
+            "BesoldMor",
+            "Einfrierung der Beamtenbesoldung für 2 Jahre zur Haushaltsentlastung.",
+        ),
+        (
+            "subventionen_abbau",
+            "Subventionsabbau-Gesetz",
+            "SubvAbbG",
+            "Streichung klimaschädlicher Subventionen und Steuerbefreiungen.",
+        ),
+        (
+            "rente_stabilisierung",
+            "Rentenstabilisierungsgesetz",
+            "RentStabG",
+            "Anhebung des Renteneintrittsalters auf 68 Jahre und Anpassung der Rentenformel.",
+        ),
+        (
+            "effizienzprogramm_bund",
+            "Bundeseffizienzprogramm",
+            "BundEffProg",
+            "Digitalisierung und Verschlankung der Bundesverwaltung — weniger Bürokratie, weniger Kosten.",
+        ),
     ]
 
     for gid, titel, kurz, desc in gesetze_i18n_de:
@@ -86,16 +243,36 @@ def upgrade() -> None:
 
     # --- gesetze_i18n (EN) ---
     gesetze_i18n_en = [
-        ("sozialleistungen_kuerzen", "Social Benefits Consolidation Act", "SBCA",
-         "Cutting social benefits and subsidies for budget consolidation."),
-        ("beamtenbesoldung_einfrieren", "Civil Service Pay Freeze", "CSPF",
-         "Freezing civil service pay for 2 years to relieve the budget."),
-        ("subventionen_abbau", "Subsidy Reduction Act", "SRA",
-         "Eliminating climate-harmful subsidies and tax exemptions."),
-        ("rente_stabilisierung", "Pension Stabilization Act", "PSA",
-         "Raising retirement age to 68 and adjusting the pension formula."),
-        ("effizienzprogramm_bund", "Federal Efficiency Program", "FEP",
-         "Digitalization and streamlining of federal administration — less bureaucracy, lower costs."),
+        (
+            "sozialleistungen_kuerzen",
+            "Social Benefits Consolidation Act",
+            "SBCA",
+            "Cutting social benefits and subsidies for budget consolidation.",
+        ),
+        (
+            "beamtenbesoldung_einfrieren",
+            "Civil Service Pay Freeze",
+            "CSPF",
+            "Freezing civil service pay for 2 years to relieve the budget.",
+        ),
+        (
+            "subventionen_abbau",
+            "Subsidy Reduction Act",
+            "SRA",
+            "Eliminating climate-harmful subsidies and tax exemptions.",
+        ),
+        (
+            "rente_stabilisierung",
+            "Pension Stabilization Act",
+            "PSA",
+            "Raising retirement age to 68 and adjusting the pension formula.",
+        ),
+        (
+            "effizienzprogramm_bund",
+            "Federal Efficiency Program",
+            "FEP",
+            "Digitalization and streamlining of federal administration — less bureaucracy, lower costs.",
+        ),
     ]
 
     for gid, titel, kurz, desc in gesetze_i18n_en:
@@ -136,23 +313,72 @@ def upgrade() -> None:
     )
 
     # --- event_choices: lehmann_defizit_start ---
-    max_id_result = conn.execute(sa.text("SELECT COALESCE(MAX(id), 0) FROM event_choices"))
+    max_id_result = conn.execute(
+        sa.text("SELECT COALESCE(MAX(id), 0) FROM event_choices")
+    )
     choice_id = max_id_result.scalar() + 1
     choices_lehmann = [
-        ("lehmann_defizit_start", "konsolidieren", "primary", 0, "Konsolidierungskurs einschlagen", "Haushalt sanieren.", "Konsolidierungskurs eingeschlagen.",
-         "Pursue consolidation", "Stabilize budget.", "Consolidation course set."),
-        ("lehmann_defizit_start", "investieren", "danger", 0, "Trotzdem in Wachstum investieren", "Risiko für Schuldenbremse.", "Investitionskurs gewählt.",
-         "Invest in growth anyway", "Risk to debt brake.", "Investment course chosen."),
-        ("lehmann_defizit_start", "abwarten", "safe", 0, "Erstmal abwarten und analysieren", "Zeit gewinnen.", "Abwarten beschlossen.",
-         "Wait and analyze first", "Gain time.", "Wait and see decided."),
+        (
+            "lehmann_defizit_start",
+            "konsolidieren",
+            "primary",
+            0,
+            "Konsolidierungskurs einschlagen",
+            "Haushalt sanieren.",
+            "Konsolidierungskurs eingeschlagen.",
+            "Pursue consolidation",
+            "Stabilize budget.",
+            "Consolidation course set.",
+        ),
+        (
+            "lehmann_defizit_start",
+            "investieren",
+            "danger",
+            0,
+            "Trotzdem in Wachstum investieren",
+            "Risiko für Schuldenbremse.",
+            "Investitionskurs gewählt.",
+            "Invest in growth anyway",
+            "Risk to debt brake.",
+            "Investment course chosen.",
+        ),
+        (
+            "lehmann_defizit_start",
+            "abwarten",
+            "safe",
+            0,
+            "Erstmal abwarten und analysieren",
+            "Zeit gewinnen.",
+            "Abwarten beschlossen.",
+            "Wait and analyze first",
+            "Gain time.",
+            "Wait and see decided.",
+        ),
     ]
-    for event_id, ckey, ctype, cost, label_de, desc_de, log_de, label_en, desc_en, log_en in choices_lehmann:
+    for (
+        event_id,
+        ckey,
+        ctype,
+        cost,
+        label_de,
+        desc_de,
+        log_de,
+        label_en,
+        desc_en,
+        log_en,
+    ) in choices_lehmann:
         conn.execute(
             sa.text("""
                 INSERT INTO event_choices (id, event_id, choice_key, choice_type, cost_pk)
                 VALUES (:id, :event_id, :ckey, :ctype, :cost)
             """),
-            {"id": choice_id, "event_id": event_id, "ckey": ckey, "ctype": ctype, "cost": cost},
+            {
+                "id": choice_id,
+                "event_id": event_id,
+                "ckey": ckey,
+                "ctype": ctype,
+                "cost": cost,
+            },
         )
         conn.execute(
             sa.text("""
@@ -199,20 +425,67 @@ def upgrade() -> None:
     )
 
     choices_haushaltskrise = [
-        ("haushaltskrise", "sparpaket", "primary", 15, "Sofort-Sparpaket", "Pflichtausgaben kürzen.", "Sofort-Sparpaket beschlossen.",
-         "Immediate austerity package", "Cut mandatory spending.", "Immediate austerity package passed."),
-        ("haushaltskrise", "steuer_erhoehung", "danger", 0, "Steuererhöhung", "Einnahmen steigen, Zustimmung sinkt.", "Steuererhöhung beschlossen.",
-         "Raise taxes", "Revenue rises, approval drops.", "Tax increase passed."),
-        ("haushaltskrise", "schuldenbremse_aussetzen", "danger", 0, "Schuldenbremse aussetzen", "Lehmann-Ultimatum droht.", "Schuldenbremse ausgesetzt.",
-         "Suspend debt brake", "Lehmann ultimatum looms.", "Debt brake suspended."),
+        (
+            "haushaltskrise",
+            "sparpaket",
+            "primary",
+            15,
+            "Sofort-Sparpaket",
+            "Pflichtausgaben kürzen.",
+            "Sofort-Sparpaket beschlossen.",
+            "Immediate austerity package",
+            "Cut mandatory spending.",
+            "Immediate austerity package passed.",
+        ),
+        (
+            "haushaltskrise",
+            "steuer_erhoehung",
+            "danger",
+            0,
+            "Steuererhöhung",
+            "Einnahmen steigen, Zustimmung sinkt.",
+            "Steuererhöhung beschlossen.",
+            "Raise taxes",
+            "Revenue rises, approval drops.",
+            "Tax increase passed.",
+        ),
+        (
+            "haushaltskrise",
+            "schuldenbremse_aussetzen",
+            "danger",
+            0,
+            "Schuldenbremse aussetzen",
+            "Lehmann-Ultimatum droht.",
+            "Schuldenbremse ausgesetzt.",
+            "Suspend debt brake",
+            "Lehmann ultimatum looms.",
+            "Debt brake suspended.",
+        ),
     ]
-    for event_id, ckey, ctype, cost, label_de, desc_de, log_de, label_en, desc_en, log_en in choices_haushaltskrise:
+    for (
+        event_id,
+        ckey,
+        ctype,
+        cost,
+        label_de,
+        desc_de,
+        log_de,
+        label_en,
+        desc_en,
+        log_en,
+    ) in choices_haushaltskrise:
         conn.execute(
             sa.text("""
                 INSERT INTO event_choices (id, event_id, choice_key, choice_type, cost_pk)
                 VALUES (:id, :event_id, :ckey, :ctype, :cost)
             """),
-            {"id": choice_id, "event_id": event_id, "ckey": ckey, "ctype": ctype, "cost": cost},
+            {
+                "id": choice_id,
+                "event_id": event_id,
+                "ckey": ckey,
+                "ctype": ctype,
+                "cost": cost,
+            },
         )
         conn.execute(
             sa.text("""
@@ -230,7 +503,10 @@ def upgrade() -> None:
         )
         choice_id += 1
 
-    conn.execute(sa.text("SELECT setval('event_choices_id_seq', :max_id)"), {"max_id": choice_id - 1})
+    conn.execute(
+        sa.text("SELECT setval('event_choices_id_seq', :max_id)"),
+        {"max_id": choice_id - 1},
+    )
 
 
 def downgrade() -> None:
@@ -246,13 +522,25 @@ def downgrade() -> None:
             """),
             {"eid": eid},
         )
-        conn.execute(sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid})
-        conn.execute(sa.text("DELETE FROM events_i18n WHERE event_id = :eid"), {"eid": eid})
+        conn.execute(
+            sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid}
+        )
+        conn.execute(
+            sa.text("DELETE FROM events_i18n WHERE event_id = :eid"), {"eid": eid}
+        )
         conn.execute(sa.text("DELETE FROM events WHERE id = :eid"), {"eid": eid})
 
     # Gesetze
-    for gid in ["sozialleistungen_kuerzen", "beamtenbesoldung_einfrieren", "subventionen_abbau", "rente_stabilisierung", "effizienzprogramm_bund"]:
-        conn.execute(sa.text("DELETE FROM gesetze_i18n WHERE gesetz_id = :id"), {"id": gid})
+    for gid in [
+        "sozialleistungen_kuerzen",
+        "beamtenbesoldung_einfrieren",
+        "subventionen_abbau",
+        "rente_stabilisierung",
+        "effizienzprogramm_bund",
+    ]:
+        conn.execute(
+            sa.text("DELETE FROM gesetze_i18n WHERE gesetz_id = :id"), {"id": gid}
+        )
         conn.execute(sa.text("DELETE FROM gesetze WHERE id = :id"), {"id": gid})
 
     op.drop_column("gesetze", "pflichtausgaben_delta")

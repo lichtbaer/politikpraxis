@@ -5,9 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
-from app.models.user import User
 from app.models.mod import Mod
-from app.schemas.mod import ModCreateRequest, ModResponse, ModDetailResponse
+from app.models.user import User
+from app.schemas.mod import ModCreateRequest, ModDetailResponse, ModResponse
 from app.services.auth_service import get_current_user
 
 router = APIRouter()
@@ -19,9 +19,13 @@ async def list_mods(db: AsyncSession = Depends(get_db)):
     mods = result.scalars().all()
     return [
         ModResponse(
-            id=str(m.id), author_id=str(m.author_id), title=m.title,
-            description=m.description, version=m.version,
-            downloads=m.downloads, created_at=m.created_at,
+            id=str(m.id),
+            author_id=str(m.author_id),
+            title=m.title,
+            description=m.description,
+            version=m.version,
+            downloads=m.downloads,
+            created_at=m.created_at,
         )
         for m in mods
     ]
@@ -34,9 +38,14 @@ async def get_mod(mod_id: UUID, db: AsyncSession = Depends(get_db)):
     if not mod:
         raise HTTPException(status_code=404, detail="Mod not found")
     return ModDetailResponse(
-        id=str(mod.id), author_id=str(mod.author_id), title=mod.title,
-        description=mod.description, version=mod.version,
-        downloads=mod.downloads, created_at=mod.created_at, content=mod.content,
+        id=str(mod.id),
+        author_id=str(mod.author_id),
+        title=mod.title,
+        description=mod.description,
+        version=mod.version,
+        downloads=mod.downloads,
+        created_at=mod.created_at,
+        content=mod.content,
     )
 
 
@@ -56,9 +65,13 @@ async def create_mod(
     db.add(mod)
     await db.flush()
     return ModResponse(
-        id=str(mod.id), author_id=str(mod.author_id), title=mod.title,
-        description=mod.description, version=mod.version,
-        downloads=mod.downloads, created_at=mod.created_at,
+        id=str(mod.id),
+        author_id=str(mod.author_id),
+        title=mod.title,
+        description=mod.description,
+        version=mod.version,
+        downloads=mod.downloads,
+        created_at=mod.created_at,
     )
 
 

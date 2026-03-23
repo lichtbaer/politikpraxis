@@ -5,7 +5,12 @@ from app.db.database import get_db
 from app.models.user import User
 from app.schemas.save import SaveDetailResponse, SaveListItem, SaveUpsertRequest
 from app.services.auth_service import get_current_user
-from app.services.save_service import delete_save, get_save_by_slot, get_user_saves, upsert_save
+from app.services.save_service import (
+    delete_save,
+    get_save_by_slot,
+    get_user_saves,
+    upsert_save,
+)
 
 router = APIRouter()
 
@@ -48,7 +53,9 @@ async def get_save(
         name=save.name,
         partei=save.partei,
         monat=save.monat,
-        wahlprognose=float(save.wahlprognose) if save.wahlprognose is not None else None,
+        wahlprognose=float(save.wahlprognose)
+        if save.wahlprognose is not None
+        else None,
         complexity=save.complexity,
         updated_at=save.updated_at,
         game_state=save.game_state,
@@ -85,7 +92,9 @@ async def save_game_slot(
         name=save.name,
         partei=save.partei,
         monat=save.monat,
-        wahlprognose=float(save.wahlprognose) if save.wahlprognose is not None else None,
+        wahlprognose=float(save.wahlprognose)
+        if save.wahlprognose is not None
+        else None,
         complexity=save.complexity,
         updated_at=save.updated_at,
     )

@@ -4,6 +4,7 @@ Revision ID: 032_merge_031_heads
 Revises: 031_verband_startbeziehungen, 031_verbands_cost_pk
 Create Date: 2026-03-18
 """
+
 from typing import Sequence, Union
 
 

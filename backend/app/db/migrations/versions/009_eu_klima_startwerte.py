@@ -6,6 +6,7 @@ Create Date: 2025-03-17
 
 Migration 3: EU-Klima-Startwerte pro Politikfeld.
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -22,7 +23,12 @@ def upgrade() -> None:
     """Create eu_klima_startwerte table and seed."""
     op.create_table(
         "eu_klima_startwerte",
-        sa.Column("politikfeld_id", sa.Text(), sa.ForeignKey("politikfelder.id"), primary_key=True),
+        sa.Column(
+            "politikfeld_id",
+            sa.Text(),
+            sa.ForeignKey("politikfelder.id"),
+            primary_key=True,
+        ),
         sa.Column("startwert", sa.Integer(), nullable=False, server_default="50"),
         sa.Column("min_complexity", sa.Integer(), nullable=True, server_default="3"),
     )

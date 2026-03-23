@@ -1,3 +1,6 @@
+/* eslint-disable react-refresh/only-export-components --
+ * Zentrales Registry: Re-exports, Konstanten-Mappings und Icon-Helfer in einer Datei.
+ */
 /**
  * Zentrales Icon-Registry — ersetzt Emoji-Zeichen durch Lucide React SVG-Icons.
  * Alle Icons an einer Stelle definiert für Konsistenz und Wiederverwendbarkeit.

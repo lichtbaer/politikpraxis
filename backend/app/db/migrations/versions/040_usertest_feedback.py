@@ -4,6 +4,7 @@ Revision ID: 040_usertest_feedback
 Revises: 039_game_stats_sma343
 Create Date: 2026-03-20
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -41,14 +42,20 @@ def upgrade() -> None:
         sa.Column("kontext", sa.Text(), nullable=False),
         sa.Column("bewertung_gesamt", sa.Integer(), nullable=True),
         sa.Column("verstaendlichkeit", sa.Integer(), nullable=True),
-        sa.Column("fehler_gemeldet", sa.Boolean(), nullable=False, server_default="false"),
+        sa.Column(
+            "fehler_gemeldet", sa.Boolean(), nullable=False, server_default="false"
+        ),
         sa.Column("fehler_beschreibung", sa.Text(), nullable=True),
         sa.Column("positives", sa.Text(), nullable=True),
         sa.Column("verbesserungen", sa.Text(), nullable=True),
         sa.Column("sonstiges", sa.Text(), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now()
+        ),
     )
-    op.create_index("ix_usertest_feedback_session_id", "usertest_feedback", ["session_id"])
+    op.create_index(
+        "ix_usertest_feedback_session_id", "usertest_feedback", ["session_id"]
+    )
     op.create_index("ix_usertest_feedback_user_id", "usertest_feedback", ["user_id"])
     op.create_index("ix_usertest_feedback_kontext", "usertest_feedback", ["kontext"])
 

@@ -7,6 +7,7 @@ Create Date: 2025-03-17
 Migration 1: Neues Feld framing_optionen in gesetze (JSONB).
 Format: [{ key, milieu_effekte: {milieu_id: delta}, verband_effekte: {verband_id: delta}, medienklima_delta }]
 """
+
 from typing import Sequence, Union
 
 from alembic import op

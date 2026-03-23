@@ -7,6 +7,7 @@ Create Date: 2026-03-18
 Edmund Huber (konservativer_block): Beziehung 15→30, Bereitschaft 20→35
 Matthias Kohl (ostblock): Beziehung 25→35, Bereitschaft 30→40
 """
+
 from typing import Sequence, Union
 
 from alembic import op

@@ -66,7 +66,7 @@ function ApprovalHistoryChart({ data, threshold }: { data: number[]; threshold?:
         } : undefined,
       },
     ],
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }), [data, threshold, t]);
 
   return (
@@ -131,14 +131,13 @@ export function EndScreen() {
   const { t } = useTranslation('game');
   const { state } = useGameStore();
 
-  if (!state.gameOver) return null;
-
   const beschlosseneGesetze = state.gesetze.filter((g) => g.status === 'beschlossen');
   const blockierteGesetze = state.gesetze.filter((g) => g.status === 'blockiert');
   const approvalHistory = state.approvalHistory ?? [];
 
-  // Milestones — summarize key achievements
+  // Milestones — summarize key achievements (Hook vor frühem Return)
   const milestones: string[] = useMemo(() => {
+    if (!state.gameOver) return [];
     const m: string[] = [];
     if (beschlosseneGesetze.length > 0) m.push(`${beschlosseneGesetze.length} Gesetze beschlossen`);
     if (blockierteGesetze.length > 0) m.push(`${blockierteGesetze.length} Gesetze blockiert`);
@@ -150,7 +149,9 @@ export function EndScreen() {
     if ((state.haushalt?.saldo ?? 0) < -15) m.push('Schuldenbremse gerissen');
     if (state.wahlkampfAktiv) m.push('Wahlkampf durchlaufen');
     return m;
-  }, [beschlosseneGesetze.length, blockierteGesetze.length, state.firedEvents, state.koalitionspartner, state.haushalt, state.wahlkampfAktiv]);
+  }, [state.gameOver, beschlosseneGesetze.length, blockierteGesetze.length, state.firedEvents, state.koalitionspartner, state.haushalt, state.wahlkampfAktiv]);
+
+  if (!state.gameOver) return null;
 
   // Start KPI snapshot from game initialization
   const startKpi = state.kpiStart ?? null;

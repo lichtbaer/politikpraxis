@@ -7,6 +7,7 @@ Create Date: 2025-03-17
 Migration: parteien + parteien_i18n Tabellen, partei_id in bundesrat_fraktionen,
 partei_id in chars (Kanzler), Seed-Daten DE+EN.
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -44,7 +45,9 @@ def upgrade() -> None:
 
     op.create_table(
         "parteien_i18n",
-        sa.Column("partei_id", sa.Text(), sa.ForeignKey("parteien.id"), primary_key=True),
+        sa.Column(
+            "partei_id", sa.Text(), sa.ForeignKey("parteien.id"), primary_key=True
+        ),
         sa.Column(
             "locale",
             postgresql.ENUM("de", "en", name="content_locale", create_type=False),
@@ -63,11 +66,67 @@ def upgrade() -> None:
 
     # --- Seed parteien (5 fiktive Parteien) ---
     parteien_data = [
-        ("sdp", "SDP", "#E3000F", -40, -20, -40, None, None, None, None, None, None, True),
+        (
+            "sdp",
+            "SDP",
+            "#E3000F",
+            -40,
+            -20,
+            -40,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            True,
+        ),
         ("cdp", "CDP", "#2D2D2D", 20, 30, 20, None, None, None, None, None, None, True),
-        ("gp", "GP", "#46962B", -50, -70, -20, None, None, None, None, None, None, False),
-        ("ldp", "LDP", "#FFED00", 60, -10, 60, None, None, None, None, None, None, True),
-        ("lp", "LP", "#BE3075", -65, -40, -60, None, None, None, None, None, None, True),
+        (
+            "gp",
+            "GP",
+            "#46962B",
+            -50,
+            -70,
+            -20,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            False,
+        ),
+        (
+            "ldp",
+            "LDP",
+            "#FFED00",
+            60,
+            -10,
+            60,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            True,
+        ),
+        (
+            "lp",
+            "LP",
+            "#BE3075",
+            -65,
+            -40,
+            -60,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            True,
+        ),
     ]
     for row in parteien_data:
         conn.execute(
@@ -96,11 +155,35 @@ def upgrade() -> None:
 
     # --- parteien_i18n DE ---
     parteien_i18n_de = [
-        ("sdp", "de", "Sozialdemokratische Partei", "Sozialdemokratische Partei.", "Soziales, Arbeit, Infrastruktur"),
-        ("cdp", "de", "Christlich-Demokratische Partei", "Christlich-Demokratische Partei.", "Wirtschaft, Sicherheit, Tradition"),
+        (
+            "sdp",
+            "de",
+            "Sozialdemokratische Partei",
+            "Sozialdemokratische Partei.",
+            "Soziales, Arbeit, Infrastruktur",
+        ),
+        (
+            "cdp",
+            "de",
+            "Christlich-Demokratische Partei",
+            "Christlich-Demokratische Partei.",
+            "Wirtschaft, Sicherheit, Tradition",
+        ),
         ("gp", "de", "Grüne Partei", "Grüne Partei.", "Klima, Umwelt, Nachhaltigkeit"),
-        ("ldp", "de", "Liberal-Demokratische Partei", "Liberal-Demokratische Partei.", "Marktwirtschaft, Freiheit, Bürokratieabbau"),
-        ("lp", "de", "Linke Partei", "Linke Partei.", "Soziale Gerechtigkeit, Umverteilung, Frieden"),
+        (
+            "ldp",
+            "de",
+            "Liberal-Demokratische Partei",
+            "Liberal-Demokratische Partei.",
+            "Marktwirtschaft, Freiheit, Bürokratieabbau",
+        ),
+        (
+            "lp",
+            "de",
+            "Linke Partei",
+            "Linke Partei.",
+            "Soziale Gerechtigkeit, Umverteilung, Frieden",
+        ),
     ]
     for pid, loc, name, description, kt in parteien_i18n_de:
         conn.execute(
@@ -108,16 +191,52 @@ def upgrade() -> None:
                 INSERT INTO parteien_i18n (partei_id, locale, name, "desc", kernthemen)
                 VALUES (:pid, :locale, :name, :description, :kernthemen)
             """),
-            {"pid": pid, "locale": loc, "name": name, "description": description, "kernthemen": kt},
+            {
+                "pid": pid,
+                "locale": loc,
+                "name": name,
+                "description": description,
+                "kernthemen": kt,
+            },
         )
 
     # --- parteien_i18n EN ---
     parteien_i18n_en = [
-        ("sdp", "en", "Social Democratic Party", "Social Democratic Party.", "Social, Labour, Infrastructure"),
-        ("cdp", "en", "Christian Democratic Party", "Christian Democratic Party.", "Economy, Security, Tradition"),
-        ("gp", "en", "Green Party", "Green Party.", "Climate, Environment, Sustainability"),
-        ("ldp", "en", "Liberal Democratic Party", "Liberal Democratic Party.", "Market economy, Freedom, Deregulation"),
-        ("lp", "en", "Left Party", "Left Party.", "Social justice, Redistribution, Peace"),
+        (
+            "sdp",
+            "en",
+            "Social Democratic Party",
+            "Social Democratic Party.",
+            "Social, Labour, Infrastructure",
+        ),
+        (
+            "cdp",
+            "en",
+            "Christian Democratic Party",
+            "Christian Democratic Party.",
+            "Economy, Security, Tradition",
+        ),
+        (
+            "gp",
+            "en",
+            "Green Party",
+            "Green Party.",
+            "Climate, Environment, Sustainability",
+        ),
+        (
+            "ldp",
+            "en",
+            "Liberal Democratic Party",
+            "Liberal Democratic Party.",
+            "Market economy, Freedom, Deregulation",
+        ),
+        (
+            "lp",
+            "en",
+            "Left Party",
+            "Left Party.",
+            "Social justice, Redistribution, Peace",
+        ),
     ]
     for pid, loc, name, description, kt in parteien_i18n_en:
         conn.execute(
@@ -125,7 +244,13 @@ def upgrade() -> None:
                 INSERT INTO parteien_i18n (partei_id, locale, name, "desc", kernthemen)
                 VALUES (:pid, :locale, :name, :description, :kernthemen)
             """),
-            {"pid": pid, "locale": loc, "name": name, "description": description, "kernthemen": kt},
+            {
+                "pid": pid,
+                "locale": loc,
+                "name": name,
+                "description": description,
+                "kernthemen": kt,
+            },
         )
 
     # --- partei_id zu bundesrat_fraktionen ---

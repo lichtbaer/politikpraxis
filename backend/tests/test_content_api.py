@@ -1,9 +1,8 @@
 """Pytest-Tests für Content-API-Endpoints (SMA-255)."""
 
 import pytest
-from httpx import AsyncClient, ASGITransport
-
 from app.main import app
+from httpx import ASGITransport, AsyncClient
 from tests.conftest import requires_db
 
 
@@ -46,7 +45,9 @@ async def test_get_chars_invalid_locale(client: AsyncClient):
     """Ungültige locale liefert 400."""
     r = await client.get("/api/content/chars", params={"locale": "fr"})
     assert r.status_code == 400
-    assert "locale" in r.json().get("detail", "").lower() or "fr" in r.json().get("detail", "")
+    assert "locale" in r.json().get("detail", "").lower() or "fr" in r.json().get(
+        "detail", ""
+    )
 
 
 @pytest.mark.asyncio
@@ -118,7 +119,9 @@ async def test_get_events_happy_path(client: AsyncClient):
 @requires_db
 async def test_get_events_type_filter(client: AsyncClient):
     """GET /api/content/events?locale=de&type=random filtert nach event_type."""
-    r = await client.get("/api/content/events", params={"locale": "de", "type": "random"})
+    r = await client.get(
+        "/api/content/events", params={"locale": "de", "type": "random"}
+    )
     assert r.status_code == 200
     data = r.json()
     assert isinstance(data, list)

@@ -10,6 +10,7 @@ Neue Spalten:
 - lobby_gain_range: JSONB {min, max} Zustimmungs-Gain (Default 2-6%)
 - route_overrides: JSONB {route: {cost?, dur?}} gesetzspezifische Route-Parameter
 """
+
 from typing import Sequence, Union
 
 from alembic import op

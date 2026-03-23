@@ -1,13 +1,11 @@
 """Tests für HeadlessRunner und Monte Carlo."""
-import pytest
 
-from tests.simulation.headless_runner import HeadlessRunner, SimGameState
-from tests.simulation.strategien import (
-    strategie_pk_horten,
-    strategie_immer_einbringen,
-    strategie_nur_sparen,
-)
+from tests.simulation.headless_runner import HeadlessRunner
 from tests.simulation.monte_carlo import monte_carlo
+from tests.simulation.strategien import (
+    strategie_immer_einbringen,
+    strategie_pk_horten,
+)
 
 
 def test_headless_runner_pk_horten():

@@ -112,7 +112,7 @@ export function StartMapView() {
         },
       ],
     }),
-    []
+    [t]
   );
 
   if (!mapReady) {

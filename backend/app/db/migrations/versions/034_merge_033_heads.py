@@ -5,6 +5,7 @@ Revises: 033_merge_032_heads, 033_chars_kabinett
 Create Date: 2026-03-18
 
 """
+
 from typing import Sequence, Union
 
 

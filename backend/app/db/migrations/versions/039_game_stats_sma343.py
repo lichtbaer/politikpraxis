@@ -4,6 +4,7 @@ Revision ID: 039_game_stats_sma343
 Revises: 038_password_reset_sma342
 Create Date: 2026-03-20
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -50,7 +51,9 @@ def upgrade() -> None:
         sa.Column("bewertung_gesamt", sa.Text(), nullable=True),
         sa.Column("titel", sa.Text(), nullable=True),
         sa.Column("opt_in_community", sa.Boolean(), server_default="false"),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now()
+        ),
     )
     op.create_index("ix_game_stats_user_id", "game_stats", ["user_id"])
     op.create_index("ix_game_stats_session_id", "game_stats", ["session_id"])

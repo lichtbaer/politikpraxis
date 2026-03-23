@@ -5,6 +5,7 @@ Revises: 004_ideologie
 Create Date: 2025-03-17
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -94,13 +95,48 @@ def upgrade() -> None:
         ("prekaere", 9, 40, -30, 40, -60, 3, "arbeit"),
     ]
     milieus_i18n = [
-        ("etablierte", "Etablierte", "Konservativ-wohlhabend", "Wohlhabende, etablierte Eliten mit hoher Wahlbeteiligung."),
-        ("leistungstraeger", "Leistungsträger", "Leistungsorientiert", "Erfolgreiche Berufstätige mit mittlerer bis hoher Beteiligung."),
-        ("buergerliche_mitte", "Bürgerliche Mitte", "Mittelschicht-konservativ", "Traditionelle Mittelschicht mit moderater Beteiligung."),
-        ("traditionelle", "Traditionelle", "Werte-konservativ", "Traditionell orientierte Wähler mit starker Wertebindung."),
-        ("soziale_mitte", "Soziale Mitte", "Links-mitte", "Sozial orientierte Mitte mit progressiven Tendenzen."),
-        ("postmaterielle", "Postmaterielle", "Grün-progressiv", "Umwelt- und gesellschaftspolitisch progressive Wähler."),
-        ("prekaere", "Prekäre", "Abgehängt", "Von Abstieg bedrohte Wähler mit niedriger Beteiligung."),
+        (
+            "etablierte",
+            "Etablierte",
+            "Konservativ-wohlhabend",
+            "Wohlhabende, etablierte Eliten mit hoher Wahlbeteiligung.",
+        ),
+        (
+            "leistungstraeger",
+            "Leistungsträger",
+            "Leistungsorientiert",
+            "Erfolgreiche Berufstätige mit mittlerer bis hoher Beteiligung.",
+        ),
+        (
+            "buergerliche_mitte",
+            "Bürgerliche Mitte",
+            "Mittelschicht-konservativ",
+            "Traditionelle Mittelschicht mit moderater Beteiligung.",
+        ),
+        (
+            "traditionelle",
+            "Traditionelle",
+            "Werte-konservativ",
+            "Traditionell orientierte Wähler mit starker Wertebindung.",
+        ),
+        (
+            "soziale_mitte",
+            "Soziale Mitte",
+            "Links-mitte",
+            "Sozial orientierte Mitte mit progressiven Tendenzen.",
+        ),
+        (
+            "postmaterielle",
+            "Postmaterielle",
+            "Grün-progressiv",
+            "Umwelt- und gesellschaftspolitisch progressive Wähler.",
+        ),
+        (
+            "prekaere",
+            "Prekäre",
+            "Abgehängt",
+            "Von Abstieg bedrohte Wähler mit niedriger Beteiligung.",
+        ),
     ]
     for mid, gew, bb, iw, ig, is_, mc, agg in milieus:
         conn.execute(
@@ -108,7 +144,16 @@ def upgrade() -> None:
                 INSERT INTO milieus (id, gewicht, basisbeteiligung, ideologie_wirtschaft, ideologie_gesellschaft, ideologie_staat, min_complexity, aggregat_gruppe)
                 VALUES (:id, :gew, :bb, :iw, :ig, :is_, :mc, :agg)
             """),
-            {"id": mid, "gew": gew, "bb": bb, "iw": iw, "ig": ig, "is_": is_, "mc": mc, "agg": agg},
+            {
+                "id": mid,
+                "gew": gew,
+                "bb": bb,
+                "iw": iw,
+                "ig": ig,
+                "is_": is_,
+                "mc": mc,
+                "agg": agg,
+            },
         )
     for mid, name, kurz, beschr in milieus_i18n:
         conn.execute(
@@ -131,14 +176,49 @@ def upgrade() -> None:
         ("bvl", "landwirtschaft", 20, 50, -40, 35, 4, 5, 4, 3),
     ]
     verbaende_i18n = [
-        ("bdi", "Bundesverband der Deutschen Industrie", "BDI", "Spitzenverband der deutschen Industrie."),
-        ("gbd", "Gewerkschaftsbund Deutschland", "GBD", "Dachverband der Gewerkschaften."),
-        ("uvb", "Umweltverbände Deutschland", "UVB", "Dachverband der Umwelt- und Naturschutzverbände."),
-        ("sgd", "Sicherheitsverbände Deutschland", "SGD", "Interessenvertretung für innere Sicherheit."),
-        ("bvd", "Bildungsverbände Deutschland", "BVD", "Dachverband der Bildungsverbände."),
-        ("pvd", "Pflegeverbände Deutschland", "PVD", "Interessenvertretung der Pflegebranche."),
+        (
+            "bdi",
+            "Bundesverband der Deutschen Industrie",
+            "BDI",
+            "Spitzenverband der deutschen Industrie.",
+        ),
+        (
+            "gbd",
+            "Gewerkschaftsbund Deutschland",
+            "GBD",
+            "Dachverband der Gewerkschaften.",
+        ),
+        (
+            "uvb",
+            "Umweltverbände Deutschland",
+            "UVB",
+            "Dachverband der Umwelt- und Naturschutzverbände.",
+        ),
+        (
+            "sgd",
+            "Sicherheitsverbände Deutschland",
+            "SGD",
+            "Interessenvertretung für innere Sicherheit.",
+        ),
+        (
+            "bvd",
+            "Bildungsverbände Deutschland",
+            "BVD",
+            "Dachverband der Bildungsverbände.",
+        ),
+        (
+            "pvd",
+            "Pflegeverbände Deutschland",
+            "PVD",
+            "Interessenvertretung der Pflegebranche.",
+        ),
         ("dwv", "Digitalwirtschaftsverband", "DWV", "Verband der Digitalwirtschaft."),
-        ("bvl", "Bundesverband Landwirtschaft", "BVL", "Spitzenverband der Landwirtschaft."),
+        (
+            "bvl",
+            "Bundesverband Landwirtschaft",
+            "BVL",
+            "Spitzenverband der Landwirtschaft.",
+        ),
     ]
     for vid, pfid, iw, ig, is_, bezieh, sb, se, sl, sk in verbaende:
         conn.execute(
@@ -146,7 +226,18 @@ def upgrade() -> None:
                 INSERT INTO verbaende (id, politikfeld_id, ideologie_wirtschaft, ideologie_gesellschaft, ideologie_staat, beziehung_start, staerke_bund, staerke_eu, staerke_laender, staerke_kommunen)
                 VALUES (:id, :pfid, :iw, :ig, :is_, :bezieh, :sb, :se, :sl, :sk)
             """),
-            {"id": vid, "pfid": pfid, "iw": iw, "ig": ig, "is_": is_, "bezieh": bezieh, "sb": sb, "se": se, "sl": sl, "sk": sk},
+            {
+                "id": vid,
+                "pfid": pfid,
+                "iw": iw,
+                "ig": ig,
+                "is_": is_,
+                "bezieh": bezieh,
+                "sb": sb,
+                "se": se,
+                "sl": sl,
+                "sk": sk,
+            },
         )
     for vid, name, kurz, bio in verbaende_i18n:
         conn.execute(
@@ -159,18 +250,138 @@ def upgrade() -> None:
 
     # --- Verbands-Tradeoffs (je 1–2 pro Verband) ---
     tradeoffs_data = [
-        ("bdi", "bdi_steuer", -0.2, 0, 0.5, 0, 0, "Keine Digitalsteuer auf Industrie", "Industrie von Digitalsteuer ausnehmen."),
-        ("bdi", "bdi_regulierung", -0.1, 0, 0.3, -1, 0, "Regulierungspause für Industrie", "Übergangsfristen bei neuen Regulierungen."),
-        ("gbd", "gbd_mindestlohn", 0, 0, -0.4, 2, 0, "Mindestlohnerhöhung", "Mindestlohn anheben."),
-        ("gbd", "gbd_mitbestimmung", -0.1, 0, -0.2, 1, 0, "Stärkere Mitbestimmung", "Betriebsräte stärken."),
-        ("uvb", "uvb_klima", 0, 0, -0.5, 3, 1, "Klimaschutz verstärken", "Klimaziele verschärfen."),
-        ("uvb", "uvb_naturschutz", -0.2, 0, -0.3, 2, 0, "Naturschutz-Flächen", "Mehr Flächen für Naturschutz."),
-        ("sgd", "sgd_sicherheit", 0, 0, 0.2, -2, 0, "Mehr Sicherheitspersonal", "Mehr Mittel für Sicherheitsbehörden."),
-        ("bvd", "bvd_bildung", -0.3, 0, -0.4, 2, 1, "Bundesfinanzierung Bildung", "Bundesmittel für Bildung erhöhen."),
-        ("pvd", "pvd_pflege", -0.4, 0, -0.5, 3, 0, "Pflegefinanzierung erhöhen", "Mehr Mittel für Pflege."),
-        ("dwv", "dwv_digital", -0.1, 0, 0.4, 0, 0, "Digitalisierung fördern", "Investitionen in digitale Infrastruktur."),
-        ("bvl", "bvl_agrar", -0.2, 0, 0.2, -1, 0, "Agrarsubventionen sichern", "EU-Agrarförderung erhalten."),
-        ("bvl", "bvl_subvention", -0.3, 0, 0.1, 0, 0, "Subventionen für Landwirtschaft", "Nationale Agrarförderung."),
+        (
+            "bdi",
+            "bdi_steuer",
+            -0.2,
+            0,
+            0.5,
+            0,
+            0,
+            "Keine Digitalsteuer auf Industrie",
+            "Industrie von Digitalsteuer ausnehmen.",
+        ),
+        (
+            "bdi",
+            "bdi_regulierung",
+            -0.1,
+            0,
+            0.3,
+            -1,
+            0,
+            "Regulierungspause für Industrie",
+            "Übergangsfristen bei neuen Regulierungen.",
+        ),
+        (
+            "gbd",
+            "gbd_mindestlohn",
+            0,
+            0,
+            -0.4,
+            2,
+            0,
+            "Mindestlohnerhöhung",
+            "Mindestlohn anheben.",
+        ),
+        (
+            "gbd",
+            "gbd_mitbestimmung",
+            -0.1,
+            0,
+            -0.2,
+            1,
+            0,
+            "Stärkere Mitbestimmung",
+            "Betriebsräte stärken.",
+        ),
+        (
+            "uvb",
+            "uvb_klima",
+            0,
+            0,
+            -0.5,
+            3,
+            1,
+            "Klimaschutz verstärken",
+            "Klimaziele verschärfen.",
+        ),
+        (
+            "uvb",
+            "uvb_naturschutz",
+            -0.2,
+            0,
+            -0.3,
+            2,
+            0,
+            "Naturschutz-Flächen",
+            "Mehr Flächen für Naturschutz.",
+        ),
+        (
+            "sgd",
+            "sgd_sicherheit",
+            0,
+            0,
+            0.2,
+            -2,
+            0,
+            "Mehr Sicherheitspersonal",
+            "Mehr Mittel für Sicherheitsbehörden.",
+        ),
+        (
+            "bvd",
+            "bvd_bildung",
+            -0.3,
+            0,
+            -0.4,
+            2,
+            1,
+            "Bundesfinanzierung Bildung",
+            "Bundesmittel für Bildung erhöhen.",
+        ),
+        (
+            "pvd",
+            "pvd_pflege",
+            -0.4,
+            0,
+            -0.5,
+            3,
+            0,
+            "Pflegefinanzierung erhöhen",
+            "Mehr Mittel für Pflege.",
+        ),
+        (
+            "dwv",
+            "dwv_digital",
+            -0.1,
+            0,
+            0.4,
+            0,
+            0,
+            "Digitalisierung fördern",
+            "Investitionen in digitale Infrastruktur.",
+        ),
+        (
+            "bvl",
+            "bvl_agrar",
+            -0.2,
+            0,
+            0.2,
+            -1,
+            0,
+            "Agrarsubventionen sichern",
+            "EU-Agrarförderung erhalten.",
+        ),
+        (
+            "bvl",
+            "bvl_subvention",
+            -0.3,
+            0,
+            0.1,
+            0,
+            0,
+            "Subventionen für Landwirtschaft",
+            "Nationale Agrarförderung.",
+        ),
     ]
     tid = 1
     for vid, tkey, ea, eh, eg, ez, fdd, label, desc in tradeoffs_data:
@@ -179,7 +390,16 @@ def upgrade() -> None:
                 INSERT INTO verbands_tradeoffs (id, verband_id, tradeoff_key, effekt_al, effekt_hh, effekt_gi, effekt_zf, feld_druck_delta)
                 VALUES (:id, :vid, :tkey, :ea, :eh, :eg, :ez, :fdd)
             """),
-            {"id": tid, "vid": vid, "tkey": tkey, "ea": ea, "eh": eh, "eg": eg, "ez": ez, "fdd": fdd},
+            {
+                "id": tid,
+                "vid": vid,
+                "tkey": tkey,
+                "ea": ea,
+                "eh": eh,
+                "eg": eg,
+                "ez": ez,
+                "fdd": fdd,
+            },
         )
         conn.execute(
             sa.text("""
@@ -205,9 +425,13 @@ def downgrade() -> None:
     conn.execute(sa.text("DELETE FROM politikfelder"))
 
     # Reset ideologie/politikfeld to defaults
-    conn.execute(sa.text("""
+    conn.execute(
+        sa.text("""
         UPDATE gesetze SET ideologie_wirtschaft = 0, ideologie_gesellschaft = 0, ideologie_staat = 0, politikfeld_id = NULL, politikfeld_sekundaer = '{}'
-    """))
-    conn.execute(sa.text("""
+    """)
+    )
+    conn.execute(
+        sa.text("""
         UPDATE chars SET ideologie_wirtschaft = 0, ideologie_gesellschaft = 0, ideologie_staat = 0
-    """))
+    """)
+    )

@@ -1,38 +1,36 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.schemas.content import (
+    BundesratResponse,
     CharResponse,
     ContentBundleResponse,
-    GesetzResponse,
+    EuEventResponse,
     EventResponse,
-    BundesratResponse,
+    GesetzResponse,
     MilieuResponse,
     PolitikfeldResponse,
     VerbandResponse,
-    EuEventResponse,
-)
-from app.services.content_service import (
-    get_content_bundle,
-    load_characters,
-    load_events,
-    load_laws,
-    load_all_scenarios,
 )
 from app.services.content_db_service import (
     VALID_LOCALES,
-    fetch_chars,
-    fetch_gesetze,
-    fetch_events,
     fetch_bundesrat,
+    fetch_chars,
     fetch_eu_events,
+    fetch_events,
+    fetch_gesetz_relationen,
+    fetch_gesetze,
     fetch_milieus,
     fetch_politikfelder,
     fetch_verbaende,
-    fetch_gesetz_relationen,
     get_game_content_from_db,
+)
+from app.services.content_service import (
+    get_content_bundle,
+    load_all_scenarios,
+    load_characters,
+    load_laws,
 )
 
 router = APIRouter()
@@ -101,7 +99,11 @@ async def get_gesetze(
 @router.get("/events", response_model=list[EventResponse])
 async def get_events(
     locale: str = Depends(validate_locale),
-    event_type: str | None = Query(default=None, alias="type", description="Filter: random, char_ultimatum, bundesrat"),
+    event_type: str | None = Query(
+        default=None,
+        alias="type",
+        description="Filter: random, char_ultimatum, bundesrat",
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     rows = await fetch_events(db, locale, event_type=event_type)

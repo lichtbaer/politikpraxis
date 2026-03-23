@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.analytics import AnalyticsEvent
@@ -12,13 +12,15 @@ async def record_events(
     events: list[dict],
 ) -> int:
     for ev in events:
-        db.add(AnalyticsEvent(
-            user_id=user_id,
-            save_id=UUID(ev["save_id"]) if ev.get("save_id") else None,
-            event_type=ev["event_type"],
-            payload=ev.get("payload", {}),
-            game_month=ev.get("game_month", 0),
-        ))
+        db.add(
+            AnalyticsEvent(
+                user_id=user_id,
+                save_id=UUID(ev["save_id"]) if ev.get("save_id") else None,
+                event_type=ev["event_type"],
+                payload=ev.get("payload", {}),
+                game_month=ev.get("game_month", 0),
+            )
+        )
     await db.flush()
     return len(events)
 
@@ -26,9 +28,10 @@ async def record_events(
 async def get_summary(db: AsyncSession) -> dict:
     total_result = await db.execute(
         select(func.count()).select_from(
-            select(AnalyticsEvent.save_id).where(
-                AnalyticsEvent.event_type == "game_end"
-            ).distinct().subquery()
+            select(AnalyticsEvent.save_id)
+            .where(AnalyticsEvent.event_type == "game_end")
+            .distinct()
+            .subquery()
         )
     )
     total_games = total_result.scalar() or 0

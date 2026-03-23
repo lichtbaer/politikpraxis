@@ -2,25 +2,24 @@
 
 Ergänzt Monte Carlo (SMA-333) mit gezielten, reproduzierbaren Szenarien.
 """
+
 from __future__ import annotations
 
 import pytest
-
 from tests.simulation.headless_runner import HeadlessRunner
 from tests.simulation.strategien import (
-    strategie_musterschueler,
-    strategie_sparkommissar,
-    strategie_nur_ausgaben,
+    strategie_immer_einbringen,
     strategie_koalitionsbrecher,
     strategie_medienmogul,
-    strategie_verbands_freund,
-    strategie_pk_horten,
-    strategie_speed_runner,
-    strategie_random,
-    strategie_immer_einbringen,
+    strategie_musterschueler,
+    strategie_nur_ausgaben,
     strategie_nur_sparen,
+    strategie_pk_horten,
+    strategie_random,
+    strategie_sparkommissar,
+    strategie_speed_runner,
+    strategie_verbands_freund,
 )
-
 
 # =============================================================================
 # Szenario 1 — Musterschüler (Baseline)
@@ -164,9 +163,7 @@ class TestPassivregierung:
     def test_spieler_verliert(self):
         runner = HeadlessRunner(strategie_pk_horten, stufe=4, seed=0)
         ergebnis = runner.run()
-        assert not ergebnis["gewonnen"], (
-            "Passivregierung sollte verlieren!"
-        )
+        assert not ergebnis["gewonnen"], "Passivregierung sollte verlieren!"
 
 
 # =============================================================================

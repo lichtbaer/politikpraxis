@@ -1,3 +1,8 @@
 # Test- und Simulations-Dependencies
 # Basis: Backend-Requirements (für content_service, load_laws)
 -r backend/requirements.txt
+
+# Linting (CI, lokale Qualitätschecks)
+ruff>=0.8.0
+mypy>=1.11.0
+types-PyYAML>=6.0.12
