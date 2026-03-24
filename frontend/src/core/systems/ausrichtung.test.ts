@@ -24,13 +24,13 @@ describe('applyAusrichtung', () => {
     expect(result.zust.mitte).toBeLessThan(state.zust.mitte);
   });
 
-  it('Wirtschaft negativ: senkt fm Loyalty', () => {
+  it('Wirtschaft negativ: senkt Finanzminister Loyalty', () => {
     const state = {
       ...makeState(),
-      chars: [{ id: 'fm', name: 'FM', role: 'FM', initials: 'FM', color: '#000', mood: 2, loyalty: 3, bio: '', interests: [], bonus: { trigger: '', desc: '', applies: '' }, ultimatum: { moodThresh: 0, event: '' } }],
+      chars: [{ id: 'sdp_fm', name: 'FM', role: 'FM', initials: 'FM', color: '#000', mood: 2, loyalty: 3, bio: '', interests: [], bonus: { trigger: '', desc: '', applies: '' }, ultimatum: { moodThresh: 0, event: '' }, ressort: 'finanzen' as const }],
     };
     const result = applyAusrichtung(state, { wirtschaft: -100, gesellschaft: 0, staat: 0 });
-    const fm = result.chars.find(c => c.id === 'fm')!;
+    const fm = result.chars.find(c => c.id === 'sdp_fm')!;
     expect(fm.loyalty).toBeLessThan(3);
   });
 
@@ -42,13 +42,13 @@ describe('applyAusrichtung', () => {
     expect(result.zust.arbeit).toBeLessThan(state.zust.arbeit);
   });
 
-  it('Wirtschaft positiv: erhöht wm Loyalty', () => {
+  it('Wirtschaft positiv: erhöht Wirtschaftsminister Loyalty', () => {
     const state = {
       ...makeState(),
-      chars: [{ id: 'wm', name: 'WM', role: 'WM', initials: 'WM', color: '#000', mood: 2, loyalty: 2, bio: '', interests: [], bonus: { trigger: '', desc: '', applies: '' }, ultimatum: { moodThresh: 0, event: '' } }],
+      chars: [{ id: 'sdp_wm', name: 'WM', role: 'WM', initials: 'WM', color: '#000', mood: 2, loyalty: 2, bio: '', interests: [], bonus: { trigger: '', desc: '', applies: '' }, ultimatum: { moodThresh: 0, event: '' }, ressort: 'wirtschaft' as const }],
     };
     const result = applyAusrichtung(state, { wirtschaft: 100, gesellschaft: 0, staat: 0 });
-    const wm = result.chars.find(c => c.id === 'wm')!;
+    const wm = result.chars.find(c => c.id === 'sdp_wm')!;
     expect(wm.loyalty).toBeGreaterThan(2);
   });
 

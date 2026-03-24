@@ -3,6 +3,7 @@ import { addLog } from '../engine';
 import { withPause } from '../eventPause';
 import { einbringen } from './parliament';
 import { featureActive } from './features';
+import { resolveCharById } from './characters';
 
 const COOLDOWN_MONTHS = 8;
 
@@ -49,10 +50,11 @@ export function checkMinisterialInitiativen(
   if (!initiativen.length) return state;
 
   for (const init of initiativen) {
-    const char = state.chars.find(c => c.id === init.char_id);
+    const char = resolveCharById(state.chars, init.char_id);
     if (!canTrigger(init, char, state)) continue;
 
-    const lastFired = state.ministerialCooldowns?.[init.char_id] ?? 0;
+    const cooldownKey = char?.id ?? init.char_id;
+    const lastFired = state.ministerialCooldowns?.[cooldownKey] ?? 0;
     const cooldown = init.cooldown_months ?? COOLDOWN_MONTHS;
     if (state.month - lastFired < cooldown) continue;
 
@@ -63,7 +65,7 @@ export function checkMinisterialInitiativen(
       ...state,
       aktiveMinisterialInitiative: {
         initId: init.id,
-        charId: init.char_id,
+        charId: char!.id,
         gesetzId: init.gesetz_ref_id,
       },
       activeEvent: {
@@ -104,7 +106,7 @@ export function checkMinisterialInitiativen(
             log: 'Initiative ignoriert.',
           },
         ],
-        charId: init.char_id,
+        charId: char!.id,
       },
       ...withPause(state),
     };

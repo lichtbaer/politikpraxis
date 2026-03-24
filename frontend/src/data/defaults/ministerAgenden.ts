@@ -24,21 +24,4 @@ export const MINISTER_AGENDEN_CONFIG: Record<string, MinisterAgendaConfig> = {
     trigger_type: 'conditional',
     saldo_schwelle: -15,
   },
-  /** Legacy-ID: um (Umweltminister) falls dynamisches Kabinett nicht genutzt */
-  um: {
-    trigger_monat: 4,
-    wiederholung_intervall: 6,
-    max_ablehnungen: 2,
-    gesetz_ref_id: 'co2_steuer',
-    trigger_type: 'fixed',
-  },
-  /** Legacy-ID: fm (Finanzminister) */
-  fm: {
-    trigger_monat: 1,
-    wiederholung_intervall: 6,
-    max_ablehnungen: 2,
-    gesetz_ref_id: null,
-    trigger_type: 'conditional',
-    saldo_schwelle: -15,
-  },
 };

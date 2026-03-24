@@ -26,7 +26,7 @@ function getPartnerHaushaltsfeld(
 }
 
 function LehmannAvatar({ quote }: { quote: string }) {
-  const lehmann = useGameStore((s) => s.state.chars.find((c) => c.id === 'fm'));
+  const lehmann = useGameStore((s) => s.state.chars.find((c) => c.ressort === 'finanzen'));
   if (!lehmann) return null;
   return (
     <div className={styles.avatar}>

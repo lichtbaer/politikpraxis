@@ -184,27 +184,27 @@ describe('checkUltimatums', () => {
 });
 
 describe('applyCharBonuses', () => {
-  it('Wolf mood >= 4: erhöht prog leicht', () => {
+  it('Umweltminister mood >= 4: erhöht prog leicht', () => {
     const state = makeState({
-      chars: [makeChar({ id: 'um', mood: 4 })],
+      chars: [makeChar({ id: 'gp_um', ressort: 'umwelt', mood: 4 })],
       zust: { g: 50, arbeit: 50, mitte: 50, prog: 50 },
     });
     const result = applyCharBonuses(state);
     expect(result.zust.prog).toBeGreaterThan(50);
   });
 
-  it('Lehmann mood >= 4 und negatives hh: verbessert hh', () => {
+  it('Finanzminister mood >= 4 und negatives hh: verbessert hh', () => {
     const state = makeState({
-      chars: [makeChar({ id: 'fm', mood: 4 })],
+      chars: [makeChar({ id: 'cdp_fm', ressort: 'finanzen', mood: 4 })],
       kpi: { al: 5, hh: -1, gi: 30, zf: 60 },
     });
     const result = applyCharBonuses(state);
     expect(result.kpi.hh).toBeGreaterThan(-1);
   });
 
-  it('Lehmann Bonus nur bei negativem hh', () => {
+  it('Finanzminister Bonus nur bei negativem hh', () => {
     const state = makeState({
-      chars: [makeChar({ id: 'fm', mood: 4 })],
+      chars: [makeChar({ id: 'cdp_fm', ressort: 'finanzen', mood: 4 })],
       kpi: { al: 5, hh: 0.5, gi: 30, zf: 60 },
     });
     const result = applyCharBonuses(state);
