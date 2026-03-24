@@ -71,14 +71,15 @@ export function StartMapView() {
           ],
         },
       ],
-      series: [
+      geo: [
         // Ebene 1: Europa (Hintergrund)
         {
-          type: 'map',
           map: MAP_EUROPE,
           silent: true,
           roam: false,
-          aspectScale: 1,
+          aspectScale: 0.75,
+          center: [10, 51],
+          zoom: 1.3,
           layoutCenter: ['50%', '48%'],
           layoutSize: '90%',
           zlevel: 0,
@@ -90,13 +91,14 @@ export function StartMapView() {
           emphasis: { disabled: true },
           select: { disabled: true },
         },
-        // Ebene 2+3: Deutschland mit Bundesländern (hervorgehoben)
+        // Ebene 2: Deutschland mit Bundesländern (hervorgehoben)
         {
-          type: 'map',
           map: MAP_GERMANY,
           silent: true,
           roam: false,
-          aspectScale: 1,
+          aspectScale: 0.75,
+          center: [10, 51],
+          zoom: 1.3,
           layoutCenter: ['50%', '48%'],
           layoutSize: '90%',
           zlevel: 1,
@@ -110,7 +112,8 @@ export function StartMapView() {
           emphasis: { disabled: true },
           select: { disabled: true },
         },
-      ],
+      ] as EChartsOption['geo'],
+      series: [],
     }),
     [t]
   );
