@@ -55,7 +55,7 @@ const milieus = [
 ];
 
 describe('applyMilieuEffekte', () => {
-  it('korrekte Deltas je Kongruenz-Score: Score >= 75 → +3', () => {
+  it('korrekte Deltas je Kongruenz-Score: Score >= 85 → +4', () => {
     const state = createMockState({
       gesetze: [{
         id: 'ee',
@@ -77,10 +77,10 @@ describe('applyMilieuEffekte', () => {
       }],
     });
     const result = applyMilieuEffekte(state, 'ee', milieus, 2);
-    expect(result.milieuZustimmung?.['postmaterielle']).toBe(53); // 50 + 3
+    expect(result.milieuZustimmung?.['postmaterielle']).toBe(54); // 50 + 4 (Score 100 >= 85)
   });
 
-  it('korrekte Deltas: Score >= 55 → +1', () => {
+  it('korrekte Deltas: Score >= 70 → +2', () => {
     const state = createMockState({
       milieuZustimmung: { buergerliche_mitte: 50 },
       gesetze: [{
@@ -103,10 +103,10 @@ describe('applyMilieuEffekte', () => {
       }],
     });
     const result = applyMilieuEffekte(state, 'ee', milieus, 2);
-    expect(result.milieuZustimmung?.['buergerliche_mitte']).toBe(51);
+    expect(result.milieuZustimmung?.['buergerliche_mitte']).toBe(52); // 50 + 2 (Score ~70)
   });
 
-  it('korrekte Deltas: Score >= 25 → -1', () => {
+  it('korrekte Deltas: Score >= 35 → -1', () => {
     const state = createMockState({
       milieuZustimmung: { postmaterielle: 50 },
       gesetze: [{
@@ -129,10 +129,10 @@ describe('applyMilieuEffekte', () => {
       }],
     });
     const result = applyMilieuEffekte(state, 'ee', milieus, 2);
-    expect(result.milieuZustimmung?.['postmaterielle']).toBe(49);
+    expect(result.milieuZustimmung?.['postmaterielle']).toBe(49); // 50 - 1 (Score ~39)
   });
 
-  it('korrekte Deltas: Score < 25 → -3', () => {
+  it('korrekte Deltas: Score >= 20 → -2', () => {
     const state = createMockState({
       milieuZustimmung: { postmaterielle: 50 },
       gesetze: [{
@@ -155,7 +155,7 @@ describe('applyMilieuEffekte', () => {
       }],
     });
     const result = applyMilieuEffekte(state, 'ee', milieus, 2);
-    expect(result.milieuZustimmung?.['postmaterielle']).toBe(47);
+    expect(result.milieuZustimmung?.['postmaterielle']).toBe(48); // 50 - 2 (Score ~24)
   });
 
   it('ändert nichts bei complexity 1 (milieus_voll erst ab Stufe 2)', () => {

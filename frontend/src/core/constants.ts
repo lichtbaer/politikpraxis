@@ -19,9 +19,9 @@ export const KONGRUENZ_PK_SCHWELLEN = [80, 40, 20] as const;
 export const KONGRUENZ_PK_MODS = [-3, 0, 8, 12] as const;
 
 // --- Milieu-Zustimmung ---
-/** Milieu-Delta-Grenzen: Score ≥75: +3, ≥55: +1, ≥25: -1, <25: -3 */
-export const MILIEU_SCORE_SCHWELLEN = [75, 55, 25] as const;
-export const MILIEU_DELTAS = [3, 1, -1, -3] as const;
+/** Milieu-Delta-Grenzen: Score ≥85: +4, ≥70: +2, ≥55: +1, ≥35: -1, ≥20: -2, <20: -4 */
+export const MILIEU_SCORE_SCHWELLEN = [85, 70, 55, 35, 20] as const;
+export const MILIEU_DELTAS = [4, 2, 1, -1, -2, -4] as const;
 
 // --- Gesetz-Vorstufen / Boni ---
 /** Max. BT-Stimmen-Bonus in % */

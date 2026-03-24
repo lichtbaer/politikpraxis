@@ -37,10 +37,12 @@ export function applyMilieuEffekte(
 
     const score = milieuGesetzKongruenz(milieu, gesetz);
     let delta = 0;
-    if (score >= 75) delta = 3;
+    if (score >= 85) delta = 4;
+    else if (score >= 70) delta = 2;
     else if (score >= 55) delta = 1;
-    else if (score >= 25) delta = -1;
-    else delta = -3;
+    else if (score >= 35) delta = -1;
+    else if (score >= 20) delta = -2;
+    else delta = -4;
 
     delta = Math.round(delta * multiplikator * synergieFaktor);
     const current = milieuZustimmung[milieu.id] ?? 50;
