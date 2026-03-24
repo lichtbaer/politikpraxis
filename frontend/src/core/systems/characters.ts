@@ -1,26 +1,57 @@
-import type { GameState } from '../types';
+import type { GameState, Character } from '../types';
 import { addLog } from '../log';
 import { withPause, getAutoPauseLevel } from '../eventPause';
+
+/**
+ * Mapping Legacy-Char-IDs → Ressort.
+ * Events und alte Spielstände nutzen Legacy-IDs (fm, wm, …) in char_mood.
+ * Diese werden auf den aktuellen Kabinetts-Minister im jeweiligen Ressort aufgelöst.
+ */
+const LEGACY_ID_TO_RESSORT: Record<string, string> = {
+  fm: 'finanzen',
+  wm: 'wirtschaft',
+  im: 'innen',
+  jm: 'justiz',
+  um: 'umwelt',
+  am: 'arbeit',
+  gm: 'gesundheit',
+  bm: 'bildung',
+};
+
+/** Findet den Minister für eine Char-ID — direkt oder über Ressort-Alias. */
+export function resolveCharById(chars: Character[], id: string): Character | undefined {
+  const direct = chars.find((c) => c.id === id);
+  if (direct) return direct;
+  const ressort = LEGACY_ID_TO_RESSORT[id];
+  if (ressort) return chars.find((c) => c.ressort === ressort);
+  if (id === 'kanzler') return chars.find((c) => c.ist_kanzler);
+  return undefined;
+}
+
+/** Findet Minister nach Ressort (unabhängig von Partei). */
+function findByRessort(chars: Character[], ressort: string): Character | undefined {
+  return chars.find((c) => c.ressort === ressort);
+}
 
 export function applyCharBonuses(state: GameState): GameState {
   const newState = { ...state, kpi: { ...state.kpi }, zust: { ...state.zust } };
   const gesetze = newState.gesetze.map(g => ({ ...g }));
 
-  // Wolf (GP Umwelt) — prog-Bonus
-  const wolf = newState.chars.find((c) => (c.ressort === 'umwelt' && c.pool_partei === 'gp') || c.id === 'um');
-  if (wolf && wolf.mood >= 4) {
+  // Umweltminister — prog-Bonus (bei Stimmung ≥ 4)
+  const umwelt = findByRessort(newState.chars, 'umwelt');
+  if (umwelt && umwelt.mood >= 4) {
     newState.zust.prog = Math.min(90, newState.zust.prog + 0.3);
   }
 
-  // Lehmann (CDP Finanzen) — hh-Bonus
-  const lehmann = newState.chars.find((c) => (c.ressort === 'finanzen' && c.pool_partei === 'cdp') || c.id === 'fm');
-  if (lehmann && lehmann.mood >= 4 && newState.kpi.hh < 0) {
+  // Finanzminister — hh-Bonus (bei Stimmung ≥ 4 und negativem Haushalt)
+  const finanzen = findByRessort(newState.chars, 'finanzen');
+  if (finanzen && finanzen.mood >= 4 && newState.kpi.hh < 0) {
     newState.kpi.hh = +Math.min(0, newState.kpi.hh + 0.05).toFixed(2);
   }
 
-  // Braun (CDP Innen) — Sabotage
-  const braun = newState.chars.find((c) => (c.ressort === 'innen' && c.pool_partei === 'cdp') || c.id === 'im');
-  if (braun && braun.mood <= 1 && Math.random() < 0.3) {
+  // Innenminister — Sabotage (bei Stimmung ≤ 1)
+  const innen = findByRessort(newState.chars, 'innen');
+  if (innen && innen.mood <= 1 && Math.random() < 0.3) {
     gesetze.forEach(g => {
       if ((g.status === 'aktiv' || g.status === 'entwurf' || g.status === 'eingebracht') && Math.random() < 0.4) {
         g.ja = Math.max(30, g.ja - 1);
@@ -29,9 +60,9 @@ export function applyCharBonuses(state: GameState): GameState {
     });
   }
 
-  // Maier (SDP Wirtschaft) — al-Bonus
-  const maier = newState.chars.find((c) => (c.ressort === 'wirtschaft' && c.pool_partei === 'sdp') || c.id === 'wm');
-  if (maier && maier.mood >= 4 && Math.random() < 0.3) {
+  // Wirtschaftsminister — al-Bonus (bei Stimmung ≥ 4)
+  const wirtschaft = findByRessort(newState.chars, 'wirtschaft');
+  if (wirtschaft && wirtschaft.mood >= 4 && Math.random() < 0.3) {
     newState.kpi.al = +Math.max(2, newState.kpi.al - 0.05).toFixed(2);
   }
 
@@ -77,17 +108,58 @@ export function applyMoodChange(
   charMood: Record<string, number>,
   loyalty?: Record<string, number>,
 ): GameState {
+  // Resolve legacy IDs (fm, wm, …) zu tatsächlichen Char-IDs im Kabinett
+  const resolvedMood = resolveLegacyIds(state.chars, charMood);
+  const resolvedLoyalty = loyalty ? resolveLegacyIds(state.chars, loyalty) : undefined;
+
   const chars = state.chars.map(c => {
     const newChar = { ...c };
-    if (charMood[c.id] !== undefined) {
-      newChar.mood = Math.max(0, Math.min(4, newChar.mood + charMood[c.id]));
+    if (resolvedMood[c.id] !== undefined) {
+      newChar.mood = Math.max(0, Math.min(4, newChar.mood + resolvedMood[c.id]));
     }
-    if (loyalty && loyalty[c.id] !== undefined) {
-      newChar.loyalty = Math.max(0, Math.min(5, newChar.loyalty + loyalty[c.id]));
+    if (resolvedLoyalty && resolvedLoyalty[c.id] !== undefined) {
+      newChar.loyalty = Math.max(0, Math.min(5, newChar.loyalty + resolvedLoyalty[c.id]));
     }
     return newChar;
   });
   return { ...state, chars };
+}
+
+/**
+ * Löst Legacy-IDs in einem char_mood/loyalty-Dict auf die tatsächlichen Kabinetts-Minister auf.
+ * 'fm' → aktuelle ID des Finanzministers, 'wm' → Wirtschaftsminister, etc.
+ */
+function resolveLegacyIds(
+  chars: Character[],
+  dict: Record<string, number>,
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (const [key, value] of Object.entries(dict)) {
+    // Direkt im Kabinett vorhanden → übernehmen
+    if (chars.some((c) => c.id === key)) {
+      result[key] = (result[key] ?? 0) + value;
+      continue;
+    }
+    // Legacy-ID → Ressort-Alias auflösen
+    const ressort = LEGACY_ID_TO_RESSORT[key];
+    if (ressort) {
+      const target = chars.find((c) => c.ressort === ressort);
+      if (target) {
+        result[target.id] = (result[target.id] ?? 0) + value;
+        continue;
+      }
+    }
+    // 'kanzler' → ist_kanzler
+    if (key === 'kanzler') {
+      const kanzler = chars.find((c) => c.ist_kanzler);
+      if (kanzler) {
+        result[kanzler.id] = (result[kanzler.id] ?? 0) + value;
+        continue;
+      }
+    }
+    // Unbekannte ID → ignorieren (Minister nicht im Kabinett)
+  }
+  return result;
 }
 
 /**

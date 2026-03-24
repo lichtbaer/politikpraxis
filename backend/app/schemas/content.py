@@ -42,6 +42,16 @@ class CharResponse(BaseModel):
     partei_id: str | None = None
     partei_kuerzel: str | None = None
     partei_farbe: str | None = None
+    # SMA-327: Dynamisches Kabinett
+    pool_partei: str | None = None
+    ressort: str | None = None
+    ressort_partner: str | None = None
+    agenda: dict | None = None
+    ist_kanzler: bool = False
+    # SMA-329: Partner-Minister
+    ist_partner_minister: bool = False
+    agenda_stufe_aktuell: int | None = None
+    agenda_ablehnungen: int = 0
 
     model_config = ConfigDict(from_attributes=True)
 

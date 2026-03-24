@@ -152,7 +152,7 @@ export function berechneOptionen(
 
   // Option B: Schulden (SMA-336: Spielraum, Lehmann-Warnung)
   const schuldenVerfuegbar = schuldenbremseSpielraum >= kosten;
-  const hatLehmann = hatMinisterLehmann(state);
+  const hatLehmann = hatFinanzminister(state);
   optionen.push({
     key: 'schulden',
     label_de: 'Schulden aufnehmen',
@@ -199,10 +199,8 @@ export function berechneOptionen(
   return optionen;
 }
 
-function hatMinisterLehmann(state: GameState): boolean {
-  return state.chars.some(
-    (c) => (c.ressort === 'finanzen' && c.pool_partei === 'cdp') || c.id === 'fm',
-  );
+function hatFinanzminister(state: GameState): boolean {
+  return state.chars.some((c) => c.ressort === 'finanzen');
 }
 
 function getMinisterByRessort(state: GameState, ressort: string): { id: string } | null {
@@ -295,12 +293,10 @@ export function wendeGegenfinanzierungAn(
         },
       };
 
-      if (hatMinisterLehmann(state)) {
-        const lehmann = state.chars.find(
-          (c) => (c.ressort === 'finanzen' && c.pool_partei === 'cdp') || c.id === 'fm',
-        );
-        if (lehmann) {
-          newState = applyMoodChange(newState, { [lehmann.id]: -1 });
+      if (hatFinanzminister(state)) {
+        const finanzminister = state.chars.find((c) => c.ressort === 'finanzen');
+        if (finanzminister) {
+          newState = applyMoodChange(newState, { [finanzminister.id]: -1 });
           newState = { ...newState, lehmannUltimatumBeschleunigt: true };
         }
       }
