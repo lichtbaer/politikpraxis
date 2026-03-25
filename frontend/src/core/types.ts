@@ -755,6 +755,12 @@ export interface GameState {
   unlockedLaws?: string[];
   /** Anstehende Follow-up Events (complexity >= 4) */
   pendingFollowups?: Array<{ eventId: string; triggerMonth: number }>;
+  /** Vermittlungsausschuss: gesetzId → Monat der Vermittlung (2 Monate Verzögerung) */
+  vermittlungAktiv?: Record<string, number>;
+  /** Regierungserklärung: Monat der letzten Erklärung (Cooldown 12 Monate) */
+  letzteRegierungserklaerungMonat?: number;
+  /** Vertrauensfrage: bereits gestellt (1× pro Legislatur) */
+  vertrauensfrageGestellt?: boolean;
 }
 
 /** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */

@@ -66,6 +66,8 @@ import {
 import { pressemitteilung } from '../core/systems/medienklima';
 import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
+import { vermittlungsausschuss } from '../core/systems/vermittlung';
+import { regierungserklaerung, vertrauensfrage } from '../core/systems/regierung';
 import { useUIStore } from './uiStore';
 
 export type GamePhase = 'onboarding' | 'playing';
@@ -146,6 +148,9 @@ interface GameStore {
   doEinbringenMitFraming: (lawId: string, framingKey: string | null) => void;
   doKabinettsgespraech: (charId: string) => void;
   doEntlasseMinister: (charId: string) => void;
+  doVermittlungsausschuss: (lawId: string) => void;
+  doRegierungserklaerung: () => void;
+  doVertrauensfrage: () => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
 }
@@ -559,6 +564,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(prev => {
       const contentChars = prev.content.characters;
       const next = entlasseMinister(prev.state, charId, prev.complexity, contentChars);
+      return next !== prev.state ? { state: next } : {};
+    }),
+
+  doVermittlungsausschuss: (lawId) =>
+    set(prev => {
+      const next = vermittlungsausschuss(prev.state, lawId, prev.complexity);
+      if (next !== prev.state) {
+        toast('Vermittlungsausschuss einberufen — Kompromiss in 2 Monaten', 'info');
+      }
+      return next !== prev.state ? { state: next } : {};
+    }),
+
+  doRegierungserklaerung: () =>
+    set(prev => {
+      const next = regierungserklaerung(prev.state, prev.complexity);
+      return next !== prev.state ? { state: next } : {};
+    }),
+
+  doVertrauensfrage: () =>
+    set(prev => {
+      const next = vertrauensfrage(prev.state, prev.complexity);
       return next !== prev.state ? { state: next } : {};
     }),
 
