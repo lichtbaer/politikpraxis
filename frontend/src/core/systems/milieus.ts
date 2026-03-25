@@ -3,6 +3,7 @@ import { milieuGesetzKongruenz } from '../ideologie';
 import { featureActive } from './features';
 import { getMedienMultiplikator } from './medienklima';
 import { berechneGesetzEffektMitSynergien } from '../gesetz';
+import { clamp, MILIEU_SCORE_SCHWELLEN, MILIEU_DELTAS } from '../constants';
 
 /**
  * Wendet Milieu-Effekte nach einem Gesetzesbeschluss an.
@@ -36,15 +37,15 @@ export function applyMilieuEffekte(
     if (milieu.min_complexity > complexity) continue;
 
     const score = milieuGesetzKongruenz(milieu, gesetz);
-    let delta = 0;
-    if (score >= 75) delta = 3;
-    else if (score >= 55) delta = 1;
-    else if (score >= 25) delta = -1;
-    else delta = -3;
+    let delta: number;
+    if (score >= MILIEU_SCORE_SCHWELLEN[0]) delta = MILIEU_DELTAS[0];
+    else if (score >= MILIEU_SCORE_SCHWELLEN[1]) delta = MILIEU_DELTAS[1];
+    else if (score >= MILIEU_SCORE_SCHWELLEN[2]) delta = MILIEU_DELTAS[2];
+    else delta = MILIEU_DELTAS[3];
 
     delta = Math.round(delta * multiplikator * synergieFaktor);
     const current = milieuZustimmung[milieu.id] ?? 50;
-    milieuZustimmung[milieu.id] = Math.max(0, Math.min(100, current + delta));
+    milieuZustimmung[milieu.id] = clamp(current + delta, 0, 100);
 
     // SMA-297: Letzte 3 Reaktionen pro Milieu speichern
     const reaktionen = milieuGesetzReaktionen[milieu.id] ?? [];

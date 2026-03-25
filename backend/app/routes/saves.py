@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
@@ -11,6 +11,8 @@ from app.services.save_service import (
     get_user_saves,
     upsert_save,
 )
+
+VALID_SLOTS = (1, 2, 3)
 
 router = APIRouter()
 
@@ -38,12 +40,10 @@ async def list_saves(
 
 @router.get("/{slot}", response_model=SaveDetailResponse)
 async def get_save(
-    slot: int,
+    slot: int = Path(ge=1, le=3),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if slot not in (1, 2, 3):
-        raise HTTPException(status_code=400, detail="Ungültiger Slot (1–3)")
     save = await get_save_by_slot(db, user.id, slot)
     if not save:
         raise HTTPException(status_code=404, detail="Spielstand nicht gefunden")
@@ -65,13 +65,11 @@ async def get_save(
 
 @router.post("/{slot}", response_model=SaveListItem)
 async def save_game_slot(
-    slot: int,
     req: SaveUpsertRequest,
+    slot: int = Path(ge=1, le=3),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if slot not in (1, 2, 3):
-        raise HTTPException(status_code=400, detail="Ungültiger Slot (1–3)")
     try:
         save = await upsert_save(
             db,
@@ -102,12 +100,10 @@ async def save_game_slot(
 
 @router.delete("/{slot}")
 async def remove_save(
-    slot: int,
+    slot: int = Path(ge=1, le=3),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if slot not in (1, 2, 3):
-        raise HTTPException(status_code=400, detail="Ungültiger Slot (1–3)")
     save = await get_save_by_slot(db, user.id, slot)
     if not save:
         raise HTTPException(status_code=404, detail="Spielstand nicht gefunden")

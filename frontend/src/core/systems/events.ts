@@ -10,6 +10,10 @@ import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell } from './wahlkampf';
 import { applyMedienChoiceDelta } from './medienklima';
 import { featureActive } from './features';
+import {
+  clamp, RANDOM_EVENT_CHANCE,
+  BR_LANDTAGSWAHL_CHANCE, BR_SPRECHER_WECHSEL_CHANCE, BR_INITIATIVE_CHANCE,
+} from '../constants';
 import i18n from '../../i18n';
 
 /** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
@@ -59,7 +63,7 @@ import { isEventAvailable, recordEventFired } from './eventUtils';
 
 export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): GameState {
   if (state.activeEvent) return state;
-  if (Math.random() >= 0.22) return state;
+  if (Math.random() >= RANDOM_EVENT_CHANCE) return state;
 
   const available = eventPool
     .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
@@ -141,8 +145,8 @@ export function checkBundesratEvents(
     }
   }
 
-  // 4. Zufällig: Landtagswahl (ab Monat 10, ~15% Chance)
-  if (state.month >= 10 && Math.random() < 0.15 && !fired.includes('landtagswahl')) {
+  // 4. Zufällig: Landtagswahl (ab Monat 10)
+  if (state.month >= 10 && Math.random() < BR_LANDTAGSWAHL_CHANCE && !fired.includes('landtagswahl')) {
     const ev = bundesratEvents.find(e => e.id === 'landtagswahl');
     if (ev && landtagswahlTransitions.length > 0) {
       const t = landtagswahlTransitions[Math.floor(Math.random() * landtagswahlTransitions.length)];
@@ -165,8 +169,8 @@ export function checkBundesratEvents(
     }
   }
 
-  // 5. Zufällig: Sprecher-Wechsel (~20% nach Monat 24)
-  if (state.month >= 24 && Math.random() < 0.2 && !fired.includes('sprecher_wechsel')) {
+  // 5. Zufällig: Sprecher-Wechsel (nach Monat 24)
+  if (state.month >= 24 && Math.random() < BR_SPRECHER_WECHSEL_CHANCE && !fired.includes('sprecher_wechsel')) {
     const ev = bundesratEvents.find(e => e.id === 'sprecher_wechsel');
     if (ev) {
       const fraktionen = state.bundesratFraktionen.filter(f => sprecherErsatz[f.id]);
@@ -189,7 +193,7 @@ export function checkBundesratEvents(
   }
 
   // 6. Konditionell: Bundesrat-Initiative (Fraktion 3 oder 4, ab Monat 18)
-  if (state.month >= 18 && Math.random() < 0.25 && !fired.includes('bundesrat_initiative')) {
+  if (state.month >= 18 && Math.random() < BR_INITIATIVE_CHANCE && !fired.includes('bundesrat_initiative')) {
     const ev = bundesratEvents.find(e => e.id === 'bundesrat_initiative');
     if (ev) {
       const initiatoren = ['konservativer_block', 'ostblock'];
@@ -400,7 +404,7 @@ function applyKoalitionspartnerDelta(state: GameState, choice: EventChoice): Gam
     ...state,
     koalitionspartner: {
       ...state.koalitionspartner,
-      beziehung: Math.max(0, Math.min(100, state.koalitionspartner.beziehung + choice.koalitionspartnerBeziehung)),
+      beziehung: clamp(state.koalitionspartner.beziehung + choice.koalitionspartnerBeziehung, 0, 100),
     },
     koalitionsbruchSeitMonat: undefined,
   };
@@ -412,7 +416,7 @@ function applyBundesratBonusAll(state: GameState, choice: EventChoice): GameStat
   return {
     ...state,
     bundesratFraktionen: state.bundesratFraktionen.map(f =>
-      ({ ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + choice.bundesratBonusAll!)) }),
+      ({ ...f, beziehung: clamp(f.beziehung + choice.bundesratBonusAll!, 0, 100) }),
     ),
   };
 }
@@ -554,7 +558,7 @@ export function resolveEvent(
       bundesratFraktionen: s.bundesratFraktionen.map(f => {
         const delta = choice.brRelation![f.id];
         if (delta == null) return f;
-        return { ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + delta)) };
+        return { ...f, beziehung: clamp(f.beziehung + delta, 0, 100) };
       }),
     };
   }
@@ -565,7 +569,7 @@ export function resolveEvent(
       ...s,
       bundesratFraktionen: s.bundesratFraktionen.map(f =>
         f.id === event.fraktionId
-          ? { ...f, beziehung: Math.max(0, Math.min(100, f.beziehung + choice.brRelationInitiator!)) }
+          ? { ...f, beziehung: clamp(f.beziehung + choice.brRelationInitiator!, 0, 100) }
           : f,
       ),
     };

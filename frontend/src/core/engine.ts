@@ -1,6 +1,10 @@
 import type { GameState, ContentBundle, TickLogEntry } from './types';
 import { withPause, getAutoPauseLevel } from './eventPause';
-import { PK_REGEN_DIVISOR, PK_REGEN_MIN, PK_MAX } from './constants';
+import {
+  PK_REGEN_DIVISOR, PK_REGEN_MIN, PK_MAX,
+  HISTORY_MAX_MONTHS, KPI_HISTORY_MAX_MONTHS, MAX_LOG_ENTRIES,
+  MISSTRAUENSVOTUM_MONATE, trimHistory,
+} from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
@@ -95,7 +99,7 @@ export function tick(
 
   // 2. Pending Effects (inkl. SMA-278: Medienklima-Historie)
   const medienVal = s.medienKlima ?? s.zust.g;
-  const medienHist = [...(s.medienKlimaHistory ?? []), medienVal].slice(-48);
+  const medienHist = trimHistory(s.medienKlimaHistory ?? [], medienVal, HISTORY_MAX_MONTHS);
   s = { ...s, medienKlimaHistory: medienHist };
   if (s.medienKlima == null) s = { ...s, medienKlima: 55 };
 
@@ -244,22 +248,21 @@ export function tick(
   }
   s = { ...s, zust: newZust };
 
-  // Approval-History: allgemeine Zustimmung pro Monat tracken (max 48)
-  const approvalHist = [...(s.approvalHistory ?? []), newZust.g].slice(-48);
-  s = { ...s, approvalHistory: approvalHist };
+  // Approval-History: allgemeine Zustimmung pro Monat tracken
+  s = { ...s, approvalHistory: trimHistory(s.approvalHistory ?? [], newZust.g, HISTORY_MAX_MONTHS) };
 
   // KPI-History: letzte 12 Monate pro KPI für Trendanzeige
   const prevKpiHist = s.kpiHistory ?? { al: [], hh: [], gi: [], zf: [] };
   s = {
     ...s,
     kpiHistory: {
-      al: [...prevKpiHist.al, s.kpi.al].slice(-12),
-      hh: [...prevKpiHist.hh, s.kpi.hh].slice(-12),
-      gi: [...prevKpiHist.gi, s.kpi.gi].slice(-12),
-      zf: [...prevKpiHist.zf, s.kpi.zf].slice(-12),
+      al: trimHistory(prevKpiHist.al, s.kpi.al, KPI_HISTORY_MAX_MONTHS),
+      hh: trimHistory(prevKpiHist.hh, s.kpi.hh, KPI_HISTORY_MAX_MONTHS),
+      gi: trimHistory(prevKpiHist.gi, s.kpi.gi, KPI_HISTORY_MAX_MONTHS),
+      zf: trimHistory(prevKpiHist.zf, s.kpi.zf, KPI_HISTORY_MAX_MONTHS),
     },
     // SMA-323: Haushalt-Saldo-Verlauf für Chart (Mrd.)
-    haushaltSaldoHistory: [...(s.haushaltSaldoHistory ?? []), s.haushalt?.saldo ?? 0].slice(-12),
+    haushaltSaldoHistory: trimHistory(s.haushaltSaldoHistory ?? [], s.haushalt?.saldo ?? 0, KPI_HISTORY_MAX_MONTHS),
   };
 
   // SMA-280: Verfassungsgericht-Verfahren beenden wenn Frist abgelaufen
@@ -282,8 +285,7 @@ export function tick(
     const history = { ...(s.milieuZustimmungHistory ?? {}) };
     for (const [mid, val] of Object.entries(s.milieuZustimmung)) {
       const arr = history[mid] ?? [];
-      const next = [...arr, val].slice(-48);
-      history[mid] = next;
+      history[mid] = trimHistory(arr, val, HISTORY_MAX_MONTHS);
     }
     s = { ...s, milieuZustimmungHistory: history };
   }
@@ -298,14 +300,14 @@ export function tick(
 
   // Misstrauensvotum-Warnung im Log
   const lowMonths = s.lowApprovalMonths ?? 0;
-  if (lowMonths >= 3 && lowMonths < 6) {
-    const remaining = 6 - lowMonths;
+  if (lowMonths >= 3 && lowMonths < MISSTRAUENSVOTUM_MONATE) {
+    const remaining = MISSTRAUENSVOTUM_MONATE - lowMonths;
     s = {
       ...s,
       log: [
         { time: formatTickTime(s.month), msg: `⚠ Misstrauensvotum droht! Noch ${remaining} Monat(e) unter 20% bis zum Sturz.`, type: 'danger' },
         ...s.log,
-      ].slice(0, 60),
+      ].slice(0, MAX_LOG_ENTRIES),
     };
   }
 
