@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
-from app.dependencies import verify_admin
+from app.dependencies import validate_locale_value, verify_admin
 from app.models.content import (
     BundesratFraktion,
     BundesratFraktionI18n,
@@ -40,15 +40,9 @@ from app.schemas.admin import (
     GesetzI18nUpdate,
     GesetzUpdate,
 )
-from app.services.content_db_service import VALID_LOCALES, content_cache_clear
+from app.services.content_db_service import content_cache_clear
 
 router = APIRouter(dependencies=[Depends(verify_admin)])
-
-
-def _validate_locale(locale: str) -> str:
-    if locale not in VALID_LOCALES:
-        raise HTTPException(400, detail=f"Ungültige locale '{locale}'. Erlaubt: de, en")
-    return locale
 
 
 def _to_float(v: Decimal | float | None) -> float:
@@ -181,7 +175,7 @@ async def admin_list_char_i18n(char_id: str, db: AsyncSession = Depends(get_db))
 async def admin_create_char_i18n(
     char_id: str, data: CharI18nCreate, db: AsyncSession = Depends(get_db)
 ):
-    _validate_locale(data.locale)
+    validate_locale_value(data.locale)
     # Prüfen ob Char existiert
     r = await db.execute(select(Char).where(Char.id == char_id))
     if not r.scalar_one_or_none():
@@ -209,7 +203,7 @@ async def admin_update_char_i18n(
     data: CharI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(CharI18n).where(CharI18n.char_id == char_id, CharI18n.locale == locale)
     )
@@ -344,7 +338,7 @@ async def admin_upsert_gesetz_i18n(
     data: GesetzI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(GesetzI18n).where(
             GesetzI18n.gesetz_id == gesetz_id, GesetzI18n.locale == locale
@@ -480,7 +474,7 @@ async def admin_upsert_event_i18n(
     data: EventI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(EventI18n).where(
             EventI18n.event_id == event_id, EventI18n.locale == locale
@@ -582,7 +576,7 @@ async def admin_upsert_event_choice_i18n(
     data: EventChoiceI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(EventChoice).where(
             EventChoice.id == choice_id, EventChoice.event_id == event_id
@@ -676,7 +670,7 @@ async def admin_upsert_bundesrat_i18n(
     data: BundesratFraktionI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(BundesratFraktionI18n).where(
             BundesratFraktionI18n.fraktion_id == fraktion_id,
@@ -778,7 +772,7 @@ async def admin_upsert_bundesrat_tradeoff_i18n(
     data: BundesratTradeoffI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(BundesratTradeoff).where(
             BundesratTradeoff.id == tradeoff_id,

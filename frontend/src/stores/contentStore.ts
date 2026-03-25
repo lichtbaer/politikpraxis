@@ -383,26 +383,37 @@ export const useContentStore = create<ContentStore>((set) => ({
         ]);
 
       const events = eventsAll.map(transformEvent);
-      const eventTypeById = new Map(eventsAll.map((a) => [a.id, a.event_type]));
-      const randomEvents = events.filter((e) => eventTypeById.get(e.id) === 'random');
-      const charEventsList = events.filter((e) => eventTypeById.get(e.id) === 'char_ultimatum');
-      const brEventsList = events.filter((e) => eventTypeById.get(e.id) === 'bundesrat');
-      const kommunalEventsList = events.filter((e) => eventTypeById.get(e.id) === 'kommunal_initiative');
-      const vorstufenEventsList = events.filter((e) => eventTypeById.get(e.id) === 'vorstufe_erfolg');
-      const extremismusEventsList = events.filter((e) =>
-        ['koalitionspartner_extremismus_warnung', 'verfassungsgericht_klage'].includes(e.id),
-      );
-      const kommunalLaenderEventsList = events.filter((e) =>
-        ['kommunal_haushaltskrise', 'kommunal_buergerprotest', 'laender_koalitionskrise'].includes(e.id),
-      );
-      const steuerEventsList = events.filter((e) =>
-        ['steuerstreit_koalition', 'steuereinnahmen_einbruch', 'haushaltsstreit_opposition'].includes(e.id),
-      );
 
+      // Kategorisiere Events in einem Durchlauf statt 8 separater .filter()-Aufrufe
+      const eventTypeById = new Map(eventsAll.map((a) => [a.id, a.event_type]));
+      const byType: Record<string, GameEvent[]> = {};
       const charEventsMap: Record<string, GameEvent> = {};
-      for (const ev of charEventsList) {
-        charEventsMap[ev.id] = ev;
+      const SPECIAL_IDS: Record<string, string> = {
+        koalitionspartner_extremismus_warnung: 'extremismus',
+        verfassungsgericht_klage: 'extremismus',
+        kommunal_haushaltskrise: 'kommunal_laender',
+        kommunal_buergerprotest: 'kommunal_laender',
+        laender_koalitionskrise: 'kommunal_laender',
+        steuerstreit_koalition: 'steuer',
+        steuereinnahmen_einbruch: 'steuer',
+        haushaltsstreit_opposition: 'steuer',
+      };
+      for (const ev of events) {
+        const type = eventTypeById.get(ev.id) ?? 'random';
+        if (ev.id in SPECIAL_IDS) {
+          const cat = SPECIAL_IDS[ev.id];
+          (byType[cat] ??= []).push(ev);
+        }
+        (byType[type] ??= []).push(ev);
+        if (type === 'char_ultimatum') charEventsMap[ev.id] = ev;
       }
+      const randomEvents = byType['random'] ?? [];
+      const brEventsList = byType['bundesrat'] ?? [];
+      const kommunalEventsList = byType['kommunal_initiative'] ?? [];
+      const vorstufenEventsList = byType['vorstufe_erfolg'] ?? [];
+      const extremismusEventsList = byType['extremismus'] ?? [];
+      const kommunalLaenderEventsList = byType['kommunal_laender'] ?? [];
+      const steuerEventsList = byType['steuer'] ?? [];
 
       const bundesratEventsResolved =
         brEventsList.length > 0 ? brEventsList : BUNDESRAT_EVENTS;

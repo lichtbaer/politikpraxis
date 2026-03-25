@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
+from app.dependencies import validate_locale
 from app.schemas.content import (
     BundesratResponse,
     CharResponse,
@@ -14,7 +15,6 @@ from app.schemas.content import (
     VerbandResponse,
 )
 from app.services.content_db_service import (
-    VALID_LOCALES,
     fetch_bundesrat,
     fetch_chars,
     fetch_eu_events,
@@ -34,16 +34,6 @@ from app.services.content_service import (
 )
 
 router = APIRouter()
-
-
-def validate_locale(locale: str = Query(default="de")) -> str:
-    """Validiert locale; nur 'de' und 'en' erlaubt."""
-    if locale not in VALID_LOCALES:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Ungültige locale '{locale}'. Erlaubt sind: de, en",
-        )
-    return locale
 
 
 @router.get("/bundle", response_model=ContentBundleResponse)

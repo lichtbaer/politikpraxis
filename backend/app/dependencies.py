@@ -1,8 +1,8 @@
-"""FastAPI-Dependencies (z.B. Admin Basic-Auth, optionale User-Auth, Client-IP)."""
+"""FastAPI-Dependencies (z.B. Admin Basic-Auth, optionale User-Auth, Client-IP, Locale)."""
 
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, Query, Request, status
 from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBasic,
@@ -16,6 +16,7 @@ from app.config import get_settings
 from app.db.database import get_db
 from app.models.user import User
 from app.services.auth_service import decode_token
+from app.services.content_db_service import VALID_LOCALES
 
 security = HTTPBasic()
 optional_bearer = HTTPBearer(auto_error=False)
@@ -71,3 +72,23 @@ def client_ip(request: Request) -> str:
     if request.client:
         return request.client.host or "unknown"
     return "unknown"
+
+
+def validate_locale(locale: str = Query(default="de")) -> str:
+    """Validiert locale; nur 'de' und 'en' erlaubt. Nutzbar als FastAPI-Dependency."""
+    if locale not in VALID_LOCALES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Ungültige locale '{locale}'. Erlaubt sind: de, en",
+        )
+    return locale
+
+
+def validate_locale_value(locale: str) -> str:
+    """Validiert einen Locale-String (kein Query-Parameter, für direkten Aufruf)."""
+    if locale not in VALID_LOCALES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Ungültige locale '{locale}'. Erlaubt: de, en",
+        )
+    return locale
