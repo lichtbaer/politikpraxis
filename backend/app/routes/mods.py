@@ -9,6 +9,7 @@ from app.models.mod import Mod
 from app.models.user import User
 from app.schemas.mod import ModCreateRequest, ModDetailResponse, ModResponse
 from app.services.auth_service import get_current_user
+from app.services.mod_validator import validate_mod_content
 
 # Maximum size for mod content (1 MB as JSON)
 MOD_CONTENT_MAX_SIZE = 1_000_000
@@ -65,6 +66,13 @@ async def create_mod(
         raise HTTPException(
             status_code=400,
             detail=f"Mod content too large ({content_size} bytes, max {MOD_CONTENT_MAX_SIZE})",
+        )
+
+    validation_errors = validate_mod_content(req.content)
+    if validation_errors:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid mod content: {'; '.join(validation_errors)}",
         )
 
     mod = Mod(

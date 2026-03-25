@@ -52,12 +52,13 @@ export function applyCharBonuses(state: GameState): GameState {
   // Innenminister — Sabotage (bei Stimmung ≤ 1)
   const innen = findByRessort(newState.chars, 'innen');
   if (innen && innen.mood <= 1 && Math.random() < 0.3) {
-    gesetze.forEach(g => {
+    for (let i = 0; i < gesetze.length; i++) {
+      const g = gesetze[i];
       if ((g.status === 'aktiv' || g.status === 'entwurf' || g.status === 'eingebracht') && Math.random() < 0.4) {
-        g.ja = Math.max(30, g.ja - 1);
-        g.nein = 100 - g.ja;
+        const ja = Math.max(30, g.ja - 1);
+        gesetze[i] = { ...g, ja, nein: 100 - ja };
       }
-    });
+    }
   }
 
   // Wirtschaftsminister — al-Bonus (bei Stimmung ≥ 4)

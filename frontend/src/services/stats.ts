@@ -2,6 +2,9 @@ import { apiFetch } from './api';
 
 const STATS_SESSION_KEY = 'br_stats_session_v1';
 
+/** Fallback wenn localStorage nicht verfügbar — stabil pro App-Session */
+let fallbackSessionId: string | null = null;
+
 /** Stabile anonyme Session für Community-Stats (ohne Login) */
 export function getOrCreateStatsSessionId(): string {
   try {
@@ -12,7 +15,11 @@ export function getOrCreateStatsSessionId(): string {
     }
     return id;
   } catch {
-    return crypto.randomUUID();
+    // localStorage nicht verfügbar — ID pro App-Session stabil halten
+    if (!fallbackSessionId) {
+      fallbackSessionId = crypto.randomUUID();
+    }
+    return fallbackSessionId;
   }
 }
 
