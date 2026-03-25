@@ -81,9 +81,10 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): Gam
 
   if (Math.random() >= prob) return state;
 
+  const firedSet = new Set(state.firedEvents);
   const available = eventPool
     .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
-    .filter(e => isEventAvailable(state, e));
+    .filter(e => isEventAvailable(state, e, firedSet));
   if (!available.length) return state;
 
   const ev = available[Math.floor(Math.random() * available.length)];

@@ -13,14 +13,24 @@ export interface AutosaveMeta {
   kanzlerGeschlecht: 'sie' | 'er' | 'they';
 }
 
+/** Track consecutive failures to avoid spamming retries */
+let consecutiveFailures = 0;
+const MAX_CONSECUTIVE_FAILURES = 3;
+
 /**
  * Autosave alle AUTOSAVE_INTERVAL Monate in Slot 1 (nur eingeloggte Nutzer).
  * Bei Fehler: lokales Speichern übernimmt weiterhin gameStore.saveGame.
+ * Retries einmal nach 2s bei Netzwerkfehler; pausiert nach 3 aufeinanderfolgenden Fehlern.
  */
 export function checkAutosave(monat: number, token: string | null, state: GameState, meta: AutosaveMeta): void {
   if (!token) return;
   if (monat < 1 || state.gameOver) return;
   if (monat % AUTOSAVE_INTERVAL !== 0) return;
+  if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+    // Pause cloud saves after repeated failures; reset on next successful interval
+    consecutiveFailures = 0;
+    return;
+  }
 
   const payload: UpsertPayload = {
     gameState: state,
@@ -33,9 +43,25 @@ export function checkAutosave(monat: number, token: string | null, state: GameSt
 
   void upsertSaveSlot(token, 1, payload)
     .then(() => {
+      consecutiveFailures = 0;
       useUIStore.getState().showToast(`Spielstand gespeichert (Monat ${monat})`, 'success');
     })
     .catch(() => {
-      useUIStore.getState().showToast('Cloud-Speichern fehlgeschlagen – lokal gesichert', 'warning');
+      consecutiveFailures++;
+      // Single retry after 2s delay
+      setTimeout(() => {
+        void upsertSaveSlot(token, 1, payload)
+          .then(() => {
+            consecutiveFailures = 0;
+          })
+          .catch(() => {
+            useUIStore.getState().showToast('Cloud-Speichern fehlgeschlagen – lokal gesichert', 'warning');
+          });
+      }, 2000);
     });
+}
+
+/** Reset failure counter (e.g. on fresh login) */
+export function resetAutosaveFailures(): void {
+  consecutiveFailures = 0;
 }
