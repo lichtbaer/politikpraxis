@@ -251,23 +251,26 @@ async def fetch_events(
         result = await db.execute(stmt)
         events_raw = result.all()
 
+    # Alle Choices in einem Query laden (statt N+1 pro Event)
+    event_ids = [e.id for e, _ in events_raw]
+    all_choices_stmt = (
+        select(EventChoice, EventChoiceI18n)
+        .join(
+            EventChoiceI18n,
+            (EventChoice.id == EventChoiceI18n.choice_id)
+            & (EventChoiceI18n.locale == use_locale),
+        )
+        .where(EventChoice.event_id.in_(event_ids))
+    )
+    all_choices_result = await db.execute(all_choices_stmt)
+    choices_by_event: dict[str, list[tuple[Any, Any]]] = {}
+    for ch, chi18n in all_choices_result.all():
+        choices_by_event.setdefault(ch.event_id, []).append((ch, chi18n))
+
     rows = []
     for e, ei18n in events_raw:
-        # Lade Choices für dieses Event
-        ch_stmt = (
-            select(EventChoice, EventChoiceI18n)
-            .join(
-                EventChoiceI18n,
-                (EventChoice.id == EventChoiceI18n.choice_id)
-                & (EventChoiceI18n.locale == use_locale),
-            )
-            .where(EventChoice.event_id == e.id)
-        )
-        ch_result = await db.execute(ch_stmt)
-        choices_raw = ch_result.all()
-
         choices = []
-        for ch, chi18n in choices_raw:
+        for ch, chi18n in choices_by_event.get(e.id, []):
             c = {
                 "key": ch.choice_key,
                 "type": ch.choice_type,
@@ -356,22 +359,26 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
         result = await db.execute(stmt)
         fraktionen_raw = result.all()
 
+    # Alle Tradeoffs in einem Query laden (statt N+1 pro Fraktion)
+    fraktion_ids = [f.id for f, _, _ in fraktionen_raw]
+    all_tradeoffs_stmt = (
+        select(BundesratTradeoff, BundesratTradeoffI18n)
+        .join(
+            BundesratTradeoffI18n,
+            (BundesratTradeoff.id == BundesratTradeoffI18n.tradeoff_id)
+            & (BundesratTradeoffI18n.locale == use_locale),
+        )
+        .where(BundesratTradeoff.fraktion_id.in_(fraktion_ids))
+    )
+    all_tradeoffs_result = await db.execute(all_tradeoffs_stmt)
+    tradeoffs_by_fraktion: dict[str, list[tuple[Any, Any]]] = {}
+    for t, ti18n in all_tradeoffs_result.all():
+        tradeoffs_by_fraktion.setdefault(t.fraktion_id, []).append((t, ti18n))
+
     rows = []
     for f, fi18n, partei in fraktionen_raw:
-        t_stmt = (
-            select(BundesratTradeoff, BundesratTradeoffI18n)
-            .join(
-                BundesratTradeoffI18n,
-                (BundesratTradeoff.id == BundesratTradeoffI18n.tradeoff_id)
-                & (BundesratTradeoffI18n.locale == use_locale),
-            )
-            .where(BundesratTradeoff.fraktion_id == f.id)
-        )
-        t_result = await db.execute(t_stmt)
-        tradeoffs_raw = t_result.all()
-
         tradeoffs = []
-        for t, ti18n in tradeoffs_raw:
+        for t, ti18n in tradeoffs_by_fraktion.get(f.id, []):
             tradeoffs.append(
                 {
                     "key": t.tradeoff_key,

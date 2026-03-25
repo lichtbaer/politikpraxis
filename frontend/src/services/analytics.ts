@@ -31,15 +31,16 @@ export function trackEvent(
 export async function flushEvents(token?: string) {
   if (!eventBuffer.length) return;
 
-  const events = [...eventBuffer];
-  eventBuffer = [];
-
   if (flushTimeout) {
     clearTimeout(flushTimeout);
     flushTimeout = null;
   }
 
+  // Kein Token → Events im Buffer behalten statt zu verwerfen
   if (!token) return;
+
+  const events = [...eventBuffer];
+  eventBuffer = [];
 
   try {
     await apiFetch('/analytics/batch', {
@@ -48,6 +49,7 @@ export async function flushEvents(token?: string) {
       body: { events },
     });
   } catch {
+    // Netzwerkfehler → Events zurück in den Buffer
     eventBuffer.push(...events);
   }
 }

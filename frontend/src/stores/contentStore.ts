@@ -321,6 +321,7 @@ export interface ContentStore {
   /** SMA-312: Gesetz-Abhängigkeiten — gesetzId -> Relationen */
   gesetzRelationen: Record<string, GesetzRelation[]>;
   scenario: ContentBundle['scenario'];
+  loading: boolean;
   loaded: boolean;
   error: string | null;
   load: (locale: string) => Promise<void>;
@@ -362,11 +363,12 @@ export const useContentStore = create<ContentStore>((set) => ({
   euEvents: [],
   gesetzRelationen: {},
   scenario: DEFAULT_SCENARIO,
+  loading: false,
   loaded: false,
   error: null,
 
   load: async (locale: string) => {
-    set({ error: null, loaded: false });
+    set({ error: null, loaded: false, loading: true });
     try {
       const [chars, gesetze, eventsAll, bundesratFraktionen, milieusRaw, politikfelderRaw, verbaendeRaw, gesetzRelationenRaw] =
         await Promise.all([
@@ -428,12 +430,14 @@ export const useContentStore = create<ContentStore>((set) => ({
         verbaende,
         ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
         gesetzRelationen: buildGesetzRelationen(gesetzRelationenRaw ?? []),
+        loading: false,
         loaded: true,
         error: null,
       });
     } catch {
       set({
         error: 'Inhalte konnten nicht geladen werden.',
+        loading: false,
         loaded: false,
       });
     }

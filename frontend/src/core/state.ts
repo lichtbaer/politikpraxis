@@ -89,9 +89,14 @@ export function createInitialState(
     // SMA-328: Kanzler ist immer der Spieler — synthetischer Char, kein DB-Char
     const kanzlerNameDisplay = kanzlerName?.trim() || 'Kanzler/in';
     const kanzlerChar = relevanteChars.find((c) => c.id === 'kanzler' || c.ist_kanzler);
-    const kanzlerBase = kanzlerChar ?? relevanteChars[0];
+    const kanzlerBase = kanzlerChar ?? relevanteChars[0] ?? null;
     const kanzlerSynthetic = {
-      ...(kanzlerBase ?? {}),
+      ...(kanzlerBase ?? {
+        bio: '',
+        quote: '',
+        ressort: null,
+        min_complexity: 1,
+      }),
       id: 'kanzler',
       name: kanzlerNameDisplay,
       role: KANZLER_ROLLE[kanzlerGeschlecht],

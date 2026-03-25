@@ -6,6 +6,21 @@ import time
 from collections import defaultdict
 
 _buckets: dict[str, list[float]] = defaultdict(list)
+_last_cleanup: float = 0.0
+# Cleanup-Intervall: alle 5 Minuten abgelaufene IPs entfernen
+_CLEANUP_INTERVAL = 300
+
+
+def _cleanup_stale_buckets(now: float, window_seconds: int) -> None:
+    """Entfernt IPs ohne aktive Einträge (Memory-Leak-Schutz)."""
+    global _last_cleanup
+    if now - _last_cleanup < _CLEANUP_INTERVAL:
+        return
+    _last_cleanup = now
+    cutoff = now - window_seconds
+    stale_keys = [ip for ip, ts in _buckets.items() if not ts or ts[-1] < cutoff]
+    for key in stale_keys:
+        del _buckets[key]
 
 
 def check_and_record(ip: str, max_requests: int, window_seconds: int) -> bool:
@@ -21,9 +36,12 @@ def check_and_record(ip: str, max_requests: int, window_seconds: int) -> bool:
     if len(bucket) >= max_requests:
         return False
     bucket.append(now)
+    _cleanup_stale_buckets(now, window_seconds)
     return True
 
 
 def reset_for_tests() -> None:
     """Nur für Tests: Buckets leeren."""
+    global _last_cleanup
     _buckets.clear()
+    _last_cleanup = 0.0

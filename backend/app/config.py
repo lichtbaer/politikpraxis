@@ -38,6 +38,16 @@ class Settings(BaseSettings):
 
     content_dir: str = "app/content"
 
+    # Cookie-Security: explizit steuern (Standard: secure wenn nicht Debug)
+    cookie_secure: bool | None = None
+
+    @property
+    def effective_cookie_secure(self) -> bool:
+        """Secure-Flag: explizit gesetzt oder automatisch basierend auf Debug."""
+        if self.cookie_secure is not None:
+            return self.cookie_secure
+        return not self.debug
+
     # Admin-API (Basic-Auth)
     admin_user: str = "admin"
     admin_password: str = ""

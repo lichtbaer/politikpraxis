@@ -49,7 +49,7 @@ def attach_refresh_cookie(response: Response, raw_token: str) -> None:
         value=raw_token,
         max_age=max_age,
         httponly=True,
-        secure=not settings.debug,
+        secure=settings.effective_cookie_secure,
         samesite="strict",
         path="/",
     )
@@ -61,7 +61,7 @@ def clear_refresh_cookie(response: Response) -> None:
         path="/",
         samesite="strict",
         httponly=True,
-        secure=not settings.debug,
+        secure=settings.effective_cookie_secure,
     )
 
 
