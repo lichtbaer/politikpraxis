@@ -5,12 +5,13 @@ import {
   HISTORY_MAX_MONTHS, KPI_HISTORY_MAX_MONTHS, MAX_LOG_ENTRIES,
   MISSTRAUENSVOTUM_MONATE, trimHistory,
 } from './constants';
-import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
+import { applyPendingEffects, applyKPIDrift, recalcApproval, roundKpi } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKommunalLaenderEvents, checkSteuerEvents, checkFollowupEvents } from './systems/events';
+import { pruneExpiredCooldowns } from './systems/eventUtils';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
 import { resolveEingebrachteAbstimmung } from './systems/parliament';
@@ -83,15 +84,20 @@ export function tick(
   const tickLog: TickLogEntry[] = [];
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi }, tickLog: [] };
 
-  /** Wraps a system call in try-catch to prevent a single failing system from crashing the game */
-  function safeSystem<T extends GameState>(fn: () => T, name: string): T {
+  /** Wraps a system call in try-catch to prevent a single failing system from crashing the game.
+   *  On failure, returns the current state `s` — since `s` is reassigned after each successful
+   *  system call, this preserves all prior successful changes instead of reverting to an earlier snapshot. */
+  function safeSystem(fn: (current: GameState) => GameState, name: string): GameState {
     try {
-      return fn();
+      return fn(s);
     } catch (err) {
       console.error(`[Engine] System "${name}" failed in tick ${s.month}:`, err);
-      return s as T;
+      return s;
     }
   }
+
+  // 0. Prune expired event cooldowns to prevent unbounded growth
+  s = pruneExpiredCooldowns(s);
 
   // 1. Zeit: Spielende prüfen
   s = checkGameEnd(s);
@@ -145,12 +151,12 @@ export function tick(
 
   // 4. Haushalt
   const kpiBeforeHaushalt = { ...s.kpi };
-  s = safeSystem(() => tickKonjunktur(s, complexity), 'tickKonjunktur');
-  s = safeSystem(() => applySchuldenbremsenEffekte(s, complexity, content), 'applySchuldenbremsenEffekte');
-  s = safeSystem(() => checkLehmannSparvorschlag(s, complexity), 'checkLehmannSparvorschlag');
-  s = safeSystem(() => checkLehmannDefizitStart(s, content, complexity), 'checkLehmannDefizitStart');
-  s = safeSystem(() => checkHaushaltskrise(s, content, complexity), 'checkHaushaltskrise');
-  s = safeSystem(() => triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []), 'triggerHaushaltsdebatte');
+  s = safeSystem((st) => tickKonjunktur(st, complexity), 'tickKonjunktur');
+  s = safeSystem((st) => applySchuldenbremsenEffekte(st, complexity, content), 'applySchuldenbremsenEffekte');
+  s = safeSystem((st) => checkLehmannSparvorschlag(st, complexity), 'checkLehmannSparvorschlag');
+  s = safeSystem((st) => checkLehmannDefizitStart(st, content, complexity), 'checkLehmannDefizitStart');
+  s = safeSystem((st) => checkHaushaltskrise(st, content, complexity), 'checkHaushaltskrise');
+  s = safeSystem((st) => triggerHaushaltsdebatte(st, complexity, content.politikfelder ?? []), 'triggerHaushaltsdebatte');
 
   for (const key of ['al', 'hh', 'gi', 'zf'] as const) {
     const delta = +(s.kpi[key] - kpiBeforeHaushalt[key]).toFixed(2);
@@ -160,7 +166,7 @@ export function tick(
   }
   // 5. Politikfeld-Druck
   const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
-  s = safeSystem(() => checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents), 'checkPolitikfeldDruck');
+  s = safeSystem((st) => checkPolitikfeldDruck(st, content.politikfelder ?? [], complexity, allEvents), 'checkPolitikfeldDruck');
 
   // 5b. Extremismus-Druck (SMA-280): Koalitionspartner-Warnung, Verfassungsgericht
   if (
@@ -168,7 +174,7 @@ export function tick(
     ausrichtung &&
     content.extremismusEvents?.length
   ) {
-    s = safeSystem(() => tickExtremismusDruck(s, ausrichtung!, content.extremismusEvents!, complexity), 'tickExtremismusDruck');
+    s = safeSystem((st) => tickExtremismusDruck(st, ausrichtung!, content.extremismusEvents!, complexity), 'tickExtremismusDruck');
   }
 
   // 6. PK-Regen (skaliert nach Schwierigkeitsgrad: höhere Stufe = weniger PK)
@@ -195,42 +201,42 @@ export function tick(
   s = updateCoalitionStability(s);
 
   // 8. Koalition
-  s = safeSystem(() => tickKoalitionspartner(s, content, complexity), 'tickKoalitionspartner');
-  s = safeSystem(() => checkKoalitionsbruch(s, content, complexity), 'checkKoalitionsbruch');
+  s = safeSystem((st) => tickKoalitionspartner(st, content, complexity), 'tickKoalitionspartner');
+  s = safeSystem((st) => checkKoalitionsbruch(st, content, complexity), 'checkKoalitionsbruch');
   // 9. Verbände & Ministerial
-  s = safeSystem(() => checkVerbandsAktionen(s, content.verbaende ?? [], complexity), 'checkVerbandsAktionen');
-  s = safeSystem(() => checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity), 'checkMinisterialInitiativen');
+  s = safeSystem((st) => checkVerbandsAktionen(st, content.verbaende ?? [], complexity), 'checkVerbandsAktionen');
+  s = safeSystem((st) => checkMinisterialInitiativen(st, content.ministerialInitiativen ?? [], complexity), 'checkMinisterialInitiativen');
   // 9b. SMA-330: Minister-Agenden (kontinuierliche Forderungen)
-  s = safeSystem(() => checkMinisterAgenden(s, complexity), 'checkMinisterAgenden');
+  s = safeSystem((st) => checkMinisterAgenden(st, complexity), 'checkMinisterAgenden');
   // 10. EU
-  s = safeSystem(() => tickEUKlima(s, content.verbaende ?? [], complexity), 'tickEUKlima');
-  s = safeSystem(() => checkEUEreignisse(s, content, complexity), 'checkEUEreignisse');
+  s = safeSystem((st) => tickEUKlima(st, content.verbaende ?? [], complexity), 'tickEUKlima');
+  s = safeSystem((st) => checkEUEreignisse(st, content, complexity), 'checkEUEreignisse');
 
   // 11. Chars: Ultimatums
-  s = safeSystem(() => checkUltimatums(s, content.charEvents), 'checkUltimatums');
+  s = safeSystem((st) => checkUltimatums(st, content.charEvents), 'checkUltimatums');
   // 12. Bundesrat (SMA-291: Stufe 1 unsichtbar — keine Abstimmung, keine Events)
   if (featureActive(complexity, 'bundesrat_sichtbar')) {
-    s = safeSystem(() => processBundesratVotes(s, content, complexity), 'processBundesratVotes');
-    s = safeSystem(() => checkBundesratEvents(s, {
+    s = safeSystem((st) => processBundesratVotes(st, content, complexity), 'processBundesratVotes');
+    s = safeSystem((st) => checkBundesratEvents(st, {
       bundesratEvents: content.bundesratEvents ?? [],
       sprecherErsatz: SPRECHER_ERSATZ,
       landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
     }), 'checkBundesratEvents');
   }
   // 12b. Medienklima (SMA-277): Drift, Opposition, Skandale, positive Events
-  s = safeSystem(() => tickMedienKlima(s, content, complexity), 'tickMedienKlima');
+  s = safeSystem((st) => tickMedienKlima(st, content, complexity), 'tickMedienKlima');
 
   // 13. Events
-  s = safeSystem(() => checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity), 'checkKommunalEvents');
+  s = safeSystem((st) => checkKommunalEvents(st, { kommunalEvents: content.kommunalEvents ?? [] }, complexity), 'checkKommunalEvents');
   if (featureActive(complexity, 'kommunal_pilot') && content.kommunalLaenderEvents?.length) {
-    s = safeSystem(() => checkKommunalLaenderEvents(s, content.kommunalLaenderEvents!, complexity), 'checkKommunalLaenderEvents');
+    s = safeSystem((st) => checkKommunalLaenderEvents(st, content.kommunalLaenderEvents!, complexity), 'checkKommunalLaenderEvents');
   }
   if (content.steuerEvents?.length) {
-    s = safeSystem(() => checkSteuerEvents(s, content.steuerEvents!, complexity), 'checkSteuerEvents');
+    s = safeSystem((st) => checkSteuerEvents(st, content.steuerEvents!, complexity), 'checkSteuerEvents');
   }
   // 13b. Follow-up Events (complexity >= 4)
-  s = safeSystem(() => checkFollowupEvents(s, content.events), 'checkFollowupEvents');
-  s = safeSystem(() => checkRandomEvents(s, content.events), 'checkRandomEvents');
+  s = safeSystem((st) => checkFollowupEvents(st, content.events), 'checkFollowupEvents');
+  s = safeSystem((st) => checkRandomEvents(st, content.events), 'checkRandomEvents');
 
   // 14. Wahlkampf (SMA-278: Monat 43+)
   s = checkWahlkampfBeginn(s, content, complexity);
@@ -241,6 +247,9 @@ export function tick(
     if (!s.activeEvent) s = checkWahlkampfVersprechen(s, content, complexity);
     if (!s.activeEvent) s = checkKoalitionspartnerAlleingang(s, content, complexity);
   }
+
+  // 14b. KPI-Rundung: einmalig am Tick-Ende statt pro Einzeleffekt (vermeidet Rundungsfehler-Kaskaden)
+  s = { ...s, kpi: roundKpi(s.kpi) };
 
   // 15. Zustimmung
   let newZust = recalcApproval(s.kpi, s.zust);

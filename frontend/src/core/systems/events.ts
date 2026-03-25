@@ -81,9 +81,10 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): Gam
 
   if (Math.random() >= prob) return state;
 
+  const firedSet = new Set(state.firedEvents);
   const available = eventPool
     .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
-    .filter(e => isEventAvailable(state, e));
+    .filter(e => isEventAvailable(state, e, firedSet));
   if (!available.length) return state;
 
   const ev = available[Math.floor(Math.random() * available.length)];
@@ -400,14 +401,14 @@ function deductPk(state: GameState, choice: EventChoice): GameState {
   return { ...state, pk: state.pk - (choice.cost || 0) };
 }
 
-/** Wendet KPI-Effekte aus choice.effect an */
+/** Wendet KPI-Effekte aus choice.effect an (Rundung erfolgt zentral am Tick-Ende) */
 function applyKpiEffects(state: GameState, choice: EventChoice): GameState {
   if (!choice.effect) return state;
   const kpi = { ...state.kpi };
   for (const [k, v] of Object.entries(choice.effect)) {
     const key = k as keyof typeof kpi;
     if (key in kpi) {
-      kpi[key] = +Math.max(0, kpi[key] + v).toFixed(2);
+      kpi[key] = Math.max(0, kpi[key] + v);
       if (key === 'zf') kpi.zf = Math.min(100, kpi.zf);
     }
   }

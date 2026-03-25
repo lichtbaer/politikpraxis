@@ -6,6 +6,8 @@ interface RequestOptions {
   token?: string | null;
   /** Default: 'include' (HttpOnly Refresh-Cookie) */
   credentials?: RequestCredentials;
+  /** Skip automatic token refresh on 401 (used internally to prevent recursion) */
+  _skipRefresh?: boolean;
 }
 
 /** Unterscheidet API-Fehlertypen für bessere Fehlerbehandlung im UI */
@@ -21,8 +23,19 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Callback to refresh the access token. Set by authStore at init time
+ * to avoid circular imports between api.ts and auth.ts.
+ * Returns the new access token or null if refresh failed.
+ */
+let tokenRefresher: (() => Promise<string | null>) | null = null;
+
+export function setTokenRefresher(fn: () => Promise<string | null>): void {
+  tokenRefresher = fn;
+}
+
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', body, token, credentials = 'include' } = options;
+  const { method = 'GET', body, token, credentials = 'include', _skipRefresh = false } = options;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -42,6 +55,14 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     });
   } catch {
     throw new ApiError('Netzwerkfehler — Server nicht erreichbar', 0, 'network');
+  }
+
+  // Auto-refresh: on 401 with a token, try refreshing once then retry
+  if (response.status === 401 && token && !_skipRefresh && tokenRefresher) {
+    const newToken = await tokenRefresher();
+    if (newToken) {
+      return apiFetch<T>(path, { ...options, token: newToken, _skipRefresh: true });
+    }
   }
 
   if (!response.ok) {

@@ -59,9 +59,7 @@ async def create_mod(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    import json
-
-    content_size = len(json.dumps(req.content))
+    content_size = len(req.model_dump_json(include={"content"}))
     if content_size > MOD_CONTENT_MAX_SIZE:
         raise HTTPException(
             status_code=400,

@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
-from app.dependencies import verify_admin
+from app.dependencies import validate_locale_value, verify_admin
 from app.models.content import (
     BundesratFraktion,
     BundesratFraktionI18n,
@@ -40,15 +40,9 @@ from app.schemas.admin import (
     GesetzI18nUpdate,
     GesetzUpdate,
 )
-from app.services.content_db_service import VALID_LOCALES, content_cache_clear
+from app.services.content_db_service import content_cache_clear
 
 router = APIRouter(dependencies=[Depends(verify_admin)])
-
-
-def _validate_locale(locale: str) -> str:
-    if locale not in VALID_LOCALES:
-        raise HTTPException(400, detail=f"Ungültige locale '{locale}'. Erlaubt: de, en")
-    return locale
 
 
 def _to_float(v: Decimal | float | None) -> float:
@@ -83,6 +77,9 @@ async def admin_list_chars(db: AsyncSession = Depends(get_db)):
 
 @router.post("/chars")
 async def admin_create_char(data: CharCreate, db: AsyncSession = Depends(get_db)):
+    existing = await db.execute(select(Char).where(Char.id == data.id))
+    if existing.scalar_one_or_none():
+        raise HTTPException(409, detail=f"Char '{data.id}' existiert bereits")
     char = Char(
         id=data.id,
         initials=data.initials,
@@ -178,7 +175,7 @@ async def admin_list_char_i18n(char_id: str, db: AsyncSession = Depends(get_db))
 async def admin_create_char_i18n(
     char_id: str, data: CharI18nCreate, db: AsyncSession = Depends(get_db)
 ):
-    _validate_locale(data.locale)
+    validate_locale_value(data.locale)
     # Prüfen ob Char existiert
     r = await db.execute(select(Char).where(Char.id == char_id))
     if not r.scalar_one_or_none():
@@ -206,7 +203,7 @@ async def admin_update_char_i18n(
     data: CharI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(CharI18n).where(CharI18n.char_id == char_id, CharI18n.locale == locale)
     )
@@ -267,6 +264,9 @@ async def admin_list_gesetze(db: AsyncSession = Depends(get_db)):
 
 @router.post("/gesetze")
 async def admin_create_gesetz(data: GesetzCreate, db: AsyncSession = Depends(get_db)):
+    existing = await db.execute(select(Gesetz).where(Gesetz.id == data.id))
+    if existing.scalar_one_or_none():
+        raise HTTPException(409, detail=f"Gesetz '{data.id}' existiert bereits")
     gesetz = Gesetz(
         id=data.id,
         tags=data.tags,
@@ -338,7 +338,7 @@ async def admin_upsert_gesetz_i18n(
     data: GesetzI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(GesetzI18n).where(
             GesetzI18n.gesetz_id == gesetz_id, GesetzI18n.locale == locale
@@ -396,6 +396,9 @@ async def admin_list_events(db: AsyncSession = Depends(get_db)):
 
 @router.post("/events")
 async def admin_create_event(data: EventCreate, db: AsyncSession = Depends(get_db)):
+    existing = await db.execute(select(Event).where(Event.id == data.id))
+    if existing.scalar_one_or_none():
+        raise HTTPException(409, detail=f"Event '{data.id}' existiert bereits")
     ev = Event(
         id=data.id,
         event_type=data.event_type,
@@ -471,7 +474,7 @@ async def admin_upsert_event_i18n(
     data: EventI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(EventI18n).where(
             EventI18n.event_id == event_id, EventI18n.locale == locale
@@ -573,7 +576,7 @@ async def admin_upsert_event_choice_i18n(
     data: EventChoiceI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(EventChoice).where(
             EventChoice.id == choice_id, EventChoice.event_id == event_id
@@ -641,6 +644,9 @@ async def admin_list_bundesrat(db: AsyncSession = Depends(get_db)):
 async def admin_create_bundesrat(
     data: BundesratFraktionCreate, db: AsyncSession = Depends(get_db)
 ):
+    existing = await db.execute(select(BundesratFraktion).where(BundesratFraktion.id == data.id))
+    if existing.scalar_one_or_none():
+        raise HTTPException(409, detail=f"Bundesrat-Fraktion '{data.id}' existiert bereits")
     f = BundesratFraktion(
         id=data.id,
         laender=data.laender,
@@ -664,7 +670,7 @@ async def admin_upsert_bundesrat_i18n(
     data: BundesratFraktionI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(BundesratFraktionI18n).where(
             BundesratFraktionI18n.fraktion_id == fraktion_id,
@@ -766,7 +772,7 @@ async def admin_upsert_bundesrat_tradeoff_i18n(
     data: BundesratTradeoffI18nUpdate,
     db: AsyncSession = Depends(get_db),
 ):
-    _validate_locale(locale)
+    validate_locale_value(locale)
     result = await db.execute(
         select(BundesratTradeoff).where(
             BundesratTradeoff.id == tradeoff_id,

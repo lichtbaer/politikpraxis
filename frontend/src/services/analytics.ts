@@ -7,6 +7,9 @@ interface AnalyticsEvent {
   save_id?: string;
 }
 
+/** Max events to keep in buffer — prevents unbounded memory growth during offline play */
+const MAX_BUFFER_SIZE = 1000;
+
 let eventBuffer: AnalyticsEvent[] = [];
 let flushTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -22,6 +25,11 @@ export function trackEvent(
     game_month: gameMonth,
     save_id: saveId,
   });
+
+  // Drop oldest events if buffer exceeds limit
+  if (eventBuffer.length > MAX_BUFFER_SIZE) {
+    eventBuffer = eventBuffer.slice(-MAX_BUFFER_SIZE);
+  }
 
   if (!flushTimeout) {
     flushTimeout = setTimeout(() => flushEvents(), 30_000);
@@ -49,7 +57,7 @@ export async function flushEvents(token?: string) {
       body: { events },
     });
   } catch {
-    // Netzwerkfehler → Events zurück in den Buffer
-    eventBuffer.push(...events);
+    // Netzwerkfehler → Events zurück in den Buffer (respecting limit)
+    eventBuffer = [...events, ...eventBuffer].slice(-MAX_BUFFER_SIZE);
   }
 }

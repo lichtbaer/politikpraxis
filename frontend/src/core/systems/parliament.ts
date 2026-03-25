@@ -268,7 +268,7 @@ export function abstimmen(
     // Land-Gesetz + Bundesrat aktiv: BT passed → 3 Monate bis BR-Abstimmung, Lobbying-Fenster
     const gesetze = state.gesetze.map((g, i) =>
       i === idx
-        ? { ...g, status: 'bt_passed' as const, brVoteMonth: state.month + 3, lobbyFraktionen: {} }
+        ? { ...g, status: 'bt_passed' as const, brVoteMonth: state.month + 3 }
         : g,
     );
     let brState: GameState = { ...state, gesetze };
@@ -336,7 +336,6 @@ export function resolveEingebrachteAbstimmung(
         ...g,
         status: 'bt_passed' as const,
         brVoteMonth: state.month + 3,
-        lobbyFraktionen: {},
       };
     }
     return { ...g, status: 'blockiert' as const, blockiert: 'bundestag' as const };
