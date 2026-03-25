@@ -1,11 +1,24 @@
-"""FastAPI-Dependencies (z.B. Admin Basic-Auth)."""
+"""FastAPI-Dependencies (z.B. Admin Basic-Auth, optionale User-Auth, Client-IP)."""
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from uuid import UUID
+
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import (
+    HTTPAuthorizationCredentials,
+    HTTPBasic,
+    HTTPBasicCredentials,
+    HTTPBearer,
+)
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
+from app.db.database import get_db
+from app.models.user import User
+from app.services.auth_service import decode_token
 
 security = HTTPBasic()
+optional_bearer = HTTPBearer(auto_error=False)
 
 
 async def verify_admin(credentials: HTTPBasicCredentials = Depends(security)) -> str:
@@ -31,3 +44,30 @@ async def verify_admin(credentials: HTTPBasicCredentials = Depends(security)) ->
             headers={"WWW-Authenticate": "Basic"},
         )
     return credentials.username
+
+
+async def get_optional_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(optional_bearer),
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    """Optionale JWT-Auth: gibt User zurück wenn gültig, sonst None."""
+    if not credentials:
+        return None
+    user_id = decode_token(credentials.credentials)
+    if not user_id:
+        return None
+    result = await db.execute(select(User).where(User.id == UUID(user_id)))
+    user = result.scalar_one_or_none()
+    if not user or not user.is_active:
+        return None
+    return user
+
+
+def client_ip(request: Request) -> str:
+    """Extrahiert Client-IP aus X-Forwarded-For oder request.client."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    if request.client:
+        return request.client.host or "unknown"
+    return "unknown"

@@ -6,6 +6,7 @@ import {
   refreshAccessToken,
   type UserResponse,
 } from '../services/auth';
+import { setTokenRefresher } from '../services/api';
 
 export interface AuthSession {
   userId: string;
@@ -88,3 +89,15 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     get().clear();
   },
 }));
+
+// Wire up auto-refresh: when apiFetch gets a 401, it calls this to get a fresh token
+setTokenRefresher(async () => {
+  try {
+    const { access_token } = await refreshAccessToken();
+    useAuthStore.setState({ accessToken: access_token });
+    return access_token;
+  } catch {
+    useAuthStore.getState().clear();
+    return null;
+  }
+});

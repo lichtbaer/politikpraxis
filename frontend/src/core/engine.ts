@@ -5,7 +5,7 @@ import {
   HISTORY_MAX_MONTHS, KPI_HISTORY_MAX_MONTHS, MAX_LOG_ENTRIES,
   MISSTRAUENSVOTUM_MONATE, trimHistory,
 } from './constants';
-import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
+import { applyPendingEffects, applyKPIDrift, recalcApproval, roundKpi } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
@@ -247,6 +247,9 @@ export function tick(
     if (!s.activeEvent) s = checkWahlkampfVersprechen(s, content, complexity);
     if (!s.activeEvent) s = checkKoalitionspartnerAlleingang(s, content, complexity);
   }
+
+  // 14b. KPI-Rundung: einmalig am Tick-Ende statt pro Einzeleffekt (vermeidet Rundungsfehler-Kaskaden)
+  s = { ...s, kpi: roundKpi(s.kpi) };
 
   // 15. Zustimmung
   let newZust = recalcApproval(s.kpi, s.zust);

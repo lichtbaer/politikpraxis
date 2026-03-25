@@ -9,49 +9,21 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
-from app.dependencies import verify_admin
+from app.dependencies import client_ip, get_optional_user, verify_admin
 from app.models.user import User
 from app.models.usertest_feedback import UserTestFeedback
 from app.schemas.usertest_feedback import (
     UserTestFeedbackCreate,
     UserTestFeedbackResponse,
 )
-from app.services.auth_service import decode_token
 from app.services.rate_limit import check_and_record
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-optional_bearer = HTTPBearer(auto_error=False)
-
-
-def _client_ip(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    if request.client:
-        return request.client.host or "unknown"
-    return "unknown"
-
-
-async def _get_optional_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(optional_bearer),
-    db: AsyncSession = Depends(get_db),
-) -> User | None:
-    if not credentials:
-        return None
-    user_id = decode_token(credentials.credentials)
-    if not user_id:
-        return None
-    result = await db.execute(select(User).where(User.id == UUID(user_id)))
-    user = result.scalar_one_or_none()
-    if not user or not user.is_active:
-        return None
-    return user
 
 
 @router.post(
@@ -62,10 +34,10 @@ async def _get_optional_user(
 async def submit_feedback(
     req: UserTestFeedbackCreate,
     request: Request,
-    user: User | None = Depends(_get_optional_user),
+    user: User | None = Depends(get_optional_user),
     db: AsyncSession = Depends(get_db),
 ) -> UserTestFeedbackResponse:
-    ip = _client_ip(request)
+    ip = client_ip(request)
     if not check_and_record(ip, max_requests=5, window_seconds=3600):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -116,11 +88,11 @@ async def list_feedback(
     result = await db.execute(q)
     rows = result.scalars().all()
 
-    count_q = select(UserTestFeedback)
+    count_q = select(func.count()).select_from(UserTestFeedback)
     if kontext:
         count_q = count_q.where(UserTestFeedback.kontext == kontext)
     total_result = await db.execute(count_q)
-    total = len(total_result.scalars().all())
+    total = total_result.scalar_one()
 
     return {
         "total": total,

@@ -12,20 +12,12 @@ from fastapi import APIRouter, Body, HTTPException, Request, status
 from pydantic import ValidationError
 
 from app.config import get_settings
+from app.dependencies import client_ip
 from app.schemas.kontakt import KontaktAnfrage, KontaktResponse
 from app.services.rate_limit import check_and_record
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-
-
-def _client_ip(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    if request.client:
-        return request.client.host or "unknown"
-    return "unknown"
 
 
 def _send_smtp_sync(
@@ -70,7 +62,7 @@ async def kontakt_senden(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=e.errors()
         ) from e
 
-    ip = _client_ip(request)
+    ip = client_ip(request)
     if not check_and_record(ip, max_requests=3, window_seconds=3600):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,

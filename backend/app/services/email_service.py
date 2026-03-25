@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 async def send_magic_link_email(to_email: str, verify_url: str) -> None:
-    """Sendet Magic-Link-E-Mail oder loggt sie (kein SMTP)."""
+    """Sendet Magic-Link-E-Mail. Ohne SMTP: 503 (konsistent mit Passwort-Reset)."""
     settings = get_settings()
     subject = "Dein Anmeldelink — Bundesrepublik"
     body = (
@@ -23,8 +23,11 @@ async def send_magic_link_email(to_email: str, verify_url: str) -> None:
     )
 
     if not settings.smtp_host:
-        logger.info("Magic Link (kein SMTP): an %s — %s", to_email, verify_url)
-        return
+        logger.warning("Magic Link nicht gesendet (SMTP nicht konfiguriert): %s", to_email)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="E-Mail-Versand ist nicht konfiguriert",
+        )
 
     msg = EmailMessage()
     msg["Subject"] = subject

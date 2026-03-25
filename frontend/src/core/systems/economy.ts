@@ -30,7 +30,7 @@ export function applyPendingEffects(state: GameState): GameState {
 
   for (const p of state.pending) {
     if (p.month <= state.month) {
-      newKpi[p.key] = +Math.max(0, newKpi[p.key] + p.delta).toFixed(2);
+      newKpi[p.key] = Math.max(0, newKpi[p.key] + p.delta);
       if (p.key === 'zf') newKpi.zf = Math.min(100, newKpi.zf);
       newLog.unshift({
         time: formatTime(state.month),
@@ -49,21 +49,31 @@ export function applyKPIDrift(kpi: KPI): KPI {
   const newKpi = { ...kpi };
   // AL: häufiger, kleiner Drift (Arbeitsmarkt reagiert auf externe Faktoren)
   if (Math.random() < KPI_DRIFT_CHANCE) {
-    newKpi.al = +clamp(newKpi.al + (Math.random() - 0.53) * 0.2, 2, 15).toFixed(2);
+    newKpi.al = clamp(newKpi.al + (Math.random() - 0.53) * 0.2, 2, 15);
   }
   // HH: seltener, sehr kleiner Drift (Haushalt ist träge)
   if (Math.random() < 0.12) {
-    newKpi.hh = +clamp(newKpi.hh + (Math.random() - 0.5) * 0.15, -10, 10).toFixed(2);
+    newKpi.hh = clamp(newKpi.hh + (Math.random() - 0.5) * 0.15, -10, 10);
   }
   // GI: selten, minimal (Ungleichheit ändert sich langsam)
   if (Math.random() < 0.10) {
-    newKpi.gi = +clamp(newKpi.gi + (Math.random() - 0.48) * 0.12, 10, 60).toFixed(2);
+    newKpi.gi = clamp(newKpi.gi + (Math.random() - 0.48) * 0.12, 10, 60);
   }
   // ZF: moderat (Zufriedenheit schwankt durch externe Faktoren)
   if (Math.random() < 0.18) {
-    newKpi.zf = +clamp(newKpi.zf + (Math.random() - 0.5) * 0.18, 20, 80).toFixed(2);
+    newKpi.zf = clamp(newKpi.zf + (Math.random() - 0.5) * 0.18, 20, 80);
   }
   return newKpi;
+}
+
+/** Rundet alle KPI-Werte auf 2 Dezimalstellen — einmal am Ende des Ticks aufrufen */
+export function roundKpi(kpi: KPI): KPI {
+  return {
+    al: +kpi.al.toFixed(2),
+    hh: +kpi.hh.toFixed(2),
+    gi: +kpi.gi.toFixed(2),
+    zf: +kpi.zf.toFixed(2),
+  };
 }
 
 export function scheduleEffects(
