@@ -173,8 +173,14 @@ export function tick(
 
   // 6. PK-Regen (skaliert nach Schwierigkeitsgrad: höhere Stufe = weniger PK)
   const pkRegenDivisor = PK_REGEN_DIVISOR + (complexity - 1) * 3; // Stufe 1: 25, Stufe 2: 28, Stufe 3: 31, Stufe 4: 34
-  const pkRegen = Math.max(PK_REGEN_MIN, Math.floor(s.zust.g / pkRegenDivisor));
+  const pkRegenMin = PK_REGEN_MIN + Math.max(0, 4 - complexity); // Stufe 1: 6, Stufe 2: 5, Stufe 3: 4, Stufe 4: 3
+  const pkRegen = Math.max(pkRegenMin, Math.floor(s.zust.g / pkRegenDivisor));
   s = { ...s, pk: Math.min(PK_MAX, s.pk + pkRegen) };
+
+  // Krisen-PK: Bei drohendem Misstrauensvotum (2+ Monate unter 20%) erhält Spieler Bonus-PK
+  if ((s.lowApprovalMonths ?? 0) >= 2) {
+    s = { ...s, pk: Math.min(PK_MAX, s.pk + 5) };
+  }
 
   // 7. KPI/Chars
   const kpiBeforeDrift = { ...s.kpi };

@@ -63,27 +63,27 @@ function createMockState(overrides: Partial<GameState> = {}): GameState {
   } as GameState;
 }
 
-describe('getMedienMultiplikator', () => {
-  it('k >= 70 → 1.15', () => {
-    expect(getMedienMultiplikator(70)).toBe(1.15);
-    expect(getMedienMultiplikator(85)).toBe(1.15);
-  });
-
-  it('k >= 40 und < 70 → 1.0', () => {
-    expect(getMedienMultiplikator(40)).toBe(1.0);
-    expect(getMedienMultiplikator(55)).toBe(1.0);
-    expect(getMedienMultiplikator(69)).toBe(1.0);
-  });
-
-  it('k >= 20 und < 40 → 0.85', () => {
-    expect(getMedienMultiplikator(20)).toBe(0.85);
-    expect(getMedienMultiplikator(30)).toBe(0.85);
-    expect(getMedienMultiplikator(39)).toBe(0.85);
-  });
-
-  it('k < 20 → 0.70', () => {
+describe('getMedienMultiplikator (linear: 0→0.7, 50→1.0, 100→1.3)', () => {
+  it('k = 0 → 0.7', () => {
     expect(getMedienMultiplikator(0)).toBe(0.7);
-    expect(getMedienMultiplikator(19)).toBe(0.7);
+  });
+
+  it('k = 50 → 1.0', () => {
+    expect(getMedienMultiplikator(50)).toBe(1.0);
+  });
+
+  it('k = 100 → 1.3', () => {
+    expect(getMedienMultiplikator(100)).toBe(1.3);
+  });
+
+  it('interpoliert linear zwischen Extremen', () => {
+    expect(getMedienMultiplikator(25)).toBe(0.85);
+    expect(getMedienMultiplikator(75)).toBe(1.15);
+  });
+
+  it('clamped auf 0–100', () => {
+    expect(getMedienMultiplikator(-10)).toBe(0.7);
+    expect(getMedienMultiplikator(110)).toBe(1.3);
   });
 });
 

@@ -41,7 +41,9 @@ export function applyMilieuEffekte(
     if (score >= MILIEU_SCORE_SCHWELLEN[0]) delta = MILIEU_DELTAS[0];
     else if (score >= MILIEU_SCORE_SCHWELLEN[1]) delta = MILIEU_DELTAS[1];
     else if (score >= MILIEU_SCORE_SCHWELLEN[2]) delta = MILIEU_DELTAS[2];
-    else delta = MILIEU_DELTAS[3];
+    else if (score >= MILIEU_SCORE_SCHWELLEN[3]) delta = MILIEU_DELTAS[3];
+    else if (score >= MILIEU_SCORE_SCHWELLEN[4]) delta = MILIEU_DELTAS[4];
+    else delta = MILIEU_DELTAS[5];
 
     delta = Math.round(delta * multiplikator * synergieFaktor);
     const current = milieuZustimmung[milieu.id] ?? 50;

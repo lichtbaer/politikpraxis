@@ -673,6 +673,8 @@ export interface GameState {
   wahlkampfAktiv?: boolean;
   /** Wahlkampf-Aktionen pro Monat (max 2), wird monatlich zurückgesetzt */
   wahlkampfAktionenGenutzt?: number;
+  /** Letzter Monat in dem ein zufälliges Event ausgelöst wurde (Dürreschutz) */
+  lastRandomEventMonth?: number;
   /** Legislatur-Bilanz (berechnet bei Wahlkampfbeginn) */
   legislaturBilanz?: LegislaturBilanz | null;
   /** Gewählte 2 Kernthemen für Wahlkampf-Kommunikation */

@@ -10,7 +10,7 @@ import {
  * Berechnet Zustimmungswerte aus KPI-Werten.
  * Formel: w = BASE + (10 - AL) × AL_F + HH × HH_F + (50 - GI) × GI_F + (ZF - 50) × ZF_F
  */
-export function recalcApproval(kpi: KPI, currentApproval: Approval): Approval {
+export function recalcApproval(kpi: KPI, _currentApproval: Approval): Approval {
   const w = APPROVAL_BASE
     + (10 - kpi.al) * APPROVAL_AL_FAKTOR
     + kpi.hh * APPROVAL_HH_FAKTOR
@@ -19,10 +19,7 @@ export function recalcApproval(kpi: KPI, currentApproval: Approval): Approval {
   const g = clamp(Math.round(w), APPROVAL_MIN, APPROVAL_MAX);
   const arbeit = clamp(Math.round(g + (10 - kpi.al) * 1.5 - (kpi.gi - 30) * 0.4), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
   const mitte = clamp(Math.round(g + kpi.hh * 3), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
-  const prog = clamp(
-    Math.round(currentApproval.prog - (kpi.gi - 28) * 0.5 + (kpi.zf - 50) * 0.15),
-    SEGMENT_APPROVAL_MIN, APPROVAL_MAX,
-  );
+  const prog = clamp(Math.round(g - (kpi.gi - 28) * 0.5 + (kpi.zf - 50) * 0.15), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
   return { g, arbeit, mitte, prog };
 }
 
@@ -50,8 +47,21 @@ export function applyPendingEffects(state: GameState): GameState {
 
 export function applyKPIDrift(kpi: KPI): KPI {
   const newKpi = { ...kpi };
+  // AL: häufiger, kleiner Drift (Arbeitsmarkt reagiert auf externe Faktoren)
   if (Math.random() < KPI_DRIFT_CHANCE) {
     newKpi.al = +clamp(newKpi.al + (Math.random() - 0.53) * 0.2, 2, 15).toFixed(2);
+  }
+  // HH: seltener, sehr kleiner Drift (Haushalt ist träge)
+  if (Math.random() < 0.12) {
+    newKpi.hh = +clamp(newKpi.hh + (Math.random() - 0.5) * 0.15, -10, 10).toFixed(2);
+  }
+  // GI: selten, minimal (Ungleichheit ändert sich langsam)
+  if (Math.random() < 0.10) {
+    newKpi.gi = +clamp(newKpi.gi + (Math.random() - 0.48) * 0.12, 10, 60).toFixed(2);
+  }
+  // ZF: moderat (Zufriedenheit schwankt durch externe Faktoren)
+  if (Math.random() < 0.18) {
+    newKpi.zf = +clamp(newKpi.zf + (Math.random() - 0.5) * 0.18, 20, 80).toFixed(2);
   }
   return newKpi;
 }
