@@ -9,12 +9,10 @@ import { featureActive } from './features';
 import { verbrauchePK } from '../pk';
 import { isEventAvailable, recordEventFired } from './eventUtils';
 
-/** Medienklima-Multiplikator: moduliert KPI-/Milieu-Effekte */
+/** Medienklima-Multiplikator: moduliert KPI-/Milieu-Effekte (linear: 0→0.7, 50→1.0, 100→1.3) */
 export function getMedienMultiplikator(medienKlima: number): number {
-  if (medienKlima >= 70) return 1.15;
-  if (medienKlima >= 40) return 1.0;
-  if (medienKlima >= 20) return 0.85;
-  return 0.7;
+  const clamped = Math.max(0, Math.min(100, medienKlima));
+  return +(0.7 + (clamped / 100) * 0.6).toFixed(4);
 }
 
 /** Zusätzliche PK-Kosten bei schlechtem Medienklima (< 20) */

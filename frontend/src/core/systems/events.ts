@@ -59,7 +59,23 @@ import { isEventAvailable, recordEventFired } from './eventUtils';
 
 export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): GameState {
   if (state.activeEvent) return state;
-  if (Math.random() >= 0.22) return state;
+
+  // Dynamische Event-Wahrscheinlichkeit statt flacher 22%
+  let prob = 0.20;
+
+  // Eskalation: +1% pro Monat ab Monat 24 (Endgame wird spannender)
+  if (state.month > 24) prob += (state.month - 24) * 0.01;
+
+  // Dürreschutz: +8% wenn 3+ Monate kein zufälliges Event
+  const letzterEvent = state.lastRandomEventMonth ?? 0;
+  if (state.month - letzterEvent >= 3) prob += 0.08;
+
+  // Niedrige Koalition erhöht Chance um 5% (instabile Regierung → mehr Druck)
+  if (state.coalition < 40) prob += 0.05;
+
+  prob = Math.min(0.50, prob);
+
+  if (Math.random() >= prob) return state;
 
   const available = eventPool
     .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
@@ -71,6 +87,7 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): Gam
     ...state,
     ...recordEventFired(state, ev),
     activeEvent: ev,
+    lastRandomEventMonth: state.month,
     ...withPause(state, getAutoPauseLevel(ev)),
   };
 }

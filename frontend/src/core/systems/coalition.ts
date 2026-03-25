@@ -2,9 +2,9 @@ import type { GameState } from '../types';
 
 /**
  * Berechnet Koalitionsstabilität aus:
- * - Durchschnittlicher Minister-Stimmung (40%)
- * - Durchschnittlicher Minister-Loyalität (40%)
- * - Koalitionspartner-Beziehung (20%, wenn vorhanden)
+ * - Durchschnittlicher Minister-Stimmung (35%)
+ * - Durchschnittlicher Minister-Loyalität (35%)
+ * - Koalitionspartner-Beziehung (30%, wenn vorhanden)
  *
  * Zusätzlich: Warnung im Log wenn Stabilität unter Krisengrenze fällt (< 30)
  * und noch kein Koalitionsbruch läuft.
@@ -21,11 +21,11 @@ export function updateCoalitionStability(state: GameState): GameState {
   let coalition: number;
 
   if (partnerBeziehung != null) {
-    // Mit Koalitionspartner: Mood 40% + Loyalität 40% + Beziehung 20%
+    // Mit Koalitionspartner: Mood 35% + Loyalität 35% + Beziehung 30%
     coalition = Math.round(
-      (avgMood / 4) * 40 +
-      (avgLoy / 5) * 40 +
-      (partnerBeziehung / 100) * 20,
+      (avgMood / 4) * 35 +
+      (avgLoy / 5) * 35 +
+      (partnerBeziehung / 100) * 30,
     );
   } else {
     // Ohne Partner: Mood 50% + Loyalität 50%

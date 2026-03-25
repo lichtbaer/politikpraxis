@@ -452,7 +452,7 @@ export function validateGameState(raw: unknown): GameState {
     'pkVerbrauchtGesamt', 'skandaleGesamt',
     'opposition', 'medienoffensiveGenutzt',
     'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate', 'lowApprovalMonths',
-    'activeEventPool', 'unlockedLaws', 'pendingFollowups',
+    'activeEventPool', 'unlockedLaws', 'pendingFollowups', 'lastRandomEventMonth',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
