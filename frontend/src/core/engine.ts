@@ -40,6 +40,7 @@ import {
   triggerWahlnacht,
 } from './systems/wahlkampf';
 import { tickMedienKlima } from './systems/medienklima';
+import { tickVermittlungsausschuss } from './systems/vermittlung';
 import { featureActive } from './systems/features';
 import { tickExtremismusDruck } from './ideologie';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
@@ -134,6 +135,12 @@ export function tick(
       }
     }
   }
+
+  // 2b. Vermittlungsausschuss: abschließen wenn Frist erreicht
+  const vermittlungCtx = content.milieus
+    ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen }
+    : undefined;
+  s = safeSystem((st) => tickVermittlungsausschuss(st, vermittlungCtx), 'tickVermittlungsausschuss');
 
   const routesResult = advanceRoutes(s);
   s = routesResult.state;

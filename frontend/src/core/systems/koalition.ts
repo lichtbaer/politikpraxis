@@ -99,32 +99,54 @@ export function getGesetzIdeologie(law: { id: string; ideologie?: Ideologie }): 
 export function updateKoalitionsvertragScore(
   state: GameState,
   gesetzId: string,
-  _content: { koalitionspartner?: KoalitionspartnerContent },
+  content: { koalitionspartner?: KoalitionspartnerContent },
   complexity: number,
 ): GameState {
-  if (!featureActive(complexity, 'koalitionsvertrag_score')) return state;
-  if (!state.koalitionspartner || !state.koalitionsvertragProfil) return state;
+  if (!state.koalitionspartner) return state;
 
-  const law = state.gesetze.find(g => g.id === gesetzId);
-  if (!law) return state;
+  let kp = { ...state.koalitionspartner };
+  let next = state;
 
-  const gesetzIdeologie = getGesetzIdeologie(law);
-  const score = berechneKongruenz(state.koalitionsvertragProfil, gesetzIdeologie);
-
-  let newScore = state.koalitionspartner.koalitionsvertragScore;
-  if (score < 30) {
-    newScore = Math.min(100, newScore + 5);
-  } else if (score > 70) {
-    newScore = Math.max(0, newScore - 5);
+  // Schlüsselthemen-Tracker (Stufe 2+): prüfe ob beschlossenes Gesetz ein Schlüsselthema erfüllt
+  if (featureActive(complexity, 'koalitionsvertrag_tracker')) {
+    const partner = getKoalitionspartner(content, state);
+    const law = state.gesetze.find(g => g.id === gesetzId);
+    if (law && partner.schluesselthemen?.length) {
+      const erfuellt = kp.schluesselthemenErfuellt ?? [];
+      for (const thema of partner.schluesselthemen) {
+        if (erfuellt.includes(thema)) continue;
+        // Thema erfüllt wenn: Gesetz-ID = Thema ODER Gesetz-Politikfeld = Thema
+        if (gesetzId === thema || law.politikfeldId === thema) {
+          kp = {
+            ...kp,
+            schluesselthemenErfuellt: [...erfuellt, thema],
+            beziehung: Math.min(100, kp.beziehung + 5),
+          };
+          next = addLog(
+            next,
+            `Koalitionsvertrag: Schlüsselthema „${thema}" erfüllt — Beziehung +5`,
+            'g',
+          );
+        }
+      }
+    }
   }
 
-  return {
-    ...state,
-    koalitionspartner: {
-      ...state.koalitionspartner,
-      koalitionsvertragScore: newScore,
-    },
-  };
+  // Kongruenz-Score (Stufe 4)
+  if (featureActive(complexity, 'koalitionsvertrag_score') && state.koalitionsvertragProfil) {
+    const law = state.gesetze.find(g => g.id === gesetzId);
+    if (law) {
+      const gesetzIdeologie = getGesetzIdeologie(law);
+      const score = berechneKongruenz(state.koalitionsvertragProfil, gesetzIdeologie);
+      if (score < 30) {
+        kp = { ...kp, koalitionsvertragScore: Math.min(100, kp.koalitionsvertragScore + 5) };
+      } else if (score > 70) {
+        kp = { ...kp, koalitionsvertragScore: Math.max(0, kp.koalitionsvertragScore - 5) };
+      }
+    }
+  }
+
+  return { ...next, koalitionspartner: kp };
 }
 
 /** Koalitionspartner-Tick (monatlich) */
@@ -181,6 +203,35 @@ export function tickKoalitionspartner(
         `${partner.name}: ${getVerbandKurz(verbandId)}-Konflikt belastet Koalition.`,
         'r',
       );
+    }
+  }
+
+  // Koalitionsvertrag-Schlüsselthemen Druck (Stufe 2+, ab Monat 24)
+  if (
+    featureActive(complexity, 'koalitionsvertrag_tracker') &&
+    state.month >= 24
+  ) {
+    const erfuellt = next.koalitionspartner?.schluesselthemenErfuellt ?? [];
+    const gesamt = partner.schluesselthemen?.length ?? 0;
+    const erfuellungsQuote = gesamt > 0 ? erfuellt.length / gesamt : 1;
+    // Unter 50% Erfüllung ab Monat 24: monatlich -2 Beziehung
+    if (erfuellungsQuote < 0.5 && next.koalitionspartner) {
+      const kpNext = next.koalitionspartner;
+      next = {
+        ...next,
+        koalitionspartner: {
+          ...kpNext,
+          beziehung: Math.max(0, kpNext.beziehung - 2),
+        },
+      };
+      // Warnung nur alle 6 Monate
+      if (state.month % 6 === 0) {
+        next = addLog(
+          next,
+          `${partner.name}: Koalitionsvertrag wird nicht eingehalten (${erfuellt.length}/${gesamt} Themen)`,
+          'r',
+        );
+      }
     }
   }
 

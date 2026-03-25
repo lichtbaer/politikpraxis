@@ -42,6 +42,13 @@ const FEATURES: Record<string, { minLevel: number }> = {
   koalitionspartner: { minLevel: 2 },
   /** Koalitionsvertrag-Score (Kongruenz-Tracking) ab Stufe 4 */
   koalitionsvertrag_score: { minLevel: 4 },
+  /** Koalitionsvertrag-Tracker: Schlüsselthemen-Erfüllung sichtbar ab Stufe 2 */
+  koalitionsvertrag_tracker: { minLevel: 2 },
+  /** Vermittlungsausschuss bei Bundesrat-Blockade ab Stufe 2 */
+  vermittlungsausschuss: { minLevel: 2 },
+  /** Regierungserklärung & Vertrauensfrage ab Stufe 2 */
+  regierungserklaerung: { minLevel: 2 },
+  vertrauensfrage: { minLevel: 3 },
   /** Ministerial-Initiativen (Minister bringen eigene Gesetze ein) */
   ministerial_initiativen: { minLevel: 3 },
   /** SMA-268: Haushaltsdebatte als jährliches Strukturevent */
