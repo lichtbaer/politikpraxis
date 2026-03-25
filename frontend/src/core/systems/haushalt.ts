@@ -164,7 +164,8 @@ export function tickKonjunktur(state: GameState, complexity: number): GameState 
     };
   }
 
-  if (s.month % 12 === 0) {
+  // Jährliche Neuberechnung: Monat 12, 24, 36, 48 (1-indiziert → modulo auf month-1)
+  if (s.month > 1 && (s.month - 1) % 12 === 0) {
     const pflichtausgaben = berechnePflichtausgaben(s);
     const einnahmen = berechneEinnahmen({ ...s, haushalt: neuerHaushalt });
     const spielraum = einnahmen - pflichtausgaben;
@@ -462,7 +463,8 @@ export function updateHaushaltPflichtausgaben(state: GameState): GameState {
   const haushalt = state.haushalt;
   if (!haushalt) return state;
 
-  if (state.month % 12 === 0) {
+  // Jährliche Neuberechnung: Jahreswechsel bei 1-indizierten Monaten
+  if (state.month > 1 && (state.month - 1) % 12 === 0) {
     const pflichtausgaben = berechnePflichtausgaben(state);
     const spielraum = haushalt.einnahmen - pflichtausgaben;
     const saldo = spielraum - haushalt.laufendeAusgaben;

@@ -296,8 +296,15 @@ export function resolveEingebrachteAbstimmung(
   eg: { gesetzId: string },
   beschlussContext?: GesetzBeschlussContext,
 ): GameState {
+  if (!eg.gesetzId) return state;
   const idx = state.gesetze.findIndex((g) => g.id === eg.gesetzId);
-  if (idx === -1) return state;
+  if (idx === -1) {
+    // Gesetz existiert nicht (mehr) — eingebrachten Eintrag entfernen
+    const eingebrachteGesetze = (state.eingebrachteGesetze ?? []).filter(
+      (e) => e.gesetzId !== eg.gesetzId,
+    );
+    return { ...state, eingebrachteGesetze };
+  }
   const law = state.gesetze[idx];
   if (law.status !== 'eingebracht') return state;
 

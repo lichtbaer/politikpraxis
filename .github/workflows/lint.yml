@@ -46,3 +46,6 @@ jobs:
 
       - name: ESLint
         run: cd frontend && npm run lint
+
+      - name: Unit Tests
+        run: cd frontend && npm run test

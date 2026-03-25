@@ -79,6 +79,16 @@ export function tick(
   const tickLog: TickLogEntry[] = [];
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi }, tickLog: [] };
 
+  /** Wraps a system call in try-catch to prevent a single failing system from crashing the game */
+  function safeSystem<T extends GameState>(fn: () => T, name: string): T {
+    try {
+      return fn();
+    } catch (err) {
+      console.error(`[Engine] System "${name}" failed in tick ${s.month}:`, err);
+      return s as T;
+    }
+  }
+
   // 1. Zeit: Spielende prüfen
   s = checkGameEnd(s);
   if (s.gameOver) return s;
@@ -131,12 +141,12 @@ export function tick(
 
   // 4. Haushalt
   const kpiBeforeHaushalt = { ...s.kpi };
-  s = tickKonjunktur(s, complexity);
-  s = applySchuldenbremsenEffekte(s, complexity, content);
-  s = checkLehmannSparvorschlag(s, complexity);
-  s = checkLehmannDefizitStart(s, content, complexity);
-  s = checkHaushaltskrise(s, content, complexity);
-  s = triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []);
+  s = safeSystem(() => tickKonjunktur(s, complexity), 'tickKonjunktur');
+  s = safeSystem(() => applySchuldenbremsenEffekte(s, complexity, content), 'applySchuldenbremsenEffekte');
+  s = safeSystem(() => checkLehmannSparvorschlag(s, complexity), 'checkLehmannSparvorschlag');
+  s = safeSystem(() => checkLehmannDefizitStart(s, content, complexity), 'checkLehmannDefizitStart');
+  s = safeSystem(() => checkHaushaltskrise(s, content, complexity), 'checkHaushaltskrise');
+  s = safeSystem(() => triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []), 'triggerHaushaltsdebatte');
 
   for (const key of ['al', 'hh', 'gi', 'zf'] as const) {
     const delta = +(s.kpi[key] - kpiBeforeHaushalt[key]).toFixed(2);
@@ -146,7 +156,7 @@ export function tick(
   }
   // 5. Politikfeld-Druck
   const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
-  s = checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents);
+  s = safeSystem(() => checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents), 'checkPolitikfeldDruck');
 
   // 5b. Extremismus-Druck (SMA-280): Koalitionspartner-Warnung, Verfassungsgericht
   if (
@@ -154,7 +164,7 @@ export function tick(
     ausrichtung &&
     content.extremismusEvents?.length
   ) {
-    s = tickExtremismusDruck(s, ausrichtung, content.extremismusEvents, complexity);
+    s = safeSystem(() => tickExtremismusDruck(s, ausrichtung!, content.extremismusEvents!, complexity), 'tickExtremismusDruck');
   }
 
   // 6. PK-Regen (skaliert nach Schwierigkeitsgrad: höhere Stufe = weniger PK)
@@ -175,42 +185,42 @@ export function tick(
   s = updateCoalitionStability(s);
 
   // 8. Koalition
-  s = tickKoalitionspartner(s, content, complexity);
-  s = checkKoalitionsbruch(s, content, complexity);
+  s = safeSystem(() => tickKoalitionspartner(s, content, complexity), 'tickKoalitionspartner');
+  s = safeSystem(() => checkKoalitionsbruch(s, content, complexity), 'checkKoalitionsbruch');
   // 9. Verbände & Ministerial
-  s = checkVerbandsAktionen(s, content.verbaende ?? [], complexity);
-  s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
+  s = safeSystem(() => checkVerbandsAktionen(s, content.verbaende ?? [], complexity), 'checkVerbandsAktionen');
+  s = safeSystem(() => checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity), 'checkMinisterialInitiativen');
   // 9b. SMA-330: Minister-Agenden (kontinuierliche Forderungen)
-  s = checkMinisterAgenden(s, complexity);
+  s = safeSystem(() => checkMinisterAgenden(s, complexity), 'checkMinisterAgenden');
   // 10. EU
-  s = tickEUKlima(s, content.verbaende ?? [], complexity);
-  s = checkEUEreignisse(s, content, complexity);
+  s = safeSystem(() => tickEUKlima(s, content.verbaende ?? [], complexity), 'tickEUKlima');
+  s = safeSystem(() => checkEUEreignisse(s, content, complexity), 'checkEUEreignisse');
 
   // 11. Chars: Ultimatums
-  s = checkUltimatums(s, content.charEvents);
+  s = safeSystem(() => checkUltimatums(s, content.charEvents), 'checkUltimatums');
   // 12. Bundesrat (SMA-291: Stufe 1 unsichtbar — keine Abstimmung, keine Events)
   if (featureActive(complexity, 'bundesrat_sichtbar')) {
-    s = processBundesratVotes(s, content, complexity);
-    s = checkBundesratEvents(s, {
+    s = safeSystem(() => processBundesratVotes(s, content, complexity), 'processBundesratVotes');
+    s = safeSystem(() => checkBundesratEvents(s, {
       bundesratEvents: content.bundesratEvents ?? [],
       sprecherErsatz: SPRECHER_ERSATZ,
       landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
-    });
+    }), 'checkBundesratEvents');
   }
   // 12b. Medienklima (SMA-277): Drift, Opposition, Skandale, positive Events
-  s = tickMedienKlima(s, content, complexity);
+  s = safeSystem(() => tickMedienKlima(s, content, complexity), 'tickMedienKlima');
 
   // 13. Events
-  s = checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity);
+  s = safeSystem(() => checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity), 'checkKommunalEvents');
   if (featureActive(complexity, 'kommunal_pilot') && content.kommunalLaenderEvents?.length) {
-    s = checkKommunalLaenderEvents(s, content.kommunalLaenderEvents, complexity);
+    s = safeSystem(() => checkKommunalLaenderEvents(s, content.kommunalLaenderEvents!, complexity), 'checkKommunalLaenderEvents');
   }
   if (content.steuerEvents?.length) {
-    s = checkSteuerEvents(s, content.steuerEvents, complexity);
+    s = safeSystem(() => checkSteuerEvents(s, content.steuerEvents!, complexity), 'checkSteuerEvents');
   }
   // 13b. Follow-up Events (complexity >= 4)
-  s = checkFollowupEvents(s, content.events);
-  s = checkRandomEvents(s, content.events);
+  s = safeSystem(() => checkFollowupEvents(s, content.events), 'checkFollowupEvents');
+  s = safeSystem(() => checkRandomEvents(s, content.events), 'checkRandomEvents');
 
   // 14. Wahlkampf (SMA-278: Monat 43+)
   s = checkWahlkampfBeginn(s, content, complexity);

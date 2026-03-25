@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
@@ -9,6 +9,9 @@ from app.models.mod import Mod
 from app.models.user import User
 from app.schemas.mod import ModCreateRequest, ModDetailResponse, ModResponse
 from app.services.auth_service import get_current_user
+
+# Maximum size for mod content (1 MB as JSON)
+MOD_CONTENT_MAX_SIZE = 1_000_000
 
 router = APIRouter()
 
@@ -55,6 +58,15 @@ async def create_mod(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    import json
+
+    content_size = len(json.dumps(req.content))
+    if content_size > MOD_CONTENT_MAX_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Mod content too large ({content_size} bytes, max {MOD_CONTENT_MAX_SIZE})",
+        )
+
     mod = Mod(
         author_id=user.id,
         title=req.title,
@@ -81,6 +93,8 @@ async def get_mod_content(mod_id: UUID, db: AsyncSession = Depends(get_db)):
     mod = result.scalar_one_or_none()
     if not mod:
         raise HTTPException(status_code=404, detail="Mod not found")
-    mod.downloads += 1
+    await db.execute(
+        update(Mod).where(Mod.id == mod_id).values(downloads=Mod.downloads + 1)
+    )
     await db.flush()
     return mod.content
