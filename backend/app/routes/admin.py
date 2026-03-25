@@ -83,6 +83,9 @@ async def admin_list_chars(db: AsyncSession = Depends(get_db)):
 
 @router.post("/chars")
 async def admin_create_char(data: CharCreate, db: AsyncSession = Depends(get_db)):
+    existing = await db.execute(select(Char).where(Char.id == data.id))
+    if existing.scalar_one_or_none():
+        raise HTTPException(409, detail=f"Char '{data.id}' existiert bereits")
     char = Char(
         id=data.id,
         initials=data.initials,
@@ -267,6 +270,9 @@ async def admin_list_gesetze(db: AsyncSession = Depends(get_db)):
 
 @router.post("/gesetze")
 async def admin_create_gesetz(data: GesetzCreate, db: AsyncSession = Depends(get_db)):
+    existing = await db.execute(select(Gesetz).where(Gesetz.id == data.id))
+    if existing.scalar_one_or_none():
+        raise HTTPException(409, detail=f"Gesetz '{data.id}' existiert bereits")
     gesetz = Gesetz(
         id=data.id,
         tags=data.tags,
@@ -396,6 +402,9 @@ async def admin_list_events(db: AsyncSession = Depends(get_db)):
 
 @router.post("/events")
 async def admin_create_event(data: EventCreate, db: AsyncSession = Depends(get_db)):
+    existing = await db.execute(select(Event).where(Event.id == data.id))
+    if existing.scalar_one_or_none():
+        raise HTTPException(409, detail=f"Event '{data.id}' existiert bereits")
     ev = Event(
         id=data.id,
         event_type=data.event_type,
@@ -641,6 +650,9 @@ async def admin_list_bundesrat(db: AsyncSession = Depends(get_db)):
 async def admin_create_bundesrat(
     data: BundesratFraktionCreate, db: AsyncSession = Depends(get_db)
 ):
+    existing = await db.execute(select(BundesratFraktion).where(BundesratFraktion.id == data.id))
+    if existing.scalar_one_or_none():
+        raise HTTPException(409, detail=f"Bundesrat-Fraktion '{data.id}' existiert bereits")
     f = BundesratFraktion(
         id=data.id,
         laender=data.laender,

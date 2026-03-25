@@ -35,6 +35,7 @@ from app.models.content import (
 )
 
 VALID_LOCALES = frozenset({"de", "en"})
+LOCALE_FALLBACK = {"en": "de", "de": "en"}
 CACHE_TTL = 3600  # 1 Stunde
 _content_cache: dict[tuple[str, str], tuple[Any, float]] = {}
 
@@ -94,11 +95,11 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
     result = await db.execute(stmt)
     rows_raw = result.all()
 
-    if not rows_raw and locale == "en":
-        use_locale = "de"
+    if not rows_raw and locale in LOCALE_FALLBACK:
+        use_locale = LOCALE_FALLBACK[locale]
         stmt = (
             select(Char, CharI18n, Partei)
-            .join(CharI18n, (Char.id == CharI18n.char_id) & (CharI18n.locale == "de"))
+            .join(CharI18n, (Char.id == CharI18n.char_id) & (CharI18n.locale == use_locale))
             .outerjoin(Partei, Char.partei_id == Partei.id)
         )
         result = await db.execute(stmt)
@@ -161,11 +162,11 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
     result = await db.execute(stmt)
     rows_raw = result.all()
 
-    if not rows_raw and locale == "en":
-        use_locale = "de"
+    if not rows_raw and locale in LOCALE_FALLBACK:
+        use_locale = LOCALE_FALLBACK[locale]
         stmt = select(Gesetz, GesetzI18n).join(
             GesetzI18n,
-            (Gesetz.id == GesetzI18n.gesetz_id) & (GesetzI18n.locale == "de"),
+            (Gesetz.id == GesetzI18n.gesetz_id) & (GesetzI18n.locale == use_locale),
         )
         result = await db.execute(stmt)
         rows_raw = result.all()
@@ -241,10 +242,10 @@ async def fetch_events(
     result = await db.execute(stmt)
     events_raw = result.all()
 
-    if not events_raw and locale == "en":
-        use_locale = "de"
+    if not events_raw and locale in LOCALE_FALLBACK:
+        use_locale = LOCALE_FALLBACK[locale]
         stmt = select(Event, EventI18n).join(
-            EventI18n, (Event.id == EventI18n.event_id) & (EventI18n.locale == "de")
+            EventI18n, (Event.id == EventI18n.event_id) & (EventI18n.locale == use_locale)
         )
         if event_type:
             stmt = stmt.where(Event.event_type == event_type)
@@ -345,14 +346,14 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
     result = await db.execute(stmt)
     fraktionen_raw = result.all()
 
-    if not fraktionen_raw and locale == "en":
-        use_locale = "de"
+    if not fraktionen_raw and locale in LOCALE_FALLBACK:
+        use_locale = LOCALE_FALLBACK[locale]
         stmt = (
             select(BundesratFraktion, BundesratFraktionI18n, Partei)
             .join(
                 BundesratFraktionI18n,
                 (BundesratFraktion.id == BundesratFraktionI18n.fraktion_id)
-                & (BundesratFraktionI18n.locale == "de"),
+                & (BundesratFraktionI18n.locale == use_locale),
             )
             .outerjoin(Partei, BundesratFraktion.partei_id == Partei.id)
         )
@@ -433,11 +434,11 @@ async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
     result = await db.execute(stmt)
     events_raw = result.all()
 
-    if not events_raw and locale == "en":
-        use_locale = "de"
+    if not events_raw and locale in LOCALE_FALLBACK:
+        use_locale = LOCALE_FALLBACK[locale]
         stmt = select(EuEvent, EuEventI18n).join(
             EuEventI18n,
-            (EuEvent.id == EuEventI18n.event_id) & (EuEventI18n.locale == "de"),
+            (EuEvent.id == EuEventI18n.event_id) & (EuEventI18n.locale == use_locale),
         )
         result = await db.execute(stmt)
         events_raw = result.all()
@@ -506,11 +507,11 @@ async def fetch_milieus(db: AsyncSession, locale: str) -> list[dict]:
     result = await db.execute(stmt)
     rows_raw = result.all()
 
-    if not rows_raw and locale == "en":
-        use_locale = "de"
+    if not rows_raw and locale in LOCALE_FALLBACK:
+        use_locale = LOCALE_FALLBACK[locale]
         stmt = select(Milieu, MilieuI18n).join(
             MilieuI18n,
-            (Milieu.id == MilieuI18n.milieu_id) & (MilieuI18n.locale == "de"),
+            (Milieu.id == MilieuI18n.milieu_id) & (MilieuI18n.locale == use_locale),
         )
         result = await db.execute(stmt)
         rows_raw = result.all()
@@ -551,12 +552,12 @@ async def fetch_politikfelder(db: AsyncSession, locale: str) -> list[dict]:
     result = await db.execute(stmt)
     rows_raw = result.all()
 
-    if not rows_raw and locale == "en":
-        use_locale = "de"
+    if not rows_raw and locale in LOCALE_FALLBACK:
+        use_locale = LOCALE_FALLBACK[locale]
         stmt = select(Politikfeld, PolitikfeldI18n).join(
             PolitikfeldI18n,
             (Politikfeld.id == PolitikfeldI18n.feld_id)
-            & (PolitikfeldI18n.locale == "de"),
+            & (PolitikfeldI18n.locale == use_locale),
         )
         result = await db.execute(stmt)
         rows_raw = result.all()
@@ -593,11 +594,11 @@ async def fetch_verbaende(db: AsyncSession, locale: str) -> list[dict]:
     result = await db.execute(stmt)
     rows_raw = result.all()
 
-    if not rows_raw and locale == "en":
-        use_locale = "de"
+    if not rows_raw and locale in LOCALE_FALLBACK:
+        use_locale = LOCALE_FALLBACK[locale]
         stmt = select(Verband, VerbandI18n).join(
             VerbandI18n,
-            (Verband.id == VerbandI18n.verband_id) & (VerbandI18n.locale == "de"),
+            (Verband.id == VerbandI18n.verband_id) & (VerbandI18n.locale == use_locale),
         )
         result = await db.execute(stmt)
         rows_raw = result.all()
