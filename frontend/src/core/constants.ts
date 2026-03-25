@@ -1,7 +1,21 @@
 /**
  * Zentrale Spielkonstanten.
  * Magic Numbers aus Engine, Haushalt, Kongruenz, Milieus, Bundesrat etc.
+ * Alle spielrelevanten Schwellenwerte, Wahrscheinlichkeiten und Formelfaktoren
+ * sollen hier definiert werden statt inline als Magic Numbers.
  */
+
+// --- Utility ---
+/** Begrenzt einen Wert auf [min, max] */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+/** Hängt einen Wert an ein Array an und begrenzt auf maxLength (neueste behalten) */
+export function trimHistory<T>(arr: T[], value: T, maxLength: number): T[] {
+  const next = [...arr, value];
+  return next.length > maxLength ? next.slice(-maxLength) : next;
+}
 
 // --- PK (Politik-Kapital) ---
 /** Divisor für PK-Regen: PK = floor(Zustimmung / PK_REGEN_DIVISOR) */
@@ -74,3 +88,67 @@ export const WAHLKAMPF_START_MONAT = 43;
 export const TV_DUELL_MONAT = 45;
 /** Zeitdruck-Warnung ab Monat 45 (Vorstufe endet) */
 export const ZEITDRUCK_WARNUNG_MONAT = 45;
+
+// --- Event-Wahrscheinlichkeiten ---
+/** Chance pro Monat auf ein zufälliges Event */
+export const RANDOM_EVENT_CHANCE = 0.22;
+/** Chance auf Bundesrat-Landtagswahl (ab Monat 10) */
+export const BR_LANDTAGSWAHL_CHANCE = 0.15;
+/** Chance auf Bundesrat-Sprecher-Wechsel (ab Monat 24) */
+export const BR_SPRECHER_WECHSEL_CHANCE = 0.2;
+/** Chance auf Bundesrat-Initiative (ab Monat 18) */
+export const BR_INITIATIVE_CHANCE = 0.25;
+/** Chance auf Skandal-Event */
+export const SKANDAL_CHANCE = 0.08;
+/** Chance auf positives Medien-Event */
+export const POSITIV_MEDIEN_CHANCE = 0.1;
+/** Chance auf KPI-Drift (Arbeitslosigkeit) */
+export const KPI_DRIFT_CHANCE = 0.25;
+
+// --- Konjunktur-Index Grenzen ---
+export const KONJUNKTUR_INDEX_MIN = -3;
+export const KONJUNKTUR_INDEX_MAX = 3;
+
+// --- History-Limits ---
+/** Max. History-Länge in Monaten (4 Jahre) */
+export const HISTORY_MAX_MONTHS = 48;
+/** Max. KPI-/Haushalt-History für Trendanzeige (1 Jahr) */
+export const KPI_HISTORY_MAX_MONTHS = 12;
+/** Max. Log-Einträge */
+export const MAX_LOG_ENTRIES = 60;
+
+// --- Misstrauensvotum ---
+/** Monate unter 20% Zustimmung bis zum Sturz */
+export const MISSTRAUENSVOTUM_MONATE = 6;
+
+// --- Zustimmung/Approval ---
+/** Untere Grenze für allgemeine Zustimmung */
+export const APPROVAL_MIN = 15;
+/** Obere Grenze für allgemeine Zustimmung */
+export const APPROVAL_MAX = 95;
+/** Untere Grenze für Segment-Zustimmung (arbeit, mitte, prog) */
+export const SEGMENT_APPROVAL_MIN = 10;
+
+// --- Approval-Formel-Koeffizienten ---
+/**
+ * Basiswert der Zustimmungsformel.
+ * w = APPROVAL_BASE + (10 - AL) × AL_FAKTOR + HH × HH_FAKTOR
+ *   + (50 - GI) × GI_FAKTOR + (ZF - 50) × ZF_FAKTOR
+ */
+export const APPROVAL_BASE = 30;
+/** Gewicht von Arbeitslosigkeit in der Zustimmungsformel (invers: niedrigere AL = höhere Zustimmung) */
+export const APPROVAL_AL_FAKTOR = 1.3;
+/** Gewicht des Haushalts in der Zustimmungsformel */
+export const APPROVAL_HH_FAKTOR = 2.5;
+/** Gewicht der Gini-Ungleichheit in der Zustimmungsformel */
+export const APPROVAL_GI_FAKTOR = 0.25;
+/** Gewicht der Zufriedenheit in der Zustimmungsformel */
+export const APPROVAL_ZF_FAKTOR = 0.4;
+
+// --- Einnahmen-Formel ---
+/** AL-Referenzwert für Einnahmen-Berechnung (neutral bei AL = 5%) */
+export const EINNAHMEN_AL_REFERENZ = 5;
+/** AL-Koeffizient für Einnahmen (pro 1% über Referenz: -1.5% Einnahmen) */
+export const EINNAHMEN_AL_KOEFFIZIENT = 0.015;
+/** Konjunktur-Koeffizient für Einnahmen */
+export const EINNAHMEN_KONJUNKTUR_KOEFFIZIENT = 0.02;

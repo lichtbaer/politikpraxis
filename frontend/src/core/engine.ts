@@ -1,6 +1,10 @@
 import type { GameState, ContentBundle, TickLogEntry } from './types';
 import { withPause, getAutoPauseLevel } from './eventPause';
-import { PK_REGEN_DIVISOR, PK_REGEN_MIN, PK_MAX } from './constants';
+import {
+  PK_REGEN_DIVISOR, PK_REGEN_MIN, PK_MAX,
+  HISTORY_MAX_MONTHS, KPI_HISTORY_MAX_MONTHS, MAX_LOG_ENTRIES,
+  MISSTRAUENSVOTUM_MONATE, trimHistory,
+} from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
@@ -79,13 +83,23 @@ export function tick(
   const tickLog: TickLogEntry[] = [];
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi }, tickLog: [] };
 
+  /** Wraps a system call in try-catch to prevent a single failing system from crashing the game */
+  function safeSystem<T extends GameState>(fn: () => T, name: string): T {
+    try {
+      return fn();
+    } catch (err) {
+      console.error(`[Engine] System "${name}" failed in tick ${s.month}:`, err);
+      return s as T;
+    }
+  }
+
   // 1. Zeit: Spielende prüfen
   s = checkGameEnd(s);
   if (s.gameOver) return s;
 
   // 2. Pending Effects (inkl. SMA-278: Medienklima-Historie)
   const medienVal = s.medienKlima ?? s.zust.g;
-  const medienHist = [...(s.medienKlimaHistory ?? []), medienVal].slice(-48);
+  const medienHist = trimHistory(s.medienKlimaHistory ?? [], medienVal, HISTORY_MAX_MONTHS);
   s = { ...s, medienKlimaHistory: medienHist };
   if (s.medienKlima == null) s = { ...s, medienKlima: 55 };
 
@@ -131,12 +145,12 @@ export function tick(
 
   // 4. Haushalt
   const kpiBeforeHaushalt = { ...s.kpi };
-  s = tickKonjunktur(s, complexity);
-  s = applySchuldenbremsenEffekte(s, complexity, content);
-  s = checkLehmannSparvorschlag(s, complexity);
-  s = checkLehmannDefizitStart(s, content, complexity);
-  s = checkHaushaltskrise(s, content, complexity);
-  s = triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []);
+  s = safeSystem(() => tickKonjunktur(s, complexity), 'tickKonjunktur');
+  s = safeSystem(() => applySchuldenbremsenEffekte(s, complexity, content), 'applySchuldenbremsenEffekte');
+  s = safeSystem(() => checkLehmannSparvorschlag(s, complexity), 'checkLehmannSparvorschlag');
+  s = safeSystem(() => checkLehmannDefizitStart(s, content, complexity), 'checkLehmannDefizitStart');
+  s = safeSystem(() => checkHaushaltskrise(s, content, complexity), 'checkHaushaltskrise');
+  s = safeSystem(() => triggerHaushaltsdebatte(s, complexity, content.politikfelder ?? []), 'triggerHaushaltsdebatte');
 
   for (const key of ['al', 'hh', 'gi', 'zf'] as const) {
     const delta = +(s.kpi[key] - kpiBeforeHaushalt[key]).toFixed(2);
@@ -146,7 +160,7 @@ export function tick(
   }
   // 5. Politikfeld-Druck
   const allEvents = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
-  s = checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents);
+  s = safeSystem(() => checkPolitikfeldDruck(s, content.politikfelder ?? [], complexity, allEvents), 'checkPolitikfeldDruck');
 
   // 5b. Extremismus-Druck (SMA-280): Koalitionspartner-Warnung, Verfassungsgericht
   if (
@@ -154,7 +168,7 @@ export function tick(
     ausrichtung &&
     content.extremismusEvents?.length
   ) {
-    s = tickExtremismusDruck(s, ausrichtung, content.extremismusEvents, complexity);
+    s = safeSystem(() => tickExtremismusDruck(s, ausrichtung!, content.extremismusEvents!, complexity), 'tickExtremismusDruck');
   }
 
   // 6. PK-Regen (skaliert nach Schwierigkeitsgrad: höhere Stufe = weniger PK)
@@ -181,42 +195,42 @@ export function tick(
   s = updateCoalitionStability(s);
 
   // 8. Koalition
-  s = tickKoalitionspartner(s, content, complexity);
-  s = checkKoalitionsbruch(s, content, complexity);
+  s = safeSystem(() => tickKoalitionspartner(s, content, complexity), 'tickKoalitionspartner');
+  s = safeSystem(() => checkKoalitionsbruch(s, content, complexity), 'checkKoalitionsbruch');
   // 9. Verbände & Ministerial
-  s = checkVerbandsAktionen(s, content.verbaende ?? [], complexity);
-  s = checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity);
+  s = safeSystem(() => checkVerbandsAktionen(s, content.verbaende ?? [], complexity), 'checkVerbandsAktionen');
+  s = safeSystem(() => checkMinisterialInitiativen(s, content.ministerialInitiativen ?? [], complexity), 'checkMinisterialInitiativen');
   // 9b. SMA-330: Minister-Agenden (kontinuierliche Forderungen)
-  s = checkMinisterAgenden(s, complexity);
+  s = safeSystem(() => checkMinisterAgenden(s, complexity), 'checkMinisterAgenden');
   // 10. EU
-  s = tickEUKlima(s, content.verbaende ?? [], complexity);
-  s = checkEUEreignisse(s, content, complexity);
+  s = safeSystem(() => tickEUKlima(s, content.verbaende ?? [], complexity), 'tickEUKlima');
+  s = safeSystem(() => checkEUEreignisse(s, content, complexity), 'checkEUEreignisse');
 
   // 11. Chars: Ultimatums
-  s = checkUltimatums(s, content.charEvents);
+  s = safeSystem(() => checkUltimatums(s, content.charEvents), 'checkUltimatums');
   // 12. Bundesrat (SMA-291: Stufe 1 unsichtbar — keine Abstimmung, keine Events)
   if (featureActive(complexity, 'bundesrat_sichtbar')) {
-    s = processBundesratVotes(s, content, complexity);
-    s = checkBundesratEvents(s, {
+    s = safeSystem(() => processBundesratVotes(s, content, complexity), 'processBundesratVotes');
+    s = safeSystem(() => checkBundesratEvents(s, {
       bundesratEvents: content.bundesratEvents ?? [],
       sprecherErsatz: SPRECHER_ERSATZ,
       landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
-    });
+    }), 'checkBundesratEvents');
   }
   // 12b. Medienklima (SMA-277): Drift, Opposition, Skandale, positive Events
-  s = tickMedienKlima(s, content, complexity);
+  s = safeSystem(() => tickMedienKlima(s, content, complexity), 'tickMedienKlima');
 
   // 13. Events
-  s = checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity);
+  s = safeSystem(() => checkKommunalEvents(s, { kommunalEvents: content.kommunalEvents ?? [] }, complexity), 'checkKommunalEvents');
   if (featureActive(complexity, 'kommunal_pilot') && content.kommunalLaenderEvents?.length) {
-    s = checkKommunalLaenderEvents(s, content.kommunalLaenderEvents, complexity);
+    s = safeSystem(() => checkKommunalLaenderEvents(s, content.kommunalLaenderEvents!, complexity), 'checkKommunalLaenderEvents');
   }
   if (content.steuerEvents?.length) {
-    s = checkSteuerEvents(s, content.steuerEvents, complexity);
+    s = safeSystem(() => checkSteuerEvents(s, content.steuerEvents!, complexity), 'checkSteuerEvents');
   }
   // 13b. Follow-up Events (complexity >= 4)
-  s = checkFollowupEvents(s, content.events);
-  s = checkRandomEvents(s, content.events);
+  s = safeSystem(() => checkFollowupEvents(s, content.events), 'checkFollowupEvents');
+  s = safeSystem(() => checkRandomEvents(s, content.events), 'checkRandomEvents');
 
   // 14. Wahlkampf (SMA-278: Monat 43+)
   s = checkWahlkampfBeginn(s, content, complexity);
@@ -240,22 +254,21 @@ export function tick(
   }
   s = { ...s, zust: newZust };
 
-  // Approval-History: allgemeine Zustimmung pro Monat tracken (max 48)
-  const approvalHist = [...(s.approvalHistory ?? []), newZust.g].slice(-48);
-  s = { ...s, approvalHistory: approvalHist };
+  // Approval-History: allgemeine Zustimmung pro Monat tracken
+  s = { ...s, approvalHistory: trimHistory(s.approvalHistory ?? [], newZust.g, HISTORY_MAX_MONTHS) };
 
   // KPI-History: letzte 12 Monate pro KPI für Trendanzeige
   const prevKpiHist = s.kpiHistory ?? { al: [], hh: [], gi: [], zf: [] };
   s = {
     ...s,
     kpiHistory: {
-      al: [...prevKpiHist.al, s.kpi.al].slice(-12),
-      hh: [...prevKpiHist.hh, s.kpi.hh].slice(-12),
-      gi: [...prevKpiHist.gi, s.kpi.gi].slice(-12),
-      zf: [...prevKpiHist.zf, s.kpi.zf].slice(-12),
+      al: trimHistory(prevKpiHist.al, s.kpi.al, KPI_HISTORY_MAX_MONTHS),
+      hh: trimHistory(prevKpiHist.hh, s.kpi.hh, KPI_HISTORY_MAX_MONTHS),
+      gi: trimHistory(prevKpiHist.gi, s.kpi.gi, KPI_HISTORY_MAX_MONTHS),
+      zf: trimHistory(prevKpiHist.zf, s.kpi.zf, KPI_HISTORY_MAX_MONTHS),
     },
     // SMA-323: Haushalt-Saldo-Verlauf für Chart (Mrd.)
-    haushaltSaldoHistory: [...(s.haushaltSaldoHistory ?? []), s.haushalt?.saldo ?? 0].slice(-12),
+    haushaltSaldoHistory: trimHistory(s.haushaltSaldoHistory ?? [], s.haushalt?.saldo ?? 0, KPI_HISTORY_MAX_MONTHS),
   };
 
   // SMA-280: Verfassungsgericht-Verfahren beenden wenn Frist abgelaufen
@@ -278,8 +291,7 @@ export function tick(
     const history = { ...(s.milieuZustimmungHistory ?? {}) };
     for (const [mid, val] of Object.entries(s.milieuZustimmung)) {
       const arr = history[mid] ?? [];
-      const next = [...arr, val].slice(-48);
-      history[mid] = next;
+      history[mid] = trimHistory(arr, val, HISTORY_MAX_MONTHS);
     }
     s = { ...s, milieuZustimmungHistory: history };
   }
@@ -294,14 +306,14 @@ export function tick(
 
   // Misstrauensvotum-Warnung im Log
   const lowMonths = s.lowApprovalMonths ?? 0;
-  if (lowMonths >= 3 && lowMonths < 6) {
-    const remaining = 6 - lowMonths;
+  if (lowMonths >= 3 && lowMonths < MISSTRAUENSVOTUM_MONATE) {
+    const remaining = MISSTRAUENSVOTUM_MONATE - lowMonths;
     s = {
       ...s,
       log: [
         { time: formatTickTime(s.month), msg: `⚠ Misstrauensvotum droht! Noch ${remaining} Monat(e) unter 20% bis zum Sturz.`, type: 'danger' },
         ...s.log,
-      ].slice(0, 60),
+      ].slice(0, MAX_LOG_ENTRIES),
     };
   }
 

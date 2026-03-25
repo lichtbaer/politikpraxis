@@ -8,6 +8,7 @@ import { withPause, getAutoPauseLevel } from '../eventPause';
 import { featureActive } from './features';
 import { verbrauchePK } from '../pk';
 import { isEventAvailable, recordEventFired } from './eventUtils';
+import { clamp, SKANDAL_CHANCE, POSITIV_MEDIEN_CHANCE } from '../constants';
 
 /** Medienklima-Multiplikator: moduliert KPI-/Milieu-Effekte (linear: 0→0.7, 50→1.0, 100→1.3) */
 export function getMedienMultiplikator(medienKlima: number): number {
@@ -40,7 +41,7 @@ export function applyFraming(
     const milieuZustimmung = { ...(newState.milieuZustimmung ?? {}) };
     for (const [milieuId, delta] of Object.entries(framing.milieu_effekte)) {
       const current = milieuZustimmung[milieuId] ?? 50;
-      milieuZustimmung[milieuId] = Math.max(0, Math.min(100, current + (delta as number)));
+      milieuZustimmung[milieuId] = clamp(current + (delta as number), 0, 100);
     }
     newState = { ...newState, milieuZustimmung };
   }
@@ -49,13 +50,13 @@ export function applyFraming(
     const verbandsBeziehungen = { ...(newState.verbandsBeziehungen ?? {}) };
     for (const [verbandId, delta] of Object.entries(framing.verband_effekte)) {
       const current = verbandsBeziehungen[verbandId] ?? 50;
-      verbandsBeziehungen[verbandId] = Math.max(0, Math.min(100, current + (delta as number)));
+      verbandsBeziehungen[verbandId] = clamp(current + (delta as number), 0, 100);
     }
     newState = { ...newState, verbandsBeziehungen };
   }
 
   const mk = (newState.medienKlima ?? 55) + framing.medienklima_delta;
-  newState = { ...newState, medienKlima: Math.max(0, Math.min(100, mk)) };
+  newState = { ...newState, medienKlima: clamp(mk, 0, 100) };
 
   // SMA-322: Kein Log-Eintrag bei internen Keys (standard/keine) — sonst lesbares Label
   const label = framing.label ?? framing.key;
@@ -131,7 +132,7 @@ export function tickMedienKlima(
 
   // Drift Richtung 50
   const drift = mk > 50 ? -1 : mk < 50 ? 1 : 0;
-  const newMk = Math.max(0, Math.min(100, mk + drift));
+  const newMk = clamp(mk + drift, 0, 100);
   s = { ...s, medienKlima: newMk };
 
   // Opposition
@@ -170,7 +171,7 @@ function checkSkandale(
     },
   );
 
-  if (eligible.length === 0 || Math.random() >= 0.08) return state;
+  if (eligible.length === 0 || Math.random() >= SKANDAL_CHANCE) return state;
 
   const event = eligible[Math.floor(Math.random() * eligible.length)];
   const newMk = Math.max(0, (state.medienKlima ?? 55) + event.medienklima_delta);
@@ -195,7 +196,7 @@ function checkPositiveMedienEvents(
   complexity: number,
 ): GameState {
   if (state.activeEvent) return state;
-  if (Math.random() >= 0.1) return state;
+  if (Math.random() >= POSITIV_MEDIEN_CHANCE) return state;
 
   const pool = getMedienEventsPool(content.medienEvents ?? [], 'positiv');
   const eligible = pool.filter(
@@ -335,6 +336,6 @@ export function applyMedienChoiceDelta(
   const mk = state.medienKlima ?? 55;
   return {
     ...state,
-    medienKlima: Math.max(0, Math.min(100, mk + delta)),
+    medienKlima: clamp(mk + delta, 0, 100),
   };
 }

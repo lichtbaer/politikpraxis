@@ -42,18 +42,20 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Accept-Language"],
 )
 
 
 @app.middleware("http")
-async def auth_security_headers(request: Request, call_next):
+async def security_headers(request: Request, call_next):
     response = await call_next(request)
-    if request.url.path.startswith("/api/auth"):
-        response.headers["Strict-Transport-Security"] = "max-age=31536000"
+    if request.url.path.startswith("/api"):
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     return response
 
 

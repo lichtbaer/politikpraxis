@@ -1,5 +1,10 @@
 import type { GameState, ContentBundle, Haushalt, SchuldenbremsenStatus } from '../types';
-import { EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS, SCHULDENBREMSE_DEFIZIT_MILD, SCHULDENBREMSE_SPIELRAUM_BASIS } from '../constants';
+import {
+  EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS, SCHULDENBREMSE_DEFIZIT_MILD, SCHULDENBREMSE_SPIELRAUM_BASIS,
+  KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX,
+  EINNAHMEN_AL_REFERENZ, EINNAHMEN_AL_KOEFFIZIENT, EINNAHMEN_KONJUNKTUR_KOEFFIZIENT,
+  clamp,
+} from '../constants';
 import { featureActive } from './features';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 
@@ -33,8 +38,8 @@ export function berechneEinnahmen(state: GameState): number {
   const haushalt = state.haushalt;
   if (!haushalt) return EINNAHMEN_BASIS;
 
-  const alFaktor = 1 - (state.kpi.al - 5) * 0.015;
-  const wirtFaktor = 1 + haushalt.konjunkturIndex * 0.02;
+  const alFaktor = 1 - (state.kpi.al - EINNAHMEN_AL_REFERENZ) * EINNAHMEN_AL_KOEFFIZIENT;
+  const wirtFaktor = 1 + haushalt.konjunkturIndex * EINNAHMEN_KONJUNKTUR_KOEFFIZIENT;
   const steuerpolitikFaktor = haushalt.steuerpolitikModifikator;
 
   return Math.round(EINNAHMEN_BASIS * alFaktor * wirtFaktor * steuerpolitikFaktor);
@@ -122,7 +127,7 @@ function applyKonjunkturEffekteAusGesetzen(state: GameState): GameState {
 
   if (konjunkturDelta === 0) return state;
 
-  const neueKonjunktur = Math.max(-3, Math.min(3, haushalt.konjunkturIndex + konjunkturDelta));
+  const neueKonjunktur = clamp(haushalt.konjunkturIndex + konjunkturDelta, KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX);
   const neuerHaushalt = { ...haushalt, konjunkturIndex: neueKonjunktur };
 
   const neueBereitsAngewendet = { ...bereitsAngewendet };
@@ -160,11 +165,12 @@ export function tickKonjunktur(state: GameState, complexity: number): GameState 
     const drift = (Math.random() - 0.5) * 0.6; // SMA-309: ±0.3 statt ±0.2
     neuerHaushalt = {
       ...neuerHaushalt,
-      konjunkturIndex: Math.max(-3, Math.min(3, haushaltNachKonjunktur.konjunkturIndex + drift)),
+      konjunkturIndex: clamp(haushaltNachKonjunktur.konjunkturIndex + drift, KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX),
     };
   }
 
-  if (s.month % 12 === 0) {
+  // Jährliche Neuberechnung: Monat 12, 24, 36, 48 (1-indiziert → modulo auf month-1)
+  if (s.month > 1 && (s.month - 1) % 12 === 0) {
     const pflichtausgaben = berechnePflichtausgaben(s);
     const einnahmen = berechneEinnahmen({ ...s, haushalt: neuerHaushalt });
     const spielraum = einnahmen - pflichtausgaben;
@@ -462,7 +468,8 @@ export function updateHaushaltPflichtausgaben(state: GameState): GameState {
   const haushalt = state.haushalt;
   if (!haushalt) return state;
 
-  if (state.month % 12 === 0) {
+  // Jährliche Neuberechnung: Jahreswechsel bei 1-indizierten Monaten
+  if (state.month > 1 && (state.month - 1) % 12 === 0) {
     const pflichtausgaben = berechnePflichtausgaben(state);
     const spielraum = haushalt.einnahmen - pflichtausgaben;
     const saldo = spielraum - haushalt.laufendeAusgaben;

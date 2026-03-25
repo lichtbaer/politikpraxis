@@ -1,11 +1,25 @@
 import type { GameState, KPI, Approval } from '../types';
+import {
+  clamp,
+  APPROVAL_BASE, APPROVAL_AL_FAKTOR, APPROVAL_HH_FAKTOR, APPROVAL_GI_FAKTOR, APPROVAL_ZF_FAKTOR,
+  APPROVAL_MIN, APPROVAL_MAX, SEGMENT_APPROVAL_MIN,
+  KPI_DRIFT_CHANCE, MAX_LOG_ENTRIES,
+} from '../constants';
 
+/**
+ * Berechnet Zustimmungswerte aus KPI-Werten.
+ * Formel: w = BASE + (10 - AL) × AL_F + HH × HH_F + (50 - GI) × GI_F + (ZF - 50) × ZF_F
+ */
 export function recalcApproval(kpi: KPI, _currentApproval: Approval): Approval {
-  const w = 30 + (10 - kpi.al) * 1.3 + kpi.hh * 2.5 + (50 - kpi.gi) * 0.25 + (kpi.zf - 50) * 0.4;
-  const g = Math.min(95, Math.max(15, Math.round(w)));
-  const arbeit = Math.min(95, Math.max(10, Math.round(g + (10 - kpi.al) * 1.5 - (kpi.gi - 30) * 0.4)));
-  const mitte = Math.min(95, Math.max(10, Math.round(g + kpi.hh * 3)));
-  const prog = Math.min(95, Math.max(10, Math.round(g - (kpi.gi - 28) * 0.5 + (kpi.zf - 50) * 0.15)));
+  const w = APPROVAL_BASE
+    + (10 - kpi.al) * APPROVAL_AL_FAKTOR
+    + kpi.hh * APPROVAL_HH_FAKTOR
+    + (50 - kpi.gi) * APPROVAL_GI_FAKTOR
+    + (kpi.zf - 50) * APPROVAL_ZF_FAKTOR;
+  const g = clamp(Math.round(w), APPROVAL_MIN, APPROVAL_MAX);
+  const arbeit = clamp(Math.round(g + (10 - kpi.al) * 1.5 - (kpi.gi - 30) * 0.4), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
+  const mitte = clamp(Math.round(g + kpi.hh * 3), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
+  const prog = clamp(Math.round(g - (kpi.gi - 28) * 0.5 + (kpi.zf - 50) * 0.15), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
   return { g, arbeit, mitte, prog };
 }
 
@@ -28,26 +42,26 @@ export function applyPendingEffects(state: GameState): GameState {
     }
   }
 
-  return { ...state, kpi: newKpi, pending: remaining, log: newLog.slice(0, 60) };
+  return { ...state, kpi: newKpi, pending: remaining, log: newLog.slice(0, MAX_LOG_ENTRIES) };
 }
 
 export function applyKPIDrift(kpi: KPI): KPI {
   const newKpi = { ...kpi };
   // AL: häufiger, kleiner Drift (Arbeitsmarkt reagiert auf externe Faktoren)
-  if (Math.random() < 0.25) {
-    newKpi.al = +Math.max(2, Math.min(15, newKpi.al + (Math.random() - 0.53) * 0.2)).toFixed(2);
+  if (Math.random() < KPI_DRIFT_CHANCE) {
+    newKpi.al = +clamp(newKpi.al + (Math.random() - 0.53) * 0.2, 2, 15).toFixed(2);
   }
   // HH: seltener, sehr kleiner Drift (Haushalt ist träge)
   if (Math.random() < 0.12) {
-    newKpi.hh = +Math.max(-10, Math.min(10, newKpi.hh + (Math.random() - 0.5) * 0.15)).toFixed(2);
+    newKpi.hh = +clamp(newKpi.hh + (Math.random() - 0.5) * 0.15, -10, 10).toFixed(2);
   }
   // GI: selten, minimal (Ungleichheit ändert sich langsam)
   if (Math.random() < 0.10) {
-    newKpi.gi = +Math.max(10, Math.min(60, newKpi.gi + (Math.random() - 0.48) * 0.12)).toFixed(2);
+    newKpi.gi = +clamp(newKpi.gi + (Math.random() - 0.48) * 0.12, 10, 60).toFixed(2);
   }
   // ZF: moderat (Zufriedenheit schwankt durch externe Faktoren)
   if (Math.random() < 0.18) {
-    newKpi.zf = +Math.max(20, Math.min(80, newKpi.zf + (Math.random() - 0.5) * 0.18)).toFixed(2);
+    newKpi.zf = +clamp(newKpi.zf + (Math.random() - 0.5) * 0.18, 20, 80).toFixed(2);
   }
   return newKpi;
 }
