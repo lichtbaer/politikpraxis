@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { recalcApproval, applyPendingEffects, applyKPIDrift, scheduleEffects } from './economy';
-import { createInitialState } from '../state';
-import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
-import type { GameState, KPI, Approval } from '../types';
+import { makeState } from '../test-helpers';
+import type { KPI, Approval } from '../types';
 
 function makeKpi(overrides: Partial<KPI> = {}): KPI {
   return { al: 5, hh: 1, gi: 30, zf: 55, ...overrides };
@@ -10,11 +9,6 @@ function makeKpi(overrides: Partial<KPI> = {}): KPI {
 
 function makeApproval(overrides: Partial<Approval> = {}): Approval {
   return { g: 52, arbeit: 58, mitte: 54, prog: 44, ...overrides };
-}
-
-function makeState(overrides: Partial<GameState> = {}): GameState {
-  const base = createInitialState(DEFAULT_CONTENT, 4);
-  return { ...base, ...overrides };
 }
 
 describe('recalcApproval', () => {

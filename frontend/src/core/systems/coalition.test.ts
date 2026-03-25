@@ -1,30 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { updateCoalitionStability } from './coalition';
-import { createInitialState } from '../state';
-import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
-import type { GameState, Character } from '../types';
-
-function makeChar(overrides: Partial<Character> = {}): Character {
-  return {
-    id: 'test',
-    name: 'Test',
-    role: 'Minister',
-    initials: 'T',
-    color: '#000',
-    mood: 2,
-    loyalty: 3,
-    bio: '',
-    interests: [],
-    bonus: { trigger: '', desc: '', applies: '' },
-    ultimatum: { moodThresh: 0, event: 'test_event' },
-    ...overrides,
-  };
-}
-
-function makeState(overrides: Partial<GameState> = {}): GameState {
-  const base = createInitialState(DEFAULT_CONTENT, 4);
-  return { ...base, ...overrides };
-}
+import { makeState, makeChar } from '../test-helpers';
 
 describe('updateCoalitionStability', () => {
   it('berechnet Stabilität basierend auf Mood und Loyalität', () => {

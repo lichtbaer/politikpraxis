@@ -1,32 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { entlasseMinister } from './kabinett';
-import { createInitialState } from '../state';
-import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
-import type { GameState, Character } from '../types';
-
-function makeChar(overrides: Partial<Character> = {}): Character {
-  return {
-    id: 'test',
-    name: 'Test Minister',
-    role: 'Minister',
-    initials: 'TM',
-    color: '#000',
-    mood: 2,
-    loyalty: 3,
-    bio: '',
-    interests: [],
-    bonus: { trigger: '', desc: '', applies: '' },
-    ultimatum: { moodThresh: 0, event: 'test_event' },
-    pool_partei: 'sdp',
-    ressort: 'arbeit',
-    ...overrides,
-  };
-}
-
-function makeState(overrides: Partial<GameState> = {}): GameState {
-  const base = createInitialState(DEFAULT_CONTENT, 4);
-  return { ...base, ...overrides };
-}
+import { makeState, makeChar } from '../test-helpers';
 
 describe('entlasseMinister', () => {
   it('entlässt Minister und zieht 20 PK ab', () => {
