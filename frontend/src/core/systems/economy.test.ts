@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { recalcApproval, applyPendingEffects, applyKPIDrift, scheduleEffects } from './economy';
 import { createInitialState } from '../state';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
