@@ -864,7 +864,12 @@
     "empty": "Keine Gesetze auf dieser Route.",
     "monate": "{{progress}}/{{duration}} Monate",
     "potentialTitle": "Gesetze für diese Route startbar",
-    "potentialHint": "Starte ein Pilotprojekt über die Agenda (Vorbereitung).",
+    "potentialHint": "Wähle ein Gesetz, um ein Pilotprojekt zu starten.",
+    "startPilot": {
+      "kommune": "Kommunal-Pilot",
+      "land": "Länder-Pilot",
+      "eu": "EU-Initiative"
+    },
     "staedtebuendnis": "Städtebündnis aufbauen",
     "staedtebuendnisDesc": "10 PK — Erhöht Chance für Kommunal-Initiativen.",
     "kommunalKonferenz": "Kommunal-Konferenz",

@@ -951,7 +951,12 @@
     "empty": "No laws on this route.",
     "monate": "{{progress}}/{{duration}} months",
     "potentialTitle": "Laws eligible for this route",
-    "potentialHint": "Start a pilot project via the Agenda (Preparation).",
+    "potentialHint": "Select a law to start a pilot project.",
+    "startPilot": {
+      "kommune": "Municipal pilot",
+      "land": "State pilot",
+      "eu": "EU initiative"
+    },
     "staedtebuendnis": "Build city alliance",
     "staedtebuendnisDesc": "10 PK \u2014 Increases chance for municipal initiatives.",
     "kommunalKonferenz": "Municipal conference",

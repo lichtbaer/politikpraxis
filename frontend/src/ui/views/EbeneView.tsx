@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { useContentStore } from '../../store/contentStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
-import type { RouteType } from '../../core/types';
+import { VorbereitungModal } from '../components/VorbereitungModal/VorbereitungModal';
+import type { Law, RouteType } from '../../core/types';
 import { PolitikfeldIcon } from '../icons';
 import styles from './EbeneView.module.css';
 
@@ -42,12 +44,19 @@ export function EbeneView({ type }: EbeneViewProps) {
   const kommunalKonferenzVerfuegbar =
     hasKommunalPilot && (state.kommunalKonferenzJahr ?? -1) < jahr;
 
+  const vorstufenTyp = type === 'kommune' ? 'kommunal' : type === 'land' ? 'laender' : 'eu';
   const potentialLaws =
     complexity >= 2
       ? state.gesetze.filter((g) => {
           if (g.status !== 'entwurf') return false;
+          const projekt = state.gesetzProjekte?.[g.id];
+          const hatAktivenPilot = projekt?.aktiveVorstufen?.some(
+            (v) => v.typ === vorstufenTyp && !v.abgeschlossen
+          );
+          if (hatAktivenPilot) return false;
           if (type === 'kommune') return g.kommunal_pilot_moeglich !== false;
           if (type === 'land') return g.laender_pilot_moeglich !== false;
+          if (type === 'eu') return featureActive(complexity, 'eu_route') && g.eu_initiative_moeglich !== false;
           return false;
         })
       : [];
@@ -60,6 +69,8 @@ export function EbeneView({ type }: EbeneViewProps) {
           )
         )
       : null;
+
+  const [selectedLaw, setSelectedLaw] = useState<Law | null>(null);
 
   const getGesetz = (id: string) => state.gesetze.find((g) => g.id === id);
 
@@ -214,17 +225,27 @@ export function EbeneView({ type }: EbeneViewProps) {
         </div>
       )}
 
-      {potentialLaws.length > 0 && activeLaws.length === 0 && (
+      {potentialLaws.length > 0 && (
         <div className={styles.potential}>
           <h3 className={styles.potentialTitle}>{t('game:ebene.potentialTitle')}</h3>
           <p className={styles.potentialHint}>{t('game:ebene.potentialHint')}</p>
-          <ul className={styles.potentialList}>
+          <div className={styles.potentialGrid}>
             {potentialLaws.slice(0, 8).map((law) => (
-              <li key={law.id} className={styles.potentialItem}>
-                {law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}
-              </li>
+              <div key={law.id} className={styles.potentialCard}>
+                <span className={styles.potentialName}>
+                  {law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}
+                </span>
+                <button
+                  type="button"
+                  className={styles.potentialBtn}
+                  style={{ borderColor: color }}
+                  onClick={() => setSelectedLaw(law)}
+                >
+                  {t(`game:ebene.startPilot.${type}`)}
+                </button>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 
@@ -263,6 +284,14 @@ export function EbeneView({ type }: EbeneViewProps) {
           })
         )}
       </div>
+
+      {selectedLaw && (
+        <VorbereitungModal
+          law={selectedLaw}
+          filter={vorstufenTyp}
+          onClose={() => setSelectedLaw(null)}
+        />
+      )}
     </div>
   );
 }
