@@ -57,4 +57,20 @@ describe('Balance-Simulation (echte Engine)', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['random'], N, COMPLEXITY);
     expect(result.wahlprognose.median).toBeLessThan(60);
   });
+
+  it('allrounder: Gewinnrate mindestens 15%', () => {
+    const result = monteCarlo(SIM_CONTENT, strategien['allrounder'], N, COMPLEXITY);
+    expect(result.gewinnRate).toBeGreaterThanOrEqual(0.15);
+  });
+
+  it('medienstratege: medianer Wahlprognose besser als medienmogul', () => {
+    const medien = monteCarlo(SIM_CONTENT, strategien['medienstratege'], N, COMPLEXITY);
+    const mogul = monteCarlo(SIM_CONTENT, strategien['medienmogul'], N, COMPLEXITY);
+    expect(medien.wahlprognose.median).toBeGreaterThanOrEqual(mogul.wahlprognose.median);
+  });
+
+  it('kabinettspfleger: Gewinnrate mindestens 20%', () => {
+    const result = monteCarlo(SIM_CONTENT, strategien['kabinettspfleger'], N, COMPLEXITY);
+    expect(result.gewinnRate).toBeGreaterThanOrEqual(0.20);
+  });
 });

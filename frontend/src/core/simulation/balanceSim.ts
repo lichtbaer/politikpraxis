@@ -4,9 +4,18 @@
  */
 import { tick } from '../engine';
 import { createInitialState } from '../state';
-import { einbringen, lobbying } from '../systems/parliament';
-import { koalitionsrunde } from '../systems/koalition';
+import { einbringen, lobbying, fraktionssitzung } from '../systems/parliament';
+import { koalitionsrunde, prioritaetsgespraech } from '../systems/koalition';
 import { pressemitteilung } from '../systems/medienklima';
+import { medienkampagne } from '../systems/media';
+import { kabinettsgespraech } from '../systems/characters';
+import { regierungserklaerung } from '../systems/regierung';
+import { verbandGespraech } from '../systems/verbaende';
+import { wahlkampfRede, wahlkampfKoalition, wahlkampfMedienoffensive } from '../systems/wahlkampf';
+import { lobbyFraktion } from '../systems/bundesrat';
+import { startKommunalPilot } from '../systems/gesetzLebenszyklus';
+import { laenderGipfel } from '../systems/ebeneActions';
+import { vermittlungsausschuss } from '../systems/vermittlung';
 import { resolveEvent } from '../systems/events';
 import type { GameState, ContentBundle } from '../types';
 import type { StrategyAction, Strategy } from './strategien';
@@ -55,6 +64,32 @@ function applyAction(
       const result = pressemitteilung(state, 'haushalt', complexity);
       return result ?? state;
     }
+    case 'fraktionssitzung':
+      return fraktionssitzung(state, action.gesetzId);
+    case 'medienkampagne':
+      return medienkampagne(state, action.milieu);
+    case 'kabinettsgespraech':
+      return kabinettsgespraech(state, action.charId);
+    case 'regierungserklaerung':
+      return regierungserklaerung(state, complexity);
+    case 'verbandGespraech':
+      return verbandGespraech(state, action.verbandId, content.verbaende ?? [], complexity);
+    case 'wahlkampfRede':
+      return wahlkampfRede(state, action.milieuId, content, DEFAULT_AUSRICHTUNG, complexity);
+    case 'wahlkampfKoalition':
+      return wahlkampfKoalition(state, content, complexity);
+    case 'wahlkampfMedienoffensive':
+      return wahlkampfMedienoffensive(state, content, complexity);
+    case 'lobbyFraktion':
+      return lobbyFraktion(state, action.fraktionId, action.gesetzId, 1);
+    case 'startKommunalPilot':
+      return startKommunalPilot(state, action.gesetzId, action.stadttyp, undefined, complexity);
+    case 'laenderGipfel':
+      return laenderGipfel(state, complexity);
+    case 'prioritaetsgespraech':
+      return prioritaetsgespraech(state, action.gesetzId, complexity);
+    case 'vermittlungsausschuss':
+      return vermittlungsausschuss(state, action.gesetzId, complexity);
     case 'nichts':
       return state;
   }
