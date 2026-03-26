@@ -63,7 +63,7 @@ import {
   wahlkampfKoalition,
   wahlkampfMedienoffensive,
 } from '../core/systems/wahlkampf';
-import { pressemitteilung } from '../core/systems/medienklima';
+import { pressemitteilung, doMedienAktion, type MedienSpielerAktionKey } from '../core/systems/medienklima';
 import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
 import { vermittlungsausschuss } from '../core/systems/vermittlung';
@@ -146,6 +146,7 @@ interface GameStore {
   doWahlkampfKoalition: () => void;
   doWahlkampfMedienoffensive: () => void;
   doPressemitteilung: (thema: 'haushalt' | 'koalition' | 'politikfeld' | 'opposition') => void;
+  doMedienAktion: (aktion: MedienSpielerAktionKey) => void;
   doSetWahlkampfBotschaften: (botschaften: string[]) => void;
   doEinbringenMitFraming: (lawId: string, framingKey: string | null) => void;
   doKabinettsgespraech: (charId: string) => void;
@@ -574,6 +575,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doPressemitteilung: (thema) =>
     set(prev => {
       const next = pressemitteilung(prev.state, thema, prev.complexity, prev.content);
+      return next ? { state: next } : {};
+    }),
+  doMedienAktion: (aktion) =>
+    set(prev => {
+      const next = doMedienAktion(prev.state, aktion, prev.complexity, prev.content);
       return next ? { state: next } : {};
     }),
   doKabinettsgespraech: (charId) =>

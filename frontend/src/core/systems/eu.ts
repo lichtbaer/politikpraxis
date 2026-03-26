@@ -308,7 +308,7 @@ export function resolveEURoute(
       umgesetzt: false,
     });
 
-    let gesetze = s.gesetze.map(g =>
+    const gesetze = s.gesetze.map(g =>
       g.id === route.gesetzId ? { ...g, status: 'beschlossen' as const } : g,
     );
     s = { ...s, gesetze, eu: { ...s.eu!, klima, klimaSperre, umsetzungsfristen, aktiveRoute: null } };

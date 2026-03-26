@@ -477,7 +477,7 @@ export function validateGameState(raw: unknown): GameState {
     'opposition', 'medienoffensiveGenutzt',
     'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate', 'lowApprovalMonths',
     'activeEventPool', 'unlockedLaws', 'pendingFollowups', 'lastRandomEventMonth',
-    'medienAkteure', 'medienAktionenGenutzt',
+    'medienAkteure', 'medienAktionenGenutzt', 'medienAkteurBuffs',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);

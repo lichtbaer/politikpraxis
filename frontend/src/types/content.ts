@@ -179,6 +179,16 @@ export interface BundesratTradeoffApi {
   desc: string;
 }
 
+/** SMA-392: GET /api/content/medien-akteure */
+export interface MedienAkteurApi {
+  id: string;
+  name_de: string;
+  typ: string;
+  reichweite: number;
+  stimmung_start: number;
+  min_complexity: number;
+}
+
 export interface BundesratFraktionApi {
   id: string;
   laender: string[];

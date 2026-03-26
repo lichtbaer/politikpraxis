@@ -318,7 +318,7 @@ export function checkHaushaltskrise(
   const ev = content.charEvents?.['haushaltskrise'];
   if (!ev) return state;
 
-  let s = applyMedienHaushaltKrise(state, complexity, content);
+  const s = applyMedienHaushaltKrise(state, complexity, content);
   return {
     ...s,
     firedEvents: [...s.firedEvents, 'haushaltskrise'],

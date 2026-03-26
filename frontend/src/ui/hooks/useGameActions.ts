@@ -10,6 +10,7 @@ export function useGameActions() {
     gegenfinanzierungAuswaehlen: store.doGegenfinanzierungAuswaehlen,
     gegenfinanzierungAbbrechen: store.doGegenfinanzierungAbbrechen,
     doPressemitteilung: store.doPressemitteilung,
+    doMedienAktion: store.doMedienAktion,
     doSetWahlkampfBotschaften: store.doSetWahlkampfBotschaften,
     doWahlkampfRede: store.doWahlkampfRede,
     doWahlkampfKoalition: store.doWahlkampfKoalition,
