@@ -94,6 +94,12 @@ class EventChoiceResponse(BaseModel):
     label: str
     desc: str
     log_msg: str
+    koalitionspartner_beziehung_delta: int | None = None
+    medienklima_delta: int | None = None
+    milieu_delta: dict[str, int] | None = None
+    schuldenbremse_spielraum_delta: int | None = None
+    steuerpolitik_modifikator_delta: float | None = None
+    konjunktur_index_delta: float | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -102,6 +108,9 @@ class EventResponse(BaseModel):
     id: str
     event_type: str
     trigger_type: str | None
+    trigger_typ: str | None = None
+    trigger_params: dict[str, Any] | None = None
+    einmalig: bool | None = True
     min_complexity: int | None
     type_label: str
     title: str

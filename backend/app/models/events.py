@@ -3,7 +3,7 @@
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import ForeignKey, Integer, Numeric, Text
+from sqlalchemy import Boolean, ForeignKey, Integer, Numeric, Text, text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -36,6 +36,11 @@ class Event(Base):
     trigger_milieu_op: Mapped[str | None] = mapped_column(Text(), nullable=True)
     trigger_milieu_val: Mapped[int | None] = mapped_column(Integer(), nullable=True)
     gesetz_ref: Mapped[list[str] | None] = mapped_column(ARRAY(Text()), nullable=True)
+    trigger_typ: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    trigger_params: Mapped[dict[str, Any] | None] = mapped_column(JSONB(), nullable=True)
+    einmalig: Mapped[bool] = mapped_column(
+        Boolean(), nullable=False, server_default=text("true")
+    )
 
 
 class EventI18n(Base):
@@ -91,6 +96,16 @@ class EventChoice(Base):
     medienklima_delta: Mapped[int | None] = mapped_column(Integer(), nullable=True)
     verfahren_dauer_monate: Mapped[int | None] = mapped_column(Integer(), nullable=True)
     bundesrat_bonus: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    milieu_delta: Mapped[dict[str, Any] | None] = mapped_column(JSONB(), nullable=True)
+    schuldenbremse_spielraum_delta: Mapped[int | None] = mapped_column(
+        Integer(), nullable=True
+    )
+    steuerpolitik_modifikator_delta: Mapped[Decimal | None] = mapped_column(
+        Numeric(6, 4), nullable=True
+    )
+    konjunktur_index_delta: Mapped[Decimal | None] = mapped_column(
+        Numeric(5, 2), nullable=True
+    )
 
 
 class EventChoiceI18n(Base):
