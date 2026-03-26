@@ -2,11 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { featureActive } from '../../../core/systems/features';
-import {
-  activeMedienAkteurIds,
-  kannMedienAktionNutzen,
-  medienAktionCooldownVerbleibend,
-} from '../../../core/systems/medienklima';
+import { activeMedienAkteurIds, medienAktionCooldownVerbleibend } from '../../../core/systems/medienklima';
 import { DEFAULT_MEDIEN_AKTEURE } from '../../../data/defaults/medienAkteure';
 import type { MedienSpielerAktionKey } from '../../../core/systems/medienklima';
 import styles from './MedienAktionen.module.css';
@@ -40,7 +36,7 @@ export function MedienAktionen() {
       titleKey: 'media.aktionen.talkshow.title',
       pkCost: 10,
       effektKey: 'media.aktionen.talkshow.effekt',
-      verfuegbar: active.has('oeffentlich') && pk >= 10 && kannMedienAktionNutzen(state, 'oeffentlich_talkshow'),
+      verfuegbar: active.has('oeffentlich') && pk >= 10,
     },
     {
       key: 'boulevard_interview',
@@ -49,7 +45,7 @@ export function MedienAktionen() {
       pkCost: 15,
       effektKey: 'media.aktionen.boulevard.effekt',
       warnKey: 'media.aktionen.boulevard.warnung',
-      verfuegbar: active.has('boulevard') && pk >= 15 && kannMedienAktionNutzen(state, 'boulevard_interview'),
+      verfuegbar: active.has('boulevard') && pk >= 15,
     },
     {
       key: 'social_kampagne',
@@ -58,7 +54,7 @@ export function MedienAktionen() {
       pkCost: 20,
       effektKey: 'media.aktionen.social.effekt',
       riskKey: 'media.aktionen.social.risiko',
-      verfuegbar: active.has('social') && pk >= 20 && kannMedienAktionNutzen(state, 'social_kampagne'),
+      verfuegbar: active.has('social') && pk >= 20,
     },
     {
       key: 'qualitaet_gespraech',
@@ -67,11 +63,7 @@ export function MedienAktionen() {
       pkCost: 15,
       effektKey: 'media.aktionen.qualitaet.effekt',
       bedingungKey: 'media.aktionen.qualitaet.bedingung',
-      verfuegbar:
-        active.has('qualitaet') &&
-        saldo > -25 &&
-        pk >= 15 &&
-        kannMedienAktionNutzen(state, 'qualitaet_gespraech'),
+      verfuegbar: active.has('qualitaet') && saldo > -25 && pk >= 15,
     },
   ];
 
