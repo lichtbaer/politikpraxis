@@ -34,9 +34,11 @@ const STAEDTE_STUFE3: Record<string, { name: string; stadttyp: 'progressiv' | 'k
 interface VorbereitungModalProps {
   law: Law;
   onClose: () => void;
+  /** Wenn gesetzt, nur diese Sektion anzeigen (z.B. auf Ebene-Seiten). */
+  filter?: 'kommunal' | 'laender' | 'eu';
 }
 
-export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
+export function VorbereitungModal({ law, onClose, filter }: VorbereitungModalProps) {
   const { t } = useTranslation('game');
   const { state, content, complexity } = useGameStore();
   const actions = useGameActions();
@@ -100,7 +102,7 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
         </header>
 
         <div className={styles.body}>
-          {hasKommunal && (
+          {hasKommunal && (!filter || filter === 'kommunal') && (
             <section className={styles.section}>
               <h3>{t('vorbereitungModal.kommunalPilot')}</h3>
               <p className={styles.meta}>
@@ -150,7 +152,7 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
             </section>
           )}
 
-          {hasLaender && (
+          {hasLaender && (!filter || filter === 'laender') && (
             <section className={styles.section}>
               <h3>{t('vorbereitungModal.laenderPilot')}</h3>
               <p className={styles.meta}>
@@ -182,7 +184,7 @@ export function VorbereitungModal({ law, onClose }: VorbereitungModalProps) {
             </section>
           )}
 
-          {hasEU && (
+          {hasEU && (!filter || filter === 'eu') && (
             <section className={styles.section}>
               <h3>{t('vorbereitungModal.euInitiative')}</h3>
               <p className={styles.meta}>
