@@ -598,7 +598,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (law?.status === 'beschlossen') {
           toast('Bundestag überstimmt BR-Einspruch (Art. 77 GG)', 'success');
         } else {
-          toast('Absolute Mehrheit im Bundestag nicht erreicht', 'error');
+          toast('Absolute Mehrheit im Bundestag nicht erreicht', 'danger');
         }
       }
       return next !== prev.state ? { state: next } : {};

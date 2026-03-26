@@ -1,6 +1,6 @@
 /** Law-related types. */
 
-import type { Ideologie, KpiDelta } from './common';
+import type { Ideologie } from './common';
 
 export interface LawEffects {
   hh?: number;
