@@ -43,6 +43,8 @@ import { tickMedienKlima } from './systems/medienklima';
 import { tickVermittlungsausschuss } from './systems/vermittlung';
 import { featureActive } from './systems/features';
 import { tickExtremismusDruck } from './ideologie';
+import { checkSachverstaendigenrat } from './systems/sachverstaendigenrat';
+import { tickNormenkontrolle } from './systems/verfassungsgericht';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
 
 export { addLog } from './log';
@@ -215,6 +217,9 @@ export function tick(
   s = safeSystem((st) => checkMinisterialInitiativen(st, content.ministerialInitiativen ?? [], complexity), 'checkMinisterialInitiativen');
   // 9b. SMA-330: Minister-Agenden (kontinuierliche Forderungen)
   s = safeSystem((st) => checkMinisterAgenden(st, complexity), 'checkMinisterAgenden');
+  // 9c. Sachverständigenrat (SVR-Jahresgutachten alle 12 Monate, Stufe 2+)
+  s = safeSystem((st) => checkSachverstaendigenrat(st, content, complexity), 'checkSachverstaendigenrat');
+
   // 10. EU
   s = safeSystem((st) => tickEUKlima(st, content.verbaende ?? [], complexity), 'tickEUKlima');
   s = safeSystem((st) => checkEUEreignisse(st, content, complexity), 'checkEUEreignisse');
@@ -230,7 +235,10 @@ export function tick(
       landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
     }), 'checkBundesratEvents');
   }
-  // 12b. Medienklima (SMA-277): Drift, Opposition, Skandale, positive Events
+  // 12b. Normenkontrolle: BVerfG-Verfahren abschließen (Stufe 3+)
+  s = safeSystem((st) => tickNormenkontrolle(st, complexity), 'tickNormenkontrolle');
+
+  // 12c. Medienklima (SMA-277): Drift, Opposition, Skandale, positive Events
   s = safeSystem((st) => tickMedienKlima(st, content, complexity), 'tickMedienKlima');
 
   // 13. Events

@@ -3,7 +3,7 @@ import i18n from '../i18n';
 import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName, SpielerParteiState } from '../core/types';
 import { createInitialState } from '../core/state';
 import { tick, addLog } from '../core/engine';
-import { einbringen, lobbying, abstimmen, type EinbringenContext, type GesetzBeschlussContext } from '../core/systems/parliament';
+import { einbringen, lobbying, abstimmen, fraktionssitzung, type EinbringenContext, type GesetzBeschlussContext } from '../core/systems/parliament';
 import {
   brauchtGegenfinanzierung,
   berechneOptionen,
@@ -112,6 +112,8 @@ interface GameStore {
   doGegenfinanzierungAbbrechen: () => void;
   doLobbying: (lawId: string) => void;
   doAbstimmen: (lawId: string) => void;
+  /** Fraktionsdisziplin: Fraktionssitzung einberufen (Abweichler-Risiko halbieren) */
+  doFraktionssitzung: (gesetzId: string) => void;
   doStartRoute: (lawId: string, route: RouteType) => void;
   doStartEURoute: (lawId: string, option: 'direkt' | 'verband' | 'bilateral') => void;
   doEULobbyingRunde: (gesetzId: string) => void;
@@ -357,6 +359,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (newLaw && oldLaw) {
       const gain = newLaw.ja - oldLaw.ja;
       if (gain > 0) toast(`Lobbying: Zustimmung +${gain}%`, 'info');
+    }
+    return { state: nextState };
+  }),
+  doFraktionssitzung: (gesetzId) => set(prev => {
+    const nextState = fraktionssitzung(prev.state, gesetzId);
+    if (nextState.pk < prev.state.pk) {
+      toast('Fraktionssitzung einberufen — Abweichler-Risiko halbiert', 'info');
     }
     return { state: nextState };
   }),

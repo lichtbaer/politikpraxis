@@ -8,6 +8,7 @@ import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from './ministerAgenden';
 import { startKommunalPilot } from './gesetzLebenszyklus';
 import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell } from './wahlkampf';
+import { setNormenkontrollReaktion } from './verfassungsgericht';
 import { applyMedienChoiceDelta } from './medienklima';
 import { featureActive } from './features';
 import {
@@ -558,6 +559,21 @@ export function resolveEvent(
         ? { ...s, verfassungsgerichtPausiert: true, verfassungsgerichtVerfahrenBisMonat: undefined }
         : { ...s, verfassungsgerichtVerfahrenBisMonat: s.month + choice.verfahrenDauerMonate, verfassungsgerichtPausiert: false };
     }
+    return finalizeEvent(s, event, choice, choice.log);
+  }
+
+  // Normenkontrolle: Spieler-Reaktion auf BVerfG-Klage speichern
+  if (event.id.startsWith('normenkontrolle_') && event.lawId) {
+    if (!canAfford(state, choice)) return state;
+    const reaktionMap: Record<string, 'nachbesserung' | 'akzeptieren' | 'kritisieren'> = {
+      svr_reform: 'nachbesserung', // fallback
+      normenkontrolle_nachbesserung: 'nachbesserung',
+      normenkontrolle_akzeptieren: 'akzeptieren',
+      normenkontrolle_kritisieren: 'kritisieren',
+    };
+    const reaktion = reaktionMap[choice.key ?? ''] ?? 'akzeptieren';
+    let s = applyMedienChoiceDelta(deductPk(state, choice), choice);
+    s = setNormenkontrollReaktion(s, event.lawId, reaktion);
     return finalizeEvent(s, event, choice, choice.log);
   }
 
