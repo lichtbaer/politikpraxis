@@ -4,6 +4,7 @@ import type {
   LawLobbyFraktion,
   LobbyTradeoffOptions,
   KpiDelta,
+  ContentBundle,
 } from '../types';
 import { withPause } from '../eventPause';
 import { PK_REPARATUR, BEREITSCHAFT_TRADEOFF_BONUS, EINSPRUCH_UEBERSTIMMUNG_PK, EINSPRUCH_UEBERSTIMMUNG_SCHWELLE } from '../constants';
@@ -15,6 +16,7 @@ import { applyMilieuEffekte } from './milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { applyGesetzKosten } from './haushalt';
 import { checkProaktiveErfuellung } from './ministerAgenden';
+import { applyGesetzMedienAkteureNachBeschluss } from './medienklima';
 
 const PK_SCHICHT_1 = 15;
 const PK_SCHICHT_1_REDUZIERT = 10; // bei Beziehung 60-79
@@ -427,6 +429,8 @@ export interface BundesratVoteContext {
   complexity: number;
   /** SMA-312: Gesetz-Relationen für Synergie-Berechnung */
   gesetzRelationen?: Record<string, import('../types').GesetzRelation[]>;
+  /** SMA-390 */
+  content?: ContentBundle;
 }
 
 /** Prüft ob ein Gesetz ein Einspruchsgesetz ist (Art. 77 Abs. 3/4 GG).
@@ -470,6 +474,14 @@ export function executeBundesratVote(
     }
     // SMA-330: Proaktive Erfüllung bei Beschluss
     newState = checkProaktiveErfuellung(newState, lawId);
+    if (voteContext?.content) {
+      newState = applyGesetzMedienAkteureNachBeschluss(
+        newState,
+        law,
+        voteContext.complexity,
+        voteContext.content,
+      );
+    }
 
     return addLog(newState, `${law.kurz} im Bundesrat beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
   } else {
@@ -543,6 +555,14 @@ export function ueberstimmeBReinspruch(
     newState = setPolitikfeldBeschluss(newState, law.politikfeldId);
   }
   newState = checkProaktiveErfuellung(newState, lawId);
+  if (voteContext?.content) {
+    newState = applyGesetzMedienAkteureNachBeschluss(
+      newState,
+      law,
+      voteContext.complexity,
+      voteContext.content,
+    );
+  }
 
   return addLog(newState, `${law.kurz}: Bundestag überstimmt BR-Einspruch (Art. 77 GG) — Wirkung in ${law.lag} Monaten`, 'g');
 }

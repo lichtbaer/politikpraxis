@@ -1,4 +1,4 @@
-import type { GameState, Ideologie, Law } from '../types';
+import type { GameState, Ideologie, Law, ContentBundle } from '../types';
 import type { GesetzRelation } from '../types';
 import { withPause } from '../eventPause';
 import { scheduleEffects } from './economy';
@@ -12,7 +12,12 @@ import { checkProaktiveErfuellung } from './ministerAgenden';
 import { getVorstufenBoni } from './gesetzLebenszyklus';
 import { featureActive } from './features';
 import { applyEUKofinanzierung } from './eu';
-import { applyFraming, getMedienPkZusatzkosten } from './medienklima';
+import {
+  applyFraming,
+  getMedienPkZusatzkosten,
+  adjustMedienKlimaGlobal,
+  applyGesetzMedienAkteureNachBeschluss,
+} from './medienklima';
 import { berechneKongruenz } from '../ideologie';
 import { getGesetzIdeologie } from './koalition';
 import { kannGesetzEingebracht } from '../gesetz';
@@ -98,6 +103,8 @@ export interface EinbringenContext {
   framingKey?: string | null;
   /** SMA-312: Gesetz-Relationen für requires/excludes-Prüfung */
   gesetzRelationen?: Record<string, GesetzRelation[]>;
+  /** SMA-390: für Medienakteur-Verteilung bei Framing */
+  content?: ContentBundle;
 }
 
 export interface GesetzBeschlussContext {
@@ -105,6 +112,8 @@ export interface GesetzBeschlussContext {
   complexity: number;
   /** SMA-312: Gesetz-Relationen für Synergie-Berechnung */
   gesetzRelationen?: Record<string, GesetzRelation[]>;
+  /** SMA-390: Medienakteure bei Beschluss */
+  content?: ContentBundle;
 }
 
 export type EinbringenOptions = EinbringenContext | { pkRabatt?: number };
@@ -114,11 +123,15 @@ function isEinbringenContext(opts: EinbringenOptions | undefined): opts is Einbr
 }
 
 /** SMA-344: Medienklima-Malus + Log wenn Gesetz NF-Positionen sehr nahekommt */
-function applyNfBundestagMedienNachBeschluss(state: GameState, law: Law): GameState {
+function applyNfBundestagMedienNachBeschluss(
+  state: GameState,
+  law: Law,
+  complexity: number,
+  content?: ContentBundle,
+): GameState {
   const delta = getNfBundestagMedienDelta(law);
   if (delta >= 0) return state;
-  const mk = Math.max(0, Math.min(100, (state.medienKlima ?? 55) + delta));
-  const s = { ...state, medienKlima: mk };
+  const s = adjustMedienKlimaGlobal(state, delta, complexity, content);
   return addLog(s, 'game:bundestag.logNfMedienkritik', 'r');
 }
 
@@ -220,7 +233,7 @@ export function einbringen(
   }
 
   if (isEinbringenContext(options) && options.framingKey) {
-    newState = applyFraming(newState, lawId, options.framingKey, options.complexity);
+    newState = applyFraming(newState, lawId, options.framingKey, options.complexity, options.content);
   }
 
   // SMA-330: Proaktive Erfüllung — Gesetz passt zu Minister-Agenda
@@ -288,6 +301,7 @@ export function abstimmen(
 
   if (effectiveJa > 50) {
     const complexity = beschlussContext?.complexity ?? 4;
+    const bundle = beschlussContext?.content;
     const bundesratAktiv = featureActive(complexity, 'bundesrat_sichtbar');
     const needsBundesrat = law.tags.includes('land') && bundesratAktiv;
 
@@ -315,7 +329,10 @@ export function abstimmen(
       }
       // SMA-330: Proaktive Erfüllung bei Beschluss
       newState = checkProaktiveErfuellung(newState, lawId);
-      newState = applyNfBundestagMedienNachBeschluss(newState, law);
+      newState = applyNfBundestagMedienNachBeschluss(newState, law, complexity, bundle);
+      if (bundle) {
+        newState = applyGesetzMedienAkteureNachBeschluss(newState, law, complexity, bundle);
+      }
 
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
     }
@@ -326,7 +343,7 @@ export function abstimmen(
         : g,
     );
     let brState: GameState = { ...state, gesetze };
-    brState = applyNfBundestagMedienNachBeschluss(brState, law);
+    brState = applyNfBundestagMedienNachBeschluss(brState, law, complexity, bundle);
     return addLog(
       brState,
       `${law.kurz} durch Bundestag — Bundesratsabstimmung in 3 Monaten. Lobbying möglich.`,
@@ -376,6 +393,7 @@ export function resolveEingebrachteAbstimmung(
   const nfBtMod = getNfBundestagBtModifikator(law);
 
   const complexity = beschlussContext?.complexity ?? 4;
+  const bundle = beschlussContext?.content;
 
   // Fraktionsdisziplin: Abweichler-Risiko (Art. 38 GG)
   let abweichlerMalus = 0;
@@ -446,12 +464,15 @@ export function resolveEingebrachteAbstimmung(
       }
       // SMA-330: Proaktive Erfüllung bei Beschluss
       newState = checkProaktiveErfuellung(newState, eg.gesetzId);
-      newState = applyNfBundestagMedienNachBeschluss(newState, law);
+      newState = applyNfBundestagMedienNachBeschluss(newState, law, complexity, bundle);
+      if (bundle) {
+        newState = applyGesetzMedienAkteureNachBeschluss(newState, law, complexity, bundle);
+      }
       // Normenkontrolle: BVerfG-Klage prüfen (Art. 93 GG)
       newState = checkNormenkontrollKlage(newState, law, complexity);
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
     }
-    newState = applyNfBundestagMedienNachBeschluss(newState, law);
+    newState = applyNfBundestagMedienNachBeschluss(newState, law, complexity, bundle);
     return addLog(
       newState,
       `${law.kurz} durch Bundestag — Bundesratsabstimmung in 3 Monaten. Lobbying möglich.`,

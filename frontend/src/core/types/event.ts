@@ -1,6 +1,6 @@
 /** Event-related types. */
 
-export type EventType = 'danger' | 'warn' | 'good' | 'info';
+export type EventType = 'danger' | 'warn' | 'good' | 'info' | 'crisis';
 
 export interface EventChoiceEffect {
   hh?: number;

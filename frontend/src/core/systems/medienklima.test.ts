@@ -4,6 +4,7 @@ import {
   applyFraming,
   getMedienPkZusatzkosten,
   tickMedienKlima,
+  berechneMedianklima,
 } from './medienklima';
 import type { GameState, Law } from '../types';
 
@@ -87,6 +88,29 @@ describe('getMedienMultiplikator (linear: 0→0.7, 50→1.0, 100→1.3)', () => 
   });
 });
 
+describe('berechneMedianklima (SMA-390)', () => {
+  it('gewichteter Index aus Akteuren', () => {
+    const G = {
+      medienKlima: 50,
+      medienAkteure: {
+        a: { stimmung: 10, reichweite: 50 },
+        b: { stimmung: -10, reichweite: 50 },
+      },
+    } as unknown as GameState;
+    expect(berechneMedianklima(G)).toBe(50);
+  });
+
+  it('Alternativ >10% Reichweite: Malus −5', () => {
+    const G = {
+      medienKlima: 50,
+      medienAkteure: {
+        alternativ: { stimmung: 0, reichweite: 12 },
+      },
+    } as unknown as GameState;
+    expect(berechneMedianklima(G)).toBe(45);
+  });
+});
+
 describe('getMedienPkZusatzkosten', () => {
   it('medienKlima >= 20 → 0', () => {
     expect(getMedienPkZusatzkosten(20)).toBe(0);
@@ -99,6 +123,12 @@ describe('getMedienPkZusatzkosten', () => {
   });
 });
 
+const singleAkteurContent = {
+  medienAkteureContent: [
+    { id: 'oeffentlich', name_de: 'Test', typ: 'oeffentlich' as const, reichweite: 100, stimmung_start: 10, min_complexity: 2 },
+  ],
+} as import('../types').ContentBundle;
+
 describe('applyFraming', () => {
   beforeEach(() => {
     vi.unstubAllGlobals();
@@ -106,7 +136,7 @@ describe('applyFraming', () => {
 
   it('wendet Framing-Effekte an (milieu, verband, medienklima)', () => {
     const state = createMockState();
-    const result = applyFraming(state, 'ee', 'klimaschutz', 2);
+    const result = applyFraming(state, 'ee', 'klimaschutz', 2, singleAkteurContent);
 
     expect(result.milieuZustimmung?.['postmaterielle']).toBe(55);
     expect(result.milieuZustimmung?.['soziale_mitte']).toBe(52);
@@ -116,13 +146,13 @@ describe('applyFraming', () => {
 
   it('ignoriert bei unbekanntem framingKey', () => {
     const state = createMockState();
-    const result = applyFraming(state, 'ee', 'unbekannt', 2);
+    const result = applyFraming(state, 'ee', 'unbekannt', 2, singleAkteurContent);
     expect(result).toBe(state);
   });
 
   it('ignoriert bei fehlendem Gesetz', () => {
     const state = createMockState();
-    const result = applyFraming(state, 'nicht_vorhanden', 'klimaschutz', 2);
+    const result = applyFraming(state, 'nicht_vorhanden', 'klimaschutz', 2, singleAkteurContent);
     expect(result).toBe(state);
   });
 
@@ -152,7 +182,7 @@ describe('applyFraming', () => {
       gesetze: [gesetzMitExtrem],
       medienKlima: 95,
     });
-    const result = applyFraming(state, 'ee', 'extreme', 2);
+    const result = applyFraming(state, 'ee', 'extreme', 2, singleAkteurContent);
     expect(result.milieuZustimmung?.['postmaterielle']).toBe(100);
     expect(result.medienKlima).toBe(100);
   });
@@ -169,21 +199,22 @@ describe('tickMedienKlima Drift', () => {
     scenario: { id: 's', name: 's', startMonth: 1, startPK: 100, startKPI: { al: 5, hh: 0, gi: 50, zf: 50 }, startCoalition: 70 },
   } as import('../types').ContentBundle;
 
+  /** Stufe 1: globale Drift (ohne plural Akteure) */
   it('Drift Richtung 50: medienKlima > 50 sinkt um 1', () => {
-    const state = createMockState({ medienKlima: 60 });
-    const result = tickMedienKlima(state, minimalContent, 2);
+    const state = createMockState({ medienKlima: 60, complexity: 1 });
+    const result = tickMedienKlima(state, minimalContent, 1);
     expect(result.medienKlima).toBe(59);
   });
 
   it('Drift Richtung 50: medienKlima < 50 steigt um 1', () => {
-    const state = createMockState({ medienKlima: 40 });
-    const result = tickMedienKlima(state, minimalContent, 2);
+    const state = createMockState({ medienKlima: 40, complexity: 1 });
+    const result = tickMedienKlima(state, minimalContent, 1);
     expect(result.medienKlima).toBe(41);
   });
 
   it('Drift bei 50: bleibt 50', () => {
-    const state = createMockState({ medienKlima: 50 });
-    const result = tickMedienKlima(state, minimalContent, 2);
+    const state = createMockState({ medienKlima: 50, complexity: 1 });
+    const result = tickMedienKlima(state, minimalContent, 1);
     expect(result.medienKlima).toBe(50);
   });
 });

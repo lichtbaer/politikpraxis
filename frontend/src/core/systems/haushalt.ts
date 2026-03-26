@@ -7,6 +7,7 @@ import {
 } from '../constants';
 import { featureActive } from './features';
 import { withPause, getAutoPauseLevel } from '../eventPause';
+import { applyMedienHaushaltKrise } from './medienklima';
 
 /** Erstellt initiales Haushalt-Objekt */
 export function createInitialHaushalt(state: GameState): Haushalt {
@@ -305,7 +306,7 @@ export function checkLehmannDefizitStart(
 /** SMA-310: Haushaltskrise-Event bei Saldo < -30 (erzwungen) */
 export function checkHaushaltskrise(
   state: GameState,
-  content: { charEvents?: Record<string, import('../types').GameEvent> },
+  content: ContentBundle,
   complexity: number,
 ): GameState {
   if (state.activeEvent) return state;
@@ -317,11 +318,12 @@ export function checkHaushaltskrise(
   const ev = content.charEvents?.['haushaltskrise'];
   if (!ev) return state;
 
+  let s = applyMedienHaushaltKrise(state, complexity, content);
   return {
-    ...state,
-    firedEvents: [...state.firedEvents, 'haushaltskrise'],
+    ...s,
+    firedEvents: [...s.firedEvents, 'haushaltskrise'],
     activeEvent: ev,
-    ...withPause(state, getAutoPauseLevel(ev)),
+    ...withPause(s, getAutoPauseLevel(ev)),
   };
 }
 

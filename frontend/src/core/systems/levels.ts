@@ -1,6 +1,7 @@
-import type { GameState, RouteType } from '../types';
+import type { GameState, RouteType, ContentBundle } from '../types';
 import { addLog } from '../engine';
 import { scheduleEffects } from './economy';
+import { applyGesetzMedienAkteureNachBeschluss } from './medienklima';
 
 const ROUTE_COSTS: Record<RouteType, number> = { eu: 28, land: 18, kommune: 10 };
 const ROUTE_DURATIONS: Record<RouteType, number> = { eu: 8, land: 5, kommune: 4 };
@@ -54,7 +55,11 @@ export interface AdvanceRoutesResult {
   completedVorstufe?: { lawId: string; route: 'kommune' | 'land' };
 }
 
-export function advanceRoutes(state: GameState): AdvanceRoutesResult {
+export function advanceRoutes(
+  state: GameState,
+  content?: ContentBundle,
+  complexity?: number,
+): AdvanceRoutesResult {
   const gesetze = state.gesetze.map(g => {
     if (g.route && g.status === 'ausweich') {
       if (g.route === 'eu' && state.eu?.aktiveRoute?.gesetzId === g.id) {
@@ -78,6 +83,10 @@ export function advanceRoutes(state: GameState): AdvanceRoutesResult {
       if (orig && orig.status === 'ausweich') {
         const lawForEffects = { effekte: g.effekte as Record<string, number>, lag: g.lag, kurz: g.kurz };
         newState = scheduleEffects(newState, lawForEffects);
+        const cx = complexity ?? newState.complexity ?? 4;
+        if (content) {
+          newState = applyGesetzMedienAkteureNachBeschluss(newState, g, cx, content);
+        }
         newState = addLog(newState, `${g.kurz} via ${routeLabel(g.route)} beschlossen`, 'g');
         completedVorstufe = { lawId: g.id, route: g.route };
       }

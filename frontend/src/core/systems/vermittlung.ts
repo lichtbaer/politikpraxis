@@ -5,7 +5,7 @@
  * Vermittlungsausschuss einberufen. Ergebnis: abgeschwächtes Gesetz
  * (50% Effekte) mit 2 Monaten Verzögerung und 20 PK Kosten.
  */
-import type { GameState, LawEffects } from '../types';
+import type { GameState, LawEffects, ContentBundle } from '../types';
 import { addLog } from '../engine';
 import { verbrauchePK } from '../pk';
 import { scheduleEffects } from './economy';
@@ -14,6 +14,7 @@ import { applyMilieuEffekte } from './milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { checkProaktiveErfuellung } from './ministerAgenden';
 import { featureActive } from './features';
+import { applyGesetzMedienAkteureNachBeschluss } from './medienklima';
 
 const PK_VERMITTLUNG = 20;
 const VERMITTLUNG_DELAY_MONATE = 2;
@@ -81,6 +82,7 @@ export function tickVermittlungsausschuss(
     milieus?: { id: string; ideologie: { wirtschaft: number; gesellschaft: number; staat: number }; min_complexity: number }[];
     complexity?: number;
     gesetzRelationen?: Record<string, import('../types').GesetzRelation[]>;
+    content?: ContentBundle;
   },
 ): GameState {
   const aktiv = state.vermittlungAktiv;
@@ -124,6 +126,10 @@ export function tickVermittlungsausschuss(
       s = setPolitikfeldBeschluss(s, law.politikfeldId);
     }
     s = checkProaktiveErfuellung(s, lawId);
+    if (context?.content != null && context.complexity != null) {
+      const lawNow = s.gesetze[lawIdx];
+      s = applyGesetzMedienAkteureNachBeschluss(s, lawNow, context.complexity, context.content);
+    }
 
     s = addLog(
       s,

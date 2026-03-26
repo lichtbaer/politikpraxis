@@ -153,14 +153,17 @@ export function AgendaCardProgress({ law, state, complexity, projekt, boni, acti
       })()}
 
       {/* Kopplungs-Hinweis */}
-      {state.gekoppelteGesetze?.[law.id]?.length > 0 && (
+      {(() => {
+        const gekoppelt = state.gekoppelteGesetze?.[law.id];
+        return gekoppelt && gekoppelt.length > 0 ? (
         <span className={styles.kopplungsHinweis}>
           🔗 {t('game:gesetz.wartetAuf', {
-            gesetz: state.gekoppelteGesetze[law.id].map((id) => getGesetzTitel(id)).join(', '),
-            defaultValue: `Wartet auf: ${state.gekoppelteGesetze[law.id].map((id) => getGesetzTitel(id)).join(', ')}`,
+            gesetz: gekoppelt.map((id) => getGesetzTitel(id)).join(', '),
+            defaultValue: `Wartet auf: ${gekoppelt.map((id) => getGesetzTitel(id)).join(', ')}`,
           })}
         </span>
-      )}
+        ) : null;
+      })()}
     </>
   );
 }
