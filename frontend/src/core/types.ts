@@ -73,6 +73,8 @@ export interface EingebrachteGesetz {
   eingebrachtMonat: number;
   abstimmungMonat: number;
   lagMonths: number;
+  /** Fraktionssitzung abgehalten — Abweichler-Risiko halbiert */
+  fraktionssitzungGehalten?: boolean;
 }
 export type RouteType = 'eu' | 'land' | 'kommune';
 export type LawTag = 'bund' | 'eu' | 'land' | 'kommune' | 'kommunen';
@@ -761,6 +763,24 @@ export interface GameState {
   letzteRegierungserklaerungMonat?: number;
   /** Vertrauensfrage: bereits gestellt (1× pro Legislatur) */
   vertrauensfrageGestellt?: boolean;
+
+  /** Sachverständigenrat: Jahresgutachten-State (Monat 6/18/30/42) */
+  sachverstaendigenrat?: {
+    naechstesGutachtenMonat: number;
+    letztesErgebnis?: 'A' | 'B' | 'C' | 'D' | 'F';
+    letzterMonat?: number;
+  };
+
+  /** Fraktionsdisziplin: Monat der letzten Fraktionssitzung (Cooldown) */
+  letzteFraktionssitzungMonat?: number;
+
+  /** Normenkontrolle: Laufende Verfahren beim BVerfG */
+  normenkontrollVerfahren?: Array<{
+    gesetzId: string;
+    klagemonat: number;
+    urteilMonat: number;
+    spielerReaktion?: 'nachbesserung' | 'akzeptieren' | 'kritisieren';
+  }>;
 }
 
 /** Verband (Wirtschaftsverband, Lobby) — ab Stufe 3 */

@@ -17,6 +17,60 @@ import { berechneKongruenz } from '../ideologie';
 import { getGesetzIdeologie } from './koalition';
 import { kannGesetzEingebracht } from '../gesetz';
 import { getNfBundestagBtModifikator, getNfBundestagMedienDelta } from './bundestagNf';
+import { checkNormenkontrollKlage } from './verfassungsgericht';
+
+/**
+ * Berechnet das Abweichler-Risiko (0–30%) für ein Gesetz.
+ * Basiert auf ideologischer Distanz Gesetz ↔ Koalitionsprofil.
+ * Art. 38 GG: Freies Mandat — Abgeordnete können bei kontroversen Themen abweichen.
+ */
+export function berechneAbweichlerRisiko(
+  gesetz: Law,
+  spielerIdeologie: Ideologie,
+  partnerIdeologie: Ideologie | null,
+): number {
+  const gesetzIdeologie = getGesetzIdeologie(gesetz);
+  const kongruenz = berechneKongruenz(spielerIdeologie, gesetzIdeologie);
+
+  // Basis: (100 - Kongruenz) / 4 → 0-25%
+  let risiko = Math.max(0, (100 - kongruenz) / 4);
+
+  // Partner-Malus: +5% wenn Partner-Kongruenz < 40
+  if (partnerIdeologie) {
+    const partnerKongruenz = berechneKongruenz(partnerIdeologie, gesetzIdeologie);
+    if (partnerKongruenz < 40) risiko += 5;
+  }
+
+  return Math.min(30, Math.round(risiko));
+}
+
+/**
+ * Fraktionssitzung einberufen: Abweichler-Risiko halbiert für ein Gesetz.
+ * Kosten: 8 PK, Cooldown: 1 pro Monat.
+ */
+export function fraktionssitzung(state: GameState, gesetzId: string): GameState {
+  const PK_KOSTEN = 8;
+  if (state.pk < PK_KOSTEN) return state;
+  if (state.letzteFraktionssitzungMonat === state.month) return state;
+
+  const eg = (state.eingebrachteGesetze ?? []).find(e => e.gesetzId === gesetzId);
+  if (!eg) return state;
+  if (eg.fraktionssitzungGehalten) return state;
+
+  const eingebrachteGesetze = (state.eingebrachteGesetze ?? []).map(e =>
+    e.gesetzId === gesetzId ? { ...e, fraktionssitzungGehalten: true } : e,
+  );
+
+  const law = state.gesetze.find(g => g.id === gesetzId);
+  let s: GameState = {
+    ...state,
+    pk: state.pk - PK_KOSTEN,
+    eingebrachteGesetze,
+    letzteFraktionssitzungMonat: state.month,
+  };
+  s = addLog(s, `Fraktionssitzung zu ${law?.kurz ?? gesetzId}: Abweichler-Risiko halbiert`, 'b');
+  return s;
+}
 
 /** SMA-307: Berechnet effektive BT-Stimmen aus Koalitions-Kongruenz (dynamisch statt statisch). */
 export function berechneEffektiveBTStimmen(
@@ -320,9 +374,27 @@ export function resolveEingebrachteAbstimmung(
       : 0;
   const vorstufenBtBonus = state.gesetzProjekte?.[eg.gesetzId]?.boni?.btStimmenBonus ?? 0;
   const nfBtMod = getNfBundestagBtModifikator(law);
-  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod);
 
   const complexity = beschlussContext?.complexity ?? 4;
+
+  // Fraktionsdisziplin: Abweichler-Risiko (Art. 38 GG)
+  let abweichlerMalus = 0;
+  if (featureActive(complexity, 'fraktionsdisziplin')) {
+    const spielerIdeologie = state.koalitionsvertragProfil ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
+    const partnerIdeologie = state.koalitionspartner
+      ? (state.koalitionsvertragProfil ?? null)
+      : null;
+    let risiko = berechneAbweichlerRisiko(law, spielerIdeologie, partnerIdeologie);
+    // Fraktionssitzung halbiert das Risiko
+    const egEntry = (state.eingebrachteGesetze ?? []).find(e => e.gesetzId === eg.gesetzId);
+    if (egEntry?.fraktionssitzungGehalten) risiko = Math.round(risiko / 2);
+    // Würfelwurf gegen Risiko
+    if (risiko > 0 && Math.random() * 100 < risiko) {
+      abweichlerMalus = Math.floor(5 + Math.random() * 8); // -5 bis -12
+    }
+  }
+
+  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod - abweichlerMalus);
   const bundesratAktiv = featureActive(complexity, 'bundesrat_sichtbar');
   const needsBundesrat = law.tags.includes('land') && bundesratAktiv;
 
@@ -345,6 +417,11 @@ export function resolveEingebrachteAbstimmung(
     (e) => e.gesetzId !== eg.gesetzId,
   );
   let newState: GameState = { ...state, gesetze, eingebrachteGesetze };
+
+  // Abweichler-Log wenn Malus getriggert wurde
+  if (abweichlerMalus > 0) {
+    newState = addLog(newState, `Abweichler in der Fraktion: ${abweichlerMalus} Stimmen verloren bei ${law.kurz}`, 'r');
+  }
 
   if (effectiveJa > 50) {
     if (!needsBundesrat) {
@@ -370,6 +447,8 @@ export function resolveEingebrachteAbstimmung(
       // SMA-330: Proaktive Erfüllung bei Beschluss
       newState = checkProaktiveErfuellung(newState, eg.gesetzId);
       newState = applyNfBundestagMedienNachBeschluss(newState, law);
+      // Normenkontrolle: BVerfG-Klage prüfen (Art. 93 GG)
+      newState = checkNormenkontrollKlage(newState, law, complexity);
       return addLog(newState, `${law.kurz} beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
     }
     newState = applyNfBundestagMedienNachBeschluss(newState, law);

@@ -111,6 +111,12 @@ const FEATURES: Record<string, { minLevel: number }> = {
   extremismus_eskalation: { minLevel: 2 },
   /** SMA-344: Bundestag — Fraktionstabelle mit Sitzzahlen */
   bundestag_detail: { minLevel: 2 },
+  /** Sachverständigenrat: Jahresgutachten alle 12 Monate */
+  sachverstaendigenrat: { minLevel: 2 },
+  /** Fraktionsdisziplin: Abweichler-Risiko bei Bundestag-Abstimmungen */
+  fraktionsdisziplin: { minLevel: 2 },
+  /** Normenkontrolle: BVerfG kann Gesetze nach Beschluss prüfen */
+  normenkontrolle: { minLevel: 3 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {
