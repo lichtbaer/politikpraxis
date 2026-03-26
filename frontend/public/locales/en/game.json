@@ -881,7 +881,34 @@
     "desc": "Media climate, public opinion and voter milieus. Media climate affects how laws are perceived.",
     "arbeit": { "name": "Working-class milieu", "desc": "Union-aligned voters, focus on social justice." },
     "mitte": { "name": "Centre", "desc": "Bourgeois centre, economically oriented." },
-    "prog": { "name": "Progressive", "desc": "Urban, climate-conscious, diversity-oriented." }
+    "prog": { "name": "Progressive", "desc": "Urban, climate-conscious, diversity-oriented." },
+    "akteureTitle": "Media actors",
+    "akteureSub": "Sentiment and reach of key formats — the media index is derived from these.",
+    "aktionen": {
+      "title": "Targeted media work",
+      "sub": "Each action can be used once every 3 months (separate cooldown per action).",
+      "cooldown_one": "Cooldown: {{count}} month left",
+      "cooldown_other": "Cooldown: {{count}} months left",
+      "talkshow": {
+        "title": "Public broadcaster talk show",
+        "effekt": "Public media +5 sentiment, all milieus +1"
+      },
+      "boulevard": {
+        "title": "Tabloid interview",
+        "effekt": "Tabloid +10 sentiment for 2 months",
+        "warnung": "Quality press −3 sentiment"
+      },
+      "social": {
+        "title": "Social media campaign",
+        "effekt": "Social media +15 sentiment for 1 month",
+        "risiko": "15% backlash risk: −20 sentiment if it backfires"
+      },
+      "qualitaet": {
+        "title": "Quality press briefing",
+        "effekt": "Das Panorama +8, Established +3",
+        "bedingung": "Only with a stable budget (balance > −25 bn €)"
+      }
+    }
   },
   "kommunalEvents": {
     "kommunal_klima_initiative": {
