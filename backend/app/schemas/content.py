@@ -100,6 +100,7 @@ class EventChoiceResponse(BaseModel):
     schuldenbremse_spielraum_delta: int | None = None
     steuerpolitik_modifikator_delta: float | None = None
     konjunktur_index_delta: float | None = None
+    br_relation_json: dict[str, int] | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -128,6 +129,21 @@ class BundesratTradeoffResponse(BaseModel):
     char_mood: dict[str, int]
     label: str
     desc: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class BundeslandResponse(BaseModel):
+    id: str
+    name_de: str
+    partei: str | None = None
+    koalition: list[str]
+    bundesrat_fraktion: str
+    wirtschaft_typ: str
+    themen: list[str]
+    beziehung_start: int
+    stimmgewicht: int
+    min_complexity: int
 
     model_config = ConfigDict(from_attributes=True)
 
