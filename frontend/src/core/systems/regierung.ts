@@ -16,6 +16,7 @@ import type { GameState } from '../types';
 import { addLog } from '../engine';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
+import { adjustMedienKlimaGlobal } from './medienklima';
 import { applyMoodChange } from './characters';
 import { recalcApproval } from './economy';
 
@@ -69,21 +70,17 @@ export function regierungserklaerung(state: GameState, complexity: number): Game
   const newG = Math.max(15, Math.min(95, next.zust.g + zustDelta));
   const newZust = recalcApproval(next.kpi, { ...next.zust, g: newG });
 
-  return addLog(
-    {
-      ...next,
-      zust: { ...newZust, g: newG },
-      letzteRegierungserklaerungMonat: next.month,
-      // Medienklima-Boost bei Erfolg
-      medienKlima: medienKlima > 50
-        ? Math.min(100, medienKlima + 5)
-        : medienKlima <= 30
-          ? Math.max(0, medienKlima - 3)
-          : medienKlima,
-    },
-    logMsg,
-    logType,
-  );
+  let out: GameState = {
+    ...next,
+    zust: { ...newZust, g: newG },
+    letzteRegierungserklaerungMonat: next.month,
+  };
+  if (medienKlima > 50) {
+    out = adjustMedienKlimaGlobal(out, 5, complexity);
+  } else if (medienKlima <= 30) {
+    out = adjustMedienKlimaGlobal(out, -3, complexity);
+  }
+  return addLog(out, logMsg, logType);
 }
 
 // --- Vertrauensfrage ---

@@ -61,7 +61,7 @@ function applyAction(
     case 'koalitionsrunde':
       return koalitionsrunde(state, content, complexity);
     case 'pressemitteilung': {
-      const result = pressemitteilung(state, 'haushalt', complexity);
+      const result = pressemitteilung(state, 'haushalt', complexity, content);
       return result ?? state;
     }
     case 'fraktionssitzung':
@@ -96,18 +96,20 @@ function applyAction(
 }
 
 /** Löst ein aktives Event automatisch auf (wählt die günstigste Option) */
-function autoResolveEvent(state: GameState, complexity: number): GameState {
+function autoResolveEvent(state: GameState, complexity: number, content: ContentBundle): GameState {
   const event = state.activeEvent;
   if (!event || !event.choices || event.choices.length === 0) {
     return { ...state, activeEvent: null };
   }
+
+  const resolveOpts = { complexity, contentBundle: content };
 
   // Wähle die Option mit den niedrigsten PK-Kosten, die wir uns leisten können
   const affordableChoices = event.choices.filter(c => state.pk >= (c.cost ?? 0));
   if (affordableChoices.length === 0) {
     // Kann sich keine Option leisten — nimm die billigste
     const cheapest = [...event.choices].sort((a, b) => (a.cost ?? 0) - (b.cost ?? 0))[0];
-    return resolveEvent(state, event, cheapest, { complexity });
+    return resolveEvent(state, event, cheapest, resolveOpts);
   }
 
   // Bevorzuge 'safe' Optionen, dann 'primary', dann 'danger'
@@ -116,7 +118,7 @@ function autoResolveEvent(state: GameState, complexity: number): GameState {
     return (prio[a.type] ?? 1) - (prio[b.type] ?? 1);
   });
 
-  return resolveEvent(state, event, prioritized[0], { complexity });
+  return resolveEvent(state, event, prioritized[0], resolveOpts);
 }
 
 /** Führt eine einzelne 48-Monats-Simulation durch */
@@ -131,7 +133,7 @@ export function runSingleSim(
     for (let _month = 1; _month <= LEGISLATUR_MONATE; _month++) {
       // Wenn ein Event aktiv ist, zuerst auflösen
       if (state.activeEvent) {
-        state = autoResolveEvent(state, complexity);
+        state = autoResolveEvent(state, complexity, content);
       }
 
       // Strategie wählt Aktion
@@ -145,7 +147,7 @@ export function runSingleSim(
 
       // Nach Tick: Event auflösen falls eines getriggert wurde
       if (state.activeEvent) {
-        state = autoResolveEvent(state, complexity);
+        state = autoResolveEvent(state, complexity, content);
       }
 
       // Spielende prüfen

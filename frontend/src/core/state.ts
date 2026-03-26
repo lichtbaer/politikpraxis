@@ -15,6 +15,12 @@ import {
   type SpielerParteiId,
 } from '../data/defaults/parteien';
 import { selectEventPool } from './systems/eventPoolSelection';
+import {
+  berechneMedianklima,
+  initMedienAkteureFromContent,
+  kalibriereMedienAkteureZuIndex,
+} from './systems/medienklima';
+import { DEFAULT_MEDIEN_AKTEURE } from '../data/defaults/medienAkteure';
 import { bildeKabinett, waehleMinisterAusPool } from './kabinett';
 import { MINISTER_AGENDEN_CONFIG } from '../data/defaults/ministerAgenden';
 
@@ -279,11 +285,41 @@ export function createInitialState(
 
   const beziehungStart = partner?.beziehung_start ?? 50;
 
+  function withMedienAkteureIfNeeded(s: GameState): GameState {
+    if (!featureActive(complexity, 'medien_akteure_2')) return s;
+    let medienAkteure = initMedienAkteureFromContent(content, complexity);
+    medienAkteure = kalibriereMedienAkteureZuIndex(medienAkteure, content, complexity, s.medienKlima ?? 55);
+    const next = { ...s, medienAkteure };
+    return { ...next, medienKlima: berechneMedianklima(next) };
+  }
+
   if (featureActive(complexity, 'haushaltsdebatte')) {
     const withHaushalt = { ...base, haushalt: createInitialHaushalt(base) };
     if (hasKoalition && partner) {
-      return applyEUKlimaAndRatsvorsitz({
-        ...withHaushalt,
+      return withMedienAkteureIfNeeded(
+        applyEUKlimaAndRatsvorsitz({
+          ...withHaushalt,
+          koalitionspartner: {
+            id: partner.id,
+            beziehung: beziehungStart,
+            koalitionsvertragScore: 0,
+            schluesselthemenErfuellt: [],
+          },
+          koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
+          verbandsBeziehungen: { uvb: 50, bvd: 50, ...withHaushalt.verbandsBeziehungen },
+        }),
+      );
+    }
+    return withMedienAkteureIfNeeded(applyEUKlimaAndRatsvorsitz(withHaushalt));
+  }
+
+  if (hasKoalition && partner) {
+    const verbandsBeziehungen = { ...base.verbandsBeziehungen };
+    verbandsBeziehungen['uvb'] = 50;
+    verbandsBeziehungen['bvd'] = 50;
+    return withMedienAkteureIfNeeded(
+      applyEUKlimaAndRatsvorsitz({
+        ...base,
         koalitionspartner: {
           id: partner.id,
           beziehung: beziehungStart,
@@ -291,30 +327,12 @@ export function createInitialState(
           schluesselthemenErfuellt: [],
         },
         koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
-        verbandsBeziehungen: { uvb: 50, bvd: 50, ...withHaushalt.verbandsBeziehungen },
-      });
-    }
-    return applyEUKlimaAndRatsvorsitz(withHaushalt);
+        verbandsBeziehungen,
+      }),
+    );
   }
 
-  if (hasKoalition && partner) {
-    const verbandsBeziehungen = { ...base.verbandsBeziehungen };
-    verbandsBeziehungen['uvb'] = 50;
-    verbandsBeziehungen['bvd'] = 50;
-    return applyEUKlimaAndRatsvorsitz({
-      ...base,
-      koalitionspartner: {
-        id: partner.id,
-        beziehung: beziehungStart,
-        koalitionsvertragScore: 0,
-        schluesselthemenErfuellt: [],
-      },
-      koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
-      verbandsBeziehungen,
-    });
-  }
-
-  return applyEUKlimaAndRatsvorsitz(base);
+  return withMedienAkteureIfNeeded(applyEUKlimaAndRatsvorsitz(base));
 }
 
 /** Maximale Array-Längen für GameState (Schutz vor localStorage-Manipulation) */
@@ -459,6 +477,7 @@ export function validateGameState(raw: unknown): GameState {
     'opposition', 'medienoffensiveGenutzt',
     'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate', 'lowApprovalMonths',
     'activeEventPool', 'unlockedLaws', 'pendingFollowups', 'lastRandomEventMonth',
+    'medienAkteure', 'medienAktionenGenutzt',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
@@ -502,6 +521,14 @@ export function migrateGameState(state: GameState): GameState {
   }
   if (result.medienKlima == null) {
     result = { ...result, medienKlima: 55 };
+  }
+  // SMA-390: fehlende Akteure anlegen, Index an gespeichertes medienKlima anbinden
+  const cx = result.complexity ?? 4;
+  if (featureActive(cx, 'medien_akteure_2') && (!result.medienAkteure || Object.keys(result.medienAkteure).length === 0)) {
+    const bundle = { medienAkteureContent: DEFAULT_MEDIEN_AKTEURE } as ContentBundle;
+    let ma = initMedienAkteureFromContent(bundle, cx);
+    ma = kalibriereMedienAkteureZuIndex(ma, bundle, cx, result.medienKlima ?? 55);
+    result = { ...result, medienAkteure: ma, medienKlima: berechneMedianklima({ ...result, medienAkteure: ma }) };
   }
   if (!result.opposition) {
     result = { ...result, opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 } };

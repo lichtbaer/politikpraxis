@@ -3,11 +3,12 @@
  * Minister kehren mit ihren Forderungen zurück — 2 Ablehnungen führen zum Ultimatum, danach Koalitionskrise.
  */
 
-import type { GameState, Character, MinisterAgendaConfig, AgendaStatus } from '../types';
+import type { GameState, Character, MinisterAgendaConfig, AgendaStatus, ContentBundle } from '../types';
 import { addLog } from '../engine';
 import { withPause } from '../eventPause';
 import { MINISTER_AGENDEN_CONFIG } from '../../data/defaults/ministerAgenden';
 import { featureActive } from './features';
+import { adjustMedienKlimaGlobal } from './medienklima';
 
 /** Agenda-Event-ID Präfix für Erkennung */
 export const AGENDA_EVENT_PREFIX = 'agenda_';
@@ -173,6 +174,7 @@ export function resolveMinisterAgenda(
   state: GameState,
   action: 'annehmen' | 'ablehnen',
   content: { charEvents?: Record<string, import('../types').GameEvent> },
+  extras?: { contentBundle?: ContentBundle; complexity?: number },
 ): GameState {
   const active = state.aktiveMinisterAgenda;
   if (!active) return state;
@@ -255,16 +257,16 @@ export function resolveMinisterAgenda(
 
   // ultimatum ablehnen → Koalitionskrise-Event, Medienklima -5, Koalition -10
   const koalitionskriseEv = content.charEvents?.koalitionskrise_ultimatum;
-  const newMedienKlima = Math.max(0, (state.medienKlima ?? 55) - 5);
+  const cx = extras?.complexity ?? state.complexity ?? 4;
   const newCoalition = Math.max(0, (state.koalitionspartner ? state.coalition - 10 : state.coalition));
   const newAgenden = {
     ...agenden,
     [active.charId]: { ...agendenState, status: 'aufgegeben' as const, ablehnungen_count: newAblehnungen },
   };
 
-  let newState: GameState = {
-    ...state,
-    medienKlima: newMedienKlima,
+  let newState: GameState = adjustMedienKlimaGlobal(state, -5, cx, extras?.contentBundle);
+  newState = {
+    ...newState,
     coalition: newCoalition,
     ministerAgenden: newAgenden,
     aktiveMinisterAgenda: null,

@@ -1,4 +1,4 @@
-import type { GameState, GameEvent, EventChoice } from '../types';
+import type { GameState, GameEvent, EventChoice, ContentBundle } from '../types';
 import { getEventNamespace } from '../eventNamespaces';
 import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
@@ -10,7 +10,7 @@ import { startKommunalPilot } from './gesetzLebenszyklus';
 import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell } from './wahlkampf';
 import { setNormenkontrollReaktion } from './verfassungsgericht';
-import { applyMedienChoiceDelta } from './medienklima';
+import { applyMedienChoiceDelta, adjustMedienKlimaGlobal } from './medienklima';
 import { featureActive } from './features';
 import {
   clamp,
@@ -275,6 +275,7 @@ export function checkSteuerEvents(
   state: GameState,
   events: GameEvent[],
   complexity: number,
+  content?: ContentBundle,
 ): GameState {
   if (state.activeEvent) return state;
   if (!events.length) return state;
@@ -316,7 +317,7 @@ export function checkSteuerEvents(
     }
 
     if (ev.id === 'haushaltsstreit_opposition' && (newState.medienKlima ?? 55) > 0) {
-      newState = { ...newState, medienKlima: Math.max(0, (newState.medienKlima ?? 55) - 4) };
+      newState = adjustMedienKlimaGlobal(newState, -4, complexity, content);
     }
 
     return newState;
@@ -391,6 +392,8 @@ export interface ResolveEventOptions {
   complexity?: number;
   /** Content für resolveMinisterAgenda (charEvents) */
   content?: { charEvents?: Record<string, import('../types').GameEvent> };
+  /** SMA-390: volles Bundle für Medienakteur-Verteilung bei medienklima_delta */
+  contentBundle?: ContentBundle;
 }
 
 /** Prüft ob der Spieler genug PK hat */
@@ -472,6 +475,7 @@ export function resolveEvent(
   options?: ResolveEventOptions,
 ): GameState {
   const complexity = options?.complexity ?? 4;
+  const medienContent = options?.contentBundle;
 
   // Ministerial-Initiative: eigene Auflösung
   if (choice.ministerialAction && state.aktiveMinisterialInitiative && event.id.startsWith('mi_')) {
@@ -480,7 +484,10 @@ export function resolveEvent(
 
   // SMA-330: Minister-Agenda: eigene Auflösung
   if (choice.agendaAction && state.aktiveMinisterAgenda && event.id.startsWith(AGENDA_EVENT_PREFIX)) {
-    return resolveMinisterAgenda(state, choice.agendaAction, options?.content ?? {});
+    return resolveMinisterAgenda(state, choice.agendaAction, options?.content ?? {}, {
+      contentBundle: options?.contentBundle,
+      complexity,
+    });
   }
 
   // Wahlkampf-Beginn, Koalitionspartner-Alleingang: einfaches Bestätigen
@@ -522,7 +529,7 @@ export function resolveEvent(
   // Medien-Events (SMA-277)
   if (event.id.startsWith('medien_')) {
     if (!canAfford(state, choice)) return state;
-    let s = applyMedienChoiceDelta(deductPk(state, choice), choice);
+    let s = applyMedienChoiceDelta(deductPk(state, choice), choice, complexity, medienContent);
     if (choice.charMood) s = applyMoodChange(s, choice.charMood, choice.loyalty);
     return finalizeEvent(s, event, choice, choice.log);
   }
@@ -539,7 +546,7 @@ export function resolveEvent(
   // Steuer-Events (SMA-309)
   if (STEUER_IDS.has(event.id)) {
     if (!canAfford(state, choice)) return state;
-    let s = applyMedienChoiceDelta(deductPk(state, choice), choice);
+    let s = applyMedienChoiceDelta(deductPk(state, choice), choice, complexity, medienContent);
     s = applyKoalitionspartnerDelta(s, choice);
     if (event.id === 'steuereinnahmen_einbruch' && s.haushalt && choice.effect?.hh != null) {
       const hhDelta = choice.effect.hh;
@@ -561,7 +568,7 @@ export function resolveEvent(
   // Kommunal/Länder conditional Events (SMA-298)
   if (KOMMUNAL_LAENDER_IDS.has(event.id)) {
     if (!canAfford(state, choice)) return state;
-    let s = applyKpiEffects(applyMedienChoiceDelta(deductPk(state, choice), choice), choice);
+    let s = applyKpiEffects(applyMedienChoiceDelta(deductPk(state, choice), choice, complexity, medienContent), choice);
     s = applyBundesratBonusAll(s, choice);
     return finalizeEvent(s, event, choice, choice.log);
   }
@@ -569,7 +576,7 @@ export function resolveEvent(
   // Extremismus-Events (SMA-280)
   if (EXTREMISMUS_IDS.has(event.id)) {
     if (!canAfford(state, choice)) return state;
-    let s = applyMedienChoiceDelta(deductPk(state, choice), choice);
+    let s = applyMedienChoiceDelta(deductPk(state, choice), choice, complexity, medienContent);
     s = applyKoalitionspartnerDelta(s, choice);
     if (event.id === 'verfassungsgericht_klage' && choice.verfahrenDauerMonate != null) {
       s = choice.verfahrenDauerMonate === 0
@@ -589,7 +596,7 @@ export function resolveEvent(
       normenkontrolle_kritisieren: 'kritisieren',
     };
     const reaktion = reaktionMap[choice.key ?? ''] ?? 'akzeptieren';
-    let s = applyMedienChoiceDelta(deductPk(state, choice), choice);
+    let s = applyMedienChoiceDelta(deductPk(state, choice), choice, complexity, medienContent);
     s = setNormenkontrollReaktion(s, event.lawId, reaktion);
     return finalizeEvent(s, event, choice, choice.log);
   }

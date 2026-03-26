@@ -1,6 +1,7 @@
-import type { GameState, Verband, VerbandTradeoff, KpiDelta, KPI } from '../types';
+import type { GameState, Verband, VerbandTradeoff, KpiDelta, KPI, ContentBundle } from '../types';
 import { addLog } from '../engine';
 import { featureActive } from './features';
+import { adjustMedienKlimaGlobal } from './medienklima';
 
 /** Verbandskonflikte: verbandId → Konflikt-Partner mit Malus */
 const KONFLIKTE: Record<string, { partner: string; malus: number }[]> = {
@@ -68,6 +69,7 @@ export function verbandTradeoff(
   tradeoffKey: string,
   verbaende: Verband[],
   complexity: number,
+  content?: ContentBundle,
 ): GameState {
   if (!featureActive(complexity, 'verbands_lobbying')) return state;
 
@@ -100,8 +102,7 @@ export function verbandTradeoff(
   newState = { ...newState, verbandsBeziehungen: newBeziehungen };
 
   if ((tradeoff.medienklima_delta ?? 0) !== 0) {
-    const mk = (newState.medienKlima ?? 55) + tradeoff.medienklima_delta!;
-    newState = { ...newState, medienKlima: Math.max(0, Math.min(100, mk)) };
+    newState = adjustMedienKlimaGlobal(newState, tradeoff.medienklima_delta!, complexity, content);
   }
 
   const feldId = verband.politikfeld_id;

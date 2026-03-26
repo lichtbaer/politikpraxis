@@ -99,6 +99,12 @@ const FEATURES: Record<string, { minLevel: number }> = {
   wahlnacht_analyse: { minLevel: 3 },
   /** SMA-277: Medienklima-Index sichtbar und Drift */
   medienklima: { minLevel: 2 },
+  /** SMA-390: 3 Medienakteure (öffentlich, Boulevard, Social) */
+  medien_akteure_2: { minLevel: 2 },
+  /** SMA-390: alle 6 Akteure + differenzierte Reaktionen */
+  medien_akteure_3: { minLevel: 3 },
+  /** SMA-390: Reichweiten-Dynamik, Alternativ-Wachstum */
+  medien_akteure_4: { minLevel: 4 },
   /** SMA-277: Framing beim Gesetz-Einbringen */
   framing: { minLevel: 2 },
   /** SMA-277: Skandal-Events mit Cooldown */

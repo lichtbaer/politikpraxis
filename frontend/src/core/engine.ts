@@ -39,7 +39,7 @@ import {
   tickWahlkampfPrognose,
   triggerWahlnacht,
 } from './systems/wahlkampf';
-import { tickMedienKlima } from './systems/medienklima';
+import { tickMedienKlima, berechneMedianklima } from './systems/medienklima';
 import { tickVermittlungsausschuss } from './systems/vermittlung';
 import { featureActive } from './systems/features';
 import { applyMilieuDrift } from './systems/milieus';
@@ -128,7 +128,7 @@ export function tick(
   for (const eg of eingebrachte) {
     if (s.month >= eg.abstimmungMonat) {
       const voteContext = content.milieus
-        ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen }
+        ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen, content }
         : undefined;
       s = resolveEingebrachteAbstimmung(s, eg, voteContext);
       const newLaw = s.gesetze.find(g => g.id === eg.gesetzId);
@@ -141,11 +141,11 @@ export function tick(
 
   // 2b. Vermittlungsausschuss: abschließen wenn Frist erreicht
   const vermittlungCtx = content.milieus
-    ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen }
+    ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen, content }
     : undefined;
   s = safeSystem((st) => tickVermittlungsausschuss(st, vermittlungCtx), 'tickVermittlungsausschuss');
 
-  const routesResult = advanceRoutes(s);
+  const routesResult = advanceRoutes(s, content, complexity);
   s = routesResult.state;
   if (routesResult.completedVorstufe && !s.activeEvent) {
     const ev = routesResult.completedVorstufe.route === 'kommune'
@@ -156,7 +156,7 @@ export function tick(
       s = { ...s, activeEvent: evWithLaw, ...withPause(s, getAutoPauseLevel(ev)) };
     }
   }
-  s = advanceEURoute(s);
+  s = advanceEURoute(s, content, complexity);
   s = tickGesetzVorstufen(s, content, complexity);
 
   // 4. Haushalt
@@ -237,10 +237,13 @@ export function tick(
     }), 'checkBundesratEvents');
   }
   // 12b. Normenkontrolle: BVerfG-Verfahren abschließen (Stufe 3+)
-  s = safeSystem((st) => tickNormenkontrolle(st, complexity), 'tickNormenkontrolle');
+  s = safeSystem((st) => tickNormenkontrolle(st, complexity, content), 'tickNormenkontrolle');
 
   // 12c. Medienklima (SMA-277): Drift, Opposition, Skandale, positive Events
   s = safeSystem((st) => tickMedienKlima(st, content, complexity), 'tickMedienKlima');
+  if (featureActive(complexity, 'medien_akteure_2') && s.medienAkteure && Object.keys(s.medienAkteure).length > 0) {
+    s = { ...s, medienKlima: berechneMedianklima(s) };
+  }
 
   // 13. Events
   s = safeSystem((st) => checkKommunalEvents(st, { kommunalEvents: content.kommunalEvents ?? [] }, complexity), 'checkKommunalEvents');
@@ -248,7 +251,7 @@ export function tick(
     s = safeSystem((st) => checkKommunalLaenderEvents(st, content.kommunalLaenderEvents!, complexity), 'checkKommunalLaenderEvents');
   }
   if (content.steuerEvents?.length) {
-    s = safeSystem((st) => checkSteuerEvents(st, content.steuerEvents!, complexity), 'checkSteuerEvents');
+    s = safeSystem((st) => checkSteuerEvents(st, content.steuerEvents!, complexity, content), 'checkSteuerEvents');
   }
   // 13b. Follow-up Events (complexity >= 4)
   s = safeSystem((st) => checkFollowupEvents(st, content.events), 'checkFollowupEvents');
@@ -363,7 +366,7 @@ export function tick(
 function processBundesratVotes(state: GameState, content: ContentBundle, complexity: number): GameState {
   let s = state;
   const voteContext = content.milieus
-    ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen }
+    ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen, content }
     : undefined;
   for (const law of s.gesetze) {
     if (law.status === 'bt_passed' && law.brVoteMonth != null && s.month >= law.brVoteMonth) {

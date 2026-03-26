@@ -1,9 +1,10 @@
-import type { GameState, GameEvent, Law, KPI } from '../types';
+import type { GameState, GameEvent, Law, KPI, ContentBundle } from '../types';
 import { withPause } from '../eventPause';
 import { addLog } from '../engine';
 import { featureActive } from './features';
 import { clamp } from '../constants';
 import { getGesetzIdeologie } from './koalition';
+import { adjustMedienKlimaGlobal } from './medienklima';
 
 /**
  * Normenkontrolle beim Bundesverfassungsgericht (Art. 93 GG).
@@ -135,7 +136,11 @@ function wuerfleUrteil(): Urteil {
 /**
  * Monatlicher Tick: Prüft ob Normenkontroll-Verfahren abgeschlossen werden.
  */
-export function tickNormenkontrolle(state: GameState, complexity: number): GameState {
+export function tickNormenkontrolle(
+  state: GameState,
+  complexity: number,
+  content?: ContentBundle,
+): GameState {
   if (!featureActive(complexity, 'normenkontrolle')) return state;
 
   const verfahren = state.normenkontrollVerfahren ?? [];
@@ -159,17 +164,16 @@ export function tickNormenkontrolle(state: GameState, complexity: number): GameS
 
     if (urteil === 'konform') {
       // Verfassungskonform: Medienklima +5, Opposition -5
-      const mk = clamp((s.medienKlima ?? 55) + 5, 0, 100);
       const opp = s.opposition
         ? { ...s.opposition, staerke: clamp(s.opposition.staerke - 5, 0, 100) }
         : undefined;
       // Spieler-Bonus bei "akzeptieren"-Reaktion
       const akzeptiertBonus = v.spielerReaktion === 'akzeptieren' ? 3 : 0;
-      s = {
-        ...s,
-        medienKlima: clamp(mk + akzeptiertBonus, 0, 100),
-        ...(opp && { opposition: opp }),
-      };
+      s = adjustMedienKlimaGlobal(s, 5, complexity, content);
+      if (akzeptiertBonus) {
+        s = adjustMedienKlimaGlobal(s, akzeptiertBonus, complexity, content);
+      }
+      s = { ...s, ...(opp && { opposition: opp }) };
       s = addLog(s, `BVerfG: ${gesetzName} ist verfassungskonform`, 'g');
 
     } else if (urteil === 'teilweise') {
@@ -206,8 +210,8 @@ export function tickNormenkontrolle(state: GameState, complexity: number): GameS
           });
         }
       }
-      const mk = clamp((s.medienKlima ?? 55) - 12, 0, 100);
-      s = { ...s, pending, medienKlima: mk };
+      s = { ...s, pending };
+      s = adjustMedienKlimaGlobal(s, -12, complexity, content);
       s = addLog(s, `BVerfG: ${gesetzName} für verfassungswidrig erklärt — Gesetz aufgehoben`, 'r');
     }
 

@@ -19,6 +19,7 @@ interface EventCardProps {
 
 const TYPE_CLASS: Record<GameEvent['type'], string> = {
   danger: styles.headerDanger,
+  crisis: styles.headerDanger,
   warn: styles.headerWarn,
   good: styles.headerGood,
   info: styles.headerInfo,

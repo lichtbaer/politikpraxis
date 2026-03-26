@@ -6,6 +6,7 @@ import { addLog } from '../log';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { scheduleEffects } from './economy';
+import { applyGesetzMedienAkteureNachBeschluss } from './medienklima';
 
 /** Default EU-Klima-Startwerte (Fallback wenn API nicht liefert) */
 const DEFAULT_EU_KLIMA: Record<string, number> = {
@@ -268,7 +269,11 @@ export function applyEUKofinanzierung(state: GameState, kofinanzierung: number):
 }
 
 /** Phase 3: Abstimmungsergebnis auflösen (wird vom Tick aufgerufen wenn Dauer abgelaufen) */
-export function resolveEURoute(state: GameState): GameState {
+export function resolveEURoute(
+  state: GameState,
+  content?: ContentBundle,
+  complexity?: number,
+): GameState {
   const route = state.eu?.aktiveRoute;
   if (!route) return state;
 
@@ -303,11 +308,19 @@ export function resolveEURoute(state: GameState): GameState {
       umgesetzt: false,
     });
 
-    const gesetze = s.gesetze.map(g =>
+    let gesetze = s.gesetze.map(g =>
       g.id === route.gesetzId ? { ...g, status: 'beschlossen' as const } : g,
     );
+    s = { ...s, gesetze, eu: { ...s.eu!, klima, klimaSperre, umsetzungsfristen, aktiveRoute: null } };
+    const cx = complexity ?? s.complexity ?? 4;
+    if (content) {
+      const lawDone = s.gesetze.find(g => g.id === route.gesetzId);
+      if (lawDone) {
+        s = applyGesetzMedienAkteureNachBeschluss(s, lawDone, cx, content);
+      }
+    }
     s = addLog(
-      { ...s, gesetze, eu: { ...s.eu!, klima, klimaSperre, umsetzungsfristen, aktiveRoute: null } },
+      s,
       `EU-Richtlinie beschlossen. Kofinanzierung: ${(kofinanzierung * 100).toFixed(0)}%`,
       'g',
     );
@@ -459,12 +472,16 @@ export function checkEUEreignisse(
 }
 
 /** Prüft ob aktive EU-Route abgelaufen ist und löst sie auf */
-export function advanceEURoute(state: GameState): GameState {
+export function advanceEURoute(
+  state: GameState,
+  content?: ContentBundle,
+  complexity?: number,
+): GameState {
   const route = state.eu?.aktiveRoute;
   if (!route) return state;
 
   if (state.month >= route.startMonat + route.dauer) {
-    return resolveEURoute(state);
+    return resolveEURoute(state, content, complexity);
   }
   return state;
 }

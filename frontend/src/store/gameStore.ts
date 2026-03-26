@@ -281,6 +281,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
         gesetzRelationen: prev.content.gesetzRelationen,
+        content: prev.content,
       };
       const nextState = einbringen(prev.state, lawId, ctx);
       const newLaw = nextState.gesetze.find(g => g.id === lawId);
@@ -301,8 +302,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         complexity: prev.complexity,
         framingKey: pendingGegenfinanzierung.framingKey,
         gesetzRelationen: prev.content.gesetzRelationen,
+        content: prev.content,
       };
-      let state = wendeGegenfinanzierungAn(prev.state, law, option, subOption);
+      let state = wendeGegenfinanzierungAn(prev.state, law, option, subOption, prev.complexity, prev.content);
       state = { ...state, pendingGegenfinanzierung: undefined };
       state = einbringen(state, gesetzId, ctx);
       return { state };
@@ -345,6 +347,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         complexity: prev.complexity,
         framingKey: framingKey ?? undefined,
         gesetzRelationen: prev.content.gesetzRelationen,
+        content: prev.content,
       };
       const nextState = einbringen(prev.state, lawId, ctx);
       const newLaw = nextState.gesetze.find(g => g.id === lawId);
@@ -378,6 +381,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             milieus: prev.content.milieus,
             complexity: prev.complexity,
             gesetzRelationen: prev.content.gesetzRelationen,
+            content: prev.content,
           }
         : undefined;
       let state = abstimmen(prev.state, lawId, ctx);
@@ -418,7 +422,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   doResolveEvent: (event, choice) =>
     set(prev => {
-      let next = resolveEvent(prev.state, event, choice, { complexity: prev.complexity, content: prev.content });
+      let next = resolveEvent(prev.state, event, choice, {
+        complexity: prev.complexity,
+        content: prev.content,
+        contentBundle: prev.content,
+      });
       const pkDelta = next.pk - prev.state.pk;
       if (pkDelta !== 0) {
         const sign = pkDelta > 0 ? '+' : '';
@@ -470,7 +478,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
   doVerbandTradeoff: (verbandId, tradeoffKey) =>
     set(prev => ({
-      state: verbandTradeoff(prev.state, verbandId, tradeoffKey, prev.content.verbaende ?? [], prev.complexity),
+      state: verbandTradeoff(prev.state, verbandId, tradeoffKey, prev.content.verbaende ?? [], prev.complexity, prev.content),
     })),
   doVerbandLobbyAbstimmung: (verbandId, gesetzId) => {
     const { state, content, complexity } = get();
@@ -565,7 +573,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
   doPressemitteilung: (thema) =>
     set(prev => {
-      const next = pressemitteilung(prev.state, thema, prev.complexity);
+      const next = pressemitteilung(prev.state, thema, prev.complexity, prev.content);
       return next ? { state: next } : {};
     }),
   doKabinettsgespraech: (charId) =>

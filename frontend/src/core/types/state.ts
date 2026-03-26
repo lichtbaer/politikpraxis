@@ -17,6 +17,7 @@ import type {
   SpielerParteiState,
   Verband,
 } from './politics';
+import type { MedienAkteurContent } from '../../data/defaults/medienAkteure';
 
 /** EU-Substate (SMA-269): Klima, Ratsvorsitz, Ausweichroute, Umsetzungsfristen */
 export interface EUState {
@@ -71,6 +72,12 @@ export interface AktivesStrukturEvent {
   phase: number;
   verfuegbarePrioritaeten: string[];
   gewaehlePrioritaeten: string[];
+}
+
+/** SMA-390: Laufender Zustand eines Medienakteurs */
+export interface MedienAkteurState {
+  stimmung: number;
+  reichweite: number;
 }
 
 /** Legislatur-Bilanz (SMA-278) — berechnet ab Monat 43 für Wahlkampf */
@@ -160,6 +167,10 @@ export interface GameState {
   tvDuellAbgehalten?: boolean;
   tvDuellGewonnen?: boolean | null;
   medienKlima?: number;
+  /** SMA-390: plurales Medienökosystem (Stufe 2+) */
+  medienAkteure?: Record<string, MedienAkteurState>;
+  /** SMA-390: letzter Monat, in dem eine Akteur-spezifische Aktion genutzt wurde */
+  medienAktionenGenutzt?: Record<string, number>;
   medienKlimaHistory?: number[];
   letzterSkandal?: number;
   letztesPressemitteilungMonat?: number;
@@ -236,6 +247,8 @@ export interface ContentBundle {
   euKlimaStartwerte?: { politikfeld_id: string; startwert: number }[];
   euEvents?: EUEventContent[];
   medienEvents?: MedienEventContent[];
+  /** SMA-390: optional aus API; Fallback DEFAULT_MEDIEN_AKTEURE */
+  medienAkteureContent?: MedienAkteurContent[];
   extremismusEvents?: GameEvent[];
   kommunalLaenderEvents?: GameEvent[];
   steuerEvents?: GameEvent[];

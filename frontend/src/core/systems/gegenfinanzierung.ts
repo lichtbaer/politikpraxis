@@ -10,6 +10,7 @@ import type { GameState, Law, ContentBundle } from '../types';
 import { addLog } from '../engine';
 import { featureActive } from './features';
 import { applyMoodChange } from './characters';
+import { adjustMedienKlimaGlobal } from './medienklima';
 import { SCHULDENBREMSE_SPIELRAUM_BASIS } from '../constants';
 
 /** Ressort-Kürzungen: Einsparung in Mrd. + Effekte */
@@ -227,6 +228,8 @@ export function wendeGegenfinanzierungAn(
   gesetz: Law,
   option: GegenfinanzierungsOption,
   subOption?: string,
+  complexity: number = 4,
+  content?: ContentBundle,
 ): GameState {
   const kosten = Math.abs(gesetz.kosten_laufend ?? 0) || Math.abs(gesetz.kosten_einmalig ?? 0) / 10;
 
@@ -257,7 +260,7 @@ export function wendeGegenfinanzierungAn(
       }
 
       // Medienklima
-      const medienKlima = Math.max(0, Math.min(100, (newState.medienKlima ?? 55) + ressort.medienklima_delta));
+      newState = adjustMedienKlimaGlobal(newState, ressort.medienklima_delta, complexity, content);
 
       // Laufende Ausgaben reduzieren (Einsparung)
       const haushalt = newState.haushalt;
@@ -279,7 +282,6 @@ export function wendeGegenfinanzierungAn(
           ...newState,
           milieuZustimmung,
           verbandsBeziehungen,
-          medienKlima,
         },
         `Gegenfinanzierung: Ressort ${subOption} um ${ressort.kosten_einsparung} Mrd. gekürzt`,
         'info',
