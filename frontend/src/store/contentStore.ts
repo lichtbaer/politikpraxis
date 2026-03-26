@@ -8,6 +8,7 @@ import type {
   MilieuApi,
   PolitikfeldApi,
   VerbandApi,
+  MedienAkteurApi,
 } from '../types/content';
 import type {
   ContentBundle,
@@ -41,6 +42,7 @@ import {
   WAHLKAMPF_VERSPRECHEN_EVENT,
 } from '../data/defaults/wahlkampfEvents';
 import { DEFAULT_MEDIEN_EVENTS } from '../data/defaults/medienEvents';
+import { DEFAULT_MEDIEN_AKTEURE, type MedienAkteurContent, type MedienAkteurTyp } from '../data/defaults/medienAkteure';
 
 const EVENT_TYPE_ICON_KEYS: Record<string, string> = {
   danger: 'danger',
@@ -323,11 +325,23 @@ export interface ContentStore {
   euEvents: import('../core/types').EUEventContent[];
   /** SMA-312: Gesetz-Abhängigkeiten — gesetzId -> Relationen */
   gesetzRelationen: Record<string, GesetzRelation[]>;
+  medienAkteureContent: ContentBundle['medienAkteureContent'];
   scenario: ContentBundle['scenario'];
   loading: boolean;
   loaded: boolean;
   error: string | null;
   load: (locale: string) => Promise<void>;
+}
+
+function transformMedienAkteur(api: MedienAkteurApi): MedienAkteurContent {
+  return {
+    id: api.id,
+    name_de: api.name_de,
+    typ: api.typ as MedienAkteurTyp,
+    reichweite: api.reichweite,
+    stimmung_start: api.stimmung_start,
+    min_complexity: api.min_complexity,
+  };
 }
 
 function buildGesetzRelationen(api: GesetzRelationApi[]): Record<string, GesetzRelation[]> {
@@ -365,6 +379,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   euKlimaStartwerte: [],
   euEvents: [],
   gesetzRelationen: {},
+  medienAkteureContent: undefined,
   scenario: DEFAULT_SCENARIO,
   loading: false,
   loaded: false,
@@ -373,7 +388,17 @@ export const useContentStore = create<ContentStore>((set) => ({
   load: async (locale: string) => {
     set({ error: null, loaded: false, loading: true });
     try {
-      const [chars, gesetze, eventsAll, bundesratFraktionen, milieusRaw, politikfelderRaw, verbaendeRaw, gesetzRelationenRaw] =
+      const [
+        chars,
+        gesetze,
+        eventsAll,
+        bundesratFraktionen,
+        milieusRaw,
+        politikfelderRaw,
+        verbaendeRaw,
+        gesetzRelationenRaw,
+        medienAkteureRaw,
+      ] =
         await Promise.all([
           apiFetch<CharApi[]>(`/content/chars?locale=${locale}`),
           apiFetch<GesetzApi[]>(`/content/gesetze?locale=${locale}`),
@@ -383,6 +408,7 @@ export const useContentStore = create<ContentStore>((set) => ({
           apiFetch<PolitikfeldApi[]>(`/content/politikfelder?locale=${locale}`).catch(() => []),
           apiFetch<VerbandApi[]>(`/content/verbaende?locale=${locale}`).catch(() => []),
           apiFetch<GesetzRelationApi[]>(`/content/gesetz-relationen`).catch(() => []),
+          apiFetch<MedienAkteurApi[]>(`/content/medien-akteure`).catch(() => []),
         ]);
 
       const events = eventsAll.map(transformEvent);
@@ -427,6 +453,11 @@ export const useContentStore = create<ContentStore>((set) => ({
         : DEFAULT_VERBAENDE;
       const politikfelder = (politikfelderRaw ?? []).map((p) => transformPolitikfeld(p, verbaendeRaw ?? []));
 
+      const medienAkteureContent =
+        medienAkteureRaw && medienAkteureRaw.length > 0
+          ? medienAkteureRaw.map(transformMedienAkteur)
+          : DEFAULT_MEDIEN_AKTEURE;
+
       set({
         chars: chars.map(transformChar),
         gesetze: gesetze.map(transformGesetz),
@@ -444,6 +475,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         verbaende,
         ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
         gesetzRelationen: buildGesetzRelationen(gesetzRelationenRaw ?? []),
+        medienAkteureContent,
         loading: false,
         loaded: true,
         error: null,
@@ -496,6 +528,10 @@ export function getContentBundle(): ContentBundle {
     euEvents: s.euEvents ?? [],
     gesetzRelationen: s.gesetzRelationen,
     medienEvents: DEFAULT_MEDIEN_EVENTS,
+    medienAkteureContent:
+      s.medienAkteureContent && s.medienAkteureContent.length > 0
+        ? s.medienAkteureContent
+        : DEFAULT_MEDIEN_AKTEURE,
     scenario: s.scenario,
   };
 }

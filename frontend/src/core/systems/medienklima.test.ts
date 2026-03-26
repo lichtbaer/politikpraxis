@@ -109,6 +109,20 @@ describe('berechneMedianklima (SMA-390)', () => {
     } as unknown as GameState;
     expect(berechneMedianklima(G)).toBe(45);
   });
+
+  it('effektive Stimmung: Buff bis bisMonat (SMA-392)', () => {
+    const G = {
+      month: 5,
+      medienKlima: 50,
+      medienAkteure: {
+        boulevard: { stimmung: 0, reichweite: 100 },
+      },
+      medienAkteurBuffs: {
+        boulevard: { stimmung: 10, bisMonat: 5 },
+      },
+    } as unknown as GameState;
+    expect(berechneMedianklima(G)).toBe(55);
+  });
 });
 
 describe('getMedienPkZusatzkosten', () => {

@@ -80,6 +80,12 @@ export interface MedienAkteurState {
   reichweite: number;
 }
 
+/** SMA-392: Temporärer Stimmungs-Buff (z. B. Boulevard/Social-Aktion), bis einschließlich bisMonat */
+export interface MedienAkteurBuffState {
+  stimmung: number;
+  bisMonat: number;
+}
+
 /** Legislatur-Bilanz (SMA-278) — berechnet ab Monat 43 für Wahlkampf */
 export interface LegislaturBilanz {
   gesetzeBeschlossen: number;
@@ -169,8 +175,10 @@ export interface GameState {
   medienKlima?: number;
   /** SMA-390: plurales Medienökosystem (Stufe 2+) */
   medienAkteure?: Record<string, MedienAkteurState>;
-  /** SMA-390: letzter Monat, in dem eine Akteur-spezifische Aktion genutzt wurde */
+  /** SMA-390/392: letzter Monat je Medien-Aktion (Cooldown 3 Monate) */
   medienAktionenGenutzt?: Record<string, number>;
+  /** SMA-392: additive Stimmungs-Buffs mit Ablaufmonat */
+  medienAkteurBuffs?: Record<string, MedienAkteurBuffState>;
   medienKlimaHistory?: number[];
   letzterSkandal?: number;
   letztesPressemitteilungMonat?: number;

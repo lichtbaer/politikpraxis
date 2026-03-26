@@ -2,7 +2,15 @@
  * Medienklima-Engine (SMA-277, SMA-390 plurale Akteure)
  * Index-Berechnung, Framing, Skandale, Pressemitteilung, Opposition.
  */
-import type { GameState, ContentBundle, MedienEventContent, GameEvent, EventChoice, Law } from '../types';
+import type {
+  GameState,
+  ContentBundle,
+  MedienEventContent,
+  GameEvent,
+  EventChoice,
+  Law,
+  MedienAkteurBuffState,
+} from '../types';
 import { DEFAULT_MEDIEN_AKTEURE, type MedienAkteurContent } from '../../data/defaults/medienAkteure';
 import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
@@ -58,6 +66,56 @@ const REAKTIONEN = {
 
 type ReaktionsKey = keyof typeof REAKTIONEN;
 
+/** SMA-392: Spieler-Medien-Aktionen (Cooldown-Schlüssel in medienAktionenGenutzt) */
+export type MedienSpielerAktionKey =
+  | 'oeffentlich_talkshow'
+  | 'boulevard_interview'
+  | 'social_kampagne'
+  | 'qualitaet_gespraech';
+
+const MEDIEN_AKTION_COOLDOWN_MONATE = 3;
+
+/** Effektive Stimmung inkl. ablaufender Buffs (nur für Index / UI) */
+export function effektiveMedienAkteurStimmung(
+  akteurId: string,
+  base: { stimmung: number; reichweite: number },
+  buffs: GameState['medienAkteurBuffs'],
+  month: number,
+): number {
+  const b = buffs?.[akteurId];
+  const extra = b && b.bisMonat >= month ? b.stimmung : 0;
+  return clamp(base.stimmung + extra, -100, 100);
+}
+
+function expireMedienAkteurBuffs(state: GameState, month: number): GameState {
+  const raw = state.medienAkteurBuffs;
+  if (!raw || Object.keys(raw).length === 0) return state;
+  const next: Record<string, MedienAkteurBuffState> = { ...raw };
+  for (const [id, b] of Object.entries(next)) {
+    if (b.bisMonat < month) delete next[id];
+  }
+  if (Object.keys(next).length === 0) {
+    const { medienAkteurBuffs: _, ...rest } = state;
+    return rest as GameState;
+  }
+  return { ...state, medienAkteurBuffs: next };
+}
+
+/** Cooldown: 1× pro 3 Monate je Aktion (SMA-392) */
+export function medienAktionCooldownVerbleibend(
+  state: GameState,
+  aktionKey: string,
+  cooldownMonate: number = MEDIEN_AKTION_COOLDOWN_MONATE,
+): number {
+  const letzte = state.medienAktionenGenutzt?.[aktionKey] ?? 0;
+  const vergangen = state.month - letzte;
+  return Math.max(0, cooldownMonate - vergangen);
+}
+
+export function kannMedienAktionNutzen(state: GameState, aktionKey: string): boolean {
+  return medienAktionCooldownVerbleibend(state, aktionKey) === 0;
+}
+
 function getAkteurDefinitions(content: ContentBundle): MedienAkteurContent[] {
   return content.medienAkteureContent?.length ? content.medienAkteureContent : DEFAULT_MEDIEN_AKTEURE;
 }
@@ -87,7 +145,7 @@ export function kalibriereMedienAkteureZuIndex(
   zielIndex: number,
 ): NonNullable<GameState['medienAkteure']> {
   const defs = getAkteurDefinitions(content).filter((d) => d.min_complexity <= complexity);
-  let ma = { ...medienAkteure };
+  const ma = { ...medienAkteure };
   const totalR = defs.reduce((sum, d) => sum + (ma[d.id]?.reichweite ?? 0), 0);
   if (totalR <= 0) return ma;
   const s0 = defs.reduce(
@@ -130,8 +188,11 @@ export function berechneMedianklima(G: GameState): number {
   if (!akteure || Object.keys(akteure).length === 0) {
     return clamp(G.medienKlima ?? 55, 0, 100);
   }
-  const gewichteteSumme = Object.entries(akteure).reduce((sum, [, a]) => {
-    return sum + (a.stimmung * a.reichweite) / 100;
+  const buffs = G.medienAkteurBuffs;
+  const month = G.month;
+  const gewichteteSumme = Object.entries(akteure).reduce((sum, [id, a]) => {
+    const st = effektiveMedienAkteurStimmung(id, a, buffs, month);
+    return sum + (st * a.reichweite) / 100;
   }, 0);
   let v = 50 + gewichteteSumme / 2;
   const altR = akteure.alternativ?.reichweite ?? 0;
@@ -361,6 +422,7 @@ export function tickMedienKlima(
   let s = state;
 
   if (featureActive(complexity, 'medien_akteure_2')) {
+    s = expireMedienAkteurBuffs(s, s.month);
     s = { ...s, medienAkteure: mergeMedienAkteureState(s.medienAkteure, content, complexity) };
     s = tickAlternativReichweite(s, complexity, content);
   }
@@ -511,7 +573,7 @@ export function pressemitteilung(
     const defs = getAkteurDefinitions(bundle);
     const active = activeMedienAkteurIds(complexity, defs);
     const row = REAKTIONEN.pressemitteilung;
-    let ma = { ...s.medienAkteure! };
+    const ma = { ...s.medienAkteure! };
     for (const id of active) {
       const cur = ma[id];
       if (!cur) continue;
@@ -530,9 +592,6 @@ export function pressemitteilung(
       ...s,
       medienAktionenGenutzt: {
         ...(s.medienAktionenGenutzt ?? {}),
-        oeffentlich: s.month,
-        boulevard: s.month,
-        social: s.month,
         ...(featureActive(complexity, 'medien_akteure_4') ? { alternativ: s.month } : {}),
       },
     };
@@ -607,6 +666,134 @@ export function pressemitteilung(
 
   s = { ...s, letztesPressemitteilungMonat: s.month };
   return addLog(s, `Pressemitteilung: ${thema}`, 'hi');
+}
+
+function mergeStimmungsBuff(
+  prev: MedienAkteurBuffState | undefined,
+  month: number,
+  deltaStimmung: number,
+  dauerMonate: number,
+): MedienAkteurBuffState {
+  const basis = prev && prev.bisMonat >= month ? prev.stimmung : 0;
+  return {
+    stimmung: basis + deltaStimmung,
+    bisMonat: Math.max(prev && prev.bisMonat >= month ? prev.bisMonat : month - 1, month + dauerMonate - 1),
+  };
+}
+
+/**
+ * SMA-392: gezielte Medien-Aktionen (Stufe 3+), Cooldown 3 Monate je Aktion.
+ * `alternativ_diversifizieren` nur Stufe 4+.
+ */
+export function doMedienAktion(
+  state: GameState,
+  aktion: MedienSpielerAktionKey,
+  complexity: number,
+  content: ContentBundle,
+  rng: () => number = Math.random,
+): GameState | null {
+  if (!featureActive(complexity, 'medien_akteure_3')) return null;
+  if (!kannMedienAktionNutzen(state, aktion)) return null;
+
+  const bundle = content.medienAkteureContent?.length ? content : ({ medienAkteureContent: DEFAULT_MEDIEN_AKTEURE } as ContentBundle);
+  let s = expireMedienAkteurBuffs({ ...state }, state.month);
+  s = { ...s, medienAkteure: mergeMedienAkteureState(s.medienAkteure, bundle, complexity) };
+
+  const defs = getAkteurDefinitions(bundle);
+  const active = new Set(activeMedienAkteurIds(complexity, defs));
+
+  const applyBuff = (id: string, dSt: number, monate: number) => {
+    if (!active.has(id) || !s.medienAkteure?.[id]) return;
+    const buffs = { ...(s.medienAkteurBuffs ?? {}) };
+    buffs[id] = mergeStimmungsBuff(buffs[id], s.month, dSt, monate);
+    s = { ...s, medienAkteurBuffs: buffs };
+  };
+
+  const addBaseStimmung = (id: string, d: number) => {
+    if (!active.has(id) || !s.medienAkteure?.[id]) return;
+    const cur = s.medienAkteure![id]!;
+    const ma = { ...s.medienAkteure!, [id]: { ...cur, stimmung: clamp(cur.stimmung + d, -100, 100) } };
+    s = { ...s, medienAkteure: ma };
+  };
+
+  if (aktion === 'oeffentlich_talkshow') {
+    const pkResult = verbrauchePK(s, 10);
+    if (!pkResult) return null;
+    s = pkResult;
+    addBaseStimmung('oeffentlich', 5);
+    const milieuZustimmung = { ...(s.milieuZustimmung ?? {}) };
+    const milieuIds =
+      bundle.milieus && bundle.milieus.length > 0
+        ? bundle.milieus.map((m) => m.id)
+        : Object.keys(milieuZustimmung);
+    for (const id of milieuIds) {
+      milieuZustimmung[id] = clamp((milieuZustimmung[id] ?? 50) + 1, 0, 100);
+    }
+    s = { ...s, milieuZustimmung };
+    s = {
+      ...s,
+      medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), oeffentlich_talkshow: s.month },
+      medienKlima: berechneMedianklima(s),
+    };
+    return addLog(s, 'Medien-Aktion: ÖR-Talkshow', 'hi');
+  }
+
+  if (aktion === 'boulevard_interview') {
+    const pkResult = verbrauchePK(s, 15);
+    if (!pkResult) return null;
+    s = pkResult;
+    applyBuff('boulevard', 10, 2);
+    addBaseStimmung('qualitaet', -3);
+    s = {
+      ...s,
+      medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), boulevard_interview: s.month },
+      medienKlima: berechneMedianklima(s),
+    };
+    return addLog(s, 'Medien-Aktion: Boulevard-Interview', 'hi');
+  }
+
+  if (aktion === 'social_kampagne') {
+    const pkResult = verbrauchePK(s, 20);
+    if (!pkResult) return null;
+    s = pkResult;
+    if (rng() < 0.15) {
+      addBaseStimmung('social', -20);
+      s = {
+        ...s,
+        medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), social_kampagne: s.month },
+        medienKlima: berechneMedianklima(s),
+      };
+      return addLog(s, 'Social-Media-Kampagne: Gegenwind (Backlash)', 'r');
+    }
+    applyBuff('social', 15, 1);
+    s = {
+      ...s,
+      medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), social_kampagne: s.month },
+      medienKlima: berechneMedianklima(s),
+    };
+    return addLog(s, 'Medien-Aktion: Social-Media-Kampagne', 'hi');
+  }
+
+  if (aktion === 'qualitaet_gespraech') {
+    const saldo = s.haushalt?.saldo ?? 0;
+    if (saldo <= -25) return null;
+    if (!active.has('qualitaet')) return null;
+    const pkResult = verbrauchePK(s, 15);
+    if (!pkResult) return null;
+    s = pkResult;
+    addBaseStimmung('qualitaet', 8);
+    const milieuZustimmung = { ...(s.milieuZustimmung ?? {}) };
+    milieuZustimmung['etablierte'] = clamp((milieuZustimmung['etablierte'] ?? 50) + 3, 0, 100);
+    s = {
+      ...s,
+      milieuZustimmung,
+      medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), qualitaet_gespraech: s.month },
+      medienKlima: berechneMedianklima({ ...s, milieuZustimmung }),
+    };
+    return addLog(s, 'Medien-Aktion: Qualitätspresse-Gespräch', 'hi');
+  }
+
+  return null;
 }
 
 function tickOpposition(state: GameState, _complexity: number): GameState {

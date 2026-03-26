@@ -7,6 +7,8 @@ import { MilieuBar } from '../components/MilieuBar/MilieuBar';
 import { MedienklimaSektion } from '../components/MedienklimaSektion/MedienklimaSektion';
 import { MilieuDetailPanel } from '../components/MilieuDetailPanel/MilieuDetailPanel';
 import { MedienklimaTrendChart } from '../components/MedienklimaTrendChart/MedienklimaTrendChart';
+import { MedienAkteureGrid } from '../components/MedienAkteure/MedienAkteureGrid';
+import { MedienAktionen } from '../components/MedienAkteure/MedienAktionen';
 import type { Milieu } from '../../core/types';
 import styles from './MediaView.module.css';
 
@@ -102,6 +104,10 @@ export function MediaView() {
           current={state.medienKlima ?? 50}
         />
       )}
+
+      <MedienAkteureGrid />
+
+      <MedienAktionen />
 
       <div className={styles.cards}>
         {gruppen.type === 'aggregated' ? (

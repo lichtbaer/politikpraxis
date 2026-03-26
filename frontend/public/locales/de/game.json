@@ -848,7 +848,34 @@
     "desc": "Medienklima, öffentliche Meinung und Wählermilieus. Medienklima beeinflusst, wie Gesetze wahrgenommen werden.",
     "arbeit": { "name": "Arbeitsmilieu", "desc": "Gewerkschaftsnahe Wähler, Fokus auf soziale Gerechtigkeit." },
     "mitte": { "name": "Mitte", "desc": "Bürgerliche Mitte, wirtschaftsorientiert." },
-    "prog": { "name": "Progressive", "desc": "Urban, klimabewusst, diversitätsorientiert." }
+    "prog": { "name": "Progressive", "desc": "Urban, klimabewusst, diversitätsorientiert." },
+    "akteureTitle": "Medienakteure",
+    "akteureSub": "Stimmung und Reichweite der wichtigsten Medienformate — der Medienindex setzt sich daraus zusammen.",
+    "aktionen": {
+      "title": "Gezielte Medienarbeit",
+      "sub": "Jede Aktion ist 1× pro 3 Monate möglich (eigener Cooldown pro Aktion).",
+      "cooldown_one": "Cooldown: noch {{count}} Monat",
+      "cooldown_other": "Cooldown: noch {{count}} Monate",
+      "talkshow": {
+        "title": "ÖR-Talkshow",
+        "effekt": "Öffentliche Medien +5 Stimmung, alle Milieus +1"
+      },
+      "boulevard": {
+        "title": "Boulevard-Interview",
+        "effekt": "Boulevard +10 Stimmung für 2 Monate",
+        "warnung": "Qualitätspresse −3 Stimmung"
+      },
+      "social": {
+        "title": "Social-Media-Kampagne",
+        "effekt": "Social Media +15 Stimmung für 1 Monat",
+        "risiko": "15 % Backlash-Risiko: −20 Stimmung bei Gegenwind"
+      },
+      "qualitaet": {
+        "title": "Qualitätspresse-Gespräch",
+        "effekt": "Das Panorama +8, Etablierte +3",
+        "bedingung": "Nur bei stabilem Haushalt (Saldo > −25 Mrd. €)"
+      }
+    }
   },
   "eu": {
     "klimaTitle": "EU-Klima-Scores",
