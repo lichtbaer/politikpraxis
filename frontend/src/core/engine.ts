@@ -42,6 +42,7 @@ import {
 import { tickMedienKlima } from './systems/medienklima';
 import { tickVermittlungsausschuss } from './systems/vermittlung';
 import { featureActive } from './systems/features';
+import { applyMilieuDrift } from './systems/milieus';
 import { tickExtremismusDruck } from './ideologie';
 import { checkSachverstaendigenrat } from './systems/sachverstaendigenrat';
 import { tickNormenkontrolle } from './systems/verfassungsgericht';
@@ -277,6 +278,11 @@ export function tick(
     newZust = { ...newZust, g };
   }
   s = { ...s, zust: newZust };
+
+  // 15b. Milieu-Drift: Milieus passen sich an KPI-basierte Segmentwerte an
+  if (content.milieus && content.milieus.length > 0) {
+    s = applyMilieuDrift(s, content.milieus, complexity);
+  }
 
   // Approval-History: allgemeine Zustimmung pro Monat tracken
   s = { ...s, approvalHistory: trimHistory(s.approvalHistory ?? [], newZust.g, HISTORY_MAX_MONTHS) };

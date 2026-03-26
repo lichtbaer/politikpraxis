@@ -72,7 +72,7 @@
 | `.env` | Lokale Umgebungsvariablen (nicht versioniert) |
 | `pytest.ini` | Konfiguration für Tests |
 | `tests/` | API-Tests (z. B. test_admin_api, test_content_api) |
-| `tests/simulation/` | Headless Runner, Monte Carlo, Balance-Report (SMA-333) |
+| `tests/simulation/` | *Entfernt* — Balance-Simulation jetzt in `frontend/src/core/simulation/` |
 
 Die Laufzeit erwartet ein Paket **`app`** unter `backend/`. Aktuelle Struktur unter `app/`:
 

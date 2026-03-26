@@ -1,4 +1,4 @@
-import type { GameState, GesetzRelation } from '../types';
+import type { GameState, GesetzRelation, Approval } from '../types';
 import { milieuGesetzKongruenz } from '../ideologie';
 import { featureActive } from './features';
 import { getMedienMultiplikator } from './medienklima';
@@ -55,4 +55,45 @@ export function applyMilieuEffekte(
   }
 
   return { ...state, milieuZustimmung, milieuGesetzReaktionen };
+}
+
+/** Milieu → zust-Segment Mapping */
+const MILIEU_TO_ZUST: Record<string, keyof Approval> = {
+  postmaterielle: 'prog',
+  soziale_mitte: 'arbeit',
+  prekaere: 'arbeit',
+  buergerliche_mitte: 'mitte',
+  leistungstraeger: 'mitte',
+  etablierte: 'mitte',
+  traditionelle: 'mitte',
+};
+
+/**
+ * Monatlicher Milieu-Drift: Zieht milieuZustimmung langsam Richtung KPI-basierte Segmentwerte.
+ * Ohne diese Drift ändern sich Milieus nur bei Gesetzesbeschlüssen, was das Spiel zu stabil macht.
+ * Drift-Rate: 15% der Differenz pro Monat (sanft, aber spürbar über 48 Monate).
+ */
+export function applyMilieuDrift(
+  state: GameState,
+  milieus: { id: string; min_complexity: number }[],
+  complexity: number,
+): GameState {
+  if (!featureActive(complexity, 'milieus_voll') || milieus.length === 0) return state;
+  const milieuZustimmung = { ...(state.milieuZustimmung ?? {}) };
+
+  for (const milieu of milieus) {
+    if (milieu.min_complexity > complexity) continue;
+
+    const segmentKey = MILIEU_TO_ZUST[milieu.id] ?? 'mitte';
+    const target = state.zust[segmentKey] ?? 50;
+    const current = milieuZustimmung[milieu.id] ?? 50;
+    const diff = target - current;
+
+    // 15% Drift Richtung KPI-basiertem Segmentwert
+    if (Math.abs(diff) > 0.5) {
+      milieuZustimmung[milieu.id] = clamp(Math.round(current + diff * 0.15), 0, 100);
+    }
+  }
+
+  return { ...state, milieuZustimmung };
 }
