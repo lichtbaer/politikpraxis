@@ -27,9 +27,9 @@ export const DEFAULT_SCENARIO: ContentBundle['scenario'] = {
   id: 'standard',
   name: 'Standardszenario',
   startMonth: 1,
-  startPK: 100,
-  startKPI: { al: 5.2, hh: 0.3, gi: 31.2, zf: 62 },
-  startCoalition: 78,
+  startPK: 90,
+  startKPI: { al: 5.8, hh: 0, gi: 32, zf: 58 },
+  startCoalition: 72,
 };
 
 /** Fallback Milieus (SMA-261) wenn API nicht erreichbar. SMA-264: gewicht, basisbeteiligung für Wahlprognose. */

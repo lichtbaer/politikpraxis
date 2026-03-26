@@ -64,7 +64,7 @@ export function applyKPIDrift(kpi: KPI): KPI {
     newKpi.zf = clamp(newKpi.zf + (Math.random() - 0.55) * 0.3, 20, 80);
   }
   // Natürlicher ZF-Verfall: Zufriedenheit sinkt langsam ohne aktive Maßnahmen
-  newKpi.zf = clamp(newKpi.zf - 0.45, 20, 80);
+  newKpi.zf = clamp(newKpi.zf - 0.38, 20, 80);
   return newKpi;
 }
 
