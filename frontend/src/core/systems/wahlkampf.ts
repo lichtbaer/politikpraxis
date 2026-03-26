@@ -6,6 +6,7 @@ import { getKoalitionspartner } from './koalition';
 import { berechneWahlprognose } from './wahlprognose';
 import { berechneKongruenz } from '../ideologie';
 import { verbrauchePK } from '../pk';
+import { DEFAULT_ELECTION_THRESHOLD } from '../constants';
 
 /** Opposition-Stärke aus Bundesrat (Anteil Opposition-Stimmen in %) */
 function berechneOppositionStaerke(state: GameState): number {
@@ -478,7 +479,7 @@ export function triggerWahlnacht(state: GameState, _complexity: number): GameSta
   const wahlergebnis = state.wahlkampfAktiv
     ? berechneWahlergebnis(state)
     : (state.wahlprognose ?? state.zust.g);
-  const threshold = state.electionThreshold ?? 40;
+  const threshold = state.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD;
   const won = wahlergebnis >= threshold;
 
   return {
