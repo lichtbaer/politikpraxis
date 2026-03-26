@@ -117,6 +117,10 @@ const FEATURES: Record<string, { minLevel: number }> = {
   fraktionsdisziplin: { minLevel: 2 },
   /** Normenkontrolle: BVerfG kann Gesetze nach Beschluss prüfen */
   normenkontrolle: { minLevel: 3 },
+  /** Art. 77 GG: Einspruchsgesetz vs. Zustimmungsgesetz (Bundestag kann BR-Einspruch überstimmen) */
+  einspruch_vs_zustimmung: { minLevel: 2 },
+  /** Art. 67 GG: Konstruktives Misstrauensvotum als interaktives Event */
+  konstruktives_misstrauensvotum: { minLevel: 2 },
 };
 
 export function featureActive(complexity: number, key: string): boolean {

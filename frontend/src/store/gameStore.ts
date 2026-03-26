@@ -29,7 +29,7 @@ import {
 } from '../core/systems/eu';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/media';
-import { lobbyLand, lobbyFraktion } from '../core/systems/bundesrat';
+import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch } from '../core/systems/bundesrat';
 import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
@@ -151,6 +151,8 @@ interface GameStore {
   doKabinettsgespraech: (charId: string) => void;
   doEntlasseMinister: (charId: string) => void;
   doVermittlungsausschuss: (lawId: string) => void;
+  /** Art. 77 GG: Bundestag überstimmt BR-Einspruch (nur bei Einspruchsgesetzen) */
+  doUeberstimmeBReinspruch: (lawId: string) => void;
   doRegierungserklaerung: () => void;
   doVertrauensfrage: () => void;
   loadSave: (savedState: GameState) => void;
@@ -581,6 +583,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const next = vermittlungsausschuss(prev.state, lawId, prev.complexity);
       if (next !== prev.state) {
         toast('Vermittlungsausschuss einberufen — Kompromiss in 2 Monaten', 'info');
+      }
+      return next !== prev.state ? { state: next } : {};
+    }),
+
+  doUeberstimmeBReinspruch: (lawId) =>
+    set(prev => {
+      const voteContext = prev.content.milieus
+        ? { milieus: prev.content.milieus, complexity: prev.complexity, gesetzRelationen: prev.content.gesetzRelationen }
+        : undefined;
+      const next = ueberstimmeBReinspruch(prev.state, lawId, voteContext);
+      if (next !== prev.state) {
+        const law = next.gesetze.find(g => g.id === lawId);
+        if (law?.status === 'beschlossen') {
+          toast('Bundestag überstimmt BR-Einspruch (Art. 77 GG)', 'success');
+        } else {
+          toast('Absolute Mehrheit im Bundestag nicht erreicht', 'error');
+        }
       }
       return next !== prev.state ? { state: next } : {};
     }),

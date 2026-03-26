@@ -227,6 +227,7 @@ export function createInitialState(
 
     gameOver: false,
     won: false,
+    complexity,
 
     milieuZustimmung: {},
     verbandsBeziehungen: (() => {

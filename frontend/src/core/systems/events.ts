@@ -5,6 +5,7 @@ import { withPause, getAutoPauseLevel } from '../eventPause';
 import { applyMoodChange } from './characters';
 import { resolveMinisterialInitiative } from './ministerialInitiativen';
 import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from './ministerAgenden';
+import { resolveMisstrauensvotum } from './election';
 import { startKommunalPilot } from './gesetzLebenszyklus';
 import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell } from './wahlkampf';
@@ -485,6 +486,22 @@ export function resolveEvent(
   // Wahlkampf-Beginn, Koalitionspartner-Alleingang: einfaches Bestätigen
   if (event.id === 'wahlkampf_beginn' || event.id === 'koalitionspartner_alleingang') {
     return { ...state, activeEvent: null };
+  }
+
+  // Art. 67 GG: Konstruktives Misstrauensvotum
+  if (event.id === 'konstruktives_misstrauensvotum') {
+    if (!canAfford(state, choice)) return state;
+    let s = deductPk(state, choice);
+    s = resolveMisstrauensvotum(s, choice.key ?? 'ruecktritt');
+    if (s.gameOver) {
+      return finalizeEvent(s, event, choice, choice.log);
+    }
+    s = applyKpiEffects(s, choice);
+    s = applyKoalitionspartnerDelta(s, choice);
+    if (choice.charMood) {
+      s = applyMoodChange(s, choice.charMood, choice.loyalty);
+    }
+    return finalizeEvent(s, event, choice, choice.log);
   }
 
   // Kommunal-Initiative: als_vorbild (SMA-274)

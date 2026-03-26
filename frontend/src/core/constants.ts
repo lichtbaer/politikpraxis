@@ -117,9 +117,21 @@ export const KPI_HISTORY_MAX_MONTHS = 12;
 /** Max. Log-Einträge */
 export const MAX_LOG_ENTRIES = 60;
 
-// --- Misstrauensvotum ---
-/** Monate unter 20% Zustimmung bis zum Sturz */
+// --- Misstrauensvotum (Art. 67 GG) ---
+/** Monate unter 20% Zustimmung bis zum Sturz (Fallback ohne Feature) */
 export const MISSTRAUENSVOTUM_MONATE = 6;
+/** Monate unter 20% Zustimmung bis Misstrauensvotum-Event ausgelöst wird */
+export const MISSTRAUENSVOTUM_EVENT_MONATE = 4;
+/** PK-Kosten für Vertrauensfrage als Verteidigung gegen Misstrauensvotum */
+export const MISSTRAUENSVOTUM_VERTRAUENSFRAGE_PK = 25;
+/** PK-Kosten für Koalitionsrunde als Verteidigung */
+export const MISSTRAUENSVOTUM_KOALITIONSRUNDE_PK = 20;
+
+// --- Einspruch vs. Zustimmung (Art. 77 GG) ---
+/** PK-Kosten für Bundestag-Überstimmung eines Bundesrats-Einspruchs */
+export const EINSPRUCH_UEBERSTIMMUNG_PK = 15;
+/** BT-Ja-Schwelle für Überstimmung: absolute Mehrheit (>50% aller Mitglieder) */
+export const EINSPRUCH_UEBERSTIMMUNG_SCHWELLE = 50;
 
 // --- Zustimmung/Approval ---
 /** Untere Grenze für allgemeine Zustimmung */
