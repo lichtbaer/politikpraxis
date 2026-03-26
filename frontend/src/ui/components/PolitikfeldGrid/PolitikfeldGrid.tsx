@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { useContentStore } from '../../../stores/contentStore';
+import { useContentStore } from '../../../store/contentStore';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { PolitikfeldIcon, Check, CircleAlert, AlertTriangle } from '../../icons';

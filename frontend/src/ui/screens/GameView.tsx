@@ -1,6 +1,6 @@
 import { useGameStore } from '../../store/gameStore';
 import { useAuthStore } from '../../store/authStore';
-import { useContentStore } from '../../stores/contentStore';
+import { useContentStore } from '../../store/contentStore';
 import { WahlnachtOnboarding } from './WahlnachtOnboarding';
 import { Shell } from '../layout/Shell';
 import { SaveHintBanner } from '../components/SaveHintBanner/SaveHintBanner';

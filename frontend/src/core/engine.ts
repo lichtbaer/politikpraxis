@@ -45,7 +45,7 @@ import { featureActive } from './systems/features';
 import { tickExtremismusDruck } from './ideologie';
 import { checkSachverstaendigenrat } from './systems/sachverstaendigenrat';
 import { tickNormenkontrolle } from './systems/verfassungsgericht';
-import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../stores/contentStore';
+import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bundesratEvents';
 
 export { addLog } from './log';
 

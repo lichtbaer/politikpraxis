@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
-import { useContentStore } from '../../stores/contentStore';
+import { useContentStore } from '../../store/contentStore';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import type { RouteType } from '../../core/types';

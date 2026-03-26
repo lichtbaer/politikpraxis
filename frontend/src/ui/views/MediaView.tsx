@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
-import { useContentStore } from '../../stores/contentStore';
+import { useContentStore } from '../../store/contentStore';
 import { featureActive } from '../../core/systems/features';
 import { MilieuBar } from '../components/MilieuBar/MilieuBar';
 import { MedienklimaSektion } from '../components/MedienklimaSektion/MedienklimaSektion';

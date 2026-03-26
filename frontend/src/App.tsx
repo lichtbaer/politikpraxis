@@ -15,7 +15,7 @@ import { HighscoresPage } from './ui/screens/HighscoresPage';
 import { LoadingScreen } from './ui/screens/LoadingScreen';
 import { ErrorScreen } from './ui/screens/ErrorScreen';
 import { useUIStore } from './store/uiStore';
-import { useContentStore } from './stores/contentStore';
+import { useContentStore } from './store/contentStore';
 import { useAuthStore } from './store/authStore';
 
 export default function App() {
