@@ -14,7 +14,7 @@ interface AgendaCardProgressProps {
     month: number;
     pending: PendingEffect[];
     eingebrachteGesetze?: Array<{ gesetzId: string; abstimmungMonat: number; eingebrachtMonat: number; lagMonths: number }>;
-    gekoppelteGesetze?: Record<string, string>;
+    gekoppelteGesetze?: Record<string, string[]>;
   };
   complexity: number;
   projekt: GesetzProjekt | undefined;
@@ -153,11 +153,11 @@ export function AgendaCardProgress({ law, state, complexity, projekt, boni, acti
       })()}
 
       {/* Kopplungs-Hinweis */}
-      {state.gekoppelteGesetze?.[law.id] && (
+      {state.gekoppelteGesetze?.[law.id]?.length > 0 && (
         <span className={styles.kopplungsHinweis}>
           🔗 {t('game:gesetz.wartetAuf', {
-            gesetz: getGesetzTitel(state.gekoppelteGesetze[law.id]),
-            defaultValue: `Wartet auf: ${getGesetzTitel(state.gekoppelteGesetze[law.id])}`,
+            gesetz: state.gekoppelteGesetze[law.id].map((id) => getGesetzTitel(id)).join(', '),
+            defaultValue: `Wartet auf: ${state.gekoppelteGesetze[law.id].map((id) => getGesetzTitel(id)).join(', ')}`,
           })}
         </span>
       )}

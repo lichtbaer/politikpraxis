@@ -44,11 +44,32 @@ export function GegenfinanzierungsModal({
   const mrdUnit = t('ui.mrd');
   const [selectedOption, setSelectedOption] = useState<GegenfinanzierungsOption | null>(null);
   const [selectedSubOption, setSelectedSubOption] = useState<string | null>(null);
+  // Multi-Select für Steuergesetze: mehrere IDs auswählbar
+  const [selectedSteuergesetze, setSelectedSteuergesetze] = useState<string[]>([]);
+
+  const toggleSteuergesetz = (id: string) => {
+    setSelectedSteuergesetze((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  // Summe der Einnahmen aus gewählten Steuergesetzen
+  const steuerEinnahmenSumme = selectedOption?.key === 'steuergesetz'
+    ? (selectedOption.suboptionen ?? [])
+        .filter((sub) => 'gesetzId' in sub && selectedSteuergesetze.includes(sub.gesetzId!))
+        .reduce((sum, sub) => sum + ('einnahmeeffekt' in sub ? (sub.einnahmeeffekt ?? 0) : 0), 0)
+    : 0;
 
   const handleConfirm = () => {
     if (!selectedOption) return;
+    if (selectedOption.key === 'steuergesetz') {
+      if (selectedSteuergesetze.length === 0 || steuerEinnahmenSumme < kosten * 0.8) return;
+      onConfirm(selectedOption, selectedSteuergesetze.join(','));
+      onClose();
+      return;
+    }
     if (
-      (selectedOption.key === 'ministerium_kuerzen' || selectedOption.key === 'steuergesetz') &&
+      selectedOption.key === 'ministerium_kuerzen' &&
       selectedOption.suboptionen?.length &&
       !selectedSubOption
     ) {
@@ -65,7 +86,9 @@ export function GegenfinanzierungsModal({
   const canConfirm =
     selectedOption &&
     selectedOption.verfuegbar &&
-    (!needsSubOption || (needsSubOption && selectedSubOption));
+    (selectedOption.key === 'steuergesetz'
+      ? selectedSteuergesetze.length > 0 && steuerEinnahmenSumme >= kosten * 0.8
+      : !needsSubOption || (needsSubOption && selectedSubOption));
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -95,6 +118,7 @@ export function GegenfinanzierungsModal({
                     if (isDisabled) return;
                     setSelectedOption(opt);
                     setSelectedSubOption(null);
+                    setSelectedSteuergesetze([]);
                   }}
                 >
                   {Icon && <Icon size={18} className={styles.optionIcon} />}
@@ -111,7 +135,7 @@ export function GegenfinanzierungsModal({
                       </p>
                     )}
                     {opt.key === 'steuergesetz' && (
-                      <p className={styles.optionDesc}>{t('game:gegenfinanzierung.steuergesetzDesc', 'Das Gesetz tritt erst in Kraft, wenn das Steuergesetz beschlossen ist.')}</p>
+                      <p className={styles.optionDesc}>{t('game:gegenfinanzierung.steuergesetzDesc', 'Das Gesetz tritt erst in Kraft, wenn alle verknüpften Steuergesetze beschlossen sind.')}</p>
                     )}
                     {opt.key === 'ueberschuss' && (
                       <p className={styles.optionDesc}>
@@ -150,13 +174,20 @@ export function GegenfinanzierungsModal({
                         const ministerName = 'minister_name' in sub ? sub.minister_name : undefined;
                         const moodMalus = 'minister_mood' in sub ? sub.minister_mood : undefined;
                         const milieuReaktionen = 'milieu_reaktionen' in sub ? sub.milieu_reaktionen : undefined;
+                        // Steuergesetze: Multi-Select (Toggle), Ressorts: Single-Select
+                        const isSelectedSub = isSteuergesetz
+                          ? selectedSteuergesetze.includes(key)
+                          : selectedSubOption === key;
                         return (
                           <button
                             key={key}
                             type="button"
-                            className={`${styles.suboption} ${selectedSubOption === key ? styles.selected : ''}`}
-                            onClick={() => setSelectedSubOption(key)}
+                            className={`${styles.suboption} ${isSelectedSub ? styles.selected : ''}`}
+                            onClick={() => isSteuergesetz ? toggleSteuergesetz(key) : setSelectedSubOption(key)}
                           >
+                            {isSteuergesetz && (
+                              <span className={styles.checkbox}>{isSelectedSub ? '☑' : '☐'}</span>
+                            )}
                             <span className={styles.suboptionLabel}>{label}</span>
                             {ministerName && (
                               <span className={styles.suboptionMinister}>{ministerName}</span>
@@ -178,6 +209,18 @@ export function GegenfinanzierungsModal({
                         );
                       })}
                     </div>
+                    {opt.key === 'steuergesetz' && selectedSteuergesetze.length > 0 && (
+                      <div className={styles.steuerSumme}>
+                        {t('game:gegenfinanzierung.steuerSumme', {
+                          summe: steuerEinnahmenSumme.toFixed(1),
+                          bedarf: (kosten * 0.8).toFixed(1),
+                          defaultValue: `Gewählte Einnahmen: ${steuerEinnahmenSumme.toFixed(1)} ${mrdUnit} (Bedarf: ${(kosten * 0.8).toFixed(1)} ${mrdUnit})`,
+                        })}
+                        {steuerEinnahmenSumme >= kosten * 0.8
+                          ? ` ✓`
+                          : ` — ${t('game:gegenfinanzierung.nochNichtAusreichend', 'noch nicht ausreichend')}`}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
