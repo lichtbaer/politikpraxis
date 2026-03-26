@@ -2,6 +2,19 @@
 
 export type EventType = 'danger' | 'warn' | 'good' | 'info' | 'crisis';
 
+/** SMA-394: Trigger für zustandsabhängige (dynamic) Events — kommt aus DB trigger_typ + trigger_params */
+export type DynamicEventTriggerTyp =
+  | 'saldo_unter'
+  | 'konjunktur_unter'
+  | 'konjunktur_ueber_monate'
+  | 'koalition_unter'
+  | 'partner_minister_ablehnungen'
+  | 'monat_range'
+  | 'medienklima_unter_monate'
+  | 'medienakteur_reichweite';
+
+export type DynamicEventTriggerParams = Record<string, number | string>;
+
 export interface EventChoiceEffect {
   hh?: number;
   zf?: number;
@@ -30,6 +43,14 @@ export interface EventChoice {
   medienklima_delta?: number;
   verfahrenDauerMonate?: number;
   bundesratBonusAll?: number;
+  /** SMA-394: dynamische Events — Milieu-Zustimmung relativ ändern */
+  milieuDelta?: Record<string, number>;
+  /** SMA-394: Schuldenbremse-Spielraum (Mrd.) relativ */
+  schuldenbremseSpielraumDelta?: number;
+  /** SMA-394: Steuerpolitik-Modifikator relativ (Anteil) */
+  steuerpolitikModifikatorDelta?: number;
+  /** SMA-394: Konjunkturindex relativ (Engine-Spanne ca. -3..+3) */
+  konjunkturIndexDelta?: number;
 }
 
 export interface GameEvent {
@@ -60,6 +81,11 @@ export interface GameEvent {
   repeatable?: boolean;
   cooldownMonths?: number;
   always_include?: boolean;
+  /** SMA-394: Engine-Trigger (aus API trigger_typ / trigger_params) */
+  triggerTyp?: DynamicEventTriggerTyp;
+  triggerParams?: DynamicEventTriggerParams;
+  /** Einmalig auslösbar pro Spielstand (Default true für dynamic) */
+  einmalig?: boolean;
 }
 
 /** Medien-Event (Skandal, positiv) — SMA-277 */

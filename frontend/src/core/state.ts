@@ -219,6 +219,7 @@ export function createInitialState(
 
     activeEvent: null,
     firedEvents: [],
+    ausgeloesteEvents: [],
     firedCharEvents: [],
     firedBundesratEvents: [],
     firedKommunalEvents: [],
@@ -416,6 +417,9 @@ export function validateGameState(raw: unknown): GameState {
   const log = logRaw.slice(0, MAX_LOG_ENTRIES).filter((e) => e && typeof e === 'object');
 
   const firedEvents = Array.isArray(get('firedEvents', [])) ? (get('firedEvents', []) as string[]).slice(0, MAX_FIRED_EVENTS) : [];
+  const ausgeloesteEventsRaw = Array.isArray(get('ausgeloesteEvents', []))
+    ? (get('ausgeloesteEvents', []) as string[]).slice(0, MAX_FIRED_EVENTS)
+    : [];
   const firedCharEvents = Array.isArray(get('firedCharEvents', [])) ? (get('firedCharEvents', []) as string[]).slice(0, MAX_FIRED_EVENTS) : [];
   const firedBundesratEvents = Array.isArray(get('firedBundesratEvents', [])) ? (get('firedBundesratEvents', []) as string[]).slice(0, MAX_FIRED_EVENTS) : [];
   const firedKommunalEvents = Array.isArray(get('firedKommunalEvents', [])) ? (get('firedKommunalEvents', []) as string[]).slice(0, MAX_FIRED_EVENTS) : [];
@@ -447,6 +451,7 @@ export function validateGameState(raw: unknown): GameState {
     bundesratFraktionen: Array.isArray(get('bundesratFraktionen', [])) ? (get('bundesratFraktionen', []) as GameState['bundesratFraktionen']) : [],
     activeEvent: get('activeEvent', null) as GameState['activeEvent'],
     firedEvents,
+    ausgeloesteEvents: ausgeloesteEventsRaw.length ? ausgeloesteEventsRaw : undefined,
     firedCharEvents,
     firedBundesratEvents,
     firedKommunalEvents,
@@ -478,6 +483,8 @@ export function validateGameState(raw: unknown): GameState {
     'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate', 'lowApprovalMonths',
     'activeEventPool', 'unlockedLaws', 'pendingFollowups', 'lastRandomEventMonth',
     'medienAkteure', 'medienAktionenGenutzt', 'medienAkteurBuffs',
+    'ausgeloesteEvents',
+    'konjunkturIndexHistory',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);

@@ -149,12 +149,21 @@ export interface EventChoiceApi {
   verfahren_dauer_monate?: number;
   /** SMA-298: Bundesrat-Bonus für alle Fraktionen (Länder-Koalitionskrise) */
   bundesrat_bonus?: number;
+  /** SMA-394 */
+  milieu_delta?: Record<string, number>;
+  schuldenbremse_spielraum_delta?: number;
+  steuerpolitik_modifikator_delta?: number;
+  konjunktur_index_delta?: number;
 }
 
 export interface EventApi {
   id: string;
   event_type: string;
   trigger_type?: string | null;
+  /** SMA-394 */
+  trigger_typ?: string | null;
+  trigger_params?: Record<string, number | string> | null;
+  einmalig?: boolean | null;
   min_complexity?: number | null;
   type_label: string;
   title: string;
