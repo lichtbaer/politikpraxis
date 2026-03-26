@@ -49,14 +49,14 @@ export function applyKPIDrift(kpi: KPI): KPI {
   const newKpi = { ...kpi };
   // AL: häufiger Drift mit leichtem Aufwärtstrend (Arbeitsmarkt verschlechtert sich ohne aktive Politik)
   if (Math.random() < KPI_DRIFT_CHANCE) {
-    newKpi.al = clamp(newKpi.al + (Math.random() - 0.56) * 0.3, 2, 15);
+    newKpi.al = clamp(newKpi.al + (Math.random() - 0.60) * 0.3, 2, 15);
   }
   // HH: seltener Drift mit leichter Verschlechterung (strukturelle Ausgabensteigerungen)
   if (Math.random() < 0.12) {
     newKpi.hh = clamp(newKpi.hh + (Math.random() - 0.52) * 0.2, -10, 10);
   }
   // GI: selten, leicht steigend (Ungleichheit wächst ohne Gegenmaßnahmen)
-  if (Math.random() < 0.10) {
+  if (Math.random() < 0.15) {
     newKpi.gi = clamp(newKpi.gi + (Math.random() - 0.45) * 0.15, 10, 60);
   }
   // ZF: häufigerer Drift mit Abwärtstrend (Bevölkerung wird ohne aktive Politik unzufriedener)
@@ -64,7 +64,7 @@ export function applyKPIDrift(kpi: KPI): KPI {
     newKpi.zf = clamp(newKpi.zf + (Math.random() - 0.55) * 0.3, 20, 80);
   }
   // Natürlicher ZF-Verfall: Zufriedenheit sinkt langsam ohne aktive Maßnahmen
-  newKpi.zf = clamp(newKpi.zf - 0.15, 20, 80);
+  newKpi.zf = clamp(newKpi.zf - 0.38, 20, 80);
   return newKpi;
 }
 

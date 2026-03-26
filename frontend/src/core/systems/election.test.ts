@@ -33,10 +33,10 @@ describe('checkGameEnd', () => {
     expect(result.won).toBe(false);
   });
 
-  it('nutzt Default-Schwelle 40% wenn nicht gesetzt', () => {
+  it('nutzt Default-Schwelle 45% wenn nicht gesetzt', () => {
     const state = makeState({
       month: 49,
-      zust: { g: 39, arbeit: 50, mitte: 50, prog: 50 },
+      zust: { g: 44, arbeit: 50, mitte: 50, prog: 50 },
     });
     const result = checkGameEnd(state);
     expect(result.gameOver).toBe(true);

@@ -65,7 +65,7 @@ export const BUNDESTAG_SITZE = 600;
 
 // --- Wahl / Spielende ---
 /** Standard-Wahlhürde in % */
-export const DEFAULT_ELECTION_THRESHOLD = 40;
+export const DEFAULT_ELECTION_THRESHOLD = 45;
 /** Min. Koalitionsstärke für Spielfortsetzung */
 export const MIN_KOALITION_FORTGANG = 15;
 /** Legislaturperiode in Monaten */
@@ -103,7 +103,7 @@ export const SKANDAL_CHANCE = 0.08;
 /** Chance auf positives Medien-Event */
 export const POSITIV_MEDIEN_CHANCE = 0.1;
 /** Chance auf KPI-Drift (Arbeitslosigkeit) */
-export const KPI_DRIFT_CHANCE = 0.25;
+export const KPI_DRIFT_CHANCE = 0.30;
 
 // --- Konjunktur-Index Grenzen ---
 export const KONJUNKTUR_INDEX_MIN = -3;
