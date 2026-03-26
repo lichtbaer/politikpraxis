@@ -26,7 +26,7 @@ export function buildMisstrauensvotumEvent(state: GameState): GameEvent {
 
   return {
     id: 'konstruktives_misstrauensvotum',
-    type: 'crisis',
+    type: 'danger',
     icon: '⚖️',
     typeLabel: 'Verfassungskrise',
     title: 'Konstruktives Misstrauensvotum (Art. 67 GG)',

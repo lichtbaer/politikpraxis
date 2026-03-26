@@ -89,6 +89,8 @@ export function makeChoice(overrides: Partial<EventChoice> = {}): EventChoice {
     desc: 'Test',
     type: 'primary',
     cost: 0,
+    effect: {},
+    log: '',
     ...overrides,
   };
 }

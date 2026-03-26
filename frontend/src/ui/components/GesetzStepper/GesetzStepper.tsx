@@ -30,6 +30,7 @@ const STATUS_ORDER: Record<LawStatus, number> = {
   beschlossen: 4,
   blockiert: -1,
   ausweich: -1,
+  br_einspruch: -1,
 };
 
 function getStepClass(stepStatus: LawStatus, currentStatus: LawStatus): string {

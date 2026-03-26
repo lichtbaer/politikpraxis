@@ -5,7 +5,7 @@
  * Vermittlungsausschuss einberufen. Ergebnis: abgeschwächtes Gesetz
  * (50% Effekte) mit 2 Monaten Verzögerung und 20 PK Kosten.
  */
-import type { GameState, Law, LawEffects } from '../types';
+import type { GameState, LawEffects } from '../types';
 import { addLog } from '../engine';
 import { verbrauchePK } from '../pk';
 import { scheduleEffects } from './economy';
