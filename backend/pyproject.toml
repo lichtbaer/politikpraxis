@@ -46,3 +46,7 @@ exclude = "(?x)(^|.*/)(migrations)(/|$)"
 [[tool.mypy.overrides]]
 module = "tests.*"
 ignore_errors = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "app/db/migrations"]
+skips = ["B101"]  # assert in Tests/FastAPI-Deps ist OK

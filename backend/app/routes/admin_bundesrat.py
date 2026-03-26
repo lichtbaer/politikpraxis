@@ -14,6 +14,7 @@ from app.models.content import (
     BundesratTradeoff,
     BundesratTradeoffI18n,
 )
+from app.routes.admin_utils import to_float
 from app.schemas.admin import (
     BundesratFraktionCreate,
     BundesratFraktionI18nUpdate,
@@ -23,10 +24,6 @@ from app.schemas.admin import (
 from app.services.content_db_service import content_cache_clear
 
 router = APIRouter()
-
-
-def _to_float(v: Decimal | float | None) -> float:
-    return float(v) if v is not None else 0.0
 
 
 @router.get("/bundesrat")
@@ -140,10 +137,10 @@ async def admin_list_bundesrat_tradeoffs(
         {
             "id": r.id,
             "tradeoff_key": r.tradeoff_key,
-            "effekt_al": _to_float(r.effekt_al),
-            "effekt_hh": _to_float(r.effekt_hh),
-            "effekt_gi": _to_float(r.effekt_gi),
-            "effekt_zf": _to_float(r.effekt_zf),
+            "effekt_al": to_float(r.effekt_al),
+            "effekt_hh": to_float(r.effekt_hh),
+            "effekt_gi": to_float(r.effekt_gi),
+            "effekt_zf": to_float(r.effekt_zf),
             "char_mood": r.char_mood or {},
         }
         for r in rows

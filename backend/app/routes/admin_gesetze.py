@@ -9,14 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.dependencies import validate_locale_value
 from app.models.content import Gesetz, GesetzI18n
+from app.routes.admin_utils import to_float
 from app.schemas.admin import GesetzCreate, GesetzI18nUpdate, GesetzUpdate
 from app.services.content_db_service import content_cache_clear
 
 router = APIRouter()
-
-
-def _to_float(v: Decimal | float | None) -> float:
-    return float(v) if v is not None else 0.0
 
 
 @router.get("/gesetze")
@@ -28,10 +25,10 @@ async def admin_list_gesetze(db: AsyncSession = Depends(get_db)):
             "id": r.id,
             "tags": r.tags or [],
             "bt_stimmen_ja": r.bt_stimmen_ja,
-            "effekt_al": _to_float(r.effekt_al),
-            "effekt_hh": _to_float(r.effekt_hh),
-            "effekt_gi": _to_float(r.effekt_gi),
-            "effekt_zf": _to_float(r.effekt_zf),
+            "effekt_al": to_float(r.effekt_al),
+            "effekt_hh": to_float(r.effekt_hh),
+            "effekt_gi": to_float(r.effekt_gi),
+            "effekt_zf": to_float(r.effekt_zf),
             "effekt_lag": r.effekt_lag,
             "foederalismus_freundlich": r.foederalismus_freundlich,
         }
@@ -71,10 +68,10 @@ async def admin_get_gesetz(gesetz_id: str, db: AsyncSession = Depends(get_db)):
         "id": g.id,
         "tags": g.tags or [],
         "bt_stimmen_ja": g.bt_stimmen_ja,
-        "effekt_al": _to_float(g.effekt_al),
-        "effekt_hh": _to_float(g.effekt_hh),
-        "effekt_gi": _to_float(g.effekt_gi),
-        "effekt_zf": _to_float(g.effekt_zf),
+        "effekt_al": to_float(g.effekt_al),
+        "effekt_hh": to_float(g.effekt_hh),
+        "effekt_gi": to_float(g.effekt_gi),
+        "effekt_zf": to_float(g.effekt_zf),
         "effekt_lag": g.effekt_lag,
         "foederalismus_freundlich": g.foederalismus_freundlich,
     }
