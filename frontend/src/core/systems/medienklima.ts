@@ -73,7 +73,23 @@ export type MedienSpielerAktionKey =
   | 'social_kampagne'
   | 'qualitaet_gespraech';
 
+/** SMA-393: Ergebnis von doMedienAktion für UI-Toasts (keine Spiel-Logik) */
+export type MedienAktionErgebnis =
+  | { ok: true; aktion: MedienSpielerAktionKey; pkKosten: number; backlash?: boolean }
+  | { ok: false; reason: 'cooldown' | 'nicht_verfuegbar' };
+
 const MEDIEN_AKTION_COOLDOWN_MONATE = 3;
+
+/**
+ * SMA-393: Milieu-IDs, auf die ÖR-Talkshow wirkt — nur in der aktuellen Komplexitätsstufe
+ * sichtbare Milieus (min_complexity), analog zu initGameState / MediaView.
+ * Stufe 1: leer (aggregierte Ansicht ohne Einzel-Milieus).
+ */
+export function getAktiveMilieusFuerTalkshow(complexity: number, content: ContentBundle): string[] {
+  if (!featureActive(complexity, 'milieus_4')) return [];
+  const list = content.milieus?.length ? content.milieus : [];
+  return list.filter((m) => m.min_complexity <= complexity).map((m) => m.id);
+}
 
 /** Effektive Stimmung inkl. ablaufender Buffs (nur für Index / UI) */
 export function effektiveMedienAkteurStimmung(
@@ -684,6 +700,7 @@ function mergeStimmungsBuff(
 /**
  * SMA-392: gezielte Medien-Aktionen (Stufe 3+), Cooldown 3 Monate je Aktion.
  * `alternativ_diversifizieren` nur Stufe 4+.
+ * SMA-393: Rückgabe enthält `outcome` für UI-Toasts; bei Cooldown bleibt der State unverändert.
  */
 export function doMedienAktion(
   state: GameState,
@@ -691,9 +708,11 @@ export function doMedienAktion(
   complexity: number,
   content: ContentBundle,
   rng: () => number = Math.random,
-): GameState | null {
+): { state: GameState; outcome: MedienAktionErgebnis } | null {
   if (!featureActive(complexity, 'medien_akteure_3')) return null;
-  if (!kannMedienAktionNutzen(state, aktion)) return null;
+  if (!kannMedienAktionNutzen(state, aktion)) {
+    return { state, outcome: { ok: false, reason: 'cooldown' } };
+  }
 
   const bundle = content.medienAkteureContent?.length ? content : ({ medienAkteureContent: DEFAULT_MEDIEN_AKTEURE } as ContentBundle);
   let s = expireMedienAkteurBuffs({ ...state }, state.month);
@@ -722,10 +741,7 @@ export function doMedienAktion(
     s = pkResult;
     addBaseStimmung('oeffentlich', 5);
     const milieuZustimmung = { ...(s.milieuZustimmung ?? {}) };
-    const milieuIds =
-      bundle.milieus && bundle.milieus.length > 0
-        ? bundle.milieus.map((m) => m.id)
-        : Object.keys(milieuZustimmung);
+    const milieuIds = getAktiveMilieusFuerTalkshow(complexity, content);
     for (const id of milieuIds) {
       milieuZustimmung[id] = clamp((milieuZustimmung[id] ?? 50) + 1, 0, 100);
     }
@@ -735,7 +751,10 @@ export function doMedienAktion(
       medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), oeffentlich_talkshow: s.month },
       medienKlima: berechneMedianklima(s),
     };
-    return addLog(s, 'Medien-Aktion: ÖR-Talkshow', 'hi');
+    return {
+      state: addLog(s, 'Medien-Aktion: ÖR-Talkshow', 'hi'),
+      outcome: { ok: true, aktion: 'oeffentlich_talkshow', pkKosten: 10 },
+    };
   }
 
   if (aktion === 'boulevard_interview') {
@@ -749,7 +768,10 @@ export function doMedienAktion(
       medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), boulevard_interview: s.month },
       medienKlima: berechneMedianklima(s),
     };
-    return addLog(s, 'Medien-Aktion: Boulevard-Interview', 'hi');
+    return {
+      state: addLog(s, 'Medien-Aktion: Boulevard-Interview', 'hi'),
+      outcome: { ok: true, aktion: 'boulevard_interview', pkKosten: 15 },
+    };
   }
 
   if (aktion === 'social_kampagne') {
@@ -763,7 +785,10 @@ export function doMedienAktion(
         medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), social_kampagne: s.month },
         medienKlima: berechneMedianklima(s),
       };
-      return addLog(s, 'Social-Media-Kampagne: Gegenwind (Backlash)', 'r');
+      return {
+        state: addLog(s, 'Social-Media-Kampagne: Gegenwind (Backlash)', 'r'),
+        outcome: { ok: true, aktion: 'social_kampagne', pkKosten: 20, backlash: true },
+      };
     }
     applyBuff('social', 15, 1);
     s = {
@@ -771,7 +796,10 @@ export function doMedienAktion(
       medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), social_kampagne: s.month },
       medienKlima: berechneMedianklima(s),
     };
-    return addLog(s, 'Medien-Aktion: Social-Media-Kampagne', 'hi');
+    return {
+      state: addLog(s, 'Medien-Aktion: Social-Media-Kampagne', 'hi'),
+      outcome: { ok: true, aktion: 'social_kampagne', pkKosten: 20 },
+    };
   }
 
   if (aktion === 'qualitaet_gespraech') {
@@ -790,7 +818,10 @@ export function doMedienAktion(
       medienAktionenGenutzt: { ...(s.medienAktionenGenutzt ?? {}), qualitaet_gespraech: s.month },
       medienKlima: berechneMedianklima({ ...s, milieuZustimmung }),
     };
-    return addLog(s, 'Medien-Aktion: Qualitätspresse-Gespräch', 'hi');
+    return {
+      state: addLog(s, 'Medien-Aktion: Qualitätspresse-Gespräch', 'hi'),
+      outcome: { ok: true, aktion: 'qualitaet_gespraech', pkKosten: 15 },
+    };
   }
 
   return null;

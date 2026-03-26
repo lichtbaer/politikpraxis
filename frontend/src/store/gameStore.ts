@@ -63,7 +63,12 @@ import {
   wahlkampfKoalition,
   wahlkampfMedienoffensive,
 } from '../core/systems/wahlkampf';
-import { pressemitteilung, doMedienAktion, type MedienSpielerAktionKey } from '../core/systems/medienklima';
+import {
+  pressemitteilung,
+  doMedienAktion,
+  medienAktionCooldownVerbleibend,
+  type MedienSpielerAktionKey,
+} from '../core/systems/medienklima';
 import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
 import { vermittlungsausschuss } from '../core/systems/vermittlung';
@@ -579,8 +584,54 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }),
   doMedienAktion: (aktion) =>
     set(prev => {
-      const next = doMedienAktion(prev.state, aktion, prev.complexity, prev.content);
-      return next ? { state: next } : {};
+      const wrapped = doMedienAktion(prev.state, aktion, prev.complexity, prev.content);
+      if (!wrapped) return {};
+      const { state: next, outcome } = wrapped;
+      if (!outcome.ok) {
+        if (outcome.reason === 'cooldown') {
+          const cd = medienAktionCooldownVerbleibend(prev.state, aktion);
+          const freiAb = prev.state.month + cd;
+          const labels: Record<MedienSpielerAktionKey, string> = {
+            oeffentlich_talkshow: 'ÖR-Talkshow',
+            boulevard_interview: 'Boulevard-Interview',
+            social_kampagne: 'Social-Media-Kampagne',
+            qualitaet_gespraech: 'Qualitätspresse-Gespräch',
+          };
+          toast(`${labels[aktion]} wieder verfügbar in Monat ${freiAb}`, 'warning');
+        }
+        return {};
+      }
+      if (outcome.backlash) {
+        toast(
+          '📱 Backlash! Social-Media-Kampagne nach hinten losgegangen — Öffentliche Medien (Social) Stimmung −20',
+          'danger',
+        );
+        return { state: next };
+      }
+      switch (outcome.aktion) {
+        case 'oeffentlich_talkshow':
+          toast(
+            '📺 ÖR-Talkshow gebucht — Öffentliche Medien +5, sichtbare Milieus je +1 (−10 PK)',
+            'success',
+          );
+          break;
+        case 'boulevard_interview':
+          toast(
+            '🗞️ Boulevard-Interview erscheint nächsten Monat — Boulevard +10 (2 Mon.), Qualitätspresse −3 (−15 PK)',
+            'success',
+          );
+          break;
+        case 'social_kampagne':
+          toast('📱 Social-Media-Kampagne gestartet — Social +15 (1 Mon.) (−20 PK)', 'success');
+          break;
+        case 'qualitaet_gespraech':
+          toast(
+            '💻 Hintergrundgespräch mit Qualitätspresse vereinbart — Qualität +8, Milieu „Etablierte“ +3 (−15 PK)',
+            'success',
+          );
+          break;
+      }
+      return { state: next };
     }),
   doKabinettsgespraech: (charId) =>
     set(prev => ({ state: kabinettsgespraech(prev.state, charId) })),
