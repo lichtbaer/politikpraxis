@@ -223,6 +223,19 @@ class EuEventResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class MedienAkteurResponse(BaseModel):
+    """SMA-392: Medienakteur-Definitionen (Seed aus DB)."""
+
+    id: str
+    name_de: str
+    typ: str
+    reichweite: float
+    stimmung_start: int = 0
+    min_complexity: int = 2
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ContentBundleResponse(BaseModel):
     characters: list[dict[str, Any]]
     events: list[dict[str, Any]]

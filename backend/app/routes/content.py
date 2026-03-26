@@ -10,6 +10,7 @@ from app.schemas.content import (
     EuEventResponse,
     EventResponse,
     GesetzResponse,
+    MedienAkteurResponse,
     MilieuResponse,
     PolitikfeldResponse,
     VerbandResponse,
@@ -21,6 +22,7 @@ from app.services.content_db_service import (
     fetch_events,
     fetch_gesetz_relationen,
     fetch_gesetze,
+    fetch_medien_akteure,
     fetch_milieus,
     fetch_politikfelder,
     fetch_verbaende,
@@ -147,6 +149,12 @@ async def get_verbaende(
     """GET /api/content/verbaende?locale=de — Verbände mit Ideologie und Tradeoffs."""
     rows = await fetch_verbaende(db, locale)
     return rows
+
+
+@router.get("/medien-akteure", response_model=list[MedienAkteurResponse])
+async def get_medien_akteure(db: AsyncSession = Depends(get_db)):
+    """GET /api/content/medien-akteure — Medienakteure (SMA-392)."""
+    return await fetch_medien_akteure(db)
 
 
 @router.get("/gesetz-relationen")

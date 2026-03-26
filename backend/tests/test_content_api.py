@@ -266,6 +266,24 @@ async def test_get_verbaende_invalid_locale(client: AsyncClient):
 
 @pytest.mark.asyncio
 @requires_db
+async def test_get_medien_akteure_happy_path(client: AsyncClient):
+    """GET /api/content/medien-akteure liefert Medienakteure (SMA-392)."""
+    r = await client.get("/api/content/medien-akteure")
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, list)
+    if data:
+        row = data[0]
+        assert "id" in row
+        assert "name_de" in row
+        assert "typ" in row
+        assert "reichweite" in row
+        assert "stimmung_start" in row
+        assert "min_complexity" in row
+
+
+@pytest.mark.asyncio
+@requires_db
 async def test_get_chars_includes_ideologie(client: AsyncClient):
     """Char-Response enthält ideologie-Objekt."""
     r = await client.get("/api/content/chars", params={"locale": "de"})

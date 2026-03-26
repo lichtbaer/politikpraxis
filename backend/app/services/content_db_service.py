@@ -7,6 +7,7 @@ from typing import Any
 from sqlalchemy import Select, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.medien_akteur import MedienAkteur
 from app.models.content import (
     BundesratFraktion,
     BundesratFraktionI18n,
@@ -115,6 +116,31 @@ async def _fetch_cached_i18n(
 # ---------------------------------------------------------------------------
 # Individual fetch functions (using the generic helper)
 # ---------------------------------------------------------------------------
+
+
+async def fetch_medien_akteure(db: AsyncSession) -> list[dict]:
+    """SMA-392: Medienakteure aus DB (kein Locale — nur name_de)."""
+
+    cache_key = ("medien_akteure", "all")
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
+
+    result = await db.execute(select(MedienAkteur).order_by(MedienAkteur.id))
+    rows_orm = result.scalars().all()
+    out = [
+        {
+            "id": r.id,
+            "name_de": r.name_de,
+            "typ": r.typ,
+            "reichweite": float(r.reichweite),
+            "stimmung_start": int(r.stimmung_start or 0),
+            "min_complexity": int(r.min_complexity or 2),
+        }
+        for r in rows_orm
+    ]
+    _set_cached(cache_key, out)
+    return out
 
 
 async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
