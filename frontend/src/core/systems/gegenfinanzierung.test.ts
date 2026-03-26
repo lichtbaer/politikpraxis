@@ -104,9 +104,27 @@ describe('gegenfinanzierung', () => {
     expect(brauchtGegenfinanzierung(makeLaw({ kosten_einmalig: -5 }))).toBe(true);
   });
 
-  it('brauchtGegenfinanzierung: Einnahmen reduzieren Netto-Kosten', () => {
+  it('brauchtGegenfinanzierung: Einnahmen reduzieren Netto-Kosten unter Schwelle', () => {
+    // -3 + 2 = -1 netto → genau an der Schwelle → kein Trigger
     const law = makeLaw({ kosten_laufend: -3, einnahmeeffekt: 2 });
-    expect(brauchtGegenfinanzierung(law)).toBe(true); // -3 + 2 = -1 netto
+    expect(brauchtGegenfinanzierung(law)).toBe(false);
+  });
+
+  it('brauchtGegenfinanzierung: Einnahmen reichen nicht aus → true', () => {
+    // -5 + 2 = -3 netto → > 1 Mrd. → Trigger
+    const law = makeLaw({ kosten_laufend: -5, einnahmeeffekt: 2 });
+    expect(brauchtGegenfinanzierung(law)).toBe(true);
+  });
+
+  it('brauchtGegenfinanzierung: reines Einnahme-Gesetz → false', () => {
+    // 0 + 5 = +5 netto → kein Trigger
+    expect(brauchtGegenfinanzierung(makeLaw({ einnahmeeffekt: 5 }))).toBe(false);
+    expect(brauchtGegenfinanzierung(makeLaw({ einnahmeeffekt: 0.5 }))).toBe(false);
+  });
+
+  it('brauchtGegenfinanzierung: Steuergesetz mit Einnahmeverlust → true', () => {
+    // Steuersenkung: einnahmeeffekt negativ → 0 + (-12) = -12 → Trigger
+    expect(brauchtGegenfinanzierung(makeLaw({ einnahmeeffekt: -12 }))).toBe(true);
   });
 
   it('berechneOptionen: liefert Optionen bei complexity 2+', () => {
@@ -129,7 +147,38 @@ describe('gegenfinanzierung', () => {
     expect(optionen).toEqual([]);
   });
 
-  it('wendeGegenfinanzierungAn: steuergesetz koppelt Gesetz', () => {
+  it('berechneOptionen: listet auch kleine Steuergesetze (Multi-Kopplung)', () => {
+    const state = makeState({
+      gesetze: [
+        makeLaw({ id: 'steuer_a', einnahmeeffekt: 2, status: 'entwurf' }),
+        makeLaw({ id: 'steuer_b', einnahmeeffekt: 3, status: 'entwurf' }),
+      ],
+    });
+    const law = makeLaw({ kosten_laufend: -5 });
+    const optionen = berechneOptionen(state, law, {} as ContentBundle, 2);
+    const steuerOpt = optionen.find((o) => o.key === 'steuergesetz');
+    expect(steuerOpt).toBeDefined();
+    // Beide Steuergesetze sollten als Suboptionen verfügbar sein
+    expect(steuerOpt!.suboptionen?.length).toBe(2);
+    // Kombiniert 2+3=5 >= 5*0.8=4 → verfügbar
+    expect(steuerOpt!.verfuegbar).toBe(true);
+  });
+
+  it('berechneOptionen: Steuergesetz-Option nicht verfügbar wenn Summe < 80%', () => {
+    const state = makeState({
+      gesetze: [
+        makeLaw({ id: 'steuer_a', einnahmeeffekt: 1, status: 'entwurf' }),
+      ],
+    });
+    const law = makeLaw({ kosten_laufend: -5 });
+    const optionen = berechneOptionen(state, law, {} as ContentBundle, 2);
+    const steuerOpt = optionen.find((o) => o.key === 'steuergesetz');
+    expect(steuerOpt).toBeDefined();
+    // 1 < 5*0.8=4 → nicht verfügbar
+    expect(steuerOpt!.verfuegbar).toBe(false);
+  });
+
+  it('wendeGegenfinanzierungAn: steuergesetz koppelt Gesetz (einzeln)', () => {
     const state = makeState();
     const law = makeLaw({ id: 'teures_gesetz', kosten_laufend: -5 });
     const option = {
@@ -139,7 +188,23 @@ describe('gegenfinanzierung', () => {
       suboptionen: [{ gesetzId: 'est_plus', einnahmeeffekt: 17 }],
     };
     const result = wendeGegenfinanzierungAn(state, law, option, 'est_plus');
-    expect(result.gekoppelteGesetze?.['teures_gesetz']).toBe('est_plus');
+    expect(result.gekoppelteGesetze?.['teures_gesetz']).toEqual(['est_plus']);
+  });
+
+  it('wendeGegenfinanzierungAn: steuergesetz koppelt mehrere Gesetze', () => {
+    const state = makeState();
+    const law = makeLaw({ id: 'teures_gesetz', kosten_laufend: -5 });
+    const option = {
+      key: 'steuergesetz' as const,
+      label_de: 'Steuergesetz(e) verknüpfen',
+      verfuegbar: true,
+      suboptionen: [
+        { gesetzId: 'steuer_a', einnahmeeffekt: 2 },
+        { gesetzId: 'steuer_b', einnahmeeffekt: 3 },
+      ],
+    };
+    const result = wendeGegenfinanzierungAn(state, law, option, 'steuer_a,steuer_b');
+    expect(result.gekoppelteGesetze?.['teures_gesetz']).toEqual(['steuer_a', 'steuer_b']);
   });
 
   it('istGegenfinanzierungErfuellt: true ohne Kopplung', () => {
@@ -149,7 +214,7 @@ describe('gegenfinanzierung', () => {
 
   it('istGegenfinanzierungErfuellt: false wenn Kopplung, Steuergesetz nicht beschlossen', () => {
     const state = makeState({
-      gekoppelteGesetze: { gesetz_a: 'est_plus' },
+      gekoppelteGesetze: { gesetz_a: ['est_plus'] },
       gesetze: [
         makeLaw({ id: 'est_plus', status: 'entwurf' }),
       ],
@@ -159,9 +224,31 @@ describe('gegenfinanzierung', () => {
 
   it('istGegenfinanzierungErfuellt: true wenn Kopplung, Steuergesetz beschlossen', () => {
     const state = makeState({
-      gekoppelteGesetze: { gesetz_a: 'est_plus' },
+      gekoppelteGesetze: { gesetz_a: ['est_plus'] },
       gesetze: [
         makeLaw({ id: 'est_plus', status: 'beschlossen' }),
+      ],
+    });
+    expect(istGegenfinanzierungErfuellt(state, 'gesetz_a')).toBe(true);
+  });
+
+  it('istGegenfinanzierungErfuellt: false wenn Multi-Kopplung, nicht alle beschlossen', () => {
+    const state = makeState({
+      gekoppelteGesetze: { gesetz_a: ['steuer_a', 'steuer_b'] },
+      gesetze: [
+        makeLaw({ id: 'steuer_a', status: 'beschlossen' }),
+        makeLaw({ id: 'steuer_b', status: 'entwurf' }),
+      ],
+    });
+    expect(istGegenfinanzierungErfuellt(state, 'gesetz_a')).toBe(false);
+  });
+
+  it('istGegenfinanzierungErfuellt: true wenn Multi-Kopplung, alle beschlossen', () => {
+    const state = makeState({
+      gekoppelteGesetze: { gesetz_a: ['steuer_a', 'steuer_b'] },
+      gesetze: [
+        makeLaw({ id: 'steuer_a', status: 'beschlossen' }),
+        makeLaw({ id: 'steuer_b', status: 'beschlossen' }),
       ],
     });
     expect(istGegenfinanzierungErfuellt(state, 'gesetz_a')).toBe(true);

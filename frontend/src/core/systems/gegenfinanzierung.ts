@@ -103,8 +103,8 @@ export function brauchtGegenfinanzierung(gesetz: Law): boolean {
   const laufend = gesetz.kosten_laufend ?? 0;
   const einmalig = gesetz.kosten_einmalig ?? 0;
   const einnahme = gesetz.einnahmeeffekt ?? 0;
-  // Netto-Kosten: laufend + einmalig/10 (amortisiert) - Einnahmen
-  const nettoLaufend = laufend - einnahme;
+  // Netto-Kosten: laufend + einnahme (positiv = Einnahmen überwiegen, negativ = Kosten überwiegen)
+  const nettoLaufend = laufend + einnahme;
   return nettoLaufend < -1.0 || einmalig < -3.0;
 }
 
@@ -166,19 +166,25 @@ export function berechneOptionen(
     hat_lehmann: hatLehmann,
   });
 
-  // Option C: Steuergesetz verknüpfen (einnahmeeffekt >= 80% der Kosten)
+  // Option C: Steuergesetz(e) verknüpfen — alle verfügbaren Steuergesetze anbieten,
+  // Spieler kann mehrere auswählen (kombinierte einnahmeeffekt >= 80% der Kosten)
   const steuergesetze = state.gesetze.filter(
     (g) =>
-      (g.einnahmeeffekt ?? 0) >= kosten * 0.8 &&
+      (g.einnahmeeffekt ?? 0) > 0 &&
       !eingebrachteIds.includes(g.id) &&
       !beschlosseneIds.includes(g.id) &&
       g.status === 'entwurf',
   );
+  const gesamtEinnahmen = steuergesetze.reduce((sum, g) => sum + (g.einnahmeeffekt ?? 0), 0);
   optionen.push({
     key: 'steuergesetz',
-    label_de: 'Steuergesetz verknüpfen',
-    verfuegbar: steuergesetze.length > 0,
-    verfuegbar_grund: steuergesetze.length === 0 ? 'Kein passendes Steuergesetz verfügbar' : undefined,
+    label_de: 'Steuergesetz(e) verknüpfen',
+    verfuegbar: gesamtEinnahmen >= kosten * 0.8,
+    verfuegbar_grund: steuergesetze.length === 0
+      ? 'Kein passendes Steuergesetz verfügbar'
+      : gesamtEinnahmen < kosten * 0.8
+        ? `Verfügbare Einnahmen (${gesamtEinnahmen.toFixed(1)} Mrd.) decken nicht 80% der Kosten (${(kosten * 0.8).toFixed(1)} Mrd.)`
+        : undefined,
     suboptionen: steuergesetze.map((g) => ({
       gesetzId: g.id,
       einnahmeeffekt: g.einnahmeeffekt ?? 0,
@@ -310,8 +316,11 @@ export function wendeGegenfinanzierungAn(
 
     case 'steuergesetz': {
       if (!subOption) return state;
-      const gekoppelteGesetze = { ...(state.gekoppelteGesetze ?? {}), [gesetz.id]: subOption };
-      const titel = getGesetzTitel(state, subOption);
+      // subOption kann komma-separierte IDs enthalten (Multi-Kopplung)
+      const steuerIds = subOption.split(',').map((s) => s.trim()).filter(Boolean);
+      if (steuerIds.length === 0) return state;
+      const gekoppelteGesetze = { ...(state.gekoppelteGesetze ?? {}), [gesetz.id]: steuerIds };
+      const titel = steuerIds.map((id) => getGesetzTitel(state, id)).join(', ');
       return addLog(
         { ...state, gekoppelteGesetze },
         `${gesetz.titel ?? gesetz.kurz} wartet auf Beschluss von ${titel}`,
@@ -332,13 +341,15 @@ export function wendeGegenfinanzierungAn(
   }
 }
 
-/** Prüft ob Gesetz durch gekoppeltes Steuergesetz freigegeben ist */
+/** Prüft ob Gesetz durch gekoppelte Steuergesetze freigegeben ist (alle müssen beschlossen sein) */
 export function istGegenfinanzierungErfuellt(
   state: GameState,
   gesetzId: string,
 ): boolean {
   const gekoppelt = state.gekoppelteGesetze?.[gesetzId];
-  if (!gekoppelt) return true; // Keine Kopplung = immer erfüllt
-  const steuergesetz = state.gesetze.find((g) => g.id === gekoppelt);
-  return steuergesetz?.status === 'beschlossen';
+  if (!gekoppelt || gekoppelt.length === 0) return true; // Keine Kopplung = immer erfüllt
+  return gekoppelt.every((steuergesetzId) => {
+    const steuergesetz = state.gesetze.find((g) => g.id === steuergesetzId);
+    return steuergesetz?.status === 'beschlossen';
+  });
 }

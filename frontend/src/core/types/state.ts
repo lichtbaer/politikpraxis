@@ -177,7 +177,7 @@ export interface GameState {
   wahlprognose?: number;
   medienoffensiveGenutzt?: boolean;
   steuerquoteAktionJahr?: number;
-  gekoppelteGesetze?: Record<string, string>;
+  gekoppelteGesetze?: Record<string, string[]>;
   gesetzBeschlossenMonat?: Record<string, number>;
   konjunkturBereitsAngewendet?: Record<string, true>;
   pendingGegenfinanzierung?: {

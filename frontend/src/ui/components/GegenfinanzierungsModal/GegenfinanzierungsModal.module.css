@@ -268,3 +268,18 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.checkbox {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.steuerSumme {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 8px 14px;
+  margin-top: 4px;
+  background: var(--bg2);
+  border-radius: 6px;
+}
