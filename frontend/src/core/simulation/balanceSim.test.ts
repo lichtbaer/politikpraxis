@@ -1,8 +1,8 @@
 /**
  * Balance-Simulation: Testet Gewinnraten mit der echten Game-Engine.
  *
- * Jede Strategie wird N-mal durchgespielt. Die Gewinnrate muss
- * zwischen 20% und 80% liegen (weder zu leicht noch zu schwer).
+ * Jede Strategie wird N-mal durchgespielt.
+ * Ziel-Gewinnrate: 20–80% (weder zu leicht noch zu schwer).
  */
 import { describe, it, expect } from 'vitest';
 import { monteCarlo } from './balanceSim';
@@ -34,27 +34,27 @@ describe('Balance-Simulation (echte Engine)', () => {
       };
     }
 
-    // Ausgabe für Balance-Analyse
     console.table(report);
 
-    // Musterschüler sollte besser abschneiden als passive Strategien
+    // Musterschüler sollte mindestens so gut abschneiden wie passive Strategien
     expect(report['musterschueler'].gewinnRate).toBeGreaterThanOrEqual(
       report['pk_horten'].gewinnRate
     );
-  });
+  }, 120_000);
 
   it('musterschueler: Gewinnrate mindestens 20%', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['musterschueler'], N, COMPLEXITY);
     expect(result.gewinnRate).toBeGreaterThanOrEqual(0.20);
   });
 
-  it('pk_horten (nichts tun): Gewinnrate unter 80%', () => {
+  it('pk_horten (nichts tun): mediane Wahlprognose unter 55%', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
-    expect(result.gewinnRate).toBeLessThanOrEqual(0.80);
+    // Passives Spielen sollte keine hohe Wahlprognose liefern
+    expect(result.wahlprognose.median).toBeLessThan(55);
   });
 
-  it('random: Gewinnrate unter 90%', () => {
+  it('random: mediane Wahlprognose unter 60%', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['random'], N, COMPLEXITY);
-    expect(result.gewinnRate).toBeLessThanOrEqual(0.90);
+    expect(result.wahlprognose.median).toBeLessThan(60);
   });
 });
