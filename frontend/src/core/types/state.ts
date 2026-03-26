@@ -16,6 +16,7 @@ import type {
   Politikfeld,
   SpielerParteiState,
   Verband,
+  BundeslandContent,
 } from './politics';
 import type { MedienAkteurContent } from '../../data/defaults/medienAkteure';
 
@@ -122,6 +123,10 @@ export interface GameState {
   eingebrachteGesetze?: EingebrachteGesetz[];
   bundesrat: BundesratLand[];
   bundesratFraktionen: BundesratFraktion[];
+  /** SMA-395: Beziehung 0–100 je Land-ID (BY, NW, …) */
+  landBeziehungen?: Record<string, number>;
+  /** SMA-395: Nach BR-Beschluss einmalig zu prüfendes Land-Event */
+  pendingBundesratLandEvent?: string;
 
   activeEvent: GameEvent | null;
   firedEvents: string[];
@@ -251,6 +256,9 @@ export interface ContentBundle {
   laws: Law[];
   bundesrat: BundesratLand[];
   bundesratFraktionen?: BundesratFraktion[];
+  landBeziehungen?: Record<string, number>;
+  /** SMA-395: optional für Merge in createInitialState */
+  bundeslaender?: BundeslandContent[];
   koalitionspartner?: KoalitionspartnerContent;
   milieus?: Milieu[];
   politikfelder?: Politikfeld[];

@@ -1,4 +1,4 @@
-import type { GameState, ContentBundle, SpielerParteiState } from './types';
+import type { GameState, ContentBundle, SpielerParteiState, BundeslandContent } from './types';
 import type { Approval } from './types';
 import { featureActive } from './systems/features';
 import { berechneKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
@@ -41,6 +41,34 @@ const KANZLER_ROLLE: Record<'sie' | 'er' | 'they', string> = {
   er: 'Kanzler',
   they: 'Kanzler*in',
 };
+
+/** SMA-395: DB-Profile in Karten-Länder + Start-Beziehungen */
+function mergeBundeslaenderProfile(
+  bundesrat: GameState['bundesrat'],
+  profiles: BundeslandContent[] | undefined,
+  complexity: number,
+): { bundesrat: GameState['bundesrat']; landBeziehungen: Record<string, number> } {
+  if (!profiles?.length) return { bundesrat, landBeziehungen: {} };
+  const byId = Object.fromEntries(profiles.map((p) => [p.id, p]));
+  const landBeziehungen: Record<string, number> = {};
+  const merged = bundesrat.map((land) => {
+    const p = byId[land.id];
+    if (!p || p.min_complexity > complexity) return land;
+    landBeziehungen[land.id] = Math.max(0, Math.min(100, p.beziehung_start));
+    return {
+      ...land,
+      votes: p.stimmgewicht,
+      stimmgewicht: p.stimmgewicht,
+      regierungPartei: p.partei ?? land.party,
+      koalition: p.koalition,
+      bundesratFraktion: p.bundesrat_fraktion,
+      wirtschaft: p.wirtschaft_typ,
+      themen: p.themen,
+      profilMinComplexity: p.min_complexity,
+    };
+  });
+  return { bundesrat: merged, landBeziehungen };
+}
 
 /**
  * Erstellt den initialen Spielzustand.
@@ -193,6 +221,12 @@ export function createInitialState(
     }
   }
 
+  const brMerged = mergeBundeslaenderProfile(
+    content.bundesrat.map((b) => ({ ...b })),
+    content.bundeslaender,
+    complexity,
+  );
+
   const base: GameState = {
     month: content.scenario.startMonth,
     speed: 0,
@@ -211,7 +245,7 @@ export function createInitialState(
     chars: charsWithPartei,
     gesetze,
     gesetzBTStimmen,
-    bundesrat: content.bundesrat.map(b => ({ ...b })),
+    bundesrat: brMerged.bundesrat,
     bundesratFraktionen: fraktionen.map(f => ({
       ...f,
       tradeoffPool: f.tradeoffPool.map(t => ({ ...t })),
@@ -255,6 +289,9 @@ export function createInitialState(
     kanzlerGeschlecht,
     ...(kanzlerName && { kanzlerName }),
     ...(Object.keys(ministerAgenden).length > 0 && { ministerAgenden }),
+    ...(Object.keys(brMerged.landBeziehungen).length > 0 && {
+      landBeziehungen: brMerged.landBeziehungen,
+    }),
   };
 
   if (featureActive(complexity, 'milieus_voll') && (content.milieus?.length ?? 0) > 0) {
@@ -485,6 +522,8 @@ export function validateGameState(raw: unknown): GameState {
     'medienAkteure', 'medienAktionenGenutzt', 'medienAkteurBuffs',
     'ausgeloesteEvents',
     'konjunkturIndexHistory',
+    'landBeziehungen',
+    'pendingBundesratLandEvent',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);

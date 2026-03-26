@@ -4,6 +4,10 @@ const FEATURES: Record<string, { minLevel: number }> = {
   bundesrat_sichtbar: { minLevel: 2 },
   /** SMA-291: Stufe 2 aggregierter Balken, Stufe 3+ 4 Fraktionen mit Lobbying */
   bundesrat_detail: { minLevel: 3 },
+  /** SMA-395: Länderliste mit Beziehungsbalken im Bundesrat-Tab */
+  bundeslaender_detail: { minLevel: 3 },
+  /** SMA-395: Bilaterale Gespräche mit einzelnen Ländern */
+  bundeslaender_aktionen: { minLevel: 3 },
   /** Legacy-Aliase für Kompatibilität */
   bundesrat_simple: { minLevel: 2 },
   bundesrat_full: { minLevel: 3 },

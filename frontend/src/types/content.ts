@@ -60,6 +60,7 @@ export interface GesetzApi {
   desc: string;
   ideologie?: IdeologieApi;
   politikfeld_id?: string | null;
+  politikfeld_sekundaer?: string[];
   /** SMA-268: Einmalige Haushaltskosten in Mrd. € */
   kosten_einmalig?: number;
   /** SMA-268: Laufende Haushaltskosten in Mrd. €/Jahr */
@@ -154,6 +155,8 @@ export interface EventChoiceApi {
   schuldenbremse_spielraum_delta?: number;
   steuerpolitik_modifikator_delta?: number;
   konjunktur_index_delta?: number;
+  /** SMA-395 */
+  br_relation_json?: Record<string, number>;
 }
 
 export interface EventApi {
@@ -195,6 +198,20 @@ export interface MedienAkteurApi {
   typ: string;
   reichweite: number;
   stimmung_start: number;
+  min_complexity: number;
+}
+
+/** SMA-395: GET /api/content/bundeslaender */
+export interface BundeslandApi {
+  id: string;
+  name_de: string;
+  partei: string | null;
+  koalition: string[];
+  bundesrat_fraktion: string;
+  wirtschaft_typ: string;
+  themen: string[];
+  beziehung_start: number;
+  stimmgewicht: number;
   min_complexity: number;
 }
 

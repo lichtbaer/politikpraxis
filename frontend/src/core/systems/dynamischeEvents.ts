@@ -330,7 +330,7 @@ function applyKoalitionspartnerDelta(state: GameState, choice: EventChoice): Gam
   };
 }
 
-function applyMilieuDelta(state: GameState, delta: Record<string, number> | undefined): GameState {
+export function applyMilieuDelta(state: GameState, delta: Record<string, number> | undefined): GameState {
   if (!delta || !Object.keys(delta).length) return state;
   const mz = { ...(state.milieuZustimmung ?? {}) };
   for (const [k, d] of Object.entries(delta)) {

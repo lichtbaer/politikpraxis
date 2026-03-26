@@ -51,6 +51,8 @@ export interface EventChoice {
   steuerpolitikModifikatorDelta?: number;
   /** SMA-394: Konjunkturindex relativ (Engine-Spanne ca. -3..+3) */
   konjunkturIndexDelta?: number;
+  /** SMA-395: Deltas pro Bundesratsfraktions-ID (API br_relation_json) */
+  brRelationJson?: Record<string, number>;
 }
 
 export interface GameEvent {
