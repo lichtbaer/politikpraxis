@@ -7,7 +7,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
-import { useContentStore } from '../../stores/contentStore';
+import { useContentStore } from '../../store/contentStore';
 import { AgendaCard } from '../components/AgendaCard/AgendaCard';
 import { featureActive } from '../../core/systems/features';
 import type { LawStatus } from '../../core/types';

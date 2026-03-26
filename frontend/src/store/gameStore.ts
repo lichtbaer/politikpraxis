@@ -33,7 +33,7 @@ import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch } from '../core/system
 import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
-import { getContentBundle } from '../stores/contentStore';
+import { getContentBundle } from './contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { SPIELBARE_PARTEIEN } from '../data/defaults/parteien';
 import { saveGame, type SaveFile } from '../services/localStorageSave';

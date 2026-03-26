@@ -4,7 +4,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { useGameActions } from '../hooks/useGameActions';
-import { useContentStore } from '../../stores/contentStore';
+import { useContentStore } from '../../store/contentStore';
 import { featureActive } from '../../core/systems/features';
 import { Tv, Check, Circle } from '../icons';
 import styles from './WahlkampfScreen.module.css';

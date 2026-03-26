@@ -14,7 +14,7 @@ import {
 import { getKoalitionspartner } from '../../core/systems/koalition';
 import { useGameStore } from '../../store/gameStore';
 import { useAuthStore } from '../../store/authStore';
-import { useContentStore } from '../../stores/contentStore';
+import { useContentStore } from '../../store/contentStore';
 import type { Milieu } from '../../core/types';
 import { BewertungRadarChart } from '../components/BewertungRadarChart/BewertungRadarChart';
 
