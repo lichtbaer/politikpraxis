@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.dependencies import validate_locale_value
 from app.models.content import Event, EventChoice, EventChoiceI18n, EventI18n
+from app.routes.admin_utils import to_float
 from app.schemas.admin import (
     EventChoiceCreate,
     EventChoiceI18nUpdate,
@@ -19,10 +20,6 @@ from app.schemas.admin import (
 from app.services.content_db_service import content_cache_clear
 
 router = APIRouter()
-
-
-def _to_float(v: Decimal | float | None) -> float:
-    return float(v) if v is not None else 0.0
 
 
 @router.get("/events")
@@ -183,10 +180,10 @@ async def admin_list_event_choices(event_id: str, db: AsyncSession = Depends(get
             "choice_key": r.choice_key,
             "choice_type": r.choice_type,
             "cost_pk": r.cost_pk,
-            "effekt_al": _to_float(r.effekt_al),
-            "effekt_hh": _to_float(r.effekt_hh),
-            "effekt_gi": _to_float(r.effekt_gi),
-            "effekt_zf": _to_float(r.effekt_zf),
+            "effekt_al": to_float(r.effekt_al),
+            "effekt_hh": to_float(r.effekt_hh),
+            "effekt_gi": to_float(r.effekt_gi),
+            "effekt_zf": to_float(r.effekt_zf),
             "char_mood": r.char_mood or {},
             "followup_event_id": r.followup_event_id,
         }

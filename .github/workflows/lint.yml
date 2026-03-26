@@ -29,6 +29,10 @@ jobs:
       - name: Mypy
         run: cd backend && mypy app
 
+      - name: pip-audit (dependency security check)
+        run: pip install pip-audit && pip-audit -r backend/requirements.txt
+        continue-on-error: true
+
   frontend-eslint:
     runs-on: ubuntu-latest
     steps:
@@ -49,3 +53,7 @@ jobs:
 
       - name: Unit Tests
         run: cd frontend && npm run test
+
+      - name: npm audit (dependency security check)
+        run: cd frontend && npm audit --audit-level=high
+        continue-on-error: true
