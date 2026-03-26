@@ -11,6 +11,7 @@ import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './syste
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKommunalLaenderEvents, checkSteuerEvents, checkFollowupEvents } from './systems/events';
+import { checkDynamischeEvents } from './systems/dynamischeEvents';
 import { pruneExpiredCooldowns } from './systems/eventUtils';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
@@ -166,6 +167,7 @@ export function tick(
   s = safeSystem((st) => checkLehmannSparvorschlag(st, complexity), 'checkLehmannSparvorschlag');
   s = safeSystem((st) => checkLehmannDefizitStart(st, content, complexity), 'checkLehmannDefizitStart');
   s = safeSystem((st) => checkHaushaltskrise(st, content, complexity), 'checkHaushaltskrise');
+  s = safeSystem((st) => checkDynamischeEvents(st, content, complexity), 'checkDynamischeEvents');
   s = safeSystem((st) => triggerHaushaltsdebatte(st, complexity, content.politikfelder ?? []), 'triggerHaushaltsdebatte');
 
   for (const key of ['al', 'hh', 'gi', 'zf'] as const) {
@@ -302,6 +304,11 @@ export function tick(
     },
     // SMA-323: Haushalt-Saldo-Verlauf für Chart (Mrd.)
     haushaltSaldoHistory: trimHistory(s.haushaltSaldoHistory ?? [], s.haushalt?.saldo ?? 0, KPI_HISTORY_MAX_MONTHS),
+    konjunkturIndexHistory: trimHistory(
+      s.konjunkturIndexHistory ?? [],
+      s.haushalt?.konjunkturIndex ?? 0,
+      KPI_HISTORY_MAX_MONTHS,
+    ),
   };
 
   // SMA-280: Verfassungsgericht-Verfahren beenden wenn Frist abgelaufen

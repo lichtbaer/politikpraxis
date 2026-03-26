@@ -11,6 +11,7 @@ import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell } from './wahlkampf';
 import { setNormenkontrollReaktion } from './verfassungsgericht';
 import { applyMedienChoiceDelta, adjustMedienKlimaGlobal } from './medienklima';
+import { resolveDynamicEvent } from './dynamischeEvents';
 import { featureActive } from './features';
 import {
   clamp,
@@ -524,6 +525,14 @@ export function resolveEvent(
     const stadttyp = (event as GameEvent & { stadttyp?: 'progressiv' | 'konservativ' | 'industrie' }).stadttyp ?? 'progressiv';
     const s = startKommunalPilot(state, event.lawId, stadttyp, undefined, complexity);
     return finalizeEvent(s, event, choice);
+  }
+
+  // SMA-394: dynamische Events (DB event_type dynamic)
+  if (event.id.startsWith('dyn_')) {
+    return resolveDynamicEvent(state, event, choice, {
+      complexity,
+      contentBundle: medienContent,
+    });
   }
 
   // Medien-Events (SMA-277)

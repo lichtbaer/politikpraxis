@@ -100,6 +100,9 @@ class EventCreate(BaseModel):
     condition_op: str | None = None
     condition_val: int | None = None
     min_complexity: int | None = 1
+    trigger_typ: str | None = None
+    trigger_params: dict[str, Any] | None = None
+    einmalig: bool | None = True
 
 
 class EventUpdate(BaseModel):
@@ -112,6 +115,9 @@ class EventUpdate(BaseModel):
     condition_op: str | None = None
     condition_val: int | None = None
     min_complexity: int | None = None
+    trigger_typ: str | None = None
+    trigger_params: dict[str, Any] | None = None
+    einmalig: bool | None = None
 
 
 class EventI18nUpdate(BaseModel):

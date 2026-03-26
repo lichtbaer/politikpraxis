@@ -54,6 +54,7 @@ const EVENT_TYPE_ICON_KEYS: Record<string, string> = {
   bundesrat: 'bundesrat',
   kommunal_initiative: 'kommunal_initiative',
   vorstufe_erfolg: 'vorstufe_erfolg',
+  dynamic: 'random',
 };
 
 const EVENT_TYPE_MAP: Record<string, 'danger' | 'warn' | 'good' | 'info'> = {
@@ -66,6 +67,7 @@ const EVENT_TYPE_MAP: Record<string, 'danger' | 'warn' | 'good' | 'info'> = {
   bundesrat: 'warn',
   kommunal_initiative: 'warn',
   vorstufe_erfolg: 'good',
+  dynamic: 'warn',
 };
 
 function transformChar(api: CharApi): Character {
@@ -163,6 +165,10 @@ function transformEventChoice(api: {
   medienklima_delta?: number;
   verfahren_dauer_monate?: number;
   bundesrat_bonus?: number;
+  milieu_delta?: Record<string, number>;
+  schuldenbremse_spielraum_delta?: number;
+  steuerpolitik_modifikator_delta?: number;
+  konjunktur_index_delta?: number;
 }): EventChoice {
   const type = (['primary', 'danger', 'safe'].includes(api.type)
     ? api.type
@@ -190,6 +196,18 @@ function transformEventChoice(api: {
   if (api.bundesrat_bonus != null) {
     choice.bundesratBonusAll = api.bundesrat_bonus;
   }
+  if (api.milieu_delta && Object.keys(api.milieu_delta).length) {
+    choice.milieuDelta = api.milieu_delta;
+  }
+  if (api.schuldenbremse_spielraum_delta != null) {
+    choice.schuldenbremseSpielraumDelta = api.schuldenbremse_spielraum_delta;
+  }
+  if (api.steuerpolitik_modifikator_delta != null) {
+    choice.steuerpolitikModifikatorDelta = api.steuerpolitik_modifikator_delta;
+  }
+  if (api.konjunktur_index_delta != null) {
+    choice.konjunkturIndexDelta = api.konjunktur_index_delta;
+  }
   return choice;
 }
 
@@ -214,6 +232,11 @@ function transformEvent(api: EventApi): GameEvent {
   if (api.trigger_milieu_val != null) ev.triggerMilieuVal = api.trigger_milieu_val;
   if (api.gesetz_ref?.length) ev.gesetzRef = api.gesetz_ref;
   if (api.min_complexity != null) ev.min_complexity = api.min_complexity;
+  if (api.trigger_typ) {
+    ev.triggerTyp = api.trigger_typ as import('../core/types').DynamicEventTriggerTyp;
+  }
+  if (api.trigger_params) ev.triggerParams = api.trigger_params;
+  if (api.einmalig != null) ev.einmalig = api.einmalig;
   return ev;
 }
 
@@ -326,6 +349,7 @@ export interface ContentStore {
   /** SMA-312: Gesetz-Abhängigkeiten — gesetzId -> Relationen */
   gesetzRelationen: Record<string, GesetzRelation[]>;
   medienAkteureContent: ContentBundle['medienAkteureContent'];
+  dynamicEvents: GameEvent[];
   scenario: ContentBundle['scenario'];
   loading: boolean;
   loaded: boolean;
@@ -380,6 +404,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   euEvents: [],
   gesetzRelationen: {},
   medienAkteureContent: undefined,
+  dynamicEvents: [],
   scenario: DEFAULT_SCENARIO,
   loading: false,
   loaded: false,
@@ -436,7 +461,10 @@ export const useContentStore = create<ContentStore>((set) => ({
         (byType[type] ??= []).push(ev);
         if (type === 'char_ultimatum') charEventsMap[ev.id] = ev;
       }
-      const randomEvents = byType['random'] ?? [];
+      const dynamicEventsList = byType['dynamic'] ?? [];
+      const randomEvents = (byType['random'] ?? []).filter(
+        (e) => eventTypeById.get(e.id) !== 'dynamic',
+      );
       const brEventsList = byType['bundesrat'] ?? [];
       const kommunalEventsList = byType['kommunal_initiative'] ?? [];
       const vorstufenEventsList = byType['vorstufe_erfolg'] ?? [];
@@ -476,6 +504,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
         gesetzRelationen: buildGesetzRelationen(gesetzRelationenRaw ?? []),
         medienAkteureContent,
+        dynamicEvents: dynamicEventsList,
         loading: false,
         loaded: true,
         error: null,
@@ -517,6 +546,7 @@ export function getContentBundle(): ContentBundle {
     extremismusEvents: s.extremismusEvents ?? [],
     kommunalLaenderEvents: s.kommunalLaenderEvents ?? [],
     steuerEvents: s.steuerEvents ?? [],
+    dynamicEvents: s.dynamicEvents ?? [],
     bundesrat: s.bundesrat,
     bundesratFraktionen: s.bundesratFraktionen,
     koalitionspartner: GRUENE,

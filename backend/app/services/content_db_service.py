@@ -319,6 +319,19 @@ async def fetch_events(
                     c["verfahren_dauer_monate"] = ch.verfahren_dauer_monate
                 if getattr(ch, "bundesrat_bonus", None) is not None:
                     c["bundesrat_bonus"] = ch.bundesrat_bonus
+                md = getattr(ch, "milieu_delta", None)
+                if md is not None:
+                    c["milieu_delta"] = dict(md) if hasattr(md, "keys") else md
+                if getattr(ch, "schuldenbremse_spielraum_delta", None) is not None:
+                    c["schuldenbremse_spielraum_delta"] = int(
+                        ch.schuldenbremse_spielraum_delta
+                    )
+                if getattr(ch, "steuerpolitik_modifikator_delta", None) is not None:
+                    c["steuerpolitik_modifikator_delta"] = float(
+                        ch.steuerpolitik_modifikator_delta
+                    )
+                if getattr(ch, "konjunktur_index_delta", None) is not None:
+                    c["konjunktur_index_delta"] = float(ch.konjunktur_index_delta)
                 choices.append(c)
 
             row: dict[str, Any] = {
@@ -346,6 +359,14 @@ async def fetch_events(
             gesetz_ref = getattr(e, "gesetz_ref", None)
             if gesetz_ref:
                 row["gesetz_ref"] = list(gesetz_ref)
+            tt = getattr(e, "trigger_typ", None)
+            if tt is not None:
+                row["trigger_typ"] = tt
+            tp = getattr(e, "trigger_params", None)
+            if tp is not None:
+                row["trigger_params"] = dict(tp) if hasattr(tp, "keys") else tp
+            if hasattr(e, "einmalig"):
+                row["einmalig"] = bool(e.einmalig)
             rows.append(row)
         return rows
 

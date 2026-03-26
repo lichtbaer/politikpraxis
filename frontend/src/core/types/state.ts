@@ -125,6 +125,8 @@ export interface GameState {
 
   activeEvent: GameEvent | null;
   firedEvents: string[];
+  /** SMA-394: IDs dynamisch ausgelöster Events (zusätzlich zu firedEvents für Kompatibilität) */
+  ausgeloesteEvents?: string[];
   firedCharEvents: string[];
   firedBundesratEvents: string[];
   firedKommunalEvents?: string[];
@@ -217,6 +219,8 @@ export interface GameState {
   approvalHistory?: number[];
   kpiHistory?: { al: number[]; hh: number[]; gi: number[]; zf: number[] };
   haushaltSaldoHistory?: number[];
+  /** SMA-394: letzte Monatswerte Konjunkturindex (Haushalt) für Boom-Trigger */
+  konjunkturIndexHistory?: number[];
   activeEventPool?: string[];
   unlockedLaws?: string[];
   pendingFollowups?: Array<{ eventId: string; triggerMonth: number }>;
@@ -262,6 +266,8 @@ export interface ContentBundle {
   steuerEvents?: GameEvent[];
   gesetzRelationen?: Record<string, GesetzRelation[]>;
   steuern?: SteuerContent[];
+  /** SMA-394: zustandsabhängige Events (nicht im Zufallspool) */
+  dynamicEvents?: GameEvent[];
   scenario: {
     id: string;
     name: string;

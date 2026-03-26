@@ -38,6 +38,9 @@ async def admin_list_events(db: AsyncSession = Depends(get_db)):
             "condition_op": r.condition_op,
             "condition_val": r.condition_val,
             "min_complexity": r.min_complexity,
+            "trigger_typ": getattr(r, "trigger_typ", None),
+            "trigger_params": getattr(r, "trigger_params", None),
+            "einmalig": getattr(r, "einmalig", True),
         }
         for r in rows
     ]
@@ -59,6 +62,9 @@ async def admin_create_event(data: EventCreate, db: AsyncSession = Depends(get_d
         condition_op=data.condition_op,
         condition_val=data.condition_val,
         min_complexity=data.min_complexity,
+        trigger_typ=data.trigger_typ,
+        trigger_params=data.trigger_params,
+        einmalig=data.einmalig if data.einmalig is not None else True,
     )
     db.add(ev)
     await db.flush()
@@ -83,6 +89,9 @@ async def admin_get_event(event_id: str, db: AsyncSession = Depends(get_db)):
         "condition_op": e.condition_op,
         "condition_val": e.condition_val,
         "min_complexity": e.min_complexity,
+        "trigger_typ": getattr(e, "trigger_typ", None),
+        "trigger_params": getattr(e, "trigger_params", None),
+        "einmalig": getattr(e, "einmalig", True),
     }
 
 
@@ -112,6 +121,12 @@ async def admin_update_event(
         e.condition_val = data.condition_val
     if data.min_complexity is not None:
         e.min_complexity = data.min_complexity
+    if data.trigger_typ is not None:
+        e.trigger_typ = data.trigger_typ
+    if data.trigger_params is not None:
+        e.trigger_params = data.trigger_params
+    if data.einmalig is not None:
+        e.einmalig = data.einmalig
     content_cache_clear()
     return {"id": e.id}
 
