@@ -291,9 +291,12 @@ export function strategieMedienstratege(state: GameState): StrategyAction {
 export function strategieKommunalpolitiker(state: GameState): StrategyAction {
   if (state.pk < 15) return { typ: 'nichts' };
 
-  // Prüfe ob ein Pilot gestartet werden kann (Gesetz ohne aktive Vorstufe)
+  // Prüfe ob ein Pilot gestartet werden kann (Gesetz ohne laufende Vorstufe)
   const gesetze = verfuegbareGesetze(state);
-  const ohnePilot = gesetze.filter(g => !g.vorstufe);
+  const ohnePilot = gesetze.filter(g => {
+    const aktiveVorstufen = state.gesetzProjekte?.[g.id]?.aktiveVorstufen ?? [];
+    return !aktiveVorstufen.some(v => !v.abgeschlossen);
+  });
   if (ohnePilot.length > 0 && state.month <= 36) {
     const stadttypen: Array<'progressiv' | 'konservativ' | 'industrie'> = ['progressiv', 'konservativ', 'industrie'];
     const typ = stadttypen[Math.floor(Math.random() * stadttypen.length)];

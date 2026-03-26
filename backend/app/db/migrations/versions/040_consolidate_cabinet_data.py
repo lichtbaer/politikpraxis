@@ -25,6 +25,20 @@ depends_on: Union[str, Sequence[str], None] = None
 # Legacy-Chars die entfernt werden
 LEGACY_IDS = ["kanzler", "fm", "wm", "im", "jm", "um", "am", "gm", "bm"]
 
+# Legacy-Char-ID -> neue Pool-Char-ID
+# Damit FK-Referenzen (z.B. events, ministerial_initiativen) beim Cleanup erhalten bleiben.
+LEGACY_TO_POOL_CHAR = {
+    "kanzler": "cdp_kanzler",
+    "fm": "cdp_fm",
+    "wm": "sdp_wm",
+    "im": "cdp_im",
+    "jm": "cdp_jm",
+    "um": "gp_um",
+    "am": "sdp_am",
+    "gm": "sdp_gm",
+    "bm": "sdp_bm",
+}
+
 # Pool-Partei → Partei-ID (FK zu parteien-Tabelle)
 POOL_TO_PARTEI = {
     "sdp": "sdp",
@@ -107,7 +121,20 @@ MINISTER_BONUSES: dict[str, dict[str, str]] = {
 def upgrade() -> None:
     conn = op.get_bind()
 
-    # 1. Legacy-Chars und deren i18n-Einträge entfernen
+    # 1. FK-Referenzen von Legacy-IDs auf Pool-Minister umhängen
+    for legacy_id, pool_id in LEGACY_TO_POOL_CHAR.items():
+        conn.execute(
+            sa.text("UPDATE events SET char_id = :pool WHERE char_id = :legacy"),
+            {"pool": pool_id, "legacy": legacy_id},
+        )
+        conn.execute(
+            sa.text(
+                "UPDATE ministerial_initiativen SET char_id = :pool WHERE char_id = :legacy"
+            ),
+            {"pool": pool_id, "legacy": legacy_id},
+        )
+
+    # 2. Legacy-Chars und deren i18n-Einträge entfernen
     for cid in LEGACY_IDS:
         conn.execute(
             sa.text("DELETE FROM chars_i18n WHERE char_id = :cid"),
@@ -118,14 +145,14 @@ def upgrade() -> None:
             {"cid": cid},
         )
 
-    # 2. partei_id FK setzen (damit JOIN auf parteien funktioniert → partei_kuerzel/farbe)
+    # 3. partei_id FK setzen (damit JOIN auf parteien funktioniert → partei_kuerzel/farbe)
     for pool, partei in POOL_TO_PARTEI.items():
         conn.execute(
             sa.text("UPDATE chars SET partei_id = :partei WHERE pool_partei = :pool"),
             {"partei": partei, "pool": pool},
         )
 
-    # 3. ultimatum_mood_thresh auf -1 für Minister ohne Event (deaktiviert)
+    # 4. ultimatum_mood_thresh auf -1 für Minister ohne Event (deaktiviert)
     conn.execute(
         sa.text(
             "UPDATE chars SET ultimatum_mood_thresh = -1 "
@@ -133,7 +160,7 @@ def upgrade() -> None:
         )
     )
 
-    # 4. Ideologie-Werte setzen
+    # 5. Ideologie-Werte setzen
     for char_id, delta in MINISTER_IDEOLOGIE_DELTA.items():
         pool = char_id.split("_")[0]
         basis = PARTEI_IDEOLOGIE.get(
@@ -150,7 +177,7 @@ def upgrade() -> None:
             {"w": w, "g": g, "s": s, "cid": char_id},
         )
 
-    # 5. Bonus-Trigger setzen
+    # 6. Bonus-Trigger setzen
     for char_id, bonus in MINISTER_BONUSES.items():
         conn.execute(
             sa.text(
@@ -160,7 +187,7 @@ def upgrade() -> None:
             {"trigger": bonus["trigger"], "applies": bonus["applies"], "cid": char_id},
         )
 
-    # 6. Fehlenden SDP-Kanzler ergänzen
+    # 7. Fehlenden SDP-Kanzler ergänzen
     conn.execute(
         sa.text("""
             INSERT INTO chars (id, initials, color, mood_start, loyalty_start, min_complexity,
@@ -189,7 +216,7 @@ def upgrade() -> None:
         """)
     )
 
-    # 7. Kanzler-Kandidaten als ist_kanzler markieren (falls noch nicht)
+    # 8. Kanzler-Kandidaten als ist_kanzler markieren (falls noch nicht)
     conn.execute(
         sa.text(
             "UPDATE chars SET ist_kanzler = true "
