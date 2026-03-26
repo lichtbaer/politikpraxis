@@ -141,6 +141,9 @@ function transformGesetz(api: GesetzApi): Law {
     steuer_delta: (api as { steuer_delta?: number | null }).steuer_delta ?? null,
     konjunktur_effekt: (api as { konjunktur_effekt?: number }).konjunktur_effekt ?? 0,
     konjunktur_lag: (api as { konjunktur_lag?: number }).konjunktur_lag ?? 0,
+    // Art. 77 GG: Einspruchsgesetz vs. Zustimmungsgesetz.
+    // Default: land-Gesetze sind zustimmungspflichtig, es sei denn explizit als Einspruchsgesetz markiert.
+    zustimmungspflichtig: api.zustimmungspflichtig ?? (api.tags.includes('land') ? true : undefined),
   };
 }
 

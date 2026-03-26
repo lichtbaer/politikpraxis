@@ -87,6 +87,8 @@ export interface GesetzApi {
   steuer_delta?: number | null;
   konjunktur_effekt?: number;
   konjunktur_lag?: number;
+  /** Art. 77 GG: false = Einspruchsgesetz (BR kann überstimmt werden). Default: true für land-Gesetze. */
+  zustimmungspflichtig?: boolean;
 }
 
 export interface MilieuApi {

@@ -65,7 +65,7 @@ export interface LawEffects {
   al?: number;
 }
 
-export type LawStatus = 'entwurf' | 'eingebracht' | 'aktiv' | 'blockiert' | 'beschlossen' | 'ausweich' | 'bt_passed';
+export type LawStatus = 'entwurf' | 'eingebracht' | 'aktiv' | 'blockiert' | 'beschlossen' | 'ausweich' | 'bt_passed' | 'br_einspruch';
 
 /** SMA-304: Eingebrachtes Gesetz in Ausschussphase (lag_months bis Abstimmung) */
 export interface EingebrachteGesetz {
@@ -153,6 +153,11 @@ export interface Law {
   steuer_id?: string | null;
   /** SMA-335: Steuer-Satz-Delta (z.B. +2 für 2 Prozentpunkte) */
   steuer_delta?: number | null;
+  /** Art. 77 GG: true = Bundesrat kann endgültig blockieren (Default für land-Gesetze).
+   *  false = Einspruchsgesetz — Bundestag kann mit absoluter Mehrheit überstimmen. */
+  zustimmungspflichtig?: boolean;
+  /** Status nach BR-Einspruch: Bundestag kann überstimmen (Einspruchsgesetz) */
+  brEinspruchEingelegt?: boolean;
 }
 
 /** Framing-Option für Gesetz-Einbringen (SMA-303: label, slogan) */
@@ -623,6 +628,10 @@ export interface GameState {
   electionThreshold?: number;
   /** Aufeinanderfolgende Monate mit Zustimmung < 20% (für Misstrauensvotum) */
   lowApprovalMonths?: number;
+  /** Art. 67 GG: Misstrauensvotum wurde in diesem Niedrigzustimmungs-Zyklus bereits abgewendet */
+  misstrauensvotumAbgewendet?: boolean;
+  /** Komplexitätsstufe (1–4), wird bei Spielstart gesetzt */
+  complexity?: number;
   /** Koalitionspartner (ab Stufe 2) */
   koalitionspartner?: KoalitionspartnerState;
   /** Berechnetes Koalitionsvertrag-Profil (60% Spieler, 40% Partner) */

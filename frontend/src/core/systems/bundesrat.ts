@@ -6,7 +6,8 @@ import type {
   KpiDelta,
 } from '../types';
 import { withPause } from '../eventPause';
-import { PK_REPARATUR, BEREITSCHAFT_TRADEOFF_BONUS } from '../constants';
+import { PK_REPARATUR, BEREITSCHAFT_TRADEOFF_BONUS, EINSPRUCH_UEBERSTIMMUNG_PK, EINSPRUCH_UEBERSTIMMUNG_SCHWELLE } from '../constants';
+import { featureActive } from './features';
 import { addLog } from '../engine';
 import { scheduleEffects } from './economy';
 import { applyMoodChange } from './characters';
@@ -428,6 +429,13 @@ export interface BundesratVoteContext {
   gesetzRelationen?: Record<string, import('../types').GesetzRelation[]>;
 }
 
+/** Prüft ob ein Gesetz ein Einspruchsgesetz ist (Art. 77 Abs. 3/4 GG).
+ *  Einspruchsgesetze können vom Bundestag mit absoluter Mehrheit überstimmt werden.
+ *  Zustimmungsgesetze erfordern die Zustimmung des Bundesrats — Blockade ist endgültig. */
+export function isEinspruchsgesetz(law: { zustimmungspflichtig?: boolean }): boolean {
+  return law.zustimmungspflichtig === false;
+}
+
 /** Führt die Bundesratsabstimmung durch und wendet Ergebnis an */
 export function executeBundesratVote(
   state: GameState,
@@ -465,13 +473,76 @@ export function executeBundesratVote(
 
     return addLog(newState, `${law.kurz} im Bundesrat beschlossen — Wirkung in ${law.lag} Monaten`, 'g');
   } else {
-    const gesetze = state.gesetze.map((g, i) =>
-      i === idx ? { ...g, status: 'blockiert' as const, blockiert: 'bundesrat' as const } : g,
-    );
-    return addLog(
-      { ...state, gesetze, ...withPause(state) },
-      `${law.kurz}: Bundesrat blockiert! Ebenenwechsel möglich.`,
-      'r',
+    // Art. 77 GG: Einspruchsgesetz vs. Zustimmungsgesetz
+    const complexity = voteContext?.complexity ?? 4;
+    const einspruchAktiv = featureActive(complexity, 'einspruch_vs_zustimmung') && isEinspruchsgesetz(law);
+
+    if (einspruchAktiv) {
+      // Einspruchsgesetz: Bundesrat legt Einspruch ein — Bundestag kann überstimmen
+      const gesetze = state.gesetze.map((g, i) =>
+        i === idx ? { ...g, status: 'br_einspruch' as const, brEinspruchEingelegt: true } : g,
+      );
+      return addLog(
+        { ...state, gesetze, ...withPause(state) },
+        `${law.kurz}: Bundesrat legt Einspruch ein (Art. 77 GG). Bundestag kann mit absoluter Mehrheit überstimmen.`,
+        'r',
+      );
+    } else {
+      // Zustimmungsgesetz: endgültige Blockade — Ebenenwechsel
+      const gesetze = state.gesetze.map((g, i) =>
+        i === idx ? { ...g, status: 'blockiert' as const, blockiert: 'bundesrat' as const } : g,
+      );
+      return addLog(
+        { ...state, gesetze, ...withPause(state) },
+        `${law.kurz}: Bundesrat blockiert (Zustimmungsgesetz)! Ebenenwechsel möglich.`,
+        'r',
+      );
+    }
+  }
+}
+
+/**
+ * Bundestag überstimmt BR-Einspruch (Art. 77 Abs. 4 GG).
+ * Erfordert absolute Mehrheit der Mitglieder des Bundestags und 15 PK.
+ */
+export function ueberstimmeBReinspruch(
+  state: GameState,
+  lawId: string,
+  voteContext?: BundesratVoteContext,
+): GameState {
+  const idx = state.gesetze.findIndex(g => g.id === lawId);
+  if (idx === -1) return state;
+  const law = state.gesetze[idx];
+  if (law.status !== 'br_einspruch') return state;
+  if (state.pk < EINSPRUCH_UEBERSTIMMUNG_PK) return state;
+
+  // Prüfe ob absolute Mehrheit im Bundestag erreichbar (ja > 50)
+  if (law.ja <= EINSPRUCH_UEBERSTIMMUNG_SCHWELLE) {
+    return addLog(state, `${law.kurz}: Absolute Mehrheit im Bundestag verfehlt (${law.ja}%) — Einspruch bleibt bestehen.`, 'r');
+  }
+
+  // Überstimmung erfolgreich
+  const gesetze = state.gesetze.map((g, i) =>
+    i === idx ? { ...g, status: 'beschlossen' as const } : g,
+  );
+  let newState: GameState = { ...state, pk: state.pk - EINSPRUCH_UEBERSTIMMUNG_PK, gesetze };
+  newState = applyGesetzKosten(newState, lawId);
+  const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
+  newState = scheduleEffects(newState, lawForEffects);
+
+  if (voteContext?.milieus) {
+    newState = applyMilieuEffekte(
+      newState,
+      lawId,
+      voteContext.milieus,
+      voteContext.complexity,
+      voteContext.gesetzRelationen,
     );
   }
+  if (law.politikfeldId) {
+    newState = setPolitikfeldBeschluss(newState, law.politikfeldId);
+  }
+  newState = checkProaktiveErfuellung(newState, lawId);
+
+  return addLog(newState, `${law.kurz}: Bundestag überstimmt BR-Einspruch (Art. 77 GG) — Wirkung in ${law.lag} Monaten`, 'g');
 }
