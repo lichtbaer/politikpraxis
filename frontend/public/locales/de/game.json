@@ -1373,6 +1373,28 @@
       "opposition": "Opposition"
     }
   },
+  "monatszusammenfassung": {
+    "title": "Monat {{monat}} abgeschlossen",
+    "subtitle": "Kurzüberblick — Was ist passiert?",
+    "blockGesetze": "Gesetze",
+    "blockKennzahlen": "Kennzahlen",
+    "blockMilieus": "Milieus",
+    "blockMedien": "Medien",
+    "wahlprognose": "Wahlprognose",
+    "medienklima": "Medienklima",
+    "saldo": "Haushaltssaldo",
+    "koalition": "Koalitionsstabilität",
+    "gesetzBeschlossenBt": "{{name}} beschlossen (BT: {{pct}}%)",
+    "gesetzBeschlossen": "{{name}} beschlossen",
+    "gesetzGescheitertBt": "{{name}} gescheitert (Bundestag: {{ja}}%)",
+    "gesetzGescheitertBr": "{{name}} gescheitert (Bundesrat)",
+    "gesetzGescheitert": "{{name}} gescheitert",
+    "details": "Details anzeigen",
+    "weiter": "Weiter",
+    "settingAutoShow": "Monatszusammenfassung nach jedem Monat anzeigen",
+    "topBarButton": "Letzter Monat",
+    "topBarTitle": "Zusammenfassung Monat {{monat}}"
+  },
   "legislaturBilanz": {
     "beat1Title": "Legislatur-Bilanz",
     "beat2Title": "Qualitative Bewertung",

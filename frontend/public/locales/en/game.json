@@ -1335,6 +1335,28 @@
       "opposition": "Opposition"
     }
   },
+  "monatszusammenfassung": {
+    "title": "Month {{monat}} completed",
+    "subtitle": "At a glance — what happened?",
+    "blockGesetze": "Laws",
+    "blockKennzahlen": "Key figures",
+    "blockMilieus": "Milieus",
+    "blockMedien": "Media",
+    "wahlprognose": "Polling / forecast",
+    "medienklima": "Media climate",
+    "saldo": "Budget balance",
+    "koalition": "Coalition stability",
+    "gesetzBeschlossenBt": "{{name}} passed (parliament: {{pct}}%)",
+    "gesetzBeschlossen": "{{name}} passed",
+    "gesetzGescheitertBt": "{{name}} failed (parliament: {{ja}}%)",
+    "gesetzGescheitertBr": "{{name}} failed (Federal Council)",
+    "gesetzGescheitert": "{{name}} failed",
+    "details": "Show details",
+    "weiter": "Continue",
+    "settingAutoShow": "Show monthly summary after each month",
+    "topBarButton": "Last month",
+    "topBarTitle": "Summary — month {{monat}}"
+  },
   "legislaturBilanz": {
     "beat1Title": "Legislature summary",
     "beat2Title": "Qualitative assessment",

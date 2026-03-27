@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { loadPlayerSettings, savePlayerSettings, type PlayerSettings } from '../services/playerSettings';
 
 export type Theme = 'amtsstube' | 'bruessel' | 'redaktion' | 'lageraum';
 export type ToastType = 'info' | 'success' | 'warning' | 'danger';
@@ -13,12 +14,17 @@ interface UIStore {
   charDetailId: string | null;
   toastQueue: ToastItem[];
   theme: Theme;
+  /** SMA-396 */
+  playerSettings: PlayerSettings;
+  openMonatszusammenfassung: boolean;
 
   showCharDetail: (id: string) => void;
   closeCharDetail: () => void;
   showToast: (msg: string, type?: ToastType) => void;
   dismissToast: (id: number) => void;
   setTheme: (theme: Theme) => void;
+  setPlayerSettings: (partial: Partial<PlayerSettings>) => void;
+  setOpenMonatszusammenfassung: (open: boolean) => void;
 }
 
 let toastCounter = 0;
@@ -29,6 +35,8 @@ export const useUIStore = create<UIStore>((set, get) => ({
   charDetailId: null,
   toastQueue: [],
   theme: 'amtsstube',
+  playerSettings: loadPlayerSettings(),
+  openMonatszusammenfassung: false,
 
   showCharDetail: (id) => set({ charDetailId: id }),
   closeCharDetail: () => set({ charDetailId: null }),
@@ -48,4 +56,11 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   setTheme: (theme) => set({ theme }),
+
+  setPlayerSettings: (partial) => {
+    const next = savePlayerSettings(partial);
+    set({ playerSettings: next });
+  },
+
+  setOpenMonatszusammenfassung: (open) => set({ openMonatszusammenfassung: open }),
 }));
