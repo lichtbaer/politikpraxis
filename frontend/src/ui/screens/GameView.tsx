@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { useAuthStore } from '../../store/authStore';
 import { useContentStore } from '../../store/contentStore';
@@ -6,6 +7,7 @@ import { Shell } from '../layout/Shell';
 import { SaveHintBanner } from '../components/SaveHintBanner/SaveHintBanner';
 
 export function GameView() {
+  const { t } = useTranslation();
   const phase = useGameStore((s) => s.phase);
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const contentLoaded = useContentStore((s) => s.loaded);
@@ -15,7 +17,7 @@ export function GameView() {
     if (contentError) {
       return <div style={{ padding: '2rem', textAlign: 'center' }}>{contentError}</div>;
     }
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Inhalte werden geladen…</div>;
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>{t('loading.content')}</div>;
   }
 
   if (phase === 'onboarding') {

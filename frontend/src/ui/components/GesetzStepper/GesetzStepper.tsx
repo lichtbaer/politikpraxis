@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { LawStatus } from '../../../core/types';
 import styles from './GesetzStepper.module.css';
 
@@ -51,6 +52,7 @@ function getStepClass(stepStatus: LawStatus, currentStatus: LawStatus): string {
 }
 
 export function GesetzStepper({ status, brauchtBundesrat }: GesetzStepperProps) {
+  const { t } = useTranslation('game');
   const steps = brauchtBundesrat ? STEPS_MIT_BUNDESRAT : STEPS_STANDARD;
 
   return (
@@ -67,10 +69,10 @@ export function GesetzStepper({ status, brauchtBundesrat }: GesetzStepperProps) 
         </div>
       ))}
       {status === 'blockiert' && (
-        <div className={styles.blockedBadge}>Blockiert</div>
+        <div className={styles.blockedBadge}>{t('gesetzStepper.blockiert')}</div>
       )}
       {status === 'ausweich' && (
-        <div className={styles.ausweichBadge}>Ausweichroute</div>
+        <div className={styles.ausweichBadge}>{t('gesetzStepper.ausweichroute')}</div>
       )}
     </div>
   );

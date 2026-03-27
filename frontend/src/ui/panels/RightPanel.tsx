@@ -35,7 +35,7 @@ export function RightPanel() {
                 !canKontern
                   ? state.pk < 5
                     ? t('game:gesetz.pkNichtGenug', { required: 5, current: state.pk })
-                    : 'Nur 1× pro Monat möglich'
+                    : t('game:opposition.oncePerMonth')
                   : ''
               }
               onClick={() => doPressemitteilung('opposition')}

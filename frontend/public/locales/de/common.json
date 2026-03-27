@@ -15,13 +15,34 @@
   "header": {
     "monthFormat": "Monat {{month}}/48 · {{year}}",
     "pkTooltip": "Politisches Kapital — deine Handlungsressource",
-    "playtestFeedback": "Feedback geben"
+    "playtestFeedback": "Feedback geben",
+    "paused": "PAUSIERT"
   },
   "menu": {
     "newGame": "Neues Spiel",
     "loadGame": "Spiel laden",
     "settings": "Einstellungen",
-    "credits": "Credits"
+    "credits": "Credits",
+    "loadVersionError": "Spielstand ist nicht kompatibel mit dieser Version.",
+    "loadParseError": "Spielstand konnte nicht gelesen werden.",
+    "migrateError": "Übertragung fehlgeschlagen.",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "migrateTitle": "Lokalen Spielstand übertragen?",
+    "migrateDesc": "Es wurde ein lokaler Spielstand gefunden. In die Cloud (Slot 1) übertragen? Der lokale Stand wird danach entfernt.",
+    "migrateConfirm": "Übertragen",
+    "migrateSkip": "Später",
+    "cloudSavesLoading": "Spielstände werden geladen…",
+    "cloudSavesTitle": "Cloud-Spielstände",
+    "saveSlotLabel": "Slot {{slot}}",
+    "saveMonthShort": "Monat {{m}}/48",
+    "saveVote": "Wahlprognose: {{v}}%",
+    "saveUpdated": "Zuletzt: {{d}}",
+    "deleteSave": "Löschen",
+    "emptySlot": "Leerer Slot",
+    "serverError": "Serverfehler",
+    "loadFailed": "Laden fehlgeschlagen",
+    "deleteFailed": "Löschen fehlgeschlagen"
   },
   "auth": {
     "title": "Anmelden / Registrieren",
@@ -109,7 +130,13 @@
       "land": "Land",
       "kommune": "Kommune"
     },
-    "gratis": "gratis"
+    "gratis": "gratis",
+    "manualSaveOk": "Spielstand in der Cloud gespeichert",
+    "manualSaveFallback": "Server nicht erreichbar – lokal gespeichert",
+    "manualSaveSlotLabel": "Speicher-Slot",
+    "manualSaveTooltip": "Spielstand speichern (Cloud)",
+    "saveHintBanner": "Melde dich an, um deinen Spielstand zu speichern und auf mehreren Geräten weiterzuspielen.",
+    "saveHintLogin": "Anmelden"
   },
   "startMap": {
     "subtitle": "Bund · Länder · Kommunen · Europa"
@@ -128,7 +155,11 @@
     "topFields": "Häufigste Politikfelder (Top-Gesetze)",
     "titles": "Häufigste Spieler-Titel",
     "submitError": "Statistik konnte nicht gesendet werden.",
-    "savedHint": "Auswertung wurde übermittelt."
+    "savedHint": "Auswertung wurde übermittelt.",
+    "colParty": "Partei",
+    "colCount": "n",
+    "colWinrate": "Gewinnrate",
+    "colForecast": "Ø Prognose"
   },
   "userTestFeedback": {
     "titel": "Playtest-Feedback",
@@ -150,7 +181,9 @@
     "danke": "Vielen Dank für dein Feedback!",
     "fehler": "Feedback konnte nicht gesendet werden. Bitte erneut versuchen.",
     "spielendeHinweis": "Wie war dein Erlebnis?",
-    "spielendeLink": "Feedback geben"
+    "spielendeLink": "Feedback geben",
+    "starLabel": "{{n}} von 5",
+    "close": "Schließen"
   },
   "highscores": {
     "pageTitle": "Highscores",
@@ -166,5 +199,14 @@
     "colStufe": "Stufe",
     "colDate": "Datum",
     "empty": "Noch keine Einträge."
+  },
+  "loading": {
+    "gameContent": "Spielinhalte werden geladen…",
+    "content": "Inhalte werden geladen…"
+  },
+  "contentError": "Inhalte konnten nicht geladen werden.",
+  "nav": {
+    "legalFooter": "Rechtliches",
+    "back": "← Zurück"
   }
 }

@@ -112,9 +112,9 @@ export function MedienklimaSektion() {
         {featureActive(complexity, 'opposition') && (
           <span className={styles.opposition}>
             {t('game:medienklima.opposition')}:{' '}
-            {oppositionLabel === 'stark' && <strong>Stark</strong>}
-            {oppositionLabel === 'aktiv' && <>Aktiv</>}
-            {oppositionLabel === 'schwach' && <span className={styles.oppositionSchwach}>Schwach</span>}
+            {oppositionLabel === 'stark' && <strong>{t('game:medienklima.oppositionStark')}</strong>}
+            {oppositionLabel === 'aktiv' && <>{t('game:medienklima.oppositionAktiv')}</>}
+            {oppositionLabel === 'schwach' && <span className={styles.oppositionSchwach}>{t('game:medienklima.oppositionSchwach')}</span>}
           </span>
         )}
         {featureActive(complexity, 'skandale') && isSkandalAktiv && (

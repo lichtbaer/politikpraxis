@@ -15,10 +15,12 @@ function StarRating({
   value,
   onChange,
   label,
+  starLabel,
 }: {
   value: number | null;
   onChange: (v: number) => void;
   label: string;
+  starLabel: (n: number) => string;
 }) {
   return (
     <div className={styles.starRow} aria-label={label}>
@@ -28,7 +30,7 @@ function StarRating({
           type="button"
           className={`${styles.star} ${value !== null && n <= value ? styles.starOn : ''}`}
           onClick={() => onChange(n)}
-          aria-label={`${n} von 5`}
+          aria-label={starLabel(n)}
         >
           ★
         </button>
@@ -75,7 +77,7 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
       );
       setSubmitted(true);
     } catch {
-      setError(t('userTestFeedback.fehler', 'Feedback konnte nicht gesendet werden. Bitte erneut versuchen.'));
+      setError(t('userTestFeedback.fehler'));
     } finally {
       setLoading(false);
     }
@@ -84,40 +86,42 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
   return (
     <div className={styles.backdrop} onClick={onClose}>
       <div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
-        <button type="button" className={styles.close} onClick={onClose} aria-label="Schließen">
+        <button type="button" className={styles.close} onClick={onClose} aria-label={t('userTestFeedback.close')}>
           ×
         </button>
-        <h2 className={styles.title}>{t('userTestFeedback.titel', 'Playtest-Feedback')}</h2>
+        <h2 className={styles.title}>{t('userTestFeedback.titel')}</h2>
         <p className={styles.subtitle}>
-          {t('userTestFeedback.untertitel', 'Alle Antworten sind freiwillig und werden nur intern ausgewertet.')}
+          {t('userTestFeedback.untertitel')}
         </p>
 
         {submitted ? (
           <div className={styles.success}>
-            {t('userTestFeedback.danke', 'Vielen Dank für dein Feedback!')}
+            {t('userTestFeedback.danke')}
           </div>
         ) : (
           <form onSubmit={(e) => void handleSubmit(e)}>
             <div className={styles.field}>
-              <span className={styles.label}>{t('userTestFeedback.gesamtbewertung', 'Gesamteindruck')}</span>
+              <span className={styles.label}>{t('userTestFeedback.gesamtbewertung')}</span>
               <StarRating
                 value={bewertung}
                 onChange={setBewertung}
-                label={t('userTestFeedback.gesamtbewertung', 'Gesamteindruck')}
+                label={t('userTestFeedback.gesamtbewertung')}
+                starLabel={(n) => t('userTestFeedback.starLabel', { n })}
               />
             </div>
 
             <div className={styles.field}>
-              <span className={styles.label}>{t('userTestFeedback.verstaendlichkeit', 'Verständlichkeit')}</span>
+              <span className={styles.label}>{t('userTestFeedback.verstaendlichkeit')}</span>
               <StarRating
                 value={verstaendlichkeit}
                 onChange={setVerstaendlichkeit}
-                label={t('userTestFeedback.verstaendlichkeit', 'Verständlichkeit')}
+                label={t('userTestFeedback.verstaendlichkeit')}
+                starLabel={(n) => t('userTestFeedback.starLabel', { n })}
               />
             </div>
 
             <div className={styles.field}>
-              <span className={styles.label}>{t('userTestFeedback.fehlerFrage', 'Fehler oder Probleme erlebt?')}</span>
+              <span className={styles.label}>{t('userTestFeedback.fehlerFrage')}</span>
               <div className={styles.toggleRow}>
                 <button
                   type="button"
@@ -142,7 +146,7 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
             {fehlerGemeldet && (
               <div className={styles.field}>
                 <label className={styles.label} htmlFor="fb-fehler">
-                  {t('userTestFeedback.fehlerBeschreibung', 'Was ist passiert?')}
+                  {t('userTestFeedback.fehlerBeschreibung')}
                 </label>
                 <textarea
                   id="fb-fehler"
@@ -151,14 +155,14 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
                   maxLength={1000}
                   value={fehlerBeschreibung}
                   onChange={(e) => setFehlerBeschreibung(e.target.value)}
-                  placeholder={t('userTestFeedback.fehlerPlaceholder', 'Beschreibe den Fehler kurz …')}
+                  placeholder={t('userTestFeedback.fehlerPlaceholder')}
                 />
               </div>
             )}
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="fb-positives">
-                {t('userTestFeedback.positives', 'Was hat gut funktioniert?')}
+                {t('userTestFeedback.positives')}
               </label>
               <textarea
                 id="fb-positives"
@@ -167,13 +171,13 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
                 maxLength={1000}
                 value={positives}
                 onChange={(e) => setPositives(e.target.value)}
-                placeholder={t('userTestFeedback.positivesPlaceholder', 'Optional …')}
+                placeholder={t('userTestFeedback.positivesPlaceholder')}
               />
             </div>
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="fb-verbesserungen">
-                {t('userTestFeedback.verbesserungen', 'Was war verwirrend oder schwierig?')}
+                {t('userTestFeedback.verbesserungen')}
               </label>
               <textarea
                 id="fb-verbesserungen"
@@ -182,13 +186,13 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
                 maxLength={1000}
                 value={verbesserungen}
                 onChange={(e) => setVerbesserungen(e.target.value)}
-                placeholder={t('userTestFeedback.verbesserungenPlaceholder', 'Optional …')}
+                placeholder={t('userTestFeedback.verbesserungenPlaceholder')}
               />
             </div>
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="fb-sonstiges">
-                {t('userTestFeedback.sonstiges', 'Sonstiges')}
+                {t('userTestFeedback.sonstiges')}
               </label>
               <textarea
                 id="fb-sonstiges"
@@ -197,7 +201,7 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
                 maxLength={1000}
                 value={sonstiges}
                 onChange={(e) => setSonstiges(e.target.value)}
-                placeholder={t('userTestFeedback.sonstigesPlaceholder', 'Optional …')}
+                placeholder={t('userTestFeedback.sonstigesPlaceholder')}
               />
             </div>
 
@@ -206,11 +210,11 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
             <div className={styles.row}>
               <button type="submit" className={styles.primary} disabled={loading}>
                 {loading
-                  ? t('userTestFeedback.senden', 'Senden …')
-                  : t('userTestFeedback.absenden', 'Feedback absenden')}
+                  ? t('userTestFeedback.senden')
+                  : t('userTestFeedback.absenden')}
               </button>
               <button type="button" className={styles.secondary} onClick={onClose}>
-                {t('userTestFeedback.abbrechen', 'Abbrechen')}
+                {t('userTestFeedback.abbrechen')}
               </button>
             </div>
           </form>

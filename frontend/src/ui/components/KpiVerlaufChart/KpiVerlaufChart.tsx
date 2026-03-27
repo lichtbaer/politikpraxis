@@ -3,8 +3,10 @@
  * Jedes Diagramm hat seine native Skala und erklärt den KPI per Tooltip.
  */
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
+import type { TFunction } from 'i18next';
 import styles from './KpiVerlaufChart.module.css';
 
 interface KpiHistory {
@@ -21,10 +23,7 @@ interface KpiVerlaufChartProps {
 
 interface KpiConfig {
   key: keyof KpiHistory;
-  label: string;
   unit: string;
-  desc: string;
-  impact: string;
   /** Lower is better? */
   lowerBetter: boolean;
   color: string;
@@ -37,16 +36,12 @@ interface KpiConfig {
   max: number;
   /** markLine threshold for "target" */
   targetLine?: number;
-  targetLabel?: string;
 }
 
 const KPI_CONFIGS: KpiConfig[] = [
   {
     key: 'al',
-    label: 'Arbeitslosigkeit',
     unit: '%',
-    desc: 'Anteil der Erwerbslosen an der Erwerbsbevölkerung.',
-    impact: 'Hohe Arbeitslosigkeit senkt die Zufriedenheit und gefährdet die Wiederwahl.',
     lowerBetter: true,
     color: '#c05848',
     warnColor: '#c8a84b',
@@ -55,14 +50,10 @@ const KPI_CONFIGS: KpiConfig[] = [
     min: 0,
     max: 15,
     targetLine: 5,
-    targetLabel: 'Vollbeschäftigung 5%',
   },
   {
     key: 'hh',
-    label: 'Haushaltssaldo',
     unit: ' Mrd. €',
-    desc: 'Differenz aus Staatseinnahmen und -ausgaben.',
-    impact: 'Ein dauerhaftes Defizit verletzt die Schuldenbremse und reduziert zukünftige Handlungsfähigkeit.',
     lowerBetter: false,
     color: '#5a9870',
     warnColor: '#c05848',
@@ -71,14 +62,10 @@ const KPI_CONFIGS: KpiConfig[] = [
     min: -60,
     max: 20,
     targetLine: 0,
-    targetLabel: 'Ausgeglichen',
   },
   {
     key: 'gi',
-    label: 'Gini-Koeffizient',
     unit: '',
-    desc: 'Maß für wirtschaftliche Ungleichverteilung (0 = gleich, 100 = maximal ungleich).',
-    impact: 'Hohe Ungleichheit verschlechtert die Gesellschafts-Dimension und schwächt progressive Milieus.',
     lowerBetter: true,
     color: '#c8a84b',
     warnColor: '#c05848',
@@ -89,10 +76,7 @@ const KPI_CONFIGS: KpiConfig[] = [
   },
   {
     key: 'zf',
-    label: 'Zufriedenheit',
     unit: '%',
-    desc: 'Allgemeine Bevölkerungszufriedenheit mit der Regierungsarbeit.',
-    impact: 'Niedrige Zufriedenheit senkt die Wahlprognose direkt und reduziert die PK-Regeneration.',
     lowerBetter: false,
     color: '#5888c0',
     warnColor: '#c05848',
@@ -101,7 +85,6 @@ const KPI_CONFIGS: KpiConfig[] = [
     min: 0,
     max: 100,
     targetLine: 50,
-    targetLabel: 'Ziel 50%',
   },
 ];
 
@@ -109,12 +92,16 @@ function isGood(cfg: KpiConfig, value: number): boolean {
   return cfg.goodDir === 'below' ? value <= cfg.goodThreshold : value >= cfg.goodThreshold;
 }
 
-function buildSparkOption(cfg: KpiConfig, data: number[]): EChartsOption {
+function buildSparkOption(cfg: KpiConfig, data: number[], t: TFunction): EChartsOption {
   const currentVal = data.length > 0 ? data[data.length - 1] : null;
   const good = currentVal !== null && isGood(cfg, currentVal);
   const lineColor = good ? cfg.color : cfg.warnColor;
 
-  const markLines: EChartsOption['series'] = [];
+  const label = t(`kpiVerlauf.${cfg.key}.label`);
+  const desc = t(`kpiVerlauf.${cfg.key}.desc`);
+  const impact = t(`kpiVerlauf.${cfg.key}.impact`);
+  const targetLabel = t(`kpiVerlauf.${cfg.key}.target`, '');
+
   const markLineData = cfg.targetLine !== undefined
     ? [{
         yAxis: cfg.targetLine,
@@ -122,7 +109,7 @@ function buildSparkOption(cfg: KpiConfig, data: number[]): EChartsOption {
         label: {
           show: true,
           position: 'insideEndTop' as const,
-          formatter: cfg.targetLabel ?? '',
+          formatter: targetLabel,
           color: 'rgba(255,255,255,0.3)',
           fontSize: 7,
         },
@@ -175,10 +162,10 @@ function buildSparkOption(cfg: KpiConfig, data: number[]): EChartsOption {
         const g = isGood(cfg, val);
         const valColor = g ? cfg.color : cfg.warnColor;
         return (
-          `<strong>${cfg.label}</strong> — Monat ${first.dataIndex + 1}<br/>` +
-          `Wert: <strong style="color:${valColor}">${val.toFixed(1)}${cfg.unit}</strong><br/>` +
-          `<span style="color:#888;font-size:10px">${cfg.desc}</span><br/>` +
-          `<span style="color:#777;font-size:10px;font-style:italic">${cfg.impact}</span>`
+          `<strong>${label}</strong> — ${t('kpiVerlauf.tooltipMonat', { month: first.dataIndex + 1 })}<br/>` +
+          `${t('kpiVerlauf.tooltipWert')}: <strong style="color:${valColor}">${val.toFixed(1)}${cfg.unit}</strong><br/>` +
+          `<span style="color:#888;font-size:10px">${desc}</span><br/>` +
+          `<span style="color:#777;font-size:10px;font-style:italic">${impact}</span>`
         );
       },
     },
@@ -203,7 +190,6 @@ function buildSparkOption(cfg: KpiConfig, data: number[]): EChartsOption {
           },
         },
         ...(markLineData.length > 0 ? { markLine: { silent: true, symbol: 'none', data: markLineData } } : {}),
-        ...markLines,
       },
     ],
   };
@@ -215,9 +201,11 @@ interface KpiSparkProps {
 }
 
 function KpiSpark({ cfg, data }: KpiSparkProps) {
-  const option = useMemo(() => buildSparkOption(cfg, data), [cfg, data]);
+  const { t } = useTranslation('game');
+  const option = useMemo(() => buildSparkOption(cfg, data, t), [cfg, data, t]);
   const currentVal = data.length > 0 ? data[data.length - 1] : null;
   const good = currentVal !== null && isGood(cfg, currentVal);
+  const label = t(`kpiVerlauf.${cfg.key}.label`);
 
   // Trend
   let trendSymbol = '→';
@@ -228,7 +216,6 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
     const diff = (currentVal ?? 0) - prev;
     if (Math.abs(diff) > 0.3) {
       trendSymbol = diff > 0 ? '↑' : '↓';
-      // For lower-better KPIs (al, gi), up is bad; for higher-better (hh, zf), down is bad
       trendGood = cfg.lowerBetter ? diff < 0 : diff > 0;
     }
   }
@@ -236,7 +223,7 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
   return (
     <div className={styles.sparkCard}>
       <div className={styles.sparkHeader}>
-        <span className={styles.sparkLabel}>{cfg.label}</span>
+        <span className={styles.sparkLabel}>{label}</span>
         {currentVal !== null && (
           <div className={styles.sparkValueRow}>
             <span
@@ -248,7 +235,7 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
             <span
               className={styles.sparkTrend}
               style={{ color: trendGood ? cfg.color : cfg.warnColor }}
-              title={cfg.lowerBetter ? 'Niedriger ist besser' : 'Höher ist besser'}
+              title={cfg.lowerBetter ? t('kpiVerlauf.lowerBetter') : t('kpiVerlauf.higherBetter')}
             >
               {trendSymbol}
             </span>
@@ -264,19 +251,20 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
           notMerge={false}
         />
       ) : (
-        <div className={styles.noData}>Noch keine Verlaufsdaten</div>
+        <div className={styles.noData}>{t('kpiVerlauf.noData')}</div>
       )}
     </div>
   );
 }
 
 export function KpiVerlaufChart({ history, current }: KpiVerlaufChartProps) {
+  const { t } = useTranslation('game');
   const hasAnyData = KPI_CONFIGS.some((cfg) => (history[cfg.key] ?? []).length > 0);
 
   if (!hasAnyData) {
     return (
       <div className={styles.empty}>
-        KPI-Verlauf wird ab dem zweiten Spielmonat angezeigt.
+        {t('kpiVerlauf.noDataGlobal')}
       </div>
     );
   }
@@ -284,13 +272,12 @@ export function KpiVerlaufChart({ history, current }: KpiVerlaufChartProps) {
   return (
     <div className={styles.container}>
       <div className={styles.titleRow}>
-        <span className={styles.title}>KPI-Entwicklung</span>
-        <span className={styles.subtitle}>Letzte {Math.max(...KPI_CONFIGS.map((c) => (history[c.key] ?? []).length))} Monate</span>
+        <span className={styles.title}>{t('kpiVerlauf.title')}</span>
+        <span className={styles.subtitle}>{t('kpiVerlauf.subtitle', { count: Math.max(...KPI_CONFIGS.map((c) => (history[c.key] ?? []).length)) })}</span>
       </div>
       <div className={styles.grid}>
         {KPI_CONFIGS.map((cfg) => {
           const data = history[cfg.key] ?? [];
-          // Append current value if history doesn't include it
           const enriched =
             data.length > 0 && data[data.length - 1] === current[cfg.key]
               ? data

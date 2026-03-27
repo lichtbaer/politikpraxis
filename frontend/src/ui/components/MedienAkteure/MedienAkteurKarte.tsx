@@ -1,6 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import type { MedienAkteurContent } from '../../../data/defaults/medienAkteure';
 import {
-  AKTEUR_AGENDA_TEXTE,
   getMedienAkteurIcon,
 } from '../../../data/defaults/medienAkteure';
 import { effektiveMedienAkteurStimmung } from '../../../core/systems/medienklima';
@@ -26,12 +26,12 @@ function typClass(typ: MedienAkteurContent['typ']): string {
   }
 }
 
-function getStimmungsLabel(wert: number): string {
-  if (wert <= -40) return 'Sehr kritisch';
-  if (wert <= -15) return 'Kritisch';
-  if (wert < 15) return 'Neutral';
-  if (wert < 40) return 'Freundlich';
-  return 'Sehr positiv';
+function getStimmungsLabelKey(wert: number): string {
+  if (wert <= -40) return 'sehrKritisch';
+  if (wert <= -15) return 'kritisch';
+  if (wert < 15) return 'neutral';
+  if (wert < 40) return 'freundlich';
+  return 'sehrPositiv';
 }
 
 interface MedienAkteurKarteProps {
@@ -41,6 +41,7 @@ interface MedienAkteurKarteProps {
 }
 
 export function MedienAkteurKarte({ def, stateRow, game }: MedienAkteurKarteProps) {
+  const { t } = useTranslation('game');
   const effStimmung = effektiveMedienAkteurStimmung(def.id, stateRow, game.medienAkteurBuffs, game.month);
   const pct = ((effStimmung + 100) / 200) * 100;
 
@@ -52,37 +53,37 @@ export function MedienAkteurKarte({ def, stateRow, game }: MedienAkteurKarteProp
         </span>
         <div className={styles.headerText}>
           <h3 className={styles.title}>{def.name_de}</h3>
-          <div className={styles.reichweite}>{Math.round(stateRow.reichweite)}% Reichweite</div>
+          <div className={styles.reichweite}>{t('medienAkteure.reichweite', { value: Math.round(stateRow.reichweite) })}</div>
         </div>
       </div>
 
       <div className={styles.stimmungWrap}>
-        <span className={styles.stimmungLabel}>Stimmung</span>
-        <div className={styles.barTrack} role="img" aria-label={`Stimmung ${effStimmung}`}>
+        <span className={styles.stimmungLabel}>{t('medienAkteure.stimmung')}</span>
+        <div className={styles.barTrack} role="img" aria-label={`${t('medienAkteure.stimmung')} ${effStimmung}`}>
           <span className={styles.barCenter} />
           <span className={styles.barMarker} style={{ left: `${pct}%` }} />
         </div>
         <span className={styles.stimmungLabel}>
-          {getStimmungsLabel(effStimmung)} ({effStimmung})
+          {t(`medienAkteure.${getStimmungsLabelKey(effStimmung)}`)} ({effStimmung})
         </span>
       </div>
 
       {def.typ === 'social' && (
         <div className={styles.warnVolatil}>
-          Sehr volatil — Stimmung kann schnell kippen
+          {t('medienAkteure.warnVolatil')}
         </div>
       )}
 
       {def.typ === 'alternativ' && stateRow.reichweite > 10 && (
         <div className={styles.warnAlternativ}>
-          Wachsende Reichweite — Medienklima leidet
+          {t('medienAkteure.warnAlternativ')}
         </div>
       )}
 
-      <p className={styles.agenda}>{AKTEUR_AGENDA_TEXTE[def.typ]}</p>
+      <p className={styles.agenda}>{t(`medienAkteure.agenda.${def.typ}`)}</p>
 
       {['oeffentlich', 'alternativ'].includes(def.typ) && (
-        <span className={styles.passivBadge}>Nicht direkt beeinflussbar</span>
+        <span className={styles.passivBadge}>{t('medienAkteure.passiv')}</span>
       )}
     </article>
   );

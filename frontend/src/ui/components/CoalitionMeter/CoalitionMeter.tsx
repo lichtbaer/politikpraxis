@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import styles from './CoalitionMeter.module.css';
@@ -7,11 +8,11 @@ interface CoalitionMeterProps {
   value: number;
 }
 
-function getLabel(value: number): string {
-  if (value >= 60) return 'Koalition stabil';
-  if (value >= 35) return 'Spannungen erkennbar';
-  if (value >= 15) return 'Koalitionskrise droht';
-  return 'Koalition am Limit';
+function getLabelKey(value: number): string {
+  if (value >= 60) return 'coalition.stable';
+  if (value >= 35) return 'coalition.tensions';
+  if (value >= 15) return 'coalition.crisis';
+  return 'coalition.atLimit';
 }
 
 function getColor(value: number): string {
@@ -21,6 +22,7 @@ function getColor(value: number): string {
 }
 
 export function CoalitionMeter({ value }: CoalitionMeterProps) {
+  const { t } = useTranslation('game');
   const clamped = Math.min(100, Math.max(0, value));
   const color = getColor(clamped);
 
@@ -85,11 +87,11 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
       />
       <div className={styles.statusLabel} style={{ color }}>
         {isCritical && <span className={styles.warningIcon}>&#9888;</span>}
-        {getLabel(clamped)}
+        {t(getLabelKey(clamped))}
       </div>
       {clamped < 15 && (
         <div className={styles.collapseWarning}>
-          Koalitionsbruch droht!
+          {t('coalition.collapseWarning')}
         </div>
       )}
     </div>

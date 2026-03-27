@@ -2,7 +2,8 @@
  * Gestapeltes Balkendiagramm: Ausstehende Gesetz-Auswirkungen nach Monat.
  * Zeigt welche KPIs (AL, HH, GI, ZF) in den nächsten Monaten beeinflusst werden.
  */
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import type { PendingEffect } from '../../../core/types';
@@ -13,16 +14,23 @@ interface PendingEffekteChartProps {
   currentMonth: number;
 }
 
-const KPI_META: Record<string, { label: string; color: string; desc: string; lowerBetter: boolean }> = {
-  al: { label: 'Arbeitslosigkeit', color: '#c05848', desc: 'Erwerbslosenquote — niedrig ist besser', lowerBetter: true },
-  hh: { label: 'Haushalt', color: '#5a9870', desc: 'Haushaltssaldo in Mrd. € — positiv ist besser', lowerBetter: false },
-  gi: { label: 'Gini', color: '#c8a84b', desc: 'Ungleichheitskoeffizient — niedrig ist besser', lowerBetter: true },
-  zf: { label: 'Zufriedenheit', color: '#5888c0', desc: 'Bevölkerungszufriedenheit — hoch ist besser', lowerBetter: false },
+const KPI_COLORS: Record<string, string> = {
+  al: '#c05848',
+  hh: '#5a9870',
+  gi: '#c8a84b',
+  zf: '#5888c0',
 };
+
+const KPI_LOWER_BETTER = new Set(['al', 'gi']);
 
 const KPI_KEYS = ['al', 'hh', 'gi', 'zf'] as const;
 
 export function PendingEffekteChart({ pending, currentMonth }: PendingEffekteChartProps) {
+  const { t } = useTranslation('game');
+
+  const kpiLabel = useCallback((key: string) => t(`pendingEffekte.${key}.label`), [t]);
+  const kpiDesc = useCallback((key: string) => t(`pendingEffekte.${key}.desc`), [t]);
+
   // Group by relative month offset
   const { months, seriesData, tooltipByMonth } = useMemo(() => {
     if (pending.length === 0) return { months: [], seriesData: {}, tooltipByMonth: {} };
@@ -57,19 +65,20 @@ export function PendingEffekteChart({ pending, currentMonth }: PendingEffekteCha
     for (const month of sortedMonths) {
       const offset = month - currentMonth;
       const lines: string[] = [
-        `<strong>Monat ${month} (+${offset} Mo.)</strong>`,
+        `<strong>${t('pendingEffekte.tooltipMonth', { month, offset })}</strong>`,
       ];
       for (const key of KPI_KEYS) {
         const entries = kpiEntries[key][month];
         if (!entries || entries.length === 0) continue;
-        const meta = KPI_META[key];
+        const color = KPI_COLORS[key];
+        const lowerBetter = KPI_LOWER_BETTER.has(key);
         const sum = kpiSums[key][month] ?? 0;
         const sign = sum > 0 ? '+' : '';
-        const isGoodChange = meta.lowerBetter ? sum < 0 : sum > 0;
+        const isGoodChange = lowerBetter ? sum < 0 : sum > 0;
         const valueColor = isGoodChange ? '#5a9870' : '#c05848';
         lines.push(
           `<div style="margin-top:4px">` +
-          `<span style="color:${meta.color};font-weight:600">${meta.label}</span>` +
+          `<span style="color:${color};font-weight:600">${kpiLabel(key)}</span>` +
           `<span style="float:right;color:${valueColor};font-weight:700;margin-left:8px">${sign}${sum.toFixed(1)}</span>` +
           `</div>`,
         );
@@ -83,14 +92,14 @@ export function PendingEffekteChart({ pending, currentMonth }: PendingEffekteCha
     }
 
     return { months: sortedMonths, seriesData: kpiSums, tooltipByMonth };
-  }, [pending, currentMonth]);
+  }, [pending, currentMonth, t, kpiLabel]);
 
   const option: EChartsOption = useMemo(() => {
     if (months.length === 0) return {};
 
     const xLabels = months.map((m) => {
       const offset = m - currentMonth;
-      return offset === 0 ? 'Jetzt' : `+${offset} Mo.`;
+      return offset === 0 ? t('pendingEffekte.now') : `+${offset} Mo.`;
     });
 
     return {
@@ -127,7 +136,7 @@ export function PendingEffekteChart({ pending, currentMonth }: PendingEffekteCha
       legend: {
         data: KPI_KEYS.filter((k) =>
           months.some((m) => (seriesData[k]?.[m] ?? 0) !== 0),
-        ).map((k) => ({ name: KPI_META[k].label, itemStyle: { color: KPI_META[k].color } })),
+        ).map((k) => ({ name: kpiLabel(k), itemStyle: { color: KPI_COLORS[k] } })),
         bottom: 0,
         textStyle: { color: 'rgba(255,255,255,0.5)', fontSize: 9 },
         itemWidth: 10,
@@ -136,20 +145,20 @@ export function PendingEffekteChart({ pending, currentMonth }: PendingEffekteCha
       series: KPI_KEYS.filter((k) =>
         months.some((m) => (seriesData[k]?.[m] ?? 0) !== 0),
       ).map((k) => ({
-        name: KPI_META[k].label,
+        name: kpiLabel(k),
         type: 'bar',
         stack: 'effects',
         data: months.map((m) => seriesData[k]?.[m] ?? 0),
-        itemStyle: { color: KPI_META[k].color, opacity: 0.85 },
+        itemStyle: { color: KPI_COLORS[k], opacity: 0.85 },
         emphasis: { itemStyle: { opacity: 1 } },
       })),
     };
-  }, [months, seriesData, tooltipByMonth, currentMonth]);
+  }, [months, seriesData, tooltipByMonth, currentMonth, t, kpiLabel]);
 
   if (pending.length === 0) {
     return (
       <div className={styles.empty}>
-        Keine ausstehenden Gesetz-Auswirkungen.
+        {t('pendingEffekte.noData')}
       </div>
     );
   }
@@ -158,16 +167,21 @@ export function PendingEffekteChart({ pending, currentMonth }: PendingEffekteCha
   const nearestMonth = months[0];
   const offsetToNearest = nearestMonth ? nearestMonth - currentMonth : null;
 
+  const offsetLabel = offsetToNearest === 0
+    ? t('pendingEffekte.thisMonth')
+    : offsetToNearest === 1
+      ? t('pendingEffekte.monthSingular', { count: offsetToNearest ?? 0 })
+      : t('pendingEffekte.monthPlural', { count: offsetToNearest ?? 0 });
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <span className={styles.headerLabel}>Geplante Auswirkungen — Übersicht</span>
-        <span className={styles.headerCount}>{totalEffects} Effekte</span>
+        <span className={styles.headerLabel}>{t('pendingEffekte.title')}</span>
+        <span className={styles.headerCount}>{t('pendingEffekte.effekte', { count: totalEffects })}</span>
       </div>
       {offsetToNearest !== null && (
         <p className={styles.nextHint}>
-          Nächste Wirkung in {offsetToNearest === 0 ? 'diesem Monat' : `${offsetToNearest} Monat${offsetToNearest === 1 ? '' : 'en'}`}.
-          Hover für Details.
+          {t('pendingEffekte.nextHint', { offset: offsetLabel })}
         </p>
       )}
       <ReactECharts
@@ -179,14 +193,13 @@ export function PendingEffekteChart({ pending, currentMonth }: PendingEffekteCha
       />
       <div className={styles.kpiLegend}>
         {KPI_KEYS.map((k) => {
-          const meta = KPI_META[k];
           const hasEffect = months.some((m) => (seriesData[k]?.[m] ?? 0) !== 0);
           if (!hasEffect) return null;
           return (
-            <div key={k} className={styles.kpiLegendItem} title={meta.desc}>
-              <span className={styles.kpiDot} style={{ backgroundColor: meta.color }} />
+            <div key={k} className={styles.kpiLegendItem} title={kpiDesc(k)}>
+              <span className={styles.kpiDot} style={{ backgroundColor: KPI_COLORS[k] }} />
               <span className={styles.kpiKey}>{k.toUpperCase()}</span>
-              <span className={styles.kpiDesc}>{meta.desc}</span>
+              <span className={styles.kpiDesc}>{kpiDesc(k)}</span>
             </div>
           );
         })}

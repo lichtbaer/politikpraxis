@@ -4,6 +4,7 @@
  * „Positiv" (≥60), „Neutral" (40–59) und „Kritisch" (<40).
  */
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import styles from './MedienklimaTrendChart.module.css';
@@ -13,14 +14,22 @@ interface MedienklimaTrendChartProps {
   current: number;
 }
 
-function getMKStatus(value: number): { label: string; color: string } {
-  if (value >= 60) return { label: 'Positiv', color: '#5a9870' };
-  if (value >= 40) return { label: 'Neutral', color: '#c8a84b' };
-  return { label: 'Kritisch', color: '#c05848' };
+function getMKStatusColor(value: number): string {
+  if (value >= 60) return '#5a9870';
+  if (value >= 40) return '#c8a84b';
+  return '#c05848';
+}
+
+function getMKStatusKey(value: number): string {
+  if (value >= 60) return 'statusPositiv';
+  if (value >= 40) return 'statusNeutral';
+  return 'statusKritisch';
 }
 
 export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChartProps) {
-  const status = getMKStatus(current);
+  const { t } = useTranslation('game');
+  const statusColor = getMKStatusColor(current);
+  const statusLabel = t(`medienklima.${getMKStatusKey(current)}`);
 
   const option: EChartsOption = useMemo(() => {
     const months = history.map((_, i) => i + 1);
@@ -70,24 +79,24 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
           const first = p.find((x) => x.value != null);
           if (!first) return '';
           const val = first.value as number;
-          const s = getMKStatus(val);
+          const sColor = getMKStatusColor(val);
+          const sLabel = t(`medienklima.${getMKStatusKey(val)}`);
           return (
-            `<strong>Monat ${first.dataIndex + 1}</strong><br/>` +
-            `Medienklima: <strong style="color:${s.color}">${val} — ${s.label}</strong><br/>` +
+            `<strong>${t('medienklima.tooltipMonat', { month: first.dataIndex + 1 })}</strong><br/>` +
+            `${t('medienklima.tooltipLabel')}: <strong style="color:${sColor}">${val} — ${sLabel}</strong><br/>` +
             `<span style="color:#888;font-size:10px">` +
-            `Beeinflusst Wahlchancen und Kommunikationsaktionen` +
+            `${t('medienklima.tooltipHint')}` +
             `</span>`
           );
         },
       },
-      // Hintergrundstreifen: markArea für die drei Zonen
       series: [
         {
           type: 'line',
           data: history,
           smooth: 0.3,
           symbol: 'none',
-          lineStyle: { color: status.color, width: 2 },
+          lineStyle: { color: statusColor, width: 2 },
           areaStyle: {
             color: {
               type: 'linear' as const,
@@ -96,8 +105,8 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: `${status.color}55` },
-                { offset: 1, color: `${status.color}08` },
+                { offset: 0, color: `${statusColor}55` },
+                { offset: 1, color: `${statusColor}08` },
               ],
             },
           },
@@ -111,7 +120,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
                 label: {
                   show: true,
                   position: 'insideEndTop',
-                  formatter: 'Positiv 60',
+                  formatter: t('medienklima.markPositiv'),
                   color: '#5a987088',
                   fontSize: 8,
                 },
@@ -122,7 +131,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
                 label: {
                   show: true,
                   position: 'insideEndBottom',
-                  formatter: 'Kritisch 40',
+                  formatter: t('medienklima.markKritisch'),
                   color: '#c0584888',
                   fontSize: 8,
                 },
@@ -132,7 +141,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
         },
       ],
     };
-  }, [history, status.color]);
+  }, [history, statusColor, t]);
 
   // Trend
   let trendSymbol = '→';
@@ -148,7 +157,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
   if (history.length === 0) {
     return (
       <div className={styles.empty}>
-        Keine Verlaufsdaten verfügbar
+        {t('medienklima.noData')}
       </div>
     );
   }
@@ -156,16 +165,16 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <span className={styles.headerLabel}>Medienklima-Verlauf</span>
+        <span className={styles.headerLabel}>{t('medienklima.verlaufTitle')}</span>
         <div className={styles.currentRow}>
-          <span className={styles.currentValue} style={{ color: status.color }}>
+          <span className={styles.currentValue} style={{ color: statusColor }}>
             {current}
           </span>
           <span className={`${styles.trendIndicator} ${trendClass}`} aria-hidden="true">
             {trendSymbol}
           </span>
-          <span className={styles.statusBadge} style={{ backgroundColor: `${status.color}22`, color: status.color }}>
-            {status.label}
+          <span className={styles.statusBadge} style={{ backgroundColor: `${statusColor}22`, color: statusColor }}>
+            {statusLabel}
           </span>
         </div>
       </div>
@@ -177,8 +186,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
         notMerge={false}
       />
       <p className={styles.caption}>
-        Das Medienklima beeinflusst Ihre Wahlchancen und die Wirkung von Kommunikationsaktionen.
-        Werte ≥&thinsp;60 stärken die Wahlprognose, Werte &lt;&thinsp;40 gefährden sie.
+        {t('medienklima.caption')}
       </p>
     </div>
   );

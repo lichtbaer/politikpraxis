@@ -112,7 +112,7 @@ export function EbeneView({ type }: EbeneViewProps) {
 
       {type === 'kommune' && hasKommunalPilot && (
         <div className={styles.aktionen}>
-          <h3 className={styles.aktionenTitle}>Aktionen</h3>
+          <h3 className={styles.aktionenTitle}>{t('game:ebene.aktionen')}</h3>
           <div className={styles.aktionenRow}>
             <button
               type="button"
@@ -149,7 +149,7 @@ export function EbeneView({ type }: EbeneViewProps) {
 
       {type === 'land' && hasLaenderPilot && (
         <div className={styles.aktionen}>
-          <h3 className={styles.aktionenTitle}>Aktionen</h3>
+          <h3 className={styles.aktionenTitle}>{t('game:ebene.aktionen')}</h3>
           <div className={styles.aktionenRow}>
             <button
               type="button"

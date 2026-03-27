@@ -139,17 +139,17 @@ export function EndScreen() {
   const milestones: string[] = useMemo(() => {
     if (!state.gameOver) return [];
     const m: string[] = [];
-    if (beschlosseneGesetze.length > 0) m.push(`${beschlosseneGesetze.length} Gesetze beschlossen`);
-    if (blockierteGesetze.length > 0) m.push(`${blockierteGesetze.length} Gesetze blockiert`);
+    if (beschlosseneGesetze.length > 0) m.push(t('endScreen.milestones.lawsPassed', { count: beschlosseneGesetze.length }));
+    if (blockierteGesetze.length > 0) m.push(t('endScreen.milestones.lawsBlocked', { count: blockierteGesetze.length }));
     const firedEvents = state.firedEvents?.length ?? 0;
-    if (firedEvents > 0) m.push(`${firedEvents} Ereignisse bewältigt`);
-    if (state.koalitionspartner && state.koalitionspartner.beziehung >= 50) m.push('Koalition stabil gehalten');
-    if (state.koalitionspartner && state.koalitionspartner.beziehung < 15) m.push('Koalitionskrise erlebt');
-    if ((state.haushalt?.saldo ?? 0) >= 0) m.push('Haushalt im Plus');
-    if ((state.haushalt?.saldo ?? 0) < -15) m.push('Schuldenbremse gerissen');
-    if (state.wahlkampfAktiv) m.push('Wahlkampf durchlaufen');
+    if (firedEvents > 0) m.push(t('endScreen.milestones.eventsHandled', { count: firedEvents }));
+    if (state.koalitionspartner && state.koalitionspartner.beziehung >= 50) m.push(t('endScreen.milestones.coalitionStable'));
+    if (state.koalitionspartner && state.koalitionspartner.beziehung < 15) m.push(t('endScreen.milestones.coalitionCrisis'));
+    if ((state.haushalt?.saldo ?? 0) >= 0) m.push(t('endScreen.milestones.budgetPositive'));
+    if ((state.haushalt?.saldo ?? 0) < -15) m.push(t('endScreen.milestones.debtBrakeBreached'));
+    if (state.wahlkampfAktiv) m.push(t('endScreen.milestones.campaignCompleted'));
     return m;
-  }, [state.gameOver, beschlosseneGesetze.length, blockierteGesetze.length, state.firedEvents, state.koalitionspartner, state.haushalt, state.wahlkampfAktiv]);
+  }, [state.gameOver, beschlosseneGesetze.length, blockierteGesetze.length, state.firedEvents, state.koalitionspartner, state.haushalt, state.wahlkampfAktiv, t]);
 
   if (!state.gameOver) return null;
 
@@ -211,7 +211,7 @@ export function EndScreen() {
         {/* Milestones */}
         {milestones.length > 0 && (
           <div className={styles.milestonesSection}>
-            <span className={styles.chartSectionLabel}>Meilensteine</span>
+            <span className={styles.chartSectionLabel}>{t('endScreen.meilensteine')}</span>
             <div className={styles.milestonesList}>
               {milestones.map((m, i) => (
                 <span key={i} className={styles.milestone}>{m}</span>
@@ -226,7 +226,7 @@ export function EndScreen() {
           if (newAchievements.length === 0) return null;
           return (
             <div className={styles.milestonesSection}>
-              <span className={styles.chartSectionLabel}>Neue Erfolge freigeschaltet!</span>
+              <span className={styles.chartSectionLabel}>{t('endScreen.neueErfolge')}</span>
               <div className={styles.milestonesList}>
                 {newAchievements.map((a) => (
                   <span key={a.id} className={styles.achievementBadge} title={a.desc}>

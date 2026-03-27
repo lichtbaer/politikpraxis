@@ -63,7 +63,7 @@ export function Header() {
       kanzlerGeschlecht: state.kanzlerGeschlecht ?? kanzlerGeschlecht,
     })
       .then(() => {
-        useUIStore.getState().showToast(t('game.manualSaveOk', { defaultValue: 'Spielstand in der Cloud gespeichert' }), 'success');
+        useUIStore.getState().showToast(t('game.manualSaveOk'), 'success');
       })
       .catch(() => {
         saveGame({
@@ -74,7 +74,7 @@ export function Header() {
           spielerPartei: state.spielerPartei,
           kanzlerGeschlecht: state.kanzlerGeschlecht ?? kanzlerGeschlecht,
         });
-        useUIStore.getState().showToast(t('game.manualSaveFallback', { defaultValue: 'Server nicht erreichbar – lokal gespeichert' }), 'warning');
+        useUIStore.getState().showToast(t('game.manualSaveFallback'), 'warning');
       });
   };
 
@@ -126,7 +126,7 @@ export function Header() {
         </div>
         <div className={styles.speedRow}>
           {speed === 0 && (
-            <span className={styles.pauseBadge}>{t('header.paused', { defaultValue: 'PAUSIERT' })}</span>
+            <span className={styles.pauseBadge}>{t('header.paused')}</span>
           )}
           {speeds.map(s => (
             <button
@@ -190,7 +190,7 @@ export function Header() {
               className={styles.saveSlotSelect}
               value={manualSlot}
               onChange={(e) => setManualSlot(Number(e.target.value))}
-              aria-label={t('game.manualSaveSlotLabel', { defaultValue: 'Speicher-Slot' })}
+              aria-label={t('game.manualSaveSlotLabel')}
             >
               <option value={1}>1</option>
               <option value={2}>2</option>
@@ -200,7 +200,7 @@ export function Header() {
               type="button"
               className={styles.saveCloudBtn}
               onClick={manualSave}
-              title={t('game.manualSaveTooltip', { defaultValue: 'Spielstand speichern (Cloud)' })}
+              title={t('game.manualSaveTooltip')}
             >
               💾
             </button>

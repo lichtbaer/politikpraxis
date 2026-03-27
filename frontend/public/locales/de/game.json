@@ -5,72 +5,120 @@
       "role": "Kanzlerin",
       "bio": "Führt die Koalition mit pragmatischem Kurs. Hält die Fäden zusammen — aber erwartet Loyalität zurück.",
       "tag": "Stabilität",
-      "interests": ["Koalitionsstabilität", "Wiederwahl"],
-      "bonus": { "desc": "Gibt +5 BT-Stimmen für alle Gesetze" }
+      "interests": [
+        "Koalitionsstabilität",
+        "Wiederwahl"
+      ],
+      "bonus": {
+        "desc": "Gibt +5 BT-Stimmen für alle Gesetze"
+      }
     },
     "fm": {
       "name": "Robert Lehmann",
       "role": "Finanzminister",
       "bio": "Strenger Haushälter der CDU. Widersetzt sich teuren Reformen konsequent — hat aber meistens Recht.",
       "tag": "Haushalt",
-      "interests": ["Haushaltsdisziplin", "Schuldenbremse"],
-      "bonus": { "desc": "Beschleunigt Gesetze ohne Haushaltskosten" }
+      "interests": [
+        "Haushaltsdisziplin",
+        "Schuldenbremse"
+      ],
+      "bonus": {
+        "desc": "Beschleunigt Gesetze ohne Haushaltskosten"
+      }
     },
     "wm": {
       "name": "Petra Maier",
       "role": "Wirtschaftsministerin",
       "bio": "Pragmatisch und lösungsorientiert. Wichtige Verbündete — pflegt Kontakte zur Industrie und zu Länderchefs.",
       "tag": "Standort",
-      "interests": ["Standortpolitik", "Industrietransformation"],
-      "bonus": { "desc": "+3% BT-Stimmen für Wirtschaftsgesetze" }
+      "interests": [
+        "Standortpolitik",
+        "Industrietransformation"
+      ],
+      "bonus": {
+        "desc": "+3% BT-Stimmen für Wirtschaftsgesetze"
+      }
     },
     "im": {
       "name": "Klaus Braun",
       "role": "Innenminister",
       "bio": "Konservativer Querdenker. Misstraut der Koalition grundsätzlich — sucht aktiv nach Gründen zu torpedieren.",
       "tag": "Sicherheit",
-      "interests": ["Innere Sicherheit", "Migrationsbegrenzung"],
-      "bonus": { "desc": "Stabilisiert Bundesrat-Stimmen in 3 Ländern" }
+      "interests": [
+        "Innere Sicherheit",
+        "Migrationsbegrenzung"
+      ],
+      "bonus": {
+        "desc": "Stabilisiert Bundesrat-Stimmen in 3 Ländern"
+      }
     },
     "jm": {
       "name": "Sara Kern",
       "role": "Justizministerin",
       "bio": "Juristin mit unbedingten Prinzipien. Blockiert verfassungswidrige Vorhaben — schützt aber auch die Koalition vor teuren Fehlern.",
       "tag": "Rechtsstaat",
-      "interests": ["Rechtsstaat", "Grundrechte"],
-      "bonus": { "desc": "Verhindert Verfassungsklagen gegen Gesetze" }
+      "interests": [
+        "Rechtsstaat",
+        "Grundrechte"
+      ],
+      "bonus": {
+        "desc": "Verhindert Verfassungsklagen gegen Gesetze"
+      }
     },
     "um": {
       "name": "Jonas Wolf",
       "role": "Umweltminister",
       "bio": "Treibt Klimapolitik voran, manchmal gegen den Rest des Kabinetts. Starkes Netzwerk bei progressiven Wählern.",
       "tag": "Klima",
-      "interests": ["Klimaschutz", "Energiewende"],
-      "bonus": { "desc": "+4% Zustimmung im progressiven Milieu" }
+      "interests": [
+        "Klimaschutz",
+        "Energiewende"
+      ],
+      "bonus": {
+        "desc": "+4% Zustimmung im progressiven Milieu"
+      }
     },
     "am": {
       "name": "Dr. Anna Schulze",
       "role": "Arbeits- und Sozialministerin",
       "bio": "Gewerkschaftsnah und kampfeslustig. Schulze kennt die Betriebe von innen und fordert konsequent für Mindestlohn und Tarifbindung.",
       "tag": "Kämpferin",
-      "interests": ["Mindestlohn", "Tarifbindung", "Sozialleistungen"],
-      "bonus": { "desc": "GBD-Beziehung regeneriert passiv wenn Mood ≥ 3" }
+      "interests": [
+        "Mindestlohn",
+        "Tarifbindung",
+        "Sozialleistungen"
+      ],
+      "bonus": {
+        "desc": "GBD-Beziehung regeneriert passiv wenn Mood ≥ 3"
+      }
     },
     "gm": {
       "name": "Prof. Thomas Neumann",
       "role": "Gesundheits- und Pflegeminister",
       "bio": "Klinischer Pragmatiker. Neumann denkt in Systemen und sucht nachhaltige Lösungen für Pflege und Krankenversicherung.",
       "tag": "Systematiker",
-      "interests": ["Pflegefinanzierung", "Krankenversicherung", "Prävention"],
-      "bonus": { "desc": "Gesundheitsfeld-Druck steigt langsamer wenn Mood ≥ 3" }
+      "interests": [
+        "Pflegefinanzierung",
+        "Krankenversicherung",
+        "Prävention"
+      ],
+      "bonus": {
+        "desc": "Gesundheitsfeld-Druck steigt langsamer wenn Mood ≥ 3"
+      }
     },
     "bm": {
       "name": "Dr. Sabine Becker",
       "role": "Bildungs- und Forschungsministerin",
       "bio": "Unermüdliche Reformerin mit Föderalismusfrust. Becker will Bund und Länder zusammenbringen — oft vergeblich.",
       "tag": "Reformerin",
-      "interests": ["Bildungsföderalismus", "Kitaausbau", "Forschungsförderung"],
-      "bonus": { "desc": "Bundesrat-Blockade bei Bildungsgesetzen -15% wenn Mood ≥ 3" }
+      "interests": [
+        "Bildungsföderalismus",
+        "Kitaausbau",
+        "Forschungsförderung"
+      ],
+      "bonus": {
+        "desc": "Bundesrat-Blockade bei Bildungsgesetzen -15% wenn Mood ≥ 3"
+      }
     }
   },
   "mood": {
@@ -112,9 +160,21 @@
       "context": "Die Opposition fordert Rücktritt. Braun nutzt die Gelegenheit, die Koalition zu destabilisieren.",
       "ticker": "Spiegel-Bericht erschüttert Koalition — Opposition wittert Morgenluft",
       "choices": {
-        "0": { "label": "Vollständige Transparenz", "desc": "Alles offenlegen, kurzfristiger Schaden", "log": "Vollständige Offenlegung. Kurzzeitiger Schaden, langfristiges Vertrauen." },
-        "1": { "label": "Ablenkungsoffensive", "desc": "Medien mit neuem Thema überspielen", "log": "Ablenkungsmanöver gestartet. Medien skeptisch." },
-        "2": { "label": "Minister entlassen", "desc": "Klares Signal, kostet Koalitionsstabilität", "log": "Minister entlassen. Koalitionspartner verärgert." }
+        "0": {
+          "label": "Vollständige Transparenz",
+          "desc": "Alles offenlegen, kurzfristiger Schaden",
+          "log": "Vollständige Offenlegung. Kurzzeitiger Schaden, langfristiges Vertrauen."
+        },
+        "1": {
+          "label": "Ablenkungsoffensive",
+          "desc": "Medien mit neuem Thema überspielen",
+          "log": "Ablenkungsmanöver gestartet. Medien skeptisch."
+        },
+        "2": {
+          "label": "Minister entlassen",
+          "desc": "Klares Signal, kostet Koalitionsstabilität",
+          "log": "Minister entlassen. Koalitionspartner verärgert."
+        }
       }
     },
     "euklage": {
@@ -124,9 +184,21 @@
       "context": "Drei Richtlinien sind noch nicht in nationales Recht überführt. Ein Bußgeld von bis zu 500 Mio. Euro droht.",
       "ticker": "EU-Vertragsverletzungsverfahren gegen Deutschland eröffnet",
       "choices": {
-        "0": { "label": "Schnellumsetzung", "desc": "Eilgesetzgebung, ignoriert Bundesrat", "log": "EU-Richtlinien schnell umgesetzt. Verfassungsrechtliche Bedenken bleiben." },
-        "1": { "label": "EU-Verhandlung aufnehmen", "desc": "Zeitgewinn, keine sofortigen Kosten", "log": "Verhandlungen mit Brüssel aufgenommen. Ergebnis offen." },
-        "2": { "label": "Bundesrat einbeziehen", "desc": "Korrekt aber langsam, Bußgeld riskant", "log": "Reguläres Verfahren gewählt. Bußgeld-Risiko bleibt." }
+        "0": {
+          "label": "Schnellumsetzung",
+          "desc": "Eilgesetzgebung, ignoriert Bundesrat",
+          "log": "EU-Richtlinien schnell umgesetzt. Verfassungsrechtliche Bedenken bleiben."
+        },
+        "1": {
+          "label": "EU-Verhandlung aufnehmen",
+          "desc": "Zeitgewinn, keine sofortigen Kosten",
+          "log": "Verhandlungen mit Brüssel aufgenommen. Ergebnis offen."
+        },
+        "2": {
+          "label": "Bundesrat einbeziehen",
+          "desc": "Korrekt aber langsam, Bußgeld riskant",
+          "log": "Reguläres Verfahren gewählt. Bußgeld-Risiko bleibt."
+        }
       }
     },
     "konjunktur": {
@@ -136,9 +208,21 @@
       "context": "Maier warnt vor voreiligen Ausgabenkürzungen. Lehmann besteht auf Haushaltsdisziplin.",
       "ticker": "Wirtschaftsabschwung: Rezessionsrisiko steigt auf 35%",
       "choices": {
-        "0": { "label": "Konjunkturpaket auflegen", "desc": "Teuer, aber effektiv", "log": "Konjunkturpaket beschlossen. Haushalt belastet, Wirtschaft stabilisiert." },
-        "1": { "label": "Abwarten", "desc": "Günstig, aber riskant", "log": "Abwartende Haltung. Wirtschaft verschlechtert sich weiter." },
-        "2": { "label": "Strukturreformen ankündigen", "desc": "Langfristig richtig, kurzfristig wirkungslos", "log": "Strukturreformen angekündigt. Märkte reagieren positiv." }
+        "0": {
+          "label": "Konjunkturpaket auflegen",
+          "desc": "Teuer, aber effektiv",
+          "log": "Konjunkturpaket beschlossen. Haushalt belastet, Wirtschaft stabilisiert."
+        },
+        "1": {
+          "label": "Abwarten",
+          "desc": "Günstig, aber riskant",
+          "log": "Abwartende Haltung. Wirtschaft verschlechtert sich weiter."
+        },
+        "2": {
+          "label": "Strukturreformen ankündigen",
+          "desc": "Langfristig richtig, kurzfristig wirkungslos",
+          "log": "Strukturreformen angekündigt. Märkte reagieren positiv."
+        }
       }
     },
     "koalition_krise": {
@@ -148,9 +232,21 @@
       "context": "Streit um das Energiegesetz eskaliert. Der Juniorpartner fordert Nachverhandlungen zum Koalitionsvertrag.",
       "ticker": "KOALITIONSKRISE: Juniorpartner stellt Ultimatum an Kanzleramt",
       "choices": {
-        "0": { "label": "Nachverhandeln", "desc": "Stabilitätsgewinn, Reformverlust", "log": "Koalitionsvertrag nachverhandelt. Reform verwässert." },
-        "1": { "label": "Konfrontation riskieren", "desc": "Prinzipientreu, aber destabilisierend", "log": "Koalitionskrise eskaliert. Neuwahlen im Gespräch." },
-        "2": { "label": "Tauschgeschäft anbieten", "desc": "Anderes Projekt opfern, Koalition retten", "log": "Tauschgeschäft vereinbart. Koalition vorläufig gerettet." }
+        "0": {
+          "label": "Nachverhandeln",
+          "desc": "Stabilitätsgewinn, Reformverlust",
+          "log": "Koalitionsvertrag nachverhandelt. Reform verwässert."
+        },
+        "1": {
+          "label": "Konfrontation riskieren",
+          "desc": "Prinzipientreu, aber destabilisierend",
+          "log": "Koalitionskrise eskaliert. Neuwahlen im Gespräch."
+        },
+        "2": {
+          "label": "Tauschgeschäft anbieten",
+          "desc": "Anderes Projekt opfern, Koalition retten",
+          "log": "Tauschgeschäft vereinbart. Koalition vorläufig gerettet."
+        }
       }
     },
     "demo": {
@@ -160,9 +256,21 @@
       "context": "Der Protest richtet sich gegen soziale Ungleichheit. Progressive sind mobilisiert, aber auch unzufrieden mit der Regierung.",
       "ticker": "Berlin: Historische Großdemonstration für soziale Gerechtigkeit",
       "choices": {
-        "0": { "label": "Dialog anbieten", "desc": "Signal der Offenheit", "log": "Dialog mit Demonstranten angeboten. Progressives Milieu beruhigt." },
-        "1": { "label": "Forderungen ablehnen", "desc": "Klare Position, aber Polarisierung", "log": "Forderungen abgelehnt. Progressive enttäuscht." },
-        "2": { "label": "Sofortprogramm ankündigen", "desc": "Teuer, hoher Sympathiegewinn", "log": "Sofortprogramm angekündigt. Breite Zustimmung." }
+        "0": {
+          "label": "Dialog anbieten",
+          "desc": "Signal der Offenheit",
+          "log": "Dialog mit Demonstranten angeboten. Progressives Milieu beruhigt."
+        },
+        "1": {
+          "label": "Forderungen ablehnen",
+          "desc": "Klare Position, aber Polarisierung",
+          "log": "Forderungen abgelehnt. Progressive enttäuscht."
+        },
+        "2": {
+          "label": "Sofortprogramm ankündigen",
+          "desc": "Teuer, hoher Sympathiegewinn",
+          "log": "Sofortprogramm angekündigt. Breite Zustimmung."
+        }
       }
     },
     "eufoerder": {
@@ -172,9 +280,21 @@
       "context": "Eine seltene gute Nachricht: die EU-Gelder kommen früher als erwartet. Wie werden sie eingesetzt?",
       "ticker": "EU gibt 4,8 Mrd. Euro für Deutschland frei — Regierung entscheidet Verwendung",
       "choices": {
-        "0": { "label": "Klimaschutz & Infrastruktur", "desc": "Langfristig wirksam", "log": "EU-Fonds für Klimainvestitionen eingesetzt." },
-        "1": { "label": "Wohnungsbau priorisieren", "desc": "Populär, schnell sichtbar", "log": "EU-Gelder stärken Wohnungsbauoffensive." },
-        "2": { "label": "Schuldentilgung", "desc": "Finanzministerium begeistert", "log": "Schulden getilgt. Haushalt verbessert, Spielraum für Reformen." }
+        "0": {
+          "label": "Klimaschutz & Infrastruktur",
+          "desc": "Langfristig wirksam",
+          "log": "EU-Fonds für Klimainvestitionen eingesetzt."
+        },
+        "1": {
+          "label": "Wohnungsbau priorisieren",
+          "desc": "Populär, schnell sichtbar",
+          "log": "EU-Gelder stärken Wohnungsbauoffensive."
+        },
+        "2": {
+          "label": "Schuldentilgung",
+          "desc": "Finanzministerium begeistert",
+          "log": "Schulden getilgt. Haushalt verbessert, Spielraum für Reformen."
+        }
       }
     },
     "verfassungsgericht": {
@@ -184,9 +304,21 @@
       "context": "Die Richter in Karlsruhe sehen Grundrechte verletzt. Die Opposition triumphiert, die Koalition muss reagieren.",
       "ticker": "Karlsruhe kippt Regierungsgesetz — Koalition unter Druck",
       "choices": {
-        "0": { "label": "Urteil respektieren", "desc": "Rechtsstaatlich korrekt, politischer Schaden", "log": "Urteil akzeptiert. Vertrauen in Rechtsstaat gestärkt." },
-        "1": { "label": "Gesetzesnovelle einbringen", "desc": "Nachbesserung kostet PK und Haushalt", "log": "Gesetzesnovelle in Arbeit. Verfassungskonform nachgebessert." },
-        "2": { "label": "Verfassungsänderung prüfen", "desc": "Riskant — Grundgesetz anfassen spaltet", "log": "Grundgesetzänderung angekündigt. Juristen und Opposition alarmiert." }
+        "0": {
+          "label": "Urteil respektieren",
+          "desc": "Rechtsstaatlich korrekt, politischer Schaden",
+          "log": "Urteil akzeptiert. Vertrauen in Rechtsstaat gestärkt."
+        },
+        "1": {
+          "label": "Gesetzesnovelle einbringen",
+          "desc": "Nachbesserung kostet PK und Haushalt",
+          "log": "Gesetzesnovelle in Arbeit. Verfassungskonform nachgebessert."
+        },
+        "2": {
+          "label": "Verfassungsänderung prüfen",
+          "desc": "Riskant — Grundgesetz anfassen spaltet",
+          "log": "Grundgesetzänderung angekündigt. Juristen und Opposition alarmiert."
+        }
       }
     },
     "naturkatastrophe": {
@@ -196,9 +328,21 @@
       "context": "Ganze Ortschaften stehen unter Wasser. Der Katastrophenschutz ist am Limit. Die Bundesregierung muss schnell handeln.",
       "ticker": "Hochwasser-Katastrophe: Bundesregierung aktiviert Krisenstab",
       "choices": {
-        "0": { "label": "Soforthilfe-Paket", "desc": "Schnelle Hilfe, belastet Haushalt", "log": "Soforthilfe-Paket beschlossen. Schnelle Hilfe für Betroffene." },
-        "1": { "label": "Bundeswehr-Einsatz koordinieren", "desc": "Effektiv, aber begrenzte Mittel", "log": "Bundeswehr im Hilfseinsatz. Bevölkerung dankbar." },
-        "2": { "label": "Ländersache — abwarten", "desc": "Föderalismus betonen, riskiert Kritik", "log": "Bund verweist auf Länderzuständigkeit. Massive Kritik folgt." }
+        "0": {
+          "label": "Soforthilfe-Paket",
+          "desc": "Schnelle Hilfe, belastet Haushalt",
+          "log": "Soforthilfe-Paket beschlossen. Schnelle Hilfe für Betroffene."
+        },
+        "1": {
+          "label": "Bundeswehr-Einsatz koordinieren",
+          "desc": "Effektiv, aber begrenzte Mittel",
+          "log": "Bundeswehr im Hilfseinsatz. Bevölkerung dankbar."
+        },
+        "2": {
+          "label": "Ländersache — abwarten",
+          "desc": "Föderalismus betonen, riskiert Kritik",
+          "log": "Bund verweist auf Länderzuständigkeit. Massive Kritik folgt."
+        }
       }
     },
     "cyberangriff": {
@@ -208,9 +352,21 @@
       "context": "Geheimdienste vermuten einen staatlichen Akteur. Sensible Daten könnten abgeflossen sein.",
       "ticker": "Cyberangriff auf Bundesregierung — IT-Systeme lahmgelegt",
       "choices": {
-        "0": { "label": "Krisenstab & IT-Offensive", "desc": "Sofort handeln, investieren", "log": "IT-Krisenstab eingerichtet. Cybersicherheit wird Chefsache." },
-        "1": { "label": "Geheimdienste ermitteln lassen", "desc": "Leise, aber langsam", "log": "Ermittlungen eingeleitet. Öffentlichkeit erfährt wenig." },
-        "2": { "label": "Diplomatische Eskalation", "desc": "Öffentlich beschuldigen, Risiko einer Krise", "log": "Diplomatische Konfrontation. Internationale Spannungen steigen." }
+        "0": {
+          "label": "Krisenstab & IT-Offensive",
+          "desc": "Sofort handeln, investieren",
+          "log": "IT-Krisenstab eingerichtet. Cybersicherheit wird Chefsache."
+        },
+        "1": {
+          "label": "Geheimdienste ermitteln lassen",
+          "desc": "Leise, aber langsam",
+          "log": "Ermittlungen eingeleitet. Öffentlichkeit erfährt wenig."
+        },
+        "2": {
+          "label": "Diplomatische Eskalation",
+          "desc": "Öffentlich beschuldigen, Risiko einer Krise",
+          "log": "Diplomatische Konfrontation. Internationale Spannungen steigen."
+        }
       }
     },
     "g7_krise": {
@@ -220,9 +376,21 @@
       "context": "Die Weltöffentlichkeit blickt auf Berlin. Ein Scheitern des Gipfels wäre ein diplomatisches Desaster.",
       "ticker": "G7-Gipfel in Berlin: Kanzler unter internationalem Druck",
       "choices": {
-        "0": { "label": "Vermittlerrolle einnehmen", "desc": "Diplomatisch geschickt, kostet PK", "log": "Deutschland als Vermittler. Internationales Ansehen steigt." },
-        "1": { "label": "Bündnistreue demonstrieren", "desc": "Sichere Wahl, begrenzte Wirkung", "log": "Bündnistreue demonstriert. Partnerstaat zufrieden." },
-        "2": { "label": "Deutsche Interessen priorisieren", "desc": "Populär im Inland, isoliert international", "log": "Nationale Interessen betont. Internationale Kritik wächst." }
+        "0": {
+          "label": "Vermittlerrolle einnehmen",
+          "desc": "Diplomatisch geschickt, kostet PK",
+          "log": "Deutschland als Vermittler. Internationales Ansehen steigt."
+        },
+        "1": {
+          "label": "Bündnistreue demonstrieren",
+          "desc": "Sichere Wahl, begrenzte Wirkung",
+          "log": "Bündnistreue demonstriert. Partnerstaat zufrieden."
+        },
+        "2": {
+          "label": "Deutsche Interessen priorisieren",
+          "desc": "Populär im Inland, isoliert international",
+          "log": "Nationale Interessen betont. Internationale Kritik wächst."
+        }
       }
     },
     "whistleblower": {
@@ -232,9 +400,21 @@
       "context": "Die Enthüllungen treffen den Verfassungsschutz ins Mark. Bürgerrechtler fordern Konsequenzen.",
       "ticker": "Überwachungsskandal: Bürgerrechte vs. Sicherheit",
       "choices": {
-        "0": { "label": "Untersuchungsausschuss", "desc": "Transparenz, kostet politisch", "log": "Untersuchungsausschuss eingesetzt. Aufklärung beginnt." },
-        "1": { "label": "Whistleblower schützen", "desc": "Mutig, spaltet Koalition", "log": "Whistleblower unter Schutz gestellt. Verfassungsschutz empört." },
-        "2": { "label": "Sicherheitsinteressen betonen", "desc": "Behörden stärken, Kritik ignorieren", "log": "Sicherheit über Transparenz gestellt. Bürgerrechtler protestieren." }
+        "0": {
+          "label": "Untersuchungsausschuss",
+          "desc": "Transparenz, kostet politisch",
+          "log": "Untersuchungsausschuss eingesetzt. Aufklärung beginnt."
+        },
+        "1": {
+          "label": "Whistleblower schützen",
+          "desc": "Mutig, spaltet Koalition",
+          "log": "Whistleblower unter Schutz gestellt. Verfassungsschutz empört."
+        },
+        "2": {
+          "label": "Sicherheitsinteressen betonen",
+          "desc": "Behörden stärken, Kritik ignorieren",
+          "log": "Sicherheit über Transparenz gestellt. Bürgerrechtler protestieren."
+        }
       }
     },
     "streikwelle": {
@@ -244,9 +424,21 @@
       "context": "Die Tarifverhandlungen sind gescheitert. Gewerkschaften fordern zweistellige Lohnerhöhungen.",
       "ticker": "Generalstreik lähmt Deutschland — Millionen betroffen",
       "choices": {
-        "0": { "label": "Schlichtung anbieten", "desc": "Kompromiss suchen, kostet PK", "log": "Schlichtungsverfahren eingeleitet. Sozialpartner am Verhandlungstisch." },
-        "1": { "label": "Arbeitgeberseite unterstützen", "desc": "Wirtschaftsnah, provoziert Eskalation", "log": "Arbeitgeberposition gestärkt. Gewerkschaften drohen mit Eskalation." },
-        "2": { "label": "Gesetzlichen Rahmen stärken", "desc": "Langfristig, kurzfristig wirkungslos", "log": "Tarifrecht-Reform angekündigt. Langfristige Lösung in Aussicht." }
+        "0": {
+          "label": "Schlichtung anbieten",
+          "desc": "Kompromiss suchen, kostet PK",
+          "log": "Schlichtungsverfahren eingeleitet. Sozialpartner am Verhandlungstisch."
+        },
+        "1": {
+          "label": "Arbeitgeberseite unterstützen",
+          "desc": "Wirtschaftsnah, provoziert Eskalation",
+          "log": "Arbeitgeberposition gestärkt. Gewerkschaften drohen mit Eskalation."
+        },
+        "2": {
+          "label": "Gesetzlichen Rahmen stärken",
+          "desc": "Langfristig, kurzfristig wirkungslos",
+          "log": "Tarifrecht-Reform angekündigt. Langfristige Lösung in Aussicht."
+        }
       }
     },
     "wohnungsnot": {
@@ -256,9 +448,21 @@
       "context": "Die Mieten in Großstädten haben sich in 10 Jahren verdoppelt. Familien werden an den Stadtrand verdrängt.",
       "ticker": "Wohnungsproteste in 50 Städten — Regierung unter Zugzwang",
       "choices": {
-        "0": { "label": "Mietpreisbremse verschärfen", "desc": "Populär, belastet Investoren", "log": "Mietpreisbremse verschärft. Mieterverbände zufrieden, Investoren verärgert." },
-        "1": { "label": "Sozialen Wohnungsbau fördern", "desc": "Langfristig wirksam, teuer", "log": "Sozialwohnungsprogramm aufgelegt. Effekte erst in Jahren spürbar." },
-        "2": { "label": "Marktlösung betonen", "desc": "Wirtschaftsfreundlich, unpopulär", "log": "Markt soll es richten. Proteste verschärfen sich." }
+        "0": {
+          "label": "Mietpreisbremse verschärfen",
+          "desc": "Populär, belastet Investoren",
+          "log": "Mietpreisbremse verschärft. Mieterverbände zufrieden, Investoren verärgert."
+        },
+        "1": {
+          "label": "Sozialen Wohnungsbau fördern",
+          "desc": "Langfristig wirksam, teuer",
+          "log": "Sozialwohnungsprogramm aufgelegt. Effekte erst in Jahren spürbar."
+        },
+        "2": {
+          "label": "Marktlösung betonen",
+          "desc": "Wirtschaftsfreundlich, unpopulär",
+          "log": "Markt soll es richten. Proteste verschärfen sich."
+        }
       }
     },
     "rechtsextremismus": {
@@ -268,9 +472,21 @@
       "context": "Die Tat reiht sich in eine Serie rechter Gewalt ein. Die Frage nach dem Versagen der Sicherheitsbehörden steht im Raum.",
       "ticker": "Rechtsextremer Anschlag: Deutschland trauert und debattiert",
       "choices": {
-        "0": { "label": "Aktionsplan gegen Rechts", "desc": "Umfassend, zeigt Entschlossenheit", "log": "Aktionsplan gegen Rechtsextremismus beschlossen." },
-        "1": { "label": "Sicherheitsbehörden stärken", "desc": "Mehr Personal und Mittel", "log": "Verfassungsschutz und Polizei werden aufgestockt." },
-        "2": { "label": "Differenzierte Analyse", "desc": "Abwägend, wirkt zögerlich", "log": "Abwartende Haltung. Opposition wirft Untätigkeit vor." }
+        "0": {
+          "label": "Aktionsplan gegen Rechts",
+          "desc": "Umfassend, zeigt Entschlossenheit",
+          "log": "Aktionsplan gegen Rechtsextremismus beschlossen."
+        },
+        "1": {
+          "label": "Sicherheitsbehörden stärken",
+          "desc": "Mehr Personal und Mittel",
+          "log": "Verfassungsschutz und Polizei werden aufgestockt."
+        },
+        "2": {
+          "label": "Differenzierte Analyse",
+          "desc": "Abwägend, wirkt zögerlich",
+          "log": "Abwartende Haltung. Opposition wirft Untätigkeit vor."
+        }
       }
     },
     "fachkraeftemangel": {
@@ -280,9 +496,21 @@
       "context": "Handwerk, IT, Pflege — überall fehlen Arbeitskräfte. Die Wirtschaftsverbände fordern eine Offensive.",
       "ticker": "Fachkräftemangel auf Rekordhoch — Wirtschaft schlägt Alarm",
       "choices": {
-        "0": { "label": "Einwanderungsoffensive", "desc": "Schnell wirksam, gesellschaftlich umstritten", "log": "Fachkräfteeinwanderung erleichtert. Wirtschaft erleichtert." },
-        "1": { "label": "Ausbildungsinitiative", "desc": "Langfristig richtig, langsam", "log": "Ausbildungsoffensive gestartet. Effekte in Jahren spürbar." },
-        "2": { "label": "Markt regelt", "desc": "Keine Kosten, kein Effekt", "log": "Abwartende Haltung. Fachkräftemangel verschärft sich." }
+        "0": {
+          "label": "Einwanderungsoffensive",
+          "desc": "Schnell wirksam, gesellschaftlich umstritten",
+          "log": "Fachkräfteeinwanderung erleichtert. Wirtschaft erleichtert."
+        },
+        "1": {
+          "label": "Ausbildungsinitiative",
+          "desc": "Langfristig richtig, langsam",
+          "log": "Ausbildungsoffensive gestartet. Effekte in Jahren spürbar."
+        },
+        "2": {
+          "label": "Markt regelt",
+          "desc": "Keine Kosten, kein Effekt",
+          "log": "Abwartende Haltung. Fachkräftemangel verschärft sich."
+        }
       }
     },
     "energiekrise": {
@@ -292,9 +520,21 @@
       "context": "Internationale Lieferengpässe treiben die Preise. Verbraucher protestieren, Unternehmen drohen mit Verlagerung.",
       "ticker": "Energiepreise explodieren — Wirtschaftsminister warnt vor Deindustrialisierung",
       "choices": {
-        "0": { "label": "Preisbremse einführen", "desc": "Sofortige Entlastung, teuer", "log": "Energiepreisbremse greift. Haushalt stark belastet." },
-        "1": { "label": "Industrie-Subventionen", "desc": "Rettet Arbeitsplätze, umstritten", "log": "Industriesubventionen beschlossen. Arbeitsplätze gesichert." },
-        "2": { "label": "Marktpreise akzeptieren", "desc": "Sparwillig, sozial hart", "log": "Marktpreise durchgesetzt. Soziale Härten folgen." }
+        "0": {
+          "label": "Preisbremse einführen",
+          "desc": "Sofortige Entlastung, teuer",
+          "log": "Energiepreisbremse greift. Haushalt stark belastet."
+        },
+        "1": {
+          "label": "Industrie-Subventionen",
+          "desc": "Rettet Arbeitsplätze, umstritten",
+          "log": "Industriesubventionen beschlossen. Arbeitsplätze gesichert."
+        },
+        "2": {
+          "label": "Marktpreise akzeptieren",
+          "desc": "Sparwillig, sozial hart",
+          "log": "Marktpreise durchgesetzt. Soziale Härten folgen."
+        }
       }
     },
     "rentendebatte": {
@@ -304,9 +544,21 @@
       "context": "Der Rentenversicherungsbericht zeigt ein wachsendes Defizit. Jüngere Generationen fürchten um ihre Altersvorsorge.",
       "ticker": "Rentenversicherung: Defizit wächst — Reformdebatte entbrennt",
       "choices": {
-        "0": { "label": "Rentenalter anheben", "desc": "Unpopulär, finanziell notwendig", "log": "Rentenalter auf 68 angehoben. Massive Proteste der Gewerkschaften." },
-        "1": { "label": "Beiträge erhöhen", "desc": "Verteilbar, senkt Nettolöhne", "log": "Rentenbeiträge steigen. Nettolöhne sinken leicht." },
-        "2": { "label": "Kapitaldeckung einführen", "desc": "Modern, riskant bei Krisen", "log": "Aktienrente eingeführt. Konservative skeptisch." }
+        "0": {
+          "label": "Rentenalter anheben",
+          "desc": "Unpopulär, finanziell notwendig",
+          "log": "Rentenalter auf 68 angehoben. Massive Proteste der Gewerkschaften."
+        },
+        "1": {
+          "label": "Beiträge erhöhen",
+          "desc": "Verteilbar, senkt Nettolöhne",
+          "log": "Rentenbeiträge steigen. Nettolöhne sinken leicht."
+        },
+        "2": {
+          "label": "Kapitaldeckung einführen",
+          "desc": "Modern, riskant bei Krisen",
+          "log": "Aktienrente eingeführt. Konservative skeptisch."
+        }
       }
     },
     "pandemie_vorbereitung": {
@@ -316,9 +568,21 @@
       "context": "Deutschland hat aus der letzten Pandemie gelernt — oder doch nicht? Krankenhäuser melden Engpässe.",
       "ticker": "WHO-Warnung: Neue Pandemie möglich — Deutschland bereitet sich vor",
       "choices": {
-        "0": { "label": "Vorsorgepaket schnüren", "desc": "Impfstoffe, Masken, Krankenhaus-Kapazitäten", "log": "Pandemie-Vorsorgepaket beschlossen. Bevölkerung fühlt sich geschützt." },
-        "1": { "label": "WHO-Kooperation verstärken", "desc": "International, aber langsam", "log": "Internationale Kooperation ausgebaut. Abwarten in Deutschland." },
-        "2": { "label": "Abwarten und beobachten", "desc": "Keine Kosten, aber riskant", "log": "Abwartende Haltung. Kritiker warnen vor Fahrlässigkeit." }
+        "0": {
+          "label": "Vorsorgepaket schnüren",
+          "desc": "Impfstoffe, Masken, Krankenhaus-Kapazitäten",
+          "log": "Pandemie-Vorsorgepaket beschlossen. Bevölkerung fühlt sich geschützt."
+        },
+        "1": {
+          "label": "WHO-Kooperation verstärken",
+          "desc": "International, aber langsam",
+          "log": "Internationale Kooperation ausgebaut. Abwarten in Deutschland."
+        },
+        "2": {
+          "label": "Abwarten und beobachten",
+          "desc": "Keine Kosten, aber riskant",
+          "log": "Abwartende Haltung. Kritiker warnen vor Fahrlässigkeit."
+        }
       }
     },
     "infrastruktur_kollaps": {
@@ -328,9 +592,21 @@
       "context": "Jahrzehntelang wurde die Infrastruktur vernachlässigt. LKW-Umleitungen kosten die Wirtschaft Milliarden.",
       "ticker": "Infrastruktur-Krise: Marode Brücken lahmlegen Verkehr",
       "choices": {
-        "0": { "label": "Notfallprogramm Infrastruktur", "desc": "Sofort investieren, teuer", "log": "Infrastruktur-Notfallprogramm aufgelegt. Milliarden für Brücken und Straßen." },
-        "1": { "label": "Kommunen entlasten", "desc": "Föderale Lösung, langsamer", "log": "Kommunale Infrastrukturhilfen beschlossen." },
-        "2": { "label": "Priorisieren und planen", "desc": "Sparsam, aber Kritik an Untätigkeit", "log": "Masterplan vorgelegt. Kritiker fordern sofortiges Handeln." }
+        "0": {
+          "label": "Notfallprogramm Infrastruktur",
+          "desc": "Sofort investieren, teuer",
+          "log": "Infrastruktur-Notfallprogramm aufgelegt. Milliarden für Brücken und Straßen."
+        },
+        "1": {
+          "label": "Kommunen entlasten",
+          "desc": "Föderale Lösung, langsamer",
+          "log": "Kommunale Infrastrukturhilfen beschlossen."
+        },
+        "2": {
+          "label": "Priorisieren und planen",
+          "desc": "Sparsam, aber Kritik an Untätigkeit",
+          "log": "Masterplan vorgelegt. Kritiker fordern sofortiges Handeln."
+        }
       }
     },
     "migration_krise": {
@@ -340,9 +616,21 @@
       "context": "Neue Konflikte treiben Hunderttausende nach Europa. Kommunalpolitiker fordern Hilfe vom Bund.",
       "ticker": "Flüchtlingskrise: Kommunen am Limit — Bund unter Druck",
       "choices": {
-        "0": { "label": "Humanitäre Aufnahme", "desc": "Menschlich, spaltet Gesellschaft", "log": "Humanitäre Aufnahme organisiert. Gesellschaft gespalten." },
-        "1": { "label": "EU-Verteilung einfordern", "desc": "Diplomatisch, dauert lang", "log": "EU-Verteilungsmechanismus gefordert. Brüssel reagiert zögerlich." },
-        "2": { "label": "Grenzkontrollen verstärken", "desc": "Populär, EU-rechtlich umstritten", "log": "Grenzkontrollen verschärft. EU-Kommission prüft Verfahren." }
+        "0": {
+          "label": "Humanitäre Aufnahme",
+          "desc": "Menschlich, spaltet Gesellschaft",
+          "log": "Humanitäre Aufnahme organisiert. Gesellschaft gespalten."
+        },
+        "1": {
+          "label": "EU-Verteilung einfordern",
+          "desc": "Diplomatisch, dauert lang",
+          "log": "EU-Verteilungsmechanismus gefordert. Brüssel reagiert zögerlich."
+        },
+        "2": {
+          "label": "Grenzkontrollen verstärken",
+          "desc": "Populär, EU-rechtlich umstritten",
+          "log": "Grenzkontrollen verschärft. EU-Kommission prüft Verfahren."
+        }
       }
     },
     "verfassungsklage_schulden": {
@@ -352,9 +640,21 @@
       "context": "Die Klage hat Aussicht auf Erfolg. Ein Urteil könnte den Haushalt kippen.",
       "ticker": "Verfassungsklage gegen Schuldenpolitik — Regierung in Bedrängnis",
       "choices": {
-        "0": { "label": "Nachtragshaushalt vorlegen", "desc": "Verfassungskonform nachbessern", "log": "Nachtragshaushalt vorgelegt. Schuldenbremse eingehalten." },
-        "1": { "label": "Notlage erklären", "desc": "Ausnahmeregel nutzen", "log": "Notlage erklärt. Juristen zweifeln an Begründung." },
-        "2": { "label": "Klage aussitzen", "desc": "Riskant, aber billig", "log": "Klage ignoriert. Verfassungsgericht verärgert." }
+        "0": {
+          "label": "Nachtragshaushalt vorlegen",
+          "desc": "Verfassungskonform nachbessern",
+          "log": "Nachtragshaushalt vorgelegt. Schuldenbremse eingehalten."
+        },
+        "1": {
+          "label": "Notlage erklären",
+          "desc": "Ausnahmeregel nutzen",
+          "log": "Notlage erklärt. Juristen zweifeln an Begründung."
+        },
+        "2": {
+          "label": "Klage aussitzen",
+          "desc": "Riskant, aber billig",
+          "log": "Klage ignoriert. Verfassungsgericht verärgert."
+        }
       }
     },
     "wiederaufbau_debatte": {
@@ -364,9 +664,21 @@
       "context": "Die Flutopfer warten auf Hilfe, während Berlin und die Landeshauptstädte über Zuständigkeiten debattieren.",
       "ticker": "Wiederaufbau-Streit: Bund vs. Länder — Flutopfer warten",
       "choices": {
-        "0": { "label": "Solidaritätszuschlag erheben", "desc": "Faire Verteilung, unpopulär", "log": "Solidaritätszuschlag für Wiederaufbau. Steuerzahler protestieren." },
-        "1": { "label": "Sondervermögen einrichten", "desc": "Schnell, belastet Zukunft", "log": "Sondervermögen für Wiederaufbau beschlossen." },
-        "2": { "label": "Versicherungspflicht einführen", "desc": "Marktwirtschaftlich, langfristig", "log": "Pflichtversicherung gegen Elementarschäden eingeführt." }
+        "0": {
+          "label": "Solidaritätszuschlag erheben",
+          "desc": "Faire Verteilung, unpopulär",
+          "log": "Solidaritätszuschlag für Wiederaufbau. Steuerzahler protestieren."
+        },
+        "1": {
+          "label": "Sondervermögen einrichten",
+          "desc": "Schnell, belastet Zukunft",
+          "log": "Sondervermögen für Wiederaufbau beschlossen."
+        },
+        "2": {
+          "label": "Versicherungspflicht einführen",
+          "desc": "Marktwirtschaftlich, langfristig",
+          "log": "Pflichtversicherung gegen Elementarschäden eingeführt."
+        }
       }
     },
     "diplomatische_krise": {
@@ -376,9 +688,21 @@
       "context": "Handelsbeziehungen sind gefährdet. Die Wirtschaft drängt auf Deeskalation.",
       "ticker": "Diplomatische Krise eskaliert — Wirtschaftssanktionen drohen",
       "choices": {
-        "0": { "label": "Deeskalation", "desc": "Gesicht wahren, Handel retten", "log": "Diplomatische Kanäle wieder geöffnet. Krise entschärft." },
-        "1": { "label": "Gegensanktionen", "desc": "Standhaft, wirtschaftlich teuer", "log": "Gegensanktionen verhängt. Wirtschaft leidet." },
-        "2": { "label": "EU-Solidarität einfordern", "desc": "Multilateral, braucht Zeit", "log": "EU-Partner um Solidarität gebeten. Reaktionen gemischt." }
+        "0": {
+          "label": "Deeskalation",
+          "desc": "Gesicht wahren, Handel retten",
+          "log": "Diplomatische Kanäle wieder geöffnet. Krise entschärft."
+        },
+        "1": {
+          "label": "Gegensanktionen",
+          "desc": "Standhaft, wirtschaftlich teuer",
+          "log": "Gegensanktionen verhängt. Wirtschaft leidet."
+        },
+        "2": {
+          "label": "EU-Solidarität einfordern",
+          "desc": "Multilateral, braucht Zeit",
+          "log": "EU-Partner um Solidarität gebeten. Reaktionen gemischt."
+        }
       }
     },
     "opposition_vorwurf": {
@@ -388,9 +712,21 @@
       "context": "Ein Misstrauensantrag steht im Raum. Die Medien berichten intensiv über das Versagen der Sicherheitsbehörden.",
       "ticker": "Opposition attackiert Regierung — Misstrauensantrag im Gespräch",
       "choices": {
-        "0": { "label": "Sofort-Maßnahmen verkünden", "desc": "Entschlossen reagieren", "log": "Sofortmaßnahmen gegen Rechtsextremismus verkündet." },
-        "1": { "label": "Vertrauensfrage stellen", "desc": "Alles auf eine Karte", "log": "Vertrauensfrage gestellt. Hochriskantes Manöver." },
-        "2": { "label": "Debatte im Parlament führen", "desc": "Demokratisch, aber langsam", "log": "Parlamentsdebatte über innere Sicherheit. Sachlicher Ton." }
+        "0": {
+          "label": "Sofort-Maßnahmen verkünden",
+          "desc": "Entschlossen reagieren",
+          "log": "Sofortmaßnahmen gegen Rechtsextremismus verkündet."
+        },
+        "1": {
+          "label": "Vertrauensfrage stellen",
+          "desc": "Alles auf eine Karte",
+          "log": "Vertrauensfrage gestellt. Hochriskantes Manöver."
+        },
+        "2": {
+          "label": "Debatte im Parlament führen",
+          "desc": "Demokratisch, aber langsam",
+          "log": "Parlamentsdebatte über innere Sicherheit. Sachlicher Ton."
+        }
       }
     },
     "gewerkschaft_eskalation": {
@@ -400,9 +736,21 @@
       "context": "Flughäfen, Häfen und Krankenhäuser sind betroffen. Die wirtschaftlichen Schäden gehen in die Milliarden.",
       "ticker": "Unbefristeter Streik: Wirtschaft droht Stillstand",
       "choices": {
-        "0": { "label": "Tarifeinigung erzwingen", "desc": "Staatliche Schlichtung, kostet Vertrauen", "log": "Zwangsschlichtung angeordnet. Gewerkschaften empört, Streik beendet." },
-        "1": { "label": "Kompromiss anbieten", "desc": "Teurer Kompromiss", "log": "Kompromiss gefunden. Löhne steigen, Haushalt belastet." },
-        "2": { "label": "Durchhalten", "desc": "Auf Zeit spielen, wirtschaftlicher Schaden", "log": "Regierung hält Kurs. Wirtschaftliche Schäden wachsen." }
+        "0": {
+          "label": "Tarifeinigung erzwingen",
+          "desc": "Staatliche Schlichtung, kostet Vertrauen",
+          "log": "Zwangsschlichtung angeordnet. Gewerkschaften empört, Streik beendet."
+        },
+        "1": {
+          "label": "Kompromiss anbieten",
+          "desc": "Teurer Kompromiss",
+          "log": "Kompromiss gefunden. Löhne steigen, Haushalt belastet."
+        },
+        "2": {
+          "label": "Durchhalten",
+          "desc": "Auf Zeit spielen, wirtschaftlicher Schaden",
+          "log": "Regierung hält Kurs. Wirtschaftliche Schäden wachsen."
+        }
       }
     }
   },
@@ -414,9 +762,21 @@
       "context": "Finanzminister Lehmann ist am Ende seiner Geduld. Zu viele teure Projekte ohne Gegenfinanzierung.",
       "ticker": "KABINETTSKRISE: Finanzminister Lehmann droht mit Rücktritt",
       "choices": {
-        "0": { "label": "Deckungsnachweis zusagen", "desc": "Verwässert teure Gesetze, beruhigt Lehmann", "log": "Deckungszusage gemacht. Lehmann besänftigt, Reformen eingeschränkt." },
-        "1": { "label": "Öffentlich widersprechen", "desc": "Klarer Kurs, aber Koalitionsrisiko", "log": "Öffentlicher Streit mit Lehmann. Koalition destabilisiert." },
-        "2": { "label": "Sondergespräch einberufen", "desc": "Zeitgewinn, kostet politisches Kapital", "log": "Koalitionsgipfel im Kanzleramt. Kompromiss gefunden." }
+        "0": {
+          "label": "Deckungsnachweis zusagen",
+          "desc": "Verwässert teure Gesetze, beruhigt Lehmann",
+          "log": "Deckungszusage gemacht. Lehmann besänftigt, Reformen eingeschränkt."
+        },
+        "1": {
+          "label": "Öffentlich widersprechen",
+          "desc": "Klarer Kurs, aber Koalitionsrisiko",
+          "log": "Öffentlicher Streit mit Lehmann. Koalition destabilisiert."
+        },
+        "2": {
+          "label": "Sondergespräch einberufen",
+          "desc": "Zeitgewinn, kostet politisches Kapital",
+          "log": "Koalitionsgipfel im Kanzleramt. Kompromiss gefunden."
+        }
       }
     },
     "braun_ultimatum": {
@@ -426,9 +786,21 @@
       "context": "Braun hat hinter dem Rücken der Koalition agiert und drei Länder-Innenminister beeinflusst.",
       "ticker": "Innenminister Braun sabotiert Koalitionspartner im Bundesrat",
       "choices": {
-        "0": { "label": "Braun öffentlich rügen", "desc": "Klares Signal, Braun wird zum Feind", "log": "Braun offiziell gerügt. Interne Spannung auf Maximum." },
-        "1": { "label": "Braun einbinden", "desc": "Gibt ihm Einfluss, kostet Reform-Substanz", "log": "Braun erhält Zugeständnisse. Koalition stabilisiert, Reform verwässert." },
-        "2": { "label": "Braun entlassen", "desc": "Saubere Lösung, braucht Koalitionspartner", "log": "Braun entlassen. Kabinett umgebildet." }
+        "0": {
+          "label": "Braun öffentlich rügen",
+          "desc": "Klares Signal, Braun wird zum Feind",
+          "log": "Braun offiziell gerügt. Interne Spannung auf Maximum."
+        },
+        "1": {
+          "label": "Braun einbinden",
+          "desc": "Gibt ihm Einfluss, kostet Reform-Substanz",
+          "log": "Braun erhält Zugeständnisse. Koalition stabilisiert, Reform verwässert."
+        },
+        "2": {
+          "label": "Braun entlassen",
+          "desc": "Saubere Lösung, braucht Koalitionspartner",
+          "log": "Braun entlassen. Kabinett umgebildet."
+        }
       }
     },
     "wolf_ultimatum": {
@@ -438,9 +810,21 @@
       "context": "Wolf ist frustriert über die schleppende Klimapolitik.",
       "ticker": "Umweltminister Wolf stellt Klimaschutz-Ultimatum an Kanzleramt",
       "choices": {
-        "0": { "label": "Energiegesetz priorisieren", "desc": "Wolf zufrieden, progressive Stimmen steigen", "log": "Energiegesetz auf die Prioritätsliste gesetzt. Wolf bleibt." },
-        "1": { "label": "Wolf überzeugen zu bleiben", "desc": "Symbolisches Zugeständnis", "log": "Persönliches Gespräch mit Wolf. Vorläufige Einigung." },
-        "2": { "label": "Rücktritt akzeptieren", "desc": "Wolf geht, progressives Milieu bricht ein", "log": "Wolf tritt zurück. Progressive Wähler fühlen sich verraten." }
+        "0": {
+          "label": "Energiegesetz priorisieren",
+          "desc": "Wolf zufrieden, progressive Stimmen steigen",
+          "log": "Energiegesetz auf die Prioritätsliste gesetzt. Wolf bleibt."
+        },
+        "1": {
+          "label": "Wolf überzeugen zu bleiben",
+          "desc": "Symbolisches Zugeständnis",
+          "log": "Persönliches Gespräch mit Wolf. Vorläufige Einigung."
+        },
+        "2": {
+          "label": "Rücktritt akzeptieren",
+          "desc": "Wolf geht, progressives Milieu bricht ein",
+          "log": "Wolf tritt zurück. Progressive Wähler fühlen sich verraten."
+        }
       }
     },
     "kern_ultimatum": {
@@ -450,9 +834,21 @@
       "context": "Kern hat das Eilgesetz zur EU-Richtlinie gestoppt. Sie hat inhaltlich recht — aber die Zeit läuft.",
       "ticker": "Justizministerin stoppt Eilgesetz — Verfassungsbedenken im Kabinett",
       "choices": {
-        "0": { "label": "Gesetz verfassungskonform anpassen", "desc": "Verzögerung, aber rechtssicher", "log": "Gesetz überarbeitet. Verfassungsrechtlich sauber, aber verzögert." },
-        "1": { "label": "Expertenkommission einsetzen", "desc": "Weiterer Zeitgewinn", "log": "Verfassungskommission eingesetzt. Kern kooperiert." },
-        "2": { "label": "Politischen Druck ausüben", "desc": "Riskant — Kern könnte klagen", "log": "Kern fühlt sich übergangen. Verfassungsklage droht." }
+        "0": {
+          "label": "Gesetz verfassungskonform anpassen",
+          "desc": "Verzögerung, aber rechtssicher",
+          "log": "Gesetz überarbeitet. Verfassungsrechtlich sauber, aber verzögert."
+        },
+        "1": {
+          "label": "Expertenkommission einsetzen",
+          "desc": "Weiterer Zeitgewinn",
+          "log": "Verfassungskommission eingesetzt. Kern kooperiert."
+        },
+        "2": {
+          "label": "Politischen Druck ausüben",
+          "desc": "Riskant — Kern könnte klagen",
+          "log": "Kern fühlt sich übergangen. Verfassungsklage droht."
+        }
       }
     },
     "kanzler_ultimatum": {
@@ -462,8 +858,16 @@
       "context": "Die interne Zerrissenheit ist öffentlich geworden. Das Kanzleramt will ein klares Bekenntnis.",
       "ticker": "Kanzler/in erwägt Vertrauensfrage — Koalition unter Druck",
       "choices": {
-        "0": { "label": "Koalitionsgipfel einberufen", "desc": "Alle Konflikte auf den Tisch", "log": "Koalitionsgipfel schafft neue Einigkeit." },
-        "1": { "label": "Vertrauensfrage riskieren", "desc": "Gamble — gewinnen oder Neuwahl", "log": "Vertrauensfrage gestellt. Koalition hält knapp." }
+        "0": {
+          "label": "Koalitionsgipfel einberufen",
+          "desc": "Alle Konflikte auf den Tisch",
+          "log": "Koalitionsgipfel schafft neue Einigkeit."
+        },
+        "1": {
+          "label": "Vertrauensfrage riskieren",
+          "desc": "Gamble — gewinnen oder Neuwahl",
+          "log": "Vertrauensfrage gestellt. Koalition hält knapp."
+        }
       }
     },
     "kohl_bundesrat_sabotage": {
@@ -473,9 +877,21 @@
       "context": "Matthias Kohl (Ostblock) hat eigenständig einen Vermittlungsausschuss-Antrag gestellt. Das Gesetz wird um mindestens 2 Monate verzögert.",
       "ticker": "Kohl beantragt Vermittlungsausschuss — Gesetz verzögert",
       "choices": {
-        "0": { "label": "Verzögerung akzeptieren", "desc": "Gesetz wird 2 Monate später abgestimmt", "log": "Vermittlungsausschuss-Verfahren läuft. Abstimmung verzögert." },
-        "1": { "label": "Kohl direkt ansprechen", "desc": "Beziehungspflege, kostet 15 PK", "log": "Gespräch mit Kohl. Beziehung verbessert, Verzögerung bleibt." },
-        "2": { "label": "Öffentlich kritisieren", "desc": "Beziehung zu Kohl sinkt weiter", "log": "Kohl öffentlich kritisiert. Ostblock verhärtet Position." }
+        "0": {
+          "label": "Verzögerung akzeptieren",
+          "desc": "Gesetz wird 2 Monate später abgestimmt",
+          "log": "Vermittlungsausschuss-Verfahren läuft. Abstimmung verzögert."
+        },
+        "1": {
+          "label": "Kohl direkt ansprechen",
+          "desc": "Beziehungspflege, kostet 15 PK",
+          "log": "Gespräch mit Kohl. Beziehung verbessert, Verzögerung bleibt."
+        },
+        "2": {
+          "label": "Öffentlich kritisieren",
+          "desc": "Beziehung zu Kohl sinkt weiter",
+          "log": "Kohl öffentlich kritisiert. Ostblock verhärtet Position."
+        }
       }
     },
     "am_ultimatum": {
@@ -485,9 +901,21 @@
       "context": "Schulze ist am Ende ihrer Geduld. Die Gewerkschaften erwarten Taten.",
       "ticker": "KABINETTSKRISE: Arbeitsministerin Schulze droht mit Rücktritt",
       "choices": {
-        "0": { "label": "Sofortprogramm beschließen", "desc": "Schulze zufrieden, Haushalt belastet", "log": "Mindestlohn-Sofortprogramm beschlossen. Schulze besänftigt." },
-        "1": { "label": "Verhandlung anbieten", "desc": "Zeitgewinn, kostet politisches Kapital", "log": "Koalitionsgipfel zu Sozialpolitik. Kompromiss gefunden." },
-        "2": { "label": "Ablehnen", "desc": "Schulze droht Rücktritt", "log": "Forderung abgelehnt. Schulze droht mit Rücktritt." }
+        "0": {
+          "label": "Sofortprogramm beschließen",
+          "desc": "Schulze zufrieden, Haushalt belastet",
+          "log": "Mindestlohn-Sofortprogramm beschlossen. Schulze besänftigt."
+        },
+        "1": {
+          "label": "Verhandlung anbieten",
+          "desc": "Zeitgewinn, kostet politisches Kapital",
+          "log": "Koalitionsgipfel zu Sozialpolitik. Kompromiss gefunden."
+        },
+        "2": {
+          "label": "Ablehnen",
+          "desc": "Schulze droht Rücktritt",
+          "log": "Forderung abgelehnt. Schulze droht mit Rücktritt."
+        }
       }
     },
     "gm_ultimatum": {
@@ -497,9 +925,21 @@
       "context": "Neumann sieht die Gesundheitspolitik am Scheideweg.",
       "ticker": "KABINETTSKRISE: Gesundheitsminister Neumann droht mit Rücktritt",
       "choices": {
-        "0": { "label": "Pflegenotstand anerkennen", "desc": "Neumann zufrieden, Druck steigt", "log": "Pflegenotstand offiziell anerkannt. Neumann bleibt." },
-        "1": { "label": "Expertenkommission einsetzen", "desc": "Zeitgewinn, Neumann kooperiert", "log": "Kommission eingesetzt. Neumann vorläufig zufrieden." },
-        "2": { "label": "Ignorieren", "desc": "Neumann verärgert", "log": "Forderung ignoriert. Neumann droht mit Rücktritt." }
+        "0": {
+          "label": "Pflegenotstand anerkennen",
+          "desc": "Neumann zufrieden, Druck steigt",
+          "log": "Pflegenotstand offiziell anerkannt. Neumann bleibt."
+        },
+        "1": {
+          "label": "Expertenkommission einsetzen",
+          "desc": "Zeitgewinn, Neumann kooperiert",
+          "log": "Kommission eingesetzt. Neumann vorläufig zufrieden."
+        },
+        "2": {
+          "label": "Ignorieren",
+          "desc": "Neumann verärgert",
+          "log": "Forderung ignoriert. Neumann droht mit Rücktritt."
+        }
       }
     },
     "bm_ultimatum": {
@@ -509,9 +949,21 @@
       "context": "Becker ist frustriert über die fehlenden Fortschritte in der Bildungspolitik.",
       "ticker": "KABINETTSKRISE: Bildungsministerin Becker droht mit Rücktritt",
       "choices": {
-        "0": { "label": "Bildungsnotstand anerkennen", "desc": "Becker zufrieden, Länder alarmiert", "log": "Bildungsnotstand anerkannt. Becker bleibt." },
-        "1": { "label": "Föderalismusreform ankündigen", "desc": "Zeitgewinn, Becker kooperiert", "log": "Föderalismusreform angekündigt. Becker vorläufig zufrieden." },
-        "2": { "label": "Ablehnen", "desc": "Becker verärgert", "log": "Forderung abgelehnt. Becker droht mit Rücktritt." }
+        "0": {
+          "label": "Bildungsnotstand anerkennen",
+          "desc": "Becker zufrieden, Länder alarmiert",
+          "log": "Bildungsnotstand anerkannt. Becker bleibt."
+        },
+        "1": {
+          "label": "Föderalismusreform ankündigen",
+          "desc": "Zeitgewinn, Becker kooperiert",
+          "log": "Föderalismusreform angekündigt. Becker vorläufig zufrieden."
+        },
+        "2": {
+          "label": "Ablehnen",
+          "desc": "Becker verärgert",
+          "log": "Forderung abgelehnt. Becker droht mit Rücktritt."
+        }
       }
     },
     "wm_ultimatum": {
@@ -521,9 +973,21 @@
       "context": "Maier sieht die Wirtschaftspolitik auf dem falschen Weg.",
       "ticker": "Wirtschaftsministerin Maier stellt Ultimatum zur Standortpolitik",
       "choices": {
-        "0": { "label": "Steuerreform beschleunigen", "desc": "Maier bleibt, Haushalt leidet", "log": "Steuerreform vorgezogen. Wirtschaft stabilisiert, Haushalt belastet." },
-        "1": { "label": "Regulierung zurücknehmen", "desc": "Populär bei Industrie, unpopulär bei Progressiven", "log": "Regulierungspause beschlossen. Industrie erleichtert." },
-        "2": { "label": "Maier überstimmen", "desc": "Koalitionsdisziplin, Maier verliert Einfluss", "log": "Koalitionsdisziplin erzwungen. Maier fügt sich." }
+        "0": {
+          "label": "Steuerreform beschleunigen",
+          "desc": "Maier bleibt, Haushalt leidet",
+          "log": "Steuerreform vorgezogen. Wirtschaft stabilisiert, Haushalt belastet."
+        },
+        "1": {
+          "label": "Regulierung zurücknehmen",
+          "desc": "Populär bei Industrie, unpopulär bei Progressiven",
+          "log": "Regulierungspause beschlossen. Industrie erleichtert."
+        },
+        "2": {
+          "label": "Maier überstimmen",
+          "desc": "Koalitionsdisziplin, Maier verliert Einfluss",
+          "log": "Koalitionsdisziplin erzwungen. Maier fügt sich."
+        }
       }
     },
     "koalitionsbruch": {
@@ -533,8 +997,16 @@
       "context": "Die Beziehung zum Koalitionspartner ist auf einem kritischen Tiefstand. Sie haben 3 Monate Zeit zu reagieren.",
       "ticker": "Koalitionskrise: Partner droht mit Austritt",
       "choices": {
-        "0": { "label": "Koalitionsrunde einberufen", "desc": "15 PK — Beziehung +8", "log": "Koalitionsrunde einberufen. Beziehung verbessert." },
-        "1": { "label": "Zeit gewinnen", "desc": "Weiter verhandeln", "log": "Verhandlungen werden fortgesetzt." }
+        "0": {
+          "label": "Koalitionsrunde einberufen",
+          "desc": "15 PK — Beziehung +8",
+          "log": "Koalitionsrunde einberufen. Beziehung verbessert."
+        },
+        "1": {
+          "label": "Zeit gewinnen",
+          "desc": "Weiter verhandeln",
+          "log": "Verhandlungen werden fortgesetzt."
+        }
       }
     },
     "koalitionskrise_ultimatum": {
@@ -544,8 +1016,16 @@
       "context": "Der Koalitionsvertrag-Score ist kritisch. Der Partner verlangt mehr Kongruenz mit dem vereinbarten Kurs.",
       "ticker": "Koalitionspartner fordert Vertragstreue",
       "choices": {
-        "0": { "label": "Kurs anpassen", "desc": "Mehr Rücksicht auf Partner-Themen", "log": "Kurs angepasst. Partner besänftigt." },
-        "1": { "label": "Standhaft bleiben", "desc": "Risiko einer weiteren Eskalation", "log": "Keine Zugeständnisse. Spannung bleibt." }
+        "0": {
+          "label": "Kurs anpassen",
+          "desc": "Mehr Rücksicht auf Partner-Themen",
+          "log": "Kurs angepasst. Partner besänftigt."
+        },
+        "1": {
+          "label": "Standhaft bleiben",
+          "desc": "Risiko einer weiteren Eskalation",
+          "log": "Keine Zugeständnisse. Spannung bleibt."
+        }
       }
     }
   },
@@ -580,9 +1060,18 @@
         "quote": "Der Norden braucht verlässliche Partner in Berlin — wir stehen bereit."
       },
       "tradeoffPool": {
-        "koal_hafen": { "label": "Hafeninfrastruktur ins Konjunkturpaket", "desc": "Norddeutsche Häfen erhalten zusätzliche Mittel — belastet den Haushalt." },
-        "koal_bildung_veto": { "label": "Bildungspaket mit Länder-Veto-Rechten", "desc": "Länder erhalten erweiterte Vetorechte bei Bildungsentscheidungen." },
-        "koal_strukturfonds": { "label": "Strukturfondsmittel erhöhen", "desc": "Mehr EU-Strukturfondsmittel für norddeutsche Regionen." }
+        "koal_hafen": {
+          "label": "Hafeninfrastruktur ins Konjunkturpaket",
+          "desc": "Norddeutsche Häfen erhalten zusätzliche Mittel — belastet den Haushalt."
+        },
+        "koal_bildung_veto": {
+          "label": "Bildungspaket mit Länder-Veto-Rechten",
+          "desc": "Länder erhalten erweiterte Vetorechte bei Bildungsentscheidungen."
+        },
+        "koal_strukturfonds": {
+          "label": "Strukturfondsmittel erhöhen",
+          "desc": "Mehr EU-Strukturfondsmittel für norddeutsche Regionen."
+        }
       }
     },
     "pragmatische_mitte": {
@@ -593,9 +1082,18 @@
         "quote": "Ohne Gegenleistung geht hier gar nichts — das wissen Sie."
       },
       "tradeoffPool": {
-        "mitte_digitalsteuer": { "label": "Keine Digitalsteuer auf Mittelstand", "desc": "Mittelständische Unternehmen von Digitalsteuer ausnehmen." },
-        "mitte_weinbau": { "label": "Weinbau-Ausnahmeregelung im Energiegesetz", "desc": "Weinbau erhält Sonderregelungen bei Energievorgaben." },
-        "mitte_kommune": { "label": "Kommunale Infrastrukturmittel verdoppeln", "desc": "Verdopplung der Bundesmittel für kommunale Infrastruktur." }
+        "mitte_digitalsteuer": {
+          "label": "Keine Digitalsteuer auf Mittelstand",
+          "desc": "Mittelständische Unternehmen von Digitalsteuer ausnehmen."
+        },
+        "mitte_weinbau": {
+          "label": "Weinbau-Ausnahmeregelung im Energiegesetz",
+          "desc": "Weinbau erhält Sonderregelungen bei Energievorgaben."
+        },
+        "mitte_kommune": {
+          "label": "Kommunale Infrastrukturmittel verdoppeln",
+          "desc": "Verdopplung der Bundesmittel für kommunale Infrastruktur."
+        }
       }
     },
     "konservativer_block": {
@@ -606,9 +1104,18 @@
         "quote": "Föderalismus first — alles andere ist Verhandlungssache."
       },
       "tradeoffPool": {
-        "kons_foederal": { "label": "Verfassungsrechtliche Föderalismusgarantie", "desc": "Föderalismus in Verfassung stärker verankern." },
-        "kons_bildung": { "label": "Keine Bundeskompetenz für Bildung", "desc": "Bildung bleibt ausschließlich Ländersache." },
-        "kons_auto": { "label": "Automobilindustrie-Ausnahme im EE-Gesetz", "desc": "Automobilindustrie erhält Übergangsfristen." }
+        "kons_foederal": {
+          "label": "Verfassungsrechtliche Föderalismusgarantie",
+          "desc": "Föderalismus in Verfassung stärker verankern."
+        },
+        "kons_bildung": {
+          "label": "Keine Bundeskompetenz für Bildung",
+          "desc": "Bildung bleibt ausschließlich Ländersache."
+        },
+        "kons_auto": {
+          "label": "Automobilindustrie-Ausnahme im EE-Gesetz",
+          "desc": "Automobilindustrie erhält Übergangsfristen."
+        }
       }
     },
     "ostblock": {
@@ -619,17 +1126,42 @@
         "quote": "Der Osten wurde zu oft vergessen — das ändert sich jetzt."
       },
       "tradeoffPool": {
-        "ost_invest": { "label": "Investitionsprogramm Ostdeutschland (€3 Mrd.)", "desc": "Sonderprogramm für ostdeutsche Strukturförderung." },
-        "ost_kohle": { "label": "Kohleausstieg um 3 Jahre verschieben", "desc": "Längere Übergangsfristen für ostdeutsche Kohleregionen." },
-        "ost_abschreibung": { "label": "Sonderabschreibungen für ostdeutsche Unternehmen", "desc": "Steuerliche Anreize für Investitionen im Osten." }
+        "ost_invest": {
+          "label": "Investitionsprogramm Ostdeutschland (€3 Mrd.)",
+          "desc": "Sonderprogramm für ostdeutsche Strukturförderung."
+        },
+        "ost_kohle": {
+          "label": "Kohleausstieg um 3 Jahre verschieben",
+          "desc": "Längere Übergangsfristen für ostdeutsche Kohleregionen."
+        },
+        "ost_abschreibung": {
+          "label": "Sonderabschreibungen für ostdeutsche Unternehmen",
+          "desc": "Steuerliche Anreize für Investitionen im Osten."
+        }
       }
     }
   },
   "sprecherErsatz": {
-    "koalitionstreue": { "name": "Stefan Möller", "bio": "Pragmatischer Hafenpolitiker. Fokus auf Infrastruktur und Handel.", "quote": "Der Norden braucht Investitionen — wir verhandeln." },
-    "pragmatische_mitte": { "name": "Claudia Vogt", "bio": "Verhandlungsexpertin. Sucht immer den Kompromiss.", "quote": "Ohne uns geht nichts — das wissen alle." },
-    "konservativer_block": { "name": "Franz Bauer", "bio": "Föderalismus-Purist. Länderrechte über alles.", "quote": "Der Bund soll sich um seine eigenen Angelegenheiten kümmern." },
-    "ostblock": { "name": "Ingrid Weber", "bio": "Strukturwandel-Expertin. Fordert Gleichwertigkeit der Lebensverhältnisse.", "quote": "Der Osten verdient mehr Aufmerksamkeit." }
+    "koalitionstreue": {
+      "name": "Stefan Möller",
+      "bio": "Pragmatischer Hafenpolitiker. Fokus auf Infrastruktur und Handel.",
+      "quote": "Der Norden braucht Investitionen — wir verhandeln."
+    },
+    "pragmatische_mitte": {
+      "name": "Claudia Vogt",
+      "bio": "Verhandlungsexpertin. Sucht immer den Kompromiss.",
+      "quote": "Ohne uns geht nichts — das wissen alle."
+    },
+    "konservativer_block": {
+      "name": "Franz Bauer",
+      "bio": "Föderalismus-Purist. Länderrechte über alles.",
+      "quote": "Der Bund soll sich um seine eigenen Angelegenheiten kümmern."
+    },
+    "ostblock": {
+      "name": "Ingrid Weber",
+      "bio": "Strukturwandel-Expertin. Fordert Gleichwertigkeit der Lebensverhältnisse.",
+      "quote": "Der Osten verdient mehr Aufmerksamkeit."
+    }
   },
   "bundesratEvents": {
     "laenderfinanzausgleich": {
@@ -639,9 +1171,21 @@
       "context": "Fraktion Brenner und Kohl haben sich verbündet. Sie fordern eine Überarbeitung des Länderfinanzausgleichs. Ohne Zugeständnisse droht Blockade in allen zustimmungspflichtigen Gesetzen.",
       "ticker": "Länderfinanzausgleich: Brenner und Kohl fordern Neuverteilung",
       "choices": {
-        "0": { "label": "Zugeständnisse machen", "desc": "Haushalt -0.2, Beziehung Brenner +8", "log": "Zugeständnisse beim Länderfinanzausgleich. Brenner zufrieden, Haushalt belastet." },
-        "1": { "label": "Ablehnen", "desc": "Beziehung Brenner -10, Kohl -8", "log": "Forderungen abgelehnt. Brenner und Kohl verärgert." },
-        "2": { "label": "Gutachten beauftragen", "desc": "Zeitgewinn, kostet 15 PK", "log": "Wissenschaftliches Gutachten beauftragt. Thema vorerst vertagt." }
+        "0": {
+          "label": "Zugeständnisse machen",
+          "desc": "Haushalt -0.2, Beziehung Brenner +8",
+          "log": "Zugeständnisse beim Länderfinanzausgleich. Brenner zufrieden, Haushalt belastet."
+        },
+        "1": {
+          "label": "Ablehnen",
+          "desc": "Beziehung Brenner -10, Kohl -8",
+          "log": "Forderungen abgelehnt. Brenner und Kohl verärgert."
+        },
+        "2": {
+          "label": "Gutachten beauftragen",
+          "desc": "Zeitgewinn, kostet 15 PK",
+          "log": "Wissenschaftliches Gutachten beauftragt. Thema vorerst vertagt."
+        }
       }
     },
     "landtagswahl": {
@@ -651,7 +1195,11 @@
       "context": "Eine Landtagswahl hat die Regierungspartei in einem Bundesland gewechselt. Die Fraktionszusammensetzung im Bundesrat ändert sich. Die betroffene Fraktion muss neu verhandeln.",
       "ticker": "Landtagswahl: Regierungswechsel verändert Bundesrat-Mehrheiten",
       "choices": {
-        "0": { "label": "Neue Mehrheiten akzeptieren", "desc": "Politische Realität anerkennen", "log": "Regierungswechsel akzeptiert. Fraktionszusammensetzung aktualisiert." }
+        "0": {
+          "label": "Neue Mehrheiten akzeptieren",
+          "desc": "Politische Realität anerkennen",
+          "log": "Regierungswechsel akzeptiert. Fraktionszusammensetzung aktualisiert."
+        }
       }
     },
     "kohl_eskaliert": {
@@ -661,9 +1209,21 @@
       "context": "Matthias Kohl hat einen Vermittlungsausschuss-Antrag für ein laufendes Gesetz gestellt. Das Gesetz wird um 2 Monate verzögert. Wie reagieren Sie?",
       "ticker": "Kohl beantragt Vermittlungsausschuss — Gesetz verzögert",
       "choices": {
-        "0": { "label": "Kooperieren", "desc": "Beziehung Kohl verbessern, 15 PK", "log": "Kooperation mit Kohl. Beziehung verbessert, Verzögerung bleibt." },
-        "1": { "label": "Juristisch blockieren", "desc": "Rechtliche Schritte, kostet 20 PK", "log": "Juristische Prüfung eingeleitet. Verzögerung bleibt, Kohl verärgert." },
-        "2": { "label": "Öffentlich kritisieren", "desc": "Beziehung Kohl sinkt weiter", "log": "Kohl öffentlich kritisiert. Ostblock verhärtet Position." }
+        "0": {
+          "label": "Kooperieren",
+          "desc": "Beziehung Kohl verbessern, 15 PK",
+          "log": "Kooperation mit Kohl. Beziehung verbessert, Verzögerung bleibt."
+        },
+        "1": {
+          "label": "Juristisch blockieren",
+          "desc": "Rechtliche Schritte, kostet 20 PK",
+          "log": "Juristische Prüfung eingeleitet. Verzögerung bleibt, Kohl verärgert."
+        },
+        "2": {
+          "label": "Öffentlich kritisieren",
+          "desc": "Beziehung Kohl sinkt weiter",
+          "log": "Kohl öffentlich kritisiert. Ostblock verhärtet Position."
+        }
       }
     },
     "sprecher_wechsel": {
@@ -673,7 +1233,11 @@
       "context": "Ein Fraktionssprecher wurde abgelöst. Der neue Charakter hat andere Interessen und einen neuen Tradeoff-Pool. Die Beziehung muss neu aufgebaut werden.",
       "ticker": "Sprecher-Wechsel: Fraktion mit neuem Gesicht",
       "choices": {
-        "0": { "label": "Neuen Sprecher einbinden", "desc": "Beziehungspflege beginnen", "log": "Neuer Sprecher anerkannt. Beziehungsaufbau erforderlich." }
+        "0": {
+          "label": "Neuen Sprecher einbinden",
+          "desc": "Beziehungspflege beginnen",
+          "log": "Neuer Sprecher anerkannt. Beziehungsaufbau erforderlich."
+        }
       }
     },
     "bundesrat_initiative": {
@@ -683,8 +1247,16 @@
       "context": "Eine Fraktion hat ein eigenes Gesetz eingebracht. Sie müssen entscheiden: Zustimmung stärkt die Beziehung, Blockade kostet Sympathie und Popularität.",
       "ticker": "Bundesrat-Initiative: Länder fordern Mitsprache",
       "choices": {
-        "0": { "label": "Zustimmen", "desc": "Beziehung zur initiierenden Fraktion +12", "log": "Bundesrat-Initiative zugestimmt. Beziehung zur Fraktion verbessert." },
-        "1": { "label": "Blockieren", "desc": "Beziehung -15, Popularität -3", "log": "Bundesrat-Initiative blockiert. Fraktion verärgert, Popularität sinkt." }
+        "0": {
+          "label": "Zustimmen",
+          "desc": "Beziehung zur initiierenden Fraktion +12",
+          "log": "Bundesrat-Initiative zugestimmt. Beziehung zur Fraktion verbessert."
+        },
+        "1": {
+          "label": "Blockieren",
+          "desc": "Beziehung -15, Popularität -3",
+          "log": "Bundesrat-Initiative blockiert. Fraktion verärgert, Popularität sinkt."
+        }
       }
     },
     "foederalismusgipfel": {
@@ -694,9 +1266,21 @@
       "context": "Beim Föderalismusgipfel können Sie alle vier Fraktionen gleichzeitig pflegen — zu reduzierten Kosten von 8 PK pro Fraktion statt 15.",
       "ticker": "Föderalismusgipfel: Alle Fraktionssprecher in Berlin",
       "choices": {
-        "0": { "label": "Alle vier Fraktionen pflegen", "desc": "32 PK (8 pro Fraktion), Beziehung +3 bei allen", "log": "Föderalismusgipfel: Beziehung zu allen Fraktionen verbessert." },
-        "1": { "label": "Nur Mitte und Ostblock einladen", "desc": "16 PK, Beziehung +3 bei Brenner und Kohl", "log": "Föderalismusgipfel mit Brenner und Kohl. Beziehung verbessert." },
-        "2": { "label": "Gipfel absagen", "desc": "Keine Kosten, verpasste Chance", "log": "Föderalismusgipfel abgesagt. Chance verpasst." }
+        "0": {
+          "label": "Alle vier Fraktionen pflegen",
+          "desc": "32 PK (8 pro Fraktion), Beziehung +3 bei allen",
+          "log": "Föderalismusgipfel: Beziehung zu allen Fraktionen verbessert."
+        },
+        "1": {
+          "label": "Nur Mitte und Ostblock einladen",
+          "desc": "16 PK, Beziehung +3 bei Brenner und Kohl",
+          "log": "Föderalismusgipfel mit Brenner und Kohl. Beziehung verbessert."
+        },
+        "2": {
+          "label": "Gipfel absagen",
+          "desc": "Keine Kosten, verpasste Chance",
+          "log": "Föderalismusgipfel abgesagt. Chance verpasst."
+        }
       }
     }
   },
@@ -708,9 +1292,21 @@
       "context": "Großstädte haben eigenständig Klimaschutzmaßnahmen beschlossen. Der Druck aus der Zivilgesellschaft und postmateriellen Milieus ist hoch.",
       "ticker": "Hamburg und München: Eigenes Klimaprogramm — Bund unter Druck",
       "choices": {
-        "0": { "label": "Als Vorbild würdigen", "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.", "log": "Kommunale Initiative als Vorbild gewürdigt. Positive Signalwirkung." },
-        "1": { "label": "Koordinieren und Pilot starten", "desc": "8 PK — voller Kommunal-Pilot mit dem passenden Gesetz.", "log": "Bund koordiniert kommunale Initiative. Pilotprojekt gestartet." },
-        "2": { "label": "Ignorieren", "desc": "Keine Reaktion. Druck könnte steigen.", "log": "Kommunale Initiative ignoriert. Unmut in den Städten." }
+        "0": {
+          "label": "Als Vorbild würdigen",
+          "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.",
+          "log": "Kommunale Initiative als Vorbild gewürdigt. Positive Signalwirkung."
+        },
+        "1": {
+          "label": "Koordinieren und Pilot starten",
+          "desc": "8 PK — voller Kommunal-Pilot mit dem passenden Gesetz.",
+          "log": "Bund koordiniert kommunale Initiative. Pilotprojekt gestartet."
+        },
+        "2": {
+          "label": "Ignorieren",
+          "desc": "Keine Reaktion. Druck könnte steigen.",
+          "log": "Kommunale Initiative ignoriert. Unmut in den Städten."
+        }
       }
     },
     "kommunal_sozial_initiative": {
@@ -720,9 +1316,21 @@
       "context": "Industriestädte im Ruhrgebiet haben kommunale Mindestlohn-Initiativen gestartet. Die soziale Mitte fühlt sich von der Bundespolitik im Stich gelassen.",
       "ticker": "Ruhrgebiet: Städte fordern Mindestlohnerhöhung — Regierung unter Beobachtung",
       "choices": {
-        "0": { "label": "Als Vorbild würdigen", "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.", "log": "Kommunale Initiative als Vorbild gewürdigt." },
-        "1": { "label": "Koordinieren und Pilot starten", "desc": "8 PK — voller Kommunal-Pilot.", "log": "Bund koordiniert. Pilotprojekt gestartet." },
-        "2": { "label": "Ignorieren", "desc": "Keine Reaktion.", "log": "Kommunale Initiative ignoriert." }
+        "0": {
+          "label": "Als Vorbild würdigen",
+          "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.",
+          "log": "Kommunale Initiative als Vorbild gewürdigt."
+        },
+        "1": {
+          "label": "Koordinieren und Pilot starten",
+          "desc": "8 PK — voller Kommunal-Pilot.",
+          "log": "Bund koordiniert. Pilotprojekt gestartet."
+        },
+        "2": {
+          "label": "Ignorieren",
+          "desc": "Keine Reaktion.",
+          "log": "Kommunale Initiative ignoriert."
+        }
       }
     },
     "kommunal_sicherheit_initiative": {
@@ -732,9 +1340,21 @@
       "context": "Kommunen haben eigenständig Sicherheitsmaßnahmen angekündigt. Traditionelle Wähler fordern mehr Handlungsfähigkeit vom Bund.",
       "ticker": "Kommunen starten eigene Sicherheitsinitiativen — Bund reagiert",
       "choices": {
-        "0": { "label": "Als Vorbild würdigen", "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.", "log": "Kommunale Initiative als Vorbild gewürdigt." },
-        "1": { "label": "Koordinieren und Pilot starten", "desc": "8 PK — voller Kommunal-Pilot.", "log": "Bund koordiniert. Pilotprojekt gestartet." },
-        "2": { "label": "Ignorieren", "desc": "Keine Reaktion.", "log": "Kommunale Initiative ignoriert." }
+        "0": {
+          "label": "Als Vorbild würdigen",
+          "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.",
+          "log": "Kommunale Initiative als Vorbild gewürdigt."
+        },
+        "1": {
+          "label": "Koordinieren und Pilot starten",
+          "desc": "8 PK — voller Kommunal-Pilot.",
+          "log": "Bund koordiniert. Pilotprojekt gestartet."
+        },
+        "2": {
+          "label": "Ignorieren",
+          "desc": "Keine Reaktion.",
+          "log": "Kommunale Initiative ignoriert."
+        }
       }
     }
   },
@@ -746,7 +1366,11 @@
       "context": "Das kommunale Pilotprojekt war erfolgreich. Die Erfahrungen bestätigen die Wirksamkeit — Zeit für die bundesweite Umsetzung.",
       "ticker": "Kommunal-Pilot erfolgreich — Signal für Bund",
       "choices": {
-        "0": { "label": "Zur Kenntnis nehmen", "desc": "Erfolg bestätigt. Bonus wird angewendet.", "log": "Pilotprojekt-Erfolg zur Kenntnis genommen." }
+        "0": {
+          "label": "Zur Kenntnis nehmen",
+          "desc": "Erfolg bestätigt. Bonus wird angewendet.",
+          "log": "Pilotprojekt-Erfolg zur Kenntnis genommen."
+        }
       }
     },
     "vorstufe_laender_erfolg": {
@@ -756,8 +1380,16 @@
       "context": "Ein Bundesland hat das Gesetz als Pilot erfolgreich umgesetzt. Die Signalwirkung für andere Länder und den Bund ist groß.",
       "ticker": "Länder-Pilot erfolgreich — andere Länder beobachten",
       "choices": {
-        "0": { "label": "Weitere Länder einladen", "desc": "12 PK — startet zweiten Länder-Pilot mit +10% Erfolgschance.", "log": "Weitere Länder zum Pilot eingeladen." },
-        "1": { "label": "Zur Kenntnis nehmen", "desc": "Erfolg bestätigt.", "log": "Länder-Pilot-Erfolg zur Kenntnis genommen." }
+        "0": {
+          "label": "Weitere Länder einladen",
+          "desc": "12 PK — startet zweiten Länder-Pilot mit +10% Erfolgschance.",
+          "log": "Weitere Länder zum Pilot eingeladen."
+        },
+        "1": {
+          "label": "Zur Kenntnis nehmen",
+          "desc": "Erfolg bestätigt.",
+          "log": "Länder-Pilot-Erfolg zur Kenntnis genommen."
+        }
       }
     }
   },
@@ -841,14 +1473,24 @@
     "nfDisclaimer": "Die NF steht außerhalb der demokratischen Zusammenarbeit. Keine Koalition, keine Gespräche, kein Lobbying möglich.",
     "ersterTabHinweis": "Der Bundestag spiegelt die politische Realität wider. Die Nationale Front (NF) ist im Parlament präsent, steht aber außerhalb jeder demokratischen Zusammenarbeit.",
     "hinweisVerstanden": "Verstanden",
-    "logNfMedienkritik": "Kritik: Gesetz kommt NF-Positionen entgegen — Medienklima belastet."
+    "logNfMedienkritik": "Kritik: Gesetz kommt NF-Positionen entgegen — Medienklima belastet.",
+    "abstimmungCountdown": "Abstimmung in {{count}} Mo. ({{month}})"
   },
   "media": {
     "title": "Medien",
     "desc": "Medienklima, öffentliche Meinung und Wählermilieus. Medienklima beeinflusst, wie Gesetze wahrgenommen werden.",
-    "arbeit": { "name": "Arbeitsmilieu", "desc": "Gewerkschaftsnahe Wähler, Fokus auf soziale Gerechtigkeit." },
-    "mitte": { "name": "Mitte", "desc": "Bürgerliche Mitte, wirtschaftsorientiert." },
-    "prog": { "name": "Progressive", "desc": "Urban, klimabewusst, diversitätsorientiert." },
+    "arbeit": {
+      "name": "Arbeitsmilieu",
+      "desc": "Gewerkschaftsnahe Wähler, Fokus auf soziale Gerechtigkeit."
+    },
+    "mitte": {
+      "name": "Mitte",
+      "desc": "Bürgerliche Mitte, wirtschaftsorientiert."
+    },
+    "prog": {
+      "name": "Progressive",
+      "desc": "Urban, klimabewusst, diversitätsorientiert."
+    },
     "akteureTitle": "Medienakteure",
     "akteureSub": "Stimmung und Reichweite der wichtigsten Medienformate — der Medienindex setzt sich daraus zusammen.",
     "aktionen": {
@@ -904,7 +1546,8 @@
     "laenderGipfel": "Länder-Gipfel einberufen",
     "laenderGipfelDesc": "12 PK — Verbessert Bundesrat-Beziehungen.",
     "pilotBeschleunigen": "Pilotprojekt beschleunigen",
-    "pilotBeschleunigenDesc": "6 PK — +1 Monat Fortschritt."
+    "pilotBeschleunigenDesc": "6 PK — +1 Monat Fortschritt.",
+    "aktionen": "Aktionen"
   },
   "ticker": {
     "label": "NACHRICHTEN"
@@ -1078,7 +1721,13 @@
     "weiterOhneZugestaendnis": "Weiter ohne Zugeständnis",
     "abstimmungTitle": "Abstimmung",
     "abstimmungLabel": "Haushaltsplan",
-    "insKanzleramt": "Ins Kanzleramt"
+    "insKanzleramt": "Ins Kanzleramt",
+    "lehmannUeberschuss": "Der Haushalt ist solide. Wir haben Spielraum für Investitionen.",
+    "lehmannAusgeglichen": "Ausgeglichener Haushalt — aber kein Raum für Experimente.",
+    "lehmannDefizit": "Das Defizit ist besorgniserregend. Jede Ausgabe muss gerechtfertigt werden.",
+    "grafikEinnahmen": "Einnahmen: {{value}} Mrd.",
+    "grafikPflicht": "Pflicht: {{value}} Mrd.",
+    "grafikGesetze": "Gesetze: {{value}} Mrd."
   },
   "haushalt": {
     "title": "Haushalt",
@@ -1135,7 +1784,8 @@
     "ausgeschlossen": "Nicht möglich: Du hast bereits {{gesetz}} beschlossen",
     "synergie": "Synergieeffekt +{{pct}}% mit {{gesetz}}",
     "steuergesetz": "Steuergesetz",
-    "wartetAuf": "Wartet auf: {{gesetz}}"
+    "wartetAuf": "Wartet auf: {{gesetz}}",
+    "erwarteteWirkung": "Erwartete Wirkung"
   },
   "gesetzAgenda": {
     "title": "Gesetz-Agenda",
@@ -1247,7 +1897,7 @@
     "bilateraleHint": "Pflege die Beziehung zu einzelnen Bundesländern (10 Politik-Kapital, +10 Beziehung).",
     "bilateralMit": "Gespräch: {{name}}",
     "keineAbstimmung": "Noch kein Gesetz im Bundesratsverfahren. Sobald ein Gesetz den Bundestag passiert, stimmt der Bundesrat ab.",
-    "keineAbstimmungLobbyHint": "Noch kein Gesetz im Bundesratsverfahren.",
+    "keineAbstimmungLobbyHint": "Noch kein Gesetz im Bundesratsverfahren",
     "lobbyingButton": "Lobbying (10 PK)",
     "lobbyingGesperrt": "Lobbying gesperrt: Beziehung unter 20. Reparatur erforderlich.",
     "reparatur": "Beziehung reparieren (25 PK)",
@@ -1257,7 +1907,12 @@
     "pkInvestieren": "PK investieren ({{cost}} PK)",
     "monateBisAbstimmung_one": "Noch {{count}} Monat bis Abstimmung",
     "monateBisAbstimmung_other": "Noch {{count}} Monate bis Abstimmung",
-    "close": "Schließen"
+    "close": "Schließen",
+    "pkInvestiert": "PK investiert",
+    "tradeoffAkzeptiert": "Forderung akzeptiert",
+    "gesperrt": "Gesperrt",
+    "bilateraleDesc": "Pflege die Beziehung zu einzelnen Bundesländern (10 PK, +10 Beziehung).",
+    "bilateraleBtn": "Gespräch: {{name}}"
   },
   "endScreen": {
     "won": "Wiedergewählt",
@@ -1276,7 +1931,9 @@
     "approvalChart": "Zustimmungsverlauf",
     "monthsPlayed": "{{count}} Monate gespielt",
     "ziel": "Ziel: {{threshold}}%",
-    "monatTooltip": "Monat {{month}}: <b>{{value}}%</b>"
+    "monatTooltip": "Monat {{month}}: <b>{{value}}%</b>",
+    "meilensteine": "Meilensteine",
+    "neueErfolge": "Neue Erfolge freigeschaltet!"
   },
   "auswertung": {
     "noteHint": "Note aus fünf Dimensionen (Demokratie, Wirtschaft, Gesellschaft, Kommunikation, Effizienz).",
@@ -1327,7 +1984,21 @@
   },
   "medienklima": {
     "label": "Medienklima",
-    "opposition": "Opposition"
+    "opposition": "Opposition",
+    "statusPositiv": "Positiv",
+    "statusNeutral": "Neutral",
+    "statusKritisch": "Kritisch",
+    "verlaufTitle": "Medienklima-Verlauf",
+    "noData": "Keine Verlaufsdaten verfügbar",
+    "tooltipMonat": "Monat {{month}}",
+    "tooltipLabel": "Medienklima",
+    "tooltipHint": "Beeinflusst Wahlchancen und Kommunikationsaktionen",
+    "caption": "Das Medienklima beeinflusst Ihre Wahlchancen und die Wirkung von Kommunikationsaktionen. Werte ≥ 60 stärken die Wahlprognose, Werte < 40 gefährden sie.",
+    "markPositiv": "Positiv 60",
+    "markKritisch": "Kritisch 40",
+    "oppositionStark": "Stark",
+    "oppositionAktiv": "Aktiv",
+    "oppositionSchwach": "Schwach"
   },
   "glossar": {
     "title": "Glossar",
@@ -1340,21 +2011,66 @@
       "medien": "Medien & Öffentlichkeit"
     },
     "entries": {
-      "pk": { "term": "Politisches Kapital (PK)", "explanation": "Deine Handlungsressource. Jede Aktion kostet PK. Regeneriert monatlich basierend auf deiner Zustimmung." },
-      "zustimmung": { "term": "Zustimmung / Wahlprognose", "explanation": "Wie beliebt deine Regierung ist. Am Ende der Legislatur (Monat 48) musst du die Wahlhürde überschreiten um zu gewinnen." },
-      "kongruenz": { "term": "Kongruenz", "explanation": "Wie gut ein Gesetz zu deiner ideologischen Ausrichtung passt (0–100%). Hohe Kongruenz = weniger PK-Kosten, niedrige Kongruenz = mehr Aufwand und Widerstand." },
-      "arbeitslosigkeit": { "term": "Arbeitslosigkeit", "explanation": "KPI: Arbeitslosenquote in %. Niedrig = gut. Wird durch Konjunkturdrift und Gesetze beeinflusst." },
-      "haushaltssaldo": { "term": "Haushaltssaldo", "explanation": "KPI: Einnahmen minus Ausgaben in %. Positiv = Überschuss. Negativ = Defizit. Beeinflusst durch Gesetze und Konjunktur." },
-      "gini": { "term": "Gini-Index", "explanation": "KPI: Maß für Ungleichheit (0–100). Niedrig = weniger Ungleichheit. Beeinflusst durch Sozialpolitik." },
-      "zufriedenheit": { "term": "Zufriedenheit", "explanation": "KPI: Allgemeine Bevölkerungszufriedenheit (0–100%). Hoch = gut. Wird durch alle KPIs und Gesetze beeinflusst." },
-      "koalition": { "term": "Koalitionsstabilität", "explanation": "Wie stabil deine Regierungskoalition ist (0–100%). Berechnet aus Kabinett-Stimmung und Partner-Loyalität. Unter 15% → Koalitionsbruch = Spielverlust!" },
-      "spielraum": { "term": "Spielraum", "explanation": "Haushaltsmittel, die für neue Gesetze verfügbar sind. Ergibt sich aus Einnahmen minus Pflichtausgaben minus laufende Kosten." },
-      "schuldenbremse": { "term": "Schuldenbremse", "explanation": "Ab Stufe 3: Verfassungsgrenze für Neuverschuldung. Bei Verletzung drohen Sparmaßnahmen und Vertrauensverlust." },
-      "medienklima": { "term": "Medienklima", "explanation": "Wie positiv die Medienberichterstattung ist (0–100). Beeinflusst PK-Kosten für Gesetze und Wahlkampf-Erfolg." },
-      "milieus": { "term": "Milieus", "explanation": "Wählergruppen mit unterschiedlichen ideologischen Profilen. Ihre Zustimmung bestimmt deine Wahlprognose." },
-      "kvScore": { "term": "Koalitionsvertrag-Score", "explanation": "Wie viele Punkte des Koalitionsvertrags erfüllt sind. Hoher Score = stabilere Koalition, niedriger Score = Partner wird unzufrieden." },
-      "vorstufen": { "term": "Vorstufen", "explanation": "Kommunal- oder Länderpiloten vor dem Einbringen eines Gesetzes. Geben Boni auf BT-Stimmen, PK-Kosten und Bundesrat-Zustimmung." },
-      "bundesrat": { "term": "Bundesrat", "explanation": "4 Fraktionen vertreten 16 Bundesländer. Gesetze mit Land-Tag benötigen Bundesrats-Mehrheit. Beziehungspflege und Lobbying beeinflussen die Abstimmung." }
+      "pk": {
+        "term": "Politisches Kapital (PK)",
+        "explanation": "Deine Handlungsressource. Jede Aktion kostet PK. Regeneriert monatlich basierend auf deiner Zustimmung."
+      },
+      "zustimmung": {
+        "term": "Zustimmung / Wahlprognose",
+        "explanation": "Wie beliebt deine Regierung ist. Am Ende der Legislatur (Monat 48) musst du die Wahlhürde überschreiten um zu gewinnen."
+      },
+      "kongruenz": {
+        "term": "Kongruenz",
+        "explanation": "Wie gut ein Gesetz zu deiner ideologischen Ausrichtung passt (0–100%). Hohe Kongruenz = weniger PK-Kosten, niedrige Kongruenz = mehr Aufwand und Widerstand."
+      },
+      "arbeitslosigkeit": {
+        "term": "Arbeitslosigkeit",
+        "explanation": "KPI: Arbeitslosenquote in %. Niedrig = gut. Wird durch Konjunkturdrift und Gesetze beeinflusst."
+      },
+      "haushaltssaldo": {
+        "term": "Haushaltssaldo",
+        "explanation": "KPI: Einnahmen minus Ausgaben in %. Positiv = Überschuss. Negativ = Defizit. Beeinflusst durch Gesetze und Konjunktur."
+      },
+      "gini": {
+        "term": "Gini-Index",
+        "explanation": "KPI: Maß für Ungleichheit (0–100). Niedrig = weniger Ungleichheit. Beeinflusst durch Sozialpolitik."
+      },
+      "zufriedenheit": {
+        "term": "Zufriedenheit",
+        "explanation": "KPI: Allgemeine Bevölkerungszufriedenheit (0–100%). Hoch = gut. Wird durch alle KPIs und Gesetze beeinflusst."
+      },
+      "koalition": {
+        "term": "Koalitionsstabilität",
+        "explanation": "Wie stabil deine Regierungskoalition ist (0–100%). Berechnet aus Kabinett-Stimmung und Partner-Loyalität. Unter 15% → Koalitionsbruch = Spielverlust!"
+      },
+      "spielraum": {
+        "term": "Spielraum",
+        "explanation": "Haushaltsmittel, die für neue Gesetze verfügbar sind. Ergibt sich aus Einnahmen minus Pflichtausgaben minus laufende Kosten."
+      },
+      "schuldenbremse": {
+        "term": "Schuldenbremse",
+        "explanation": "Ab Stufe 3: Verfassungsgrenze für Neuverschuldung. Bei Verletzung drohen Sparmaßnahmen und Vertrauensverlust."
+      },
+      "medienklima": {
+        "term": "Medienklima",
+        "explanation": "Wie positiv die Medienberichterstattung ist (0–100). Beeinflusst PK-Kosten für Gesetze und Wahlkampf-Erfolg."
+      },
+      "milieus": {
+        "term": "Milieus",
+        "explanation": "Wählergruppen mit unterschiedlichen ideologischen Profilen. Ihre Zustimmung bestimmt deine Wahlprognose."
+      },
+      "kvScore": {
+        "term": "Koalitionsvertrag-Score",
+        "explanation": "Wie viele Punkte des Koalitionsvertrags erfüllt sind. Hoher Score = stabilere Koalition, niedriger Score = Partner wird unzufrieden."
+      },
+      "vorstufen": {
+        "term": "Vorstufen",
+        "explanation": "Kommunal- oder Länderpiloten vor dem Einbringen eines Gesetzes. Geben Boni auf BT-Stimmen, PK-Kosten und Bundesrat-Zustimmung."
+      },
+      "bundesrat": {
+        "term": "Bundesrat",
+        "explanation": "4 Fraktionen vertreten 16 Bundesländer. Gesetze mit Land-Tag benötigen Bundesrats-Mehrheit. Beziehungspflege und Lobbying beeinflussen die Abstimmung."
+      }
     }
   },
   "framing": {
@@ -1487,7 +2203,43 @@
       "title": "Wahlkampf beginnt!",
       "text": "Die letzten 6 Monate der Legislatur! Nutze Reden, Koalitions-Aktionen und die Medienoffensive, um deine Wahlprognose zu verbessern. Das TV-Duell kommt auch bald."
     },
-    "understood": "Verstanden"
+    "understood": "Verstanden",
+    "geschwindigkeit": {
+      "title": "Spielgeschwindigkeit",
+      "text": "Drücke Leertaste zum Pausieren/Fortsetzen. Mit den Tasten 1 und 3 steuerst du die Geschwindigkeit. Das Spiel pausiert automatisch bei wichtigen Ereignissen."
+    },
+    "kabinettIntro": {
+      "title": "Dein Kabinett",
+      "text": "Deine Minister haben eine eigene Stimmung und Loyalität. Zufriedene Minister geben Boni — unzufriedene stellen Ultimaten. Klicke auf einen Minister für Details."
+    },
+    "gesetzWirkung": {
+      "title": "Gesetze brauchen Zeit",
+      "text": "Beschlossene Gesetze wirken nicht sofort — die Effekte treten erst nach einigen Monaten ein. Plane voraus und bring Gesetze frühzeitig ein!"
+    },
+    "haushaltErklaerung": {
+      "title": "Der Haushalt",
+      "text": "Jedes Gesetz hat laufende Kosten. Achte auf den Haushaltssaldo — bei zu hohem Defizit greift die Schuldenbremse und schränkt deinen Spielraum ein."
+    },
+    "medienklimaIntro": {
+      "title": "Das Medienklima",
+      "text": "Das Medienklima beeinflusst die öffentliche Wahrnehmung. Skandale senken es, gute Nachrichten heben es. Ab Stufe 3 kannst du Pressemitteilungen nutzen."
+    },
+    "euRouteInfo": {
+      "title": "Alternative Routen",
+      "text": "Ein Gesetz wurde blockiert? Du kannst es über die EU, Länderpiloten oder Kommunen auf einem anderen Weg durchsetzen. Jede Route hat eigene Vor- und Nachteile."
+    },
+    "verbaendeIntro": {
+      "title": "Verbände & Interessengruppen",
+      "text": "Verbände wie BDI, Gewerkschaften oder Umweltverbände haben eigene Interessen. Gute Beziehungen zu Verbänden können bei Abstimmungen helfen — aber Zugeständnisse kosten."
+    },
+    "ministerAgenda": {
+      "title": "Minister-Initiativen",
+      "text": "Deine Minister verfolgen eigene Agenden und bringen Forderungen ein. Erfülle sie für bessere Stimmung — oder lehne ab mit dem Risiko eines Ultimatums."
+    },
+    "halbzeit": {
+      "title": "Halbzeit der Legislatur",
+      "text": "Die Hälfte deiner Amtszeit ist vorbei. Prüfe deine Zustimmungswerte und den Haushalt. Noch 24 Monate bis zur Wahl — jetzt ist die beste Zeit für große Reformen."
+    }
   },
   "koalitionPanel": {
     "beziehung": {
@@ -1505,7 +2257,9 @@
     "beziehungKritischHint": "Beziehung kritisch! Koalitionsrunde oder Zugeständnis dringend empfohlen.",
     "partnerforderung": "Partnerforderung:",
     "monateVerbleibend_one": "noch {{count}} Monat",
-    "monateVerbleibend_other": "noch {{count}} Monate"
+    "monateVerbleibend_other": "noch {{count}} Monate",
+    "koalitionsbruchDroht": "Koalitionsbruch droht! Sofort handeln — Koalitionsrunde oder Zugeständnis!",
+    "beziehungAngespannt": "Beziehung angespannt — regelmäßige Koalitionsrunden stabilisieren die Partnerschaft."
   },
   "kpiTrend": {
     "stable": "Stabil",
@@ -1569,5 +2323,155 @@
     "retry": "Erneut versuchen",
     "close": "Schließen",
     "mrd": "Mrd."
+  },
+  "medienAkteure": {
+    "stimmung": "Stimmung",
+    "reichweite": "{{value}}% Reichweite",
+    "sehrKritisch": "Sehr kritisch",
+    "kritisch": "Kritisch",
+    "neutral": "Neutral",
+    "freundlich": "Freundlich",
+    "sehrPositiv": "Sehr positiv",
+    "warnVolatil": "Sehr volatil — Stimmung kann schnell kippen",
+    "warnAlternativ": "Wachsende Reichweite — Medienklima leidet",
+    "passiv": "Nicht direkt beeinflussbar",
+    "agenda": {
+      "oeffentlich": "Ausgewogen und staatsfern. Reagiert auf Inhalte, nicht auf PR.",
+      "boulevard": "Empörung verkauft sich. Skandale werden stark verstärkt.",
+      "qualitaet": "Faktenbasiert. Reagiert positiv auf solide Haushaltspolitik.",
+      "social": "Algorithmisch gesteuert. Sehr volatil — Trends kippen schnell.",
+      "konservativ": "National-konservative Agenda. Kaum durch PR beeinflussbar.",
+      "alternativ": "Misstrauen gegen alles Etablierte. Wächst bei schlechtem Medienklima."
+    }
+  },
+  "gesetzStepper": {
+    "blockiert": "Blockiert",
+    "ausweichroute": "Ausweichroute"
+  },
+  "kpiVerlauf": {
+    "noData": "Noch keine Verlaufsdaten",
+    "noDataGlobal": "KPI-Verlauf wird ab dem zweiten Spielmonat angezeigt.",
+    "title": "KPI-Entwicklung",
+    "subtitle": "Letzte {{count}} Monate",
+    "tooltipMonat": "Monat {{month}}",
+    "tooltipWert": "Wert",
+    "lowerBetter": "Niedriger ist besser",
+    "higherBetter": "Höher ist besser",
+    "al": {
+      "label": "Arbeitslosigkeit",
+      "desc": "Anteil der Erwerbslosen an der Erwerbsbevölkerung.",
+      "impact": "Hohe Arbeitslosigkeit senkt die Zufriedenheit und gefährdet die Wiederwahl.",
+      "target": "Vollbeschäftigung 5%"
+    },
+    "hh": {
+      "label": "Haushaltssaldo",
+      "desc": "Differenz aus Staatseinnahmen und -ausgaben.",
+      "impact": "Ein dauerhaftes Defizit verletzt die Schuldenbremse und reduziert zukünftige Handlungsfähigkeit.",
+      "target": "Ausgeglichen"
+    },
+    "gi": {
+      "label": "Gini-Koeffizient",
+      "desc": "Maß für wirtschaftliche Ungleichverteilung (0 = gleich, 100 = maximal ungleich).",
+      "impact": "Hohe Ungleichheit verschlechtert die Gesellschafts-Dimension und schwächt progressive Milieus."
+    },
+    "zf": {
+      "label": "Zufriedenheit",
+      "desc": "Allgemeine Bevölkerungszufriedenheit mit der Regierungsarbeit.",
+      "impact": "Niedrige Zufriedenheit senkt die Wahlprognose direkt und reduziert die PK-Regeneration.",
+      "target": "Ziel 50%"
+    }
+  },
+  "pendingEffekte": {
+    "noData": "Keine ausstehenden Gesetz-Auswirkungen.",
+    "title": "Geplante Auswirkungen — Übersicht",
+    "effekte": "{{count}} Effekte",
+    "nextHint": "Nächste Wirkung in {{offset}}. Hover für Details.",
+    "thisMonth": "diesem Monat",
+    "monthSingular": "{{count}} Monat",
+    "monthPlural": "{{count}} Monaten",
+    "now": "Jetzt",
+    "tooltipMonth": "Monat {{month}} (+{{offset}} Mo.)",
+    "al": {
+      "label": "Arbeitslosigkeit",
+      "desc": "Erwerbslosenquote — niedrig ist besser"
+    },
+    "hh": {
+      "label": "Haushalt",
+      "desc": "Haushaltssaldo in Mrd. € — positiv ist besser"
+    },
+    "gi": {
+      "label": "Gini",
+      "desc": "Ungleichheitskoeffizient — niedrig ist besser"
+    },
+    "zf": {
+      "label": "Zufriedenheit",
+      "desc": "Bevölkerungszufriedenheit — hoch ist besser"
+    }
+  },
+  "bewertungRadar": {
+    "hint": "Hover für Details zu jeder Dimension",
+    "bewertung": "Bewertung",
+    "demokratie": {
+      "label": "Demokratie",
+      "desc": "Koalitionsstabilität und Erfüllung des Koalitionsvertrags"
+    },
+    "wirtschaft": {
+      "label": "Wirtschaft",
+      "desc": "Haushaltssaldo, Arbeitslosigkeit und Konjunkturindex"
+    },
+    "gesellschaft": {
+      "label": "Gesellschaft",
+      "desc": "Milieu-Zustimmung und Gini-Koeffizient (Ungleichheit)"
+    },
+    "kommunikation": {
+      "label": "Kommunikation",
+      "desc": "Medienklima und öffentliche Außenwirkung"
+    },
+    "effizienz": {
+      "label": "Effizienz",
+      "desc": "Beschlossene Gesetze im Verhältnis zum verbrauchten Politischen Kapital"
+    }
+  },
+  "shortcuts": {
+    "title": "Tastaturkürzel",
+    "space": "Leertaste",
+    "pauseResume": "Pause / Fortsetzen",
+    "slowSpeed": "Langsame Geschwindigkeit",
+    "fastSpeed": "Schnelle Geschwindigkeit",
+    "closeDrawer": "Drawer schließen",
+    "eventChoice": "Event-Auswahl (bei Event)",
+    "confirmOnly": "Einzige Option bestätigen",
+    "switchTab": "Tab wechseln (Agenda…EU)",
+    "showHelp": "Diese Hilfe anzeigen",
+    "close": "Schließen",
+    "showAgenda": "Agenda anzeigen",
+    "showKabinett": "Kabinett anzeigen"
+  },
+  "europaKarte": {
+    "deutschland": "Deutschland"
+  },
+  "coalition": {
+    "stable": "Koalition stabil",
+    "tensions": "Spannungen erkennbar",
+    "crisis": "Koalitionskrise droht",
+    "atLimit": "Koalition am Limit",
+    "collapseWarning": "Koalitionsbruch droht!"
+  },
+  "endScreen.milestones": {
+    "lawsPassed": "{{count}} Gesetze beschlossen",
+    "lawsBlocked": "{{count}} Gesetze blockiert",
+    "eventsHandled": "{{count}} Ereignisse bewältigt",
+    "coalitionStable": "Koalition stabil gehalten",
+    "coalitionCrisis": "Koalitionskrise erlebt",
+    "budgetPositive": "Haushalt im Plus",
+    "debtBrakeBreached": "Schuldenbremse gerissen",
+    "campaignCompleted": "Wahlkampf durchlaufen"
+  },
+  "opposition.oncePerMonth": "Nur 1× pro Monat möglich",
+  "bundesratMap": {
+    "koalition": "Koalition",
+    "neutral": "Neutral",
+    "opposition": "Opposition",
+    "votes": "{{count}} Stimmen"
   }
 }

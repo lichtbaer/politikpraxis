@@ -24,30 +24,27 @@ export function StatistikenPage() {
   }, []);
 
   return (
-    <LegalPageShell title={t('stats.pageTitle', 'Community-Statistiken')}>
+    <LegalPageShell title={t('stats.pageTitle')}>
       <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
-        {t(
-          'stats.privacyHint',
-          'Alle Daten sind anonymisiert. Nur Spielende, die dem zugestimmt haben, fließen in die Auswertung ein.',
-        )}
+        {t('stats.privacyHint')}
       </p>
       {err && <p role="alert">{err}</p>}
-      {!data && !err && <p>{t('stats.loading', 'Lade …')}</p>}
+      {!data && !err && <p>{t('stats.loading')}</p>}
       {data && (
         <>
           <section style={{ marginBottom: '1.5rem' }}>
             <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-              {t('stats.overall', 'Gesamt')}
+              {t('stats.overall')}
             </h2>
             <ul style={{ listStyle: 'none', padding: 0 }}>
               <li>
-                {t('stats.totalGames', 'Spiele insgesamt')}: <strong>{data.gesamt}</strong>
+                {t('stats.totalGames')}: <strong>{data.gesamt}</strong>
               </li>
               <li>
-                {t('stats.winrate', 'Gewinnrate')}: <strong>{data.gewinnrate}%</strong>
+                {t('stats.winrate')}: <strong>{data.gewinnrate}%</strong>
               </li>
               <li>
-                {t('stats.avgForecast', 'Durchschnittliche Wahlprognose')}:{' '}
+                {t('stats.avgForecast')}:{' '}
                 <strong>{data.wahlprognose_avg}%</strong>
               </li>
             </ul>
@@ -55,15 +52,15 @@ export function StatistikenPage() {
           {data.nach_partei.length > 0 && (
             <section style={{ marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-                {t('stats.byParty', 'Nach Partei')}
+                {t('stats.byParty')}
               </h2>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: 'left', padding: '4px 8px' }}>Partei</th>
-                    <th style={{ textAlign: 'right', padding: '4px 8px' }}>n</th>
-                    <th style={{ textAlign: 'right', padding: '4px 8px' }}>Gewinnrate</th>
-                    <th style={{ textAlign: 'right', padding: '4px 8px' }}>Ø Prognose</th>
+                    <th style={{ textAlign: 'left', padding: '4px 8px' }}>{t('stats.colParty')}</th>
+                    <th style={{ textAlign: 'right', padding: '4px 8px' }}>{t('stats.colCount')}</th>
+                    <th style={{ textAlign: 'right', padding: '4px 8px' }}>{t('stats.colWinrate')}</th>
+                    <th style={{ textAlign: 'right', padding: '4px 8px' }}>{t('stats.colForecast')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -84,7 +81,7 @@ export function StatistikenPage() {
           {data.top_politikfelder.length > 0 && (
             <section style={{ marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-                {t('stats.topFields', 'Häufigste Politikfelder (Top-Gesetze)')}
+                {t('stats.topFields')}
               </h2>
               <ul>
                 {data.top_politikfelder.map((x) => (
@@ -98,7 +95,7 @@ export function StatistikenPage() {
           {data.titel_verteilung.length > 0 && (
             <section>
               <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-                {t('stats.titles', 'Häufigste Spieler-Titel')}
+                {t('stats.titles')}
               </h2>
               <ul>
                 {data.titel_verteilung.map((x) => (

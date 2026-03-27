@@ -17,7 +17,7 @@ export function SaveHintBanner() {
           })}
         </span>
         <button type="button" className={styles.btn} onClick={() => setShowAuth(true)}>
-          {t('game.saveHintLogin', { defaultValue: 'Anmelden' })}
+          {t('game.saveHintLogin')}
         </button>
       </div>
       {showAuth && (

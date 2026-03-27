@@ -54,9 +54,9 @@ export function MainMenu() {
       loadSaveFromFile(result.data);
       navigate('/game');
     } else if (result.reason === 'version_mismatch') {
-      setLoadError(t('menu.loadVersionError', { defaultValue: 'Spielstand ist nicht kompatibel mit dieser Version.' }));
+      setLoadError(t('menu.loadVersionError'));
     } else if (result.reason === 'parse_error') {
-      setLoadError(t('menu.loadParseError', { defaultValue: 'Spielstand konnte nicht gelesen werden.' }));
+      setLoadError(t('menu.loadParseError'));
     }
   };
 
@@ -91,7 +91,7 @@ export function MainMenu() {
       clearSave();
       setMigrateOpen(false);
     } catch {
-      setLoadError(t('menu.migrateError', { defaultValue: 'Übertragung fehlgeschlagen.' }));
+      setLoadError(t('menu.migrateError'));
       setMigrateOpen(false);
     } finally {
       setMigrateBusy(false);
@@ -124,12 +124,12 @@ export function MainMenu() {
                   {email.length > 32 ? `${email.slice(0, 30)}…` : email}
                 </span>
                 <button type="button" className={styles.secondary} onClick={() => void logout()}>
-                  {t('menu.logout', { defaultValue: 'Abmelden' })}
+                  {t('menu.logout')}
                 </button>
               </>
             ) : (
               <button type="button" className={styles.secondary} onClick={() => setAuthOpen(true)}>
-                {t('menu.login', { defaultValue: 'Anmelden' })}
+                {t('menu.login')}
               </button>
             )}
           </div>
@@ -212,12 +212,10 @@ export function MainMenu() {
 
       {migrateOpen && (
         <SimpleConfirm
-          title={t('menu.migrateTitle', { defaultValue: 'Lokalen Spielstand übertragen?' })}
-          message={t('menu.migrateMessage', {
-            defaultValue: 'Es wurde ein lokaler Spielstand gefunden. In die Cloud (Slot 1) übertragen? Der lokale Stand wird danach entfernt.',
-          })}
-          confirmLabel={migrateBusy ? '…' : t('menu.migrateConfirm', { defaultValue: 'Übertragen' })}
-          cancelLabel={t('menu.migrateSkip', { defaultValue: 'Später' })}
+          title={t('menu.migrateTitle')}
+          message={t('menu.migrateDesc')}
+          confirmLabel={migrateBusy ? '…' : t('menu.migrateConfirm')}
+          cancelLabel={t('menu.migrateSkip')}
           confirmDisabled={migrateBusy}
           onConfirm={() => void handleMigrateConfirm()}
           onCancel={() => setMigrateOpen(false)}

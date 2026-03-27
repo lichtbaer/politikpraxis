@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
@@ -15,6 +16,7 @@ const EU_COUNTRIES = new Set([
 ]);
 
 export function EuropeMapChart() {
+  const { t } = useTranslation('game');
   const [mapReady, setMapReady] = useState(false);
   const loadedRef = useRef(false);
 
@@ -51,7 +53,7 @@ export function EuropeMapChart() {
       textStyle: { color: '#c0bfb8', fontSize: 12, fontFamily: 'var(--sans)' },
       formatter: (params: unknown) => {
         const p = params as { name: string };
-        if (p.name === 'Germany') return '<b>Deutschland</b>';
+        if (p.name === 'Germany') return `<b>${t('europaKarte.deutschland')}</b>`;
         return p.name || '';
       },
     },
@@ -104,7 +106,7 @@ export function EuropeMapChart() {
         layoutSize: '140%',
       },
     ],
-  }), []);
+  }), [t]);
 
   if (!mapReady) {
     return <div className={styles.placeholder} aria-hidden="true" />;

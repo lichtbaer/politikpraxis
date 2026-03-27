@@ -3,6 +3,7 @@
  * Zeigt Demokratie, Wirtschaft, Gesellschaft, Kommunikation, Effizienz.
  */
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import styles from './BewertungRadarChart.module.css';
@@ -19,38 +20,23 @@ interface BewertungRadarChartProps {
   dimensionen: Dimensionen;
 }
 
-const DIM_META = [
-  {
-    key: 'demokratie' as const,
-    label: 'Demokratie',
-    desc: 'Koalitionsstabilität und Erfüllung des Koalitionsvertrags',
-  },
-  {
-    key: 'wirtschaft' as const,
-    label: 'Wirtschaft',
-    desc: 'Haushaltssaldo, Arbeitslosigkeit und Konjunkturindex',
-  },
-  {
-    key: 'gesellschaft' as const,
-    label: 'Gesellschaft',
-    desc: 'Milieu-Zustimmung und Gini-Koeffizient (Ungleichheit)',
-  },
-  {
-    key: 'kommunikation' as const,
-    label: 'Kommunikation',
-    desc: 'Medienklima und öffentliche Außenwirkung',
-  },
-  {
-    key: 'effizienz' as const,
-    label: 'Effizienz',
-    desc: 'Beschlossene Gesetze im Verhältnis zum verbrauchten Politischen Kapital',
-  },
-];
+const DIM_KEYS = ['demokratie', 'wirtschaft', 'gesellschaft', 'kommunikation', 'effizienz'] as const;
 
 export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
+  const { t } = useTranslation('game');
+
+  const dimMeta = useMemo(
+    () => DIM_KEYS.map((key) => ({
+      key,
+      label: t(`bewertungRadar.${key}.label`),
+      desc: t(`bewertungRadar.${key}.desc`),
+    })),
+    [t],
+  );
+
   const values = useMemo(
-    () => DIM_META.map((d) => dimensionen[d.key]),
-    [dimensionen],
+    () => dimMeta.map((d) => dimensionen[d.key]),
+    [dimensionen, dimMeta],
   );
 
   const option: EChartsOption = useMemo(
@@ -66,7 +52,7 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
         padding: [8, 12],
         textStyle: { color: '#d0cfc8', fontSize: 11 },
         formatter: () =>
-          DIM_META.map((d, i) => {
+          dimMeta.map((d, i) => {
             const v = values[i];
             const bar =
               '█'.repeat(Math.round(v / 10)) +
@@ -83,7 +69,7 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
       },
       radar: {
         shape: 'polygon',
-        indicator: DIM_META.map((d) => ({ name: d.label, max: 100 })),
+        indicator: dimMeta.map((d) => ({ name: d.label, max: 100 })),
         center: ['50%', '52%'],
         radius: '68%',
         axisName: {
@@ -111,7 +97,7 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
           data: [
             {
               value: values,
-              name: 'Bewertung',
+              name: t('bewertungRadar.bewertung'),
               areaStyle: {
                 color: {
                   type: 'radial' as const,
@@ -133,13 +119,13 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
         },
       ],
     }),
-    [values],
+    [values, dimMeta, t],
   );
 
   return (
     <div className={styles.container}>
       <p className={styles.hint}>
-        Hover für Details zu jeder Dimension
+        {t('bewertungRadar.hint')}
       </p>
       <ReactECharts
         option={option}
@@ -149,7 +135,7 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
         notMerge={false}
       />
       <div className={styles.dimLegend}>
-        {DIM_META.map((d, i) => (
+        {dimMeta.map((d, i) => (
           <div key={d.key} className={styles.dimLegendItem}>
             <span className={styles.dimLegendDot} />
             <span className={styles.dimLegendLabel}>{d.label}</span>
