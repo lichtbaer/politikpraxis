@@ -567,9 +567,13 @@ const KOALITION_CHAR_EVENTS: Record<string, GameEvent> = {
   koalitionskrise_ultimatum: KOALITIONSKRISE_ULTIMATUM_EVENT,
 };
 
-/** Erstellt ContentBundle aus dem aktuellen Store-Zustand */
+/** Erstellt ContentBundle aus dem aktuellen Store-Zustand.
+ *  Warnt wenn kritische Daten fehlen (z.B. vor vollständigem Laden). */
 export function getContentBundle(): ContentBundle {
   const s = useContentStore.getState();
+  if (!s.chars.length || !s.gesetze.length) {
+    console.warn('[ContentBundle] Kritische Daten fehlen — Content noch nicht vollständig geladen');
+  }
   const wahlkampfEvents = [
     WAHLKAMPF_BEGINN_EVENT,
     TV_DUELL_EVENT,

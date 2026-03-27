@@ -97,12 +97,15 @@ export function tick(
 
   /** Wraps a system call in try-catch to prevent a single failing system from crashing the game.
    *  On failure, returns the current state `s` — since `s` is reassigned after each successful
-   *  system call, this preserves all prior successful changes instead of reverting to an earlier snapshot. */
+   *  system call and systems return new objects (no in-place mutation), this preserves all
+   *  prior successful changes instead of reverting to an earlier snapshot. */
+  let failedSystems: string[] | undefined;
   function safeSystem(fn: (current: GameState) => GameState, name: string): GameState {
     try {
       return fn(s);
     } catch (err) {
       console.error(`[Engine] System "${name}" failed in tick ${s.month}:`, err);
+      (failedSystems ??= []).push(name);
       return s;
     }
   }
@@ -136,7 +139,7 @@ export function tick(
         : undefined;
       s = resolveEingebrachteAbstimmung(s, eg, voteContext);
       const newLaw = s.gesetze.find(g => g.id === eg.gesetzId);
-      if (newLaw?.status === 'beschlossen') {
+      if (newLaw != null && newLaw.status === 'beschlossen') {
         s = updateKoalitionsvertragScore(s, eg.gesetzId, content, complexity);
         s = applyRessortKonflikt(s, newLaw.politikfeldId);
       }
@@ -365,7 +368,12 @@ export function tick(
     };
   }
 
-  // Attach the tick change log
+  // Attach the tick change log (including failed systems for diagnostics)
+  if (failedSystems?.length) {
+    for (const name of failedSystems) {
+      tickLog.push({ source: `Engine-Fehler: ${name}`, target: 'zf', delta: 0 });
+    }
+  }
   s = { ...s, tickLog };
 
   // SMA-396: Monatszusammenfassung (Diff zum Zustand vor diesem Tick)
@@ -396,12 +404,11 @@ function processBundesratVotes(state: GameState, content: ContentBundle, complex
     : undefined;
   for (const law of s.gesetze) {
     if (law.status === 'bt_passed' && law.brVoteMonth != null && s.month >= law.brVoteMonth) {
-      const prevLaw = s.gesetze.find(g => g.id === law.id);
       s = executeBundesratVote(s, law.id, voteContext);
       const newLaw = s.gesetze.find(g => g.id === law.id);
-      if (prevLaw?.status === 'bt_passed' && newLaw?.status === 'beschlossen') {
+      if (newLaw?.status === 'beschlossen') {
         s = updateKoalitionsvertragScore(s, law.id, content, complexity);
-        s = applyRessortKonflikt(s, newLaw?.politikfeldId);
+        s = applyRessortKonflikt(s, newLaw.politikfeldId);
       }
     }
   }

@@ -27,8 +27,9 @@ export function checkAutosave(monat: number, token: string | null, state: GameSt
   if (monat < 1 || state.gameOver) return;
   if (monat % AUTOSAVE_INTERVAL !== 0) return;
   if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-    // Pause cloud saves after repeated failures; reset on next successful interval
-    consecutiveFailures = 0;
+    // Pause cloud saves after repeated failures; decrement gradually so saves
+    // resume after a few skipped intervals instead of retrying immediately.
+    consecutiveFailures--;
     return;
   }
 
