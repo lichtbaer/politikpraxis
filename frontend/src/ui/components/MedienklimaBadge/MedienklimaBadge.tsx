@@ -6,6 +6,7 @@ import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { Zap, Circle } from '../../icons';
 import { Erklaerung } from '../Erklaerung/Erklaerung';
+import { formatMedienklima } from '../../lib/medienDisplay';
 import styles from './MedienklimaBadge.module.css';
 
 export function MedienklimaBadge() {
@@ -15,7 +16,8 @@ export function MedienklimaBadge() {
 
   if (!featureActive(complexity, 'medienklima')) return null;
 
-  const medienKlima = state.medienKlima ?? 55;
+  const medienKlimaRaw = state.medienKlima ?? 55;
+  const medienKlima = Math.round(medienKlimaRaw);
   const klimaClass =
     medienKlima > 65 ? styles.positiv : medienKlima > 35 ? styles.neutral : styles.negativ;
 
@@ -29,7 +31,7 @@ export function MedienklimaBadge() {
       <div className={`${styles.klimaBar} ${klimaClass}`}>
         <div className={styles.klimaFill} style={{ width: `${medienKlima}%` }} />
       </div>
-      <span className={styles.wert}>{medienKlima}/100</span>
+      <span className={styles.wert}>{formatMedienklima(medienKlimaRaw)}/100</span>
       {featureActive(complexity, 'opposition') && (
         <span className={styles.oppositionStaerke}>
           {t('game:medienklima.opposition')}:{' '}

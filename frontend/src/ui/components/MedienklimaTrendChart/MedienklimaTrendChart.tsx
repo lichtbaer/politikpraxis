@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
+import { formatMedienklima } from '../../lib/medienDisplay';
 import styles from './MedienklimaTrendChart.module.css';
 
 interface MedienklimaTrendChartProps {
@@ -28,11 +29,13 @@ function getMKStatusKey(value: number): string {
 
 export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChartProps) {
   const { t } = useTranslation('game');
-  const statusColor = getMKStatusColor(current);
-  const statusLabel = t(`medienklima.${getMKStatusKey(current)}`);
+  const historyRounded = useMemo(() => history.map((v) => Math.round(v)), [history]);
+  const currentRounded = Math.round(current);
+  const statusColor = getMKStatusColor(currentRounded);
+  const statusLabel = t(`medienklima.${getMKStatusKey(currentRounded)}`);
 
   const option: EChartsOption = useMemo(() => {
-    const months = history.map((_, i) => i + 1);
+    const months = historyRounded.map((_, i) => i + 1);
 
     return {
       animation: true,
@@ -78,12 +81,12 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
           const p = params as Array<{ dataIndex: number; value: number | null }>;
           const first = p.find((x) => x.value != null);
           if (!first) return '';
-          const val = first.value as number;
+          const val = Math.round(first.value as number);
           const sColor = getMKStatusColor(val);
           const sLabel = t(`medienklima.${getMKStatusKey(val)}`);
           return (
             `<strong>${t('medienklima.tooltipMonat', { month: first.dataIndex + 1 })}</strong><br/>` +
-            `${t('medienklima.tooltipLabel')}: <strong style="color:${sColor}">${val} — ${sLabel}</strong><br/>` +
+            `${t('medienklima.tooltipLabel')}: <strong style="color:${sColor}">${formatMedienklima(val)} — ${sLabel}</strong><br/>` +
             `<span style="color:#888;font-size:10px">` +
             `${t('medienklima.tooltipHint')}` +
             `</span>`
@@ -93,7 +96,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
       series: [
         {
           type: 'line',
-          data: history,
+          data: historyRounded,
           smooth: 0.3,
           symbol: 'none',
           lineStyle: { color: statusColor, width: 2 },
@@ -141,20 +144,20 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
         },
       ],
     };
-  }, [history, statusColor, t]);
+  }, [historyRounded, statusColor, t]);
 
   // Trend
   let trendSymbol = '→';
   let trendClass = styles.trendFlat;
-  if (history.length >= 2) {
-    const lookback = Math.min(3, history.length - 1);
-    const prev = history[history.length - 1 - lookback];
-    const diff = current - prev;
+  if (historyRounded.length >= 2) {
+    const lookback = Math.min(3, historyRounded.length - 1);
+    const prev = historyRounded[historyRounded.length - 1 - lookback];
+    const diff = currentRounded - prev;
     if (diff > 2) { trendSymbol = '↑'; trendClass = styles.trendUp; }
     else if (diff < -2) { trendSymbol = '↓'; trendClass = styles.trendDown; }
   }
 
-  if (history.length === 0) {
+  if (historyRounded.length === 0) {
     return (
       <div className={styles.empty}>
         {t('medienklima.noData')}
@@ -168,7 +171,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
         <span className={styles.headerLabel}>{t('medienklima.verlaufTitle')}</span>
         <div className={styles.currentRow}>
           <span className={styles.currentValue} style={{ color: statusColor }}>
-            {current}
+            {formatMedienklima(current)}
           </span>
           <span className={`${styles.trendIndicator} ${trendClass}`} aria-hidden="true">
             {trendSymbol}

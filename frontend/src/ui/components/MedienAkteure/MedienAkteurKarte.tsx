@@ -5,6 +5,7 @@ import {
 } from '../../../data/defaults/medienAkteure';
 import { effektiveMedienAkteurStimmung } from '../../../core/systems/medienklima';
 import type { GameState } from '../../../core/types';
+import { formatStimmung } from '../../lib/medienDisplay';
 import styles from './MedienAkteurKarte.module.css';
 
 function typClass(typ: MedienAkteurContent['typ']): string {
@@ -42,7 +43,8 @@ interface MedienAkteurKarteProps {
 
 export function MedienAkteurKarte({ def, stateRow, game }: MedienAkteurKarteProps) {
   const { t } = useTranslation('game');
-  const effStimmung = effektiveMedienAkteurStimmung(def.id, stateRow, game.medienAkteurBuffs, game.month);
+  const effStimmungRaw = effektiveMedienAkteurStimmung(def.id, stateRow, game.medienAkteurBuffs, game.month);
+  const effStimmung = Math.round(effStimmungRaw);
   const pct = ((effStimmung + 100) / 200) * 100;
 
   return (
@@ -59,12 +61,12 @@ export function MedienAkteurKarte({ def, stateRow, game }: MedienAkteurKarteProp
 
       <div className={styles.stimmungWrap}>
         <span className={styles.stimmungLabel}>{t('medienAkteure.stimmung')}</span>
-        <div className={styles.barTrack} role="img" aria-label={`${t('medienAkteure.stimmung')} ${effStimmung}`}>
+        <div className={styles.barTrack} role="img" aria-label={`${t('medienAkteure.stimmung')} ${formatStimmung(effStimmungRaw)}`}>
           <span className={styles.barCenter} />
           <span className={styles.barMarker} style={{ left: `${pct}%` }} />
         </div>
         <span className={styles.stimmungLabel}>
-          {t(`medienAkteure.${getStimmungsLabelKey(effStimmung)}`)} ({effStimmung})
+          {t(`medienAkteure.${getStimmungsLabelKey(effStimmung)}`)} ({formatStimmung(effStimmungRaw)})
         </span>
       </div>
 
