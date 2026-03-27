@@ -52,6 +52,7 @@ import { tickExtremismusDruck } from './ideologie';
 import { checkSachverstaendigenrat } from './systems/sachverstaendigenrat';
 import { tickNormenkontrolle } from './systems/verfassungsgericht';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bundesratEvents';
+import { berechneMonatsDiff } from './monatszusammenfassung';
 
 export { addLog } from './log';
 
@@ -367,6 +368,9 @@ export function tick(
 
   // Attach the tick change log
   s = { ...s, tickLog };
+
+  // SMA-396: Monatszusammenfassung (Diff zum Zustand vor diesem Tick)
+  s = { ...s, letzterMonatsDiff: berechneMonatsDiff(state, s, content) };
 
   // Performance monitoring: log slow ticks (>50ms)
   const tickDuration = performance.now() - t0;

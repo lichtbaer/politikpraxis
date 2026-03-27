@@ -21,6 +21,7 @@ import styles from './Header.module.css';
 
 export function Header() {
   const { t } = useTranslation();
+  const { t: tGame } = useTranslation('game');
   const accessToken = useAuthStore((s) => s.accessToken);
   const [manualSlot, setManualSlot] = useState(2);
   const [showPressemitteilungModal, setShowPressemitteilungModal] = useState(false);
@@ -31,15 +32,17 @@ export function Header() {
   const email = useAuthStore((s) => s.email);
   const logout = useAuthStore((s) => s.logout);
   const deleteAccount = useAuthStore((s) => s.deleteAccount);
-  const { month, speed, pk, letztesPressemitteilungMonat, zustG } = useGameStore(
+  const { month, speed, pk, letztesPressemitteilungMonat, zustG, letzterMonatsDiff } = useGameStore(
     useShallow(s => ({
       month: s.state.month,
       speed: s.state.speed,
       pk: s.state.pk,
       letztesPressemitteilungMonat: s.state.letztesPressemitteilungMonat,
       zustG: s.state.zust.g,
+      letzterMonatsDiff: s.state.letzterMonatsDiff,
     })),
   );
+  const setOpenMonatszusammenfassung = useUIStore((s) => s.setOpenMonatszusammenfassung);
   const complexity = useGameStore((s) => s.complexity);
   const playerName = useGameStore((s) => s.playerName);
   const ausrichtung = useGameStore((s) => s.ausrichtung);
@@ -108,8 +111,18 @@ export function Header() {
             🐛 {t('header.playtestFeedback')}
           </button>
         )}
-        <div>
-          {t('header.monthFormat', { month, year })}
+        <div className={styles.monthRow}>
+          <span>{t('header.monthFormat', { month, year })}</span>
+          {letzterMonatsDiff && (
+            <button
+              type="button"
+              className={styles.monatsSummaryBtn}
+              onClick={() => setOpenMonatszusammenfassung(true)}
+              title={tGame('monatszusammenfassung.topBarTitle', { monat: letzterMonatsDiff.monat })}
+            >
+              {tGame('monatszusammenfassung.topBarButton')}
+            </button>
+          )}
         </div>
         <div className={styles.speedRow}>
           {speed === 0 && (

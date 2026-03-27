@@ -524,6 +524,7 @@ export function validateGameState(raw: unknown): GameState {
     'konjunkturIndexHistory',
     'landBeziehungen',
     'pendingBundesratLandEvent',
+    'letzterMonatsDiff',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);

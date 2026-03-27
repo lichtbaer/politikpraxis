@@ -5,3 +5,4 @@ export * from './law';
 export * from './event';
 export * from './politics';
 export * from './state';
+export * from './monatszusammenfassung';

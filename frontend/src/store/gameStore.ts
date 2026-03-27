@@ -228,8 +228,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
   gameTick: () => {
     const { state: s, content, phase, playerName, complexity, ausrichtung, spielerPartei, kanzlerGeschlecht } = get();
     if (s.gameOver || s.speed === 0) return;
+    const prevMonth = s.month;
     const nextState = tick(s, content, complexity, ausrichtung);
     set({ state: nextState });
+    const diff = nextState.letzterMonatsDiff;
+    if (
+      phase === 'playing' &&
+      !nextState.gameOver &&
+      nextState.month > prevMonth &&
+      diff &&
+      useUIStore.getState().playerSettings.monatszusammenfassung
+    ) {
+      useUIStore.getState().setOpenMonatszusammenfassung(true);
+    }
     if (phase === 'playing' && !nextState.gameOver) {
       saveGame({
         gameState: nextState,

@@ -19,6 +19,7 @@ import type {
   BundeslandContent,
 } from './politics';
 import type { MedienAkteurContent } from '../../data/defaults/medienAkteure';
+import type { MonatsDiff } from './monatszusammenfassung';
 
 /** EU-Substate (SMA-269): Klima, Ratsvorsitz, Ausweichroute, Umsetzungsfristen */
 export interface EUState {
@@ -244,6 +245,8 @@ export interface GameState {
     urteilMonat: number;
     spielerReaktion?: 'nachbesserung' | 'akzeptieren' | 'kritisieren';
   }>;
+  /** SMA-396: Zusammenfassung des letzten abgeschlossenen Monats */
+  letzterMonatsDiff?: MonatsDiff | null;
 }
 
 export interface ContentBundle {

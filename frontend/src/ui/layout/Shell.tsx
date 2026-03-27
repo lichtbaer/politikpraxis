@@ -13,8 +13,10 @@ import { LegislaturBilanzScreen } from '../screens/LegislaturBilanzScreen';
 import { useGameTick } from '../hooks/useGameTick';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { useGameStore } from '../../store/gameStore';
+import { useUIStore } from '../../store/uiStore';
 import type { ViewName } from '../../core/types';
 import { Users } from '../icons';
+import { MonatszusammenfassungModal } from '../components/MonatszusammenfassungModal/MonatszusammenfassungModal';
 import styles from './Shell.module.css';
 
 /** Alt+number → view tab mapping */
@@ -35,10 +37,14 @@ export function Shell() {
   useGameTick();
   useAutoSave();
   const aktivesStrukturEvent = useGameStore((s) => s.state.aktivesStrukturEvent);
+  const letzterMonatsDiff = useGameStore((s) => s.state.letzterMonatsDiff);
+  const laws = useGameStore((s) => s.content.laws);
   const setSpeed = useGameStore((s) => s.setSpeed);
   const togglePause = useGameStore((s) => s.togglePause);
   const doResolveEvent = useGameStore((s) => s.doResolveEvent);
   const setView = useGameStore((s) => s.setView);
+  const openMonatszusammenfassung = useUIStore((s) => s.openMonatszusammenfassung);
+  const setOpenMonatszusammenfassung = useUIStore((s) => s.setOpenMonatszusammenfassung);
 
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
@@ -150,6 +156,19 @@ export function Shell() {
       <GameTips />
       {aktivesStrukturEvent && <HaushaltsdebatteScreen />}
       <LegislaturBilanzScreen />
+
+      {openMonatszusammenfassung && letzterMonatsDiff && (
+        <MonatszusammenfassungModal
+          diff={letzterMonatsDiff}
+          laws={laws}
+          onWeiter={() => setOpenMonatszusammenfassung(false)}
+          onDetails={() => {
+            setOpenMonatszusammenfassung(false);
+            setRightOpen(true);
+            setLeftOpen(false);
+          }}
+        />
+      )}
 
       {/* Keyboard Shortcuts Help */}
       {showShortcuts && (
