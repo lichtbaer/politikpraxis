@@ -1,13 +1,14 @@
 import type { GameState, ContentBundle, Haushalt, SchuldenbremsenStatus } from '../types';
 import {
-  EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS,
+  EINNAHMEN_BASIS,
   SCHULDENBREMSE_SPIELRAUM_BASIS,
   SCHULDENBREMSE_VERBRAUCH_GRENZWERTIG_BIS,
   KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX,
-  EINNAHMEN_AL_REFERENZ, EINNAHMEN_AL_KOEFFIZIENT, EINNAHMEN_KONJUNKTUR_KOEFFIZIENT,
   clamp,
 } from '../constants';
+import { berechneEinnahmen, berechnePflichtausgaben } from './haushaltBerechnung';
 import { featureActive } from './features';
+import { scheduleSektorEffekteFromGesetz } from './wirtschaft';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { applyMedienHaushaltKrise } from './medienklima';
 
@@ -36,31 +37,7 @@ export function createInitialHaushalt(state: GameState): Haushalt {
   };
 }
 
-/** Berechnet Einnahmen (jährlich, konjunkturabhängig) */
-export function berechneEinnahmen(state: GameState): number {
-  const haushalt = state.haushalt;
-  if (!haushalt) return EINNAHMEN_BASIS;
-
-  const alFaktor = 1 - (state.kpi.al - EINNAHMEN_AL_REFERENZ) * EINNAHMEN_AL_KOEFFIZIENT;
-  const wirtFaktor = 1 + haushalt.konjunkturIndex * EINNAHMEN_KONJUNKTUR_KOEFFIZIENT;
-  const steuerpolitikFaktor = haushalt.steuerpolitikModifikator;
-
-  return Math.round(EINNAHMEN_BASIS * alFaktor * wirtFaktor * steuerpolitikFaktor);
-}
-
-/** Berechnet Pflichtausgaben (Basis + AL-Zuschlag + beschlossene Spargesetze) */
-function berechnePflichtausgaben(state: GameState): number {
-  let basis = PFLICHTAUSGABEN_BASIS;
-  if (state.kpi.al > 6) {
-    basis += (state.kpi.al - 6) * 2;
-  }
-  // SMA-310: pflichtausgaben_delta aus beschlossenen Gesetzen (negativ = Kürzung)
-  const beschlossen = state.gesetze.filter((g) => g.status === 'beschlossen');
-  for (const g of beschlossen) {
-    basis += g.pflichtausgaben_delta ?? 0;
-  }
-  return Math.round(basis);
-}
+export { berechneEinnahmen, berechnePflichtausgaben } from './haushaltBerechnung';
 
 /** Wendet Gesetz-Kosten bei Beschluss an */
 export function applyGesetzKosten(state: GameState, gesetzId: string): GameState {
@@ -104,7 +81,8 @@ export function applyGesetzKosten(state: GameState, gesetzId: string): GameState
     saldo,
   };
 
-  return { ...newState, haushalt: neuerHaushalt };
+  const out: GameState = { ...newState, haushalt: neuerHaushalt };
+  return scheduleSektorEffekteFromGesetz(out, gesetzId);
 }
 
 /** SMA-335: Wendet Konjunktur-Effekte aus beschlossenen Steuergesetzen an (mit Lag) */
@@ -164,7 +142,11 @@ export function tickKonjunktur(state: GameState, complexity: number): GameState 
 
   let neuerHaushalt = { ...haushaltNachKonjunktur };
 
-  if (featureActive(complexity, 'konjunkturindex')) {
+  // SMA-404: Bei Wirtschaftssektoren kommt der Konjunkturindex aus BIP (tickWirtschaft), kein Zufalls-Drift
+  if (
+    featureActive(complexity, 'konjunkturindex') &&
+    !featureActive(complexity, 'wirtschaftssektoren')
+  ) {
     const drift = (Math.random() - 0.5) * 0.6; // SMA-309: ±0.3 statt ±0.2
     neuerHaushalt = {
       ...neuerHaushalt,
@@ -173,6 +155,14 @@ export function tickKonjunktur(state: GameState, complexity: number): GameState 
   }
 
   // Jährliche Neuberechnung: Monat 12, 24, 36, 48 (1-indiziert → modulo auf month-1)
+  // SMA-404: bei Wirtschaftssektoren übernimmt tickWirtschaft Einnahmen/Saldo + Kumulativ
+  if (
+    featureActive(complexity, 'wirtschaftssektoren') &&
+    s.month > 1 &&
+    (s.month - 1) % 12 === 0
+  ) {
+    return { ...s, haushalt: neuerHaushalt };
+  }
   if (s.month > 1 && (s.month - 1) % 12 === 0) {
     const pflichtausgaben = berechnePflichtausgaben(s);
     const einnahmen = berechneEinnahmen({ ...s, haushalt: neuerHaushalt });

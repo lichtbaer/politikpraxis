@@ -4,7 +4,7 @@
  */
 import { tick } from '../engine';
 import { createInitialState } from '../state';
-import { einbringen, lobbying, type EinbringenContext } from '../systems/parliament';
+import { einbringen, lobbying, fraktionssitzung, type EinbringenContext } from '../systems/parliament';
 import { koalitionsrunde, prioritaetsgespraech } from '../systems/koalition';
 import { pressemitteilung } from '../systems/medienklima';
 import { medienkampagne } from '../systems/media';

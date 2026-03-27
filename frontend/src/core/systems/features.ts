@@ -18,6 +18,8 @@ const FEATURES: Record<string, { minLevel: number }> = {
   followup_events: { minLevel: 4 },
   media_agenda: { minLevel: 4 },
   konjunktur_cycles: { minLevel: 4 },
+  /** SMA-404: Sektoren + Makroindikatoren, BIP-gekoppelte Einnahmen */
+  wirtschaftssektoren: { minLevel: 3 },
   budget_explicit: { minLevel: 4 },
   milieu_progressiv: { minLevel: 2 },
   char_ultimatums: { minLevel: 2 },

@@ -11,7 +11,9 @@ export type DynamicEventTriggerTyp =
   | 'partner_minister_ablehnungen'
   | 'monat_range'
   | 'medienklima_unter_monate'
-  | 'medienakteur_reichweite';
+  | 'medienakteur_reichweite'
+  | 'sektor_ueber'
+  | 'sektor_unter';
 
 export type DynamicEventTriggerParams = Record<string, number | string>;
 
@@ -53,6 +55,12 @@ export interface EventChoice {
   konjunkturIndexDelta?: number;
   /** SMA-395: Deltas pro Bundesratsfraktions-ID (API br_relation_json) */
   brRelationJson?: Record<string, number>;
+  /** SMA-404: Verbandsbeziehungen 0–100 relativ */
+  verbandDelta?: Record<string, number>;
+  /** SMA-404: Haushaltssaldo in Mrd. (negativ = Mehrausgaben) */
+  haushaltSaldoDeltaMrd?: number;
+  /** SMA-404: Sektorzustand 0–100 relativ */
+  sektorDelta?: Record<string, number>;
 }
 
 export interface GameEvent {

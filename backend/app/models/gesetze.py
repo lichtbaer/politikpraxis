@@ -105,6 +105,9 @@ class Gesetz(Base):
     konjunktur_lag: Mapped[int | None] = mapped_column(
         Integer(), nullable=True, server_default="0"
     )
+    sektor_effekte: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSONB(), nullable=False, server_default="[]"
+    )
 
 
 class GesetzI18n(Base):

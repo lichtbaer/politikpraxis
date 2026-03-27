@@ -5,6 +5,7 @@ import { berechneKoalitionspartner, berechneKoalitionsvertragProfil } from './sy
 import { buildKoalitionspartnerContent } from '../data/defaults/koalitionspartner';
 import { initEUKlima } from './systems/eu';
 import { createInitialHaushalt } from './systems/haushalt';
+import { createInitialWirtschaft } from './systems/wirtschaft';
 import type { Ausrichtung } from './systems/ausrichtung';
 import { recalcApproval } from './systems/economy';
 import { berechneKongruenz } from './ideologie';
@@ -227,7 +228,7 @@ export function createInitialState(
     complexity,
   );
 
-  const base: GameState = {
+  let base: GameState = {
     month: content.scenario.startMonth,
     speed: 0,
     pk: content.scenario.startPK,
@@ -332,7 +333,10 @@ export function createInitialState(
   }
 
   if (featureActive(complexity, 'haushaltsdebatte')) {
-    const withHaushalt = { ...base, haushalt: createInitialHaushalt(base) };
+    let withHaushalt: GameState = { ...base, haushalt: createInitialHaushalt(base) };
+    if (featureActive(complexity, 'wirtschaftssektoren')) {
+      withHaushalt = { ...withHaushalt, wirtschaft: createInitialWirtschaft() };
+    }
     if (hasKoalition && partner) {
       return withMedienAkteureIfNeeded(
         applyEUKlimaAndRatsvorsitz({
@@ -349,6 +353,10 @@ export function createInitialState(
       );
     }
     return withMedienAkteureIfNeeded(applyEUKlimaAndRatsvorsitz(withHaushalt));
+  }
+
+  if (featureActive(complexity, 'wirtschaftssektoren')) {
+    base = { ...base, wirtschaft: createInitialWirtschaft() };
   }
 
   if (hasKoalition && partner) {
@@ -527,6 +535,7 @@ export function validateGameState(raw: unknown): GameState {
     'landBeziehungen',
     'pendingBundesratLandEvent',
     'letzterMonatsDiff',
+    'wirtschaft',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
@@ -567,6 +576,10 @@ export function migrateGameState(state: GameState): GameState {
   }
   if (!result.haushalt) {
     result = { ...result, haushalt: createInitialHaushalt(result) };
+  }
+  const cxM = result.complexity ?? 4;
+  if (featureActive(cxM, 'wirtschaftssektoren') && !result.wirtschaft) {
+    result = { ...result, wirtschaft: createInitialWirtschaft() };
   }
   if (result.medienKlima == null) {
     result = { ...result, medienKlima: 55 };
