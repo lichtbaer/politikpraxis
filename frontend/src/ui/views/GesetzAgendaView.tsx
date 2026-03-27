@@ -22,13 +22,48 @@ import styles from './GesetzAgendaView.module.css';
 type StatusFilterKey = 'alle' | LawStatus;
 type SortMode = 'standard' | 'empfohlen';
 
-const STATUS_FILTERS: Array<{ key: StatusFilterKey; labelKey: string; fallback: string }> = [
-  { key: 'alle', labelKey: 'game:gesetzAgenda.filterAlle', fallback: 'Alle' },
-  { key: 'entwurf', labelKey: 'game:gesetzAgenda.filterEntwurf', fallback: 'Entwurf' },
-  { key: 'eingebracht', labelKey: 'game:gesetzAgenda.filterEingebracht', fallback: 'Eingebracht' },
-  { key: 'aktiv', labelKey: 'game:gesetzAgenda.filterAktiv', fallback: 'Aktiv' },
-  { key: 'blockiert', labelKey: 'game:gesetzAgenda.filterBlockiert', fallback: 'Blockiert' },
-  { key: 'beschlossen', labelKey: 'game:gesetzAgenda.filterBeschlossen', fallback: 'Beschlossen' },
+const STATUS_FILTERS: Array<{
+  key: StatusFilterKey;
+  labelKey: string;
+  tooltipKey: string;
+  fallback: string;
+}> = [
+  {
+    key: 'alle',
+    labelKey: 'game:gesetzAgenda.filterAlle',
+    tooltipKey: 'game:gesetzAgenda.filterAlleTooltip',
+    fallback: 'Alle',
+  },
+  {
+    key: 'entwurf',
+    labelKey: 'game:gesetzAgenda.filterEntwurf',
+    tooltipKey: 'game:gesetzAgenda.filterEntwurfTooltip',
+    fallback: 'Entwurf',
+  },
+  {
+    key: 'eingebracht',
+    labelKey: 'game:gesetzAgenda.filterEingebracht',
+    tooltipKey: 'game:gesetzAgenda.filterEingebrachtTooltip',
+    fallback: 'Eingebracht',
+  },
+  {
+    key: 'aktiv',
+    labelKey: 'game:gesetzAgenda.filterAktiv',
+    tooltipKey: 'game:gesetzAgenda.filterAktivTooltip',
+    fallback: 'Aktiv',
+  },
+  {
+    key: 'blockiert',
+    labelKey: 'game:gesetzAgenda.filterBlockiert',
+    tooltipKey: 'game:gesetzAgenda.filterBlockiertTooltip',
+    fallback: 'Blockiert',
+  },
+  {
+    key: 'beschlossen',
+    labelKey: 'game:gesetzAgenda.filterBeschlossen',
+    tooltipKey: 'game:gesetzAgenda.filterBeschlossenTooltip',
+    fallback: 'Beschlossen',
+  },
 ];
 
 const KPI_ABBREV: Record<string, string> = {
@@ -157,12 +192,13 @@ export function GesetzAgendaView() {
 
       <div className={styles.filterBar}>
         <div className={styles.filterChips}>
-          {STATUS_FILTERS.map(({ key, labelKey, fallback }) => (
+          {STATUS_FILTERS.map(({ key, labelKey, tooltipKey, fallback }) => (
             <button
               key={key}
               className={`${styles.filterChip} ${statusFilter === key ? styles.filterChipActive : ''}`}
               onClick={() => setStatusFilter(key)}
               type="button"
+              title={t(tooltipKey)}
             >
               {t(labelKey, fallback)}
             </button>
@@ -173,6 +209,7 @@ export function GesetzAgendaView() {
             type="button"
             className={`${styles.filterChip} ${sortMode === 'standard' ? styles.filterChipActive : ''}`}
             onClick={() => setSortMode('standard')}
+            title={t('game:gesetzAgenda.sortStandardTooltip')}
           >
             {t('game:gesetzAgenda.sortStandard', 'Standard')}
           </button>
@@ -180,6 +217,7 @@ export function GesetzAgendaView() {
             type="button"
             className={`${styles.filterChip} ${sortMode === 'empfohlen' ? styles.filterChipActive : ''}`}
             onClick={() => setSortMode('empfohlen')}
+            title={t('game:gesetzAgenda.sortEmpfohlenTooltip')}
           >
             {t('game:gesetzAgenda.sortEmpfohlen', 'Empfohlen')}
           </button>
