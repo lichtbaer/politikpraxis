@@ -1,0 +1,86 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.dialog {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-width: 420px;
+  width: 92%;
+  padding: 20px;
+}
+
+.title {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-family: var(--serif);
+  color: var(--text);
+}
+
+.message {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.55;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn {
+  padding: 8px 14px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn:hover {
+  background: var(--bg4);
+  border-color: var(--text2);
+}
+
+.btnPrimary {
+  padding: 8px 14px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--gold2);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  transition: background 0.2s, color 0.2s;
+}
+
+.btnPrimary:hover {
+  background: var(--gold);
+  color: var(--bg2);
+}
+
+.btnDanger {
+  padding: 8px 14px;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--bg3);
+  border: 1px solid var(--red);
+  color: var(--red);
+  transition: background 0.2s;
+}
+
+.btnDanger:hover {
+  background: rgba(200, 50, 50, 0.12);
+}

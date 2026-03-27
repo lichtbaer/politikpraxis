@@ -63,6 +63,8 @@ export interface Law {
   lobbyFraktionen?: Record<string, LawLobbyFraktion>;
   kohlSabotageTriggered?: boolean;
   ideologie?: Ideologie;
+  /** SMA-403: Skalare Links/Rechts-Lage (−100 … +100) für BT-Malus / Partner-Widerstand */
+  ideologie_wert?: number | null;
   politikfeldId?: string | null;
   /** SMA-395: sekundäre Politikfelder für Themen-Match */
   politikfeldSekundaer?: string[];

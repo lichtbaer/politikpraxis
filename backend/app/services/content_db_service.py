@@ -219,6 +219,7 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
                     "ideologie": _ideologie(
                         g.ideologie_wirtschaft, g.ideologie_gesellschaft, g.ideologie_staat
                     ),
+                    "ideologie_wert": int(g.ideologie_wert or 0),
                     "politikfeld_id": g.politikfeld_id,
                     "politikfeld_sekundaer": g.politikfeld_sekundaer or [],
                     "kosten_einmalig": float(g.kosten_einmalig or 0),

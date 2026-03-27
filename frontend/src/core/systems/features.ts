@@ -125,6 +125,10 @@ const FEATURES: Record<string, { minLevel: number }> = {
   sachverstaendigenrat: { minLevel: 2 },
   /** Fraktionsdisziplin: Abweichler-Risiko bei Bundestag-Abstimmungen */
   fraktionsdisziplin: { minLevel: 2 },
+  /** SMA-403: Ideologie-Abstand Koalition ↔ Gesetz mindert BT-Ja */
+  ideologie_bt_malus: { minLevel: 2 },
+  /** SMA-403: Partner-Hinweis / Widerstand / Veto vor Einbringen */
+  partner_widerstand: { minLevel: 3 },
   /** Normenkontrolle: BVerfG kann Gesetze nach Beschluss prüfen */
   normenkontrolle: { minLevel: 3 },
   /** Art. 77 GG: Einspruchsgesetz vs. Zustimmungsgesetz (Bundestag kann BR-Einspruch überstimmen) */

@@ -59,6 +59,7 @@ export interface GesetzApi {
   kurz: string;
   desc: string;
   ideologie?: IdeologieApi;
+  ideologie_wert?: number;
   politikfeld_id?: string | null;
   politikfeld_sekundaer?: string[];
   /** SMA-268: Einmalige Haushaltskosten in Mrd. € */

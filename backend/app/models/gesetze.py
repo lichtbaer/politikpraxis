@@ -46,6 +46,9 @@ class Gesetz(Base):
     ideologie_staat: Mapped[int | None] = mapped_column(
         Integer(), nullable=True, server_default="0"
     )
+    ideologie_wert: Mapped[int | None] = mapped_column(
+        Integer(), nullable=True, server_default="0"
+    )
     politikfeld_id: Mapped[str | None] = mapped_column(
         Text(), ForeignKey("politikfelder.id"), nullable=True
     )

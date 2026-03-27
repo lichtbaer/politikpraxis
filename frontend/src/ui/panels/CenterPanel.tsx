@@ -5,6 +5,7 @@ import { getKoalitionspartner } from '../../core/systems/koalition';
 import { featureActive } from '../../core/systems/features';
 import { EventCard } from '../components/EventCard/EventCard';
 import { GegenfinanzierungsModal } from '../components/GegenfinanzierungsModal/GegenfinanzierungsModal';
+import { PartnerWiderstandModal } from '../components/PartnerWiderstandModal/PartnerWiderstandModal';
 import type { GegenfinanzierungsOption } from '../../core/systems/gegenfinanzierung';
 import { GesetzAgendaView } from '../views/GesetzAgendaView';
 import { BundestagView } from '../views/BundestagView';
@@ -22,7 +23,15 @@ import styles from './CenterPanel.module.css';
 export function CenterPanel() {
   const { t } = useTranslation('game');
   const { state, content, setView, complexity } = useGameStore();
-  const { resolveEvent, gegenfinanzierungAuswaehlen, gegenfinanzierungAbbrechen } = useGameActions();
+  const {
+    resolveEvent,
+    gegenfinanzierungAuswaehlen,
+    gegenfinanzierungAbbrechen,
+    partnerWiderstandAbbrechen,
+    partnerWiderstandTrotzdem,
+    partnerWiderstandKoalitionsverhandlung,
+    partnerWiderstandAnpassen,
+  } = useGameActions();
 
   const partnerContent = getKoalitionspartner(content, state);
   const isKoalitionEvent = state.activeEvent && ['koalitionsbruch', 'koalitionskrise_ultimatum'].includes(state.activeEvent.id);
@@ -65,7 +74,20 @@ export function CenterPanel() {
         <span className={styles.tickerMessage}>{state.ticker || '—'}</span>
       </div>
       <div className={styles.content}>
-        {state.pendingGegenfinanzierung ? (
+        {state.pendingPartnerWiderstand ? (
+          <PartnerWiderstandModal
+            partnerName={partnerContent.name}
+            partnerKuerzel={partnerContent.partei_kuerzel}
+            partnerId={state.pendingPartnerWiderstand.partnerId}
+            intensitaet={state.pendingPartnerWiderstand.intensitaet}
+            koalitionsMalus={state.pendingPartnerWiderstand.koalitionsMalus}
+            currentPk={state.pk}
+            onAbbrechen={partnerWiderstandAbbrechen}
+            onTrotzdem={partnerWiderstandTrotzdem}
+            onKoalitionsverhandlung={partnerWiderstandKoalitionsverhandlung}
+            onAnpassen={partnerWiderstandAnpassen}
+          />
+        ) : state.pendingGegenfinanzierung ? (
           <GegenfinanzierungsModal
             gesetzTitel={
               state.gesetze.find((g) => g.id === state.pendingGegenfinanzierung!.gesetzId)?.titel ??

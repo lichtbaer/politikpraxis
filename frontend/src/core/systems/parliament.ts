@@ -23,6 +23,7 @@ import { getGesetzIdeologie } from './koalition';
 import { kannGesetzEingebracht } from '../gesetz';
 import { getNfBundestagBtModifikator, getNfBundestagMedienDelta } from './bundestagNf';
 import { checkNormenkontrollKlage } from './verfassungsgericht';
+import { getIdeologieMalusFuerBt, pruefePartnerWiderstand } from './ideologiePartner';
 
 /**
  * Berechnet das Abweichler-Risiko (0–30%) für ein Gesetz.
@@ -105,6 +106,12 @@ export interface EinbringenContext {
   gesetzRelationen?: Record<string, GesetzRelation[]>;
   /** SMA-390: für Medienakteur-Verteilung bei Framing */
   content?: ContentBundle;
+  /** SMA-403: Nach Bestätigung im Partner-Widerstand-Modal */
+  skipPartnerWiderstandCheck?: boolean;
+  /** SMA-403: Bei hinweis/widerstand: Beziehungs-Malus beim Einbringen */
+  partnerWiderstandKoalitionsMalus?: number;
+  /** SMA-403: Modal bereits bestätigt — pendingPartnerWiderstand nicht erneut setzen */
+  fromPartnerWiderstandConfirm?: boolean;
 }
 
 export interface GesetzBeschlussContext {
@@ -156,15 +163,73 @@ export function einbringen(
   const law = state.gesetze[idx];
   if (law.status !== 'entwurf') return state;
 
+  let baseState = state;
+  if (isEinbringenContext(options) && options.fromPartnerWiderstandConfirm) {
+    baseState = { ...state, pendingPartnerWiderstand: undefined };
+  }
+
   // SMA-312: requires/excludes blockieren Einbringen
   const relationen = isEinbringenContext(options) ? options.gesetzRelationen : undefined;
-  if (!kannGesetzEingebracht(state, lawId, relationen)) {
+  if (!kannGesetzEingebracht(baseState, lawId, relationen)) {
     return state;
   }
 
   // SMA-280: Verfassungsgericht-Verfahren blockiert Einbringen in betroffenen Politikfeldern
-  if (isVerfassungsgerichtBlockiert(state, law)) {
+  if (isVerfassungsgerichtBlockiert(baseState, law)) {
     return state;
+  }
+
+  let workState = baseState;
+  if (
+    isEinbringenContext(options) &&
+    featureActive(options.complexity, 'koalitionspartner') &&
+    featureActive(options.complexity, 'partner_widerstand') &&
+    workState.koalitionspartner?.id
+  ) {
+    const widerstand = pruefePartnerWiderstand(law, workState.koalitionspartner.id, options.complexity, {
+      vetoErlaubt: options.complexity >= 4,
+    });
+    if (widerstand) {
+      const skipModal = options.skipPartnerWiderstandCheck === true;
+      if (widerstand.intensitaet === 'veto') {
+        if (workState.partnerWiderstandVetoFreigabeGesetzId === lawId) {
+          workState = { ...workState, partnerWiderstandVetoFreigabeGesetzId: undefined };
+        } else if (!skipModal) {
+          return {
+            ...baseState,
+            pendingPartnerWiderstand: {
+              lawId,
+              framingKey: options.framingKey ?? null,
+              intensitaet: 'veto',
+              koalitionsMalus: 0,
+              partnerId: widerstand.partnerId,
+            },
+          };
+        } else {
+          return baseState;
+        }
+      } else if (!skipModal) {
+        return {
+          ...baseState,
+          pendingPartnerWiderstand: {
+            lawId,
+            framingKey: options.framingKey ?? null,
+            intensitaet: widerstand.intensitaet,
+            koalitionsMalus: widerstand.koalitionsMalus,
+            partnerId: widerstand.partnerId,
+          },
+        };
+      } else if (options.partnerWiderstandKoalitionsMalus != null) {
+        const kp = workState.koalitionspartner;
+        workState = {
+          ...workState,
+          koalitionspartner: {
+            ...kp,
+            beziehung: Math.max(0, kp.beziehung + options.partnerWiderstandKoalitionsMalus),
+          },
+        };
+      }
+    }
   }
 
   let pkKosten: number;
@@ -188,32 +253,32 @@ export function einbringen(
     pkKosten = Math.max(2, Math.round(baseCost * (1 - rabatt)) - boni.pkKostenRabatt);
   }
 
-  if (state.pk < pkKosten) return state;
+  if (workState.pk < pkKosten) return state;
 
   // SMA-304: Einbringungs-Lag — Stufe 1: 1 Monat fix, Stufe 2+: law.einbringungsLag oder abgeleitet
   const lagMonths =
     complexity === 1
       ? 1
       : (law.einbringungsLag ?? Math.min(6, Math.max(1, Math.ceil(law.lag / 2))));
-  const abstimmungMonat = state.month + lagMonths;
+  const abstimmungMonat = workState.month + lagMonths;
 
-  const gesetze = state.gesetze.map((g, i) =>
+  const gesetze = workState.gesetze.map((g, i) =>
     i === idx ? { ...g, status: 'eingebracht' as const } : g,
   );
-  const eingebrachteGesetze = [...(state.eingebrachteGesetze ?? []), {
+  const eingebrachteGesetze = [...(workState.eingebrachteGesetze ?? []), {
     gesetzId: lawId,
-    eingebrachtMonat: state.month,
+    eingebrachtMonat: workState.month,
     abstimmungMonat,
     lagMonths,
   }];
   let newState: GameState = {
-    ...state,
-    pk: state.pk - pkKosten,
+    ...workState,
+    pk: workState.pk - pkKosten,
     gesetze,
     eingebrachteGesetze,
   };
 
-  if (state.gesetzProjekte?.[lawId]) {
+  if (workState.gesetzProjekte?.[lawId]) {
     const projekte = newState.gesetzProjekte ?? {};
     newState = {
       ...newState,
@@ -239,7 +304,13 @@ export function einbringen(
   // SMA-330: Proaktive Erfüllung — Gesetz passt zu Minister-Agenda
   newState = checkProaktiveErfuellung(newState, lawId);
 
-  return addLog(newState, `${law.kurz} in Bundestag eingebracht`, 'hi');
+  const logMsg =
+    isEinbringenContext(options) &&
+    options.skipPartnerWiderstandCheck &&
+    options.partnerWiderstandKoalitionsMalus != null
+      ? `${law.kurz} in Bundestag eingebracht — Koalition ${options.partnerWiderstandKoalitionsMalus}`
+      : `${law.kurz} in Bundestag eingebracht`;
+  return addLog(newState, logMsg, 'hi');
 }
 
 export function lobbying(state: GameState, lawId: string): GameState {
@@ -297,10 +368,18 @@ export function abstimmen(
       : 0;
   const vorstufenBtBonus = state.gesetzProjekte?.[lawId]?.boni?.btStimmenBonus ?? 0;
   const nfBtMod = getNfBundestagBtModifikator(law);
-  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod);
+  const complexityBt = beschlussContext?.complexity ?? 4;
+  const ideologieMalus =
+    featureActive(complexityBt, 'ideologie_bt_malus')
+      ? getIdeologieMalusFuerBt(law, state.spielerPartei?.id, state.koalitionspartner?.id)
+      : 0;
+  const effectiveJa = Math.min(
+    95,
+    law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod + ideologieMalus,
+  );
 
   if (effectiveJa > 50) {
-    const complexity = beschlussContext?.complexity ?? 4;
+    const complexity = complexityBt;
     const bundle = beschlussContext?.content;
     const bundesratAktiv = featureActive(complexity, 'bundesrat_sichtbar');
     const needsBundesrat = law.tags.includes('land') && bundesratAktiv;
@@ -393,6 +472,10 @@ export function resolveEingebrachteAbstimmung(
   const nfBtMod = getNfBundestagBtModifikator(law);
 
   const complexity = beschlussContext?.complexity ?? 4;
+  const ideologieMalusResolve =
+    featureActive(complexity, 'ideologie_bt_malus')
+      ? getIdeologieMalusFuerBt(law, state.spielerPartei?.id, state.koalitionspartner?.id)
+      : 0;
   const bundle = beschlussContext?.content;
 
   // Fraktionsdisziplin: Abweichler-Risiko (Art. 38 GG)
@@ -412,7 +495,16 @@ export function resolveEingebrachteAbstimmung(
     }
   }
 
-  const effectiveJa = Math.min(95, law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod - abweichlerMalus);
+  const effectiveJa = Math.min(
+    95,
+    law.ja +
+      partnerBonus +
+      btBonus +
+      vorstufenBtBonus +
+      nfBtMod +
+      ideologieMalusResolve -
+      abweichlerMalus,
+  );
   const bundesratAktiv = featureActive(complexity, 'bundesrat_sichtbar');
   const needsBundesrat = law.tags.includes('land') && bundesratAktiv;
 

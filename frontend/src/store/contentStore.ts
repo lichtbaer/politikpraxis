@@ -129,6 +129,7 @@ function transformGesetz(api: GesetzApi): Law {
     rdur: 0,
     blockiert: null,
     ideologie: api.ideologie,
+    ideologie_wert: api.ideologie_wert ?? null,
     politikfeldId: api.politikfeld_id ?? null,
     politikfeldSekundaer: api.politikfeld_sekundaer ?? [],
     kosten_einmalig: api.kosten_einmalig,
