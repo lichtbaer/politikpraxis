@@ -151,9 +151,26 @@
 }
 
 .kongruenzBadge {
+  display: inline-flex;
+  align-items: baseline;
   flex-shrink: 0;
+  gap: 5px;
   font-size: 11px;
   color: var(--text2);
+  cursor: help;
+}
+
+.kongruenzLabel {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text2);
+  opacity: 0.85;
+}
+
+.kongruenzValue {
+  font-variant-numeric: tabular-nums;
 }
 
 .title {
