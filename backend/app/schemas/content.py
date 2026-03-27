@@ -64,6 +64,7 @@ class GesetzResponse(BaseModel):
     effekt_lag: int
     foederalismus_freundlich: bool
     ideologie: IdeologieSchema
+    ideologie_wert: int = 0
     politikfeld_id: str | None
     politikfeld_sekundaer: list[str]
     kosten_einmalig: float = 0
