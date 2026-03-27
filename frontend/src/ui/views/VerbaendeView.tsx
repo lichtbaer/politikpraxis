@@ -41,9 +41,28 @@ interface VerbandskarteProps {
   /** SMA-318: Politikfeld-Druck (nur bei Stufe 2+) */
   druckWert?: number;
   showDruck?: boolean;
+  /** SMA-405: letzte Wirtschafts-/Sektor-Reaktion auf diesen Verband */
+  wirtschaftsReaktion?: {
+    sektor_name_de: string;
+    zustand: number;
+    monat: number;
+    kontext_de?: string;
+  };
+  showWirtschaftsReaktion?: boolean;
 }
 
-function Verbandskarte({ verband, beziehung, month, onGespraech, onTradeoff, pk, druckWert = 0, showDruck = false }: VerbandskarteProps) {
+function Verbandskarte({
+  verband,
+  beziehung,
+  month,
+  onGespraech,
+  onTradeoff,
+  pk,
+  druckWert = 0,
+  showDruck = false,
+  wirtschaftsReaktion,
+  showWirtschaftsReaktion = false,
+}: VerbandskarteProps) {
   const { t } = useTranslation('game');
   const konfliktPartner = KONFLIKTE[verband.id] ?? [];
   /** SMA-315: Konflikt-Warnung nur wenn Beziehung < 30 UND mind. Monat 2 (keine Konflikte in Monat 1) */
@@ -116,6 +135,16 @@ function Verbandskarte({ verband, beziehung, month, onGespraech, onTradeoff, pk,
           {t('game:verbaende.konfliktWarnung')}
         </div>
       )}
+      {showWirtschaftsReaktion && wirtschaftsReaktion && wirtschaftsReaktion.monat === month && (
+        <div className={styles.wirtschaftsReaktion}>
+          {t('game:verbaende.letzteWirtschaftsReaktion', {
+            sektor: wirtschaftsReaktion.sektor_name_de,
+            detail:
+              wirtschaftsReaktion.kontext_de ??
+              t('game:verbaende.wirtschaftsReaktionZustand', { zustand: wirtschaftsReaktion.zustand }),
+          })}
+        </div>
+      )}
       <div className={styles.actions}>
         <button
           type="button"
@@ -168,6 +197,8 @@ export function VerbaendeView() {
           const feldId = politikfeld?.id ?? v.politikfeld_id;
           const druckWert = state.politikfeldDruck?.[feldId] ?? 0;
           const showDruck = complexity >= 2;
+          const showWirtschaftsReaktion = featureActive(complexity, 'wirtschaft_verbandsreaktion_hinweis');
+          const wirtschaftsReaktion = state.verbandsLetzteWirtschaftsReaktion?.[v.id];
           return (
             <Verbandskarte
               key={v.id}
@@ -179,6 +210,8 @@ export function VerbaendeView() {
               pk={state.pk}
               druckWert={druckWert}
               showDruck={showDruck}
+              wirtschaftsReaktion={wirtschaftsReaktion}
+              showWirtschaftsReaktion={showWirtschaftsReaktion}
             />
           );
         })}

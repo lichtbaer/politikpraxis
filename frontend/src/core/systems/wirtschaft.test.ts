@@ -87,8 +87,13 @@ describe('wirtschaft', () => {
     expect(s1.haushalt?.konjunkturIndex).toBe(bipZuKonjunkturIndex(s1.wirtschaft!.bip_wachstum));
   });
 
-  it('Stufe 2: kein Wirtschaftstick', () => {
-    const s = tickWirtschaft(baseState({ complexity: 2, wirtschaft: createInitialWirtschaft() }), 2);
+  it('Stufe 1: kein Wirtschaftstick (Abwärtskompatibilität)', () => {
+    const s = tickWirtschaft(baseState({ complexity: 1, wirtschaft: createInitialWirtschaft() }), 1);
     expect(s.wirtschaft?.indikatoren_verlauf.length).toBe(0);
+  });
+
+  it('Stufe 2: Wirtschaftstick läuft und schreibt Verlauf', () => {
+    const s = tickWirtschaft(baseState({ complexity: 2, wirtschaft: createInitialWirtschaft() }), 2);
+    expect(s.wirtschaft?.indikatoren_verlauf.length).toBe(1);
   });
 });

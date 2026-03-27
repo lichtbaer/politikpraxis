@@ -157,6 +157,18 @@ export interface GameState {
   milieuZustimmungHistory?: Record<string, number[]>;
   milieuGesetzReaktionen?: Record<string, { gesetzId: string; delta: number }[]>;
   verbandsBeziehungen?: Record<string, number>;
+  /** SMA-405: zuletzt aus Wirtschaftssektor ausgelöste Verbands-Anpassung (Anzeige Verbände-Tab) */
+  verbandsLetzteWirtschaftsReaktion?: Record<
+    string,
+    {
+      sektor_id: string;
+      sektor_name_de: string;
+      zustand: number;
+      monat: number;
+      /** z. B. Haushaltssaldo statt Sektorzustand 0–100 */
+      kontext_de?: string;
+    }
+  >;
   partnerPrioGesetz?: { gesetzId: string; bisMonat: number };
   /** SMA-403: Nach Koalitionsverhandlung (15 PK) darf ein veto-pflichtiges Gesetz einmal eingebracht werden */
   partnerWiderstandVetoFreigabeGesetzId?: string;
@@ -262,7 +274,7 @@ export interface GameState {
   }>;
   /** SMA-396: Zusammenfassung des letzten abgeschlossenen Monats */
   letzterMonatsDiff?: MonatsDiff | null;
-  /** SMA-404: Sektoren + Makroindikatoren (ab Komplexität 3) */
+  /** SMA-404/405: Sektoren + Makroindikatoren (ab Komplexität 2) */
   wirtschaft?: WirtschaftsState;
 }
 

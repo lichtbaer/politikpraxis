@@ -18,8 +18,12 @@ const FEATURES: Record<string, { minLevel: number }> = {
   followup_events: { minLevel: 4 },
   media_agenda: { minLevel: 4 },
   konjunktur_cycles: { minLevel: 4 },
-  /** SMA-404: Sektoren + Makroindikatoren, BIP-gekoppelte Einnahmen */
-  wirtschaftssektoren: { minLevel: 3 },
+  /** SMA-404/SMA-405: Sektoren + Makroindikatoren, BIP-gekoppelte Einnahmen (Dashboard ab Stufe 2) */
+  wirtschaftssektoren: { minLevel: 2 },
+  /** SMA-405: Indikatoren-Verlauf-Charts im Haushalt (letzte 12 Monate) */
+  wirtschaft_indikatoren_charts: { minLevel: 3 },
+  /** SMA-405: Letzte Wirtschaftsreaktion je Verband (Verbände-Tab + Sektor-Karten) */
+  wirtschaft_verbandsreaktion_hinweis: { minLevel: 4 },
   budget_explicit: { minLevel: 4 },
   milieu_progressiv: { minLevel: 2 },
   char_ultimatums: { minLevel: 2 },

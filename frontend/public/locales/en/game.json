@@ -1311,6 +1311,7 @@
   },
   "haushalt": {
     "title": "Budget",
+    "wirtschaftTitle": "Economy",
     "stufe2Info": "Budget overview available from level 2.",
     "desc": "Revenue, mandatory spending and law costs. Balance affects economic situation.",
     "aufkommen": "Revenue vs. spending",
@@ -2024,7 +2025,9 @@
     "einfluss": "Influence",
     "konfliktWarnung": "Conflict partner active",
     "politikfeldDruck": "Policy field pressure",
-    "keinAktiverDruck": "No active pressure"
+    "keinAktiverDruck": "No active pressure",
+    "letzteWirtschaftsReaktion": "Reacting to: {{sektor}} ({{detail}})",
+    "wirtschaftsReaktionZustand": "State {{zustand}}/100"
   },
   "framing": {
     "title": "How do you communicate this law?",
@@ -2319,6 +2322,36 @@
     "vorstufeLaeuft": "Pre-stage already running.",
     "nachWahltermin": "Pre-stage ends after election.",
     "beziehung": "Relationship: {{value}}"
+  },
+  "wirtschaft": {
+    "indikatorenTitle": "Economic indicators",
+    "sektorenTitle": "Economic sectors",
+    "verlaufTitle": "Indicator trend (12 months)",
+    "verbandsHinweis": "Associations",
+    "verbandBeziehungTooltip": "{{name}}: relationship {{wert}}/100",
+    "sektorKrise": "Sector in crisis — associations are mobilising.",
+    "chartTooltip": "Month {{month}}: {{value}}",
+    "indikator": {
+      "bip": "GDP growth",
+      "inflation": "Inflation",
+      "arbeitslosigkeit": "Unemployment",
+      "investitionsklima": "Investment climate"
+    },
+    "tooltip": {
+      "bip": "Annual economic growth. Positive means expansion, negative means recession.",
+      "inflation": "Annual price increase. The target is around 2%. High inflation erodes purchasing power.",
+      "arbeitslosigkeit": "Share of people out of work. Below about 5% is considered low.",
+      "investitionsklima": "How attractive Germany is for investment. Affects long-term growth."
+    },
+    "trend": {
+      "boom": "Boom",
+      "stabil": "Stable",
+      "schwach": "Weak"
+    },
+    "ref": {
+      "nullwachstum": "Zero growth",
+      "ezb2": "ECB target 2%"
+    }
   },
   "haushaltView": {
     "mrdUnit": "bn",

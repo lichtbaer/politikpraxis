@@ -536,6 +536,7 @@ export function validateGameState(raw: unknown): GameState {
     'pendingBundesratLandEvent',
     'letzterMonatsDiff',
     'wirtschaft',
+    'verbandsLetzteWirtschaftsReaktion',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
