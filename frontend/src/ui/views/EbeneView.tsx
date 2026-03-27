@@ -6,6 +6,7 @@ import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
 import { VorbereitungModal } from '../components/VorbereitungModal/VorbereitungModal';
 import type { Law, RouteType } from '../../core/types';
+import type { TFunction } from 'i18next';
 import { PolitikfeldIcon } from '../icons';
 import styles from './EbeneView.module.css';
 
@@ -13,6 +14,17 @@ const STAEDTEBUENDNIS_PK = 10;
 const KOMMUNAL_KONFERENZ_PK = 8;
 const LAENDER_GIPFEL_PK = 12;
 const PILOT_BESCHLEUNIGEN_PK = 6;
+const LAENDER_PILOT_PK = 12;
+const LAENDER_PILOT_MONATE = 5;
+
+/** Vollständiger Gesetz-Titel; Kürzel nur wenn es vom Titel abweicht (SMA-402). */
+function ebeneGesetzAnzeige(law: Law, t: TFunction<'game'>): { titel: string; kuerzelKlammer?: string } {
+  const titel = law.titel || t(`game:laws.${law.id}.titel`, law.kurz);
+  const kuerzel = law.kurz || t(`game:laws.${law.id}.kurz`, '');
+  const kuerzelKlammer =
+    kuerzel && kuerzel.trim() !== titel.trim() ? kuerzel : undefined;
+  return { titel, kuerzelKlammer };
+}
 
 interface EbeneViewProps {
   type: 'eu' | 'land' | 'kommune';
@@ -230,21 +242,44 @@ export function EbeneView({ type }: EbeneViewProps) {
           <h3 className={styles.potentialTitle}>{t('game:ebene.potentialTitle')}</h3>
           <p className={styles.potentialHint}>{t('game:ebene.potentialHint')}</p>
           <div className={styles.potentialGrid}>
-            {potentialLaws.slice(0, 8).map((law) => (
-              <div key={law.id} className={styles.potentialCard}>
-                <span className={styles.potentialName}>
-                  {law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}
-                </span>
-                <button
-                  type="button"
-                  className={styles.potentialBtn}
-                  style={{ borderColor: color }}
-                  onClick={() => setSelectedLaw(law)}
-                >
-                  {t(`game:ebene.startPilot.${type}`)}
-                </button>
-              </div>
-            ))}
+            {potentialLaws.slice(0, 8).map((law) => {
+              const zeile =
+                type === 'land'
+                  ? ebeneGesetzAnzeige(law, t)
+                  : null;
+              return (
+                <div key={law.id} className={styles.potentialCard}>
+                  <span className={styles.potentialName}>
+                    {type === 'land' && zeile ? (
+                      <>
+                        {zeile.titel}
+                        {zeile.kuerzelKlammer && (
+                          <span className={styles.potentialKuerzel}> ({zeile.kuerzelKlammer})</span>
+                        )}
+                      </>
+                    ) : (
+                      law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)
+                    )}
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.potentialBtn}
+                    style={{ borderColor: color }}
+                    title={
+                      type === 'land'
+                        ? t('game:vorbereitungModal.laenderPilotTooltip', {
+                            cost: LAENDER_PILOT_PK,
+                            duration: LAENDER_PILOT_MONATE,
+                          })
+                        : undefined
+                    }
+                    onClick={() => setSelectedLaw(law)}
+                  >
+                    {t(`game:ebene.startPilot.${type}`)}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -262,10 +297,24 @@ export function EbeneView({ type }: EbeneViewProps) {
                 : law.rprog;
             const routeDur = type === 'eu' && aktiveRoute?.gesetzId === law.id ? aktiveRoute.dauer : law.rdur;
 
+            const lawTitleZeile =
+              type === 'land' ? ebeneGesetzAnzeige(law, t) : null;
+
             return (
               <div key={law.id} className={styles.lawCard}>
                 <div className={styles.lawHeader}>
-                  <span className={styles.lawTitle}>{law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}</span>
+                  <span className={styles.lawTitle}>
+                    {type === 'land' && lawTitleZeile ? (
+                      <>
+                        {lawTitleZeile.titel}
+                        {lawTitleZeile.kuerzelKlammer && (
+                          <span className={styles.lawTitleKuerzel}> ({lawTitleZeile.kuerzelKlammer})</span>
+                        )}
+                      </>
+                    ) : (
+                      law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)
+                    )}
+                  </span>
                   <span className={styles.lawProgress}>
                     {t('game:ebene.monate', { progress: routeProgress, duration: routeDur })}
                   </span>

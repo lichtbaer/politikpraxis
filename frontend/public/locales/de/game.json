@@ -2283,6 +2283,7 @@
     "kommunalPilotDesc": "{{cost}} PK, {{duration}} Monate · +8% BT bei Erfolg",
     "laenderPilot": "Länder-Pilot",
     "laenderPilotDesc": "{{cost}} PK, {{duration}} Monate · +10% BT bei Erfolg",
+    "laenderPilotTooltip": "Länder-Pilot: Pilotprojekt mit einer Bundesrats-Fraktion. Kosten {{cost}} Politikkraft, Laufzeit {{duration}} Monate. Bei Erfolg +10 % Ja-Stimmen im Bundestag; danach wählst du die Fraktion im Dialog.",
     "euInitiative": "EU-Initiative",
     "euInitiativeDesc": "{{duration}} Monate · +12% BT bei Erfolg",
     "euKlimaIndikator": "EU-Klima-Indikator: {{pct}}% Erfolgschance",
