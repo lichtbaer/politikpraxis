@@ -465,7 +465,12 @@ function finalizeEvent(state: GameState, event: GameEvent, choice: EventChoice, 
   return s;
 }
 
-const KOMMUNAL_INITIATIVE_IDS = new Set(['kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative']);
+const KOMMUNAL_INITIATIVE_IDS = new Set([
+  'kommunal_klima_initiative',
+  'kommunal_sozial_initiative',
+  'kommunal_sicherheit_initiative',
+  'kommunal_agrar_initiative',
+]);
 const STEUER_IDS = new Set(['steuereinnahmen_einbruch', 'haushaltsstreit_opposition', 'steuerstreit_koalition']);
 const KOMMUNAL_LAENDER_IDS = new Set(['kommunal_haushaltskrise', 'kommunal_buergerprotest', 'laender_koalitionskrise']);
 const EXTREMISMUS_IDS = new Set(['koalitionspartner_extremismus_warnung', 'verfassungsgericht_klage']);

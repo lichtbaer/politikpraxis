@@ -1754,6 +1754,30 @@
           "log": "Municipal initiative ignored."
         }
       }
+    },
+    "kommunal_agrar_initiative": {
+      "typeLabel": "Municipal Initiative",
+      "title": "Rural districts demand agricultural transition — local model regions",
+      "quote": "“Without a clear federal perspective we lose farms and land.”",
+      "context": "Several structurally weak districts launch initiatives for sustainable agriculture. Centrist voters expect leadership from Berlin.",
+      "ticker": "Rural districts: agricultural initiative — pressure on the federal government",
+      "choices": {
+        "0": {
+          "label": "Praise as role model",
+          "desc": "+2% parliament votes for matching laws, no PK cost.",
+          "log": "Municipal agricultural initiative recognised as a model."
+        },
+        "1": {
+          "label": "Coordinate and launch pilot",
+          "desc": "8 PK — full municipal pilot with the matching law.",
+          "log": "Federal government coordinates municipal agricultural initiative. Pilot project launched."
+        },
+        "2": {
+          "label": "Ignore",
+          "desc": "No reaction. Pressure may rise.",
+          "log": "Municipal agricultural initiative ignored."
+        }
+      }
     }
   },
   "vorstufenEvents": {
