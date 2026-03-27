@@ -1,0 +1,16 @@
+.wrap {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.2rem 0.25rem 0.1rem;
+}
+
+.chartTitle {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.55));
+  text-align: center;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.05rem;
+}

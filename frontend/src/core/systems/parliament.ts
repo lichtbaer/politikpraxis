@@ -391,7 +391,12 @@ export function abstimmen(
       );
       let newState: GameState = { ...state, gesetze };
       newState = applyGesetzKosten(newState, lawId);
-      const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
+      const lawForEffects = {
+        effekte: law.effekte as Record<string, number>,
+        lag: law.lag,
+        kurz: law.kurz,
+        gesetzId: law.id,
+      };
       newState = scheduleEffects(newState, lawForEffects);
 
       if (beschlussContext?.milieus) {
@@ -540,6 +545,7 @@ export function resolveEingebrachteAbstimmung(
         effekte: law.effekte as Record<string, number>,
         lag: law.lag,
         kurz: law.kurz,
+        gesetzId: law.id,
       };
       newState = scheduleEffects(newState, lawForEffects);
       if (beschlussContext?.milieus) {

@@ -135,11 +135,23 @@ describe('applyKPIDrift', () => {
 describe('scheduleEffects', () => {
   it('fügt neue pending-Einträge hinzu', () => {
     const state = makeState({ month: 3, pending: [] });
-    const law = { effekte: { al: -1, hh: 0.5 }, lag: 3, kurz: 'Testgesetz' };
+    const law = { effekte: { al: -1, hh: 0.5 }, lag: 3, kurz: 'Testgesetz', gesetzId: 'g1' };
     const result = scheduleEffects(state, law);
     expect(result.pending).toHaveLength(2);
-    expect(result.pending[0]).toEqual({ month: 6, key: 'al', delta: -1, label: 'Testgesetz' });
-    expect(result.pending[1]).toEqual({ month: 6, key: 'hh', delta: 0.5, label: 'Testgesetz' });
+    expect(result.pending[0]).toEqual({
+      month: 6,
+      key: 'al',
+      delta: -1,
+      label: 'Testgesetz',
+      gesetzId: 'g1',
+    });
+    expect(result.pending[1]).toEqual({
+      month: 6,
+      key: 'hh',
+      delta: 0.5,
+      label: 'Testgesetz',
+      gesetzId: 'g1',
+    });
   });
 
   it('erhält bestehende pending-Einträge', () => {

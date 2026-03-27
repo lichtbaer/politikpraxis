@@ -296,7 +296,7 @@ export function resolveEURoute(
         Object.entries(effekte).map(([k, v]) => [k, (v ?? 0) * 0.85]),
       );
     }
-    const lawForEffects = { effekte, lag: gesetz.lag, kurz: gesetz.kurz };
+    const lawForEffects = { effekte, lag: gesetz.lag, kurz: gesetz.kurz, gesetzId: route.gesetzId };
     s = scheduleEffects(s, lawForEffects);
     s = applyEUKofinanzierung(s, kofinanzierung);
 

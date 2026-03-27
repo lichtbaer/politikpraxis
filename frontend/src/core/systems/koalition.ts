@@ -370,6 +370,7 @@ export function koalitionsZugestaendnis(
     effekte: forderung.effekte as Record<string, number>,
     lag: 1,
     kurz: `Zugeständnis: ${forderung.label}`,
+    gesetzId: `koalition:${forderungId}`,
   });
 
   const kp = next.koalitionspartner;

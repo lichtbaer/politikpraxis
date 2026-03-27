@@ -80,7 +80,7 @@ export function roundKpi(kpi: KPI): KPI {
 
 export function scheduleEffects(
   state: GameState,
-  law: { effekte: Record<string, number>; lag: number; kurz: string },
+  law: { effekte: Record<string, number>; lag: number; kurz: string; gesetzId?: string },
 ): GameState {
   const newPending = [...state.pending];
   for (const [k, v] of Object.entries(law.effekte)) {
@@ -89,6 +89,7 @@ export function scheduleEffects(
       key: k as keyof KPI,
       delta: v,
       label: law.kurz,
+      ...(law.gesetzId != null && law.gesetzId !== '' ? { gesetzId: law.gesetzId } : {}),
     });
   }
   return { ...state, pending: newPending };

@@ -33,6 +33,8 @@ export interface PendingEffect {
   key: keyof KPI;
   delta: number;
   label: string;
+  /** Stabile Quelle für Chart-Farben (Gesetz-ID); optional für ältere Spielstände */
+  gesetzId?: string;
 }
 
 export interface LogEntry {
