@@ -6,6 +6,7 @@ import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { Zap, Circle } from '../../icons';
 import { Erklaerung } from '../Erklaerung/Erklaerung';
+import { formatMedienklimaDisplay } from '../../../utils/format';
 import styles from './MedienklimaBadge.module.css';
 
 export function MedienklimaBadge() {
@@ -16,8 +17,9 @@ export function MedienklimaBadge() {
   if (!featureActive(complexity, 'medienklima')) return null;
 
   const medienKlima = state.medienKlima ?? 55;
+  const mkRounded = Math.round(medienKlima);
   const klimaClass =
-    medienKlima > 65 ? styles.positiv : medienKlima > 35 ? styles.neutral : styles.negativ;
+    mkRounded > 65 ? styles.positiv : mkRounded > 35 ? styles.neutral : styles.negativ;
 
   const oppositionStaerke = state.opposition?.staerke ?? 0;
   const oppositionLabel =
@@ -27,9 +29,9 @@ export function MedienklimaBadge() {
     <div className={styles.badge}>
       <span className={styles.label}><Erklaerung begriff="medienklima" kinder={t('game:medienklima.label')} /></span>
       <div className={`${styles.klimaBar} ${klimaClass}`}>
-        <div className={styles.klimaFill} style={{ width: `${medienKlima}%` }} />
+        <div className={styles.klimaFill} style={{ width: `${mkRounded}%` }} />
       </div>
-      <span className={styles.wert}>{medienKlima}/100</span>
+      <span className={styles.wert}>{formatMedienklimaDisplay(medienKlima)}/100</span>
       {featureActive(complexity, 'opposition') && (
         <span className={styles.oppositionStaerke}>
           {t('game:medienklima.opposition')}:{' '}

@@ -9,6 +9,7 @@ import type { EChartsOption } from 'echarts';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { AlertTriangle } from '../../icons';
+import { formatMedienklimaDisplay } from '../../../utils/format';
 import styles from './MedienklimaSektion.module.css';
 
 // Matches --gold token (#c8a84a) — ECharts can't consume CSS variables directly
@@ -18,7 +19,7 @@ const CHART_GOLD = '#c8a84a';
 const EMPTY_MEDIEN_HISTORY: number[] = [];
 
 function medienklimaChartOption(history: number[]): EChartsOption {
-  const data = history.slice(-12);
+  const data = history.slice(-12).map((v) => Math.round(v));
   const months = data.map((_, i) => i + 1);
   return {
     animation: false,
@@ -76,11 +77,12 @@ export function MedienklimaSektion() {
   if (!featureActive(complexity, 'medienklima')) return null;
 
   const medienKlima = state.medienKlima ?? 55;
+  const mkRounded = Math.round(medienKlima);
   const verlauf = history.slice(-12);
   const showChart = featureActive(complexity, 'milieus_4') && verlauf.length >= 2;
 
   const klimaClass =
-    medienKlima > 65 ? styles.positiv : medienKlima > 35 ? styles.neutral : styles.negativ;
+    mkRounded > 65 ? styles.positiv : mkRounded > 35 ? styles.neutral : styles.negativ;
 
   const oppositionStaerke = state.opposition?.staerke ?? 0;
   const oppositionLabel =
@@ -94,9 +96,9 @@ export function MedienklimaSektion() {
       <div className={styles.content}>
         <div className={styles.wertRow}>
           <div className={`${styles.klimaBar} ${klimaClass}`}>
-            <div className={styles.klimaFill} style={{ width: `${medienKlima}%` }} />
+            <div className={styles.klimaFill} style={{ width: `${mkRounded}%` }} />
           </div>
-          <span className={styles.wert}>{medienKlima}/100</span>
+          <span className={styles.wert}>{formatMedienklimaDisplay(medienKlima)}/100</span>
         </div>
         {showChart && (
           <div className={styles.chartWrap}>

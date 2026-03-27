@@ -29,3 +29,12 @@ export function formatMrdSaldo(wert: number, decimals?: number): string {
   const prefix = w < 0 ? '−' : '+';
   return `${prefix}${Math.abs(w).toFixed(d)} Mrd.`;
 }
+
+/**
+ * SMA-409: Medienklima 0–100 für UI (ganzzahlig, keine langen Floats).
+ */
+export function formatMedienklimaDisplay(wert: number): string {
+  const w = normalizeZero(wert);
+  if (!Number.isFinite(w)) return '0';
+  return String(Math.round(Math.max(0, Math.min(100, w))));
+}

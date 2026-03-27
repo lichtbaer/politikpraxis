@@ -45,7 +45,7 @@ import {
   tickWahlkampfPrognose,
   triggerWahlnacht,
 } from './systems/wahlkampf';
-import { tickMedienKlima, berechneMedianklima } from './systems/medienklima';
+import { tickMedienKlima, berechneMedianklima, roundMedienKlimaIndex } from './systems/medienklima';
 import { tickVermittlungsausschuss } from './systems/vermittlung';
 import { featureActive } from './systems/features';
 import { applyMilieuDrift } from './systems/milieus';
@@ -115,7 +115,7 @@ export function tick(
   if (s.gameOver) return s;
 
   // 2. Pending Effects (inkl. SMA-278: Medienklima-Historie)
-  const medienVal = s.medienKlima ?? s.zust.g;
+  const medienVal = roundMedienKlimaIndex(s.medienKlima ?? s.zust.g);
   const medienHist = trimHistory(s.medienKlimaHistory ?? [], medienVal, HISTORY_MAX_MONTHS);
   s = { ...s, medienKlimaHistory: medienHist };
   if (s.medienKlima == null) s = { ...s, medienKlima: 55 };
