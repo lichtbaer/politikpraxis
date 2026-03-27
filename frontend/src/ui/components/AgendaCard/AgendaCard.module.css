@@ -148,6 +148,7 @@
   border-radius: 3px;
   background: var(--green);
   color: var(--bg);
+  cursor: help;
 }
 
 .kongruenzBadge {

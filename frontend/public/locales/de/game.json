@@ -1800,6 +1800,7 @@
     "ohneFeld": "Sonstige",
     "kongruenzLabel": "Passung",
     "kongruenzTooltip": "Wie gut das Gesetz zu deiner politischen Ausrichtung passt (Skala 0–100). Höher = stärkere Übereinstimmung mit deiner Regierungslinie. Das ist keine direkte Bundestags-Abstimmungswahrscheinlichkeit.",
+    "scoreTip": "Empfehlungswert: {{score}}/100 — wie sinnvoll es gerade wäre, dieses Gesetz einzubringen (KPI-Bedarf, Bundestagsaussicht, Passung zu deiner Ausrichtung, Effizienz). Skala 0–100.",
     "kongruenz": "{{percent}}",
     "filterAlle": "Alle",
     "filterAlleTooltip": "Kein Statusfilter: alle für deine Komplexitätsstufe sichtbaren Gesetze.",
