@@ -48,6 +48,7 @@ export function Shell() {
   const setView = useGameStore((s) => s.setView);
   const openMonatszusammenfassung = useUIStore((s) => s.openMonatszusammenfassung);
   const setOpenMonatszusammenfassung = useUIStore((s) => s.setOpenMonatszusammenfassung);
+  const requestFocusEreignisprotokoll = useUIStore((s) => s.requestFocusEreignisprotokoll);
 
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
@@ -172,6 +173,7 @@ export function Shell() {
             setOpenMonatszusammenfassung(false);
             setRightOpen(true);
             setLeftOpen(false);
+            requestFocusEreignisprotokoll();
           }}
         />
       )}

@@ -9,7 +9,7 @@ import type { EChartsOption } from 'echarts';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { AlertTriangle } from '../../icons';
-import { formatMedienklimaDisplay } from '../../../utils/format';
+import { formatMedienklima } from '../../lib/medienDisplay';
 import styles from './MedienklimaSektion.module.css';
 
 // Matches --gold token (#c8a84a) — ECharts can't consume CSS variables directly
@@ -76,8 +76,8 @@ export function MedienklimaSektion() {
 
   if (!featureActive(complexity, 'medienklima')) return null;
 
-  const medienKlima = state.medienKlima ?? 55;
-  const mkRounded = Math.round(medienKlima);
+  const medienKlimaRaw = state.medienKlima ?? 55;
+  const mkRounded = Math.round(medienKlimaRaw);
   const verlauf = history.slice(-12);
   const showChart = featureActive(complexity, 'milieus_4') && verlauf.length >= 2;
 
@@ -98,7 +98,7 @@ export function MedienklimaSektion() {
           <div className={`${styles.klimaBar} ${klimaClass}`}>
             <div className={styles.klimaFill} style={{ width: `${mkRounded}%` }} />
           </div>
-          <span className={styles.wert}>{formatMedienklimaDisplay(medienKlima)}/100</span>
+          <span className={styles.wert}>{formatMedienklima(medienKlimaRaw)}/100</span>
         </div>
         {showChart && (
           <div className={styles.chartWrap}>

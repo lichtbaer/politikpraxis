@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
-import { formatMedienklimaDisplay } from '../../../utils/format';
+import { formatMedienklima } from '../../lib/medienDisplay';
 import styles from './MedienklimaTrendChart.module.css';
 
 interface MedienklimaTrendChartProps {
@@ -86,7 +86,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
           const sLabel = t(`medienklima.${getMKStatusKey(val)}`);
           return (
             `<strong>${t('medienklima.tooltipMonat', { month: first.dataIndex + 1 })}</strong><br/>` +
-            `${t('medienklima.tooltipLabel')}: <strong style="color:${sColor}">${val} — ${sLabel}</strong><br/>` +
+            `${t('medienklima.tooltipLabel')}: <strong style="color:${sColor}">${formatMedienklima(val)} — ${sLabel}</strong><br/>` +
             `<span style="color:#888;font-size:10px">` +
             `${t('medienklima.tooltipHint')}` +
             `</span>`
@@ -171,7 +171,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
         <span className={styles.headerLabel}>{t('medienklima.verlaufTitle')}</span>
         <div className={styles.currentRow}>
           <span className={styles.currentValue} style={{ color: statusColor }}>
-            {formatMedienklimaDisplay(current)}
+            {formatMedienklima(current)}
           </span>
           <span className={`${styles.trendIndicator} ${trendClass}`} aria-hidden="true">
             {trendSymbol}

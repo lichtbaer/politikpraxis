@@ -17,6 +17,8 @@ interface UIStore {
   /** SMA-396 */
   playerSettings: PlayerSettings;
   openMonatszusammenfassung: boolean;
+  /** SMA-406: Monatszusammenfassung „Details“ → Fokus Ereignisprotokoll (rechtes Panel) */
+  focusEreignisprotokollRequestId: number;
 
   showCharDetail: (id: string) => void;
   closeCharDetail: () => void;
@@ -25,6 +27,7 @@ interface UIStore {
   setTheme: (theme: Theme) => void;
   setPlayerSettings: (partial: Partial<PlayerSettings>) => void;
   setOpenMonatszusammenfassung: (open: boolean) => void;
+  requestFocusEreignisprotokoll: () => void;
 }
 
 let toastCounter = 0;
@@ -37,6 +40,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
   theme: 'amtsstube',
   playerSettings: loadPlayerSettings(),
   openMonatszusammenfassung: false,
+  focusEreignisprotokollRequestId: 0,
 
   showCharDetail: (id) => set({ charDetailId: id }),
   closeCharDetail: () => set({ charDetailId: null }),
@@ -63,4 +67,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   setOpenMonatszusammenfassung: (open) => set({ openMonatszusammenfassung: open }),
+
+  requestFocusEreignisprotokoll: () =>
+    set((s) => ({ focusEreignisprotokollRequestId: s.focusEreignisprotokollRequestId + 1 })),
 }));
