@@ -2285,6 +2285,7 @@
     "kommunalPilotDesc": "{{cost}} PK, {{duration}} months · +8% parliament on success",
     "laenderPilot": "State Pilot",
     "laenderPilotDesc": "{{cost}} PK, {{duration}} months · +10% parliament on success",
+    "laenderPilotTooltip": "State pilot: pilot project with one Bundesrat faction. Costs {{cost}} political capital, runs {{duration}} months. On success +10% yes votes in the Bundestag; you pick the faction in the dialog.",
     "euInitiative": "EU Initiative",
     "euInitiativeDesc": "{{duration}} months · +12% parliament on success",
     "euKlimaIndikator": "EU climate indicator: {{pct}}% success chance",

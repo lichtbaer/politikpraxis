@@ -280,6 +280,13 @@
   color: var(--text);
 }
 
+.potentialKuerzel,
+.lawTitleKuerzel {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--text2);
+}
+
 .potentialBtn {
   padding: 4px 10px;
   font-size: 11px;
