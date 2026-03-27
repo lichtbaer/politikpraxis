@@ -1402,6 +1402,8 @@
     "leer": "No laws.",
     "gesetzeCount": "laws",
     "ohneFeld": "Other",
+    "kongruenzLabel": "Fit",
+    "kongruenzTooltip": "How well this law matches your political orientation (0–100 scale). Higher means closer alignment with your government line. This is not the direct Bundestag vote probability.",
     "kongruenz": "{{percent}}",
     "filterAlle": "All",
     "filterEntwurf": "Draft",

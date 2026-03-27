@@ -1798,6 +1798,8 @@
     "leer": "Keine Gesetze.",
     "gesetzeCount": "Gesetze",
     "ohneFeld": "Sonstige",
+    "kongruenzLabel": "Passung",
+    "kongruenzTooltip": "Wie gut das Gesetz zu deiner politischen Ausrichtung passt (Skala 0–100). Höher = stärkere Übereinstimmung mit deiner Regierungslinie. Das ist keine direkte Bundestags-Abstimmungswahrscheinlichkeit.",
     "kongruenz": "{{percent}}",
     "filterAlle": "Alle",
     "filterEntwurf": "Entwurf",

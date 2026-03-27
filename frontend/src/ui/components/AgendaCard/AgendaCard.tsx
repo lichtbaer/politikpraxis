@@ -156,8 +156,14 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
         )}
         <h3 className={styles.title}>{law.titel || t(`game:laws.${law.id}.titel`)}</h3>
         {showKongruenz && (
-          <span className={styles.kongruenzBadge}>
-            {t('game:gesetzAgenda.kongruenz', { percent: kongruenz })}%
+          <span
+            className={styles.kongruenzBadge}
+            title={t('game:gesetzAgenda.kongruenzTooltip')}
+          >
+            <span className={styles.kongruenzLabel}>{t('game:gesetzAgenda.kongruenzLabel')}</span>
+            <span className={styles.kongruenzValue}>
+              {t('game:gesetzAgenda.kongruenz', { percent: kongruenz })}%
+            </span>
           </span>
         )}
         <span className={styles.arrow}>{expanded ? '▲' : '▼'}</span>
