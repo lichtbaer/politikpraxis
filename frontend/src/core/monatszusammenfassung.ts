@@ -2,6 +2,8 @@
  * SMA-396: Monatszusammenfassung — Diff zwischen Spielzustand vor/nach einem Monats-Tick.
  */
 import type { ContentBundle, GameState, Law, MonatsDiff } from './types';
+import type { MedienAkteurTyp } from '../data/defaults/medienAkteure';
+import { berechneMedienSpielerPerspektive } from './medienSpielerPerspektive';
 
 export type { MonatsDiff } from './types';
 
@@ -88,24 +90,42 @@ export function berechneMonatsDiff(
     Object.keys(nach.medienAkteure).length > 0 &&
     medienAkteurContent?.length
   ) {
-    const rows: { akteurId: string; akteurLabel: string; delta: number }[] = [];
+    const rows: {
+      akteurId: string;
+      akteurLabel: string;
+      delta: number;
+      akteur_typ: MedienAkteurTyp;
+      delta_bedeutung: 'stimmung' | 'reichweite';
+    }[] = [];
     for (const [id, st] of Object.entries(nach.medienAkteure)) {
       const prevSt = vor.medienAkteure[id];
       if (!prevSt) continue;
-      const delta = round1(st.stimmung - prevSt.stimmung);
-      if (delta === 0) continue;
       const meta = medienAkteurContent.find((a) => a.id === id);
+      const typ = meta?.typ ?? 'oeffentlich';
+      const useReichweite = typ === 'alternativ';
+      const delta = useReichweite
+        ? round1(st.reichweite - prevSt.reichweite)
+        : round1(st.stimmung - prevSt.stimmung);
+      if (delta === 0) continue;
       rows.push({
         akteurId: id,
         akteurLabel: meta?.name_de ?? id,
         delta,
+        akteur_typ: typ,
+        delta_bedeutung: useReichweite ? 'reichweite' : 'stimmung',
       });
     }
     rows.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
     const top = rows.slice(0, 3);
     for (let i = 0; i < top.length; i++) {
+      const row = top[i];
       medien_highlights.push({
-        ...top[i],
+        akteurId: row.akteurId,
+        akteurLabel: row.akteurLabel,
+        delta: row.delta,
+        akteur_typ: row.akteur_typ,
+        delta_bedeutung: row.delta_bedeutung,
+        spieler_perspektive: berechneMedienSpielerPerspektive(row.akteur_typ, row.delta),
         grund: buildMedienGrund(beschlosseneGesetze, gescheiterteGesetze, content, i),
       });
     }

@@ -2065,7 +2065,11 @@
     "weiter": "Continue",
     "settingAutoShow": "Show monthly summary after each month",
     "topBarButton": "Last month",
-    "topBarTitle": "Summary — month {{monat}}"
+    "topBarTitle": "Summary — month {{monat}}",
+    "medienTooltipStimmungGut": "From the government’s perspective: helpful — sentiment at this outlet moved in your favour.",
+    "medienTooltipStimmungSchlecht": "From the government’s perspective: harmful — sentiment at this outlet moved against you.",
+    "medienTooltipReichweiteGut": "From the government’s perspective: helpful — this channel’s reach shrinks (less anti-establishment influence).",
+    "medienTooltipReichweiteSchlecht": "From the government’s perspective: harmful — reach grows; anti-establishment media gain influence."
   },
   "legislaturBilanz": {
     "beat1Title": "Legislature summary",
