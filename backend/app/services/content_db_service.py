@@ -252,6 +252,7 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
                     else None,
                     "konjunktur_effekt": float(g.konjunktur_effekt or 0),
                     "konjunktur_lag": int(g.konjunktur_lag or 0),
+                    "sektor_effekte": list(g.sektor_effekte or []),
                     "titel": i18n.titel,
                     "kurz": i18n.kurz,
                     "desc": i18n.desc,
@@ -333,6 +334,15 @@ async def fetch_events(
                     )
                 if getattr(ch, "konjunktur_index_delta", None) is not None:
                     c["konjunktur_index_delta"] = float(ch.konjunktur_index_delta)
+                vd = getattr(ch, "verband_delta", None)
+                if vd is not None:
+                    c["verband_delta"] = dict(vd) if hasattr(vd, "keys") else vd
+                sd = getattr(ch, "sektor_delta", None)
+                if sd is not None:
+                    c["sektor_delta"] = dict(sd) if hasattr(sd, "keys") else sd
+                hsd = getattr(ch, "haushalt_saldo_delta_mrd", None)
+                if hsd is not None:
+                    c["haushalt_saldo_delta_mrd"] = float(hsd)
                 brj = getattr(ch, "br_relation_json", None)
                 if brj is not None:
                     c["br_relation_json"] = dict(brj) if hasattr(brj, "keys") else brj

@@ -6,3 +6,4 @@ export * from './event';
 export * from './politics';
 export * from './state';
 export * from './monatszusammenfassung';
+export * from './wirtschaft';

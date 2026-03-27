@@ -34,6 +34,7 @@ import {
   checkHaushaltskrise,
   triggerHaushaltsdebatte,
 } from './systems/haushalt';
+import { tickWirtschaft } from './systems/wirtschaft';
 import { tickGesetzVorstufen } from './systems/gesetzLebenszyklus';
 import {
   checkWahlkampfBeginn,
@@ -168,6 +169,7 @@ export function tick(
   // 4. Haushalt
   const kpiBeforeHaushalt = { ...s.kpi };
   s = safeSystem((st) => tickKonjunktur(st, complexity), 'tickKonjunktur');
+  s = safeSystem((st) => tickWirtschaft(st, complexity), 'tickWirtschaft');
   s = safeSystem((st) => applySchuldenbremsenEffekte(st, complexity, content), 'applySchuldenbremsenEffekte');
   s = safeSystem((st) => checkLehmannSparvorschlag(st, complexity), 'checkLehmannSparvorschlag');
   s = safeSystem((st) => checkLehmannDefizitStart(st, content, complexity), 'checkLehmannDefizitStart');

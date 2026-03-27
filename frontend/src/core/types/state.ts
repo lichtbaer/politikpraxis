@@ -21,6 +21,7 @@ import type {
 } from './politics';
 import type { MedienAkteurContent } from '../../data/defaults/medienAkteure';
 import type { MonatsDiff } from './monatszusammenfassung';
+import type { WirtschaftsState } from './wirtschaft';
 
 /** EU-Substate (SMA-269): Klima, Ratsvorsitz, Ausweichroute, Umsetzungsfristen */
 export interface EUState {
@@ -261,6 +262,8 @@ export interface GameState {
   }>;
   /** SMA-396: Zusammenfassung des letzten abgeschlossenen Monats */
   letzterMonatsDiff?: MonatsDiff | null;
+  /** SMA-404: Sektoren + Makroindikatoren (ab Komplexität 3) */
+  wirtschaft?: WirtschaftsState;
 }
 
 export interface ContentBundle {

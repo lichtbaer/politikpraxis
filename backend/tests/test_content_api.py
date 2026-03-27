@@ -313,3 +313,5 @@ async def test_get_gesetze_includes_ideologie_and_politikfeld(client: AsyncClien
         assert isinstance(g["politikfeld_sekundaer"], list)
         assert "ideologie_wert" in g
         assert isinstance(g["ideologie_wert"], int)
+        assert "sektor_effekte" in g
+        assert isinstance(g["sektor_effekte"], list)

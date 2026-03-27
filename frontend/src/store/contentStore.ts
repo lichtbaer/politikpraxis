@@ -150,6 +150,7 @@ function transformGesetz(api: GesetzApi): Law {
     steuer_delta: (api as { steuer_delta?: number | null }).steuer_delta ?? null,
     konjunktur_effekt: (api as { konjunktur_effekt?: number }).konjunktur_effekt ?? 0,
     konjunktur_lag: (api as { konjunktur_lag?: number }).konjunktur_lag ?? 0,
+    sektor_effekte: (api as { sektor_effekte?: Law['sektor_effekte'] }).sektor_effekte ?? [],
     // Art. 77 GG: Einspruchsgesetz vs. Zustimmungsgesetz.
     // Default: land-Gesetze sind zustimmungspflichtig, es sei denn explizit als Einspruchsgesetz markiert.
     zustimmungspflichtig: api.zustimmungspflichtig ?? (api.tags.includes('land') ? true : undefined),
@@ -175,6 +176,9 @@ function transformEventChoice(api: {
   steuerpolitik_modifikator_delta?: number;
   konjunktur_index_delta?: number;
   br_relation_json?: Record<string, number>;
+  verband_delta?: Record<string, number>;
+  sektor_delta?: Record<string, number>;
+  haushalt_saldo_delta_mrd?: number;
 }): EventChoice {
   const type = (['primary', 'danger', 'safe'].includes(api.type)
     ? api.type
@@ -216,6 +220,15 @@ function transformEventChoice(api: {
   }
   if (api.br_relation_json && Object.keys(api.br_relation_json).length) {
     choice.brRelationJson = api.br_relation_json;
+  }
+  if (api.verband_delta && Object.keys(api.verband_delta).length) {
+    choice.verbandDelta = api.verband_delta;
+  }
+  if (api.sektor_delta && Object.keys(api.sektor_delta).length) {
+    choice.sektorDelta = api.sektor_delta;
+  }
+  if (api.haushalt_saldo_delta_mrd != null) {
+    choice.haushaltSaldoDeltaMrd = api.haushalt_saldo_delta_mrd;
   }
   return choice;
 }

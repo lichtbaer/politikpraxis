@@ -79,6 +79,7 @@ class GesetzResponse(BaseModel):
     lobby_pk_kosten: int = 12
     lobby_gain_range: dict[str, int] = {}
     route_overrides: dict[str, Any] = {}
+    sektor_effekte: list[dict[str, Any]] = []
     titel: str
     kurz: str
     desc: str
@@ -102,6 +103,9 @@ class EventChoiceResponse(BaseModel):
     steuerpolitik_modifikator_delta: float | None = None
     konjunktur_index_delta: float | None = None
     br_relation_json: dict[str, int] | None = None
+    verband_delta: dict[str, int] | None = None
+    sektor_delta: dict[str, int] | None = None
+    haushalt_saldo_delta_mrd: float | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

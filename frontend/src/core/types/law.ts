@@ -1,6 +1,7 @@
 /** Law-related types. */
 
 import type { Ideologie } from './common';
+import type { SektorEffekt } from './wirtschaft';
 
 export interface LawEffects {
   hh?: number;
@@ -87,6 +88,8 @@ export interface Law {
   locked_until_event?: string;
   konjunktur_effekt?: number;
   konjunktur_lag?: number;
+  /** SMA-404: verzögerte Effekte auf Wirtschaftssektoren */
+  sektor_effekte?: SektorEffekt[];
   steuer_id?: string | null;
   steuer_delta?: number | null;
   zustimmungspflichtig?: boolean;

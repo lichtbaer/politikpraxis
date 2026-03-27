@@ -109,6 +109,11 @@ class EventChoice(Base):
     br_relation_json: Mapped[dict[str, Any] | None] = mapped_column(
         JSONB(), nullable=True
     )
+    verband_delta: Mapped[dict[str, Any] | None] = mapped_column(JSONB(), nullable=True)
+    sektor_delta: Mapped[dict[str, Any] | None] = mapped_column(JSONB(), nullable=True)
+    haushalt_saldo_delta_mrd: Mapped[Decimal | None] = mapped_column(
+        Numeric(6, 2), nullable=True
+    )
 
 
 class EventChoiceI18n(Base):

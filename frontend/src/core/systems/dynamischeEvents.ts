@@ -218,6 +218,21 @@ function evaluateTrigger(ev: GameEvent, state: GameState, complexity: number): b
       const r = state.medienAkteure?.[akteur]?.reichweite ?? 0;
       return r > ueber;
     }
+    case 'sektor_ueber': {
+      const sektor = String(p.sektor ?? 'arbeit');
+      const wert = Number(p.wert ?? 70);
+      const z = state.wirtschaft?.sektoren[sektor]?.zustand ?? 50;
+      if (z <= wert) return false;
+      const bipMin = p.bip_wachstum_min != null ? Number(p.bip_wachstum_min) : undefined;
+      if (bipMin != null && (state.wirtschaft?.bip_wachstum ?? 0) <= bipMin) return false;
+      return true;
+    }
+    case 'sektor_unter': {
+      const sektor = String(p.sektor ?? 'industrie');
+      const wert = Number(p.wert ?? 30);
+      const z = state.wirtschaft?.sektoren[sektor]?.zustand ?? 50;
+      return z < wert;
+    }
     default:
       return false;
   }
@@ -339,6 +354,25 @@ export function applyMilieuDelta(state: GameState, delta: Record<string, number>
   return { ...state, milieuZustimmung: mz };
 }
 
+function applyVerbandDelta(state: GameState, delta: Record<string, number> | undefined): GameState {
+  if (!delta || !Object.keys(delta).length) return state;
+  const vb = { ...(state.verbandsBeziehungen ?? {}) };
+  for (const [k, d] of Object.entries(delta)) {
+    vb[k] = clamp((vb[k] ?? 50) + d, 0, 100);
+  }
+  return { ...state, verbandsBeziehungen: vb };
+}
+
+function applySektorDelta(state: GameState, delta: Record<string, number> | undefined): GameState {
+  if (!delta || !Object.keys(delta).length || !state.wirtschaft) return state;
+  const sektoren = { ...state.wirtschaft.sektoren };
+  for (const [k, d] of Object.entries(delta)) {
+    const cur = sektoren[k] ?? { zustand: 50, trend: 0 };
+    sektoren[k] = { ...cur, zustand: clamp(cur.zustand + d, 0, 100) };
+  }
+  return { ...state, wirtschaft: { ...state.wirtschaft, sektoren } };
+}
+
 function applyHaushaltChoiceExtras(state: GameState, choice: EventChoice): GameState {
   let s = state;
   const h = s.haushalt;
@@ -375,6 +409,9 @@ function applyHaushaltChoiceExtras(state: GameState, choice: EventChoice): GameS
       KONJUNKTUR_INDEX_MAX,
     );
     s = { ...s, haushalt: { ...hh, konjunkturIndex: ki } };
+  }
+  if (choice.haushaltSaldoDeltaMrd != null && choice.haushaltSaldoDeltaMrd !== 0) {
+    s = applyHaushaltSaldoDelta(s, choice.haushaltSaldoDeltaMrd);
   }
   return s;
 }
@@ -418,6 +455,8 @@ export function resolveDynamicEvent(
   }
   s = applyKoalitionspartnerDelta(s, choice);
   s = applyMilieuDelta(s, choice.milieuDelta);
+  s = applyVerbandDelta(s, choice.verbandDelta);
+  s = applySektorDelta(s, choice.sektorDelta);
   s = applyHaushaltChoiceExtras(s, choice);
 
   if (event.id === 'dyn_minister_ruecktritt_angebot' && choice.key === 'annehmen' && event.charId) {
