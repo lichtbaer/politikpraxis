@@ -754,6 +754,78 @@
           "log": "Government holds course. Economic damage grows."
         }
       }
+    },
+    "bauernproteste": {
+      "typeLabel": "Agricultural crisis",
+      "title": "Farmers block motorways and ministries",
+      "quote": "Thousands of tractors are heading for Berlin \u2014 the mood in rural areas is at boiling point.",
+      "context": "Farmers' associations are protesting against the planned reduction of agricultural diesel subsidies and rising regulatory burdens. Economics Minister Maier warns of supply shortages; Interior Minister Braun demands firm action.",
+      "ticker": "Farmers' protest: tractors block capital \u2014 government under pressure",
+      "choices": {
+        "0": {
+          "label": "Launch emergency programme",
+          "desc": "Agricultural diesel compensation and deregulation \u2014 costly but de-escalating",
+          "log": "Emergency programme for farmers passed. Protests ease, budget burdened."
+        },
+        "1": {
+          "label": "Offer dialogue",
+          "desc": "Convene a round table \u2014 buys time, solves nothing immediately",
+          "log": "Agricultural round table convened. Farmers sceptical, protests continue."
+        },
+        "2": {
+          "label": "Order police to clear blockades",
+          "desc": "Clearing blockades \u2014 politically risky",
+          "log": "Police action against blockades. Rural sentiment shifts permanently."
+        }
+      }
+    },
+    "pflegenotstand": {
+      "typeLabel": "Health crisis",
+      "title": "Hospitals sound the alarm \u2014 care emergency declared",
+      "quote": "We can no longer guarantee care, warns the German Hospital Association.",
+      "context": "Hundreds of thousands of care positions are unfilled. Health Minister Neumann demands immediate action \u2014 health insurers resist higher contributions.",
+      "ticker": "Care emergency: hospitals warn of care system collapse",
+      "choices": {
+        "0": {
+          "label": "Launch care emergency programme",
+          "desc": "Fast-track nursing staff act \u2014 expensive",
+          "log": "Care emergency programme passed. Neumann relieved, budget burdened."
+        },
+        "1": {
+          "label": "Appoint expert commission",
+          "desc": "Buys time, reduces pressure \u2014 but no immediate effect",
+          "log": "Expert commission on care appointed. Report expected in 6 months."
+        },
+        "2": {
+          "label": "Require health insurers to act",
+          "desc": "Contribution increase \u2014 unpopular but effective",
+          "log": "Health insurers must increase care funding. Business criticism follows."
+        }
+      }
+    },
+    "ki_vorfall": {
+      "typeLabel": "Digital attack",
+      "title": "AI deepfake attack on federal agency uncovered",
+      "quote": "An AI-generated video of the Federal Interior Minister spread uncontrollably on social networks.",
+      "context": "A state actor used generative AI for targeted disinformation. The BSI is overwhelmed \u2014 the EU Commission demands national emergency regulation before the EU AI Act takes effect.",
+      "ticker": "AI deepfake scandal: federal agency targeted by state disinformation",
+      "choices": {
+        "0": {
+          "label": "Suspend AI in government agencies",
+          "desc": "Security pause \u2014 hampers innovation, protects immediately",
+          "log": "AI use suspended in federal agencies. BSI reviewing all systems."
+        },
+        "1": {
+          "label": "Accelerate regulation",
+          "desc": "Fast-track AI governance act",
+          "log": "AI regulation initiative launched. Industry reaction mixed."
+        },
+        "2": {
+          "label": "Seek EU coordination",
+          "desc": "Wait for a European solution \u2014 loses time",
+          "log": "EU coordination requested. Risk remains until response arrives."
+        }
+      }
     }
   },
   "charEvents": {
@@ -1051,6 +1123,81 @@
       "titel": "National Education Package",
       "kurz": "NBP",
       "desc": "Federal school funding via cooperation article."
+    },
+    "agrarstruktur": {
+      "titel": "Agricultural Structure Act",
+      "kurz": "AgrStrG",
+      "desc": "Reform of CAP subsidies: shift to eco-schemes, small-farm bonus, animal welfare premiums."
+    },
+    "tierwohl_label": {
+      "titel": "Animal Welfare Labelling Act",
+      "kurz": "TierKG",
+      "desc": "Mandatory 4-tier husbandry labelling on all meat products at retail."
+    },
+    "bauernentlastung": {
+      "titel": "Farmers' Relief Programme Act",
+      "kurz": "BauerHP",
+      "desc": "Emergency programme following farmers' protests: agricultural diesel compensation, red tape reduction for family farms."
+    },
+    "kh_reform": {
+      "titel": "Hospital Structure Reform Act",
+      "kurz": "KHStrRef",
+      "desc": "Shift to outpatient care, three-tier level system, capacity-based financing independent of case-flat rates."
+    },
+    "buergerversicherung": {
+      "titel": "Citizens' Insurance Act",
+      "kurz": "BuerVersG",
+      "desc": "Gradual inclusion of civil servants and self-employed in statutory health insurance; removal of income ceiling."
+    },
+    "pflegepersonal": {
+      "titel": "Nursing Staff Strengthening Act",
+      "kurz": "PflegStaerkG",
+      "desc": "Statutory minimum staffing levels in care facilities, collective-agreement binding for nursing pay, emergency training programme."
+    },
+    "breitband": {
+      "titel": "Broadband Expansion Act",
+      "kurz": "BrBandG",
+      "desc": "Right to fast internet: FTTH fibre-optic for all households by 2030, special funding for rural areas."
+    },
+    "verwaltungsdigital": {
+      "titel": "Register Modernisation Act",
+      "kurz": "RegModG",
+      "desc": "Digital residents' register, cross-agency data sharing, once-only principle for citizens."
+    },
+    "ki_regulierung": {
+      "titel": "AI Governance Act",
+      "kurz": "KIGovG",
+      "desc": "Transparency and risk obligations for AI systems in government agencies and critical infrastructure. Supplement to the EU AI Act."
+    },
+    "deutschlandticket": {
+      "titel": "Deutschland-Ticket Permanence Act",
+      "kurz": "DTktG",
+      "desc": "€49 ticket permanently federally funded, extended to regional trains and bicycle carriage."
+    },
+    "schienen": {
+      "titel": "Rail Network Modernisation Act",
+      "kurz": "SchienenModG",
+      "desc": "€50 billion special programme: digital signal boxes, bridge renovation, route capacity expansion."
+    },
+    "hochschulreform": {
+      "titel": "University Excellence Initiative II",
+      "kurz": "HochExG",
+      "desc": "New funding round: international professorships, clusters of excellence, open-access mandate for research outputs."
+    },
+    "bafoegreform": {
+      "titel": "Student Finance Modernisation Act",
+      "kurz": "BAfoegRefG",
+      "desc": "20% increase in student support rates, parental independence from age 23, digitalisation of the application process."
+    },
+    "weiterbildung": {
+      "titel": "National Continuing Education Act",
+      "kurz": "NatWeiterG",
+      "desc": "Legal right to 5 training days per year, upskilling allowance, AI competence offensive for employees."
+    },
+    "antikorruption": {
+      "titel": "Anti-Corruption Act",
+      "kurz": "AntiKorrG",
+      "desc": "Tougher criminal provisions, mandatory compliance programmes for federal agencies, enhanced whistleblower protection."
     }
   },
   "bundesratFraktionen": {

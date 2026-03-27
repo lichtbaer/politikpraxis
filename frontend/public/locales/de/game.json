@@ -752,6 +752,78 @@
           "log": "Regierung hält Kurs. Wirtschaftliche Schäden wachsen."
         }
       }
+    },
+    "bauernproteste": {
+      "typeLabel": "Agrarkrise",
+      "title": "Bauern blockieren Autobahnen und Ministerien",
+      "quote": "„Tausende Traktoren rollen auf Berlin zu — die Stimmung auf dem Land ist am Siedepunkt.“",
+      "context": "Bauernverbände protestieren gegen den geplanten Abbau von Agrardiesel-Subventionen und steigende Auflagen. Wirtschaftsministerin Maier warnt vor Versorgungsengpässen, Innenminister Braun fordert klare Kante.",
+      "ticker": "Bauernprotest: Traktoren blockieren Hauptstadt — Regierung unter Druck",
+      "choices": {
+        "0": {
+          "label": "Sofortprogramm auflegen",
+          "desc": "Agrardiesel-Kompensation und Bürokratieabbau — teuer, aber deeskalierend",
+          "log": "Sofortprogramm für Landwirte beschlossen. Proteste nehmen ab, Haushalt belastet."
+        },
+        "1": {
+          "label": "Dialog anbieten",
+          "desc": "Runden Tisch einberufen — gewinnt Zeit, löst nichts sofort",
+          "log": "Agrar-Runder Tisch einberufen. Bauern skeptisch, Proteste dauern an."
+        },
+        "2": {
+          "label": "Polizei durchgreifen lassen",
+          "desc": "Räumung der Blockaden — politisch riskant",
+          "log": "Polizeieinsatz gegen Blockaden. Stimmung auf dem Land kippt dauerhaft."
+        }
+      }
+    },
+    "pflegenotstand": {
+      "typeLabel": "Gesundheitskrise",
+      "title": "Kliniken schlagen Alarm — Pflegenotstand offiziell",
+      "quote": "„Wir können die Versorgung nicht mehr garantieren“, warnt die Deutsche Krankenhausgesellschaft.",
+      "context": "Hunderttausende Pflegestellen sind unbesetzt. Gesundheitsminister Neumann fordert sofortiges Handeln — die Krankenkassen sperren sich gegen höhere Beiträge.",
+      "ticker": "Pflegenotstand: Krankenhäuser warnen vor Versorgungskollaps",
+      "choices": {
+        "0": {
+          "label": "Sofortprogramm Pflege",
+          "desc": "Pflegepersonalgesetz beschleunigt einbringen — kostet viel",
+          "log": "Pflegesofortprogramm beschlossen. Neumann erleichtert, Haushalt belastet."
+        },
+        "1": {
+          "label": "Experten-Kommission einsetzen",
+          "desc": "Gewinnt Zeit, senkt Druck — aber keine Sofortwirkung",
+          "log": "Expertenkommission Pflege eingesetzt. Bericht in 6 Monaten erwartet."
+        },
+        "2": {
+          "label": "Krankenkassen in die Pflicht nehmen",
+          "desc": "Beitragserhöhung — unpopulär, aber wirksam",
+          "log": "Krankenkassen müssen Pflegefinanzierung anheben. Kritik aus der Wirtschaft."
+        }
+      }
+    },
+    "ki_vorfall": {
+      "typeLabel": "Digitaler Angriff",
+      "title": "KI-Deepfake-Angriff auf Bundesbehörde aufgedeckt",
+      "quote": "„Ein KI-generiertes Video des Bundesinnenministers verbreitete sich unkontrolliert in sozialen Netzwerken.“",
+      "context": "Ein staatlicher Akteur nutzte generative KI für gezielte Desinformation. Das BSI ist überfordert — die EU-Kommission fordert nationale Notfallregulierung, bevor der EU AI Act greift.",
+      "ticker": "KI-Deepfake-Skandal: Bundesbehörde Ziel staatlicher Desinformation",
+      "choices": {
+        "0": {
+          "label": "KI-Einsatzstopp in Behörden",
+          "desc": "Sicherheitspause — hemmt Innovation, schützt sofort",
+          "log": "KI-Einsatzstopp für Bundesbehörden verhängt. BSI prüft alle Systeme."
+        },
+        "1": {
+          "label": "Regulierung beschleunigen",
+          "desc": "KI-Governance-Gesetz sofort einbringen",
+          "log": "KI-Regulierungsinitiative gestartet. Branche reagiert gemischt."
+        },
+        "2": {
+          "label": "EU-Koordination suchen",
+          "desc": "Auf europäische Lösung warten — Zeitverlust",
+          "log": "EU-Koordination angefragt. Bis zur Antwort bleibt das Risiko bestehen."
+        }
+      }
     }
   },
   "charEvents": {
@@ -1049,6 +1121,81 @@
       "titel": "Nationales Bildungspaket",
       "kurz": "NBP",
       "desc": "Bundesfinanzierung Schulen via Kooperationsartikel."
+    },
+    "agrarstruktur": {
+      "titel": "Agrarstrukturgesetz",
+      "kurz": "AgrStrG",
+      "desc": "Reform der GAP-Subventionen: Umschichtung zu Ökoregelungen, Kleinbauern-Bonus, Tierwohl-Prämien."
+    },
+    "tierwohl_label": {
+      "titel": "Tierwohl-Kennzeichnungsgesetz",
+      "kurz": "TierKG",
+      "desc": "Verbindliche 4-stufige Haltungskennzeichnung auf allen Fleischprodukten im Handel."
+    },
+    "bauernentlastung": {
+      "titel": "Bäuerliches Betriebshilfeprogramm",
+      "kurz": "BauerHP",
+      "desc": "Sofortprogramm nach Bauernprotesten: Agrardiesel-Kompensation, Bürokratieabbau für Familienbetriebe."
+    },
+    "kh_reform": {
+      "titel": "Krankenhausstrukturreform",
+      "kurz": "KHStrRef",
+      "desc": "Ambulantisierung, Levelsystem (1–3), fallpauschalenunabhängige Vorhaltefinanzierung."
+    },
+    "buergerversicherung": {
+      "titel": "Bürgerversicherungsgesetz",
+      "kurz": "BuerVersG",
+      "desc": "Schrittweise Einbeziehung von Beamten und Selbstständigen in die GKV, Einkommensdeckel aufheben."
+    },
+    "pflegepersonal": {
+      "titel": "Pflegepersonalstärkungsgesetz",
+      "kurz": "PflegStaerkG",
+      "desc": "Gesetzliche Mindestbesetzung in Pflegeeinrichtungen, Pflegegehalt-Tarifbindung, Sofortprogramm Ausbildung."
+    },
+    "breitband": {
+      "titel": "Breitbandausbaugesetz",
+      "kurz": "BrBandG",
+      "desc": "Recht auf schnelles Internet: FTTH-Glasfaser für alle Haushalte bis 2030, Sonderförderung ländlicher Räume."
+    },
+    "verwaltungsdigital": {
+      "titel": "Registermodernisierungsgesetz",
+      "kurz": "RegModG",
+      "desc": "Digitales Einwohnerregister, behördenübergreifende Datenteilung, Once-Only-Prinzip für Bürger."
+    },
+    "ki_regulierung": {
+      "titel": "KI-Governance-Gesetz",
+      "kurz": "KIGovG",
+      "desc": "Transparenz- und Risikopflichten für KI-Systeme in Behörden und kritischer Infrastruktur. Ergänzung zum EU AI Act."
+    },
+    "deutschlandticket": {
+      "titel": "Deutschlandticket-Verstetigung",
+      "kurz": "DTktG",
+      "desc": "49-€-Ticket dauerhaft bundesfinanziert, Ausweitung auf Regionalbahnen und Fahrradmitnahme."
+    },
+    "schienen": {
+      "titel": "Schienennetz-Modernisierungsgesetz",
+      "kurz": "SchienenModG",
+      "desc": "50 Mrd. Sonderprogramm: Digitale Stellwerke, Brückensanierung, Streckenkapazitätsausbau."
+    },
+    "hochschulreform": {
+      "titel": "Hochschulexzellenzinitiative II",
+      "kurz": "HochExG",
+      "desc": "Neue Förderrunde: internationale Berufungen, Exzellenzcluster, Open-Access-Pflicht für Forschungsergebnisse."
+    },
+    "bafoegreform": {
+      "titel": "BAföG-Modernisierungsgesetz",
+      "kurz": "BAfoegRefG",
+      "desc": "Erhöhung der Bedarfssätze um 20%, Elternunabhängigkeit ab 23, Digitalisierung des Antragsverfahrens."
+    },
+    "weiterbildung": {
+      "titel": "Nationales Weiterbildungsgesetz",
+      "kurz": "NatWeiterG",
+      "desc": "Rechtsanspruch auf 5 Bildungstage pro Jahr, Qualifizierungsgeld, KI-Kompetenzoffensive für Beschäftigte."
+    },
+    "antikorruption": {
+      "titel": "Antikorruptionsgesetz",
+      "kurz": "AntiKorrG",
+      "desc": "Verschärfte Straftatbestände, verpflichtende Compliance-Programme für Bundesbehörden, verstärkter Hinweisgeberschutz."
     }
   },
   "bundesratFraktionen": {

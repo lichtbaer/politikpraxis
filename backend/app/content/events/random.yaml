@@ -1104,3 +1104,143 @@
       charMood:
         wm: -1
       log: 'Regierung hält Kurs. Wirtschaftliche Schäden wachsen.'
+
+- id: bauernproteste
+  type: danger
+  icon: "\U0001F69C"
+  typeLabel: Agrarkrise
+  title: Bauern blockieren Autobahnen und Ministerien
+  always_include: false
+  quote: >-
+    Tausende Traktoren rollen auf Berlin zu — die Stimmung auf dem Land ist am Siedepunkt.
+  context: >-
+    Bauernverbände protestieren gegen den geplanten Abbau von Agrardiesel-Subventionen und steigende Auflagen.
+    Wirtschaftsministerin Maier warnt vor Versorgungsengpässen, Innenminister Braun fordert klare Kante.
+  ticker: 'Bauernprotest: Traktoren blockieren Hauptstadt — Regierung unter Druck'
+  choices:
+    - label: Sofortprogramm auflegen
+      desc: 'Agrardiesel-Kompensation und Bürokratieabbau — teuer, aber deeskalierend'
+      cost: 15
+      type: primary
+      effect:
+        hh: -0.3
+        zf: 4
+        al: -0.1
+      charMood:
+        wm: 1
+        im: 1
+      log: 'Sofortprogramm für Landwirte beschlossen. Proteste nehmen ab, Haushalt belastet.'
+    - label: Dialog anbieten
+      desc: 'Runden Tisch einberufen — gewinnt Zeit, löst nichts sofort'
+      cost: 5
+      type: safe
+      effect:
+        zf: 1
+        gi: -0.1
+      charMood:
+        wm: 1
+      log: 'Agrar-Runder Tisch einberufen. Bauern skeptisch, Proteste dauern an.'
+    - label: Polizei durchgreifen lassen
+      desc: 'Räumung der Blockaden — politisch riskant'
+      cost: 10
+      type: danger
+      effect:
+        zf: -5
+        gi: 0.3
+      charMood:
+        im: 1
+        wm: -1
+      log: 'Polizeieinsatz gegen Blockaden. Stimmung auf dem Land kippt dauerhaft.'
+
+- id: pflegenotstand
+  type: danger
+  icon: "\U0001F3E5"
+  typeLabel: Gesundheitskrise
+  title: Kliniken schlagen Alarm — Pflegenotstand offiziell
+  always_include: false
+  quote: >-
+    „Wir können die Versorgung nicht mehr garantieren", warnt die Deutsche Krankenhausgesellschaft.
+  context: >-
+    Hunderttausende Pflegestellen sind unbesetzt. Gesundheitsminister Neumann fordert sofortiges Handeln —
+    die Krankenkassen sperren sich gegen höhere Beiträge.
+  ticker: 'Pflegenotstand: Krankenhäuser warnen vor Versorgungskollaps'
+  choices:
+    - label: Sofortprogramm Pflege
+      desc: 'Pflegepersonalgesetz beschleunigt einbringen — kostet viel'
+      cost: 10
+      type: primary
+      effect:
+        hh: -0.4
+        zf: 5
+      charMood:
+        gm: 2
+      log: 'Pflegesofortprogramm beschlossen. Neumann erleichtert, Haushalt belastet.'
+    - label: Experten-Kommission einsetzen
+      desc: 'Gewinnt Zeit, senkt Druck — aber keine Sofortwirkung'
+      cost: 5
+      type: safe
+      effect:
+        zf: 1
+      charMood:
+        gm: 1
+        fm: 1
+      log: 'Expertenkommission Pflege eingesetzt. Bericht in 6 Monaten erwartet.'
+    - label: Krankenkassen in die Pflicht nehmen
+      desc: 'Beitragserhöhung — unpopulär, aber wirksam'
+      cost: 0
+      type: safe
+      effect:
+        hh: 0.2
+        zf: -2
+        gi: 0.3
+      charMood:
+        gm: 1
+        fm: 1
+        wm: -1
+      log: 'Krankenkassen müssen Pflegefinanzierung anheben. Kritik aus der Wirtschaft.'
+
+- id: ki_vorfall
+  type: danger
+  icon: "\U0001F916"
+  typeLabel: Digitaler Angriff
+  title: KI-Deepfake-Angriff auf Bundesbehörde aufgedeckt
+  always_include: false
+  quote: >-
+    „Ein KI-generiertes Video des Bundesinnenministers verbreitete sich unkontrolliert in sozialen Netzwerken."
+  context: >-
+    Ein staatlicher Akteur nutzte generative KI für gezielte Desinformation. Das BSI ist überfordert —
+    die EU-Kommission fordert nationale Notfallregulierung, bevor der EU AI Act greift.
+  ticker: 'KI-Deepfake-Skandal: Bundesbehörde Ziel staatlicher Desinformation'
+  choices:
+    - label: KI-Einsatzstopp in Behörden
+      desc: 'Sicherheitspause — hemmt Innovation, schützt sofort'
+      cost: 10
+      type: primary
+      effect:
+        zf: 3
+        hh: -0.1
+      charMood:
+        im: 1
+        jm: 1
+        wm: -1
+      log: 'KI-Einsatzstopp für Bundesbehörden verhängt. BSI prüft alle Systeme.'
+    - label: Regulierung beschleunigen
+      desc: 'KI-Governance-Gesetz sofort einbringen'
+      cost: 15
+      type: safe
+      effect:
+        zf: 2
+        gi: -0.2
+      charMood:
+        jm: 1
+        wm: 1
+      log: 'KI-Regulierungsinitiative gestartet. Branche reagiert gemischt.'
+    - label: EU-Koordination suchen
+      desc: 'Auf europäische Lösung warten — Zeitverlust'
+      cost: 5
+      type: danger
+      effect:
+        zf: -1
+      charMood:
+        im: -1
+      log: 'EU-Koordination angefragt. Bis zur Antwort bleibt das Risiko bestehen.'
