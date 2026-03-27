@@ -1,6 +1,6 @@
 """SMA-394: Zusatzfelder für Event-Choices (Milieu, Haushalt-Modifikatoren).
 
-Revision ID: 045_event_choice_dynamic_extras_sma394
+Revision ID: 045_event_choice_extras_sma394
 Revises: 044_sma394_dynamic_events
 Create Date: 2026-03-26
 """
@@ -12,7 +12,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
 
-revision: str = "045_event_choice_dynamic_extras_sma394"
+revision: str = "045_event_choice_extras_sma394"
 down_revision: Union[str, Sequence[str], None] = "044_sma394_dynamic_events"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

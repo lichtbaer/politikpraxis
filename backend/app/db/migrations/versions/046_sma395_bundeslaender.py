@@ -1,7 +1,7 @@
 """SMA-395: Bundesländer-Profile (Tabelle + Seed) + länderspezifische Bundesrat-Events.
 
 Revision ID: 046_sma395_bundeslaender
-Revises: 045_event_choice_dynamic_extras_sma394
+Revises: 045_event_choice_extras_sma394
 Create Date: 2026-03-26
 """
 
@@ -15,7 +15,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 
 revision: str = "046_sma395_bundeslaender"
-down_revision: Union[str, Sequence[str], None] = "045_event_choice_dynamic_extras_sma394"
+down_revision: Union[str, Sequence[str], None] = "045_event_choice_extras_sma394"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
