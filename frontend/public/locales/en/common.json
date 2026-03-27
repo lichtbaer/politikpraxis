@@ -15,13 +15,34 @@
   "header": {
     "monthFormat": "Month {{month}}/48 · {{year}}",
     "pkTooltip": "Political capital — your action resource",
-    "playtestFeedback": "Give feedback"
+    "playtestFeedback": "Give feedback",
+    "paused": "PAUSED"
   },
   "menu": {
     "newGame": "New Game",
     "loadGame": "Load Game",
     "settings": "Settings",
-    "credits": "Credits"
+    "credits": "Credits",
+    "loadVersionError": "Save game is not compatible with this version.",
+    "loadParseError": "Save game could not be read.",
+    "migrateError": "Transfer failed.",
+    "logout": "Sign out",
+    "login": "Sign in",
+    "migrateTitle": "Transfer local save?",
+    "migrateDesc": "A local save was found. Transfer it to the cloud (slot 1)? The local save will be removed afterwards.",
+    "migrateConfirm": "Transfer",
+    "migrateSkip": "Later",
+    "cloudSavesLoading": "Loading saves…",
+    "cloudSavesTitle": "Cloud saves",
+    "saveSlotLabel": "Slot {{slot}}",
+    "saveMonthShort": "Month {{m}}/48",
+    "saveVote": "Forecast: {{v}}%",
+    "saveUpdated": "Last: {{d}}",
+    "deleteSave": "Delete",
+    "emptySlot": "Empty slot",
+    "serverError": "Server error",
+    "loadFailed": "Loading failed",
+    "deleteFailed": "Deletion failed"
   },
   "auth": {
     "title": "Sign in / Register",
@@ -109,7 +130,13 @@
       "land": "State",
       "kommune": "Municipal"
     },
-    "gratis": "free"
+    "gratis": "free",
+    "manualSaveOk": "Game saved to the cloud",
+    "manualSaveFallback": "Server unreachable – saved locally",
+    "manualSaveSlotLabel": "Save slot",
+    "manualSaveTooltip": "Save game (cloud)",
+    "saveHintBanner": "Sign in to save your game and continue on multiple devices.",
+    "saveHintLogin": "Sign in"
   },
   "startMap": {
     "subtitle": "Federal · States · Municipalities · Europe"
@@ -128,7 +155,11 @@
     "topFields": "Most common policy fields",
     "titles": "Most common player titles",
     "submitError": "Could not submit statistics.",
-    "savedHint": "Summary submitted."
+    "savedHint": "Summary submitted.",
+    "colParty": "Party",
+    "colCount": "n",
+    "colWinrate": "Win rate",
+    "colForecast": "Avg. forecast"
   },
   "highscores": {
     "pageTitle": "Highscores",
@@ -144,5 +175,38 @@
     "colStufe": "Level",
     "colDate": "Date",
     "empty": "No entries yet."
+  },
+  "userTestFeedback": {
+    "titel": "Playtest Feedback",
+    "untertitel": "All answers are voluntary and only used internally.",
+    "gesamtbewertung": "Overall impression",
+    "verstaendlichkeit": "Clarity",
+    "fehlerFrage": "Did you encounter bugs or problems?",
+    "fehlerBeschreibung": "What happened?",
+    "fehlerPlaceholder": "Briefly describe the bug…",
+    "positives": "What worked well?",
+    "positivesPlaceholder": "Optional…",
+    "verbesserungen": "What was confusing or difficult?",
+    "verbesserungenPlaceholder": "Optional…",
+    "sonstiges": "Other",
+    "sonstigesPlaceholder": "Optional…",
+    "absenden": "Submit feedback",
+    "senden": "Sending…",
+    "abbrechen": "Cancel",
+    "danke": "Thank you for your feedback!",
+    "fehler": "Feedback could not be sent. Please try again.",
+    "spielendeHinweis": "How was your experience?",
+    "spielendeLink": "Give feedback",
+    "starLabel": "{{n}} of 5",
+    "close": "Close"
+  },
+  "loading": {
+    "gameContent": "Loading game content…",
+    "content": "Loading content…"
+  },
+  "contentError": "Content could not be loaded.",
+  "nav": {
+    "legalFooter": "Legal",
+    "back": "← Back"
   }
 }

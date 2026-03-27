@@ -144,10 +144,9 @@ export function BundestagView() {
                   <span className={styles.countdown}>
                     {monateBisAbstimmung <= 0
                       ? t('game:bundestag.abstimmungDieserMonat', 'Abstimmung diesen Monat')
-                      : t('game:bundestag.abstimmungIn', {
+                      : t('game:bundestag.abstimmungCountdown', {
                           count: monateBisAbstimmung,
                           month: formatMonatJahr(abstimmungMonat),
-                          defaultValue: 'Abstimmung in {{count}} Mo. ({{month}})',
                         })}
                   </span>
                   <MilieuBar

@@ -33,11 +33,11 @@ export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
       }
       setBySlot(map);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Serverfehler');
+      setErr(e instanceof Error ? e.message : t('menu.serverError'));
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, t]);
 
   useEffect(() => {
     void refresh();
@@ -49,7 +49,7 @@ export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
       const detail = await getSaveBySlot(token, slot);
       onLoadSave(serverDetailToSaveFile(detail));
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Laden fehlgeschlagen');
+      setErr(e instanceof Error ? e.message : t('menu.loadFailed'));
     }
   };
 
@@ -60,7 +60,7 @@ export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
       await refresh();
       onListChange?.();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Löschen fehlgeschlagen');
+      setErr(e instanceof Error ? e.message : t('menu.deleteFailed'));
     }
   };
 
@@ -76,12 +76,12 @@ export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
   };
 
   if (loading) {
-    return <p className={styles.hint}>{t('menu.cloudSavesLoading', { defaultValue: 'Spielstände werden geladen…' })}</p>;
+    return <p className={styles.hint}>{t('menu.cloudSavesLoading')}</p>;
   }
 
   return (
     <div className={styles.wrap}>
-      <h3 className={styles.heading}>{t('menu.cloudSavesTitle', { defaultValue: 'Cloud-Spielstände' })}</h3>
+      <h3 className={styles.heading}>{t('menu.cloudSavesTitle')}</h3>
       {err && <p className={styles.error}>{err}</p>}
       <div className={styles.grid}>
         {[1, 2, 3].map((slot) => {
@@ -89,7 +89,7 @@ export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
           return (
             <div key={slot} className={styles.slot}>
               <div className={styles.slotHead}>
-                {t('menu.saveSlotLabel', { defaultValue: 'Slot {{slot}}', slot })}
+                {t('menu.saveSlotLabel', { slot })}
               </div>
               {save ? (
                 <>
@@ -98,28 +98,27 @@ export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
                   </div>
                   <div className={styles.line}>
                     {(save.partei ?? '—')}{' '}
-                    · {t('menu.saveMonthShort', { defaultValue: 'Monat {{m}}/48', m: save.monat ?? '—' })}
+                    · {t('menu.saveMonthShort', { m: save.monat ?? '—' })}
                   </div>
                   <div className={styles.line}>
-                    {t('menu.saveWahlprognose', {
-                      defaultValue: 'Wahlprognose: {{v}}%',
+                    {t('menu.saveVote', {
                       v: save.wahlprognose != null ? Math.round(save.wahlprognose) : '—',
                     })}
                   </div>
                   <div className={styles.meta}>
-                    {t('menu.saveUpdated', { defaultValue: 'Zuletzt: {{d}}', d: formatDate(save.updated_at) })}
+                    {t('menu.saveUpdated', { d: formatDate(save.updated_at) })}
                   </div>
                   <div className={styles.actions}>
                     <button type="button" className={styles.btnLoad} onClick={() => void handleLoad(slot)}>
                       {t('menu.loadGame')}
                     </button>
                     <button type="button" className={styles.btnDel} onClick={() => void handleDelete(slot)}>
-                      {t('menu.deleteSave', { defaultValue: 'Löschen' })}
+                      {t('menu.deleteSave')}
                     </button>
                   </div>
                 </>
               ) : (
-                <span className={styles.empty}>{t('menu.emptySlot', { defaultValue: 'Leerer Slot' })}</span>
+                <span className={styles.empty}>{t('menu.emptySlot')}</span>
               )}
             </div>
           );

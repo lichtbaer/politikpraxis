@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import i18n from '../i18n';
 import { apiFetch } from '../services/api';
 import type {
   CharApi,
@@ -538,7 +539,7 @@ export const useContentStore = create<ContentStore>((set) => ({
       });
     } catch {
       set({
-        error: 'Inhalte konnten nicht geladen werden.',
+        error: i18n.t('contentError'),
         loading: false,
         loaded: false,
       });

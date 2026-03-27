@@ -105,12 +105,12 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
       </div>
       {hasLobbyAction && (
         <div className={styles.lobbyStatus}>
-          {lobby?.pkInvestiert && <span className={styles.lobbyBadge}>{t('game:bundesrat.pkInvestiert', { defaultValue: 'PK investiert' })}</span>}
-          {lobby?.tradeoffAngenommen && <span className={styles.lobbyBadge}>{t('game:bundesrat.tradeoffAkzeptiert', { defaultValue: 'Forderung akzeptiert' })}</span>}
+          {lobby?.pkInvestiert && <span className={styles.lobbyBadge}>{t('game:bundesrat.pkInvestiert')}</span>}
+          {lobby?.tradeoffAngenommen && <span className={styles.lobbyBadge}>{t('game:bundesrat.tradeoffAkzeptiert')}</span>}
         </div>
       )}
       {lobbyGesperrt && fullView && (
-        <div className={styles.gesperrtBadge}>{t('game:bundesrat.gesperrt', { defaultValue: 'Gesperrt' })}</div>
+        <div className={styles.gesperrtBadge}>{t('game:bundesrat.gesperrt')}</div>
       )}
       {showLobbyBtn && (
         <button
@@ -118,9 +118,9 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
           className={styles.btnGespraech}
           onClick={onGespraechSuchen}
           disabled={!lobbyBtnEnabled}
-          title={!law ? t('game:bundesrat.keineAbstimmungLobbyHint', { defaultValue: 'Noch kein Gesetz im Bundesratsverfahren' }) : undefined}
+          title={!law ? t('game:bundesrat.keineAbstimmungLobbyHint') : undefined}
         >
-          {t('game:bundesrat.lobbyingButton', { defaultValue: 'Lobbying (10 PK)' })}
+          {t('game:bundesrat.lobbyingButton')}
         </button>
       )}
     </article>
@@ -276,9 +276,9 @@ export function BundesratView() {
       </div>
 
       {showLaenderListe && (
-        <section className={styles.laenderSection} aria-label={t('game:bundesrat.laenderUebersicht', { defaultValue: 'Länderübersicht' })}>
+        <section className={styles.laenderSection} aria-label={t('game:bundesrat.laenderUebersicht')}>
           <h3 className={styles.laenderSectionTitle}>
-            {t('game:bundesrat.laenderUebersicht', { defaultValue: 'Länder und Beziehungen' })}
+            {t('game:bundesrat.laenderUebersicht')}
           </h3>
           <ul className={styles.laenderListe}>
             {state.bundesrat.map((land) => {
@@ -310,7 +310,7 @@ export function BundesratView() {
                   </div>
                   {bez < 40 && (
                     <span className={styles.blockadeBadge}>
-                      {t('game:bundesrat.blockadeRisiko', { defaultValue: 'Blockade-Risiko' })}
+                      {t('game:bundesrat.blockadeRisiko')}
                     </span>
                   )}
                 </li>
@@ -323,12 +323,10 @@ export function BundesratView() {
       {showBilaterale && (
         <section className={styles.bilateralSection}>
           <h3 className={styles.laenderSectionTitle}>
-            {t('game:bundesrat.bilateraleTitel', { defaultValue: 'Bilaterale Gespräche' })}
+            {t('game:bundesrat.bilateraleTitel')}
           </h3>
           <p className={styles.bilateralHint}>
-            {t('game:bundesrat.bilateraleHint', {
-              defaultValue: 'Pflege die Beziehung zu einzelnen Bundesländern (10 PK, +10 Beziehung).',
-            })}
+            {t('game:bundesrat.bilateraleHint')}
           </p>
           <div className={styles.bilateralActions}>
             {state.bundesrat
@@ -341,8 +339,7 @@ export function BundesratView() {
                   disabled={pk < 10}
                   onClick={() => doBundeslandGespraech(land.id)}
                 >
-                  {t('game:bundesrat.bilateralMit', {
-                    defaultValue: 'Gespräch: {{name}}',
+                  {t('game:bundesrat.bilateraleBtn', {
                     name: land.name,
                   })}
                 </button>

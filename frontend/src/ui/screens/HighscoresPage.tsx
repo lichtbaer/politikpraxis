@@ -35,16 +35,13 @@ export function HighscoresPage() {
   }, [partei, complexity]);
 
   return (
-    <LegalPageShell title={t('highscores.pageTitle', 'Highscores')}>
+    <LegalPageShell title={t('highscores.pageTitle')}>
       <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
-        {t(
-          'highscores.privacyHint',
-          'Anonyme Rangliste: keine Namen, nur Titel und Spielkennzahlen. Nur Einträge mit Community-Opt-in.',
-        )}
+        {t('highscores.privacyHint')}
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
         <label>
-          {t('highscores.filterParty', 'Partei')}{' '}
+          {t('highscores.filterParty')}{' '}
           <select value={partei} onChange={(e) => setPartei(e.target.value)}>
             {PARTEIEN.map((p) => (
               <option key={p} value={p}>
@@ -54,7 +51,7 @@ export function HighscoresPage() {
           </select>
         </label>
         <label>
-          {t('highscores.filterComplexity', 'Komplexität')}{' '}
+          {t('highscores.filterComplexity')}{' '}
           <select
             value={complexity === '' ? '' : String(complexity)}
             onChange={(e) => {
@@ -62,7 +59,7 @@ export function HighscoresPage() {
               setComplexity(v === '' ? '' : Number(v));
             }}
           >
-            <option value="">{t('highscores.all', 'Alle')}</option>
+            <option value="">{t('highscores.all')}</option>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -77,25 +74,25 @@ export function HighscoresPage() {
             <tr>
               <th style={{ textAlign: 'left', padding: '6px 8px' }}>#</th>
               <th style={{ textAlign: 'left', padding: '6px 8px' }}>
-                {t('highscores.colTitle', 'Titel')}
+                {t('highscores.colTitle')}
               </th>
               <th style={{ textAlign: 'left', padding: '6px 8px' }}>
-                {t('highscores.colParty', 'Partei')}
+                {t('highscores.colParty')}
               </th>
               <th style={{ textAlign: 'right', padding: '6px 8px' }}>
-                {t('highscores.colForecast', 'Wahlprognose')}
+                {t('highscores.colForecast')}
               </th>
               <th style={{ textAlign: 'right', padding: '6px 8px' }}>
-                {t('highscores.colLaws', 'Gesetze')}
+                {t('highscores.colLaws')}
               </th>
               <th style={{ textAlign: 'right', padding: '6px 8px' }}>
-                {t('highscores.colSaldo', 'Saldo')}
+                {t('highscores.colSaldo')}
               </th>
               <th style={{ textAlign: 'right', padding: '6px 8px' }}>
-                {t('highscores.colStufe', 'Stufe')}
+                {t('highscores.colStufe')}
               </th>
               <th style={{ textAlign: 'left', padding: '6px 8px' }}>
-                {t('highscores.colDate', 'Datum')}
+                {t('highscores.colDate')}
               </th>
             </tr>
           </thead>
@@ -123,7 +120,7 @@ export function HighscoresPage() {
           </tbody>
         </table>
         {items.length === 0 && !err && (
-          <p style={{ marginTop: '0.75rem' }}>{t('highscores.empty', 'Noch keine Einträge.')}</p>
+          <p style={{ marginTop: '0.75rem' }}>{t('highscores.empty')}</p>
         )}
       </div>
     </LegalPageShell>

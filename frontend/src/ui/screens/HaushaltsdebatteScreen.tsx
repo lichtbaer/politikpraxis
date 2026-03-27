@@ -41,10 +41,10 @@ function LehmannAvatar({ quote }: { quote: string }) {
   );
 }
 
-const LEHMANN_QUOTES: Record<string, string> = {
-  ueberschuss: 'Der Haushalt ist solide. Wir haben Spielraum für Investitionen.',
-  ausgeglichen: 'Ausgeglichener Haushalt — aber kein Raum für Experimente.',
-  defizit: 'Das Defizit ist besorgniserregend. Jede Ausgabe muss gerechtfertigt werden.',
+const LEHMANN_QUOTE_KEYS: Record<string, string> = {
+  ueberschuss: 'haushaltsdebatte.lehmannUeberschuss',
+  ausgeglichen: 'haushaltsdebatte.lehmannAusgeglichen',
+  defizit: 'haushaltsdebatte.lehmannDefizit',
 };
 
 function HaushaltsGrafik({
@@ -56,6 +56,7 @@ function HaushaltsGrafik({
   pflichtausgaben: number;
   laufendeAusgaben: number;
 }) {
+  const { t } = useTranslation('game');
   const gesamt = einnahmen;
   const pflPct = gesamt > 0 ? (pflichtausgaben / gesamt) * 100 : 0;
   const laufPct = gesamt > 0 ? (laufendeAusgaben / gesamt) * 100 : 0;
@@ -69,7 +70,7 @@ function HaushaltsGrafik({
         />
       </div>
       <div className={styles.grafikLegende}>
-        <span>Einnahmen: {einnahmen} Mrd.</span>
+        <span>{t('haushaltsdebatte.grafikEinnahmen', { value: einnahmen })}</span>
       </div>
       <div className={styles.grafikBar}>
         <div
@@ -82,8 +83,8 @@ function HaushaltsGrafik({
         />
       </div>
       <div className={styles.grafikLegende}>
-        <span>Pflicht: {pflichtausgaben} Mrd.</span>
-        <span>Gesetze: {normalizeZero(laufendeAusgaben).toFixed(1)} Mrd.</span>
+        <span>{t('haushaltsdebatte.grafikPflicht', { value: pflichtausgaben })}</span>
+        <span>{t('haushaltsdebatte.grafikGesetze', { value: normalizeZero(laufendeAusgaben).toFixed(1) })}</span>
       </div>
     </div>
   );
@@ -152,7 +153,7 @@ export function HaushaltsdebatteScreen() {
             <h2 className={styles.title}>
               {t('haushaltsdebatte.entwurfTitle', { jahr })}
             </h2>
-            <LehmannAvatar quote={LEHMANN_QUOTES[ev.ausgangslage]} />
+            <LehmannAvatar quote={t(LEHMANN_QUOTE_KEYS[ev.ausgangslage])} />
             {complexity >= 3 && (
               <HaushaltsGrafik
                 einnahmen={haushalt.einnahmen}

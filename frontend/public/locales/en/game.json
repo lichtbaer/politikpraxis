@@ -7,72 +7,120 @@
       "role": "Chancellor",
       "bio": "Leads the coalition with a pragmatic course. Holds the threads together — but expects loyalty in return.",
       "tag": "Stability",
-      "interests": ["Coalition stability", "Re-election"],
-      "bonus": { "desc": "Gives +5 parliament votes for all laws" }
+      "interests": [
+        "Coalition stability",
+        "Re-election"
+      ],
+      "bonus": {
+        "desc": "Gives +5 parliament votes for all laws"
+      }
     },
     "fm": {
       "name": "Robert Lehmann",
       "role": "Finance Minister",
       "bio": "Strict budget guardian of the CDU. Consistently opposes expensive reforms — but is usually right.",
       "tag": "Budget",
-      "interests": ["Fiscal discipline", "Debt brake"],
-      "bonus": { "desc": "Accelerates laws without budget costs" }
+      "interests": [
+        "Fiscal discipline",
+        "Debt brake"
+      ],
+      "bonus": {
+        "desc": "Accelerates laws without budget costs"
+      }
     },
     "wm": {
       "name": "Petra Maier",
       "role": "Economics Minister",
       "bio": "Pragmatic and solution-oriented. Important ally — maintains contacts with industry and state premiers.",
       "tag": "Business location",
-      "interests": ["Business location policy", "Industrial transformation"],
-      "bonus": { "desc": "+3% parliament votes for economic laws" }
+      "interests": [
+        "Business location policy",
+        "Industrial transformation"
+      ],
+      "bonus": {
+        "desc": "+3% parliament votes for economic laws"
+      }
     },
     "im": {
       "name": "Klaus Braun",
       "role": "Interior Minister",
       "bio": "Conservative maverick. Fundamentally distrusts the coalition — actively seeks reasons to torpedo it.",
       "tag": "Security",
-      "interests": ["Domestic security", "Migration limits"],
-      "bonus": { "desc": "Stabilises Bundesrat (Federal Council) votes in 3 states" }
+      "interests": [
+        "Domestic security",
+        "Migration limits"
+      ],
+      "bonus": {
+        "desc": "Stabilises Bundesrat (Federal Council) votes in 3 states"
+      }
     },
     "jm": {
       "name": "Sara Kern",
       "role": "Justice Minister",
       "bio": "Lawyer with uncompromising principles. Blocks unconstitutional projects — but also protects the coalition from costly mistakes.",
       "tag": "Rule of law",
-      "interests": ["Rule of law", "Fundamental rights"],
-      "bonus": { "desc": "Prevents constitutional challenges against laws" }
+      "interests": [
+        "Rule of law",
+        "Fundamental rights"
+      ],
+      "bonus": {
+        "desc": "Prevents constitutional challenges against laws"
+      }
     },
     "um": {
       "name": "Jonas Wolf",
       "role": "Environment Minister",
       "bio": "Drives climate policy forward, sometimes against the rest of the cabinet. Strong network among progressive voters.",
       "tag": "Climate",
-      "interests": ["Climate protection", "Energy transition"],
-      "bonus": { "desc": "+4% approval in progressive milieu" }
+      "interests": [
+        "Climate protection",
+        "Energy transition"
+      ],
+      "bonus": {
+        "desc": "+4% approval in progressive milieu"
+      }
     },
     "am": {
       "name": "Dr. Anna Schulze",
       "role": "Minister for Labour and Social Affairs",
       "bio": "Union-friendly and combative. Schulze knows the companies from the inside and consistently demands minimum wage and collective bargaining.",
       "tag": "Fighter",
-      "interests": ["Minimum wage", "Collective bargaining", "Social benefits"],
-      "bonus": { "desc": "GBD relationship regenerates passively when Mood ≥ 3" }
+      "interests": [
+        "Minimum wage",
+        "Collective bargaining",
+        "Social benefits"
+      ],
+      "bonus": {
+        "desc": "GBD relationship regenerates passively when Mood ≥ 3"
+      }
     },
     "gm": {
       "name": "Prof. Thomas Neumann",
       "role": "Minister for Health and Care",
       "bio": "Clinical pragmatist. Neumann thinks in systems and seeks sustainable solutions for care and health insurance.",
       "tag": "Systematic",
-      "interests": ["Care financing", "Health insurance", "Prevention"],
-      "bonus": { "desc": "Health field pressure rises more slowly when Mood ≥ 3" }
+      "interests": [
+        "Care financing",
+        "Health insurance",
+        "Prevention"
+      ],
+      "bonus": {
+        "desc": "Health field pressure rises more slowly when Mood ≥ 3"
+      }
     },
     "bm": {
       "name": "Dr. Sabine Becker",
       "role": "Minister for Education and Research",
       "bio": "Tireless reformer with federalism frustration. Becker wants to bring federal and state levels together — often in vain.",
       "tag": "Reformer",
-      "interests": ["Education federalism", "Childcare expansion", "Research funding"],
-      "bonus": { "desc": "Bundesrat blockade for education laws -15% when Mood ≥ 3" }
+      "interests": [
+        "Education federalism",
+        "Childcare expansion",
+        "Research funding"
+      ],
+      "bonus": {
+        "desc": "Bundesrat blockade for education laws -15% when Mood ≥ 3"
+      }
     }
   },
   "mood": {
@@ -90,9 +138,21 @@
       "context": "The Finance Ministry has revised estimates downward. Finance Minister Lehmann demands immediate countermeasures.",
       "ticker": "Budget hole: Government under pressure — Lehmann demands austerity package",
       "choices": {
-        "0": { "label": "Push through austerity package", "desc": "Short-term consolidation, lowers popularity", "log": "Austerity package passed. Budget stabilised, popularity drops." },
-        "1": { "label": "Take on new debt", "desc": "Violates debt brake — legal risk", "log": "Debt brake stretched. Constitutional challenge threatens." },
-        "2": { "label": "Announce tax increase", "desc": "Burdens centre milieu, stabilises budget", "log": "Tax increase announced. Business association protests." }
+        "0": {
+          "label": "Push through austerity package",
+          "desc": "Short-term consolidation, lowers popularity",
+          "log": "Austerity package passed. Budget stabilised, popularity drops."
+        },
+        "1": {
+          "label": "Take on new debt",
+          "desc": "Violates debt brake — legal risk",
+          "log": "Debt brake stretched. Constitutional challenge threatens."
+        },
+        "2": {
+          "label": "Announce tax increase",
+          "desc": "Burdens centre milieu, stabilises budget",
+          "log": "Tax increase announced. Business association protests."
+        }
       }
     },
     "skandal": {
@@ -102,9 +162,21 @@
       "context": "The opposition demands resignation. Braun uses the opportunity to destabilise the coalition.",
       "ticker": "Spiegel report shakes coalition — opposition smells blood",
       "choices": {
-        "0": { "label": "Full transparency", "desc": "Disclose everything, short-term damage", "log": "Full disclosure. Short-term damage, long-term trust." },
-        "1": { "label": "Distraction offensive", "desc": "Divert media with new topic", "log": "Distraction manoeuvre launched. Media sceptical." },
-        "2": { "label": "Dismiss minister", "desc": "Clear signal, costs coalition stability", "log": "Minister dismissed. Coalition partners angered." }
+        "0": {
+          "label": "Full transparency",
+          "desc": "Disclose everything, short-term damage",
+          "log": "Full disclosure. Short-term damage, long-term trust."
+        },
+        "1": {
+          "label": "Distraction offensive",
+          "desc": "Divert media with new topic",
+          "log": "Distraction manoeuvre launched. Media sceptical."
+        },
+        "2": {
+          "label": "Dismiss minister",
+          "desc": "Clear signal, costs coalition stability",
+          "log": "Minister dismissed. Coalition partners angered."
+        }
       }
     },
     "euklage": {
@@ -114,9 +186,21 @@
       "context": "Three directives have not yet been transposed into national law. A fine of up to 500 million euros looms.",
       "ticker": "EU infringement proceedings against Germany opened",
       "choices": {
-        "0": { "label": "Rapid implementation", "desc": "Emergency legislation, ignores Bundesrat (Federal Council)", "log": "EU directives quickly implemented. Constitutional concerns remain." },
-        "1": { "label": "Open EU negotiations", "desc": "Gain time, no immediate costs", "log": "Negotiations with Brussels opened. Outcome open." },
-        "2": { "label": "Include Bundesrat (Federal Council)", "desc": "Correct but slow, fine risk", "log": "Regular procedure chosen. Fine risk remains." }
+        "0": {
+          "label": "Rapid implementation",
+          "desc": "Emergency legislation, ignores Bundesrat (Federal Council)",
+          "log": "EU directives quickly implemented. Constitutional concerns remain."
+        },
+        "1": {
+          "label": "Open EU negotiations",
+          "desc": "Gain time, no immediate costs",
+          "log": "Negotiations with Brussels opened. Outcome open."
+        },
+        "2": {
+          "label": "Include Bundesrat (Federal Council)",
+          "desc": "Correct but slow, fine risk",
+          "log": "Regular procedure chosen. Fine risk remains."
+        }
       }
     },
     "konjunktur": {
@@ -126,9 +210,21 @@
       "context": "Maier warns against hasty spending cuts. Lehmann insists on fiscal discipline.",
       "ticker": "Economic downturn: Recession risk rises to 35%",
       "choices": {
-        "0": { "label": "Launch stimulus package", "desc": "Expensive but effective", "log": "Stimulus package passed. Budget burdened, economy stabilised." },
-        "1": { "label": "Wait and see", "desc": "Cheap but risky", "log": "Wait-and-see stance. Economy worsens further." },
-        "2": { "label": "Announce structural reforms", "desc": "Right long-term, ineffective short-term", "log": "Structural reforms announced. Markets react positively." }
+        "0": {
+          "label": "Launch stimulus package",
+          "desc": "Expensive but effective",
+          "log": "Stimulus package passed. Budget burdened, economy stabilised."
+        },
+        "1": {
+          "label": "Wait and see",
+          "desc": "Cheap but risky",
+          "log": "Wait-and-see stance. Economy worsens further."
+        },
+        "2": {
+          "label": "Announce structural reforms",
+          "desc": "Right long-term, ineffective short-term",
+          "log": "Structural reforms announced. Markets react positively."
+        }
       }
     },
     "koalition_krise": {
@@ -138,9 +234,21 @@
       "context": "Dispute over energy law escalates. The junior partner demands renegotiation of the coalition agreement.",
       "ticker": "COALITION CRISIS: Junior partner issues ultimatum to Chancellery",
       "choices": {
-        "0": { "label": "Renegotiate", "desc": "Stability gain, reform loss", "log": "Coalition agreement renegotiated. Reform watered down." },
-        "1": { "label": "Risk confrontation", "desc": "Principled but destabilising", "log": "Coalition crisis escalates. Early elections discussed." },
-        "2": { "label": "Offer trade-off", "desc": "Sacrifice another project, save coalition", "log": "Trade-off agreed. Coalition temporarily saved." }
+        "0": {
+          "label": "Renegotiate",
+          "desc": "Stability gain, reform loss",
+          "log": "Coalition agreement renegotiated. Reform watered down."
+        },
+        "1": {
+          "label": "Risk confrontation",
+          "desc": "Principled but destabilising",
+          "log": "Coalition crisis escalates. Early elections discussed."
+        },
+        "2": {
+          "label": "Offer trade-off",
+          "desc": "Sacrifice another project, save coalition",
+          "log": "Trade-off agreed. Coalition temporarily saved."
+        }
       }
     },
     "demo": {
@@ -150,9 +258,21 @@
       "context": "The protest targets social inequality. Progressives are mobilised but also dissatisfied with the government.",
       "ticker": "Berlin: Historic demonstration for social justice",
       "choices": {
-        "0": { "label": "Offer dialogue", "desc": "Signal of openness", "log": "Dialogue with demonstrators offered. Progressive milieu calmed." },
-        "1": { "label": "Reject demands", "desc": "Clear position but polarisation", "log": "Demands rejected. Progressives disappointed." },
-        "2": { "label": "Announce emergency programme", "desc": "Expensive, high sympathy gain", "log": "Emergency programme announced. Broad approval." }
+        "0": {
+          "label": "Offer dialogue",
+          "desc": "Signal of openness",
+          "log": "Dialogue with demonstrators offered. Progressive milieu calmed."
+        },
+        "1": {
+          "label": "Reject demands",
+          "desc": "Clear position but polarisation",
+          "log": "Demands rejected. Progressives disappointed."
+        },
+        "2": {
+          "label": "Announce emergency programme",
+          "desc": "Expensive, high sympathy gain",
+          "log": "Emergency programme announced. Broad approval."
+        }
       }
     },
     "eufoerder": {
@@ -162,9 +282,21 @@
       "context": "A rare piece of good news: EU funds arrive earlier than expected. How will they be used?",
       "ticker": "EU releases 4.8 bn euros for Germany — government decides use",
       "choices": {
-        "0": { "label": "Climate & infrastructure", "desc": "Effective long-term", "log": "EU funds used for climate investments." },
-        "1": { "label": "Prioritise housing", "desc": "Popular, quickly visible", "log": "EU funds strengthen housing offensive." },
-        "2": { "label": "Debt repayment", "desc": "Finance Ministry delighted", "log": "Debt repaid. Budget improved, room for reforms." }
+        "0": {
+          "label": "Climate & infrastructure",
+          "desc": "Effective long-term",
+          "log": "EU funds used for climate investments."
+        },
+        "1": {
+          "label": "Prioritise housing",
+          "desc": "Popular, quickly visible",
+          "log": "EU funds strengthen housing offensive."
+        },
+        "2": {
+          "label": "Debt repayment",
+          "desc": "Finance Ministry delighted",
+          "log": "Debt repaid. Budget improved, room for reforms."
+        }
       }
     },
     "verfassungsgericht": {
@@ -174,9 +306,21 @@
       "context": "The judges in Karlsruhe see fundamental rights violated. The opposition triumphs, the coalition must respond.",
       "ticker": "Karlsruhe strikes down government law — coalition under pressure",
       "choices": {
-        "0": { "label": "Respect ruling", "desc": "Rule of law, political damage", "log": "Ruling accepted. Trust in rule of law strengthened." },
-        "1": { "label": "Introduce amendment", "desc": "Revision costs PK and budget", "log": "Legislative amendment in progress. Constitutionally corrected." },
-        "2": { "label": "Consider constitutional change", "desc": "Risky — touching Basic Law divides", "log": "Constitutional amendment announced. Jurists and opposition alarmed." }
+        "0": {
+          "label": "Respect ruling",
+          "desc": "Rule of law, political damage",
+          "log": "Ruling accepted. Trust in rule of law strengthened."
+        },
+        "1": {
+          "label": "Introduce amendment",
+          "desc": "Revision costs PK and budget",
+          "log": "Legislative amendment in progress. Constitutionally corrected."
+        },
+        "2": {
+          "label": "Consider constitutional change",
+          "desc": "Risky — touching Basic Law divides",
+          "log": "Constitutional amendment announced. Jurists and opposition alarmed."
+        }
       }
     },
     "naturkatastrophe": {
@@ -186,9 +330,21 @@
       "context": "Entire towns are underwater. Emergency services are at their limit. The federal government must act fast.",
       "ticker": "Flood catastrophe: Federal government activates crisis team",
       "choices": {
-        "0": { "label": "Emergency aid package", "desc": "Fast help, burdens budget", "log": "Emergency aid package passed. Fast help for those affected." },
-        "1": { "label": "Coordinate army deployment", "desc": "Effective but limited resources", "log": "Army in relief deployment. Population grateful." },
-        "2": { "label": "State matter — wait", "desc": "Emphasise federalism, risks criticism", "log": "Federation points to state responsibility. Massive criticism follows." }
+        "0": {
+          "label": "Emergency aid package",
+          "desc": "Fast help, burdens budget",
+          "log": "Emergency aid package passed. Fast help for those affected."
+        },
+        "1": {
+          "label": "Coordinate army deployment",
+          "desc": "Effective but limited resources",
+          "log": "Army in relief deployment. Population grateful."
+        },
+        "2": {
+          "label": "State matter — wait",
+          "desc": "Emphasise federalism, risks criticism",
+          "log": "Federation points to state responsibility. Massive criticism follows."
+        }
       }
     },
     "cyberangriff": {
@@ -198,9 +354,21 @@
       "context": "Intelligence agencies suspect a state actor. Sensitive data may have been leaked.",
       "ticker": "Cyber attack on federal government — IT systems paralysed",
       "choices": {
-        "0": { "label": "Crisis team & IT offensive", "desc": "Act immediately, invest", "log": "IT crisis team established. Cybersecurity becomes top priority." },
-        "1": { "label": "Let intelligence investigate", "desc": "Quiet but slow", "log": "Investigation initiated. Public learns little." },
-        "2": { "label": "Diplomatic escalation", "desc": "Publicly accuse, risk of crisis", "log": "Diplomatic confrontation. International tensions rise." }
+        "0": {
+          "label": "Crisis team & IT offensive",
+          "desc": "Act immediately, invest",
+          "log": "IT crisis team established. Cybersecurity becomes top priority."
+        },
+        "1": {
+          "label": "Let intelligence investigate",
+          "desc": "Quiet but slow",
+          "log": "Investigation initiated. Public learns little."
+        },
+        "2": {
+          "label": "Diplomatic escalation",
+          "desc": "Publicly accuse, risk of crisis",
+          "log": "Diplomatic confrontation. International tensions rise."
+        }
       }
     },
     "g7_krise": {
@@ -210,9 +378,21 @@
       "context": "The world is watching Berlin. A summit failure would be a diplomatic disaster.",
       "ticker": "G7 summit in Berlin: Chancellor under international pressure",
       "choices": {
-        "0": { "label": "Take mediator role", "desc": "Diplomatically skilled, costs PK", "log": "Germany as mediator. International reputation rises." },
-        "1": { "label": "Demonstrate alliance loyalty", "desc": "Safe choice, limited impact", "log": "Alliance loyalty demonstrated. Partner state satisfied." },
-        "2": { "label": "Prioritise German interests", "desc": "Popular domestically, isolated internationally", "log": "National interests emphasised. International criticism grows." }
+        "0": {
+          "label": "Take mediator role",
+          "desc": "Diplomatically skilled, costs PK",
+          "log": "Germany as mediator. International reputation rises."
+        },
+        "1": {
+          "label": "Demonstrate alliance loyalty",
+          "desc": "Safe choice, limited impact",
+          "log": "Alliance loyalty demonstrated. Partner state satisfied."
+        },
+        "2": {
+          "label": "Prioritise German interests",
+          "desc": "Popular domestically, isolated internationally",
+          "log": "National interests emphasised. International criticism grows."
+        }
       }
     },
     "whistleblower": {
@@ -222,9 +402,21 @@
       "context": "The revelations hit the domestic intelligence service hard. Civil rights advocates demand consequences.",
       "ticker": "Surveillance scandal: Civil rights vs. security",
       "choices": {
-        "0": { "label": "Investigation committee", "desc": "Transparency, political cost", "log": "Investigation committee established. Inquiry begins." },
-        "1": { "label": "Protect whistleblower", "desc": "Brave, divides coalition", "log": "Whistleblower placed under protection. Intelligence service outraged." },
-        "2": { "label": "Emphasise security interests", "desc": "Strengthen agencies, ignore criticism", "log": "Security over transparency. Civil rights advocates protest." }
+        "0": {
+          "label": "Investigation committee",
+          "desc": "Transparency, political cost",
+          "log": "Investigation committee established. Inquiry begins."
+        },
+        "1": {
+          "label": "Protect whistleblower",
+          "desc": "Brave, divides coalition",
+          "log": "Whistleblower placed under protection. Intelligence service outraged."
+        },
+        "2": {
+          "label": "Emphasise security interests",
+          "desc": "Strengthen agencies, ignore criticism",
+          "log": "Security over transparency. Civil rights advocates protest."
+        }
       }
     },
     "streikwelle": {
@@ -234,9 +426,21 @@
       "context": "Wage negotiations have failed. Unions demand double-digit pay rises.",
       "ticker": "General strike paralyses Germany — millions affected",
       "choices": {
-        "0": { "label": "Offer mediation", "desc": "Seek compromise, costs PK", "log": "Mediation proceedings initiated. Social partners at the table." },
-        "1": { "label": "Support employer side", "desc": "Business-friendly, provokes escalation", "log": "Employer position strengthened. Unions threaten escalation." },
-        "2": { "label": "Strengthen legal framework", "desc": "Long-term, short-term ineffective", "log": "Labour law reform announced. Long-term solution in sight." }
+        "0": {
+          "label": "Offer mediation",
+          "desc": "Seek compromise, costs PK",
+          "log": "Mediation proceedings initiated. Social partners at the table."
+        },
+        "1": {
+          "label": "Support employer side",
+          "desc": "Business-friendly, provokes escalation",
+          "log": "Employer position strengthened. Unions threaten escalation."
+        },
+        "2": {
+          "label": "Strengthen legal framework",
+          "desc": "Long-term, short-term ineffective",
+          "log": "Labour law reform announced. Long-term solution in sight."
+        }
       }
     },
     "wohnungsnot": {
@@ -246,9 +450,21 @@
       "context": "Rents in major cities have doubled in 10 years. Families are being pushed to the outskirts.",
       "ticker": "Housing protests in 50 cities — government under pressure",
       "choices": {
-        "0": { "label": "Tighten rent cap", "desc": "Popular, burdens investors", "log": "Rent cap tightened. Tenant associations satisfied, investors angered." },
-        "1": { "label": "Promote social housing", "desc": "Effective long-term, expensive", "log": "Social housing programme launched. Effects visible in years." },
-        "2": { "label": "Emphasise market solutions", "desc": "Business-friendly, unpopular", "log": "Market should fix it. Protests intensify." }
+        "0": {
+          "label": "Tighten rent cap",
+          "desc": "Popular, burdens investors",
+          "log": "Rent cap tightened. Tenant associations satisfied, investors angered."
+        },
+        "1": {
+          "label": "Promote social housing",
+          "desc": "Effective long-term, expensive",
+          "log": "Social housing programme launched. Effects visible in years."
+        },
+        "2": {
+          "label": "Emphasise market solutions",
+          "desc": "Business-friendly, unpopular",
+          "log": "Market should fix it. Protests intensify."
+        }
       }
     },
     "rechtsextremismus": {
@@ -258,9 +474,21 @@
       "context": "The attack is part of a series of right-wing violence. The question of security agencies' failure looms.",
       "ticker": "Right-wing extremist attack: Germany mourns and debates",
       "choices": {
-        "0": { "label": "Action plan against the far right", "desc": "Comprehensive, shows determination", "log": "Action plan against right-wing extremism passed." },
-        "1": { "label": "Strengthen security agencies", "desc": "More personnel and resources", "log": "Intelligence and police forces expanded." },
-        "2": { "label": "Differentiated analysis", "desc": "Considered, appears hesitant", "log": "Wait-and-see stance. Opposition accuses of inaction." }
+        "0": {
+          "label": "Action plan against the far right",
+          "desc": "Comprehensive, shows determination",
+          "log": "Action plan against right-wing extremism passed."
+        },
+        "1": {
+          "label": "Strengthen security agencies",
+          "desc": "More personnel and resources",
+          "log": "Intelligence and police forces expanded."
+        },
+        "2": {
+          "label": "Differentiated analysis",
+          "desc": "Considered, appears hesitant",
+          "log": "Wait-and-see stance. Opposition accuses of inaction."
+        }
       }
     },
     "fachkraeftemangel": {
@@ -270,9 +498,21 @@
       "context": "Trades, IT, care — workers are lacking everywhere. Business associations demand an offensive.",
       "ticker": "Skills shortage at record high — business sounds alarm",
       "choices": {
-        "0": { "label": "Immigration offensive", "desc": "Quickly effective, socially controversial", "log": "Skilled immigration facilitated. Business relieved." },
-        "1": { "label": "Training initiative", "desc": "Right long-term, slow", "log": "Training offensive launched. Effects visible in years." },
-        "2": { "label": "Let the market sort it out", "desc": "No costs, no effect", "log": "Wait-and-see stance. Skills shortage worsens." }
+        "0": {
+          "label": "Immigration offensive",
+          "desc": "Quickly effective, socially controversial",
+          "log": "Skilled immigration facilitated. Business relieved."
+        },
+        "1": {
+          "label": "Training initiative",
+          "desc": "Right long-term, slow",
+          "log": "Training offensive launched. Effects visible in years."
+        },
+        "2": {
+          "label": "Let the market sort it out",
+          "desc": "No costs, no effect",
+          "log": "Wait-and-see stance. Skills shortage worsens."
+        }
       }
     },
     "energiekrise": {
@@ -282,9 +522,21 @@
       "context": "International supply bottlenecks drive prices. Consumers protest, companies threaten relocation.",
       "ticker": "Energy prices explode — Economy Minister warns of deindustrialisation",
       "choices": {
-        "0": { "label": "Introduce price brake", "desc": "Immediate relief, expensive", "log": "Energy price brake takes effect. Budget heavily burdened." },
-        "1": { "label": "Industry subsidies", "desc": "Saves jobs, controversial", "log": "Industry subsidies passed. Jobs secured." },
-        "2": { "label": "Accept market prices", "desc": "Thrifty, socially harsh", "log": "Market prices enforced. Social hardship follows." }
+        "0": {
+          "label": "Introduce price brake",
+          "desc": "Immediate relief, expensive",
+          "log": "Energy price brake takes effect. Budget heavily burdened."
+        },
+        "1": {
+          "label": "Industry subsidies",
+          "desc": "Saves jobs, controversial",
+          "log": "Industry subsidies passed. Jobs secured."
+        },
+        "2": {
+          "label": "Accept market prices",
+          "desc": "Thrifty, socially harsh",
+          "log": "Market prices enforced. Social hardship follows."
+        }
       }
     },
     "rentendebatte": {
@@ -294,9 +546,21 @@
       "context": "The pension report shows a growing deficit. Younger generations fear for their retirement.",
       "ticker": "Pension insurance: Deficit grows — reform debate ignites",
       "choices": {
-        "0": { "label": "Raise retirement age", "desc": "Unpopular, financially necessary", "log": "Retirement age raised to 68. Massive union protests." },
-        "1": { "label": "Raise contributions", "desc": "Distributable, lowers net wages", "log": "Pension contributions rise. Net wages drop slightly." },
-        "2": { "label": "Introduce capital funding", "desc": "Modern, risky in crises", "log": "Stock-based pension introduced. Conservatives sceptical." }
+        "0": {
+          "label": "Raise retirement age",
+          "desc": "Unpopular, financially necessary",
+          "log": "Retirement age raised to 68. Massive union protests."
+        },
+        "1": {
+          "label": "Raise contributions",
+          "desc": "Distributable, lowers net wages",
+          "log": "Pension contributions rise. Net wages drop slightly."
+        },
+        "2": {
+          "label": "Introduce capital funding",
+          "desc": "Modern, risky in crises",
+          "log": "Stock-based pension introduced. Conservatives sceptical."
+        }
       }
     },
     "pandemie_vorbereitung": {
@@ -306,9 +570,21 @@
       "context": "Germany has learned from the last pandemic — or has it? Hospitals report bottlenecks.",
       "ticker": "WHO warning: New pandemic possible — Germany prepares",
       "choices": {
-        "0": { "label": "Prepare prevention package", "desc": "Vaccines, masks, hospital capacity", "log": "Pandemic prevention package passed. Population feels protected." },
-        "1": { "label": "Strengthen WHO cooperation", "desc": "International but slow", "log": "International cooperation expanded. Wait-and-see in Germany." },
-        "2": { "label": "Wait and observe", "desc": "No costs but risky", "log": "Wait-and-see stance. Critics warn of negligence." }
+        "0": {
+          "label": "Prepare prevention package",
+          "desc": "Vaccines, masks, hospital capacity",
+          "log": "Pandemic prevention package passed. Population feels protected."
+        },
+        "1": {
+          "label": "Strengthen WHO cooperation",
+          "desc": "International but slow",
+          "log": "International cooperation expanded. Wait-and-see in Germany."
+        },
+        "2": {
+          "label": "Wait and observe",
+          "desc": "No costs but risky",
+          "log": "Wait-and-see stance. Critics warn of negligence."
+        }
       }
     },
     "infrastruktur_kollaps": {
@@ -318,9 +594,21 @@
       "context": "Infrastructure has been neglected for decades. Truck detours cost the economy billions.",
       "ticker": "Infrastructure crisis: Crumbling bridges paralyse traffic",
       "choices": {
-        "0": { "label": "Emergency infrastructure programme", "desc": "Invest immediately, expensive", "log": "Infrastructure emergency programme launched. Billions for bridges and roads." },
-        "1": { "label": "Support municipalities", "desc": "Federal solution, slower", "log": "Municipal infrastructure aid passed." },
-        "2": { "label": "Prioritise and plan", "desc": "Thrifty, but criticism of inaction", "log": "Master plan presented. Critics demand immediate action." }
+        "0": {
+          "label": "Emergency infrastructure programme",
+          "desc": "Invest immediately, expensive",
+          "log": "Infrastructure emergency programme launched. Billions for bridges and roads."
+        },
+        "1": {
+          "label": "Support municipalities",
+          "desc": "Federal solution, slower",
+          "log": "Municipal infrastructure aid passed."
+        },
+        "2": {
+          "label": "Prioritise and plan",
+          "desc": "Thrifty, but criticism of inaction",
+          "log": "Master plan presented. Critics demand immediate action."
+        }
       }
     },
     "migration_krise": {
@@ -330,9 +618,21 @@
       "context": "New conflicts drive hundreds of thousands to Europe. Local politicians demand federal help.",
       "ticker": "Refugee crisis: Municipalities at limit — federal government under pressure",
       "choices": {
-        "0": { "label": "Humanitarian reception", "desc": "Humane, divides society", "log": "Humanitarian reception organised. Society divided." },
-        "1": { "label": "Demand EU distribution", "desc": "Diplomatic, takes time", "log": "EU distribution mechanism demanded. Brussels reacts slowly." },
-        "2": { "label": "Strengthen border controls", "desc": "Popular, EU-legally controversial", "log": "Border controls tightened. EU Commission examines proceedings." }
+        "0": {
+          "label": "Humanitarian reception",
+          "desc": "Humane, divides society",
+          "log": "Humanitarian reception organised. Society divided."
+        },
+        "1": {
+          "label": "Demand EU distribution",
+          "desc": "Diplomatic, takes time",
+          "log": "EU distribution mechanism demanded. Brussels reacts slowly."
+        },
+        "2": {
+          "label": "Strengthen border controls",
+          "desc": "Popular, EU-legally controversial",
+          "log": "Border controls tightened. EU Commission examines proceedings."
+        }
       }
     },
     "verfassungsklage_schulden": {
@@ -342,9 +642,21 @@
       "context": "The complaint has prospects of success. A ruling could overturn the budget.",
       "ticker": "Constitutional complaint against debt policy — government in trouble",
       "choices": {
-        "0": { "label": "Present supplementary budget", "desc": "Constitutionally correct revision", "log": "Supplementary budget presented. Debt brake complied with." },
-        "1": { "label": "Declare emergency", "desc": "Use exception rule", "log": "Emergency declared. Jurists doubt justification." },
-        "2": { "label": "Sit out complaint", "desc": "Risky but cheap", "log": "Complaint ignored. Constitutional Court angered." }
+        "0": {
+          "label": "Present supplementary budget",
+          "desc": "Constitutionally correct revision",
+          "log": "Supplementary budget presented. Debt brake complied with."
+        },
+        "1": {
+          "label": "Declare emergency",
+          "desc": "Use exception rule",
+          "log": "Emergency declared. Jurists doubt justification."
+        },
+        "2": {
+          "label": "Sit out complaint",
+          "desc": "Risky but cheap",
+          "log": "Complaint ignored. Constitutional Court angered."
+        }
       }
     },
     "wiederaufbau_debatte": {
@@ -354,9 +666,21 @@
       "context": "Flood victims wait for help while Berlin and state capitals debate responsibilities.",
       "ticker": "Reconstruction dispute: Federation vs. states — flood victims wait",
       "choices": {
-        "0": { "label": "Levy solidarity surcharge", "desc": "Fair distribution, unpopular", "log": "Solidarity surcharge for reconstruction. Taxpayers protest." },
-        "1": { "label": "Establish special fund", "desc": "Fast, burdens the future", "log": "Special fund for reconstruction passed." },
-        "2": { "label": "Introduce insurance mandate", "desc": "Market-based, long-term", "log": "Mandatory insurance against natural disasters introduced." }
+        "0": {
+          "label": "Levy solidarity surcharge",
+          "desc": "Fair distribution, unpopular",
+          "log": "Solidarity surcharge for reconstruction. Taxpayers protest."
+        },
+        "1": {
+          "label": "Establish special fund",
+          "desc": "Fast, burdens the future",
+          "log": "Special fund for reconstruction passed."
+        },
+        "2": {
+          "label": "Introduce insurance mandate",
+          "desc": "Market-based, long-term",
+          "log": "Mandatory insurance against natural disasters introduced."
+        }
       }
     },
     "diplomatische_krise": {
@@ -366,9 +690,21 @@
       "context": "Trade relations are at risk. Business urges de-escalation.",
       "ticker": "Diplomatic crisis escalates — economic sanctions threaten",
       "choices": {
-        "0": { "label": "De-escalation", "desc": "Save face, rescue trade", "log": "Diplomatic channels reopened. Crisis defused." },
-        "1": { "label": "Counter-sanctions", "desc": "Steadfast, economically costly", "log": "Counter-sanctions imposed. Economy suffers." },
-        "2": { "label": "Demand EU solidarity", "desc": "Multilateral, takes time", "log": "EU partners asked for solidarity. Mixed reactions." }
+        "0": {
+          "label": "De-escalation",
+          "desc": "Save face, rescue trade",
+          "log": "Diplomatic channels reopened. Crisis defused."
+        },
+        "1": {
+          "label": "Counter-sanctions",
+          "desc": "Steadfast, economically costly",
+          "log": "Counter-sanctions imposed. Economy suffers."
+        },
+        "2": {
+          "label": "Demand EU solidarity",
+          "desc": "Multilateral, takes time",
+          "log": "EU partners asked for solidarity. Mixed reactions."
+        }
       }
     },
     "opposition_vorwurf": {
@@ -378,9 +714,21 @@
       "context": "A vote of no confidence is in the air. Media report intensively on security agency failures.",
       "ticker": "Opposition attacks government — no-confidence vote discussed",
       "choices": {
-        "0": { "label": "Announce immediate measures", "desc": "Respond decisively", "log": "Immediate measures against right-wing extremism announced." },
-        "1": { "label": "Call vote of confidence", "desc": "All-or-nothing", "log": "Vote of confidence called. High-risk manoeuvre." },
-        "2": { "label": "Lead parliamentary debate", "desc": "Democratic but slow", "log": "Parliamentary debate on internal security. Measured tone." }
+        "0": {
+          "label": "Announce immediate measures",
+          "desc": "Respond decisively",
+          "log": "Immediate measures against right-wing extremism announced."
+        },
+        "1": {
+          "label": "Call vote of confidence",
+          "desc": "All-or-nothing",
+          "log": "Vote of confidence called. High-risk manoeuvre."
+        },
+        "2": {
+          "label": "Lead parliamentary debate",
+          "desc": "Democratic but slow",
+          "log": "Parliamentary debate on internal security. Measured tone."
+        }
       }
     },
     "gewerkschaft_eskalation": {
@@ -390,9 +738,21 @@
       "context": "Airports, ports and hospitals are affected. Economic damage runs into billions.",
       "ticker": "Indefinite strike: Economy faces standstill",
       "choices": {
-        "0": { "label": "Force wage agreement", "desc": "State mediation, costs trust", "log": "Compulsory arbitration ordered. Unions outraged, strike ended." },
-        "1": { "label": "Offer compromise", "desc": "Expensive compromise", "log": "Compromise found. Wages rise, budget burdened." },
-        "2": { "label": "Hold firm", "desc": "Play for time, economic damage", "log": "Government holds course. Economic damage grows." }
+        "0": {
+          "label": "Force wage agreement",
+          "desc": "State mediation, costs trust",
+          "log": "Compulsory arbitration ordered. Unions outraged, strike ended."
+        },
+        "1": {
+          "label": "Offer compromise",
+          "desc": "Expensive compromise",
+          "log": "Compromise found. Wages rise, budget burdened."
+        },
+        "2": {
+          "label": "Hold firm",
+          "desc": "Play for time, economic damage",
+          "log": "Government holds course. Economic damage grows."
+        }
       }
     }
   },
@@ -404,9 +764,21 @@
       "context": "Finance Minister Lehmann is at the end of his patience. Too many expensive projects without funding.",
       "ticker": "CABINET CRISIS: Finance Minister Lehmann threatens resignation",
       "choices": {
-        "0": { "label": "Promise funding proof", "desc": "Dilutes expensive laws, calms Lehmann", "log": "Funding pledge made. Lehmann appeased, reforms restricted." },
-        "1": { "label": "Publicly contradict", "desc": "Clear course but coalition risk", "log": "Public dispute with Lehmann. Coalition destabilised." },
-        "2": { "label": "Call special meeting", "desc": "Gain time, costs political capital", "log": "Coalition summit at Chancellery. Compromise found." }
+        "0": {
+          "label": "Promise funding proof",
+          "desc": "Dilutes expensive laws, calms Lehmann",
+          "log": "Funding pledge made. Lehmann appeased, reforms restricted."
+        },
+        "1": {
+          "label": "Publicly contradict",
+          "desc": "Clear course but coalition risk",
+          "log": "Public dispute with Lehmann. Coalition destabilised."
+        },
+        "2": {
+          "label": "Call special meeting",
+          "desc": "Gain time, costs political capital",
+          "log": "Coalition summit at Chancellery. Compromise found."
+        }
       }
     },
     "braun_ultimatum": {
@@ -416,9 +788,21 @@
       "context": "Braun has acted behind the coalition's back and influenced three state interior ministers.",
       "ticker": "Interior Minister Braun sabotages coalition partner in Bundesrat (Federal Council)",
       "choices": {
-        "0": { "label": "Publicly reprimand Braun", "desc": "Clear signal, Braun becomes enemy", "log": "Braun officially reprimanded. Internal tension at maximum." },
-        "1": { "label": "Include Braun", "desc": "Gives him influence, costs reform substance", "log": "Braun receives concessions. Coalition stabilised, reform watered down." },
-        "2": { "label": "Dismiss Braun", "desc": "Clean solution, needs coalition partner", "log": "Braun dismissed. Cabinet reshuffled." }
+        "0": {
+          "label": "Publicly reprimand Braun",
+          "desc": "Clear signal, Braun becomes enemy",
+          "log": "Braun officially reprimanded. Internal tension at maximum."
+        },
+        "1": {
+          "label": "Include Braun",
+          "desc": "Gives him influence, costs reform substance",
+          "log": "Braun receives concessions. Coalition stabilised, reform watered down."
+        },
+        "2": {
+          "label": "Dismiss Braun",
+          "desc": "Clean solution, needs coalition partner",
+          "log": "Braun dismissed. Cabinet reshuffled."
+        }
       }
     },
     "wolf_ultimatum": {
@@ -428,9 +812,21 @@
       "context": "Wolf is frustrated with sluggish climate policy.",
       "ticker": "Environment Minister Wolf issues climate ultimatum to Chancellery",
       "choices": {
-        "0": { "label": "Prioritise energy law", "desc": "Wolf satisfied, progressive votes rise", "log": "Energy law put on priority list. Wolf stays." },
-        "1": { "label": "Persuade Wolf to stay", "desc": "Symbolic concession", "log": "Personal talk with Wolf. Provisional agreement." },
-        "2": { "label": "Accept resignation", "desc": "Wolf leaves, progressive milieu collapses", "log": "Wolf resigns. Progressive voters feel betrayed." }
+        "0": {
+          "label": "Prioritise energy law",
+          "desc": "Wolf satisfied, progressive votes rise",
+          "log": "Energy law put on priority list. Wolf stays."
+        },
+        "1": {
+          "label": "Persuade Wolf to stay",
+          "desc": "Symbolic concession",
+          "log": "Personal talk with Wolf. Provisional agreement."
+        },
+        "2": {
+          "label": "Accept resignation",
+          "desc": "Wolf leaves, progressive milieu collapses",
+          "log": "Wolf resigns. Progressive voters feel betrayed."
+        }
       }
     },
     "kern_ultimatum": {
@@ -440,9 +836,21 @@
       "context": "Kern has stopped the emergency law on the EU directive. She is substantively right — but time is running out.",
       "ticker": "Justice Minister stops emergency law — constitutional concerns in cabinet",
       "choices": {
-        "0": { "label": "Adapt law to constitution", "desc": "Delay but legally secure", "log": "Law revised. Constitutionally sound but delayed." },
-        "1": { "label": "Appoint expert commission", "desc": "Further time gain", "log": "Constitutional commission appointed. Kern cooperates." },
-        "2": { "label": "Apply political pressure", "desc": "Risky — Kern could sue", "log": "Kern feels overruled. Constitutional challenge threatens." }
+        "0": {
+          "label": "Adapt law to constitution",
+          "desc": "Delay but legally secure",
+          "log": "Law revised. Constitutionally sound but delayed."
+        },
+        "1": {
+          "label": "Appoint expert commission",
+          "desc": "Further time gain",
+          "log": "Constitutional commission appointed. Kern cooperates."
+        },
+        "2": {
+          "label": "Apply political pressure",
+          "desc": "Risky — Kern could sue",
+          "log": "Kern feels overruled. Constitutional challenge threatens."
+        }
       }
     },
     "kanzler_ultimatum": {
@@ -452,8 +860,16 @@
       "context": "Internal divisions have become public. The Chancellery wants a clear commitment.",
       "ticker": "Chancellor considers vote of confidence — coalition under pressure",
       "choices": {
-        "0": { "label": "Call coalition summit", "desc": "All conflicts on the table", "log": "Coalition summit creates new unity." },
-        "1": { "label": "Risk vote of confidence", "desc": "Gamble — win or early election", "log": "Vote of confidence called. Coalition holds narrowly." }
+        "0": {
+          "label": "Call coalition summit",
+          "desc": "All conflicts on the table",
+          "log": "Coalition summit creates new unity."
+        },
+        "1": {
+          "label": "Risk vote of confidence",
+          "desc": "Gamble — win or early election",
+          "log": "Vote of confidence called. Coalition holds narrowly."
+        }
       }
     },
     "kohl_bundesrat_sabotage": {
@@ -463,9 +879,21 @@
       "context": "Matthias Kohl (Ostblock) has independently filed a mediation committee request. The law will be delayed by at least 2 months.",
       "ticker": "Kohl requests mediation committee — law delayed",
       "choices": {
-        "0": { "label": "Accept delay", "desc": "Law voted 2 months later", "log": "Mediation committee procedure running. Vote delayed." },
-        "1": { "label": "Address Kohl directly", "desc": "Relationship building, costs 15 PK", "log": "Talk with Kohl. Relationship improved, delay remains." },
-        "2": { "label": "Publicly criticise", "desc": "Relationship with Kohl drops further", "log": "Kohl publicly criticised. Ostblock hardens position." }
+        "0": {
+          "label": "Accept delay",
+          "desc": "Law voted 2 months later",
+          "log": "Mediation committee procedure running. Vote delayed."
+        },
+        "1": {
+          "label": "Address Kohl directly",
+          "desc": "Relationship building, costs 15 PK",
+          "log": "Talk with Kohl. Relationship improved, delay remains."
+        },
+        "2": {
+          "label": "Publicly criticise",
+          "desc": "Relationship with Kohl drops further",
+          "log": "Kohl publicly criticised. Ostblock hardens position."
+        }
       }
     },
     "wm_ultimatum": {
@@ -475,9 +903,21 @@
       "context": "Maier sees economic policy on the wrong track.",
       "ticker": "Economics Minister Maier issues business location ultimatum",
       "choices": {
-        "0": { "label": "Accelerate tax reform", "desc": "Maier stays, budget suffers", "log": "Tax reform brought forward. Economy stabilised, budget burdened." },
-        "1": { "label": "Roll back regulation", "desc": "Popular with industry, unpopular with progressives", "log": "Regulation pause decided. Industry relieved." },
-        "2": { "label": "Outvote Maier", "desc": "Coalition discipline, Maier loses influence", "log": "Coalition discipline enforced. Maier complies." }
+        "0": {
+          "label": "Accelerate tax reform",
+          "desc": "Maier stays, budget suffers",
+          "log": "Tax reform brought forward. Economy stabilised, budget burdened."
+        },
+        "1": {
+          "label": "Roll back regulation",
+          "desc": "Popular with industry, unpopular with progressives",
+          "log": "Regulation pause decided. Industry relieved."
+        },
+        "2": {
+          "label": "Outvote Maier",
+          "desc": "Coalition discipline, Maier loses influence",
+          "log": "Coalition discipline enforced. Maier complies."
+        }
       }
     },
     "am_ultimatum": {
@@ -487,9 +927,21 @@
       "context": "Schulze is at the end of her patience. The unions expect action.",
       "ticker": "CABINET CRISIS: Labour Minister Schulze threatens resignation",
       "choices": {
-        "0": { "label": "Approve emergency programme", "desc": "Schulze satisfied, budget burdened", "log": "Minimum wage emergency programme approved. Schulze appeased." },
-        "1": { "label": "Offer negotiation", "desc": "Gains time, costs political capital", "log": "Coalition summit on social policy. Compromise found." },
-        "2": { "label": "Reject", "desc": "Schulze threatens resignation", "log": "Demand rejected. Schulze threatens resignation." }
+        "0": {
+          "label": "Approve emergency programme",
+          "desc": "Schulze satisfied, budget burdened",
+          "log": "Minimum wage emergency programme approved. Schulze appeased."
+        },
+        "1": {
+          "label": "Offer negotiation",
+          "desc": "Gains time, costs political capital",
+          "log": "Coalition summit on social policy. Compromise found."
+        },
+        "2": {
+          "label": "Reject",
+          "desc": "Schulze threatens resignation",
+          "log": "Demand rejected. Schulze threatens resignation."
+        }
       }
     },
     "gm_ultimatum": {
@@ -499,9 +951,21 @@
       "context": "Neumann sees health policy at a crossroads.",
       "ticker": "CABINET CRISIS: Health Minister Neumann threatens resignation",
       "choices": {
-        "0": { "label": "Recognise care emergency", "desc": "Neumann satisfied, pressure rises", "log": "Care emergency officially recognised. Neumann stays." },
-        "1": { "label": "Appoint expert commission", "desc": "Gains time, Neumann cooperates", "log": "Commission appointed. Neumann provisionally satisfied." },
-        "2": { "label": "Ignore", "desc": "Neumann angered", "log": "Demand ignored. Neumann threatens resignation." }
+        "0": {
+          "label": "Recognise care emergency",
+          "desc": "Neumann satisfied, pressure rises",
+          "log": "Care emergency officially recognised. Neumann stays."
+        },
+        "1": {
+          "label": "Appoint expert commission",
+          "desc": "Gains time, Neumann cooperates",
+          "log": "Commission appointed. Neumann provisionally satisfied."
+        },
+        "2": {
+          "label": "Ignore",
+          "desc": "Neumann angered",
+          "log": "Demand ignored. Neumann threatens resignation."
+        }
       }
     },
     "koalitionsbruch": {
@@ -511,8 +975,16 @@
       "context": "The relationship with the coalition partner is at a critical low. You have 3 months to respond.",
       "ticker": "Coalition crisis: Partner threatens to leave",
       "choices": {
-        "0": { "label": "Call coalition summit", "desc": "15 PK — Relationship +8", "log": "Coalition summit called. Relationship improved." },
-        "1": { "label": "Buy time", "desc": "Continue negotiations", "log": "Negotiations continue." }
+        "0": {
+          "label": "Call coalition summit",
+          "desc": "15 PK — Relationship +8",
+          "log": "Coalition summit called. Relationship improved."
+        },
+        "1": {
+          "label": "Buy time",
+          "desc": "Continue negotiations",
+          "log": "Negotiations continue."
+        }
       }
     },
     "koalitionskrise_ultimatum": {
@@ -522,8 +994,16 @@
       "context": "The coalition agreement score is critical. The partner demands more congruence with the agreed course.",
       "ticker": "Coalition partner demands treaty compliance",
       "choices": {
-        "0": { "label": "Adjust course", "desc": "More consideration for partner issues", "log": "Course adjusted. Partner appeased." },
-        "1": { "label": "Stand firm", "desc": "Risk of further escalation", "log": "No concessions. Tension remains." }
+        "0": {
+          "label": "Adjust course",
+          "desc": "More consideration for partner issues",
+          "log": "Course adjusted. Partner appeased."
+        },
+        "1": {
+          "label": "Stand firm",
+          "desc": "Risk of further escalation",
+          "log": "No concessions. Tension remains."
+        }
       }
     },
     "bm_ultimatum": {
@@ -533,9 +1013,21 @@
       "context": "Becker is frustrated by the lack of progress in education policy.",
       "ticker": "CABINET CRISIS: Education Minister Becker threatens resignation",
       "choices": {
-        "0": { "label": "Recognise education emergency", "desc": "Becker satisfied, states alarmed", "log": "Education emergency recognised. Becker stays." },
-        "1": { "label": "Announce federalism reform", "desc": "Gains time, Becker cooperates", "log": "Federalism reform announced. Becker provisionally satisfied." },
-        "2": { "label": "Reject", "desc": "Becker angered", "log": "Demand rejected. Becker threatens resignation." }
+        "0": {
+          "label": "Recognise education emergency",
+          "desc": "Becker satisfied, states alarmed",
+          "log": "Education emergency recognised. Becker stays."
+        },
+        "1": {
+          "label": "Announce federalism reform",
+          "desc": "Gains time, Becker cooperates",
+          "log": "Federalism reform announced. Becker provisionally satisfied."
+        },
+        "2": {
+          "label": "Reject",
+          "desc": "Becker angered",
+          "log": "Demand rejected. Becker threatens resignation."
+        }
       }
     }
   },
@@ -570,9 +1062,18 @@
         "quote": "The North needs reliable partners in Berlin — we are ready."
       },
       "tradeoffPool": {
-        "koal_hafen": { "label": "Port infrastructure in stimulus package", "desc": "Northern German ports receive additional funds — burdens budget." },
-        "koal_bildung_veto": { "label": "Education package with state veto rights", "desc": "Federal States receive extended veto rights on education decisions." },
-        "koal_strukturfonds": { "label": "Increase structural fund allocations", "desc": "More EU structural funds for northern German regions." }
+        "koal_hafen": {
+          "label": "Port infrastructure in stimulus package",
+          "desc": "Northern German ports receive additional funds — burdens budget."
+        },
+        "koal_bildung_veto": {
+          "label": "Education package with state veto rights",
+          "desc": "Federal States receive extended veto rights on education decisions."
+        },
+        "koal_strukturfonds": {
+          "label": "Increase structural fund allocations",
+          "desc": "More EU structural funds for northern German regions."
+        }
       }
     },
     "pragmatische_mitte": {
@@ -583,9 +1084,18 @@
         "quote": "Nothing goes without something in return — you know that."
       },
       "tradeoffPool": {
-        "mitte_digitalsteuer": { "label": "No digital tax on SMEs", "desc": "Exempt medium-sized companies from digital tax." },
-        "mitte_weinbau": { "label": "Wine-growing exception in energy law", "desc": "Wine-growing receives special rules on energy requirements." },
-        "mitte_kommune": { "label": "Double municipal infrastructure funds", "desc": "Doubling of federal funds for municipal infrastructure." }
+        "mitte_digitalsteuer": {
+          "label": "No digital tax on SMEs",
+          "desc": "Exempt medium-sized companies from digital tax."
+        },
+        "mitte_weinbau": {
+          "label": "Wine-growing exception in energy law",
+          "desc": "Wine-growing receives special rules on energy requirements."
+        },
+        "mitte_kommune": {
+          "label": "Double municipal infrastructure funds",
+          "desc": "Doubling of federal funds for municipal infrastructure."
+        }
       }
     },
     "konservativer_block": {
@@ -596,9 +1106,18 @@
         "quote": "Federalism first — everything else is negotiable."
       },
       "tradeoffPool": {
-        "kons_foederal": { "label": "Constitutional federalism guarantee", "desc": "Anchor federalism more strongly in constitution." },
-        "kons_bildung": { "label": "No federal competence for education", "desc": "Education remains exclusively state matter." },
-        "kons_auto": { "label": "Automotive industry exception in EE law", "desc": "Automotive industry receives transition periods." }
+        "kons_foederal": {
+          "label": "Constitutional federalism guarantee",
+          "desc": "Anchor federalism more strongly in constitution."
+        },
+        "kons_bildung": {
+          "label": "No federal competence for education",
+          "desc": "Education remains exclusively state matter."
+        },
+        "kons_auto": {
+          "label": "Automotive industry exception in EE law",
+          "desc": "Automotive industry receives transition periods."
+        }
       }
     },
     "ostblock": {
@@ -609,17 +1128,42 @@
         "quote": "The East was forgotten too often — that changes now."
       },
       "tradeoffPool": {
-        "ost_invest": { "label": "Eastern Germany investment programme (€3 bn)", "desc": "Special programme for eastern German structural support." },
-        "ost_kohle": { "label": "Delay coal phase-out by 3 years", "desc": "Longer transition periods for eastern German coal regions." },
-        "ost_abschreibung": { "label": "Special depreciation for eastern German companies", "desc": "Tax incentives for investments in the East." }
+        "ost_invest": {
+          "label": "Eastern Germany investment programme (€3 bn)",
+          "desc": "Special programme for eastern German structural support."
+        },
+        "ost_kohle": {
+          "label": "Delay coal phase-out by 3 years",
+          "desc": "Longer transition periods for eastern German coal regions."
+        },
+        "ost_abschreibung": {
+          "label": "Special depreciation for eastern German companies",
+          "desc": "Tax incentives for investments in the East."
+        }
       }
     }
   },
   "sprecherErsatz": {
-    "koalitionstreue": { "name": "Stefan Möller", "bio": "Pragmatic port politician. Focus on infrastructure and trade.", "quote": "The North needs investments — we negotiate." },
-    "pragmatische_mitte": { "name": "Claudia Vogt", "bio": "Negotiation expert. Always seeks compromise.", "quote": "Nothing works without us — everyone knows that." },
-    "konservativer_block": { "name": "Franz Bauer", "bio": "Federalism purist. State rights above all.", "quote": "The federation should mind its own business." },
-    "ostblock": { "name": "Ingrid Weber", "bio": "Structural change expert. Demands equivalent living conditions.", "quote": "The East deserves more attention." }
+    "koalitionstreue": {
+      "name": "Stefan Möller",
+      "bio": "Pragmatic port politician. Focus on infrastructure and trade.",
+      "quote": "The North needs investments — we negotiate."
+    },
+    "pragmatische_mitte": {
+      "name": "Claudia Vogt",
+      "bio": "Negotiation expert. Always seeks compromise.",
+      "quote": "Nothing works without us — everyone knows that."
+    },
+    "konservativer_block": {
+      "name": "Franz Bauer",
+      "bio": "Federalism purist. State rights above all.",
+      "quote": "The federation should mind its own business."
+    },
+    "ostblock": {
+      "name": "Ingrid Weber",
+      "bio": "Structural change expert. Demands equivalent living conditions.",
+      "quote": "The East deserves more attention."
+    }
   },
   "bundesratEvents": {
     "laenderfinanzausgleich": {
@@ -629,9 +1173,21 @@
       "context": "Factions Brenner and Kohl have allied. They demand a revision of state financial equalisation. Without concessions, blockade threatens in all consent-required laws.",
       "ticker": "State financial equalisation: Brenner and Kohl demand redistribution",
       "choices": {
-        "0": { "label": "Make concessions", "desc": "Budget -0.2, Brenner relationship +8", "log": "Concessions on state financial equalisation. Brenner satisfied, budget burdened." },
-        "1": { "label": "Reject", "desc": "Brenner relationship -10, Kohl -8", "log": "Demands rejected. Brenner and Kohl angered." },
-        "2": { "label": "Commission expert report", "desc": "Gain time, costs 15 PK", "log": "Expert report commissioned. Topic postponed for now." }
+        "0": {
+          "label": "Make concessions",
+          "desc": "Budget -0.2, Brenner relationship +8",
+          "log": "Concessions on state financial equalisation. Brenner satisfied, budget burdened."
+        },
+        "1": {
+          "label": "Reject",
+          "desc": "Brenner relationship -10, Kohl -8",
+          "log": "Demands rejected. Brenner and Kohl angered."
+        },
+        "2": {
+          "label": "Commission expert report",
+          "desc": "Gain time, costs 15 PK",
+          "log": "Expert report commissioned. Topic postponed for now."
+        }
       }
     },
     "landtagswahl": {
@@ -641,7 +1197,11 @@
       "context": "A state election has changed the governing party in a federal state. The faction composition in the Bundesrat (Federal Council) changes. The affected faction must renegotiate.",
       "ticker": "State election: Change of government alters Bundesrat (Federal Council) majorities",
       "choices": {
-        "0": { "label": "Accept new majorities", "desc": "Acknowledge political reality", "log": "Change of government accepted. Faction composition updated." }
+        "0": {
+          "label": "Accept new majorities",
+          "desc": "Acknowledge political reality",
+          "log": "Change of government accepted. Faction composition updated."
+        }
       }
     },
     "kohl_eskaliert": {
@@ -651,9 +1211,21 @@
       "context": "Matthias Kohl has filed a mediation committee request for an ongoing law. The law will be delayed by 2 months. How do you respond?",
       "ticker": "Kohl requests mediation committee — law delayed",
       "choices": {
-        "0": { "label": "Cooperate", "desc": "Improve Kohl relationship, 15 PK", "log": "Cooperation with Kohl. Relationship improved, delay remains." },
-        "1": { "label": "Block legally", "desc": "Legal steps, costs 20 PK", "log": "Legal review initiated. Delay remains, Kohl angered." },
-        "2": { "label": "Publicly criticise", "desc": "Kohl relationship drops further", "log": "Kohl publicly criticised. Ostblock hardens position." }
+        "0": {
+          "label": "Cooperate",
+          "desc": "Improve Kohl relationship, 15 PK",
+          "log": "Cooperation with Kohl. Relationship improved, delay remains."
+        },
+        "1": {
+          "label": "Block legally",
+          "desc": "Legal steps, costs 20 PK",
+          "log": "Legal review initiated. Delay remains, Kohl angered."
+        },
+        "2": {
+          "label": "Publicly criticise",
+          "desc": "Kohl relationship drops further",
+          "log": "Kohl publicly criticised. Ostblock hardens position."
+        }
       }
     },
     "sprecher_wechsel": {
@@ -663,7 +1235,11 @@
       "context": "A faction speaker has been replaced. The new character has different interests and a new trade-off pool. The relationship must be rebuilt.",
       "ticker": "Speaker change: Faction with new face",
       "choices": {
-        "0": { "label": "Include new speaker", "desc": "Begin relationship building", "log": "New speaker acknowledged. Relationship building required." }
+        "0": {
+          "label": "Include new speaker",
+          "desc": "Begin relationship building",
+          "log": "New speaker acknowledged. Relationship building required."
+        }
       }
     },
     "bundesrat_initiative": {
@@ -673,8 +1249,16 @@
       "context": "A faction has introduced its own law. You must decide: approval strengthens the relationship, blockade costs sympathy and popularity.",
       "ticker": "Bundesrat (Federal Council) initiative: Federal States demand say",
       "choices": {
-        "0": { "label": "Approve", "desc": "Relationship to initiating faction +12", "log": "Bundesrat (Federal Council) initiative approved. Relationship to faction improved." },
-        "1": { "label": "Block", "desc": "Relationship -15, popularity -3", "log": "Bundesrat (Federal Council) initiative blocked. Faction angered, popularity drops." }
+        "0": {
+          "label": "Approve",
+          "desc": "Relationship to initiating faction +12",
+          "log": "Bundesrat (Federal Council) initiative approved. Relationship to faction improved."
+        },
+        "1": {
+          "label": "Block",
+          "desc": "Relationship -15, popularity -3",
+          "log": "Bundesrat (Federal Council) initiative blocked. Faction angered, popularity drops."
+        }
       }
     },
     "foederalismusgipfel": {
@@ -684,9 +1268,21 @@
       "context": "At the federalism summit you can cultivate all four factions simultaneously — at reduced cost of 8 PK per faction instead of 15.",
       "ticker": "Federalism summit: All faction speakers in Berlin",
       "choices": {
-        "0": { "label": "Cultivate all four factions", "desc": "32 PK (8 per faction), relationship +3 for all", "log": "Federalism summit: Relationship to all factions improved." },
-        "1": { "label": "Invite only Centre and Ostblock", "desc": "16 PK, relationship +3 for Brenner and Kohl", "log": "Federalism summit with Brenner and Kohl. Relationship improved." },
-        "2": { "label": "Cancel summit", "desc": "No cost, missed chance", "log": "Federalism summit cancelled. Chance missed." }
+        "0": {
+          "label": "Cultivate all four factions",
+          "desc": "32 PK (8 per faction), relationship +3 for all",
+          "log": "Federalism summit: Relationship to all factions improved."
+        },
+        "1": {
+          "label": "Invite only Centre and Ostblock",
+          "desc": "16 PK, relationship +3 for Brenner and Kohl",
+          "log": "Federalism summit with Brenner and Kohl. Relationship improved."
+        },
+        "2": {
+          "label": "Cancel summit",
+          "desc": "No cost, missed chance",
+          "log": "Federalism summit cancelled. Chance missed."
+        }
       }
     }
   },
@@ -705,7 +1301,13 @@
     "weiterOhneZugestaendnis": "Continue without concession",
     "abstimmungTitle": "Vote",
     "abstimmungLabel": "Budget plan",
-    "insKanzleramt": "To the Chancellery"
+    "insKanzleramt": "To the Chancellery",
+    "lehmannUeberschuss": "The budget is solid. We have room for investments.",
+    "lehmannAusgeglichen": "Balanced budget — but no room for experiments.",
+    "lehmannDefizit": "The deficit is concerning. Every expenditure must be justified.",
+    "grafikEinnahmen": "Revenue: {{value}} bn",
+    "grafikPflicht": "Mandatory: {{value}} bn",
+    "grafikGesetze": "Laws: {{value}} bn"
   },
   "haushalt": {
     "title": "Budget",
@@ -786,7 +1388,8 @@
     "ausgeschlossen": "Not possible: You have already passed {{gesetz}}",
     "synergie": "Synergy effect +{{pct}}% with {{gesetz}}",
     "steuergesetz": "Tax law",
-    "wartetAuf": "Waiting for: {{gesetz}}"
+    "wartetAuf": "Waiting for: {{gesetz}}",
+    "erwarteteWirkung": "Expected effect"
   },
   "gesetzAgenda": {
     "title": "Law Agenda",
@@ -874,14 +1477,24 @@
     "nfDisclaimer": "The NF stands outside democratic cooperation. No coalition, no talks, no lobbying.",
     "ersterTabHinweis": "The Bundestag reflects political reality. The National Front (NF) is present in parliament but outside any democratic cooperation.",
     "hinweisVerstanden": "Got it",
-    "logNfMedienkritik": "Criticism: law aligns with NF positions — media climate strained."
+    "logNfMedienkritik": "Criticism: law aligns with NF positions — media climate strained.",
+    "abstimmungCountdown": "Vote in {{count}} mo. ({{month}})"
   },
   "media": {
     "title": "Media",
     "desc": "Media climate, public opinion and voter milieus. Media climate affects how laws are perceived.",
-    "arbeit": { "name": "Working-class milieu", "desc": "Union-aligned voters, focus on social justice." },
-    "mitte": { "name": "Centre", "desc": "Bourgeois centre, economically oriented." },
-    "prog": { "name": "Progressive", "desc": "Urban, climate-conscious, diversity-oriented." },
+    "arbeit": {
+      "name": "Working-class milieu",
+      "desc": "Union-aligned voters, focus on social justice."
+    },
+    "mitte": {
+      "name": "Centre",
+      "desc": "Bourgeois centre, economically oriented."
+    },
+    "prog": {
+      "name": "Progressive",
+      "desc": "Urban, climate-conscious, diversity-oriented."
+    },
     "akteureTitle": "Media actors",
     "akteureSub": "Sentiment and reach of key formats — the media index is derived from these.",
     "aktionen": {
@@ -914,37 +1527,73 @@
     "kommunal_klima_initiative": {
       "typeLabel": "Municipal Initiative",
       "title": "Hamburg and Munich launch independent climate programme",
-      "quote": "\u201cWe won't wait any longer for the federal government.\u201d",
+      "quote": "“We won't wait any longer for the federal government.”",
       "context": "Major cities have independently adopted climate protection measures. Pressure from civil society and post-materialist milieus is high.",
-      "ticker": "Hamburg and Munich: Own climate programme \u2014 federal government under pressure",
+      "ticker": "Hamburg and Munich: Own climate programme — federal government under pressure",
       "choices": {
-        "0": { "label": "Praise as role model", "desc": "+2% parliament votes for matching laws, no PK cost.", "log": "Municipal initiative praised as role model. Positive signal effect." },
-        "1": { "label": "Coordinate and launch pilot", "desc": "8 PK \u2014 full municipal pilot with the matching law.", "log": "Federal government coordinates municipal initiative. Pilot project launched." },
-        "2": { "label": "Ignore", "desc": "No reaction. Pressure may increase.", "log": "Municipal initiative ignored. Discontent in the cities." }
+        "0": {
+          "label": "Praise as role model",
+          "desc": "+2% parliament votes for matching laws, no PK cost.",
+          "log": "Municipal initiative praised as role model. Positive signal effect."
+        },
+        "1": {
+          "label": "Coordinate and launch pilot",
+          "desc": "8 PK — full municipal pilot with the matching law.",
+          "log": "Federal government coordinates municipal initiative. Pilot project launched."
+        },
+        "2": {
+          "label": "Ignore",
+          "desc": "No reaction. Pressure may increase.",
+          "log": "Municipal initiative ignored. Discontent in the cities."
+        }
       }
     },
     "kommunal_sozial_initiative": {
       "typeLabel": "Municipal Initiative",
-      "title": "Ruhr area cities demand minimum wage increase \u2014 now",
-      "quote": "\u201cOur citizens cannot wait.\u201d",
+      "title": "Ruhr area cities demand minimum wage increase — now",
+      "quote": "“Our citizens cannot wait.”",
       "context": "Industrial cities in the Ruhr area have launched municipal minimum wage initiatives. The social centre feels abandoned by federal politics.",
-      "ticker": "Ruhr area: Cities demand minimum wage increase \u2014 government under observation",
+      "ticker": "Ruhr area: Cities demand minimum wage increase — government under observation",
       "choices": {
-        "0": { "label": "Praise as role model", "desc": "+2% parliament votes for matching laws, no PK cost.", "log": "Municipal initiative praised as role model." },
-        "1": { "label": "Coordinate and launch pilot", "desc": "8 PK \u2014 full municipal pilot.", "log": "Federal government coordinates. Pilot project launched." },
-        "2": { "label": "Ignore", "desc": "No reaction.", "log": "Municipal initiative ignored." }
+        "0": {
+          "label": "Praise as role model",
+          "desc": "+2% parliament votes for matching laws, no PK cost.",
+          "log": "Municipal initiative praised as role model."
+        },
+        "1": {
+          "label": "Coordinate and launch pilot",
+          "desc": "8 PK — full municipal pilot.",
+          "log": "Federal government coordinates. Pilot project launched."
+        },
+        "2": {
+          "label": "Ignore",
+          "desc": "No reaction.",
+          "log": "Municipal initiative ignored."
+        }
       }
     },
     "kommunal_sicherheit_initiative": {
       "typeLabel": "Municipal Initiative",
-      "title": "Cities demand more police presence \u2014 independent measures",
-      "quote": "\u201cThe federal government won't act \u2014 we must.\u201d",
+      "title": "Cities demand more police presence — independent measures",
+      "quote": "“The federal government won't act — we must.”",
       "context": "Municipalities have independently announced security measures. Traditional voters demand more capability from the federal government.",
-      "ticker": "Municipalities launch own security initiatives \u2014 federal government responds",
+      "ticker": "Municipalities launch own security initiatives — federal government responds",
       "choices": {
-        "0": { "label": "Praise as role model", "desc": "+2% parliament votes for matching laws, no PK cost.", "log": "Municipal initiative praised as role model." },
-        "1": { "label": "Coordinate and launch pilot", "desc": "8 PK \u2014 full municipal pilot.", "log": "Federal government coordinates. Pilot project launched." },
-        "2": { "label": "Ignore", "desc": "No reaction.", "log": "Municipal initiative ignored." }
+        "0": {
+          "label": "Praise as role model",
+          "desc": "+2% parliament votes for matching laws, no PK cost.",
+          "log": "Municipal initiative praised as role model."
+        },
+        "1": {
+          "label": "Coordinate and launch pilot",
+          "desc": "8 PK — full municipal pilot.",
+          "log": "Federal government coordinates. Pilot project launched."
+        },
+        "2": {
+          "label": "Ignore",
+          "desc": "No reaction.",
+          "log": "Municipal initiative ignored."
+        }
       }
     }
   },
@@ -952,22 +1601,34 @@
     "vorstufe_kommunal_erfolg": {
       "typeLabel": "Pre-stage Success",
       "title": "Pilot project [city name]: Success confirmed",
-      "quote": "\u201cThe model works \u2014 time for the federal level.\u201d",
-      "context": "The municipal pilot project was successful. The experience confirms effectiveness \u2014 time for nationwide implementation.",
-      "ticker": "Municipal pilot successful \u2014 signal for the federal government",
+      "quote": "“The model works — time for the federal level.”",
+      "context": "The municipal pilot project was successful. The experience confirms effectiveness — time for nationwide implementation.",
+      "ticker": "Municipal pilot successful — signal for the federal government",
       "choices": {
-        "0": { "label": "Acknowledge", "desc": "Success confirmed. Bonus will be applied.", "log": "Pilot project success acknowledged." }
+        "0": {
+          "label": "Acknowledge",
+          "desc": "Success confirmed. Bonus will be applied.",
+          "log": "Pilot project success acknowledged."
+        }
       }
     },
     "vorstufe_laender_erfolg": {
       "typeLabel": "Pre-stage Success",
-      "title": "[Federal State] passes [law] \u2014 signal for federal level",
-      "quote": "\u201cOther states are watching closely.\u201d",
+      "title": "[Federal State] passes [law] — signal for federal level",
+      "quote": "“Other states are watching closely.”",
       "context": "A federal state has successfully implemented the law as a pilot. The signal effect for other states and the federal level is significant.",
-      "ticker": "State pilot successful \u2014 other states are watching",
+      "ticker": "State pilot successful — other states are watching",
       "choices": {
-        "0": { "label": "Invite more states", "desc": "12 PK \u2014 starts second state pilot with +10% success chance.", "log": "More states invited to pilot." },
-        "1": { "label": "Acknowledge", "desc": "Success confirmed.", "log": "State pilot success acknowledged." }
+        "0": {
+          "label": "Invite more states",
+          "desc": "12 PK — starts second state pilot with +10% success chance.",
+          "log": "More states invited to pilot."
+        },
+        "1": {
+          "label": "Acknowledge",
+          "desc": "Success confirmed.",
+          "log": "State pilot success acknowledged."
+        }
       }
     }
   },
@@ -985,13 +1646,14 @@
       "eu": "EU initiative"
     },
     "staedtebuendnis": "Build city alliance",
-    "staedtebuendnisDesc": "10 PK \u2014 Increases chance for municipal initiatives.",
+    "staedtebuendnisDesc": "10 PK — Increases chance for municipal initiatives.",
     "kommunalKonferenz": "Municipal conference",
-    "kommunalKonferenzDesc": "8 PK, 1\u00d7/year \u2014 Reduces pressure in 2 policy fields.",
+    "kommunalKonferenzDesc": "8 PK, 1×/year — Reduces pressure in 2 policy fields.",
     "laenderGipfel": "Convene state summit",
-    "laenderGipfelDesc": "12 PK \u2014 Improves Bundesrat (Federal Council) relations.",
+    "laenderGipfelDesc": "12 PK — Improves Bundesrat (Federal Council) relations.",
     "pilotBeschleunigen": "Accelerate pilot project",
-    "pilotBeschleunigenDesc": "6 PK \u2014 +1 month progress."
+    "pilotBeschleunigenDesc": "6 PK — +1 month progress.",
+    "aktionen": "Actions"
   },
   "ticker": {
     "label": "NEWS"
@@ -1215,13 +1877,13 @@
     "mehrheitNein": "✗ No majority",
     "mehrheitBei": "Majority (9)",
     "mehrheitTitle": "Majority at 9 votes",
-    "laenderUebersicht": "States and relationships",
-    "blockadeRisiko": "Blocking risk",
+    "laenderUebersicht": "States and relations",
+    "blockadeRisiko": "Blockade risk",
     "bilateraleTitel": "Bilateral talks",
     "bilateraleHint": "Maintain ties with individual states (10 political capital, +10 relationship).",
     "bilateralMit": "Talk: {{name}}",
     "keineAbstimmung": "No law in Bundesrat (Federal Council) procedure yet. Once a law passes the Bundestag, the Bundesrat will vote.",
-    "keineAbstimmungLobbyHint": "No law in Bundesrat procedure yet.",
+    "keineAbstimmungLobbyHint": "No law in Bundesrat procedure yet",
     "lobbyingButton": "Lobbying (10 PK)",
     "lobbyingGesperrt": "Lobbying blocked: Relationship under 20. Repair required.",
     "reparatur": "Repair relationship (25 PK)",
@@ -1231,7 +1893,12 @@
     "pkInvestieren": "Invest PK ({{cost}} PK)",
     "monateBisAbstimmung_one": "{{count}} month until vote",
     "monateBisAbstimmung_other": "{{count}} months until vote",
-    "close": "Close"
+    "close": "Close",
+    "pkInvestiert": "PK invested",
+    "tradeoffAkzeptiert": "Demand accepted",
+    "gesperrt": "Locked",
+    "bilateraleDesc": "Strengthen the relationship with individual federal states (10 PK, +10 relation).",
+    "bilateraleBtn": "Talk: {{name}}"
   },
   "endScreen": {
     "won": "Re-elected",
@@ -1250,7 +1917,9 @@
     "approvalChart": "Approval trend",
     "monthsPlayed": "{{count}} months played",
     "ziel": "Target: {{threshold}}%",
-    "monatTooltip": "Month {{month}}: <b>{{value}}%</b>"
+    "monatTooltip": "Month {{month}}: <b>{{value}}%</b>",
+    "meilensteine": "Milestones",
+    "neueErfolge": "New achievements unlocked!"
   },
   "auswertung": {
     "noteHint": "Overall grade from five dimensions (democracy, economy, society, communication, efficiency).",
@@ -1301,7 +1970,21 @@
   },
   "medienklima": {
     "label": "Media climate",
-    "opposition": "Opposition"
+    "opposition": "Opposition",
+    "statusPositiv": "Positive",
+    "statusNeutral": "Neutral",
+    "statusKritisch": "Critical",
+    "verlaufTitle": "Media climate trend",
+    "noData": "No trend data available",
+    "tooltipMonat": "Month {{month}}",
+    "tooltipLabel": "Media climate",
+    "tooltipHint": "Affects election chances and communication actions",
+    "caption": "The media climate affects your election chances and the impact of communication actions. Values ≥ 60 boost your forecast, values < 40 endanger it.",
+    "markPositiv": "Positive 60",
+    "markKritisch": "Critical 40",
+    "oppositionStark": "Strong",
+    "oppositionAktiv": "Active",
+    "oppositionSchwach": "Weak"
   },
   "koalition": {
     "partner": "Coalition partner",
@@ -1426,7 +2109,7 @@
   },
   "glossar": {
     "title": "Glossary",
-    "searchPlaceholder": "Search term\u2026",
+    "searchPlaceholder": "Search term…",
     "all": "All",
     "categories": {
       "grundlagen": "Basics",
@@ -1435,27 +2118,72 @@
       "medien": "Media & Public"
     },
     "entries": {
-      "pk": { "term": "Political Capital (PK)", "explanation": "Your action resource. Every action costs PK. Regenerates monthly based on your approval." },
-      "zustimmung": { "term": "Approval / Election forecast", "explanation": "How popular your government is. At the end of the legislative period (Month 48) you must exceed the election threshold to win." },
-      "kongruenz": { "term": "Congruence", "explanation": "How well a law matches your ideological orientation (0\u2013100%). High congruence = less PK cost, low congruence = more effort and resistance." },
-      "arbeitslosigkeit": { "term": "Unemployment", "explanation": "KPI: Unemployment rate in %. Low = good. Influenced by economic drift and laws." },
-      "haushaltssaldo": { "term": "Budget balance", "explanation": "KPI: Revenue minus expenditure in %. Positive = surplus. Negative = deficit. Influenced by laws and economic conditions." },
-      "gini": { "term": "Gini Index", "explanation": "KPI: Measure of inequality (0\u2013100). Low = less inequality. Influenced by social policy." },
-      "zufriedenheit": { "term": "Satisfaction", "explanation": "KPI: General public satisfaction (0\u2013100%). High = good. Influenced by all KPIs and laws." },
-      "koalition": { "term": "Coalition stability", "explanation": "How stable your governing coalition is (0\u2013100%). Calculated from cabinet mood and partner loyalty. Below 15% \u2192 Coalition collapse = game over!" },
-      "spielraum": { "term": "Fiscal headroom", "explanation": "Budget funds available for new laws. Derived from revenue minus mandatory spending minus ongoing costs." },
-      "schuldenbremse": { "term": "Debt brake", "explanation": "From level 3: Constitutional limit on new debt. Violations risk austerity measures and loss of confidence." },
-      "medienklima": { "term": "Media climate", "explanation": "How positive media coverage is (0\u2013100). Influences PK costs for laws and campaign success." },
-      "milieus": { "term": "Milieus", "explanation": "Voter groups with different ideological profiles. Their approval determines your election forecast." },
-      "kvScore": { "term": "Coalition agreement score", "explanation": "How many points of the coalition agreement are fulfilled. High score = more stable coalition, low score = partner becomes dissatisfied." },
-      "vorstufen": { "term": "Pre-stages", "explanation": "Municipal or state pilots before introducing a law. Grant bonuses on parliament votes, PK costs and Bundesrat approval." },
-      "bundesrat": { "term": "Bundesrat (Federal Council)", "explanation": "4 factions represent 16 federal states. Laws with a state tag require Bundesrat majority. Relationship building and lobbying influence the vote." }
+      "pk": {
+        "term": "Political Capital (PK)",
+        "explanation": "Your action resource. Every action costs PK. Regenerates monthly based on your approval."
+      },
+      "zustimmung": {
+        "term": "Approval / Election forecast",
+        "explanation": "How popular your government is. At the end of the legislative period (Month 48) you must exceed the election threshold to win."
+      },
+      "kongruenz": {
+        "term": "Congruence",
+        "explanation": "How well a law matches your ideological orientation (0–100%). High congruence = less PK cost, low congruence = more effort and resistance."
+      },
+      "arbeitslosigkeit": {
+        "term": "Unemployment",
+        "explanation": "KPI: Unemployment rate in %. Low = good. Influenced by economic drift and laws."
+      },
+      "haushaltssaldo": {
+        "term": "Budget balance",
+        "explanation": "KPI: Revenue minus expenditure in %. Positive = surplus. Negative = deficit. Influenced by laws and economic conditions."
+      },
+      "gini": {
+        "term": "Gini Index",
+        "explanation": "KPI: Measure of inequality (0–100). Low = less inequality. Influenced by social policy."
+      },
+      "zufriedenheit": {
+        "term": "Satisfaction",
+        "explanation": "KPI: General public satisfaction (0–100%). High = good. Influenced by all KPIs and laws."
+      },
+      "koalition": {
+        "term": "Coalition stability",
+        "explanation": "How stable your governing coalition is (0–100%). Calculated from cabinet mood and partner loyalty. Below 15% → Coalition collapse = game over!"
+      },
+      "spielraum": {
+        "term": "Fiscal headroom",
+        "explanation": "Budget funds available for new laws. Derived from revenue minus mandatory spending minus ongoing costs."
+      },
+      "schuldenbremse": {
+        "term": "Debt brake",
+        "explanation": "From level 3: Constitutional limit on new debt. Violations risk austerity measures and loss of confidence."
+      },
+      "medienklima": {
+        "term": "Media climate",
+        "explanation": "How positive media coverage is (0–100). Influences PK costs for laws and campaign success."
+      },
+      "milieus": {
+        "term": "Milieus",
+        "explanation": "Voter groups with different ideological profiles. Their approval determines your election forecast."
+      },
+      "kvScore": {
+        "term": "Coalition agreement score",
+        "explanation": "How many points of the coalition agreement are fulfilled. High score = more stable coalition, low score = partner becomes dissatisfied."
+      },
+      "vorstufen": {
+        "term": "Pre-stages",
+        "explanation": "Municipal or state pilots before introducing a law. Grant bonuses on parliament votes, PK costs and Bundesrat approval."
+      },
+      "bundesrat": {
+        "term": "Bundesrat (Federal Council)",
+        "explanation": "4 factions represent 16 federal states. Laws with a state tag require Bundesrat majority. Relationship building and lobbying influence the vote."
+      }
     }
   },
   "tips": {
     "erstesGesetz": {
       "title": "Your first law",
-      "text": "Select a law from the Agenda and click \u201cIntroduce\u201d to bring it to parliament. Each introduction costs Political Capital (PK)."
+      "text": "Select a law from the Agenda and click “Introduce” to bring it to parliament. Each introduction costs Political Capital (PK)."
     },
     "pkKnapp": {
       "title": "PK running low",
@@ -1463,7 +2191,7 @@
     },
     "koalitionsSpannungen": {
       "title": "Coalition tensions",
-      "text": "Your coalition stability is dropping. Watch your cabinet members\u2019 mood and the relationship with the coalition partner. Concessions and conversations help."
+      "text": "Your coalition stability is dropping. Watch your cabinet members’ mood and the relationship with the coalition partner. Concessions and conversations help."
     },
     "haushaltsDefizit": {
       "title": "Budget deficit",
@@ -1477,7 +2205,43 @@
       "title": "Campaign begins!",
       "text": "The last 6 months of the legislative period! Use speeches, coalition actions and the media offensive to improve your election forecast. The TV debate is coming soon too."
     },
-    "understood": "Got it"
+    "understood": "Got it",
+    "geschwindigkeit": {
+      "title": "Game speed",
+      "text": "Press Space to pause/resume. Use keys 1 and 3 to control speed. The game pauses automatically for important events."
+    },
+    "kabinettIntro": {
+      "title": "Your cabinet",
+      "text": "Your ministers have their own mood and loyalty. Happy ministers give bonuses — unhappy ones issue ultimatums. Click a minister for details."
+    },
+    "gesetzWirkung": {
+      "title": "Laws take time",
+      "text": "Passed laws don't take effect immediately — effects kick in after a few months. Plan ahead and introduce laws early!"
+    },
+    "haushaltErklaerung": {
+      "title": "The budget",
+      "text": "Every law has running costs. Watch the budget balance — excessive deficit triggers the debt brake and limits your room to act."
+    },
+    "medienklimaIntro": {
+      "title": "Media climate",
+      "text": "The media climate affects public perception. Scandals lower it, good news raises it. From level 3 you can use press releases."
+    },
+    "euRouteInfo": {
+      "title": "Alternative routes",
+      "text": "A law was blocked? You can push it through via the EU, state pilots, or municipalities on an alternative path. Each route has its own pros and cons."
+    },
+    "verbaendeIntro": {
+      "title": "Associations & interest groups",
+      "text": "Associations like the BDI, trade unions, or environmental groups have their own interests. Good relations can help with votes — but concessions come at a cost."
+    },
+    "ministerAgenda": {
+      "title": "Minister initiatives",
+      "text": "Your ministers pursue their own agendas and make demands. Fulfil them for better mood — or refuse at the risk of an ultimatum."
+    },
+    "halbzeit": {
+      "title": "Halfway through",
+      "text": "Half your term is over. Check your approval ratings and the budget. 24 months to the election — now is the best time for major reforms."
+    }
   },
   "koalitionPanel": {
     "beziehung": {
@@ -1495,7 +2259,9 @@
     "beziehungKritischHint": "Relationship critical! Coalition meeting or concession urgently recommended.",
     "partnerforderung": "Partner demand:",
     "monateVerbleibend_one": "{{count}} month left",
-    "monateVerbleibend_other": "{{count}} months left"
+    "monateVerbleibend_other": "{{count}} months left",
+    "koalitionsbruchDroht": "Coalition break imminent! Act now — coalition round or concession!",
+    "beziehungAngespannt": "Relationship strained — regular coalition rounds stabilise the partnership."
   },
   "kpiTrend": {
     "stable": "Stable",
@@ -1514,15 +2280,15 @@
   },
   "vorbereitungModal": {
     "kommunalPilot": "Municipal Pilot",
-    "kommunalPilotDesc": "{{cost}} PK, {{duration}} months \u00b7 +8% parliament on success",
+    "kommunalPilotDesc": "{{cost}} PK, {{duration}} months · +8% parliament on success",
     "laenderPilot": "State Pilot",
-    "laenderPilotDesc": "{{cost}} PK, {{duration}} months \u00b7 +10% parliament on success",
+    "laenderPilotDesc": "{{cost}} PK, {{duration}} months · +10% parliament on success",
     "euInitiative": "EU Initiative",
-    "euInitiativeDesc": "{{duration}} months \u00b7 +12% parliament on success",
+    "euInitiativeDesc": "{{duration}} months · +12% parliament on success",
     "euKlimaIndikator": "EU climate indicator: {{pct}}% success chance",
     "euStarten": "Launch EU initiative",
     "akkumulierteBoni": "Accumulated bonuses: +{{bt}}% parliament, -{{pk}} PK discount",
-    "keineFraktion": "No faction with relationship \u2265 30.",
+    "keineFraktion": "No faction with relationship ≥ 30.",
     "vorstufeLaeuft": "Pre-stage already running.",
     "nachWahltermin": "Pre-stage ends after election.",
     "beziehung": "Relationship: {{value}}"
@@ -1536,18 +2302,18 @@
     "nichtGenugPk": "Not enough PK ({{current}}/{{cost}})",
     "medienklima": "Media climate",
     "nettoPos": "Net +",
-    "nettoNeg": "Net \u2212",
+    "nettoNeg": "Net −",
     "gemischt": "Mixed"
   },
   "mainMenu": {
-    "saveInfo": "Month {{month}} \u00b7 {{approval}}%",
+    "saveInfo": "Month {{month}} · {{approval}}%",
     "switchToEnglish": "Switch to English",
     "switchToGerman": "Auf Deutsch wechseln"
   },
   "headerUI": {
     "pkRegen": "+{{regen}}/mo",
-    "glossarTitle": "Glossary \u2014 Game terms explained",
-    "pkRegenTooltip": "PK regeneration: {{regen}}/month ({{approval}}% approval \u00f7 {{divisor}})"
+    "glossarTitle": "Glossary — Game terms explained",
+    "pkRegenTooltip": "PK regeneration: {{regen}}/month ({{approval}}% approval ÷ {{divisor}})"
   },
   "ui": {
     "cancel": "Cancel",
@@ -1559,5 +2325,155 @@
     "retry": "Try again",
     "close": "Close",
     "mrd": "bn"
+  },
+  "medienAkteure": {
+    "stimmung": "Sentiment",
+    "reichweite": "{{value}}% reach",
+    "sehrKritisch": "Very critical",
+    "kritisch": "Critical",
+    "neutral": "Neutral",
+    "freundlich": "Friendly",
+    "sehrPositiv": "Very positive",
+    "warnVolatil": "Very volatile — sentiment can shift quickly",
+    "warnAlternativ": "Growing reach — media climate suffers",
+    "passiv": "Cannot be influenced directly",
+    "agenda": {
+      "oeffentlich": "Balanced and independent. Responds to substance, not PR.",
+      "boulevard": "Outrage sells. Scandals are amplified strongly.",
+      "qualitaet": "Fact-based. Responds positively to sound fiscal policy.",
+      "social": "Algorithm-driven. Very volatile — trends shift quickly.",
+      "konservativ": "National-conservative agenda. Barely influenced by PR.",
+      "alternativ": "Distrusts everything established. Grows when media climate is poor."
+    }
+  },
+  "gesetzStepper": {
+    "blockiert": "Blocked",
+    "ausweichroute": "Detour"
+  },
+  "kpiVerlauf": {
+    "noData": "No trend data yet",
+    "noDataGlobal": "KPI trends are shown from the second month.",
+    "title": "KPI trends",
+    "subtitle": "Last {{count}} months",
+    "tooltipMonat": "Month {{month}}",
+    "tooltipWert": "Value",
+    "lowerBetter": "Lower is better",
+    "higherBetter": "Higher is better",
+    "al": {
+      "label": "Unemployment",
+      "desc": "Share of unemployed in the labour force.",
+      "impact": "High unemployment lowers satisfaction and endangers re-election.",
+      "target": "Full employment 5%"
+    },
+    "hh": {
+      "label": "Budget balance",
+      "desc": "Difference between government revenue and spending.",
+      "impact": "A persistent deficit triggers the debt brake and reduces future room to act.",
+      "target": "Balanced"
+    },
+    "gi": {
+      "label": "Gini coefficient",
+      "desc": "Measure of economic inequality (0 = equal, 100 = maximum inequality).",
+      "impact": "High inequality worsens the society dimension and weakens progressive milieus."
+    },
+    "zf": {
+      "label": "Satisfaction",
+      "desc": "General population satisfaction with the government.",
+      "impact": "Low satisfaction lowers the election forecast directly and reduces PK regeneration.",
+      "target": "Target 50%"
+    }
+  },
+  "pendingEffekte": {
+    "noData": "No pending law effects.",
+    "title": "Planned effects — overview",
+    "effekte": "{{count}} effects",
+    "nextHint": "Next effect in {{offset}}. Hover for details.",
+    "thisMonth": "this month",
+    "monthSingular": "{{count}} month",
+    "monthPlural": "{{count}} months",
+    "now": "Now",
+    "tooltipMonth": "Month {{month}} (+{{offset}} mo.)",
+    "al": {
+      "label": "Unemployment",
+      "desc": "Unemployment rate — lower is better"
+    },
+    "hh": {
+      "label": "Budget",
+      "desc": "Budget balance in bn € — higher is better"
+    },
+    "gi": {
+      "label": "Gini",
+      "desc": "Inequality coefficient — lower is better"
+    },
+    "zf": {
+      "label": "Satisfaction",
+      "desc": "Population satisfaction — higher is better"
+    }
+  },
+  "bewertungRadar": {
+    "hint": "Hover for details on each dimension",
+    "bewertung": "Rating",
+    "demokratie": {
+      "label": "Democracy",
+      "desc": "Coalition stability and fulfilment of the coalition agreement"
+    },
+    "wirtschaft": {
+      "label": "Economy",
+      "desc": "Budget balance, unemployment and economic index"
+    },
+    "gesellschaft": {
+      "label": "Society",
+      "desc": "Milieu approval and Gini coefficient (inequality)"
+    },
+    "kommunikation": {
+      "label": "Communication",
+      "desc": "Media climate and public perception"
+    },
+    "effizienz": {
+      "label": "Efficiency",
+      "desc": "Laws passed relative to political capital spent"
+    }
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "space": "Space",
+    "pauseResume": "Pause / Resume",
+    "slowSpeed": "Slow speed",
+    "fastSpeed": "Fast speed",
+    "closeDrawer": "Close drawer",
+    "eventChoice": "Event choice (during event)",
+    "confirmOnly": "Confirm single option",
+    "switchTab": "Switch tab (Agenda…EU)",
+    "showHelp": "Show this help",
+    "close": "Close",
+    "showAgenda": "Show agenda",
+    "showKabinett": "Show cabinet"
+  },
+  "europaKarte": {
+    "deutschland": "Germany"
+  },
+  "coalition": {
+    "stable": "Coalition stable",
+    "tensions": "Tensions emerging",
+    "crisis": "Coalition crisis looming",
+    "atLimit": "Coalition at the limit",
+    "collapseWarning": "Coalition collapse imminent!"
+  },
+  "endScreen.milestones": {
+    "lawsPassed": "{{count}} laws passed",
+    "lawsBlocked": "{{count}} laws blocked",
+    "eventsHandled": "{{count}} events handled",
+    "coalitionStable": "Coalition held stable",
+    "coalitionCrisis": "Coalition crisis experienced",
+    "budgetPositive": "Budget in surplus",
+    "debtBrakeBreached": "Debt brake breached",
+    "campaignCompleted": "Campaign completed"
+  },
+  "opposition.oncePerMonth": "Only once per month",
+  "bundesratMap": {
+    "koalition": "Coalition",
+    "neutral": "Neutral",
+    "opposition": "Opposition",
+    "votes": "{{count}} votes"
   }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
@@ -19,6 +20,7 @@ interface BundesratMapProps {
 }
 
 export function BundesratMap({ laender }: BundesratMapProps) {
+  const { t } = useTranslation('game');
   const [mapReady, setMapReady] = useState(false);
   const loadedRef = useRef(false);
 
@@ -52,11 +54,11 @@ export function BundesratMap({ laender }: BundesratMapProps) {
           itemStyle: { areaColor: color, opacity: 1, borderColor: '#d0cfc8', borderWidth: 1.5 },
         },
         tooltip: {
-          formatter: `${land.name}<br/>${land.mp} (${land.party})<br/>${land.votes} Stimmen`,
+          formatter: `${land.name}<br/>${land.mp} (${land.party})<br/>${t('bundesratMap.votes', { count: land.votes })}`,
         },
       };
     }),
-  [laender]);
+  [laender, t]);
 
   const option: EChartsOption = useMemo(() => ({
     animation: true,
@@ -126,13 +128,13 @@ export function BundesratMap({ laender }: BundesratMapProps) {
       />
       <div className={styles.legend}>
         <span className={styles.legendItem} style={{ color: ALIGN_COLORS.koalition }}>
-          ● Koalition {voteTotals.koalition > 0 && <span className={styles.legendVotes}>{voteTotals.koalition}</span>}
+          ● {t('bundesratMap.koalition')} {voteTotals.koalition > 0 && <span className={styles.legendVotes}>{voteTotals.koalition}</span>}
         </span>
         <span className={styles.legendItem} style={{ color: ALIGN_COLORS.neutral }}>
-          ● Neutral {voteTotals.neutral > 0 && <span className={styles.legendVotes}>{voteTotals.neutral}</span>}
+          ● {t('bundesratMap.neutral')} {voteTotals.neutral > 0 && <span className={styles.legendVotes}>{voteTotals.neutral}</span>}
         </span>
         <span className={styles.legendItem} style={{ color: ALIGN_COLORS.opposition }}>
-          ● Opposition {voteTotals.opposition > 0 && <span className={styles.legendVotes}>{voteTotals.opposition}</span>}
+          ● {t('bundesratMap.opposition')} {voteTotals.opposition > 0 && <span className={styles.legendVotes}>{voteTotals.opposition}</span>}
         </span>
       </div>
     </div>

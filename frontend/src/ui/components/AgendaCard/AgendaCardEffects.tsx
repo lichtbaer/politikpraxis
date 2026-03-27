@@ -32,7 +32,7 @@ export function AgendaCardEffects({ law, complexity, kongruenz, geschaetztePkKos
     <>
       {law.status === 'entwurf' && law.effekte && Object.values(law.effekte).some(v => v !== 0) && (
         <div className={styles.effectPreview}>
-          <span className={styles.effectPreviewLabel}>{t('game:gesetz.erwarteteWirkung', { defaultValue: 'Erwartete Wirkung' })}:</span>
+          <span className={styles.effectPreviewLabel}>{t('game:gesetz.erwarteteWirkung')}:</span>
           <div className={styles.effectPreviewTags}>
             {Object.entries(law.effekte).map(([k, v]) => {
               if (!v || v === 0) return null;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Header } from './Header';
 import { EbenenTabBar } from '../components/EbenenTabBar/EbenenTabBar';
 import { LeftPanel } from '../panels/LeftPanel';
@@ -34,6 +35,7 @@ const ALT_VIEW_MAP: Record<string, ViewName> = {
 };
 
 export function Shell() {
+  const { t } = useTranslation('game');
   useGameTick();
   useAutoSave();
   const aktivesStrukturEvent = useGameStore((s) => s.state.aktivesStrukturEvent);
@@ -137,7 +139,7 @@ export function Shell() {
         type="button"
         className={`${styles.drawerToggle} ${styles.toggleLeft}`}
         onClick={() => { setLeftOpen(!leftOpen); setRightOpen(false); }}
-        aria-label="Agenda anzeigen"
+        aria-label={t('shortcuts.showAgenda')}
       >
         ☰
       </button>
@@ -145,7 +147,7 @@ export function Shell() {
         type="button"
         className={`${styles.drawerToggle} ${styles.toggleRight}`}
         onClick={() => { setRightOpen(!rightOpen); setLeftOpen(false); }}
-        aria-label="Kabinett anzeigen"
+        aria-label={t('shortcuts.showKabinett')}
       >
         <Users size={18} />
       </button>
@@ -174,23 +176,23 @@ export function Shell() {
       {showShortcuts && (
         <div className={styles.shortcutOverlay} onClick={() => setShowShortcuts(false)}>
           <div className={styles.shortcutModal} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.shortcutTitle}>Tastaturkürzel</h3>
+            <h3 className={styles.shortcutTitle}>{t('shortcuts.title')}</h3>
             <div className={styles.shortcutGrid}>
-              <kbd>Leertaste</kbd><span>Pause / Fortsetzen</span>
-              <kbd>1</kbd><span>Langsame Geschwindigkeit</span>
-              <kbd>3</kbd><span>Schnelle Geschwindigkeit</span>
-              <kbd>Esc</kbd><span>Drawer schließen</span>
-              <kbd>1-3</kbd><span>Event-Auswahl (bei Event)</span>
-              <kbd>Enter</kbd><span>Einzige Option bestätigen</span>
-              <kbd>Alt+1–0</kbd><span>Tab wechseln (Agenda…EU)</span>
-              <kbd>?</kbd><span>Diese Hilfe anzeigen</span>
+              <kbd>{t('shortcuts.space')}</kbd><span>{t('shortcuts.pauseResume')}</span>
+              <kbd>1</kbd><span>{t('shortcuts.slowSpeed')}</span>
+              <kbd>3</kbd><span>{t('shortcuts.fastSpeed')}</span>
+              <kbd>Esc</kbd><span>{t('shortcuts.closeDrawer')}</span>
+              <kbd>1-3</kbd><span>{t('shortcuts.eventChoice')}</span>
+              <kbd>Enter</kbd><span>{t('shortcuts.confirmOnly')}</span>
+              <kbd>Alt+1–0</kbd><span>{t('shortcuts.switchTab')}</span>
+              <kbd>?</kbd><span>{t('shortcuts.showHelp')}</span>
             </div>
             <button
               type="button"
               className={styles.shortcutClose}
               onClick={() => setShowShortcuts(false)}
             >
-              Schließen
+              {t('shortcuts.close')}
             </button>
           </div>
         </div>
