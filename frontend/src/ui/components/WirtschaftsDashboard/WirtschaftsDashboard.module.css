@@ -1,0 +1,217 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panelTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text2);
+  margin: 0 0 4px 0;
+}
+
+.indikatorenGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.indikatorKarte {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.indikatorLabel {
+  font-size: 12px;
+  color: var(--text2);
+  cursor: help;
+  border-bottom: 1px dotted var(--text2);
+  width: fit-content;
+}
+
+.indikatorRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.indikatorWert {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.indikatorWertGruen {
+  color: var(--green);
+}
+
+.indikatorWertRot {
+  color: var(--red);
+}
+
+.indikatorDelta {
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.deltaUp {
+  color: var(--green);
+}
+
+.deltaDown {
+  color: var(--red);
+}
+
+.deltaFlat {
+  color: var(--text2);
+}
+
+.warnBorder {
+  border-color: var(--warn);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--warn) 35%, transparent);
+}
+
+.sektorenList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sektorKarte {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sektorHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sektorTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+
+.trendBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.trendBoom {
+  background: color-mix(in srgb, var(--green) 22%, transparent);
+  color: var(--green);
+}
+
+.trendStabil {
+  background: var(--bg2);
+  color: var(--text2);
+}
+
+.trendSchwach {
+  background: color-mix(in srgb, var(--red) 22%, transparent);
+  color: var(--red);
+}
+
+.zustandRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.zustandTrack {
+  flex: 1;
+  height: 10px;
+  background: var(--bg2);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.zustandFill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.zustandZahl {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  flex: 0 0 52px;
+  text-align: right;
+}
+
+.verbandsZeile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.verbandsLabel {
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.verbandChip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.verbandChipWarn {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.krisenWarnung {
+  font-size: 12px;
+  color: var(--red);
+  margin: 0;
+  padding-top: 4px;
+  border-top: 1px dashed var(--border);
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.chartWrap {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.chartLabel {
+  font-size: 11px;
+  color: var(--text2);
+  margin: 0 0 4px 4px;
+}

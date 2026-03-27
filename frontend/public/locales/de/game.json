@@ -1704,7 +1704,9 @@
     "einfluss": "Einfluss",
     "konfliktWarnung": "Konflikt-Partner aktiv",
     "politikfeldDruck": "Politikfeld-Druck",
-    "keinAktiverDruck": "Kein aktiver Druck"
+    "keinAktiverDruck": "Kein aktiver Druck",
+    "letzteWirtschaftsReaktion": "Reagiert auf: {{sektor}} ({{detail}})",
+    "wirtschaftsReaktionZustand": "Zustand {{zustand}}/100"
   },
   "haushaltsdebatte": {
     "entwurfTitle": "Haushaltsentwurf {{jahr}}",
@@ -1731,6 +1733,7 @@
   },
   "haushalt": {
     "title": "Haushalt",
+    "wirtschaftTitle": "Wirtschaft",
     "stufe2Info": "Haushaltsübersicht ab Stufe 2 verfügbar.",
     "desc": "Einnahmen, Pflichtausgaben und Gesetzeskosten. Der Saldo beeinflusst die Wirtschaftslage.",
     "aufkommen": "Einnahmen vs. Ausgaben",
@@ -2317,6 +2320,36 @@
     "vorstufeLaeuft": "Vorstufe läuft bereits.",
     "nachWahltermin": "Vorstufe endet nach Wahltermin.",
     "beziehung": "Beziehung: {{value}}"
+  },
+  "wirtschaft": {
+    "indikatorenTitle": "Wirtschaftsindikatoren",
+    "sektorenTitle": "Wirtschaftssektoren",
+    "verlaufTitle": "Indikatoren-Verlauf (12 Monate)",
+    "verbandsHinweis": "Verbände",
+    "verbandBeziehungTooltip": "{{name}}: Beziehung {{wert}}/100",
+    "sektorKrise": "Sektor in der Krise — Verbände werden aktiv.",
+    "chartTooltip": "Monat {{month}}: {{value}}",
+    "indikator": {
+      "bip": "BIP-Wachstum",
+      "inflation": "Inflation",
+      "arbeitslosigkeit": "Arbeitslosigkeit",
+      "investitionsklima": "Investitionsklima"
+    },
+    "tooltip": {
+      "bip": "Jährliches Wirtschaftswachstum. Positiv bedeutet Aufschwung, negativ Rezession.",
+      "inflation": "Jährliche Preissteigerung. Ziel etwa 2 %. Zu hohe Inflation mindert die Kaufkraft.",
+      "arbeitslosigkeit": "Anteil der Erwerbslosen. Unter etwa 5 % gilt als niedrig.",
+      "investitionsklima": "Wie attraktiv Deutschland für Investitionen wahrgenommen wird. Wirkt auf langfristiges Wachstum."
+    },
+    "trend": {
+      "boom": "Boom",
+      "stabil": "Stabil",
+      "schwach": "Schwach"
+    },
+    "ref": {
+      "nullwachstum": "Nullwachstum",
+      "ezb2": "EZB-Ziel 2 %"
+    }
   },
   "haushaltView": {
     "mrdUnit": "Mrd.",

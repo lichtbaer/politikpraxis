@@ -15,6 +15,7 @@ import type { SchuldenbremsenStatus, Verband, Haushalt, SteuerContent } from '..
 import { Check, AlertTriangle } from '../icons';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import { KpiVerlaufChart } from '../components/KpiVerlaufChart/KpiVerlaufChart';
+import { WirtschaftsDashboard } from '../components/WirtschaftsDashboard/WirtschaftsDashboard';
 import styles from './HaushaltView.module.css';
 
 /** Stabile Fallback-Referenz — vermeidet neues `[]` pro Render (exhaustive-deps / useMemo). */
@@ -380,6 +381,13 @@ export function HaushaltView() {
           opts={{ renderer: 'canvas' }}
         />
       </section>
+
+      {featureActive(complexity, 'wirtschaftssektoren') && state.wirtschaft && (
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>{t('haushalt.wirtschaftTitle', 'Wirtschaft')}</h2>
+          <WirtschaftsDashboard state={state} complexity={complexity} verbaende={content.verbaende ?? []} />
+        </section>
+      )}
 
       {state.kpiHistory && (
         <section className={styles.section}>
