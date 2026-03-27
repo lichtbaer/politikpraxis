@@ -1503,6 +1503,30 @@
           "log": "Kommunale Initiative ignoriert."
         }
       }
+    },
+    "kommunal_agrar_initiative": {
+      "typeLabel": "Kommunal-Initiative",
+      "title": "Landkreise fordern Agrarwende — kommunale Modellregionen",
+      "quote": "„Ohne klare Bundesperspektive verlieren wir Hof und Fläche.“",
+      "context": "Mehrere strukturschwache Landkreise starten eigene Initiativen für nachhaltige Landwirtschaft. Die bürgerliche Mitte erwartet Führung aus Berlin.",
+      "ticker": "Landkreise: Agrar-Initiative — Bund unter Druck",
+      "choices": {
+        "0": {
+          "label": "Als Vorbild würdigen",
+          "desc": "+2% BT-Stimmen für passende Gesetze, keine PK-Kosten.",
+          "log": "Kommunale Agrar-Initiative als Vorbild gewürdigt."
+        },
+        "1": {
+          "label": "Koordinieren und Pilot starten",
+          "desc": "8 PK — voller Kommunal-Pilot mit dem passenden Gesetz.",
+          "log": "Bund koordiniert kommunale Agrar-Initiative. Pilotprojekt gestartet."
+        },
+        "2": {
+          "label": "Ignorieren",
+          "desc": "Keine Reaktion. Druck könnte steigen.",
+          "log": "Kommunale Agrar-Initiative ignoriert."
+        }
+      }
     }
   },
   "vorstufenEvents": {

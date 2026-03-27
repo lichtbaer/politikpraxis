@@ -7,7 +7,10 @@ export const BR_IDS = new Set([
 ]);
 
 export const KOMMUNAL_IDS = new Set([
-  'kommunal_klima_initiative', 'kommunal_sozial_initiative', 'kommunal_sicherheit_initiative',
+  'kommunal_klima_initiative',
+  'kommunal_sozial_initiative',
+  'kommunal_sicherheit_initiative',
+  'kommunal_agrar_initiative',
 ]);
 
 export const VORSTUFEN_IDS = new Set([
