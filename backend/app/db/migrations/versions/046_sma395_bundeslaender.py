@@ -381,7 +381,7 @@ def upgrade() -> None:
         cid = r.scalar_one()
         conn.execute(
             sa.text("""
-                INSERT INTO event_choices_i18n (choice_id, locale, label, desc, log_msg)
+                INSERT INTO event_choices_i18n (choice_id, locale, label, "desc", log_msg)
                 VALUES (:cid, 'de', :label, :desc, :log)
             """),
             {"cid": cid, "label": label, "desc": desc, "log": log},
