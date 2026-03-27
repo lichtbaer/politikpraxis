@@ -1404,6 +1404,7 @@
     "ohneFeld": "Other",
     "kongruenzLabel": "Fit",
     "kongruenzTooltip": "How well this law matches your political orientation (0–100 scale). Higher means closer alignment with your government line. This is not the direct Bundestag vote probability.",
+    "scoreTip": "Recommendation score: {{score}}/100 — how advisable it is to introduce this law now (KPI need, Bundestag outlook, fit with your alignment, efficiency). Scale 0–100.",
     "kongruenz": "{{percent}}",
     "filterAlle": "All",
     "filterAlleTooltip": "No status filter: all laws visible at your complexity level.",
