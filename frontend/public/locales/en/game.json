@@ -2457,6 +2457,16 @@
     "monthPlural": "{{count}} months",
     "now": "Now",
     "tooltipMonth": "Month {{month}} (+{{offset}} mo.)",
+    "tooltipGesamteffekt": "Total effect",
+    "gesetzLegendeAria": "Law colours for all charts",
+    "summaryTitle": "Cumulative total effects (all months)",
+    "summaryLine": "{{label}}: {{value}}",
+    "unit": {
+      "al": "%",
+      "hh": " bn €",
+      "gi": "",
+      "zf": ""
+    },
     "al": {
       "label": "Unemployment",
       "desc": "Unemployment rate — lower is better"

@@ -28,14 +28,85 @@
 .nextHint {
   font-size: 0.72rem;
   color: var(--color-text-muted, rgba(255, 255, 255, 0.35));
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.35rem;
+}
+
+.gesetzLegende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.65rem;
+  margin-bottom: 0.45rem;
+  padding: 0.35rem 0.45rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.gesetzLegendeItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--color-text, #e8e4d8);
+  max-width: 100%;
+}
+
+.gesetzSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.gesetzName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+@media (min-width: 900px) {
+  .chartsGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.effektSummary {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.effektSummaryTitle {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.4));
+  margin-bottom: 0.25rem;
+}
+
+.effektSummaryList {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.72rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.55));
+  line-height: 1.45;
 }
 
 .kpiLegend {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  margin-top: 0.35rem;
+  margin-top: 0.4rem;
   padding: 0.4rem 0.5rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 4px;
@@ -44,16 +115,9 @@
 
 .kpiLegendItem {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 0.4rem;
   font-size: 0.72rem;
-}
-
-.kpiDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  flex-shrink: 0;
 }
 
 .kpiKey {

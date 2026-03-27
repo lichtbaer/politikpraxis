@@ -2455,6 +2455,16 @@
     "monthPlural": "{{count}} Monaten",
     "now": "Jetzt",
     "tooltipMonth": "Monat {{month}} (+{{offset}} Mo.)",
+    "tooltipGesamteffekt": "Gesamteffekt",
+    "gesetzLegendeAria": "Farben der Gesetze für alle Diagramme",
+    "summaryTitle": "Kumulierte Gesamteffekte (alle Monate)",
+    "summaryLine": "{{label}}: {{value}}",
+    "unit": {
+      "al": "%",
+      "hh": " Mrd. €",
+      "gi": "",
+      "zf": ""
+    },
     "al": {
       "label": "Arbeitslosigkeit",
       "desc": "Erwerbslosenquote — niedrig ist besser"
