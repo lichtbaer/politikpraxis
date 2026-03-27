@@ -20,6 +20,7 @@ import {
   berechneMedianklima,
   initMedienAkteureFromContent,
   kalibriereMedienAkteureZuIndex,
+  roundMedienKlimaIndex,
 } from './systems/medienklima';
 import { DEFAULT_MEDIEN_AKTEURE } from '../data/defaults/medienAkteure';
 import { bildeKabinett, waehleMinisterAusPool } from './kabinett';
@@ -485,7 +486,8 @@ export function validateGameState(raw: unknown): GameState {
   const wahlergebnisVal = get('wahlergebnis', undefined);
   const wahlergebnis = wahlergebnisVal != null ? clamp(Number(wahlergebnisVal), 0, 100) : undefined;
   const medienKlimaVal = get('medienKlima', undefined);
-  const medienKlima = medienKlimaVal != null ? clamp(Number(medienKlimaVal), 0, 100) : 55;
+  const medienKlima =
+    medienKlimaVal != null ? roundMedienKlimaIndex(clamp(Number(medienKlimaVal), 0, 100)) : 55;
 
   const validated: GameState = {
     month,
@@ -603,6 +605,13 @@ export function migrateGameState(state: GameState): GameState {
   // SMA-412: alte Spielstände ohne Verlauf — Startpunkt für Chart (nach finalem medienKlima)
   if (!result.medienKlimaHistory?.length) {
     result = { ...result, medienKlimaHistory: [result.medienKlima ?? 55] };
+  }
+  // SMA-409: bestehende Verläufe normalisieren (Floats aus älteren Saves)
+  if (result.medienKlimaHistory?.length) {
+    result = {
+      ...result,
+      medienKlimaHistory: result.medienKlimaHistory.map((v) => roundMedienKlimaIndex(v)),
+    };
   }
   if (!result.opposition) {
     result = { ...result, opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 } };

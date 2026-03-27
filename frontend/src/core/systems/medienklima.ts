@@ -18,6 +18,11 @@ import { featureActive } from './features';
 import { verbrauchePK } from '../pk';
 import { isEventAvailable, recordEventFired } from './eventUtils';
 import { clamp, SKANDAL_CHANCE, POSITIV_MEDIEN_CHANCE } from '../constants';
+
+/** SMA-409: Index 0–100 ganzzahlig für State, Historie und Anzeige (keine Float-Artefakte). */
+export function roundMedienKlimaIndex(v: number): number {
+  return Math.round(clamp(v, 0, 100));
+}
 import { getGesetzIdeologie } from './koalition';
 
 /** Reaktionsdeltas je Akteur (Stimmung, Skandal: alternativ +3 Reichweite zusätzlich) */
@@ -202,7 +207,7 @@ export function mergeMedienAkteureState(
 export function berechneMedianklima(G: GameState): number {
   const akteure = G.medienAkteure;
   if (!akteure || Object.keys(akteure).length === 0) {
-    return clamp(G.medienKlima ?? 55, 0, 100);
+    return roundMedienKlimaIndex(G.medienKlima ?? 55);
   }
   const buffs = G.medienAkteurBuffs;
   const month = G.month;
@@ -213,7 +218,7 @@ export function berechneMedianklima(G: GameState): number {
   let v = 50 + gewichteteSumme / 2;
   const altR = akteure.alternativ?.reichweite ?? 0;
   if (altR > 10) v -= 5;
-  return clamp(v, 0, 100);
+  return roundMedienKlimaIndex(v);
 }
 
 /**

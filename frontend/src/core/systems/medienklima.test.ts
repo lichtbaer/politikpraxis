@@ -125,6 +125,19 @@ describe('berechneMedianklima (SMA-390)', () => {
     } as unknown as GameState;
     expect(berechneMedianklima(G)).toBe(55);
   });
+
+  it('SMA-409: gewichtete Berechnung wird ganzzahlig gerundet', () => {
+    const G = {
+      medienKlima: 50,
+      medienAkteure: {
+        a: { stimmung: 10, reichweite: 33 },
+        b: { stimmung: -7, reichweite: 67 },
+      },
+    } as unknown as GameState;
+    const raw = 50 + (10 * 33 / 100 + (-7) * 67 / 100) / 2;
+    expect(raw).not.toBe(Math.round(raw));
+    expect(berechneMedianklima(G)).toBe(Math.round(raw));
+  });
 });
 
 describe('getMedienPkZusatzkosten', () => {

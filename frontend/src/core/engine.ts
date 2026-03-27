@@ -45,7 +45,7 @@ import {
   tickWahlkampfPrognose,
   triggerWahlnacht,
 } from './systems/wahlkampf';
-import { tickMedienKlima, berechneMedianklima } from './systems/medienklima';
+import { tickMedienKlima, berechneMedianklima, roundMedienKlimaIndex } from './systems/medienklima';
 import { tickVermittlungsausschuss } from './systems/vermittlung';
 import { featureActive } from './systems/features';
 import { applyMilieuDrift } from './systems/milieus';
@@ -372,7 +372,8 @@ export function tick(
   s = { ...s, letzterMonatsDiff: berechneMonatsDiff(state, s, content) };
 
   // SMA-412: Medienklima-Verlauf — ein Punkt pro abgeschlossenem Monat (Wert nach tickMedienKlima etc.)
-  const mkEnd = s.medienKlima ?? s.zust.g;
+  // SMA-409: gerundeter Index (keine Float-Artefakte in Historie/Charts)
+  const mkEnd = roundMedienKlimaIndex(s.medienKlima ?? s.zust.g);
   s = {
     ...s,
     medienKlimaHistory: trimHistory(s.medienKlimaHistory ?? [], mkEnd, HISTORY_MAX_MONTHS),

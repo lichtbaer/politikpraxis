@@ -77,12 +77,12 @@ export function MedienklimaSektion() {
   if (!featureActive(complexity, 'medienklima')) return null;
 
   const medienKlimaRaw = state.medienKlima ?? 55;
-  const medienKlima = Math.round(medienKlimaRaw);
+  const mkRounded = Math.round(medienKlimaRaw);
   const verlauf = history.slice(-12);
   const showChart = featureActive(complexity, 'milieus_4') && verlauf.length >= 1;
 
   const klimaClass =
-    medienKlima > 65 ? styles.positiv : medienKlima > 35 ? styles.neutral : styles.negativ;
+    mkRounded > 65 ? styles.positiv : mkRounded > 35 ? styles.neutral : styles.negativ;
 
   const oppositionStaerke = state.opposition?.staerke ?? 0;
   const oppositionLabel =
@@ -96,7 +96,7 @@ export function MedienklimaSektion() {
       <div className={styles.content}>
         <div className={styles.wertRow}>
           <div className={`${styles.klimaBar} ${klimaClass}`}>
-            <div className={styles.klimaFill} style={{ width: `${medienKlima}%` }} />
+            <div className={styles.klimaFill} style={{ width: `${mkRounded}%` }} />
           </div>
           <span className={styles.wert}>{formatMedienklima(medienKlimaRaw)}/100</span>
         </div>
