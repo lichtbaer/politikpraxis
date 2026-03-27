@@ -30,8 +30,12 @@ function KpiDeltaZeile(props: {
   const fmt = (n: number) =>
     decimals != null ? n.toFixed(decimals) : String(Math.round(n));
   const farbe = delta > 0 ? styles.positiv : delta < 0 ? styles.negativ : styles.neutral;
-  const pfeil = delta > 0 ? '▲' : delta < 0 ? '▼' : '—';
-  const deltaStr = delta === 0 ? '0' : `${delta > 0 ? '+' : ''}${decimals != null ? delta.toFixed(decimals) : delta}`;
+  /** SMA-408: Bei Δ=0 „→“ wie bei positiv/negativ Pfeil-Symbole, kein langer Gedankenstrich. */
+  const pfeil = delta > 0 ? '▲' : delta < 0 ? '▼' : '→';
+  const deltaStr =
+    delta === 0
+      ? `±${decimals != null ? (0).toFixed(decimals) : '0'}`
+      : `${delta > 0 ? '+' : ''}${decimals != null ? delta.toFixed(decimals) : delta}`;
   return (
     <div className={styles.kpiRow}>
       <span className={styles.kpiLabel}>{label}</span>
@@ -151,13 +155,13 @@ export function MonatszusammenfassungModal({
                     t(`milieu.${milieuId}`, { defaultValue: '' }) ||
                     milieuId.replace(/_/g, ' ');
                   const farbe = delta > 0 ? styles.positiv : delta < 0 ? styles.negativ : styles.neutral;
-                  const pfeil = delta > 0 ? '▲' : delta < 0 ? '▼' : '—';
+                  const pfeil = delta > 0 ? '▲' : delta < 0 ? '▼' : '→';
                   return (
                     <p key={milieuId} className={styles.line}>
                       <span className={styles.kpiLabel}>{label}</span>{' '}
                       <span className={farbe}>
-                        {pfeil} {delta > 0 ? '+' : ''}
-                        {delta}
+                        {pfeil}{' '}
+                        {delta === 0 ? '±0' : `${delta > 0 ? '+' : ''}${delta}`}
                       </span>
                     </p>
                   );
