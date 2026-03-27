@@ -1,6 +1,8 @@
 import type { GameState, ContentBundle, Haushalt, SchuldenbremsenStatus } from '../types';
 import {
-  EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS, SCHULDENBREMSE_DEFIZIT_MILD, SCHULDENBREMSE_SPIELRAUM_BASIS,
+  EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS,
+  SCHULDENBREMSE_SPIELRAUM_BASIS,
+  SCHULDENBREMSE_VERBRAUCH_GRENZWERTIG_BIS,
   KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX,
   EINNAHMEN_AL_REFERENZ, EINNAHMEN_AL_KOEFFIZIENT, EINNAHMEN_KONJUNKTUR_KOEFFIZIENT,
   clamp,
@@ -189,16 +191,28 @@ export function tickKonjunktur(state: GameState, complexity: number): GameState 
   return { ...s, haushalt: neuerHaushalt };
 }
 
-/** Schuldenbremsen-Check */
+/**
+ * Schuldenbremse-Verbrauch in Mrd. — eine gemeinsame Definition für UI und Regeln (SMA-397).
+ * Entsteht nur durch explizite Schuldenaufnahme (Gegenfinanzierung etc.), nicht durch das strukturelle Startdefizit.
+ */
+export function berechneSchuldenbremseVerbrauchtMrd(haushalt: Haushalt): number {
+  const erlaubt = SCHULDENBREMSE_SPIELRAUM_BASIS;
+  const spielraumRest = haushalt.schuldenbremseSpielraum ?? erlaubt;
+  return Math.max(0, erlaubt - spielraumRest);
+}
+
+/** Schuldenbremsen-Status — ausschließlich aus Schuldenbremse-Verbrauch (kein zweites Saldo-System) */
 export function checkSchuldenbremse(state: GameState, complexity: number): SchuldenbremsenStatus {
   if (!featureActive(complexity, 'schuldenbremse')) return 'inaktiv';
   const haushalt = state.haushalt;
   if (!haushalt) return 'inaktiv';
 
-  const defizit = haushalt.saldo;
-  if (defizit > 0) return 'ausgeglichen';
-  if (defizit >= -12) return 'grenzwertig';
-  if (defizit >= SCHULDENBREMSE_DEFIZIT_MILD) return 'verletzt_mild';
+  const erlaubt = SCHULDENBREMSE_SPIELRAUM_BASIS;
+  const verbraucht = berechneSchuldenbremseVerbrauchtMrd(haushalt);
+
+  if (verbraucht <= 0) return 'ausgeglichen';
+  if (verbraucht <= SCHULDENBREMSE_VERBRAUCH_GRENZWERTIG_BIS) return 'grenzwertig';
+  if (verbraucht < erlaubt) return 'verletzt_mild';
   return 'verletzt_stark';
 }
 

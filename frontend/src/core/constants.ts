@@ -56,6 +56,8 @@ export const PFLICHTAUSGABEN_BASIS = 370;
 export const SCHULDENBREMSE_DEFIZIT_MILD = -18;
 /** SMA-335: Schuldenbremse-Spielraum in Mrd./Jahr (~13) */
 export const SCHULDENBREMSE_SPIELRAUM_BASIS = 13;
+/** SMA-397: Verbrauch (Mrd.) bis zu dem die Ampel „grenzwertig“ bleibt (exkl. 0 = ausgeglichen) */
+export const SCHULDENBREMSE_VERBRAUCH_GRENZWERTIG_BIS = 5;
 
 // --- Bundestag / Sitzverteilung (SMA-322) ---
 /** Sitzanteil Koalition (Spieler + Partner) — typisch ~53%, nicht Koalitionsstabilität */
