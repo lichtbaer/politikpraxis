@@ -16,6 +16,15 @@ export const WIRTSCHAFT_SEKTOR_IDS = [
   'finanz',
 ] as const;
 
+/** SMA-405: Verknüpfung Sektor → Verbände (wie DB-Migration 048) */
+export const WIRTSCHAFT_SEKTOR_VERBAND_IDS: Record<string, readonly string[]> = {
+  industrie: ['bdi', 'dwv'],
+  arbeit: ['gbd'],
+  konsum: ['bvl', 'pvd'],
+  gruen: ['uvb'],
+  finanz: ['bdi', 'bvd'],
+};
+
 const SEKTOR_START: Record<string, { zustand: number; trend: number }> = {
   industrie: { zustand: 50, trend: 0 },
   arbeit: { zustand: 50, trend: 0 },
@@ -23,6 +32,24 @@ const SEKTOR_START: Record<string, { zustand: number; trend: number }> = {
   gruen: { zustand: 45, trend: 0 },
   finanz: { zustand: 55, trend: 0 },
 };
+
+/** SMA-405: Anzeigenamen für Dashboard / Reaktions-Hinweise */
+export const WIRTSCHAFT_SEKTOR_NAME_DE: Record<string, string> = {
+  industrie: 'Industrie & Energie',
+  arbeit: 'Arbeit & Soziales',
+  konsum: 'Konsum & Handel',
+  gruen: 'Grüne Wirtschaft',
+  finanz: 'Finanz & Kapital',
+};
+
+/** Startwerte für Delta-Vergleich vor erstem Verlaufseintrag (createInitialWirtschaft) */
+export const WIRTSCHAFT_INDIKATOREN_START_SNAPSHOT = {
+  monat: 0,
+  bip: 1.2,
+  inflation: 2.5,
+  arbeitslosigkeit: 5.2,
+  investitionsklima: 55,
+} as const;
 
 /** Konjunkturindex aus BIP-Wachstum für Abwärtskompatibilität (Haushalt/Einnahmen) */
 export function bipZuKonjunkturIndex(bipWachstum: number): number {
@@ -139,6 +166,14 @@ function verbandsReaktion(
   cooldown: number,
   logMsg: string,
   logType: 'g' | 'r' | 'w',
+  complexity: number,
+  hinweisJeVerband?: Array<{
+    verbandId: string;
+    sektor_id: string;
+    sektor_name_de: string;
+    zustand: number;
+    kontext_de?: string;
+  }>,
 ): { state: GameState; w: WirtschaftsState } {
   const cd = w.sektorVerbandCooldown ?? {};
   const nextFree = cd[key] ?? 0;
@@ -150,7 +185,25 @@ function verbandsReaktion(
   if (!vid) return { state, w };
   vb[vid] = clamp((vb[vid] ?? 50) + delta, 0, 100);
 
-  const s2 = addLog({ ...state, verbandsBeziehungen: vb }, logMsg, logType);
+  let nextState: GameState = { ...state, verbandsBeziehungen: vb };
+  if (
+    featureActive(complexity, 'wirtschaft_verbandsreaktion_hinweis') &&
+    hinweisJeVerband?.length
+  ) {
+    const prev = { ...(state.verbandsLetzteWirtschaftsReaktion ?? {}) };
+    for (const h of hinweisJeVerband) {
+      prev[h.verbandId] = {
+        sektor_id: h.sektor_id,
+        sektor_name_de: h.sektor_name_de,
+        zustand: Math.round(h.zustand),
+        monat,
+        ...(h.kontext_de ? { kontext_de: h.kontext_de } : {}),
+      };
+    }
+    nextState = { ...nextState, verbandsLetzteWirtschaftsReaktion: prev };
+  }
+
+  const s2 = addLog(nextState, logMsg, logType);
   const cd2 = { ...cd, [key]: monat + cooldown };
   return { state: s2, w: { ...w, sektorVerbandCooldown: cd2 } };
 }
@@ -172,6 +225,15 @@ function aktualisiereVerbandsBeziehungen(state: GameState, w: WirtschaftsState, 
       4,
       'BDI: Die Industrie braucht dringend politische Unterstützung.',
       'w',
+      complexity,
+      [
+        {
+          verbandId: 'bdi',
+          sektor_id: 'industrie',
+          sektor_name_de: WIRTSCHAFT_SEKTOR_NAME_DE.industrie ?? 'Industrie',
+          zustand: ind,
+        },
+      ],
     );
     st = r.state;
     wcur = r.w;
@@ -185,6 +247,15 @@ function aktualisiereVerbandsBeziehungen(state: GameState, w: WirtschaftsState, 
       6,
       'BDI: Gute Konjunktur in der Industrie stärkt das Vertrauen.',
       'g',
+      complexity,
+      [
+        {
+          verbandId: 'bdi',
+          sektor_id: 'industrie',
+          sektor_name_de: WIRTSCHAFT_SEKTOR_NAME_DE.industrie ?? 'Industrie',
+          zustand: ind,
+        },
+      ],
     );
     st = r.state;
     wcur = r.w;
@@ -201,6 +272,15 @@ function aktualisiereVerbandsBeziehungen(state: GameState, w: WirtschaftsState, 
       4,
       'GBD: Arbeitnehmerinnen brauchen jetzt Schutz.',
       'w',
+      complexity,
+      [
+        {
+          verbandId: 'gbd',
+          sektor_id: 'arbeit',
+          sektor_name_de: WIRTSCHAFT_SEKTOR_NAME_DE.arbeit ?? 'Arbeit',
+          zustand: arb,
+        },
+      ],
     );
     st = r.state;
     wcur = r.w;
@@ -217,6 +297,15 @@ function aktualisiereVerbandsBeziehungen(state: GameState, w: WirtschaftsState, 
       5,
       'Umweltverbände: Der Umbau der Wirtschaft kommt zu langsam voran.',
       'w',
+      complexity,
+      [
+        {
+          verbandId: 'uvb',
+          sektor_id: 'gruen',
+          sektor_name_de: WIRTSCHAFT_SEKTOR_NAME_DE.gruen ?? 'Grüne Wirtschaft',
+          zustand: gr,
+        },
+      ],
     );
     st = r.state;
     wcur = r.w;
@@ -233,6 +322,16 @@ function aktualisiereVerbandsBeziehungen(state: GameState, w: WirtschaftsState, 
       3,
       'BDI: Der Haushalt belastet Standort und Investitionsklima.',
       'w',
+      complexity,
+      [
+        {
+          verbandId: 'bdi',
+          sektor_id: 'haushalt',
+          sektor_name_de: 'Haushalt',
+          zustand: 0,
+          kontext_de: `Haushaltssaldo ${saldo.toFixed(1)} Mrd.`,
+        },
+      ],
     );
     st = r.state;
     wcur = r.w;
@@ -243,7 +342,7 @@ function aktualisiereVerbandsBeziehungen(state: GameState, w: WirtschaftsState, 
 
 /**
  * Monatlicher Wirtschaftstick (Sektoren, Indikatoren, Einnahmen, Verbände).
- * Nur ab Komplexität 3 (`wirtschaftssektoren`).
+ * Nur ab Komplexität 2 (`wirtschaftssektoren`).
  */
 export function tickWirtschaft(state: GameState, complexity: number): GameState {
   if (!featureActive(complexity, 'wirtschaftssektoren') || !state.haushalt) {
