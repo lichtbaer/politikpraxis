@@ -8,6 +8,10 @@ interface MilieuBarProps {
   color: string;
   /** Optional: recent approval values for sparkline */
   history?: number[];
+  /** Wenn false: keine Prozentzahl im Kopf (z. B. Medien-Karten — Wert steht bereits im Kartenkopf) */
+  showHeaderValue?: boolean;
+  /** Monats-Delta unter dem Balken (▲/▼); nur gesetzt wenn sinnvoll, sonst weglassen */
+  footerDelta?: number | null;
 }
 
 function sparklineOption(history: number[], color: string): EChartsOption {
@@ -38,32 +42,55 @@ function sparklineOption(history: number[], color: string): EChartsOption {
   };
 }
 
-export function MilieuBar({ name, value, color, history }: MilieuBarProps) {
+export function MilieuBar({
+  name,
+  value,
+  color,
+  history,
+  showHeaderValue = true,
+  footerDelta,
+}: MilieuBarProps) {
   const clamped = Math.min(100, Math.max(0, value));
   const showSparkline = history && history.length > 2;
+  const showFooter = typeof footerDelta === 'number';
 
-  // Trend: compare last value with value up to 3 positions back
+  // Trend im Kopf: nur wenn dort die Prozentzahl steht und kein separates Fuß-Delta
   let trendSymbol = '→';
   let trendClass = styles.trendFlat;
-  const showTrend = history && history.length >= 2;
-  if (showTrend) {
+  const showTrendInHeader =
+    showHeaderValue && !showFooter && history && history.length >= 2;
+  if (showTrendInHeader) {
     const lookback = Math.min(3, history!.length - 1);
     const diff = history![history!.length - 1] - history![history!.length - 1 - lookback];
     if (diff > 2) { trendSymbol = '↑'; trendClass = styles.trendUp; }
     else if (diff < -2) { trendSymbol = '↓'; trendClass = styles.trendDown; }
   }
 
+  let footerSymbol = '→';
+  let footerTrendClass = styles.trendFlat;
+  if (showFooter) {
+    if (footerDelta > 0) { footerSymbol = '▲'; footerTrendClass = styles.trendUp; }
+    else if (footerDelta < 0) { footerSymbol = '▼'; footerTrendClass = styles.trendDown; }
+  }
+
+  const hasHeader =
+    Boolean(name) || showHeaderValue || showTrendInHeader;
+
   return (
     <div className={styles.root}>
-      <div className={styles.header}>
-        <span className={styles.name}>{name}</span>
-        <span className={styles.value}>{Math.round(clamped)}%</span>
-        {showTrend && (
-          <span className={`${styles.trend} ${trendClass}`} aria-hidden="true">
-            {trendSymbol}
-          </span>
-        )}
-      </div>
+      {hasHeader && (
+        <div className={styles.header}>
+          <span className={styles.name}>{name}</span>
+          {showHeaderValue && (
+            <span className={styles.value}>{Math.round(clamped)}%</span>
+          )}
+          {showTrendInHeader && (
+            <span className={`${styles.trend} ${trendClass}`} aria-hidden="true">
+              {trendSymbol}
+            </span>
+          )}
+        </div>
+      )}
       <div className={styles.barRow}>
         <div className={styles.track}>
           <div
@@ -81,6 +108,13 @@ export function MilieuBar({ name, value, color, history }: MilieuBarProps) {
           />
         )}
       </div>
+      {showFooter && (
+        <div className={`${styles.footerDelta} ${footerTrendClass}`}>
+          {footerSymbol}{' '}
+          {footerDelta > 0 ? '+' : footerDelta < 0 ? '−' : ''}
+          {Math.abs(footerDelta)}%
+        </div>
+      )}
     </div>
   );
 }
