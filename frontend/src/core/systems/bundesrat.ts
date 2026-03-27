@@ -6,6 +6,7 @@ import type {
   KpiDelta,
   ContentBundle,
 } from '../types';
+import { SPIELER_PARTEI_TO_PROFIL } from '../../constants/bundeslaenderProfil';
 import { withPause } from '../eventPause';
 import { PK_REPARATUR, BEREITSCHAFT_TRADEOFF_BONUS, EINSPRUCH_UEBERSTIMMUNG_PK, EINSPRUCH_UEBERSTIMMUNG_SCHWELLE } from '../constants';
 import { featureActive } from './features';
@@ -24,6 +25,96 @@ const PK_BEZIEHUNGSPFLEGE = 10;
 const PK_GEGENVORSCHLAG = 20;
 
 const BEREITSCHAFT_PK_BONUS = 20;
+
+const BR_MEHRHEIT_STIMMEN = 35;
+const BR_TOTAL_STIMMEN = 69;
+
+/** SMA-395: Länder-Profile geladen (Themen) — Stimmgewicht-Summe 69, Mehrheit >35 */
+export function bundesratNutztLandgewichte(state: GameState): boolean {
+  return state.bundesrat.some(l => (l.themen?.length ?? 0) > 0);
+}
+
+function getLandBeziehung(state: GameState, landId: string): number {
+  const b = state.landBeziehungen?.[landId];
+  if (b != null) return Math.max(0, Math.min(100, b));
+  return 50;
+}
+
+function lawPolitikfelder(law: { politikfeldId?: string | null; politikfeldSekundaer?: string[] }): string[] {
+  const out: string[] = [];
+  if (law.politikfeldId) out.push(law.politikfeldId);
+  const sec = law.politikfeldSekundaer ?? [];
+  for (const p of sec) {
+    if (p && !out.includes(p)) out.push(p);
+  }
+  return out;
+}
+
+function countThemenMatches(landThemen: string[] | undefined, felder: string[]): number {
+  if (!landThemen?.length || !felder.length) return 0;
+  let n = 0;
+  for (const p of felder) {
+    if (landThemen.includes(p)) n++;
+  }
+  return n;
+}
+
+function spielerProfilPartei(state: GameState): string | undefined {
+  const id = state.spielerPartei?.id;
+  if (!id) return undefined;
+  return SPIELER_PARTEI_TO_PROFIL[id] ?? id.toUpperCase();
+}
+
+/** Fraktions-Bereitschaft 0–100 (gleiche Logik wie bisher, für Länder-Gewichtung) */
+function computeFraktionBereitschaft(
+  state: GameState,
+  gesetzeId: string,
+  f: BundesratFraktion,
+  vorstufenBonus: number,
+): number {
+  const law = state.gesetze.find(g => g.id === gesetzeId);
+  if (!law) return 0;
+  const lobby: LawLobbyFraktion = law.lobbyFraktionen?.[f.id] ?? { pkInvestiert: false };
+  const effMult = getLobbyEffektMultiplikator(f.beziehung);
+  const reparaturAktiv = f.beziehung < 20 && (f.reparaturEndMonth == null || state.month < f.reparaturEndMonth);
+
+  let bereitschaft = f.basisBereitschaft;
+
+  if (f.beziehung >= 80 && !isIdeologisch(gesetzeId, f.id)) {
+    bereitschaft = 100;
+  } else if (reparaturAktiv) {
+    bereitschaft = 0;
+  } else {
+    if (lobby.pkInvestiert) bereitschaft += BEREITSCHAFT_PK_BONUS * effMult;
+    if (lobby.tradeoffAngenommen) bereitschaft += BEREITSCHAFT_TRADEOFF_BONUS * effMult;
+    bereitschaft += Math.min(15, Math.floor(f.beziehung / 7));
+    bereitschaft += vorstufenBonus;
+  }
+  return Math.min(100, Math.max(0, bereitschaft));
+}
+
+function landStimmtJa(
+  state: GameState,
+  lawId: string,
+  land: GameState['bundesrat'][0],
+  fraktionBereitschaft: number,
+): boolean {
+  const law = state.gesetze.find(g => g.id === lawId);
+  if (!law) return false;
+  const felder = lawPolitikfelder(law);
+  const basis = getLandBeziehung(state, land.id) / 100;
+  const themenBonus = countThemenMatches(land.themen, felder) * 0.1;
+  const regPartei = land.regierungPartei ?? land.party;
+  const parteiBonus = regPartei && regPartei === spielerProfilPartei(state) ? 0.2 : 0;
+  const lobbyTilt = Math.max(-0.12, Math.min(0.12, (fraktionBereitschaft - 50) / 150));
+  const p = Math.min(0.98, Math.max(0.02, basis + themenBonus + parteiBonus + lobbyTilt));
+  // Deterministisch: UI (Felder) und executeBundesratVote müssen übereinstimmen
+  return p >= 0.5;
+}
+
+function findFraktionForLand(state: GameState, landId: string): BundesratFraktion | undefined {
+  return state.bundesratFraktionen.find(f => f.laender.includes(landId));
+}
 
 /** Lobbying nur in den 3 Monaten VOR der geplanten BR-Abstimmung aktiv */
 export function isLobbyingActive(state: GameState, gesetzeId: string): boolean {
@@ -82,6 +173,29 @@ export function calcBundesratMehrheit(
   let nein = 0;
 
   const vorstufenBonus = state.gesetzProjekte?.[gesetzeId]?.boni?.bundesratBonus ?? 0;
+
+  if (bundesratNutztLandgewichte(state)) {
+    const gewicht = (l: GameState['bundesrat'][0]) => l.stimmgewicht ?? l.votes;
+    for (const land of state.bundesrat) {
+      const f = findFraktionForLand(state, land.id);
+      if (!f) continue;
+      const fb = computeFraktionBereitschaft(state, gesetzeId, f, vorstufenBonus);
+      const stimmt = landStimmtJa(state, gesetzeId, land, fb);
+      const w = gewicht(land);
+      if (stimmt) ja += w;
+      else nein += w;
+      const b = getLandBeziehung(state, land.id);
+      details.push(
+        `${land.name}: ${stimmt ? 'Ja' : 'Nein'} (${w} St.) — Land-Bez. ${b}, Frakt.-Bereitschaft ${fb}%`,
+      );
+    }
+    return {
+      ja,
+      nein,
+      mehrheit: ja > BR_MEHRHEIT_STIMMEN,
+      details,
+    };
+  }
 
   for (const f of state.bundesratFraktionen) {
     const lobby: LawLobbyFraktion = law.lobbyFraktionen?.[f.id] ?? { pkInvestiert: false };
@@ -148,6 +262,28 @@ export function getBundesratVoteDetails(
 
   const vorstufenBonus = state.gesetzProjekte?.[gesetzeId]?.boni?.bundesratBonus ?? 0;
 
+  if (bundesratNutztLandgewichte(state)) {
+    return state.bundesratFraktionen.map((f) => {
+      const fb = computeFraktionBereitschaft(state, gesetzeId, f, vorstufenBonus);
+      let jaW = 0;
+      let neinW = 0;
+      for (const lid of f.laender) {
+        const land = state.bundesrat.find(l => l.id === lid);
+        if (!land) continue;
+        const w = land.stimmgewicht ?? land.votes;
+        if (landStimmtJa(state, gesetzeId, land, fb)) jaW += w;
+        else neinW += w;
+      }
+      const stimmtJa = jaW >= neinW;
+      return {
+        fraktionId: f.id,
+        bereitschaft: fb,
+        stimmtJa,
+        laender: f.laender,
+      };
+    });
+  }
+
   return state.bundesratFraktionen.map((f) => {
     const lobby: LawLobbyFraktion = law.lobbyFraktionen?.[f.id] ?? { pkInvestiert: false };
     const effMult = getLobbyEffektMultiplikator(f.beziehung);
@@ -180,8 +316,27 @@ export function getBundesratAbstimmungsFelder(
   state: GameState,
   gesetzeId: string,
 ): { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[] {
-  const details = getBundesratVoteDetails(state, gesetzeId);
   const fraktionen = state.bundesratFraktionen;
+  const vorstufenBonus = state.gesetzProjekte?.[gesetzeId]?.boni?.bundesratBonus ?? 0;
+
+  if (bundesratNutztLandgewichte(state)) {
+    const result: { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[] = [];
+    for (const land of state.bundesrat) {
+      const f = findFraktionForLand(state, land.id);
+      if (!f) continue;
+      const fb = computeFraktionBereitschaft(state, gesetzeId, f, vorstufenBonus);
+      const stimmtJa = landStimmtJa(state, gesetzeId, land, fb);
+      result.push({
+        landId: land.id,
+        fraktionId: f.id,
+        color: f.sprecher.color,
+        stimmtJa,
+      });
+    }
+    return result;
+  }
+
+  const details = getBundesratVoteDetails(state, gesetzeId);
   const result: { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[] = [];
 
   for (const d of details) {
@@ -202,7 +357,8 @@ export function getBundesratAbstimmungsFelder(
 /** SMA-291: Aggregierter Zustimmungs-Prozentwert für Stufe 2 (0–100) */
 export function getAggregierteZustimmung(state: GameState, gesetzeId: string): number {
   const { ja } = calcBundesratMehrheit(state, gesetzeId);
-  return Math.round((ja / 16) * 100);
+  const denom = bundesratNutztLandgewichte(state) ? BR_TOTAL_STIMMEN : 16;
+  return Math.round((ja / denom) * 100);
 }
 
 /** Vereinfachte Mehrheit für Kompatibilität (16 Länder, 9 Mehrheit) */
@@ -388,6 +544,39 @@ export function lobbyFraktion(
   }
 
   return state;
+}
+
+const PK_BUNDESLAND_GESPRAECH = 10;
+const BUNDESLAND_GESPRAECH_BEZIEHUNG = 10;
+
+/** SMA-395: Bilaterales Gespräch — Land-Beziehung +10, leichter Fraktions-Bonus */
+export function bundeslandGespraech(state: GameState, landId: string): GameState {
+  if (state.pk < PK_BUNDESLAND_GESPRAECH) return state;
+  const land = state.bundesrat.find(l => l.id === landId);
+  if (!land) return state;
+
+  const prev = getLandBeziehung(state, landId);
+  const landBeziehungen = { ...(state.landBeziehungen ?? {}) };
+  landBeziehungen[landId] = Math.min(100, prev + BUNDESLAND_GESPRAECH_BEZIEHUNG);
+
+  let bundesratFraktionen = state.bundesratFraktionen;
+  const f = findFraktionForLand(state, landId);
+  if (f) {
+    bundesratFraktionen = state.bundesratFraktionen.map(fr =>
+      fr.id === f.id ? { ...fr, beziehung: Math.min(100, fr.beziehung + 2) } : fr,
+    );
+  }
+
+  return addLog(
+    {
+      ...state,
+      pk: state.pk - PK_BUNDESLAND_GESPRAECH,
+      landBeziehungen,
+      bundesratFraktionen,
+    },
+    `Bilaterales Gespräch mit ${land.name}: Beziehung +${BUNDESLAND_GESPRAECH_BEZIEHUNG}`,
+    'g',
+  );
 }
 
 /** Legacy: Länder-basiertes Lobbying (für Stufe 2 / vereinfachter Bundesrat) */

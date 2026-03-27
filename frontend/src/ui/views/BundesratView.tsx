@@ -8,6 +8,7 @@ import {
   getBundesratVoteDetails,
   getBundesratAbstimmungsFelder,
   getAggregierteZustimmung,
+  bundesratNutztLandgewichte,
 } from '../../core/systems/bundesrat';
 import type { BundesratFraktion, Law } from '../../core/types';
 import { useUIStore } from '../../store/uiStore';
@@ -132,9 +133,10 @@ interface AbstimmungsbalkenProps {
   ja: number;
   nein: number;
   mehrheit: boolean;
+  mehrheitLiniePct: number;
 }
 
-function Abstimmungsbalken({ law, felder, ja, nein, mehrheit }: AbstimmungsbalkenProps) {
+function Abstimmungsbalken({ law, felder, ja, nein, mehrheit, mehrheitLiniePct }: AbstimmungsbalkenProps) {
   const { t } = useTranslation('game');
   const fraktionen = useGameStore((s) => s.state.bundesratFraktionen);
   const showToast = useUIStore((s) => s.showToast);
@@ -166,7 +168,11 @@ function Abstimmungsbalken({ law, felder, ja, nein, mehrheit }: Abstimmungsbalke
             title={`${f.landId}: ${f.stimmtJa ? 'Ja' : 'Nein'}`}
           />
         ))}
-        <div className={styles.mehrheitsLinie} title={t('game:bundesrat.mehrheitTitle')} />
+        <div
+          className={styles.mehrheitsLinie}
+          style={{ left: `${mehrheitLiniePct}%` }}
+          title={t('game:bundesrat.mehrheitTitle')}
+        />
       </div>
       <span className={styles.mehrheitsLabel}>{t('game:bundesrat.mehrheitBei')}</span>
     </div>
@@ -212,10 +218,17 @@ function BundesratSimple({
   );
 }
 
+function getLandBeziehung(state: { landBeziehungen?: Record<string, number> }, landId: string): number {
+  const b = state.landBeziehungen?.[landId];
+  if (b != null) return Math.max(0, Math.min(100, b));
+  return 50;
+}
+
 export function BundesratView() {
   const { t } = useTranslation('game');
   const state = useGameStore((s) => s.state);
   const complexity = useGameStore((s) => s.complexity);
+  const doBundeslandGespraech = useGameStore((s) => s.doBundeslandGespraech);
   const [lobbyingFraktion, setLobbyingFraktion] = useState<BundesratFraktion | null>(null);
 
   if (!featureActive(complexity, 'bundesrat_sichtbar')) return null;
@@ -238,10 +251,16 @@ export function BundesratView() {
     ? getBundesratVoteDetails(state, displayLaw.id)
     : [];
   const felder = displayLaw ? getBundesratAbstimmungsFelder(state, displayLaw.id) : [];
+  const landGewichtet = bundesratNutztLandgewichte(state);
+  const mehrheitLiniePct = landGewichtet ? (35 / 69) * 100 : (9 / 16) * 100;
 
   const voteDetailMap = Object.fromEntries(
     voteDetails.map((d) => [d.fraktionId, { bereitschaft: d.bereitschaft }]),
   );
+
+  const showLaenderListe = featureActive(complexity, 'bundeslaender_detail');
+  const showBilaterale = featureActive(complexity, 'bundeslaender_aktionen');
+  const pk = state.pk;
 
   return (
     <div className={styles.container}>
@@ -255,6 +274,82 @@ export function BundesratView() {
       <div className={styles.bundesratKarteContainer}>
         <BundesratMap laender={state.bundesrat} />
       </div>
+
+      {showLaenderListe && (
+        <section className={styles.laenderSection} aria-label={t('game:bundesrat.laenderUebersicht', { defaultValue: 'Länderübersicht' })}>
+          <h3 className={styles.laenderSectionTitle}>
+            {t('game:bundesrat.laenderUebersicht', { defaultValue: 'Länder und Beziehungen' })}
+          </h3>
+          <ul className={styles.laenderListe}>
+            {state.bundesrat.map((land) => {
+              const bez = getLandBeziehung(state, land.id);
+              return (
+                <li key={land.id} className={styles.laenderZeile}>
+                  <span className={styles.laenderName}>{land.name}</span>
+                  {land.regierungPartei && (
+                    <span className={styles.parteiBadge}>{land.regierungPartei}</span>
+                  )}
+                  <div className={styles.themenWrap}>
+                    {(land.themen ?? []).slice(0, 4).map((th) => (
+                      <span key={th} className={styles.themaBadge}>
+                        {th.replace(/_/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                  <div className={styles.landBezBalken}>
+                    <div className={styles.balkenTrack}>
+                      <div
+                        className={styles.balkenFill}
+                        style={{
+                          width: `${bez}%`,
+                          backgroundColor: getBeziehungsFarbe(bez),
+                        }}
+                      />
+                    </div>
+                    <span className={styles.landBezZahl}>{bez}</span>
+                  </div>
+                  {bez < 40 && (
+                    <span className={styles.blockadeBadge}>
+                      {t('game:bundesrat.blockadeRisiko', { defaultValue: 'Blockade-Risiko' })}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {showBilaterale && (
+        <section className={styles.bilateralSection}>
+          <h3 className={styles.laenderSectionTitle}>
+            {t('game:bundesrat.bilateraleTitel', { defaultValue: 'Bilaterale Gespräche' })}
+          </h3>
+          <p className={styles.bilateralHint}>
+            {t('game:bundesrat.bilateraleHint', {
+              defaultValue: 'Pflege die Beziehung zu einzelnen Bundesländern (10 PK, +10 Beziehung).',
+            })}
+          </p>
+          <div className={styles.bilateralActions}>
+            {state.bundesrat
+              .filter((l) => getLandBeziehung(state, l.id) < 60)
+              .map((land) => (
+                <button
+                  key={land.id}
+                  type="button"
+                  className={styles.btnBilateral}
+                  disabled={pk < 10}
+                  onClick={() => doBundeslandGespraech(land.id)}
+                >
+                  {t('game:bundesrat.bilateralMit', {
+                    defaultValue: 'Gespräch: {{name}}',
+                    name: land.name,
+                  })}
+                </button>
+              ))}
+          </div>
+        </section>
+      )}
 
       <section className={styles.fraktionskarten}>
         {state.bundesratFraktionen.map((f) => (
@@ -279,6 +374,7 @@ export function BundesratView() {
               ja={ja}
               nein={nein}
               mehrheit={mehrheit}
+              mehrheitLiniePct={mehrheitLiniePct}
             />
           </section>
         );

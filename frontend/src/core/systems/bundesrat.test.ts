@@ -9,10 +9,12 @@ import {
   lobbyFraktion,
   lobbyLand,
   checkKohlSabotage,
+  bundesratNutztLandgewichte,
+  bundeslandGespraech,
 } from './bundesrat';
 import type { GameState, BundesratFraktion, Law } from '../types';
 import { createInitialState } from '../state';
-import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
+import { DEFAULT_CONTENT, DEFAULT_BUNDESRAT } from '../../data/defaults/scenarios';
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   const base = createInitialState(DEFAULT_CONTENT, 4);
@@ -407,5 +409,60 @@ describe('checkKohlSabotage', () => {
     });
     const result = checkKohlSabotage(state);
     expect(result.triggered).toBe(false);
+  });
+});
+
+const VIER_FRAKTIONEN_16_LAENDER: BundesratFraktion[] = [
+  makeFraktion({
+    id: 'koalitionstreue',
+    laender: ['NW', 'NI', 'HH', 'HB', 'SH'],
+    basisBereitschaft: 70,
+    beziehung: 60,
+  }),
+  makeFraktion({
+    id: 'pragmatische_mitte',
+    laender: ['RP', 'SL', 'BE', 'HE'],
+    basisBereitschaft: 55,
+    beziehung: 50,
+  }),
+  makeFraktion({
+    id: 'konservativer_block',
+    laender: ['BY', 'BW', 'ST'],
+    basisBereitschaft: 45,
+    beziehung: 45,
+  }),
+  makeFraktion({
+    id: 'ostblock',
+    laender: ['BB', 'SN', 'TH', 'MV'],
+    basisBereitschaft: 50,
+    beziehung: 50,
+    sonderregel: undefined,
+  }),
+];
+
+describe('SMA-395: Länder-gewichteter Bundesrat', () => {
+  it('bundesratNutztLandgewichte ist true wenn Länder Themen haben', () => {
+    const bundesrat = DEFAULT_BUNDESRAT.map((l) => ({ ...l, themen: ['umwelt_energie'] }));
+    const state = makeState({ bundesrat });
+    expect(bundesratNutztLandgewichte(state)).toBe(true);
+  });
+
+  it('Ja+Nein summiert zu 69 Stimmgewichten', () => {
+    const bundesrat = DEFAULT_BUNDESRAT.map((l) => ({ ...l, themen: ['umwelt_energie'] }));
+    const state = makeState({
+      bundesrat,
+      bundesratFraktionen: VIER_FRAKTIONEN_16_LAENDER,
+      gesetze: [makeLaw({ politikfeldId: 'umwelt_energie' })],
+    });
+    const r = calcBundesratMehrheit(state, 'test_law');
+    expect(r.ja + r.nein).toBe(69);
+  });
+
+  it('bundeslandGespraech erhöht Land-Beziehung und zieht PK ab', () => {
+    const bundesrat = DEFAULT_BUNDESRAT.map((l) => ({ ...l, themen: ['x'] }));
+    let s = makeState({ bundesrat, landBeziehungen: { BY: 40 }, pk: 20 });
+    s = bundeslandGespraech(s, 'BY');
+    expect(s.landBeziehungen?.BY).toBe(50);
+    expect(s.pk).toBe(10);
   });
 });

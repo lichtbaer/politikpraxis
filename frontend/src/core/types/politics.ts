@@ -2,6 +2,20 @@
 
 import type { Ideologie, KpiDelta } from './common';
 
+/** SMA-395: Rohdaten aus GET /content/bundeslaender */
+export interface BundeslandContent {
+  id: string;
+  name_de: string;
+  partei: string | null;
+  koalition: string[];
+  bundesrat_fraktion: 'union' | 'spd_gruene' | 'fdp' | 'gemischt';
+  wirtschaft_typ: 'stark' | 'mittel' | 'schwach';
+  themen: string[];
+  beziehung_start: number;
+  stimmgewicht: number;
+  min_complexity: number;
+}
+
 export interface BundesratLand {
   id: string;
   name: string;
@@ -11,6 +25,14 @@ export interface BundesratLand {
   mood: number;
   interests: string[];
   votes: number;
+  /** SMA-395 */
+  regierungPartei?: string;
+  koalition?: string[];
+  bundesratFraktion?: 'union' | 'spd_gruene' | 'fdp' | 'gemischt';
+  wirtschaft?: 'stark' | 'mittel' | 'schwach';
+  themen?: string[];
+  stimmgewicht?: number;
+  profilMinComplexity?: number;
 }
 
 export interface Tradeoff {

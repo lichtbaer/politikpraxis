@@ -64,6 +64,8 @@ export interface Law {
   kohlSabotageTriggered?: boolean;
   ideologie?: Ideologie;
   politikfeldId?: string | null;
+  /** SMA-395: sekundäre Politikfelder für Themen-Match */
+  politikfeldSekundaer?: string[];
   wirkungFaktor?: number;
   kosten_einmalig?: number;
   kosten_laufend?: number;

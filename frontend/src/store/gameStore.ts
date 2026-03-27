@@ -29,7 +29,7 @@ import {
 } from '../core/systems/eu';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/media';
-import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch } from '../core/systems/bundesrat';
+import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch, bundeslandGespraech } from '../core/systems/bundesrat';
 import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
@@ -127,6 +127,7 @@ interface GameStore {
   doResolveEvent: (event: GameEvent, choice: EventChoice) => void;
   doMedienkampagne: (milieu: MilieuKey) => void;
   doLobbyLand: (landId: string) => void;
+  doBundeslandGespraech: (landId: string) => void;
   doLobbyFraktion: (fraktionId: string, gesetzeId: string, schicht: 1 | 2 | 'beziehungspflege' | 'reparatur', tradeoffOptions?: LobbyTradeoffOptions) => void;
   doKoalitionsrunde: () => void;
   doPrioritaetsgespraech: (gesetzId: string) => void;
@@ -469,6 +470,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   doMedienkampagne: (milieu) => set(prev => ({ state: medienkampagne(prev.state, milieu) })),
   doLobbyLand: (landId) => set(prev => ({ state: lobbyLand(prev.state, landId) })),
+  doBundeslandGespraech: (landId) =>
+    set((prev) => ({ state: bundeslandGespraech(prev.state, landId) })),
   doLobbyFraktion: (fraktionId, gesetzeId, schicht, tradeoffOptions) =>
     set(prev => ({ state: lobbyFraktion(prev.state, fraktionId, gesetzeId, schicht, tradeoffOptions) })),
 

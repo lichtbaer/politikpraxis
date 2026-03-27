@@ -15,6 +15,10 @@ import { checkDynamischeEvents } from './systems/dynamischeEvents';
 import { pruneExpiredCooldowns } from './systems/eventUtils';
 import { checkGameEnd } from './systems/election';
 import { executeBundesratVote } from './systems/bundesrat';
+import {
+  checkBundesratLaenderEvents,
+  flushPendingBundesratLandEvent,
+} from './systems/bundesratLaenderEvents';
 import { resolveEingebrachteAbstimmung } from './systems/parliament';
 import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragScore } from './systems/koalition';
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
@@ -237,6 +241,10 @@ export function tick(
       sprecherErsatz: SPRECHER_ERSATZ,
       landtagswahlTransitions: LANDTAGSWAHL_TRANSITIONS,
     }), 'checkBundesratEvents');
+    s = safeSystem(
+      (st) => checkBundesratLaenderEvents(st, content, complexity),
+      'checkBundesratLaenderEvents',
+    );
   }
   // 12b. Normenkontrolle: BVerfG-Verfahren abschließen (Stufe 3+)
   s = safeSystem((st) => tickNormenkontrolle(st, complexity, content), 'tickNormenkontrolle');
@@ -371,7 +379,7 @@ export function tick(
 
 /** Führt Bundesratsabstimmungen durch, wenn brVoteMonth erreicht */
 function processBundesratVotes(state: GameState, content: ContentBundle, complexity: number): GameState {
-  let s = state;
+  let s = flushPendingBundesratLandEvent(state, content.bundesratEvents);
   const voteContext = content.milieus
     ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen, content }
     : undefined;

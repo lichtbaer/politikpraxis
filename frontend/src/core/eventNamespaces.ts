@@ -3,6 +3,7 @@ import type { GameEvent } from './types';
 export const BR_IDS = new Set([
   'laenderfinanzausgleich', 'landtagswahl', 'kohl_eskaliert',
   'sprecher_wechsel', 'bundesrat_initiative', 'foederalismusgipfel',
+  'bayern_umwelt_konflikt', 'nrw_strukturwandel', 'ostlaender_abhaengung',
 ]);
 
 export const KOMMUNAL_IDS = new Set([

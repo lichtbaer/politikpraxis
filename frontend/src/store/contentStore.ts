@@ -5,6 +5,7 @@ import type {
   GesetzApi,
   EventApi,
   BundesratFraktionApi,
+  BundeslandApi,
   MilieuApi,
   PolitikfeldApi,
   VerbandApi,
@@ -18,6 +19,7 @@ import type {
   EventChoice,
   BundesratFraktion,
   BundesratLand,
+  BundeslandContent,
   Milieu,
   Politikfeld,
   GesetzRelation,
@@ -127,6 +129,7 @@ function transformGesetz(api: GesetzApi): Law {
     blockiert: null,
     ideologie: api.ideologie,
     politikfeldId: api.politikfeld_id ?? null,
+    politikfeldSekundaer: api.politikfeld_sekundaer ?? [],
     kosten_einmalig: api.kosten_einmalig,
     kosten_laufend: api.kosten_laufend,
     einnahmeeffekt: api.einnahmeeffekt,
@@ -169,6 +172,7 @@ function transformEventChoice(api: {
   schuldenbremse_spielraum_delta?: number;
   steuerpolitik_modifikator_delta?: number;
   konjunktur_index_delta?: number;
+  br_relation_json?: Record<string, number>;
 }): EventChoice {
   const type = (['primary', 'danger', 'safe'].includes(api.type)
     ? api.type
@@ -207,6 +211,9 @@ function transformEventChoice(api: {
   }
   if (api.konjunktur_index_delta != null) {
     choice.konjunkturIndexDelta = api.konjunktur_index_delta;
+  }
+  if (api.br_relation_json && Object.keys(api.br_relation_json).length) {
+    choice.brRelationJson = api.br_relation_json;
   }
   return choice;
 }
@@ -339,6 +346,7 @@ export interface ContentStore {
   kommunalLaenderEvents: GameEvent[];
   steuerEvents: GameEvent[];
   bundesrat: BundesratLand[];
+  bundeslaender: BundeslandContent[];
   bundesratFraktionen: BundesratFraktion[];
   milieus: Milieu[];
   politikfelder: Politikfeld[];
@@ -355,6 +363,21 @@ export interface ContentStore {
   loaded: boolean;
   error: string | null;
   load: (locale: string) => Promise<void>;
+}
+
+function transformBundesland(api: BundeslandApi): BundeslandContent {
+  return {
+    id: api.id,
+    name_de: api.name_de,
+    partei: api.partei,
+    koalition: api.koalition ?? [],
+    bundesrat_fraktion: api.bundesrat_fraktion as BundeslandContent['bundesrat_fraktion'],
+    wirtschaft_typ: api.wirtschaft_typ as BundeslandContent['wirtschaft_typ'],
+    themen: api.themen ?? [],
+    beziehung_start: api.beziehung_start,
+    stimmgewicht: api.stimmgewicht,
+    min_complexity: api.min_complexity,
+  };
 }
 
 function transformMedienAkteur(api: MedienAkteurApi): MedienAkteurContent {
@@ -395,6 +418,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   kommunalLaenderEvents: [],
   steuerEvents: [],
   bundesrat: DEFAULT_BUNDESRAT,
+  bundeslaender: [],
   bundesratFraktionen: [],
   milieus: [],
   politikfelder: [],
@@ -423,6 +447,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         verbaendeRaw,
         gesetzRelationenRaw,
         medienAkteureRaw,
+        bundeslaenderRaw,
       ] =
         await Promise.all([
           apiFetch<CharApi[]>(`/content/chars?locale=${locale}`),
@@ -434,6 +459,7 @@ export const useContentStore = create<ContentStore>((set) => ({
           apiFetch<VerbandApi[]>(`/content/verbaende?locale=${locale}`).catch(() => []),
           apiFetch<GesetzRelationApi[]>(`/content/gesetz-relationen`).catch(() => []),
           apiFetch<MedienAkteurApi[]>(`/content/medien-akteure`).catch(() => []),
+          apiFetch<BundeslandApi[]>(`/content/bundeslaender`).catch(() => []),
         ]);
 
       const events = eventsAll.map(transformEvent);
@@ -498,6 +524,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         kommunalLaenderEvents: kommunalLaenderEventsList,
         steuerEvents: steuerEventsList,
         bundesratFraktionen: bundesratFraktionen.map(transformBundesratFraktion),
+        bundeslaender: (bundeslaenderRaw ?? []).map(transformBundesland),
         milieus,
         politikfelder,
         verbaende,
@@ -548,6 +575,7 @@ export function getContentBundle(): ContentBundle {
     steuerEvents: s.steuerEvents ?? [],
     dynamicEvents: s.dynamicEvents ?? [],
     bundesrat: s.bundesrat,
+    bundeslaender: s.bundeslaender?.length ? s.bundeslaender : undefined,
     bundesratFraktionen: s.bundesratFraktionen,
     koalitionspartner: GRUENE,
     milieus: s.milieus,

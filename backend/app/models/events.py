@@ -106,6 +106,9 @@ class EventChoice(Base):
     konjunktur_index_delta: Mapped[Decimal | None] = mapped_column(
         Numeric(5, 2), nullable=True
     )
+    br_relation_json: Mapped[dict[str, Any] | None] = mapped_column(
+        JSONB(), nullable=True
+    )
 
 
 class EventChoiceI18n(Base):

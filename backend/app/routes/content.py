@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.dependencies import validate_locale
 from app.schemas.content import (
+    BundeslandResponse,
     BundesratResponse,
     CharResponse,
     ContentBundleResponse,
@@ -16,6 +17,7 @@ from app.schemas.content import (
     VerbandResponse,
 )
 from app.services.content_db_service import (
+    fetch_bundeslaender,
     fetch_bundesrat,
     fetch_chars,
     fetch_eu_events,
@@ -110,6 +112,12 @@ async def get_eu_events(
     """GET /api/content/eu-events?locale=de — EU-Events (Richtlinien, Random, Fix)."""
     rows = await fetch_eu_events(db, locale)
     return rows
+
+
+@router.get("/bundeslaender", response_model=list[BundeslandResponse])
+async def get_bundeslaender(db: AsyncSession = Depends(get_db)):
+    """SMA-395: 16 Bundesländer mit Profil (Themen, Stimmgewicht, BR-Fraktion)."""
+    return await fetch_bundeslaender(db)
 
 
 @router.get("/bundesrat", response_model=list[BundesratResponse])

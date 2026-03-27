@@ -11,6 +11,7 @@ import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell } from './wahlkampf';
 import { setNormenkontrollReaktion } from './verfassungsgericht';
 import { applyMedienChoiceDelta, adjustMedienKlimaGlobal } from './medienklima';
+import { applyMilieuDelta } from './dynamischeEvents';
 import { resolveDynamicEvent } from './dynamischeEvents';
 import { featureActive } from './features';
 import {
@@ -468,6 +469,11 @@ const KOMMUNAL_INITIATIVE_IDS = new Set(['kommunal_klima_initiative', 'kommunal_
 const STEUER_IDS = new Set(['steuereinnahmen_einbruch', 'haushaltsstreit_opposition', 'steuerstreit_koalition']);
 const KOMMUNAL_LAENDER_IDS = new Set(['kommunal_haushaltskrise', 'kommunal_buergerprotest', 'laender_koalitionskrise']);
 const EXTREMISMUS_IDS = new Set(['koalitionspartner_extremismus_warnung', 'verfassungsgericht_klage']);
+const BUNDESRAT_LAND_EVENT_IDS = new Set([
+  'bayern_umwelt_konflikt',
+  'nrw_strukturwandel',
+  'ostlaender_abhaengung',
+]);
 
 export function resolveEvent(
   state: GameState,
@@ -595,6 +601,45 @@ export function resolveEvent(
     return finalizeEvent(s, event, choice, choice.log);
   }
 
+  // SMA-395: Länderspezifische Bundesrat-Events
+  if (BUNDESRAT_LAND_EVENT_IDS.has(event.id)) {
+    if (!canAfford(state, choice)) return state;
+    let s = applyKpiEffects(deductPk(state, choice), choice);
+    if (choice.charMood) s = applyMoodChange(s, choice.charMood, choice.loyalty);
+    const brJson = choice.brRelationJson;
+    if (brJson && Object.keys(brJson).length && s.bundesratFraktionen) {
+      s = {
+        ...s,
+        bundesratFraktionen: s.bundesratFraktionen.map(f => {
+          const d = brJson[f.id];
+          if (d == null) return f;
+          return { ...f, beziehung: clamp(f.beziehung + d, 0, 100) };
+        }),
+      };
+    }
+    s = applyBundesratBonusAll(s, choice);
+    s = applyKoalitionspartnerDelta(s, choice);
+    if (choice.medienklima_delta != null && choice.medienklima_delta !== 0) {
+      s = applyMedienChoiceDelta(s, choice, complexity, medienContent);
+    }
+    if (choice.milieuDelta && Object.keys(choice.milieuDelta).length) {
+      s = applyMilieuDelta(s, choice.milieuDelta);
+    }
+    if (event.id === 'bayern_umwelt_konflikt' && choice.key === 'kompromiss' && event.lawId) {
+      const lawId = event.lawId;
+      const gesetze = s.gesetze.map(g => {
+        if (g.id !== lawId) return g;
+        const eff = { ...g.effekte };
+        for (const k of ['hh', 'zf', 'gi', 'al'] as const) {
+          if (eff[k] != null) eff[k] = +(eff[k]! * 0.85).toFixed(2);
+        }
+        return { ...g, effekte: eff };
+      });
+      s = { ...s, gesetze };
+    }
+    return finalizeEvent(s, event, choice);
+  }
+
   // Normenkontrolle: Spieler-Reaktion auf BVerfG-Klage speichern
   if (event.id.startsWith('normenkontrolle_') && event.lawId) {
     if (!canAfford(state, choice)) return state;
@@ -619,6 +664,17 @@ export function resolveEvent(
     s = applyMoodChange(s, choice.charMood, choice.loyalty);
   }
 
+  const brJson = choice.brRelationJson;
+  if (brJson && Object.keys(brJson).length && s.bundesratFraktionen) {
+    s = {
+      ...s,
+      bundesratFraktionen: s.bundesratFraktionen.map(f => {
+        const delta = brJson[f.id];
+        if (delta == null) return f;
+        return { ...f, beziehung: clamp(f.beziehung + delta, 0, 100) };
+      }),
+    };
+  }
   if (choice.brRelation && s.bundesratFraktionen) {
     s = {
       ...s,
@@ -651,6 +707,13 @@ export function resolveEvent(
   }
 
   s = applyKoalitionspartnerDelta(s, choice);
+
+  if (choice.medienklima_delta != null && choice.medienklima_delta !== 0) {
+    s = applyMedienChoiceDelta(s, choice, complexity, medienContent);
+  }
+  if (choice.milieuDelta && Object.keys(choice.milieuDelta).length) {
+    s = applyMilieuDelta(s, choice.milieuDelta);
+  }
 
   // Gesetze freischalten + Follow-up Events planen
   s = applyUnlocksAndFollowups(s, choice, options);

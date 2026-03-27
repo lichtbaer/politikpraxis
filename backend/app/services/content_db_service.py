@@ -7,7 +7,6 @@ from typing import Any
 from sqlalchemy import Select, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.medien_akteur import MedienAkteur
 from app.models.content import (
     BundesratFraktion,
     BundesratFraktionI18n,
@@ -35,6 +34,7 @@ from app.models.content import (
     VerbandsTradeoff,
     VerbandsTradeoffI18n,
 )
+from app.models.medien_akteur import MedienAkteur
 
 VALID_LOCALES = frozenset({"de", "en"})
 LOCALE_FALLBACK = {"en": "de", "de": "en"}
@@ -332,6 +332,9 @@ async def fetch_events(
                     )
                 if getattr(ch, "konjunktur_index_delta", None) is not None:
                     c["konjunktur_index_delta"] = float(ch.konjunktur_index_delta)
+                brj = getattr(ch, "br_relation_json", None)
+                if brj is not None:
+                    c["br_relation_json"] = dict(brj) if hasattr(brj, "keys") else brj
                 choices.append(c)
 
             row: dict[str, Any] = {
@@ -448,6 +451,40 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
     return await _fetch_cached_i18n(
         db, locale, ("bundesrat", locale), build_stmt, map_rows
     )
+
+
+async def fetch_bundeslaender(db: AsyncSession) -> list[dict]:
+    """SMA-395: Statische Länder-Profile (Themen, Stimmgewicht, BR-Fraktionszuordnung)."""
+    cache_key = ("bundeslaender", "all")
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
+
+    result = await db.execute(
+        text("""
+            SELECT id, name_de, partei, koalition, bundesrat_fraktion,
+                   wirtschaft_typ, themen, beziehung_start, stimmgewicht, min_complexity
+            FROM bundeslaender
+            ORDER BY id
+        """)
+    )
+    rows = [
+        {
+            "id": r[0],
+            "name_de": r[1],
+            "partei": r[2],
+            "koalition": list(r[3] or []),
+            "bundesrat_fraktion": r[4],
+            "wirtschaft_typ": r[5],
+            "themen": list(r[6] or []),
+            "beziehung_start": int(r[7] or 50),
+            "stimmgewicht": int(r[8] or 4),
+            "min_complexity": int(r[9] or 2),
+        }
+        for r in result.all()
+    ]
+    _set_cached(cache_key, rows)
+    return rows
 
 
 async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
