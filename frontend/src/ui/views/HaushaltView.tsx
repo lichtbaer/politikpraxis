@@ -8,7 +8,7 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
-import { checkSchuldenbremse } from '../../core/systems/haushalt';
+import { berechneSchuldenbremseVerbrauchtMrd, checkSchuldenbremse } from '../../core/systems/haushalt';
 import { SCHULDENBREMSE_SPIELRAUM_BASIS } from '../../core/constants';
 import { formatMrdSaldo, normalizeZero } from '../../utils/format';
 import type { SchuldenbremsenStatus, Verband, Haushalt, SteuerContent } from '../../core/types';
@@ -27,18 +27,18 @@ function getSaldoKlasse(saldo: number): string {
   return 'saldoKrise';
 }
 
-/** SMA-336: Schuldenbremse-Widget mit Spielraum-Balken (verbraucht/erlaubt), Stufe 2+ */
+/** SMA-336: Schuldenbremse-Widget — Verbrauch und Status aus derselben Kernlogik wie die Engine */
 function SchuldenbremseWidget({
-  spielraum,
+  verbrauchtMrd,
   erlaubt,
   status,
 }: {
-  spielraum: number;
+  verbrauchtMrd: number;
   erlaubt: number;
   status: SchuldenbremsenStatus;
 }) {
   const { t } = useTranslation('game');
-  const verbraucht = Math.max(0, erlaubt - spielraum);
+  const verbraucht = verbrauchtMrd;
   const pct = erlaubt > 0 ? (verbraucht / erlaubt) * 100 : 0;
 
   return (
@@ -250,12 +250,25 @@ export function HaushaltView() {
   const saldoHistory = state.haushaltSaldoHistory ?? EMPTY_SALDO_HISTORY;
   const haushaltSaldo = haushalt?.saldo ?? 0;
 
+  /** Leere History: ein Punkt „Monat 0“ (Start); sonst Monate 1…n wie Engine-History */
+  const chartSaldoData = useMemo(
+    () => (saldoHistory.length > 0 ? saldoHistory : [haushaltSaldo]),
+    [saldoHistory, haushaltSaldo],
+  );
+  const chartMonatLabels = useMemo(
+    () =>
+      saldoHistory.length > 0
+        ? saldoHistory.map((_, i) => i + 1)
+        : [0],
+    [saldoHistory],
+  );
+
   const chartOption: EChartsOption = useMemo(() => ({
     animation: true,
     grid: { top: 8, right: 8, bottom: 24, left: 40, containLabel: true },
     xAxis: {
       type: 'category',
-      data: saldoHistory.map((_, i) => i + 1),
+      data: chartMonatLabels,
       axisLabel: { color: '#888', fontSize: 10 },
       axisLine: { show: false },
       axisTick: { show: false },
@@ -270,12 +283,13 @@ export function HaushaltView() {
       formatter: (params: unknown) => {
         const p = params as Array<{ dataIndex: number; value: number }>;
         const v = p[0]?.value;
-        return t('haushaltView.monatTooltip', { month: (p[0]?.dataIndex ?? 0) + 1, value: v != null ? formatMrdSaldo(v) : '—' });
+        const month = chartMonatLabels[p[0]?.dataIndex ?? 0];
+        return t('haushaltView.monatTooltip', { month, value: v != null ? formatMrdSaldo(v) : '—' });
       },
     },
     series: [{
       type: 'line',
-      data: saldoHistory,
+      data: chartSaldoData,
       smooth: 0.3,
       symbol: 'none',
       lineStyle: { color: haushaltSaldo >= 0 ? '#5a9870' : '#c05848', width: 2 },
@@ -285,7 +299,7 @@ export function HaushaltView() {
           : { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(192,88,72,0.3)' }, { offset: 1, color: 'rgba(192,88,72,0.02)' }] },
       },
     }],
-  }), [saldoHistory, haushaltSaldo, t]);
+  }), [chartSaldoData, chartMonatLabels, haushaltSaldo, t]);
 
   if (!haushalt || complexity < 2) {
     return (
@@ -299,6 +313,7 @@ export function HaushaltView() {
   }
 
   const schuldenbremsenStatus = checkSchuldenbremse(state, complexity);
+  const schuldenbremseVerbrauchtMrd = berechneSchuldenbremseVerbrauchtMrd(haushalt);
 
   // SMA-323: Balken proportional — max der drei Werte, alle relativ dazu
   const maxWert = Math.max(
@@ -356,17 +371,15 @@ export function HaushaltView() {
         </div>
       </section>
 
-      {saldoHistory.length > 0 && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t('haushalt.saldoVerlauf', 'Saldo-Verlauf (letzte 12 Monate)')}</h2>
-          <ReactECharts
-            option={chartOption}
-            theme="politikpraxis"
-            style={{ width: '100%', height: 160 }}
-            opts={{ renderer: 'canvas' }}
-          />
-        </section>
-      )}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t('haushalt.saldoVerlauf', 'Saldo-Verlauf (letzte 12 Monate)')}</h2>
+        <ReactECharts
+          option={chartOption}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 160 }}
+          opts={{ renderer: 'canvas' }}
+        />
+      </section>
 
       {state.kpiHistory && (
         <section className={styles.section}>
@@ -386,15 +399,11 @@ export function HaushaltView() {
 
       {featureActive(complexity, 'schuldenbremse_widget') && (
         <SchuldenbremseWidget
-          spielraum={haushalt.schuldenbremseSpielraum ?? SCHULDENBREMSE_SPIELRAUM_BASIS}
+          verbrauchtMrd={schuldenbremseVerbrauchtMrd}
           erlaubt={SCHULDENBREMSE_SPIELRAUM_BASIS}
           status={schuldenbremsenStatus}
         />
       )}
-      {featureActive(complexity, 'schuldenbremse') && (
-        <SchuldenbremsenBadge status={schuldenbremsenStatus} />
-      )}
-
       {featureActive(complexity, 'steuern_dashboard') && (
         <SteuernDashboard haushalt={haushalt} steuern={content.steuern} />
       )}

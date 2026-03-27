@@ -285,7 +285,7 @@ export function checkDynamischeEvents(
   const pool = content.dynamicEvents ?? [];
   if (!pool.length) return state;
 
-  let s = state;
+  const s = state;
 
   for (const ev of pool) {
     if (alreadyFiredDynamic(s, ev.id, ev.einmalig !== false)) continue;
@@ -393,7 +393,7 @@ function finalizeDynamicEvent(state: GameState, event: GameEvent, choice: EventC
   const choiceIdx = event.choices.indexOf(choice);
   const logKey = `game:${ns}.${event.id}.choices.${choiceIdx}.log`;
   const msg = i18n.exists(logKey) ? i18n.t(logKey) : (choice.log || logKey);
-  let s = addLog(state, msg, logType);
+  const s = addLog(state, msg, logType);
   const tickerKey = `game:${ns}.${event.id}.ticker`;
   const ticker = i18n.exists(tickerKey) ? i18n.t(tickerKey) : event.ticker;
   return { ...s, ticker, activeEvent: null };

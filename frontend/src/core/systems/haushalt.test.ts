@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   berechneEinnahmen,
+  berechneSchuldenbremseVerbrauchtMrd,
   checkSchuldenbremse,
   createInitialHaushalt,
   applyGesetzKosten,
@@ -95,29 +96,55 @@ describe('berechneEinnahmen', () => {
   });
 });
 
+describe('berechneSchuldenbremseVerbrauchtMrd', () => {
+  it('ist 0 bei vollem Spielraum (Start)', () => {
+    const state = createMockState({
+      haushalt: { saldo: -20, schuldenbremseSpielraum: 13 },
+    });
+    expect(berechneSchuldenbremseVerbrauchtMrd(state.haushalt!)).toBe(0);
+  });
+
+  it('entspricht der Differenz zu 13 Mrd. erlaubt', () => {
+    const state = createMockState({
+      haushalt: { schuldenbremseSpielraum: 5 },
+    });
+    expect(berechneSchuldenbremseVerbrauchtMrd(state.haushalt!)).toBe(8);
+  });
+});
+
 describe('checkSchuldenbremse', () => {
-  it('gibt ausgeglichen bei positivem Saldo', () => {
-    const state = createMockState({ haushalt: { saldo: 10 } });
+  it('gibt ausgeglichen wenn kein Schuldenbremse-Spielraum verbraucht (SMA-397)', () => {
+    const state = createMockState({
+      haushalt: { saldo: -20, schuldenbremseSpielraum: 13 },
+    });
     expect(checkSchuldenbremse(state, 3)).toBe('ausgeglichen');
   });
 
-  it('gibt grenzwertig bei Saldo zwischen -12 und 0', () => {
-    const state = createMockState({ haushalt: { saldo: -6 } });
+  it('gibt grenzwertig bei geringem Verbrauch (1–5 Mrd.)', () => {
+    const state = createMockState({
+      haushalt: { saldo: -20, schuldenbremseSpielraum: 10 },
+    });
     expect(checkSchuldenbremse(state, 3)).toBe('grenzwertig');
   });
 
-  it('gibt verletzt_mild bei Saldo zwischen -18 und -12', () => {
-    const state = createMockState({ haushalt: { saldo: -15 } });
+  it('gibt verletzt_mild bei mittlerem bis hohem Verbrauch (noch Spielraum)', () => {
+    const state = createMockState({
+      haushalt: { saldo: -20, schuldenbremseSpielraum: 4 },
+    });
     expect(checkSchuldenbremse(state, 3)).toBe('verletzt_mild');
   });
 
-  it('gibt verletzt_stark bei Saldo unter -18', () => {
-    const state = createMockState({ haushalt: { saldo: -25 } });
+  it('gibt verletzt_stark wenn Schuldenbremse-Spielraum erschöpft', () => {
+    const state = createMockState({
+      haushalt: { saldo: -20, schuldenbremseSpielraum: 0 },
+    });
     expect(checkSchuldenbremse(state, 3)).toBe('verletzt_stark');
   });
 
   it('gibt inaktiv wenn feature nicht aktiv (complexity 1)', () => {
-    const state = createMockState({ haushalt: { saldo: -25 } });
+    const state = createMockState({
+      haushalt: { saldo: -20, schuldenbremseSpielraum: 0 },
+    });
     expect(checkSchuldenbremse(state, 1)).toBe('inaktiv');
   });
 });
