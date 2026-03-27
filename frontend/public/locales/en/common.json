@@ -83,7 +83,7 @@
       "pause": "Pause",
       "slow": "1×",
       "fast": "3×",
-      "pauseTitle": "Pause (Space)",
+      "pauseTitle": "Pause / resume game (Space)",
       "slowTitle": "Normal (1)",
       "fastTitle": "Fast (3)"
     },

@@ -92,10 +92,12 @@ export function Header() {
     pk >= 5;
   const year = 2025 + Math.floor((month - 1) / 12);
 
-  const speeds: { level: SpeedLevel; label: string; titleKey: string; shortcut: string }[] = [
-    { level: 0, label: '⏸', titleKey: 'game.speed.pauseTitle', shortcut: '␣' },
-    { level: 1, label: t('game.speed.slow'), titleKey: 'game.speed.slowTitle', shortcut: '1' },
-    { level: 2, label: t('game.speed.fast'), titleKey: 'game.speed.fastTitle', shortcut: '3' },
+  /** Tooltips aus common.json (game.speed.*) — game.speed.* in game.json existiert nicht */
+  const pauseTooltip = t('game.speed.pauseTitle');
+  const speeds: { level: SpeedLevel; label: string; title: string; shortcut: string }[] = [
+    { level: 0, label: '⏸', title: pauseTooltip, shortcut: '␣' },
+    { level: 1, label: t('game.speed.slow'), title: t('game.speed.slowTitle'), shortcut: '1' },
+    { level: 2, label: t('game.speed.fast'), title: t('game.speed.fastTitle'), shortcut: '3' },
   ];
 
   return (
@@ -134,7 +136,8 @@ export function Header() {
               type="button"
               className={`${styles.spd} ${speed === s.level ? styles.on : ''}`}
               onClick={() => setSpeed(s.level)}
-              title={t(s.titleKey)}
+              title={s.title}
+              aria-label={s.level === 0 ? pauseTooltip : undefined}
             >
               {s.label}
               <kbd className={styles.kbd}>{s.shortcut}</kbd>
