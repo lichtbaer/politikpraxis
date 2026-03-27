@@ -55,4 +55,16 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    s = Settings()
+    if not s.debug:
+        problems: list[str] = []
+        if s.secret_key == "dev-secret-change-in-production":
+            problems.append("SECRET_KEY is still the default — set a secure value")
+        if not s.admin_password:
+            problems.append("ADMIN_PASSWORD is empty — admin API will be inaccessible")
+        if problems:
+            import warnings
+
+            for p in problems:
+                warnings.warn(p, stacklevel=2)
+    return s

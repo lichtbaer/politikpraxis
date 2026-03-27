@@ -1,10 +1,11 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
+from app.limiter import limiter
 from app.models.mod import Mod
 from app.models.user import User
 from app.schemas.mod import ModCreateRequest, ModDetailResponse, ModResponse
@@ -18,7 +19,8 @@ router = APIRouter()
 
 
 @router.get("", response_model=list[ModResponse])
-async def list_mods(db: AsyncSession = Depends(get_db)):
+@limiter.limit("30/minute")
+async def list_mods(request: Request, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Mod).order_by(Mod.downloads.desc()).limit(50))
     mods = result.scalars().all()
     return [
@@ -54,7 +56,9 @@ async def get_mod(mod_id: UUID, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("", response_model=ModResponse)
+@limiter.limit("5/minute")
 async def create_mod(
+    request: Request,
     req: ModCreateRequest,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -94,7 +98,8 @@ async def create_mod(
 
 
 @router.get("/{mod_id}/content")
-async def get_mod_content(mod_id: UUID, db: AsyncSession = Depends(get_db)):
+@limiter.limit("30/minute")
+async def get_mod_content(request: Request, mod_id: UUID, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Mod).where(Mod.id == mod_id))
     mod = result.scalar_one_or_none()
     if not mod:

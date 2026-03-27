@@ -107,6 +107,16 @@ export const POSITIV_MEDIEN_CHANCE = 0.1;
 /** Chance auf KPI-Drift (Arbeitslosigkeit) */
 export const KPI_DRIFT_CHANCE = 0.30;
 
+// --- KPI-Drift Clamp-Grenzen ---
+/** AL-Drift: [min, max] — Arbeitslosigkeit kann nicht unter 2% fallen */
+export const KPI_AL_BOUNDS: [number, number] = [2, 15];
+/** HH-Drift: [min, max] — Haushaltslage */
+export const KPI_HH_BOUNDS: [number, number] = [-10, 10];
+/** GI-Drift: [min, max] — Gini-Koeffizient */
+export const KPI_GI_BOUNDS: [number, number] = [10, 60];
+/** ZF-Drift: [min, max] — Zufriedenheit */
+export const KPI_ZF_BOUNDS: [number, number] = [20, 80];
+
 // --- Konjunktur-Index Grenzen ---
 export const KONJUNKTUR_INDEX_MIN = -3;
 export const KONJUNKTUR_INDEX_MAX = 3;

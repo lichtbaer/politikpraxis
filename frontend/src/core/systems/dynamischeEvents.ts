@@ -72,12 +72,15 @@ function markFiredDynamic(state: GameState, id: string, einmalig: boolean | unde
   return { ausgeloesteEvents: aus, firedEvents: fe };
 }
 
+/** Untere Grenze für Haushaltssaldo (Mrd.) — verhindert unrealistische Endlosspiralen */
+const SALDO_MIN = -120;
+
 /** Haushalt: Saldo um delta Mrd. verschieben (negative delta = Mehrausgaben) */
 function applyHaushaltSaldoDelta(state: GameState, deltaMrd: number): GameState {
   const h = state.haushalt;
   if (!h) return state;
   const la = Math.max(0, h.laufendeAusgaben - deltaMrd);
-  const saldo = h.einnahmen - h.pflichtausgaben - la;
+  const saldo = Math.max(SALDO_MIN, h.einnahmen - h.pflichtausgaben - la);
   return { ...state, haushalt: { ...h, laufendeAusgaben: la, saldo } };
 }
 

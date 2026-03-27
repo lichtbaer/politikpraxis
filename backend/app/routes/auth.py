@@ -180,7 +180,9 @@ async def login(
 
 
 @router.post("/refresh", response_model=AccessTokenResponse)
+@limiter.limit("30/minute")
 async def refresh_token(
+    request: Request,
     refresh_cookie: str | None = Cookie(None, alias="refresh_token"),
     db: AsyncSession = Depends(get_db),
 ):
@@ -195,7 +197,9 @@ async def refresh_token(
 
 
 @router.post("/logout", response_model=MessageResponse)
+@limiter.limit("10/minute")
 async def logout(
+    request: Request,
     response: Response,
     refresh_cookie: str | None = Cookie(None, alias="refresh_token"),
     db: AsyncSession = Depends(get_db),

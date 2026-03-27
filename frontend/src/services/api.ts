@@ -29,6 +29,8 @@ export class ApiError extends Error {
  * Returns the new access token or null if refresh failed.
  */
 let tokenRefresher: (() => Promise<string | null>) | null = null;
+/** Deduplication: only one refresh in-flight at a time */
+let activeRefreshPromise: Promise<string | null> | null = null;
 
 export function setTokenRefresher(fn: () => Promise<string | null>): void {
   tokenRefresher = fn;
@@ -57,9 +59,15 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     throw new ApiError('Netzwerkfehler — Server nicht erreichbar', 0, 'network');
   }
 
-  // Auto-refresh: on 401 with a token, try refreshing once then retry
+  // Auto-refresh: on 401 with a token, try refreshing once then retry.
+  // Deduplicate: if multiple requests hit 401 simultaneously, only one refresh runs.
   if (response.status === 401 && token && !_skipRefresh && tokenRefresher) {
-    const newToken = await tokenRefresher();
+    if (!activeRefreshPromise) {
+      activeRefreshPromise = tokenRefresher().finally(() => {
+        activeRefreshPromise = null;
+      });
+    }
+    const newToken = await activeRefreshPromise;
     if (newToken) {
       return apiFetch<T>(path, { ...options, token: newToken, _skipRefresh: true });
     }

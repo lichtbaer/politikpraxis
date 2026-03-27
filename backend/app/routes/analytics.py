@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
+from app.limiter import limiter
 from app.models.user import User
 from app.schemas.analytics import AnalyticsBatchRequest, AnalyticsSummaryResponse
 from app.services.analytics_service import get_summary, record_events
@@ -11,7 +12,9 @@ router = APIRouter()
 
 
 @router.post("/batch")
+@limiter.limit("30/minute")
 async def batch(
+    request: Request,
     req: AnalyticsBatchRequest,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -25,5 +28,10 @@ async def batch(
 
 
 @router.get("/summary", response_model=AnalyticsSummaryResponse)
-async def summary(db: AsyncSession = Depends(get_db)):
+@limiter.limit("10/minute")
+async def summary(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     return await get_summary(db)
