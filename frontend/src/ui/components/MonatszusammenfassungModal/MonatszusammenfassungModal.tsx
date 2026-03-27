@@ -169,12 +169,21 @@ export function MonatszusammenfassungModal({
             <section className={styles.block}>
               <h3 className={styles.blockTitle}>{t('monatszusammenfassung.blockMedien')}</h3>
               {diff.medien_highlights.map((h) => {
-                const farbe = h.delta > 0 ? styles.positiv : h.delta < 0 ? styles.negativ : styles.neutral;
+                const gutFuerSpieler = h.spieler_perspektive === 'positiv';
+                const farbe = gutFuerSpieler ? styles.positiv : styles.negativ;
                 const sign = h.delta > 0 ? '+' : '';
+                const tooltipKey =
+                  h.delta_bedeutung === 'reichweite'
+                    ? gutFuerSpieler
+                      ? 'monatszusammenfassung.medienTooltipReichweiteGut'
+                      : 'monatszusammenfassung.medienTooltipReichweiteSchlecht'
+                    : gutFuerSpieler
+                      ? 'monatszusammenfassung.medienTooltipStimmungGut'
+                      : 'monatszusammenfassung.medienTooltipStimmungSchlecht';
                 return (
                   <div key={`${h.akteurId}-${h.delta}`} className={styles.medienRow}>
                     <span className={styles.medienAkteur}>{h.akteurLabel}</span>
-                    <span className={farbe}>
+                    <span className={farbe} title={t(tooltipKey)}>
                       {' '}
                       {sign}
                       {h.delta}

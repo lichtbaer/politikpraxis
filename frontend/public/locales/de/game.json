@@ -2136,7 +2136,11 @@
     "weiter": "Weiter",
     "settingAutoShow": "Monatszusammenfassung nach jedem Monat anzeigen",
     "topBarButton": "Letzter Monat",
-    "topBarTitle": "Zusammenfassung Monat {{monat}}"
+    "topBarTitle": "Zusammenfassung Monat {{monat}}",
+    "medienTooltipStimmungGut": "Aus Sicht der Regierung: günstiger — die Stimmung bei diesem Medium entwickelt sich für dich positiv.",
+    "medienTooltipStimmungSchlecht": "Aus Sicht der Regierung: belastend — die Stimmung bei diesem Medium entwickelt sich für dich negativ.",
+    "medienTooltipReichweiteGut": "Aus Sicht der Regierung: günstiger — die Reichweite dieses Kanals sinkt (weniger antiestablishmentärer Einfluss).",
+    "medienTooltipReichweiteSchlecht": "Aus Sicht der Regierung: belastend — die Reichweite wächst; antiestablishmentäre Medien gewinnen an Einfluss."
   },
   "legislaturBilanz": {
     "beat1Title": "Legislatur-Bilanz",

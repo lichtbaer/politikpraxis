@@ -133,5 +133,35 @@ describe('berechneMonatsDiff', () => {
     const diff = berechneMonatsDiff(vor, nach, minimalContent());
     expect(diff.medien_highlights.length).toBeGreaterThan(0);
     expect(diff.medien_highlights[0].delta).toBe(5);
+    expect(diff.medien_highlights[0].spieler_perspektive).toBe('positiv');
+    expect(diff.medien_highlights[0].delta_bedeutung).toBe('stimmung');
+  });
+
+  it('SMA-407: Alternativ nutzt Reichweite-Delta; Plus = schlecht für Spieler', () => {
+    const content = minimalContent();
+    const vor = baseState({
+      medienAkteure: {
+        boulevard: { stimmung: 0, reichweite: 25 },
+        social: { stimmung: 0, reichweite: 20 },
+        oeffentlich: { stimmung: 0, reichweite: 35 },
+        qualitaet: { stimmung: 0, reichweite: 15 },
+        konservativ: { stimmung: 0, reichweite: 10 },
+        alternativ: { stimmung: 0, reichweite: 5 },
+      },
+    });
+    const nach = {
+      ...vor,
+      month: 6,
+      medienAkteure: {
+        ...vor.medienAkteure!,
+        alternativ: { stimmung: 0, reichweite: 6 },
+      },
+    };
+    const diff = berechneMonatsDiff(vor, nach, content);
+    const alt = diff.medien_highlights.find((h) => h.akteurId === 'alternativ');
+    expect(alt).toBeDefined();
+    expect(alt!.delta).toBe(1);
+    expect(alt!.delta_bedeutung).toBe('reichweite');
+    expect(alt!.spieler_perspektive).toBe('negativ');
   });
 });

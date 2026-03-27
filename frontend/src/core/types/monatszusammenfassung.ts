@@ -1,5 +1,8 @@
 /** SMA-396: Diff für die Monatszusammenfassung (vorher/nachher ein Monats-Tick) */
 
+import type { MedienAkteurTyp } from '../../data/defaults/medienAkteure';
+import type { MedienSpielerPerspektive } from '../medienSpielerPerspektive';
+
 export interface MonatsDiff {
   monat: number;
 
@@ -27,7 +30,13 @@ export interface MonatsDiff {
   medien_highlights: Array<{
     akteurId: string;
     akteurLabel: string;
+    /** Roh-Delta (z. B. Stimmung oder Reichweite) */
     delta: number;
+    /** SMA-407: ob das für die Regierung (Spieler) eher gut oder schlecht ist */
+    spieler_perspektive: MedienSpielerPerspektive;
+    akteur_typ: MedienAkteurTyp;
+    /** SMA-407: 'stimmung' | 'reichweite' — bestimmt Tooltip-Text */
+    delta_bedeutung: 'stimmung' | 'reichweite';
     grund: string;
   }>;
 
