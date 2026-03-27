@@ -332,13 +332,20 @@ export function createInitialState(
     return { ...next, medienKlima: berechneMedianklima(next) };
   }
 
+  /** SMA-412: Startwert für Verlauf-Chart (ein Punkt vor erstem Tick) */
+  function withMedienKlimaHistorySeed(s: GameState): GameState {
+    const r = withMedienAkteureIfNeeded(s);
+    if (r.medienKlimaHistory && r.medienKlimaHistory.length > 0) return r;
+    return { ...r, medienKlimaHistory: [r.medienKlima ?? 55] };
+  }
+
   if (featureActive(complexity, 'haushaltsdebatte')) {
     let withHaushalt: GameState = { ...base, haushalt: createInitialHaushalt(base) };
     if (featureActive(complexity, 'wirtschaftssektoren')) {
       withHaushalt = { ...withHaushalt, wirtschaft: createInitialWirtschaft() };
     }
     if (hasKoalition && partner) {
-      return withMedienAkteureIfNeeded(
+      return withMedienKlimaHistorySeed(
         applyEUKlimaAndRatsvorsitz({
           ...withHaushalt,
           koalitionspartner: {
@@ -352,7 +359,7 @@ export function createInitialState(
         }),
       );
     }
-    return withMedienAkteureIfNeeded(applyEUKlimaAndRatsvorsitz(withHaushalt));
+    return withMedienKlimaHistorySeed(applyEUKlimaAndRatsvorsitz(withHaushalt));
   }
 
   if (featureActive(complexity, 'wirtschaftssektoren')) {
@@ -363,7 +370,7 @@ export function createInitialState(
     const verbandsBeziehungen = { ...base.verbandsBeziehungen };
     verbandsBeziehungen['uvb'] = 50;
     verbandsBeziehungen['bvd'] = 50;
-    return withMedienAkteureIfNeeded(
+    return withMedienKlimaHistorySeed(
       applyEUKlimaAndRatsvorsitz({
         ...base,
         koalitionspartner: {
@@ -378,7 +385,7 @@ export function createInitialState(
     );
   }
 
-  return withMedienAkteureIfNeeded(applyEUKlimaAndRatsvorsitz(base));
+  return withMedienKlimaHistorySeed(applyEUKlimaAndRatsvorsitz(base));
 }
 
 /** Maximale Array-Längen für GameState (Schutz vor localStorage-Manipulation) */
@@ -592,6 +599,10 @@ export function migrateGameState(state: GameState): GameState {
     let ma = initMedienAkteureFromContent(bundle, cx);
     ma = kalibriereMedienAkteureZuIndex(ma, bundle, cx, result.medienKlima ?? 55);
     result = { ...result, medienAkteure: ma, medienKlima: berechneMedianklima({ ...result, medienAkteure: ma }) };
+  }
+  // SMA-412: alte Spielstände ohne Verlauf — Startpunkt für Chart (nach finalem medienKlima)
+  if (!result.medienKlimaHistory?.length) {
+    result = { ...result, medienKlimaHistory: [result.medienKlima ?? 55] };
   }
   if (!result.opposition) {
     result = { ...result, opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 } };
