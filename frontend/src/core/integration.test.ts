@@ -158,3 +158,16 @@ describe('Integration: Engine-Tick durchläuft', () => {
     expect(s.gameOver).toBe(false);
   });
 });
+
+/** SMA-412: Medienklima-Verlauf — ein Eintrag pro abgeschlossenem Monat inkl. Start nach erstem Tick */
+describe('SMA-412: Medienklima-Verlauf (History)', () => {
+  it('nach 3 Ticks mindestens 3 Datenpunkte (End-of-tick-Werte)', () => {
+    const state = createInitialState();
+    let s = state;
+    for (let i = 0; i < 3; i++) {
+      s = tick(s, content, 2);
+    }
+    const h = s.medienKlimaHistory ?? [];
+    expect(h.length).toBeGreaterThanOrEqual(3);
+  });
+});

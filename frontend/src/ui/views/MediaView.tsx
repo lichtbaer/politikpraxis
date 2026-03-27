@@ -98,7 +98,7 @@ export function MediaView() {
 
       <MedienklimaSektion />
 
-      {(state.medienKlimaHistory ?? []).length > 1 && (
+      {(state.medienKlimaHistory ?? []).length >= 1 && (
         <MedienklimaTrendChart
           history={state.medienKlimaHistory ?? []}
           current={state.medienKlima ?? 50}
