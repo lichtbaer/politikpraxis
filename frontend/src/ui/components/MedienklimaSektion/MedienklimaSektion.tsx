@@ -79,7 +79,7 @@ export function MedienklimaSektion() {
   const medienKlimaRaw = state.medienKlima ?? 55;
   const mkRounded = Math.round(medienKlimaRaw);
   const verlauf = history.slice(-12);
-  const showChart = featureActive(complexity, 'milieus_4') && verlauf.length >= 2;
+  const showChart = featureActive(complexity, 'milieus_4') && verlauf.length >= 1;
 
   const klimaClass =
     mkRounded > 65 ? styles.positiv : mkRounded > 35 ? styles.neutral : styles.negativ;

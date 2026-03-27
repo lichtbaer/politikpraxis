@@ -53,12 +53,6 @@ function getTrendDelta(history: number[]): number | null {
   return Math.round(recent - older);
 }
 
-function getTrend(history: number[]): 'up' | 'down' | 'flat' {
-  const delta = getTrendDelta(history);
-  if (delta == null || delta === 0) return 'flat';
-  return delta > 0 ? 'up' : 'down';
-}
-
 /** Liefert die anzuzeigenden Milieus/Gruppen je nach Komplexitätsstufe (SMA-292, SMA-324) */
 function getMilieuGruppen(
   complexity: number,
@@ -98,7 +92,7 @@ export function MediaView() {
 
       <MedienklimaSektion />
 
-      {(state.medienKlimaHistory ?? []).length > 1 && (
+      {(state.medienKlimaHistory ?? []).length >= 1 && (
         <MedienklimaTrendChart
           history={state.medienKlimaHistory ?? []}
           current={state.medienKlima ?? 50}
@@ -122,7 +116,7 @@ export function MediaView() {
                   <span className={styles.percentage}>{Math.round(value)}%</span>
                 </div>
                 <p className={styles.cardDesc}>{t(`game:media.${key}.desc`)}</p>
-                <MilieuBar name="" value={value} color={getBarColor(value)} />
+                <MilieuBar name="" value={value} color={getBarColor(value)} showHeaderValue={false} />
               </div>
             );
           })
@@ -130,9 +124,7 @@ export function MediaView() {
           gruppen.items.map((m) => {
             const value = milieuZustimmung[m.id] ?? zust[MILIEU_TO_ZUST[m.id] ?? 'mitte'] ?? 50;
             const history = milieuZustimmungHistory[m.id] ?? [];
-            const trend = gruppen.showDrift ? getTrend(history) : 'flat';
-            const trendDelta = gruppen.showDrift ? getTrendDelta(history) : null;
-            const trendChar = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→';
+            const monthDelta = getTrendDelta(history);
             const desc = m.beschreibung ?? t(`game:milieu.${m.id}`, m.kurz ?? m.id);
             const canClick = gruppen.type === 'milieus';
             return (
@@ -150,17 +142,15 @@ export function MediaView() {
                   </h3>
                   <span className={styles.percentage}>{Math.round(value)}%</span>
                 </div>
-                {gruppen.showDrift && trendDelta != null && (
-                  <span
-                    className={`${styles.trend} ${
-                      trendDelta > 0 ? styles.trendUp : trendDelta < 0 ? styles.trendDown : styles.trendNeutral
-                    }`}
-                  >
-                    {trendChar} {Math.abs(trendDelta)}%
-                  </span>
-                )}
                 <p className={styles.cardDesc}>{desc}</p>
-                <MilieuBar name="" value={value} color={getBarColor(value)} history={history} />
+                <MilieuBar
+                  name=""
+                  value={value}
+                  color={getBarColor(value)}
+                  history={history}
+                  showHeaderValue={false}
+                  footerDelta={monthDelta ?? undefined}
+                />
               </div>
             );
           })

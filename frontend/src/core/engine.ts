@@ -114,10 +114,7 @@ export function tick(
   s = checkGameEnd(s);
   if (s.gameOver) return s;
 
-  // 2. Pending Effects (inkl. SMA-278: Medienklima-Historie)
-  const medienVal = roundMedienKlimaIndex(s.medienKlima ?? s.zust.g);
-  const medienHist = trimHistory(s.medienKlimaHistory ?? [], medienVal, HISTORY_MAX_MONTHS);
-  s = { ...s, medienKlimaHistory: medienHist };
+  // 2. Pending Effects
   if (s.medienKlima == null) s = { ...s, medienKlima: 55 };
 
   const kpiBeforePending = { ...s.kpi };
@@ -373,6 +370,14 @@ export function tick(
 
   // SMA-396: Monatszusammenfassung (Diff zum Zustand vor diesem Tick)
   s = { ...s, letzterMonatsDiff: berechneMonatsDiff(state, s, content) };
+
+  // SMA-412: Medienklima-Verlauf — ein Punkt pro abgeschlossenem Monat (Wert nach tickMedienKlima etc.)
+  // SMA-409: gerundeter Index (keine Float-Artefakte in Historie/Charts)
+  const mkEnd = roundMedienKlimaIndex(s.medienKlima ?? s.zust.g);
+  s = {
+    ...s,
+    medienKlimaHistory: trimHistory(s.medienKlimaHistory ?? [], mkEnd, HISTORY_MAX_MONTHS),
+  };
 
   // Performance monitoring: log slow ticks (>50ms)
   const tickDuration = performance.now() - t0;
