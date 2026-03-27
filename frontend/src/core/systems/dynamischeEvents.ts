@@ -86,6 +86,7 @@ function applyRezessionEintritt(state: GameState): GameState {
     effekte: { al: 3 },
     lag: 1,
     kurz: 'Rezession: Arbeitsmarkt',
+    gesetzId: 'dyn:rezession_arbeitsmarkt',
   });
   const h = s.haushalt;
   if (h) {

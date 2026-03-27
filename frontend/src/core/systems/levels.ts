@@ -81,7 +81,12 @@ export function advanceRoutes(
     if (g.status === 'beschlossen' && g.rprog >= g.rdur && g.route && g.route !== 'eu') {
       const orig = state.gesetze.find(og => og.id === g.id);
       if (orig && orig.status === 'ausweich') {
-        const lawForEffects = { effekte: g.effekte as Record<string, number>, lag: g.lag, kurz: g.kurz };
+        const lawForEffects = {
+          effekte: g.effekte as Record<string, number>,
+          lag: g.lag,
+          kurz: g.kurz,
+          gesetzId: g.id,
+        };
         newState = scheduleEffects(newState, lawForEffects);
         const cx = complexity ?? newState.complexity ?? 4;
         if (content) {

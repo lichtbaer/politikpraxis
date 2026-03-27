@@ -646,7 +646,12 @@ export function executeBundesratVote(
     );
     let newState: GameState = { ...state, gesetze };
     newState = applyGesetzKosten(newState, lawId);
-    const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
+    const lawForEffects = {
+      effekte: law.effekte as Record<string, number>,
+      lag: law.lag,
+      kurz: law.kurz,
+      gesetzId: law.id,
+    };
     newState = scheduleEffects(newState, lawForEffects);
 
     if (voteContext?.milieus) {
@@ -728,7 +733,12 @@ export function ueberstimmeBReinspruch(
   );
   let newState: GameState = { ...state, pk: state.pk - EINSPRUCH_UEBERSTIMMUNG_PK, gesetze };
   newState = applyGesetzKosten(newState, lawId);
-  const lawForEffects = { effekte: law.effekte as Record<string, number>, lag: law.lag, kurz: law.kurz };
+  const lawForEffects = {
+    effekte: law.effekte as Record<string, number>,
+    lag: law.lag,
+    kurz: law.kurz,
+    gesetzId: law.id,
+  };
   newState = scheduleEffects(newState, lawForEffects);
 
   if (voteContext?.milieus) {

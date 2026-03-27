@@ -117,6 +117,7 @@ export function tickVermittlungsausschuss(
       effekte: vermittelteEffekte as Record<string, number>,
       lag: law.lag,
       kurz: `${law.kurz} (Vermittlung)`,
+      gesetzId: lawId,
     });
 
     if (context?.milieus && context.complexity != null) {

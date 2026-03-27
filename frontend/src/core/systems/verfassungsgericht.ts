@@ -188,6 +188,7 @@ export function tickNormenkontrolle(
               key: key as keyof KPI,
               delta: -(val * 0.5),
               label: `BVerfG-Urteil: ${gesetzName} (Nachbesserung nötig)`,
+              gesetzId: law.id,
             });
           }
         }
@@ -207,6 +208,7 @@ export function tickNormenkontrolle(
             key: key as keyof KPI,
             delta: -val,
             label: `BVerfG: ${gesetzName} aufgehoben`,
+            gesetzId: law.id,
           });
         }
       }
