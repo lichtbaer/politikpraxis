@@ -1861,6 +1861,19 @@
     "routeDauer": "Dauer (Mo)",
     "routeStarten": "Starten"
   },
+  "partnerWiderstand": {
+    "titleHinweis": "{{partner}} sieht dieses Gesetz kritisch",
+    "titleWiderstand": "{{partner}} lehnt ab",
+    "titleVeto": "Veto der Koalitionspartnerin / des Koalitionspartners",
+    "messageHinweis": "{{partner}} signalisiert Bedenken. Wenn du trotzdem einbringst, sinkt die Koalitionsbeziehung um {{malus}} Punkte.",
+    "messageWiderstand": "{{partner}} warnt: Einbringen würde die Koalition stark belasten (−{{malus}} Beziehung).",
+    "messageVeto": "{{partner}} blockiert dieses Gesetz solange keine Einigung besteht. Eine Koalitionsrunde (15 PK) kann das Veto aufheben.",
+    "trotzdem": "Trotzdem einbringen (−{{malus}} Koalition)",
+    "koalitionsverhandlung": "Koalitionsrunde (15 PK)",
+    "anpassen": "Zurück zur Agenda",
+    "pkZuWenig": "Nicht genug PK (15 für Koalitionsrunde).",
+    "vetoFreigabe": "Koalitionsrunde abgehalten — du kannst das Gesetz jetzt einbringen."
+  },
   "tabBar": {
     "ariaLabel": "Hauptnavigation",
     "lockedTooltip": "Verfügbar ab Stufe {{level}}",

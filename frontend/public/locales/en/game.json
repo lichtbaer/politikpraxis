@@ -1847,6 +1847,19 @@
     "routeDauer": "Duration (mo)",
     "routeStarten": "Start"
   },
+  "partnerWiderstand": {
+    "titleHinweis": "{{partner}} is critical of this bill",
+    "titleWiderstand": "{{partner}} rejects it",
+    "titleVeto": "Coalition partner veto",
+    "messageHinweis": "{{partner}} has concerns. If you introduce it anyway, coalition relationship drops by {{malus}}.",
+    "messageWiderstand": "{{partner}} warns: introducing it would strain the coalition strongly (−{{malus}} relationship).",
+    "messageVeto": "{{partner}} blocks this bill until there is agreement. A coalition round (15 PC) can lift the veto.",
+    "trotzdem": "Introduce anyway (−{{malus}} coalition)",
+    "koalitionsverhandlung": "Coalition round (15 PC)",
+    "anpassen": "Back to agenda",
+    "pkZuWenig": "Not enough political capital (15 for coalition round).",
+    "vetoFreigabe": "Coalition round held — you can now introduce the bill."
+  },
   "tabBar": {
     "ariaLabel": "Main navigation",
     "lockedTooltip": "Available from level {{level}}",

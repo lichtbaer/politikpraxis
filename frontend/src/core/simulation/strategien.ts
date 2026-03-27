@@ -115,7 +115,8 @@ export function strategiePkHorten(): StrategyAction {
 export function strategieIdeologischSdp(state: GameState): StrategyAction {
   const gesetze = verfuegbareGesetze(state);
   if (gesetze.length === 0 || state.pk < 15) return { typ: 'nichts' };
-  const passend = [...gesetze].sort((a, b) => kongruenz(b, 'sdp') - kongruenz(a, 'sdp'));
+  // Höchster kongruenz(·,'sdp') = am linksten (negativster Achsen-Mix)
+  const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
   return { typ: 'einbringen', gesetzId: passend[0].id };
 }
 
@@ -144,7 +145,7 @@ export function strategieMusterschueler(state: GameState): StrategyAction {
   if (bereitsGebracht < gesetzeErwartet) {
     const gesetze = verfuegbareGesetze(state);
     if (gesetze.length > 0) {
-      const passend = [...gesetze].sort((a, b) => kongruenz(b, 'sdp') - kongruenz(a, 'sdp'));
+      const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
       return { typ: 'einbringen', gesetzId: passend[0].id };
     }
   }
@@ -233,7 +234,7 @@ export function strategieBundesratProfi(state: GameState): StrategyAction {
   // Gesetze einbringen
   const gesetze = verfuegbareGesetze(state);
   if (gesetze.length > 0 && state.pk >= 15) {
-    const passend = [...gesetze].sort((a, b) => kongruenz(b, 'sdp') - kongruenz(a, 'sdp'));
+    const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     return { typ: 'einbringen', gesetzId: passend[0].id };
   }
 
@@ -256,7 +257,7 @@ export function strategieKabinettspfleger(state: GameState): StrategyAction {
   // Gesetze einbringen (SDP-kongruent)
   const gesetze = verfuegbareGesetze(state);
   if (gesetze.length > 0 && state.pk >= 15) {
-    const passend = [...gesetze].sort((a, b) => kongruenz(b, 'sdp') - kongruenz(a, 'sdp'));
+    const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     return { typ: 'einbringen', gesetzId: passend[0].id };
   }
 
@@ -332,7 +333,7 @@ export function strategieWahlkaempfer(state: GameState): StrategyAction {
   // Normale Phase: Gesetze einbringen
   const gesetze = verfuegbareGesetze(state);
   if (gesetze.length > 0 && state.pk >= 15) {
-    const passend = [...gesetze].sort((a, b) => kongruenz(b, 'sdp') - kongruenz(a, 'sdp'));
+    const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     return { typ: 'einbringen', gesetzId: passend[0].id };
   }
   return { typ: 'nichts' };
@@ -354,7 +355,7 @@ export function strategieKoalitionsmanager(state: GameState): StrategyAction {
   // Gesetze einbringen
   const gesetze = verfuegbareGesetze(state);
   if (gesetze.length > 0 && state.pk >= 15) {
-    const passend = [...gesetze].sort((a, b) => kongruenz(b, 'sdp') - kongruenz(a, 'sdp'));
+    const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     return { typ: 'einbringen', gesetzId: passend[0].id };
   }
 
@@ -380,7 +381,7 @@ export function strategieAllrounder(state: GameState): StrategyAction {
       // Gesetze einbringen
       const gesetze = verfuegbareGesetze(state);
       if (gesetze.length > 0 && state.pk >= 15) {
-        const passend = [...gesetze].sort((a, b) => kongruenz(b, 'sdp') - kongruenz(a, 'sdp'));
+        const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
         return { typ: 'einbringen', gesetzId: passend[0].id };
       }
       break;

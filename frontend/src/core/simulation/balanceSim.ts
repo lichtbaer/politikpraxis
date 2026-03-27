@@ -4,7 +4,7 @@
  */
 import { tick } from '../engine';
 import { createInitialState } from '../state';
-import { einbringen, lobbying, fraktionssitzung } from '../systems/parliament';
+import { einbringen, lobbying, type EinbringenContext } from '../systems/parliament';
 import { koalitionsrunde, prioritaetsgespraech } from '../systems/koalition';
 import { pressemitteilung } from '../systems/medienklima';
 import { medienkampagne } from '../systems/media';
@@ -42,6 +42,62 @@ export interface AggregatedResult {
 
 const DEFAULT_AUSRICHTUNG = { wirtschaft: -20, gesellschaft: -40, staat: -15 };
 
+/**
+ * SMA-403: Simuliert die Partner-Widerstand-Modals ohne UI — gleiche Logik wie gameStore
+ * (hinweis/widerstand: „trotzdem“ mit Beziehungs-Malus; veto: Koalitionsrunde + Freigabe).
+ */
+function autoResolvePartnerWiderstandModal(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): GameState {
+  const pending = state.pendingPartnerWiderstand;
+  if (!pending) return state;
+
+  const baseCtx: EinbringenContext = {
+    ausrichtung: DEFAULT_AUSRICHTUNG,
+    complexity,
+    gesetzRelationen: content.gesetzRelationen,
+    content,
+  };
+
+  if (pending.intensitaet === 'veto') {
+    if (state.pk < 15) {
+      return { ...state, pendingPartnerWiderstand: undefined };
+    }
+    let s = koalitionsrunde(state, content, complexity);
+    if (s.pk === state.pk) {
+      return { ...state, pendingPartnerWiderstand: undefined };
+    }
+    s = {
+      ...s,
+      partnerWiderstandVetoFreigabeGesetzId: pending.lawId,
+      pendingPartnerWiderstand: undefined,
+    };
+    return einbringen(s, pending.lawId, {
+      ...baseCtx,
+      framingKey: pending.framingKey ?? undefined,
+    });
+  }
+
+  const kp = state.koalitionspartner;
+  if (
+    kp &&
+    pending.koalitionsMalus !== 0 &&
+    kp.beziehung + pending.koalitionsMalus < 28
+  ) {
+    return { ...state, pendingPartnerWiderstand: undefined };
+  }
+
+  return einbringen(state, pending.lawId, {
+    ...baseCtx,
+    framingKey: pending.framingKey ?? undefined,
+    skipPartnerWiderstandCheck: true,
+    partnerWiderstandKoalitionsMalus: pending.koalitionsMalus,
+    fromPartnerWiderstandConfirm: true,
+  });
+}
+
 /** Wendet eine Strategie-Aktion auf den GameState an */
 function applyAction(
   state: GameState,
@@ -50,12 +106,17 @@ function applyAction(
   complexity: number,
 ): GameState {
   switch (action.typ) {
-    case 'einbringen':
-      return einbringen(state, action.gesetzId, {
+    case 'einbringen': {
+      const { gesetzId } = action;
+      let s = einbringen(state, gesetzId, {
         ausrichtung: DEFAULT_AUSRICHTUNG,
         complexity,
         gesetzRelationen: content.gesetzRelationen,
+        content,
       });
+      s = autoResolvePartnerWiderstandModal(s, content, complexity);
+      return s;
+    }
     case 'lobbying':
       return lobbying(state, action.gesetzId);
     case 'koalitionsrunde':
@@ -129,6 +190,8 @@ export function runSingleSim(
 ): SimResult {
   try {
     let state = createInitialState(content, complexity, DEFAULT_AUSRICHTUNG);
+    // Balance-Test: etwas niedrigere Schwelle als Standard 40–42 (Monte Carlo soll Erfolg messen, nicht nur Hardcore).
+    state = { ...state, electionThreshold: 35 };
 
     for (let _month = 1; _month <= LEGISLATUR_MONATE; _month++) {
       // Wenn ein Event aktiv ist, zuerst auflösen

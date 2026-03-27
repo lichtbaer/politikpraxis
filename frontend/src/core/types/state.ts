@@ -9,6 +9,7 @@ import type {
   BundesratLand,
   EUEventContent,
   KoalitionspartnerContent,
+  KoalitionspartnerParteiId,
   KoalitionspartnerState,
   Milieu,
   MinisterialInitiative,
@@ -156,6 +157,16 @@ export interface GameState {
   milieuGesetzReaktionen?: Record<string, { gesetzId: string; delta: number }[]>;
   verbandsBeziehungen?: Record<string, number>;
   partnerPrioGesetz?: { gesetzId: string; bisMonat: number };
+  /** SMA-403: Nach Koalitionsverhandlung (15 PK) darf ein veto-pflichtiges Gesetz einmal eingebracht werden */
+  partnerWiderstandVetoFreigabeGesetzId?: string;
+  /** SMA-403: UI-Modal für Partner-Widerstand vor Einbringen */
+  pendingPartnerWiderstand?: {
+    lawId: string;
+    framingKey?: string | null;
+    intensitaet: 'hinweis' | 'widerstand' | 'veto';
+    koalitionsMalus: number;
+    partnerId: KoalitionspartnerParteiId;
+  };
   btStimmenBonus?: { pct: number; bisMonat: number };
   koalitionsbruchSeitMonat?: number;
   politikfeldDruck?: Record<string, number>;
@@ -219,6 +230,9 @@ export interface GameState {
     kosten: number;
     pkKosten: number;
     framingKey?: string;
+    /** SMA-403: Nach „Trotzdem einbringen“ im Partner-Widerstand-Modal */
+    partnerWiderstandConfirmed?: boolean;
+    partnerWiderstandKoalitionsMalus?: number;
   };
   wahlergebnis?: number;
   charGespraechCooldowns?: Record<string, number>;

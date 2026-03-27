@@ -155,6 +155,11 @@ interface GameStore {
   doMedienAktion: (aktion: MedienSpielerAktionKey) => void;
   doSetWahlkampfBotschaften: (botschaften: string[]) => void;
   doEinbringenMitFraming: (lawId: string, framingKey: string | null) => void;
+  /** SMA-403: Partner-Widerstand-Modal */
+  doPartnerWiderstandAbbrechen: () => void;
+  doPartnerWiderstandTrotzdem: () => void;
+  doPartnerWiderstandKoalitionsverhandlung: () => void;
+  doPartnerWiderstandAnpassen: () => void;
   doKabinettsgespraech: (charId: string) => void;
   doEntlasseMinister: (charId: string) => void;
   doVermittlungsausschuss: (lawId: string) => void;
@@ -321,6 +326,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         framingKey: pendingGegenfinanzierung.framingKey,
         gesetzRelationen: prev.content.gesetzRelationen,
         content: prev.content,
+        skipPartnerWiderstandCheck: pendingGegenfinanzierung.partnerWiderstandConfirmed === true,
+        partnerWiderstandKoalitionsMalus: pendingGegenfinanzierung.partnerWiderstandKoalitionsMalus,
+        fromPartnerWiderstandConfirm: pendingGegenfinanzierung.partnerWiderstandConfirmed === true,
       };
       let state = wendeGegenfinanzierungAn(prev.state, law, option, subOption, prev.complexity, prev.content);
       state = { ...state, pendingGegenfinanzierung: undefined };
@@ -375,6 +383,106 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
       return { state: nextState };
     }),
+
+  doPartnerWiderstandAbbrechen: () =>
+    set((prev) => ({
+      state: { ...prev.state, pendingPartnerWiderstand: undefined },
+    })),
+
+  doPartnerWiderstandTrotzdem: () =>
+    set((prev) => {
+      const p = prev.state.pendingPartnerWiderstand;
+      if (!p || p.intensitaet === 'veto') return prev;
+      const law = prev.state.gesetze.find((g) => g.id === p.lawId);
+      if (!law) {
+        return { state: { ...prev.state, pendingPartnerWiderstand: undefined } };
+      }
+      if (
+        featureActive(prev.complexity, 'gegenfinanzierung') &&
+        brauchtGegenfinanzierung(law)
+      ) {
+        const optionen = berechneOptionen(prev.state, law, prev.content, prev.complexity);
+        const kosten =
+          Math.abs(law.kosten_laufend ?? 0) || Math.abs(law.kosten_einmalig ?? 0) / 10;
+        const boni = getVorstufenBoni(prev.state, p.lawId);
+        const kongruenzEffekt = applyKongruenzEffekte(
+          prev.state,
+          p.lawId,
+          prev.ausrichtung,
+          prev.complexity,
+        );
+        const medienZusatz = featureActive(prev.complexity, 'medienklima')
+          ? getMedienPkZusatzkosten(prev.state.medienKlima ?? 55)
+          : 0;
+        const pkKosten = Math.max(
+          2,
+          getEinbringenPkKosten(kongruenzEffekt.pkModifikator) - boni.pkKostenRabatt + medienZusatz,
+        );
+        return {
+          state: {
+            ...prev.state,
+            pendingPartnerWiderstand: undefined,
+            pendingGegenfinanzierung: {
+              gesetzId: p.lawId,
+              optionen,
+              kosten,
+              pkKosten,
+              framingKey: p.framingKey ?? undefined,
+              partnerWiderstandConfirmed: true,
+              partnerWiderstandKoalitionsMalus: p.koalitionsMalus,
+            },
+          },
+        };
+      }
+      const ctx: EinbringenContext = {
+        ausrichtung: prev.ausrichtung,
+        complexity: prev.complexity,
+        framingKey: p.framingKey ?? undefined,
+        gesetzRelationen: prev.content.gesetzRelationen,
+        content: prev.content,
+        skipPartnerWiderstandCheck: true,
+        partnerWiderstandKoalitionsMalus: p.koalitionsMalus,
+        fromPartnerWiderstandConfirm: true,
+      };
+      const nextState = einbringen(prev.state, p.lawId, ctx);
+      const newLaw = nextState.gesetze.find((g) => g.id === p.lawId);
+      if (newLaw && newLaw.status !== 'entwurf') {
+        const pkUsed = prev.state.pk - nextState.pk;
+        toast(`${newLaw.kurz} eingebracht (−${pkUsed} PK)`, 'success');
+      }
+      return { state: nextState };
+    }),
+
+  doPartnerWiderstandKoalitionsverhandlung: () =>
+    set((prev) => {
+      const p = prev.state.pendingPartnerWiderstand;
+      if (!p || p.intensitaet !== 'veto') return prev;
+      if (prev.state.pk < 15) {
+        toast(i18n.t('game:partnerWiderstand.pkZuWenig', 'Nicht genug PK (15 für Koalitionsrunde).'), 'warning');
+        return prev;
+      }
+      let s = koalitionsrunde(prev.state, prev.content, prev.complexity);
+      if (s.pk === prev.state.pk) return prev;
+      s = {
+        ...s,
+        partnerWiderstandVetoFreigabeGesetzId: p.lawId,
+        pendingPartnerWiderstand: undefined,
+      };
+      toast(
+        i18n.t(
+          'game:partnerWiderstand.vetoFreigabe',
+          'Koalitionsrunde abgehalten — du kannst das Gesetz jetzt einbringen.',
+        ),
+        'success',
+      );
+      return { state: s };
+    }),
+
+  doPartnerWiderstandAnpassen: () =>
+    set((prev) => ({
+      state: { ...prev.state, pendingPartnerWiderstand: undefined },
+    })),
+
   doLobbying: (lawId) => set(prev => {
     const nextState = lobbying(prev.state, lawId);
     const newLaw = nextState.gesetze.find(g => g.id === lawId);

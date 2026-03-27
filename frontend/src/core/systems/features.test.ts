@@ -37,6 +37,13 @@ describe('featureActive', () => {
     expect(featureActive(2, 'kommunal_pilot')).toBe(true);
   });
 
+  it('SMA-403: ideologie_bt_malus ab Stufe 2, partner_widerstand ab Stufe 3', () => {
+    expect(featureActive(1, 'ideologie_bt_malus')).toBe(false);
+    expect(featureActive(2, 'ideologie_bt_malus')).toBe(true);
+    expect(featureActive(2, 'partner_widerstand')).toBe(false);
+    expect(featureActive(3, 'partner_widerstand')).toBe(true);
+  });
+
   it('bundestag_detail aktiv ab Stufe 2', () => {
     expect(featureActive(1, 'bundestag_detail')).toBe(false);
     expect(featureActive(2, 'bundestag_detail')).toBe(true);

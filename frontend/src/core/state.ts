@@ -511,6 +511,8 @@ export function validateGameState(raw: unknown): GameState {
   const optionalKeys = [
     'gesetzBTStimmen', 'spielerPartei', 'kanzlerName', 'kanzlerGeschlecht', 'speedBeforePause', 'eingebrachteGesetze',
     'koalitionspartner', 'koalitionsvertragProfil', 'milieuZustimmungHistory', 'milieuGesetzReaktionen', 'partnerPrioGesetz',
+    'partnerWiderstandVetoFreigabeGesetzId',
+    'pendingPartnerWiderstand',
     'btStimmenBonus', 'koalitionsbruchSeitMonat', 'ministerialCooldowns', 'aktiveMinisterialInitiative', 'ministerAgenden', 'aktiveMinisterAgenda',
     'eu', 'haushalt', 'lehmannUltimatumBeschleunigt', 'lehmannSparvorschlagAktiv', 'aktivesStrukturEvent',
     'gesetzProjekte', 'wahlkampfAktiv', 'wahlkampfAktionenGenutzt', 'legislaturBilanz', 'wahlkampfBotschaften',

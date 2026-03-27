@@ -42,5 +42,9 @@ export function useGameActions() {
     kommunalKonferenz: store.doKommunalKonferenz,
     laenderGipfel: store.doLaenderGipfel,
     pilotBeschleunigen: store.doPilotBeschleunigen,
+    partnerWiderstandAbbrechen: store.doPartnerWiderstandAbbrechen,
+    partnerWiderstandTrotzdem: store.doPartnerWiderstandTrotzdem,
+    partnerWiderstandKoalitionsverhandlung: store.doPartnerWiderstandKoalitionsverhandlung,
+    partnerWiderstandAnpassen: store.doPartnerWiderstandAnpassen,
   };
 }
