@@ -21,8 +21,8 @@ from app.models.eu import (
 )
 from app.models.events import Event, EventChoice, EventChoiceI18n, EventI18n
 from app.models.gesetze import Gesetz, GesetzI18n
-from app.models.ministerial import MinisterialInitiative, MinisterialInitiativeI18n
 from app.models.medien_akteur import MedienAkteur
+from app.models.ministerial import MinisterialInitiative, MinisterialInitiativeI18n
 from app.models.politikfelder import Milieu, MilieuI18n, Politikfeld, PolitikfeldI18n
 from app.models.verbaende import (
     Verband,
