@@ -3,6 +3,17 @@
   padding: 4px 0;
 }
 
+.chartTitle {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text3);
+  margin: 0 0 4px;
+  padding: 0 2px;
+}
+
 .currentValue {
   display: flex;
   align-items: baseline;

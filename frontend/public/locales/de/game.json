@@ -2270,7 +2270,9 @@
     "changes": "Änderungen:"
   },
   "approvalChart": {
-    "monatTooltip": "Monat {{month}}: <b>{{value}}%</b>",
+    "title": "Wahlprognose-Verlauf",
+    "monatTooltip": "Monat {{month}}: {{value}}%",
+    "targetLineLabel": "Wahlziel {{percent}}%",
     "current": "Aktuell:"
   },
   "vorstufeBadge": {

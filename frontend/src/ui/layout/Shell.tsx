@@ -43,6 +43,7 @@ export function Shell() {
   const laws = useGameStore((s) => s.content.laws);
   const setSpeed = useGameStore((s) => s.setSpeed);
   const togglePause = useGameStore((s) => s.togglePause);
+  const speed = useGameStore((s) => s.state.speed);
   const doResolveEvent = useGameStore((s) => s.doResolveEvent);
   const setView = useGameStore((s) => s.setView);
   const openMonatszusammenfassung = useUIStore((s) => s.openMonatszusammenfassung);
@@ -121,7 +122,10 @@ export function Shell() {
     <>
       <Header />
       <EbenenTabBar />
-      <div className={styles.shell}>
+      <div className={`${styles.shell} ${speed === 0 ? styles.shellPaused : ''}`}>
+        {speed === 0 && (
+          <div className={styles.pauseOverlay} aria-hidden="true" />
+        )}
         <div className={`${styles.left} ${leftOpen ? styles.open : ''}`}>
           <LeftPanel />
         </div>

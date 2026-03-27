@@ -2272,7 +2272,9 @@
     "changes": "Changes:"
   },
   "approvalChart": {
-    "monatTooltip": "Month {{month}}: <b>{{value}}%</b>",
+    "title": "Election forecast trend",
+    "monatTooltip": "Month {{month}}: {{value}}%",
+    "targetLineLabel": "Election target {{percent}}%",
     "current": "Current:"
   },
   "vorstufeBadge": {

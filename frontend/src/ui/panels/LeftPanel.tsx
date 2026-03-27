@@ -28,6 +28,7 @@ export function LeftPanel() {
   const electionThreshold = useGameStore((s) => s.state.electionThreshold ?? 40);
   const coalition = useGameStore((s) => s.state.coalition);
   const approvalHistory = useGameStore((s) => s.state.approvalHistory) ?? EMPTY_APPROVAL_HISTORY;
+  const month = useGameStore((s) => s.state.month);
   const haushalt = useGameStore((s) => s.state.haushalt);
   const complexity = useGameStore((s) => s.complexity);
 
@@ -52,7 +53,7 @@ export function LeftPanel() {
           <span className={styles.target}>{t('game:leftPanel.target', { percent: electionThreshold })}</span>
         </div>
         <MedienklimaBadge />
-        <ApprovalChart history={approvalHistory} threshold={electionThreshold} />
+        <ApprovalChart history={approvalHistory} threshold={electionThreshold} currentMonth={month} />
       </section>
 
       <section className={styles.section}>

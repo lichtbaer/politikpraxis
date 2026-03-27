@@ -11,10 +11,12 @@ interface ApprovalChartProps {
   currentMonth?: number;
 }
 
-export function ApprovalChart({ history, threshold, currentMonth: _currentMonth }: ApprovalChartProps) {
+export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChartProps) {
   const { t } = useTranslation('game');
   const option: EChartsOption = useMemo(() => {
-    const months = history.map((_, i) => i + 1);
+    const anchorMonth = currentMonth ?? (history.length > 0 ? history.length : 1);
+    const startMonth = history.length > 0 ? Math.max(1, anchorMonth - history.length + 1) : 1;
+    const monthLabels = history.map((_, i) => startMonth + i);
 
     // Split data into above/below threshold segments for dual-color rendering
     const aboveData = history.map((v) => (v >= threshold ? v : null));
@@ -27,15 +29,15 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
         top: 8,
         right: 6,
         bottom: 20,
-        left: 28,
+        left: 32,
         containLabel: false,
       },
       xAxis: {
         type: 'category',
-        data: months,
+        data: monthLabels,
         boundaryGap: false,
         axisLabel: {
-          color: 'rgba(255,255,255,0.3)',
+          color: 'rgba(255,255,255,0.35)',
           fontSize: 8,
           interval: (index: number) => [0, 11, 23, 35, 47].includes(index),
           formatter: (v: string) => {
@@ -52,9 +54,9 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
         type: 'value',
         min: 0,
         max: 100,
-        interval: 25,
+        interval: 20,
         axisLabel: {
-          color: 'rgba(255,255,255,0.3)',
+          color: 'rgba(255,255,255,0.35)',
           fontSize: 8,
           formatter: '{value}%',
         },
@@ -64,6 +66,7 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
       },
       tooltip: {
         trigger: 'axis',
+        show: true,
         backgroundColor: '#1e1c18',
         borderColor: '#444',
         borderWidth: 1,
@@ -72,9 +75,10 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
           const p = params as Array<{ dataIndex: number; value: number | null }>;
           const first = p.find((x) => x.value != null);
           if (!first) return '';
-          const month = first.dataIndex + 1;
+          const monthNum = monthLabels[first.dataIndex] ?? first.dataIndex + 1;
           const val = first.value as number;
-          return t('approvalChart.monatTooltip', { month, value: val.toFixed(1) });
+          const pct = Math.round(val);
+          return t('approvalChart.monatTooltip', { month: monthNum, value: pct });
         },
       },
       series: [
@@ -104,7 +108,7 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
             label: {
               show: true,
               position: 'insideEndTop',
-              formatter: `${threshold}%`,
+              formatter: t('approvalChart.targetLineLabel', { percent: threshold }),
               color: 'rgba(255,255,255,0.35)',
               fontSize: 8,
             },
@@ -132,7 +136,7 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
       ],
     };
    
-  }, [history, threshold, t]);
+  }, [history, threshold, currentMonth, t]);
 
   const latestVal = history.length > 0 ? history[history.length - 1] : null;
 
@@ -165,6 +169,7 @@ export function ApprovalChart({ history, threshold, currentMonth: _currentMonth 
           )}
         </div>
       )}
+      <h4 className={styles.chartTitle}>{t('approvalChart.title')}</h4>
       <ReactECharts
         option={option}
         theme="politikpraxis"
