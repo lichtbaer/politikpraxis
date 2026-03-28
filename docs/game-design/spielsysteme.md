@@ -53,13 +53,16 @@ PK-Maximum: 150. Spieler beginnen mit 100.
 **Gesetz-Lebenszyklus:**
 
 ```
-Entwurf → Aktiv (BT) → Abstimmung → Beschlossen
-                                   → Blockiert → Ebenenwechsel
+Entwurf → [optional: Vorstufen] → eingebracht (Ausschuss-Lag)
+       → aktiv → manuelle BT-Abstimmung → beschlossen / bt_passed / blockiert
+       → blockiert (bundesrat) → Ausweichroute EU/Land/Kommune
 ```
 
-**Bundestagsabstimmung:** Benötigt > 50% Ja-Stimmen. Basis-Ja-Quote je Gesetz, verbessert durch Lobbying und Koalitionsarbeit.
+**Bundestagsabstimmung:** Benötigt > 50% Ja-Stimmen. Basis-Ja-Quote je Gesetz, modifiziert durch Lobbying, Koalitionspartner-Priorität, Vorstufen-Boni, Normenkontrolle-Folgen, Medien/Framing, Ideologie-Abstand (Koalition ↔ Gesetz), Fraktionsdisziplin (Abweichler-Risiko, Fraktionssitzung) — je nach Stufe aktiv.
 
-**Bundesratsabstimmung:** Nur für Gesetze mit `land`-Tag. Vereinfacht: 5 Blöcke (Koalitionsländer / Neutral / Opposition). Koalition hat 5/16 Länder (31%) — braucht Lobbying für Mehrheit.
+**Einbringen:** Nach Kosten (Kongruenz mit Spieler-Ausrichtung, ggf. Gegenfinanzierungs-Dialog ab Stufe 2, Medienklima-Zuschlag) wechselt das Gesetz in die **Eingebracht-Phase** (`eingebracht`): Ausschuss-Lag (Stufe 1: 1 Monat fix; höhere Stufen: aus Content bzw. abgeleitet), danach automatische BT-Abstimmung im Monatstick.
+
+**Bundesratsabstimmung:** Für Gesetze mit `land`-Tag, **wenn** der Bundesrat für die gewählte Stufe aktiv ist (Tab ab Stufe 2). Nach BT-Mehrheit: Status `bt_passed`, Lobbying-Fenster bis zur BR-Abstimmung. **Stufe 1:** ohne sichtbaren BR — bei Ja im Bundestag direkt `beschlossen` (wie „kein Land-Gesetz“ im Codepfad). Ab Stufe 3: vier Fraktionen, PK-Lobbying, Trade-offs, Beziehungen, Events (siehe GDD 3.7).
 
 **Wirkungslatenz (Lag):** Beschlossene Gesetze entfalten Wirkung erst nach 4–8 Monaten. Erzeugt realistische Entkopplung zwischen Handeln und Feedback.
 
@@ -158,7 +161,7 @@ Events sind das spielerische Herz. Sie erscheinen zufällig (~22% Chance/Monat),
 - Hoffmann: Vertrauensfrage
 - Maier: Standort-Ultimatum
 
-**Folge-Events (geplant):** Manche Entscheidungen öffnen einen Folge-Event im nächsten oder übernächsten Monat. Beispiel: Schulden aufnehmen → Monat +2: Verfassungsklage.
+**Folge-Events:** Umgesetzt für höhere Stufen (`followup_events` ab Komplexität 4 in `features.ts`); Ketten werden aus dem Content gespeist und im Tick aufgelöst.
 
 ---
 
@@ -280,15 +283,27 @@ Eigene Events alle 5–8 Monate (zufällig aus Pool):
 
 ---
 
-## 3.8 Mediensystem (einfach)
+## 3.8 Mediensystem
 
-**Drei Wählermilieus:**
-- Arbeit (Fokus: Beschäftigung, Löhne, soziale Sicherheit)
-- Mitte (Fokus: Haushalt, Stabilität, Verlässlichkeit)
-- Progressiv (Fokus: Klima, Gerechtigkeit, Modernisierung)
+**Wählermilieus:** Im Content bis zu **sieben** Milieus; in der UI stufenweise sichtbar (z. B. aggregiert / vier / alle sieben / Drift ab Expertenstufe — siehe `milieus_*` und `milieu_drift` in `features.ts`).
 
-**Medienkampagne (10 PK):** +2–5% Zustimmung im Zielmilieu. Einmalig, keine Abklingzeit.
+**Medienkampagne (10 PK):** Zielmilieu ansteuern (weiterhin Kernwerkzeug).
 
-**Ticker:** Laufender Nachrichtentext oben im Center-Panel. Aktualisiert bei Events und wichtigen Entscheidungen.
+**Medienklima & Akteure:** Index mit Drift; mehrere Medienakteure (öffentlich, Boulevard, Social, …) mit stufenweise wachsender Differenzierung; Gesetze können Akteure und Reaktionen auslösen.
 
-**Geplant:** Medien-Agenda — Spieler kann Pressekonferenz einberufen (Risiko/Chance-System), Leitmedien haben eigene politische Tendenz und verstärken/dämpfen Events.
+**Spieleraktionen (Auszug):** Framing beim Einbringen (ab Stufe 2), Pressemitteilung (Cooldown, PK), weitere Medienaktionen ab höheren Stufen; Opposition und Skandal-Mechaniken sind angebunden.
+
+**Ticker:** Laufender Nachrichtentext im Center-Panel, aktualisiert bei Events und wichtigen Entscheidungen.
+
+---
+
+## 3.9 Weitere Systeme (Kurzüberblick, Implementierung)
+
+Diese Bereiche sind in der Engine angebunden (`frontend/src/core/engine.ts` und `systems/`); Tiefe und Sichtbarkeit hängen von `features.ts` und Content ab:
+
+- **Haushalt:** Konjunkturindex, Schuldenbremse, jährliche Haushaltsdebatte, Steuerquote/Dashboards, Gegenfinanzierung bei Gesetzen
+- **EU:** Dreiphasen-Route, Klima, Ratsvorsitz-Prioritäten, reaktive Richtlinien und Events (stufenweise)
+- **Regierung / Verfassung:** Regierungserklärung, Vertrauensfrage, konstruktives Misstrauensvotum, Normenkontrolle nach Beschluss
+- **Wahlkampf:** Aktionen ab späten Monaten, TV-Duell, Bilanz-Kommunikation, Wahlnacht-Analyse (stufenweise)
+- **Verbände & Politikfelder:** Lobbying, Trade-offs, Druck auf Politikfelder
+- **Szenario & Speicherstand:** Start aus Content-Bundle; Spielstände lokal und optional serverseitig (API)

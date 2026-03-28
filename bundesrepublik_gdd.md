@@ -1,5 +1,5 @@
 # Bundesrepublik — Game Design Document
-**Version 0.4 · Stand: März 2026**
+**Version 0.5 · Stand: März 2026** — an die Implementierung in **politikpraxis** (React/TypeScript-Frontend, `frontend/src/core/`) angeglichen
 
 ---
 
@@ -48,7 +48,7 @@ Monat 48: Wahl → Wiederwahl ≥ 40%?
 
 **Zeitstruktur:** Echtzeit mit Pause. 1 Spieltick = 1 Monat. Geschwindigkeiten: Pause / 1× (1,8 Sek/Monat) / 3× (0,6 Sek/Monat). Events pausieren automatisch.
 
-**Win-Bedingung:** ≥ 40% Wahlzustimmung in Monat 48.
+**Win-Bedingung:** Gesamtzustimmung in Monat 48 ≥ **Wahlhürde** der gewählten Komplexitätsstufe (35 % / 38 % / 40 % / 42 % für Stufen 1–4; Feld `electionThreshold` im Spielstand).
 
 **Lose-Bedingungen:** Wahlzustimmung unter 40% bei Wahl, oder Koalitionsbruch (Stabilitätswert < 15%).
 
@@ -104,16 +104,22 @@ PK-Maximum: 150. Spieler beginnen mit 100.
 
 ### 3.3 Gesetzgebungssystem
 
-**Gesetz-Lebenszyklus:**
+**Gesetz-Lebenszyklus (Implementierung):**
 
 ```
-Entwurf → Aktiv (BT) → Abstimmung → Beschlossen
-                                   → Blockiert → Ebenenwechsel
+Entwurf → [optional: Vorstufen Kommune/Land/EU-Initiative] → eingebracht (Ausschuss-Lag)
+       → aktiv → manuelle BT-Abstimmung
+              → Ja & kein BR nötig → beschlossen
+              → Ja & BR nötig → bt_passed → Bundesrat → beschlossen / blockiert (BR)
+              → Nein (BT) → blockiert (bundestag)
+       → blockiert (bundesrat) → Ausweichroute (EU/Land/Kommune) → …
 ```
 
-**Bundestagsabstimmung:** Benötigt > 50% Ja-Stimmen. Basis-Ja-Quote je Gesetz, verbessert durch Lobbying und Koalitionsarbeit.
+**Hinweise:** Status `aktiv` = sofort abstimmbar (Legacy-/Sonderpfad). Regulärer Pfad: nach **Einbringen** ist das Gesetz `eingebracht`; die Abstimmung läuft im **Monatstick**, wenn `abstimmungMonat` erreicht ist. **Stufe 1:** festes Ausschuss-Lag 1 Monat. **Stufe 2+:** Lag aus Gesetz-Content bzw. abgeleitet.
 
-**Bundesratsabstimmung:** Nur für Gesetze mit `land`-Tag. Vereinfacht: 5 Blöcke (Koalitionsländer / Neutral / Opposition). Koalition hat 5/16 Länder (31%) — braucht Lobbying für Mehrheit.
+**Bundestagsabstimmung:** > 50 % effektive Ja-Stimmen. Modifikatoren u. a.: Lobbying, Koalitionspartner-Priorität, Vorstufen-Boni, Fraktionsdisziplin (Abweichler-Risiko), Ideologie-Abstand Gesetz ↔ Koalition, Medien/Framing — je nach `features.ts`.
+
+**Bundesratsabstimmung:** Für `land`-Gesetze, **wenn** `bundesrat_sichtbar` (ab Stufe 2). **Stufe 1:** kein BR — bei BT-Ja direkt `beschlossen`. Ab Stufe 3: vier Fraktionen, Lobbying, Trade-offs, Beziehungen (siehe 3.7). Die alte „5-Blöcke“-Skizze ist durch dieses Modell ersetzt.
 
 **Wirkungslatenz (Lag):** Beschlossene Gesetze entfalten Wirkung erst nach 4–8 Monaten. Erzeugt realistische Entkopplung zwischen Handeln und Feedback.
 
@@ -156,6 +162,8 @@ Alle Routen laufen als Fortschrittsbalken sichtbar auf den Ebenen-Panels. Mehrer
 
 ### 3.5 Wirtschaftssystem (4 KPIs)
 
+**Erweiterung in der Implementierung:** Ab Stufe 2 wirken **Wirtschaftssektoren** und Makrogrößen (BIP, Konjunktur, Einnahmenpfad) auf den Haushalt und die Darstellung im Haushalt-Tab; die vier KPIs bleiben die zentrale Spieler-Schicht. Details: `frontend/src/core/systems/wirtschaft.ts`, `haushalt.ts`, Feature-Flags `wirtschaftssektoren`, `wirtschaft_indikatoren_charts` in `features.ts`.
+
 | KPI | Startw. | Bereich | Richtung | Einfluss auf Zustimmung |
 |-----|---------|---------|----------|-------------------------|
 | Arbeitslosigkeit | 5,2% | 2–15% | niedriger = besser | Arbeit-Milieu stark |
@@ -187,7 +195,7 @@ Events sind das spielerische Herz. Sie erscheinen zufällig (~22% Chance/Monat),
 
 **Zwei Event-Typen:**
 
-*Random Events* (aus Pool, max. 1× pro Spieldurchlauf):
+*Random Events* (Pool; pro Durchlauf wird eine **Teilmenge** per Zufall ausgewählt, komplexere Events haben eigene `min_complexity` im Content):
 - Haushaltsloch
 - Ministeriumsskandal
 - EU-Vertragsverletzungsverfahren
@@ -212,7 +220,7 @@ Events sind das spielerische Herz. Sie erscheinen zufällig (~22% Chance/Monat),
 - Hoffmann: Vertrauensfrage
 - Maier: Standort-Ultimatum
 
-**Folge-Events (geplant):** Manche Entscheidungen öffnen einen Folge-Event im nächsten oder übernächsten Monat. Beispiel: Schulden aufnehmen → Monat +2: Verfassungsklage.
+**Folge-Events:** Für höhere Komplexität umgesetzt (`followup_events` ab Stufe 4); Ketten kommen aus dem Content und werden im Tick verarbeitet.
 
 ---
 
@@ -344,18 +352,19 @@ Eigene Events alle 5–8 Monate (zufällig aus Pool):
 
 ---
 
-### 3.8 Mediensystem (einfach)
+### 3.8 Mediensystem
 
-**Drei Wählermilieus:**
-- Arbeit (Fokus: Beschäftigung, Löhne, soziale Sicherheit)
-- Mitte (Fokus: Haushalt, Stabilität, Verlässlichkeit)
-- Progressiv (Fokus: Klima, Gerechtigkeit, Modernisierung)
+**Wählermilieus:** Im Content bis zu **sieben** Milieus; Darstellung und Drift in der UI **stufenweise** (aggregiert → vier → alle sieben → Trend/Drift auf Expertenstufe).
 
-**Medienkampagne (10 PK):** +2–5% Zustimmung im Zielmilieu. Einmalig, keine Abklingzeit.
+**Medienkampagne (10 PK):** Zielmilieu ansteuern.
 
-**Ticker:** Laufender Nachrichtentext oben im Center-Panel. Aktualisiert bei Events und wichtigen Entscheidungen.
+**Medienklima & Akteure:** Gesamtindex mit Drift; mehrere Medienakteure (öffentlich, Boulevard, Social, …) mit wachsender Differenzierung je Stufe. Gesetze und Entscheidungen können Akteure und Schlagzeilen beeinflussen.
 
-**Geplant:** Medien-Agenda — Spieler kann Pressekonferenz einberufen (Risiko/Chance-System), Leitmedien haben eigene politische Tendenz und verstärken/dämpfen Events.
+**Spieleraktionen (Auszug):** Framing beim Einbringen, Pressemitteilung (Cooldown), weitere Medienaktionen auf höheren Stufen; Opposition und Skandal-Mechanik sind angebunden.
+
+**Ticker:** Laufender Nachrichtentext im Center-Panel.
+
+**Medien-Agenda (Experte):** erweiterte Kopplung über `media_agenda` und zugehörige Systeme in `medienklima.ts` — Presse/Agenda-Gameplay ist nicht mehr „nur geplant“, sondern stufenabhängig aktiv.
 
 ---
 
@@ -367,171 +376,43 @@ Schwierigkeit steigt nicht durch härtere KPI-Werte oder schnellere Events — s
 
 Das löst drei Probleme auf einmal: Onboarding (Systeme werden schrittweise eingeführt), Wiederspielbarkeit (4 × 48 Monate = 4 konzeptionell verschiedene Durchläufe) und Zugänglichkeit (Stufe 1 ist auch ohne Politikwissen spielbar).
 
-**Kernregel:** Jedes Spielsystem hat ein `minLevel`-Flag im Code. Der Game-State kennt das aktuelle Level und aktiviert/rendert nur freigegebene Systeme. Keine versteckten Mechaniken — was nicht aktiv ist, ist nicht sichtbar.
+**Kernregel:** Jedes Spielsystem hat in `frontend/src/core/systems/features.ts` ein `minLevel` (1–4). Zusätzlich tragen viele Content-Datensätze `min_complexity` (Gesetze, Events, Milieus, Minister …). Der Game-State speichert `complexity` und `electionThreshold` (Wahlhürde). Keine versteckten Mechaniken — was nicht aktiv ist, wird nicht gerendert oder nicht ausgeführt.
 
 ---
 
-### 4.2 Die vier Stufen
+### 4.2 Die vier Stufen (Ist-Stand)
 
-#### Stufe 1 — Kanzleramt *(Einstieg)*
+Ausführliche Stufenbeschreibung: **`docs/game-design/komplexitaet.md`**. Kurzfassung:
 
-**Aktive Systeme:**
-- Bundestag-Abstimmungen (vereinfacht, kein Bundesrat)
-- 3 Gesetzentwürfe (statt 4)
-- 2 Kabinettsmitglieder: Hoffmann (Kanzlerin) + Lehmann (Finanzen)
-- 5 Random Events aus Pool (keine Char-Ultimatums)
-- 2 Wählermilieus (Arbeit + Mitte, kein Progressiv)
-- Kein Ebenenwechsel — Blockade = Entwurf zurückgezogen
+| Stufe | Kabinett (typisch) | Bundesrat | Wahlhürde | Schwerpunkt |
+|-------|-------------------|-----------|-----------|----------------|
+| 1 | 2 (Kanzler/in + 1 Minister aus Parteipool) | ausgeblendet; `land`-Gesetze nach BT-Ja direkt beschlossen | 35 % | Bundestag, reduzierte Parallelität |
+| 2 | 5 | Tab sichtbar, noch ohne volles Lobbying/Trade-off der Stufe 3 | 38 % | Koalition, BR-Phase für Länder-Gesetze, Ebenen/Vorstufen |
+| 3 | 7 | vier Fraktionen, Lobbying, Trade-offs, Länderdetail | 40 % | Föderalismus, Verbands/Politikfelder-Tiefe |
+| 4 | 8 | wie 3 + mehr EU/Medien/Follow-ups/… | 42 % | maximale Systemkopplung |
 
-**Deaktiviert:** Bundesrat, EU-Ebene, Länder-Pilot, Städtebündnis, Char-Ultimatums, Koalitionsstabilität, Progressiv-Milieu
-
-**Wahlhürde:** ≥ 35% Zustimmung
-
-**Spielgefühl:** Fast ein Narrative-Game. Spieler lernt: Gesetz einbringen → Abstimmung → Wirkung abwarten → Event reagieren. Kein Multitasking nötig.
-
-**Startbeschreibung im Spiel:** *"Du übernimmst das Kanzleramt. Fokus auf das Wesentliche — bring deine wichtigsten Vorhaben durch den Bundestag."*
+**Spieler-setup:** Wählbare **Partei**, **Ausrichtung** (drei Achsen), **Name**, **Kanzler-Anrede** (sie/er/they); Kabinett wird aus Content-Pools zusammengesetzt (`bildeKabinett`).
 
 ---
 
-#### Stufe 2 — Große Koalition *(Einsteiger)*
+### 4.3 Feature-Matrix (Kurz)
 
-**Neu hinzugekommen (gegenüber Stufe 1):**
-- Vollständiges Kabinett (alle 6 Chars)
-- Char-Ultimatums aktiv
-- Koalitionsstabilität-Meter
-- Bundesrat vereinfacht: 2 Blöcke (Ja/Nein), kein Lobbying, Würfelwurf mit Bonus
-- Ebenenwechsel aktiv (EU / Länder / Kommunen)
-- 8 Random Events
-- 3. Milieu (Progressiv) aktiv
-- 4 Gesetzentwürfe
-
-**Deaktiviert:** Bundesrat-Sprecher, Trade-offs, Beziehungswerte, Bundesrat-Events, EU-eigene Events, Folge-Events
-
-**Wahlhürde:** ≥ 38% Zustimmung
-
-**Spielgefühl:** Koalitionsdynamik und Ebenenmechanik einführen. Der Spieler merkt erstmals dass Scheitern produktiv ist. Kabinett muss gepflegt werden.
-
-**Startbeschreibung:** *"Die Koalition steht. Aber sechs starke Persönlichkeiten im Kabinett haben eigene Vorstellungen — und der Bundesrat kann deine Pläne stoppen."*
-
----
-
-#### Stufe 3 — Föderalismus *(Fortgeschritten)*
-
-**Neu hinzugekommen (gegenüber Stufe 2):**
-- Bundesrat voll: 4 Fraktionen mit Sprecher-Charakteren
-- Beziehungswert-System (0–100 akkumulativ)
-- 3-Schichten-Lobbying (PK / Trade-off / Beziehungsbonus)
-- Zeitdruck: Lobbying nur im 3-Monats-Fenster
-- Kohl-Sonderregel (Saboteur bei Beziehung < 15)
-- Bundesrat-Event-Pool (6 eigene Events)
-- 12 Random Events
-- Sprecher-Wechsel-Event möglich
-
-**Deaktiviert:** EU-eigene Events, Folge-Events, Medien-Agenda, Konjunkturzyklen
-
-**Wahlhürde:** ≥ 40% Zustimmung
-
-**Spielgefühl:** Verhandlungsspiel. Jede Bundesratsabstimmung ist eine Entscheidung: investiere ich PK, gehe ich einen Trade-off ein, oder wechsle ich die Ebene? Beziehungen aufbauen zahlt sich erst nach 10+ Monaten aus.
-
-**Startbeschreibung:** *"Föderalismus bedeutet: 16 Länder, 4 Machtblöcke, und jeder hat seinen Preis. Was bietest du Huber, damit Bayern zustimmt?"*
-
----
-
-#### Stufe 4 — Realpolitik *(Experte)*
-
-**Neu hinzugekommen (gegenüber Stufe 3):**
-- EU-eigene Events (Kommissionsdruck, Vertragsverletzung, Förderprogramme)
-- Folge-Events (Entscheidungen öffnen verkettete Konsequenzen)
-- Medien-Agenda (Pressekonferenz-System, Leitmedien-Tendenz)
-- Konjunkturzyklen (externe Wirtschaftsschocks, EZB-Entscheidungen)
-- Haushaltssystem: explizite Ausgabeentscheidungen, Schuldenbremse spürbar
-- 15+ Random Events
-- Alle Char-Interaktionen voll aktiv
-- Sprecher können permanent die Fraktion wechseln
-
-**Deaktiviert:** nichts — alle Systeme aktiv
-
-**Wahlhürde:** ≥ 42% Zustimmung
-
-**Spielgefühl:** Alle fünf Ebenen gleichzeitig. Entscheidungen auf einer Ebene haben Konsequenzen auf anderen. Ein EU-Trade-off kann den Bundesrat entlasten aber den Haushalt belasten und Kohl provozieren. Systemisches Denken notwendig.
-
-**Startbeschreibung:** *"Bundesrepublik, EU, 16 Länder, sechs Kabinettsmitglieder — und vier Jahre bis zur Wahl. Alles hängt mit allem zusammen."*
-
----
-
-### 4.3 Feature-Matrix
-
-| System | Stufe 1 | Stufe 2 | Stufe 3 | Stufe 4 |
-|--------|---------|---------|---------|---------|
-| Bundestag-Abstimmung | ✓ vereinfacht | ✓ voll | ✓ | ✓ |
-| Gesetzentwürfe | 3 | 4 | 4 | 4+ |
-| Kabinett-Chars | 2 | 6 | 6 | 6 |
-| Char-Ultimatums | — | ✓ | ✓ | ✓ |
-| Koalitionsstabilität | — | ✓ | ✓ | ✓ |
-| Bundesrat (vereinfacht) | — | ✓ | — | — |
-| Bundesrat (4 Fraktionen) | — | — | ✓ | ✓ |
-| Bundesrat-Lobbying | — | — | ✓ | ✓ |
-| Trade-off-System | — | — | ✓ | ✓ |
-| Beziehungswerte | — | — | ✓ | ✓ |
-| Bundesrat-Events | — | — | ✓ | ✓ |
-| Ebenenwechsel | — | ✓ | ✓ | ✓ |
-| EU-eigene Events | — | — | — | ✓ |
-| Folge-Events | — | — | — | ✓ |
-| Medien-Agenda | — | — | — | ✓ |
-| Konjunkturzyklen | — | — | — | ✓ |
-| Haushaltssystem (explizit) | — | — | — | ✓ |
-| Wählermilieus | 2 | 3 | 3 | 3 |
-| Random Events (Pool) | 5 | 8 | 12 | 15+ |
-| Wahlhürde | 35% | 38% | 40% | 42% |
+Die vollständige Matrix ist die Datei **`features.ts`** (über 100 Einträge). Die Tabelle in `docs/game-design/komplexitaet.md` fasst die wichtigsten Säulen zusammen. Veraltet ist jede Darstellung, die Stufe 1 mit „kein Ebenenwechsel“ oder fest „Hoffmann/Lehmann“ ohne Pool beschreibt.
 
 ---
 
 ### 4.4 Technische Implementierung
 
-```javascript
-// Game-State Erweiterung
-const G = {
-  complexity: 1,  // 1–4, bei Spielstart gewählt
-  // ...
-}
-
-// Jedes System prüft vor Aktivierung
-function isBundesratActive() {
-  return G.complexity >= 2;
-}
-function isBundesratFullActive() {
-  return G.complexity >= 3;
-}
-function isTradeoffActive() {
-  return G.complexity >= 3;
-}
-function isFollowupEventsActive() {
-  return G.complexity >= 4;
-}
-
-// Feature-Flag Pattern für alle Systeme
-const FEATURES = {
-  bundesrat_simple:    { minLevel: 2 },
-  bundesrat_full:      { minLevel: 3 },
-  lobbying:            { minLevel: 3 },
-  tradeoff:            { minLevel: 3 },
-  br_events:           { minLevel: 3 },
-  eu_events:           { minLevel: 4 },
-  followup_events:     { minLevel: 4 },
-  media_agenda:        { minLevel: 4 },
-  konjunktur_cycles:   { minLevel: 4 },
-  budget_explicit:     { minLevel: 4 },
-  milieu_progressiv:   { minLevel: 2 },
-  char_ultimatums:     { minLevel: 2 },
-  coalition_stability: { minLevel: 2 },
-};
-
-function featureActive(key) {
-  return (FEATURES[key]?.minLevel ?? 1) <= G.complexity;
+```typescript
+// frontend/src/core/systems/features.ts
+export function featureActive(complexity: number, key: string): boolean {
+  return (FEATURES[key]?.minLevel ?? 1) <= complexity;
 }
 ```
 
-**Startscreen:** Vier Kacheln mit Stufen-Titel, kurzer Beschreibung und Wahlhürde. Klick startet direkt — kein Tutorial-Text, kein Onboarding-Screen. Die Beschreibung *ist* das Onboarding.
+**Stack:** React 19, TypeScript, Vite, Zustand-Stores, Engine `frontend/src/core/engine.ts`. **Persistenz:** `localStorage` und optional FastAPI-Backend (`/api/saves`). Ausführliche Architektur: `docs/entwicklung/architektur.md`, `CLAUDE.md`.
+
+**Startscreen:** Vier Komplexitäts-Kacheln → **Wahlnacht-Onboarding** (narrativ, kein Tutorial-Text).
 
 ---
 
@@ -571,10 +452,11 @@ function featureActive(key) {
 - Gesetz expandiert (Stimmenbalken, Aktionen, Ausweich-Panel)
 - Ebenen-Views (EU/Land/Kommune/Medien)
 
-**Nie automatisch sichtbar:**
-- Bundesrat-Konfiguration
-- Einzelne KPI-Historien
-- Detaillierte Effekt-Berechnungen
+**Nie automatisch sichtbar (Designziel):**
+- Tiefe Bundesrat-Konfiguration auf einen Blick
+- Rohe Effektformeln
+
+**Hinweis:** Auf höheren Stufen können **Wirtschafts-Charts** und Sektor-Hinweise im Haushalt/Verbände-Bereich freigeschaltet sein (`features.ts`) — das widerspricht nicht dem Prinzip, solange keine vollständige Formel-Aufschlüsselung erzwungen wird.
 
 ### 5.3 Aesthetic
 
@@ -787,139 +669,36 @@ function applyAusrichtung() {
 
 ## 6. Technischer Stack
 
-### 6.1 Aktuell (MVP)
-- **Single HTML File** — alles in einer Datei, kein Build-System, kein Framework
-- Vanilla JavaScript (ES2020+)
-- Google Fonts (Playfair Display, DM Sans, DM Mono)
-- Keine externen Abhängigkeiten
+### 6.1 Aktuell (Produktcode politikpraxis)
 
-### 6.2 Dateistruktur (geplant für v1.0)
+- **Frontend:** React 19, TypeScript (strict), Vite, Zustand, TanStack Query, react-router-dom, i18next, CSS Modules; Spiel-Logik **ohne** React in `frontend/src/core/`
+- **Backend:** FastAPI, SQLAlchemy 2 (async), PostgreSQL, Alembic — u. a. Auth, Cloud-Saves, Content-API
+- **Deploy:** Docker, nginx (siehe Repo-Root)
+
+### 6.2 Projektstruktur (Auszug)
+
 ```
-/bundesrepublik
-  index.html
-  /js
-    engine.js         ← Tick-System, Event-Bus, Zeit
-    state.js          ← Zentraler Game-State
-    /systems
-      parliament.js   ← Abstimmungslogik BT + BR
-      economy.js      ← KPI-System mit Lags
-      levels.js       ← Ebenenwechsel-Logik
-      events.js       ← Event-Pool, Trigger, Folge-Events
-      chars.js        ← Charakter-Mechaniken, Ultimatums
-      election.js     ← Zustimmungsberechnung, Wahl
-    /views
-      agenda.js       ← Gesetz-Cards
-      bundesrat.js    ← Länder-Karte
-      medien.js       ← Milieu-Kampagnen
-      ebenen.js       ← EU/Land/Kom-Views
-  /css
-    main.css
-    components.css
-  /data
-    chars.json        ← Charakter-Definitionen
-    events.json       ← Event-Pool
-    gesetze.json      ← Gesetz-Definitionen
-    laender.json      ← Bundesrat-Konfiguration
+frontend/src/core/     ← engine.ts, state.ts, types/, systems/
+frontend/src/store/    ← gameStore, uiStore, authStore, contentStore
+frontend/src/ui/       ← Screens, Views, Panels, Komponenten
+backend/app/           ← API, Modelle, Services
 ```
+
+Dokumentiert in `CLAUDE.md`, `docs/entwicklung/projektstruktur.md`, `docs/entwicklung/architektur.md`.
 
 ### 6.3 State-Architektur
-```javascript
-GameState {
-  // Meta
-  month: 1..48,
-  speed: 0|1|2,
-  pk: 0..150,
-  view: string,
-  complexity: 1..4,       // Komplexitätsstufe, bei Start gewählt, unveränderlich
 
-  // Spieler-Personalisierung
-  playerName: string,     // leer = neutrale Anrede ("das Kanzleramt")
-  ausrichtung: {
-    wirtschaft:   -100..100,  // Umverteilung ↔ Wachstum
-    gesellschaft: -100..100,  // Offenheit ↔ Ordnung
-    staat:        -100..100,  // Gemeinschaft ↔ Eigenverantwortung
-  },
-
-  // Systeme
-  kpi: { al, hh, gi, zf },
-  kpi_prev: { ... },
-  zust: { g, arbeit, mitte, prog },
-  coalition: 0..100,
-
-  // Entitäten
-  chars: Char[],
-  gesetze: Gesetz[],
-  bundesrat: {            // nur wenn complexity >= 2
-    fraktionen: Fraktion[],
-  },
-
-  // Events
-  activeEvent: Event | null,
-  pendingFollowup: Event | null,  // Folge-Event (complexity >= 4)
-  firedEvents: string[],
-  firedCharEvents: string[],
-
-  // Effekte
-  pending: PendingEffect[],  // [{month, key, delta, label}]
-
-  // Log
-  log: LogEntry[],
-  ticker: string,
-}
-```
+Der autoritative Typ ist **`GameState`** in `frontend/src/core/types/` (modular aufgeteilt). Er enthält u. a. Monat, Geschwindigkeit, PK, Komplexität, **electionThreshold**, Spielerpartei, Koalitionspartner, Haushalt, EU-Route, Medienklima, eingebrachte Gesetze, Vermittlungsausschuss, Wahlkampf-Zustände — weit über die frühe MVP-Skizze hinaus. Für Details siehe TypeScript-Definitionen und `createInitialState` in `frontend/src/core/state.ts`.
 
 ---
 
 ## 7. Entwicklungs-Roadmap
 
-### v0.1 — Skeleton (fertig)
-- Tick-System, Pause/Speed
-- 4 Gesetze, Abstimmungslogik
-- Ebenenwechsel (EU/Land/Kom)
-- KPI-System mit Lag
-- Wahlmechanik
+Die **aktuelle** Meilenstein-Liste liegt in **`docs/game-design/roadmap.md`** (dort: v0.1–v1.0 an den Code angeglichen). Kurzfassung:
 
-### v0.2 — Narrativ (fertig)
-- Charakter-System (6 Kabinettsmitglieder)
-- Event-Cards mit Pressezitat + Choices
-- Progressive Disclosure
-- Milieu-System
-
-### v0.3 — Aktive Charaktere (fertig)
-- Char-Ultimatum-Events (6 Stück)
-- Passiv-Boni/Mali je Char-Stimmung
-- Koalitionsstabilität-Meter
-- Loyalitätssystem
-
-### v0.4 — Bundesrat-System (in Arbeit)
-- 4 Fraktionen mit Sprecher-Charakteren (Schulz, Brenner, Huber, Kohl)
-- Beziehungswert-System (0–100, akkumulativ)
-- 3-Schichten-Lobbying (PK / Trade-off / Beziehungsbonus)
-- Zeitdruck: Lobbying nur im 3-Monats-Fenster vor Abstimmung
-- Bundesrat-Event-Pool (6 Events, eigene Agenda-Ebene)
-- Abstimmungs-Visualisierung mit 16 Länder-Feldern
-- Kohl-Sonderregel (Saboteur bei Beziehung < 15)
-
-### v0.5 — Geplant
-- Hauptmenü-Screen (Neues Spiel / Laden / Einstellungen)
-- Spielstart-Screen (Name, Ausrichtung, Komplexitätsstufe)
-- Wahlnacht-Onboarding (4-Beat-Sequenz, stufenabhängig)
-- Spielstand speichern/laden (localStorage)
-- Wirtschaftssystem Kausalitäten vertiefen
-- Konjunkturzyklen
-
-### v0.6 — Geplant
-- Medien-Agenda (Pressekonferenz, Leitmedien-Tendenz)
-- Koalitionsverhandlungs-Minispiel beim Start
-- Zweite Legislaturperiode (Szenario-Kontinuität)
-- Historische Szenarien (Wiedervereinigung, Finanzkrise, Corona)
-
-### v1.0 — Release
-- Vollständige Bundesrat-Karte mit 16 MP-Chars
-- Sound-Design (ambient, UI-Feedback)
-- Onboarding-Tutorial
-- Mehrere Startszenarien
-- itch.io Release
+- **Bis v0.5:** Kernspiel, Shell, Speicherstände, Bundesrat/EU/Haushalt/Medien/Wahlkampf/Verfassungs- und Regierungsmechaniken sind überwiegend implementiert und über Komplexität geschaltet.
+- **v0.6+:** Vertiefung (z. B. zweite Legislatur, historische Szenarien, Koalitions-Minispiel), mehr Content.
+- **v1.0:** Polish (Sound), ggf. 16-MP-Bundesrat als Content-/UI-Ausbau, Release-Kanal.
 
 ---
 
@@ -933,18 +712,18 @@ GameState {
 
 ### 8.2 Bundesrat-Mechanik
 
-**Spezifiziert in Section 3.7.** 4-Fraktionen-Modell mit Sprecher-Charakteren, 3-Schichten-Lobbying, Beziehungswert-System.
+**Spezifiziert in Section 3.7; umgesetzt** ab Stufe 2 (Tab) bzw. Stufe 3 (volles Lobbying/Trade-offs/Fraktionsdetail).
 
 **Offene Detailfragen:**
 - Trade-off-Gültigkeit: gilt nur für das jeweilige Gesetz, nicht als Dauerzusage (empfohlen)
 - Hubers Föderalismusregel: Gesetze bekommen `foederalismus_freundlich`-Flag oder Spieler kann Bedingung erfragen
-- Bundesrat-Tab-Timing: ab Stufe 2 immer sichtbar, Stufe 1 komplett ausgeblendet
+- Bundesrat-Tab-Timing: **gelöst im Code** — Stufe 1 ohne Tab; `land`-Gesetze ohne BR-Durchlauf
 
 ### 8.3 Wirtschafts-Kausalitäten
 
-Derzeit: direkte numerische Effekte. Ziel Stufe 4: indirekte Kausalitäten über Sektoren.
+**Umsetzung:** Sektoren und Makrogrößen sind angebunden (`wirtschaftssektoren`, Haushalt, `tickWirtschaft`); KPIs bleiben die Spieler-Oberfläche.
 
-**Idee:** Policy → Wirtschaftssektoren → KPIs. Wohnungsbau → Baunachfrage steigt → AL sinkt AND Gini sinkt. Unerwartete Nebeneffekte machen das Spiel lebendiger. Implementierung über Sektor-Multiplikatoren im Economy-System.
+**Offen:** stärker erzählbar gemachte Ketten (sichtbare „Policy → Sektor → KPI“-Narrative) und mehr überraschende Nebenwirkungen im Event-Layer.
 
 ### 8.4 Schwierigkeitsgrade ✓ *gelöst*
 
@@ -977,4 +756,4 @@ Ein blockiertes Gesetz ist kein Fehler — es ist der Beginn der Ebenenmechanik.
 
 ---
 
-*Dokument wird laufend ergänzt. Aktuelle Code-Version: bundesrepublik_v3.html · GDD-Version: 0.4.2*
+*Dokument wird laufend ergänzt. Code-Basis: Repository **politikpraxis** (`frontend/src/core/`, `features.ts`). GDD-Version siehe Kopfzeile.*

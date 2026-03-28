@@ -6,7 +6,7 @@ Willkommen in der Dokumentation von **politikpraxis**. Das Projekt enthält die 
 
 Bundesrepublik ist eine Echtzeit-Politiksimulation mit Pause. Du führst eine Bundesregierung durch eine 4-jährige Legislaturperiode, bringst Gesetze durch Bundestag und Bundesrat und musst Kabinett, Koalition, EU-Ebene und Kommunen im Blick behalten — mit dem Ziel: Wiederwahl.
 
-*GDD-Version: 0.4 · Stand: März 2026*
+*GDD-Version: 0.5 · Stand: März 2026 — an Implementierung (React/TS-Core) angeglichen*
 
 ---
 

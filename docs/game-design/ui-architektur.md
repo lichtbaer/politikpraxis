@@ -67,6 +67,8 @@ Hauptmenü
     └── Spiel laden → Spiel (direkt, kein Onboarding)
 ```
 
+**Cloud (optional):** Mit Account können mehrere **Speicher-Slots** auf dem Server genutzt werden (`/api/saves`). Lokaler Stand lässt sich nach Login in einen Slot **hochladen** (Migration).
+
 **Designprinzip:** Kein einziger Tutorial-Text. Kontext wird narrativ geliefert — durch Schlagzeilen, Ansprachen, Atmosphäre. Der Spieler wird mit dramatischem Schwung ins Spiel geworfen, nicht mit Erklärungen.
 
 ---
@@ -75,25 +77,33 @@ Hauptmenü
 
 **Visuell:** Vollbild-Hintergrund, gedämpft dunkel. Oben: Spieltitel in Serif-Schrift, groß. Darunter: vertikale Button-Liste. Unten rechts: Versionsnummer.
 
-**Elemente:**
-- **Neues Spiel** — primär, goldener Akzent
-- **Spiel laden** — sekundär, nur sichtbar wenn Spielstand vorhanden (localStorage)
-- **Einstellungen** — sekundär (Lautstärke, Sprache — Platzhalter für v1.0)
+**Elemente (Ist):**
+- **Neues Spiel** — primär, goldener Akzent → Route `/setup`
+- **Spiel laden** — lokaler Spielstand (`localStorage`), wenn vorhanden
+- **Cloud-Speicherstände** — nach Login: Slot-Liste, Laden in die Session
+- **Sprache** — umschalten de/en (persistiert, z. B. `localStorage`)
+- **Account** — Login/Logout für Cloud-Saves
 - **Credits** — tertiär
 
-**Atmosphäre:** Kein Animation-Overkill. Ggf. subtiles Rauschen oder sehr langsames Überblenden eines abstrakten Hintergrundbildes (Reichstagsgebäude-Silhouette, stark stilisiert). Musik-Ambient ab Hauptmenü (v1.0).
+**Geplant für später:** dedizierte Einstellungsseite (Audio etc.), Ambient-Musik (v1.0).
+
+**Atmosphäre:** Kein Animation-Overkill. Ggf. subtiles Rauschen oder sehr langsames Überblenden eines abstrakten Hintergrundbildes (Reichstagsgebäude-Silhouette, stark stilisiert).
 
 ---
 
 ## 5.6 Screen 2 — Spielstart
 
-Drei Blöcke, vertikal gestapelt. Klick auf "Kandidatur annehmen" startet Wahlnacht-Screen.
+Mehrere Blöcke, vertikal gestapelt. Klick auf „Kandidatur annehmen“ startet den Wahlnacht-Screen.
 
 **Block A — Name (optional)**
 
 Freitextfeld: *"Dein Name"*. Placeholder: *"Kanzleramt"*.
 
-Wenn leer gelassen: alle Spielreferenzen lauten neutral ("das Kanzleramt", "die Regierung", "Sie"). Mit Name: Events und Chars sprechen direkt an ("Bundeskanzler/in [Name], Lehmann fordert..."). Name hat keine mechanische Wirkung — nur narrative.
+Wenn leer gelassen: alle Spielreferenzen lauten neutral ("das Kanzleramt", "die Regierung", "Sie"). Mit Name: Events und Chars sprechen direkt an. Der **Kanzler/die Kanzlerin** ist die Spielerrolle (synthetischer Char im Kabinett); Name und **Geschlecht der Anrede** (sie/er/they) steuern Texte — ohne zusätzliche Mechanik.
+
+**Block A2 — Spielbare Partei**
+
+Auswahl einer Startpartei (Koalitionspartner und Kabinett-Pools ergeben sich daraus).
 
 **Block B — Politische Ausrichtung (3 Schieberegler)**
 
@@ -161,9 +171,9 @@ Unten: kleiner Button "Weiter" oder automatisches Weiterblättern nach 4 Sek.
 
 **Beat 2 — Kabinett-Vorstellung**
 
-Sechs Char-Avatare erscheinen nacheinander (Stagger-Animation, je 300ms Versatz). Unter jedem: Name, Rolle, ein Ein-Wort-Charakterisierung ("verlässlich", "eigensinnig", "prinzipientreu"...). Kurze Erklärung: *"Dein Kabinett. Sechs Persönlichkeiten, sechs Agenden."*
+Char-Avatare erscheinen nacheinander (Stagger-Animation). Anzahl und Besetzung entsprechen der **gewählten Komplexitätsstufe und Parteien** (dynamisches Kabinett aus Content-Pools, nicht fest „Hoffmann + Lehmann“).
 
-Nur auf Stufe 1: nur Hoffmann und Lehmann erscheinen. Stufe 2+: alle sechs.
+Kurze Erklärung: *"Dein Kabinett …"* — Text kann die tatsächliche Personenzahl widerspiegeln.
 
 **Beat 3 — Erste Pressemitteilung**
 

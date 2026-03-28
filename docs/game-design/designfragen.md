@@ -12,20 +12,20 @@
 
 ## 8.2 Bundesrat-Mechanik
 
-**Spezifiziert in Section 3.7.** 4-Fraktionen-Modell mit Sprecher-Charakteren, 3-Schichten-Lobbying, Beziehungswert-System.
+**Spezifiziert in Section 3.7.** 4-Fraktionen-Modell mit Sprecher-Charakteren, 3-Schichten-Lobbying, Beziehungswert-System — **umgesetzt** ab Komplexitätsstufe 3 (Detail/Lobbying); Stufe 2 zeigt den Tab in vereinfachter Form.
 
 **Offene Detailfragen:**
 - Trade-off-Gültigkeit: gilt nur für das jeweilige Gesetz, nicht als Dauerzusage (empfohlen)
 - Hubers Föderalismusregel: Gesetze bekommen `foederalismus_freundlich`-Flag oder Spieler kann Bedingung erfragen
-- Bundesrat-Tab-Timing: ab Stufe 2 immer sichtbar, Stufe 1 komplett ausgeblendet
+- Bundesrat-Tab-Timing: **umgesetzt** — ab Stufe 2 sichtbar, Stufe 1 ausgeblendet; Land-Gesetze werden auf Stufe 1 nach BT-Ja ohne BR-Phase beschlossen
 
 ---
 
 ## 8.3 Wirtschafts-Kausalitäten
 
-Derzeit: direkte numerische Effekte. Ziel Stufe 4: indirekte Kausalitäten über Sektoren.
+**Teilweise umgesetzt:** Ab Stufe 2 (`wirtschaftssektoren` in `features.ts`) koppeln Haushalt/Einnahmen an Sektoren und Makroindikatoren (`tickWirtschaft`, Haushalt-Tab). Die vier KPIs (AL, HH, Gini, ZF) bleiben die Spieler-Schicht; Sektoren liefern zusätzliche Tiefe und Dashboards.
 
-**Idee:** Policy → Wirtschaftssektoren → KPIs. Wohnungsbau → Baunachfrage steigt → AL sinkt AND Gini sinkt. Unerwartete Nebeneffekte machen das Spiel lebendiger. Implementierung über Sektor-Multiplikatoren im Economy-System.
+**Weiteres Ziel:** stärker erzählbar gemachte Ketten (Policy → Sektor → KPI) und mehr spürbare Nebeneffekte im Event-/Content-Layer — ohne die KPI-Basis zu ersetzen.
 
 ---
 
