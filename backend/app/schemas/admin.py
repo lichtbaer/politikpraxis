@@ -67,6 +67,8 @@ class GesetzCreate(BaseModel):
     effekt_zf: Decimal | float = 0
     effekt_lag: int = 4
     foederalismus_freundlich: bool | None = None
+    locked_until_event: str | None = None
+    zustimmungspflichtig: bool | None = None
 
 
 class GesetzUpdate(BaseModel):
@@ -78,6 +80,8 @@ class GesetzUpdate(BaseModel):
     effekt_zf: Decimal | float | None = None
     effekt_lag: int | None = None
     foederalismus_freundlich: bool | None = None
+    locked_until_event: str | None = None
+    zustimmungspflichtig: bool | None = None
 
 
 class GesetzI18nUpdate(BaseModel):

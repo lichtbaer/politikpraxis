@@ -1,11 +1,14 @@
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yaml
 
 from app.config import get_settings
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.asyncio import AsyncSession
 
 settings = get_settings()
 
@@ -44,11 +47,6 @@ def load_char_events() -> dict[str, dict]:
     return {}
 
 
-@lru_cache
-def load_laws() -> list[dict]:
-    return _load_yaml(_content_path("laws", "default.yaml"))
-
-
 def load_scenario(scenario_id: str = "standard") -> dict:
     path = _content_path("scenarios", f"{scenario_id}.yaml")
     if not os.path.exists(path):
@@ -65,13 +63,54 @@ def load_all_scenarios() -> list[dict]:
     return scenarios
 
 
+def _gesetz_row_to_bundle_law(d: dict[str, Any]) -> dict[str, Any]:
+    """YAML-kompatibles Gesetz-Dict aus fetch_gesetze-Zeile (für Legacy-/bundle)."""
+    ja = int(d["bt_stimmen_ja"])
+    out: dict[str, Any] = {
+        "id": d["id"],
+        "titel": d["titel"],
+        "kurz": d["kurz"],
+        "desc": d["desc"],
+        "tags": d["tags"],
+        "status": "entwurf",
+        "ja": ja,
+        "nein": 100 - ja,
+        "effekte": d["effekte"],
+        "lag": d["effekt_lag"],
+    }
+    if d.get("locked_until_event"):
+        out["locked_until_event"] = d["locked_until_event"]
+    return out
+
+
+async def get_content_bundle_from_db(
+    db: "AsyncSession", locale: str, scenario_id: str = "standard"
+) -> dict[str, Any]:
+    """Content-Bundle mit Gesetzen ausschließlich aus der DB (Single Source of Truth)."""
+    from app.services.content_db_service import fetch_gesetze
+
+    scenario = load_scenario(scenario_id)
+    laws_raw = await fetch_gesetze(db, locale)
+    return {
+        "characters": load_characters(),
+        "events": load_events(),
+        "charEvents": load_char_events(),
+        "laws": [_gesetz_row_to_bundle_law(x) for x in laws_raw],
+        "bundesrat": load_bundesrat_mps(),
+        "scenario": scenario,
+        "scenarios": load_all_scenarios(),
+    }
+
+
 def get_content_bundle(scenario_id: str = "standard") -> dict:
+    """Synchrones Bundle ohne DB — nur für Tests/CLI; Gesetze sind leer."""
     scenario = load_scenario(scenario_id)
     return {
         "characters": load_characters(),
         "events": load_events(),
         "charEvents": load_char_events(),
-        "laws": load_laws(),
+        "laws": [],
         "bundesrat": load_bundesrat_mps(),
         "scenario": scenario,
+        "scenarios": load_all_scenarios(),
     }

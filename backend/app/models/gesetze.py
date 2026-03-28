@@ -108,6 +108,8 @@ class Gesetz(Base):
     sektor_effekte: Mapped[list[dict[str, Any]]] = mapped_column(
         JSONB(), nullable=False, server_default="[]"
     )
+    locked_until_event: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    zustimmungspflichtig: Mapped[bool | None] = mapped_column(Boolean(), nullable=True)
 
 
 class GesetzI18n(Base):

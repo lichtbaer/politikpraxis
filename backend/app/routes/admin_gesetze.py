@@ -31,6 +31,8 @@ async def admin_list_gesetze(db: AsyncSession = Depends(get_db)):
             "effekt_zf": to_float(r.effekt_zf),
             "effekt_lag": r.effekt_lag,
             "foederalismus_freundlich": r.foederalismus_freundlich,
+            "locked_until_event": r.locked_until_event,
+            "zustimmungspflichtig": r.zustimmungspflichtig,
         }
         for r in rows
     ]
@@ -51,6 +53,8 @@ async def admin_create_gesetz(data: GesetzCreate, db: AsyncSession = Depends(get
         effekt_zf=Decimal(str(data.effekt_zf)),
         effekt_lag=data.effekt_lag,
         foederalismus_freundlich=data.foederalismus_freundlich,
+        locked_until_event=data.locked_until_event,
+        zustimmungspflichtig=data.zustimmungspflichtig,
     )
     db.add(gesetz)
     await db.flush()
@@ -74,6 +78,8 @@ async def admin_get_gesetz(gesetz_id: str, db: AsyncSession = Depends(get_db)):
         "effekt_zf": to_float(g.effekt_zf),
         "effekt_lag": g.effekt_lag,
         "foederalismus_freundlich": g.foederalismus_freundlich,
+        "locked_until_event": g.locked_until_event,
+        "zustimmungspflichtig": g.zustimmungspflichtig,
     }
 
 
@@ -101,6 +107,10 @@ async def admin_update_gesetz(
         g.effekt_lag = data.effekt_lag
     if data.foederalismus_freundlich is not None:
         g.foederalismus_freundlich = data.foederalismus_freundlich
+    if data.locked_until_event is not None:
+        g.locked_until_event = data.locked_until_event
+    if data.zustimmungspflichtig is not None:
+        g.zustimmungspflichtig = data.zustimmungspflichtig
     content_cache_clear()
     return {"id": g.id}
 

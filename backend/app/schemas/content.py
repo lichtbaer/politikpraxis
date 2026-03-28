@@ -83,6 +83,8 @@ class GesetzResponse(BaseModel):
     titel: str
     kurz: str
     desc: str
+    locked_until_event: str | None = None
+    zustimmungspflichtig: bool | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -273,3 +275,4 @@ class ContentBundleResponse(BaseModel):
     laws: list[dict[str, Any]]
     bundesrat: list[dict[str, Any]]
     scenario: dict[str, Any]
+    scenarios: list[dict[str, Any]] = []
