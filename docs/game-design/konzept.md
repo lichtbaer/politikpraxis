@@ -1,6 +1,6 @@
 # Konzept & Vision
 
-**GDD Version 0.4 · Stand: März 2026**
+**GDD Version 0.5 · Stand: März 2026** (synchron mit `bundesrepublik_gdd.md` und dem Code in `frontend/src/core/`)
 
 ---
 

@@ -4,172 +4,100 @@
 
 ## 4.1 Designprinzip
 
-Schwierigkeit steigt nicht durch härtere KPI-Werte oder schnellere Events — sondern durch die **Anzahl aktiver Systeme** die der Spieler gleichzeitig managen muss. Jede Stufe ist eine qualitativ andere Spielerfahrung mit demselben Setting, denselben Charakteren und denselben Mechaniken.
+Schwierigkeit steigt nicht durch härtere KPI-Werte allein — sondern durch die **Anzahl aktiver Systeme** und UI-Elemente, die der Spieler gleichzeitig managen muss. Jede Stufe ist eine qualitativ andere Spielerfahrung mit demselben Setting und derselben Engine.
 
-Das löst drei Probleme auf einmal: Onboarding (Systeme werden schrittweise eingeführt), Wiederspielbarkeit (4 × 48 Monate = 4 konzeptionell verschiedene Durchläufe) und Zugänglichkeit (Stufe 1 ist auch ohne Politikwissen spielbar).
+**Kernregel (Implementierung):** In `frontend/src/core/systems/features.ts` trägt jedes Feature ein `minLevel` (1–4). UI und Engine rufen `featureActive(complexity, key)` auf. Was nicht aktiv ist, wird nicht angezeigt oder nicht ausgeführt — keine versteckten Mechaniken für den Spieler.
 
-**Kernregel:** Jedes Spielsystem hat ein `minLevel`-Flag im Code. Der Game-State kennt das aktuelle Level und aktiviert/rendert nur freigegebene Systeme. Keine versteckten Mechaniken — was nicht aktiv ist, ist nicht sichtbar.
+Zusätzlich filtern **Content-Felder** wie `min_complexity` (Gesetze, Events, Milieus, Minister, EU-Inhalte …) das sichtbare Angebot pro Stufe.
 
 ---
 
-## 4.2 Die vier Stufen
+## 4.2 Die vier Stufen (Ist-Stand Code)
 
 ### Stufe 1 — Kanzleramt *(Einstieg)*
 
-**Aktive Systeme:**
-- Bundestag-Abstimmungen (vereinfacht, kein Bundesrat)
-- 3 Gesetzentwürfe (statt 4)
-- 2 Kabinettsmitglieder: Hoffmann (Kanzlerin) + Lehmann (Finanzen)
-- 5 Random Events aus Pool (keine Char-Ultimatums)
-- 2 Wählermilieus (Arbeit + Mitte, kein Progressiv)
-- Kein Ebenenwechsel — Blockade = Entwurf zurückgezogen
+**Typisch aktiv:**
 
-**Deaktiviert:** Bundesrat, EU-Ebene, Länder-Pilot, Städtebündnis, Char-Ultimatums, Koalitionsstabilität, Progressiv-Milieu
+- Bundestag inkl. **Eingebracht-Phase** (Ausschuss): festes Einbringungs-Lag von 1 Monat; danach automatische Abstimmung im Tick (mit Fraktionsdisziplin, falls Feature aktiv — ab Stufe 2 ohnehin Kabinett-Fokus)
+- **Kein Bundesrat-Tab** (`bundesrat_sichtbar` ab Stufe 2). Gesetze mit Länderbezug (`land`-Tag): bei Ja im Bundestag **direkter Beschluss** ohne BR-Phase
+- **Kabinett:** 2 Personen — Spieler/in als Kanzler/in (synthetisch) plus ein Minister aus dem **Parteipool** (`bildeKabinett` in `frontend/src/core/kabinett.ts`)
+- Gesetze in der Agenda: nur Entwürfe mit `min_complexity ≤ 1` (Filter in `AgendaView`)
+- **Keine** Char-Ultimatums, **kein** Koalitionsstabilitäts-Meter, **kein** Koalitionspartner (`char_ultimatums`, `coalition_stability`, `koalitionspartner` ab Stufe 2)
+- **Keine** Vorstufen-Buttons für Kommunal/Land auf Entwürfen (`kommunal_pilot` / `laender_pilot` ab Stufe 2); EU-Panel für Routen entsprechend eingeschränkt
+- **Wahlkampf**-Grundsystem ab Monat 43 ist bereits freigeschaltet (`wahlkampf`: minLevel 1)
+- Zufalls-Events: Pool wird pro Lauf per `selectEventPool` auf eine **Teilmenge** reduziert; komplexere Event-Typen haben eigene `min_complexity` im Content
 
-**Wahlhürde:** ≥ 35% Zustimmung
+**Wahlhürde:** 35% (wird beim Spielstart in `state.electionThreshold` gesetzt)
 
-**Spielgefühl:** Fast ein Narrative-Game. Spieler lernt: Gesetz einbringen → Abstimmung → Wirkung abwarten → Event reagieren. Kein Multitasking nötig.
-
-**Startbeschreibung im Spiel:** *"Du übernimmst das Kanzleramt. Fokus auf das Wesentliche — bring deine wichtigsten Vorhaben durch den Bundestag."*
+**Spielgefühl:** Fokus Bundestag und Kern-Loop; weniger parallele Akteure.
 
 ---
 
 ### Stufe 2 — Große Koalition *(Einsteiger)*
 
-**Neu hinzugekommen (gegenüber Stufe 1):**
-- Vollständiges Kabinett (alle 6 Chars)
-- Char-Ultimatums aktiv
-- Koalitionsstabilität-Meter
-- Bundesrat vereinfacht: 2 Blöcke (Ja/Nein), kein Lobbying, Würfelwurf mit Bonus
-- Ebenenwechsel aktiv (EU / Länder / Kommunen)
-- 8 Random Events
-- 3. Milieu (Progressiv) aktiv
-- 4 Gesetzentwürfe
+**Neu gegenüber Stufe 1 (Auszug):**
 
-**Deaktiviert:** Bundesrat-Sprecher, Trade-offs, Beziehungswerte, Bundesrat-Events, EU-eigene Events, Folge-Events
+- Bundesrat-Tab sichtbar (`bundesrat_sichtbar`); Detailansichten und volles Lobbying erst ab Stufe 3
+- Volleres Kabinett (**5** aktive Charaktere inkl. Kanzler/in), Koalitionspartner, Koalitionsstabilität, Char-Ultimatums
+- Mehr Gesetze (`min_complexity ≤ 2`), Progressiv-Milieu / erweiterte Milieu-Darstellung
+- Ebenen: **EU-Route**, Kommunal- und Länder-Vorstufen, Gegenfinanzierung, Kongruenz-Einfluss auf PK beim Einbringen, Framing (stufenabhängig)
+- Haushaltsdebatte, Schuldenbremse-Widget, Konjunktur-Anzeige, Vermittlungsausschuss, Legislatur-Bilanz, Medienklima-Grundzüge, u. v. m. (siehe `features.ts`)
 
-**Wahlhürde:** ≥ 38% Zustimmung
-
-**Spielgefühl:** Koalitionsdynamik und Ebenenmechanik einführen. Der Spieler merkt erstmals dass Scheitern produktiv ist. Kabinett muss gepflegt werden.
-
-**Startbeschreibung:** *"Die Koalition steht. Aber sechs starke Persönlichkeiten im Kabinett haben eigene Vorstellungen — und der Bundesrat kann deine Pläne stoppen."*
+**Wahlhürde:** 38%
 
 ---
 
 ### Stufe 3 — Föderalismus *(Fortgeschritten)*
 
-**Neu hinzugekommen (gegenüber Stufe 2):**
-- Bundesrat voll: 4 Fraktionen mit Sprecher-Charakteren
-- Beziehungswert-System (0–100 akkumulativ)
-- 3-Schichten-Lobbying (PK / Trade-off / Beziehungsbonus)
-- Zeitdruck: Lobbying nur im 3-Monats-Fenster
-- Kohl-Sonderregel (Saboteur bei Beziehung < 15)
-- Bundesrat-Event-Pool (6 eigene Events)
-- 12 Random Events
-- Sprecher-Wechsel-Event möglich
+**Neu gegenüber Stufe 2 (Auszug):**
 
-**Deaktiviert:** EU-eigene Events, Folge-Events, Medien-Agenda, Konjunkturzyklen
+- Bundesrat **im Detail:** vier Fraktionen, Lobbying, Trade-offs, BR-Events, Länderliste, bilaterale Landesgespräche
+- Kabinett bis zu **7** Personen; erweiterte Minister-Pools (`kabinett_erweiterung`)
+- Alle **7 Milieus** im Medien-Screen, Politikfeld-Druck, Verbands-Lobbying, Partner-Widerstand vor Einbringen, Normenkontrolle, erweiterte EU-Mechaniken (`eu_klima`, `eu_reaktiv`, …)
 
-**Wahlhürde:** ≥ 40% Zustimmung
-
-**Spielgefühl:** Verhandlungsspiel. Jede Bundesratsabstimmung ist eine Entscheidung: investiere ich PK, gehe ich einen Trade-off ein, oder wechsle ich die Ebene? Beziehungen aufbauen zahlt sich erst nach 10+ Monaten aus.
-
-**Startbeschreibung:** *"Föderalismus bedeutet: 16 Länder, 4 Machtblöcke, und jeder hat seinen Preis. Was bietest du Huber, damit Bayern zustimmt?"*
+**Wahlhürde:** 40%
 
 ---
 
 ### Stufe 4 — Realpolitik *(Experte)*
 
-**Neu hinzugekommen (gegenüber Stufe 3):**
-- EU-eigene Events (Kommissionsdruck, Vertragsverletzung, Förderprogramme)
-- Folge-Events (Entscheidungen öffnen verkettete Konsequenzen)
-- Medien-Agenda (Pressekonferenz-System, Leitmedien-Tendenz)
-- Konjunkturzyklen (externe Wirtschaftsschocks, EZB-Entscheidungen)
-- Haushaltssystem: explizite Ausgabeentscheidungen, Schuldenbremse spürbar
-- 15+ Random Events
-- Alle Char-Interaktionen voll aktiv
-- Sprecher können permanent die Fraktion wechseln
+**Neu gegenüber Stufe 3 (Auszug):**
 
-**Deaktiviert:** nichts — alle Systeme aktiv
+- Kabinett bis zu **8** Personen (`kabinett_voll`)
+- EU-Events voll, Follow-up-Events, Medien-Agenda im erweiterten Sinn, Konjunkturzyklen / expliziteres Budget, Milieu-Drift, Koalitionsvertrag-Score, Koalitionspartner-Alleingang, erweiterte Medienakteure, Sachverständigenrat, u. a.
 
-**Wahlhürde:** ≥ 42% Zustimmung
+**Wahlhürde:** 42%
 
-**Spielgefühl:** Alle fünf Ebenen gleichzeitig. Entscheidungen auf einer Ebene haben Konsequenzen auf anderen. Ein EU-Trade-off kann den Bundesrat entlasten aber den Haushalt belasten und Kohl provozieren. Systemisches Denken notwendig.
-
-**Startbeschreibung:** *"Bundesrepublik, EU, 16 Länder, sechs Kabinettsmitglieder — und vier Jahre bis zur Wahl. Alles hängt mit allem zusammen."*
+**Hinweis:** Die vollständige Liste steht in `frontend/src/core/systems/features.ts` — diese Dokuseite fasst nur zusammen.
 
 ---
 
-## 4.3 Feature-Matrix
+## 4.3 Feature-Matrix (Kurzfassung)
 
-| System | Stufe 1 | Stufe 2 | Stufe 3 | Stufe 4 |
+| Thema | Stufe 1 | Stufe 2 | Stufe 3 | Stufe 4 |
 |--------|---------|---------|---------|---------|
-| Bundestag-Abstimmung | ✓ vereinfacht | ✓ voll | ✓ | ✓ |
-| Gesetzentwürfe | 3 | 4 | 4 | 4+ |
-| Kabinett-Chars | 2 | 6 | 6 | 6 |
+| Bundestag inkl. Eingebracht-Phase | ✓ | ✓ | ✓ | ✓ |
+| Bundesrat-Tab | — | ✓ (einfacher) | ✓ (voll) | ✓ |
+| Ausweichrouten / EU-Ebene (UI) | eingeschränkt | ✓ | ✓ | ✓ |
+| Kabinettgröße (typisch) | 2 | 5 | 7 | 8 |
+| Koalitionspartner & -stabilität | — | ✓ | ✓ | ✓ |
 | Char-Ultimatums | — | ✓ | ✓ | ✓ |
-| Koalitionsstabilität | — | ✓ | ✓ | ✓ |
-| Bundesrat (vereinfacht) | — | ✓ | — | — |
-| Bundesrat (4 Fraktionen) | — | — | ✓ | ✓ |
-| Bundesrat-Lobbying | — | — | ✓ | ✓ |
-| Trade-off-System | — | — | ✓ | ✓ |
-| Beziehungswerte | — | — | ✓ | ✓ |
-| Bundesrat-Events | — | — | ✓ | ✓ |
-| Ebenenwechsel | — | ✓ | ✓ | ✓ |
-| EU-eigene Events | — | — | — | ✓ |
-| Folge-Events | — | — | — | ✓ |
-| Medien-Agenda | — | — | — | ✓ |
-| Konjunkturzyklen | — | — | — | ✓ |
-| Haushaltssystem (explizit) | — | — | — | ✓ |
-| Wählermilieus | 2 | 3 | 3 | 3 |
-| Random Events (Pool) | 5 | 8 | 12 | 15+ |
-| Wahlhürde | 35% | 38% | 40% | 42% |
+| Lobbying / Trade-off BR | — | — | ✓ | ✓ |
+| Haushalt / Konjunktur / Schuldenbremse (Tiefe) | minimal | wächst | wächst | voll |
+| Medienklima / Akteure (Tiefe) | minimal | wächst | wächst | voll |
+| EU-Events / Follow-ups | — | — | teils | ✓ |
+| Wahlhürde (%) | 35 | 38 | 40 | 42 |
 
 ---
 
 ## 4.4 Technische Implementierung
 
-```javascript
-// Game-State Erweiterung
-const G = {
-  complexity: 1,  // 1–4, bei Spielstart gewählt
-  // ...
-}
+Die authoritative Quelle ist **`frontend/src/core/systems/features.ts`** (Zustand: `GameState.complexity` bzw. Store `complexity`). Das folgende Schema ist vereinfacht:
 
-// Jedes System prüft vor Aktivierung
-function isBundesratActive() {
-  return G.complexity >= 2;
-}
-function isBundesratFullActive() {
-  return G.complexity >= 3;
-}
-function isTradeoffActive() {
-  return G.complexity >= 3;
-}
-function isFollowupEventsActive() {
-  return G.complexity >= 4;
-}
-
-// Feature-Flag Pattern für alle Systeme
-const FEATURES = {
-  bundesrat_simple:    { minLevel: 2 },
-  bundesrat_full:      { minLevel: 3 },
-  lobbying:            { minLevel: 3 },
-  tradeoff:            { minLevel: 3 },
-  br_events:           { minLevel: 3 },
-  eu_events:           { minLevel: 4 },
-  followup_events:     { minLevel: 4 },
-  media_agenda:        { minLevel: 4 },
-  konjunktur_cycles:   { minLevel: 4 },
-  budget_explicit:     { minLevel: 4 },
-  milieu_progressiv:   { minLevel: 2 },
-  char_ultimatums:     { minLevel: 2 },
-  coalition_stability: { minLevel: 2 },
-};
-
-function featureActive(key) {
-  return (FEATURES[key]?.minLevel ?? 1) <= G.complexity;
+```typescript
+function featureActive(complexity: number, key: string): boolean {
+  return (FEATURES[key]?.minLevel ?? 1) <= complexity;
 }
 ```
 
-**Startscreen:** Vier Kacheln mit Stufen-Titel, kurzer Beschreibung und Wahlhürde. Klick startet direkt — kein Tutorial-Text, kein Onboarding-Screen. Die Beschreibung *ist* das Onboarding.
+**Startscreen:** Vier Kacheln mit Stufen-Titel und Kurzbeschreibung; gewählte Stufe fix für den Lauf. Onboarding erfolgt über **Wahlnacht-Sequenz** und UI, nicht über Tutorial-Text.
