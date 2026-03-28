@@ -253,6 +253,8 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
                     "konjunktur_effekt": float(g.konjunktur_effekt or 0),
                     "konjunktur_lag": int(g.konjunktur_lag or 0),
                     "sektor_effekte": list(g.sektor_effekte or []),
+                    "locked_until_event": g.locked_until_event,
+                    "zustimmungspflichtig": g.zustimmungspflichtig,
                     "titel": i18n.titel,
                     "kurz": i18n.kurz,
                     "desc": i18n.desc,

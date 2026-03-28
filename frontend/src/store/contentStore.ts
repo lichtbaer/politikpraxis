@@ -112,7 +112,7 @@ function transformChar(api: CharApi): Character {
 }
 
 function transformGesetz(api: GesetzApi): Law {
-  return {
+  const law: Law = {
     id: api.id,
     titel: api.titel,
     kurz: api.kurz,
@@ -155,6 +155,10 @@ function transformGesetz(api: GesetzApi): Law {
     // Default: land-Gesetze sind zustimmungspflichtig, es sei denn explizit als Einspruchsgesetz markiert.
     zustimmungspflichtig: api.zustimmungspflichtig ?? (api.tags.includes('land') ? true : undefined),
   };
+  if (api.locked_until_event) {
+    law.locked_until_event = api.locked_until_event;
+  }
+  return law;
 }
 
 function transformEventChoice(api: {

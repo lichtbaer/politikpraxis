@@ -31,18 +31,22 @@ from app.services.content_db_service import (
     get_game_content_from_db,
 )
 from app.services.content_service import (
-    get_content_bundle,
+    get_content_bundle_from_db,
     load_all_scenarios,
     load_characters,
-    load_laws,
 )
 
 router = APIRouter()
 
 
 @router.get("/bundle", response_model=ContentBundleResponse)
-async def bundle(scenario_id: str = Query(default="standard")):
-    return get_content_bundle(scenario_id)
+async def bundle(
+    scenario_id: str = Query(default="standard"),
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """Legacy-Bundle: Gesetze kommen aus der DB (Single Source of Truth)."""
+    return await get_content_bundle_from_db(db, locale, scenario_id)
 
 
 @router.get("/game")
@@ -59,9 +63,13 @@ async def characters():
     return load_characters()
 
 
-@router.get("/laws")
-async def laws():
-    return load_laws()
+@router.get("/laws", response_model=list[GesetzResponse], deprecated=True)
+async def laws(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """Deprecated: nutze GET /content/gesetze."""
+    return await fetch_gesetze(db, locale)
 
 
 @router.get("/scenarios")

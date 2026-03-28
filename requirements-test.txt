@@ -1,5 +1,5 @@
 # Test- und Simulations-Dependencies
-# Basis: Backend-Requirements (für content_service, load_laws)
+# Basis: Backend-Requirements (für content_service)
 -r backend/requirements.txt
 
 # Linting (CI, lokale Qualitätschecks)
