@@ -767,7 +767,7 @@ def upgrade() -> None:
     conn.execute(
         sa.text("""
             INSERT INTO ministerial_initiativen (id, char_id, gesetz_ref_id, trigger_type, min_complexity, cooldown_months)
-            VALUES ('braun_cyber_abwehr', 'im', 'cyber_abwehr_kritische_infrastruktur', 'mood+ideologie_distanz', 2, 8)
+            VALUES ('braun_cyber_abwehr', 'cdp_im', 'cyber_abwehr_kritische_infrastruktur', 'mood+ideologie_distanz', 2, 8)
         """),
     )
     conn.execute(

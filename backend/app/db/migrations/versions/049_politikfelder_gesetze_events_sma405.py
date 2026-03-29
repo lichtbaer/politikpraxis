@@ -499,7 +499,7 @@ def upgrade() -> None:
     conn.execute(
         sa.text("""
             INSERT INTO ministerial_initiativen (id, char_id, gesetz_ref_id, trigger_type, min_complexity, cooldown_months)
-            VALUES ('wolf_oekolandbau', 'um', 'agrar_oekologie_programm', 'mood+event', 2, 8)
+            VALUES ('wolf_oekolandbau', 'gp_um', 'agrar_oekologie_programm', 'mood+event', 2, 8)
         """),
     )
     conn.execute(
