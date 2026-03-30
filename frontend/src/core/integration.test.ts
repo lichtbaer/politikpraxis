@@ -1,7 +1,7 @@
 /**
  * Integration-Tests: End-to-End-Szenarien über mehrere Systeme
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { tick } from './engine';
 import { einbringen } from './systems/parliament';
 import { applyMilieuEffekte } from './systems/milieus';
@@ -109,7 +109,11 @@ describe('SMA-291: Bundesrat-Stufen — Stufe 1 Land-Gesetz direkt beschlossen',
 });
 
 describe('Integration: Gesetz einbringen → Milieu reagiert → Wahlprognose ändert sich', () => {
+  afterEach(() => vi.restoreAllMocks());
+
   it('Gesetz beschlossen → Milieu-Zustimmung ändert sich → Wahlprognose ändert sich', () => {
+    // Math.random deterministisch: kein Abweichler-Würfwurf (0.99 × 100 = 99 > max Risiko 30)
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
     const state = createInitialState();
     let s = einbringen(state, 'ee', { ausrichtung: { wirtschaft: -30, gesellschaft: -60, staat: -20 }, complexity: 3 });
     expect(s.gesetze[0].status).toBe('eingebracht');
