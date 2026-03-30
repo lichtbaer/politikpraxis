@@ -12,6 +12,25 @@ const GERMANY_GEO_URL = '/geo/germany-bundeslaender.geojson';
 const MAP_EUROPE = 'startmap-europe';
 const MAP_GERMANY = 'startmap-germany';
 
+/**
+ * Gemeinsame geografische Ausdehnung (aus europe.geojson berechnet): beide geo-Ebenen nutzen dieselbe
+ * Bounding Box, damit Deutschland/Bundesländer nicht separat „aufgezoomt“ werden. (geoIndex-Map-Serie
+ * wurde in ECharts hier nicht zuverlässig über Europa gerendert.)
+ */
+const EUROPE_BOUNDING_COORDS: [[number, number], [number, number]] = [
+  [-24.542225, 29.486706],
+  [50.37499, 71.154709],
+];
+
+const SHARED_GEO_LAYOUT = {
+  aspectScale: 0.75 as const,
+  center: [10, 51] as [number, number],
+  zoom: 1.3,
+  layoutCenter: ['50%', '48%'] as [string, string],
+  layoutSize: '90%',
+  boundingCoords: EUROPE_BOUNDING_COORDS,
+};
+
 /** GeoJSON-Cache (modulweit) — kein Re-Fetch bei Re-Render */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const geoCache: { europe?: any; germany?: any } = {};
@@ -72,16 +91,11 @@ export function StartMapView() {
         },
       ],
       geo: [
-        // Ebene 1: Europa (Hintergrund)
         {
           map: MAP_EUROPE,
           silent: true,
           roam: false,
-          aspectScale: 0.75,
-          center: [10, 51],
-          zoom: 1.3,
-          layoutCenter: ['50%', '48%'],
-          layoutSize: '90%',
+          ...SHARED_GEO_LAYOUT,
           zlevel: 0,
           itemStyle: {
             areaColor: '#1a1a14',
@@ -91,16 +105,11 @@ export function StartMapView() {
           emphasis: { disabled: true },
           select: { disabled: true },
         },
-        // Ebene 2: Deutschland mit Bundesländern (hervorgehoben)
         {
           map: MAP_GERMANY,
           silent: true,
           roam: false,
-          aspectScale: 0.75,
-          center: [10, 51],
-          zoom: 1.3,
-          layoutCenter: ['50%', '48%'],
-          layoutSize: '90%',
+          ...SHARED_GEO_LAYOUT,
           zlevel: 1,
           itemStyle: {
             areaColor: '#2d4a1e',
@@ -112,7 +121,7 @@ export function StartMapView() {
           emphasis: { disabled: true },
           select: { disabled: true },
         },
-      ] as EChartsOption['geo'],
+      ],
       series: [],
     }),
     [t]

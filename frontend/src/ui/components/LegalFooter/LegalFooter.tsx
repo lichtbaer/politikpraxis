@@ -25,7 +25,7 @@ export function LegalFooter() {
         </span>
         <Link to="/highscores">{t('highscores.pageTitle')}</Link>
       </nav>
-      <p className={styles.copy}>© 2025 Nexclue UG (haftungsbeschränkt)</p>
+      <p className={styles.copy}>© 2025 Politikpraxis Projekt · Contributors</p>
     </footer>
   );
 }

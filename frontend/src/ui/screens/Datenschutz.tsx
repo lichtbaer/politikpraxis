@@ -20,7 +20,7 @@ export function Datenschutz() {
         <h2>1. Verantwortliche Stelle</h2>
         <p>
           Verantwortlich für die Datenverarbeitung im Sinne der DSGVO ist die in unserem{' '}
-          <Link to="/impressum">Impressum</Link> genannte Anbieterin (Nexclue UG (haftungsbeschränkt)).
+          <Link to="/impressum">Impressum</Link> genannte Anbieter (Johannes Göpel).
           Kontakt für Datenschutzanfragen: bitte nutzen Sie die im Impressum angegebene E-Mail-Adresse
           oder unser <Link to="/kontakt">Kontaktformular</Link> mit dem Betreff „Datenschutzanfrage“.
         </p>

@@ -9,7 +9,7 @@ export function Impressum() {
       <div className={styles.prose}>
         <h2>Angaben gemäß § 5 TMG</h2>
         <p>
-          <strong>Nexclue UG (haftungsbeschränkt)</strong>
+          <strong>Johannes Göpel</strong>
           <br />
           [Straße und Hausnummer]
           <br />
@@ -22,7 +22,7 @@ export function Impressum() {
           <a href="mailto:kontakt@politikpraxis.de">kontakt@politikpraxis.de</a>
         </p>
         <p>
-          <strong>Vertretungsberechtigte Person:</strong> [Name nach Eintragung der UG]
+          <strong>Vertretungsberechtigte Person:</strong> Johannes Göpel
         </p>
         <p>
           <strong>Registergericht:</strong> [nach Eintragung]
