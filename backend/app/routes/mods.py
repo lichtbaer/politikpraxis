@@ -99,7 +99,9 @@ async def create_mod(
 
 @router.get("/{mod_id}/content")
 @limiter.limit("30/minute")
-async def get_mod_content(request: Request, mod_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_mod_content(
+    request: Request, mod_id: UUID, db: AsyncSession = Depends(get_db)
+):
     result = await db.execute(select(Mod).where(Mod.id == mod_id))
     mod = result.scalar_one_or_none()
     if not mod:

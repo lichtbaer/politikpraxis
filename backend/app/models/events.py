@@ -37,7 +37,9 @@ class Event(Base):
     trigger_milieu_val: Mapped[int | None] = mapped_column(Integer(), nullable=True)
     gesetz_ref: Mapped[list[str] | None] = mapped_column(ARRAY(Text()), nullable=True)
     trigger_typ: Mapped[str | None] = mapped_column(Text(), nullable=True)
-    trigger_params: Mapped[dict[str, Any] | None] = mapped_column(JSONB(), nullable=True)
+    trigger_params: Mapped[dict[str, Any] | None] = mapped_column(
+        JSONB(), nullable=True
+    )
     einmalig: Mapped[bool] = mapped_column(
         Boolean(), nullable=False, server_default=text("true")
     )

@@ -20,5 +20,7 @@ class MedienAkteur(Base):
     typ: Mapped[str] = mapped_column(Text(), nullable=False)
     reichweite: Mapped[float] = mapped_column(Numeric(4, 1), nullable=False)
     stimmung_start: Mapped[int | None] = mapped_column(Integer(), server_default="0")
-    agenda_staerke: Mapped[float | None] = mapped_column(Numeric(3, 2), server_default="0.5")
+    agenda_staerke: Mapped[float | None] = mapped_column(
+        Numeric(3, 2), server_default="0.5"
+    )
     min_complexity: Mapped[int | None] = mapped_column(Integer(), server_default="2")

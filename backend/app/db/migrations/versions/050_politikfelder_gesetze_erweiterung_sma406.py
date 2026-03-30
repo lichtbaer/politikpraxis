@@ -798,9 +798,13 @@ def downgrade() -> None:
     conn = op.get_bind()
 
     conn.execute(
-        sa.text("DELETE FROM ministerial_initiativen_i18n WHERE initiative_id = 'braun_cyber_abwehr'")
+        sa.text(
+            "DELETE FROM ministerial_initiativen_i18n WHERE initiative_id = 'braun_cyber_abwehr'"
+        )
     )
-    conn.execute(sa.text("DELETE FROM ministerial_initiativen WHERE id = 'braun_cyber_abwehr'"))
+    conn.execute(
+        sa.text("DELETE FROM ministerial_initiativen WHERE id = 'braun_cyber_abwehr'")
+    )
 
     new_law_ids = [
         "agrar_importtransparenz_gesetz",
@@ -829,5 +833,7 @@ def downgrade() -> None:
     )
 
     for gid in new_law_ids:
-        conn.execute(sa.text("DELETE FROM gesetze_i18n WHERE gesetz_id = :g"), {"g": gid})
+        conn.execute(
+            sa.text("DELETE FROM gesetze_i18n WHERE gesetz_id = :g"), {"g": gid}
+        )
         conn.execute(sa.text("DELETE FROM gesetze WHERE id = :g"), {"g": gid})

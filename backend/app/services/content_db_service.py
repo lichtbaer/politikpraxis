@@ -166,7 +166,9 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
                 "ultimatum_event_id": c.ultimatum_event_id,
                 "bonus_trigger": c.bonus_trigger,
                 "bonus_applies": c.bonus_applies,
-                "min_complexity": c.min_complexity if c.min_complexity is not None else 1,
+                "min_complexity": c.min_complexity
+                if c.min_complexity is not None
+                else 1,
                 "ideologie": _ideologie(
                     c.ideologie_wirtschaft, c.ideologie_gesellschaft, c.ideologie_staat
                 ),
@@ -213,11 +215,15 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
                     "id": g.id,
                     "tags": g.tags or [],
                     "bt_stimmen_ja": g.bt_stimmen_ja,
-                    "effekte": _effekte(g.effekt_al, g.effekt_hh, g.effekt_gi, g.effekt_zf),
+                    "effekte": _effekte(
+                        g.effekt_al, g.effekt_hh, g.effekt_gi, g.effekt_zf
+                    ),
                     "effekt_lag": g.effekt_lag,
                     "foederalismus_freundlich": g.foederalismus_freundlich or False,
                     "ideologie": _ideologie(
-                        g.ideologie_wirtschaft, g.ideologie_gesellschaft, g.ideologie_staat
+                        g.ideologie_wirtschaft,
+                        g.ideologie_gesellschaft,
+                        g.ideologie_staat,
                     ),
                     "ideologie_wert": int(g.ideologie_wert or 0),
                     "politikfeld_id": g.politikfeld_id,
@@ -673,7 +679,9 @@ async def fetch_verbaende(db: AsyncSession, locale: str) -> list[dict]:
                     "id": v.id,
                     "politikfeld_id": v.politikfeld_id,
                     "ideologie": _ideologie(
-                        v.ideologie_wirtschaft, v.ideologie_gesellschaft, v.ideologie_staat
+                        v.ideologie_wirtschaft,
+                        v.ideologie_gesellschaft,
+                        v.ideologie_staat,
                     ),
                     "beziehung_start": v.beziehung_start,
                     "staerke": {

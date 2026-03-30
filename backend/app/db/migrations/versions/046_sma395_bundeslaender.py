@@ -504,8 +504,12 @@ def downgrade() -> None:
             ),
             {"eid": eid},
         )
-        conn.execute(sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid})
-        conn.execute(sa.text("DELETE FROM events_i18n WHERE event_id = :eid"), {"eid": eid})
+        conn.execute(
+            sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid}
+        )
+        conn.execute(
+            sa.text("DELETE FROM events_i18n WHERE event_id = :eid"), {"eid": eid}
+        )
         conn.execute(sa.text("DELETE FROM events WHERE id = :eid"), {"eid": eid})
 
     op.drop_column("event_choices", "br_relation_json")
