@@ -23,7 +23,9 @@ async def send_magic_link_email(to_email: str, verify_url: str) -> None:
     )
 
     if not settings.smtp_host:
-        logger.warning("Magic Link nicht gesendet (SMTP nicht konfiguriert): %s", to_email)
+        logger.warning(
+            "Magic Link nicht gesendet (SMTP nicht konfiguriert): %s", to_email
+        )
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="E-Mail-Versand ist nicht konfiguriert",

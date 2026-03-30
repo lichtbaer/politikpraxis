@@ -10,9 +10,10 @@ import { useGameStore } from '../../store/gameStore';
 import { useContentStore } from '../../store/contentStore';
 import { AgendaCard } from '../components/AgendaCard/AgendaCard';
 import { featureActive } from '../../core/systems/features';
-import type { LawStatus } from '../../core/types';
-import { gruppiereNachPolitikfeld } from '../../core/gesetzAgenda';
+import type { LawStatus, KoalitionsStanz } from '../../core/types';
+import { gruppiereNachPolitikfeld, getKoalitionsStanz, gruppiereNachKoalitionsStanz } from '../../core/gesetzAgenda';
 import { getRecommendedLaws } from '../../core/systems/recommendations';
+import { getKoalitionspartner } from '../../core/systems/koalition';
 import { PolitikfeldIcon, Hourglass } from '../icons';
 import { PendingEffekteChart } from '../components/PendingEffekteChart/PendingEffekteChart';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
@@ -20,7 +21,7 @@ import { KPI_TO_BEGRIFF } from '../../constants/begriffe';
 import styles from './GesetzAgendaView.module.css';
 
 type StatusFilterKey = 'alle' | LawStatus;
-type SortMode = 'standard' | 'empfohlen';
+type SortMode = 'standard' | 'empfohlen' | 'koalition';
 
 const STATUS_FILTERS: Array<{
   key: StatusFilterKey;
@@ -115,6 +116,34 @@ export function GesetzAgendaView() {
     for (const r of recommended) map.set(r.law.id, r.score);
     return map;
   }, [recommended]);
+
+  // Koalitions-Stanz: Klassifizierung pro Gesetz basierend auf Koalitionsvertrag-Profil
+  const partner = state.koalitionspartner
+    ? getKoalitionspartner(undefined, state)
+    : null;
+  const schluesselthemen = partner?.schluesselthemen ?? [];
+  const koalitionsvertragProfil = state.koalitionsvertragProfil;
+
+  const stanzMap = useMemo((): Map<string, KoalitionsStanz> => {
+    if (!koalitionsvertragProfil || schluesselthemen.length === 0) return new Map();
+    const map = new Map<string, KoalitionsStanz>();
+    for (const law of visibleGesetze) {
+      map.set(law.id, getKoalitionsStanz(law, koalitionsvertragProfil, schluesselthemen));
+    }
+    return map;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleGesetze, koalitionsvertragProfil, schluesselthemen]);
+
+  // Koalitions-Gruppierung für 'koalition'-SortMode
+  const koalitionsGruppen = useMemo(() => {
+    if (!koalitionsvertragProfil) return null;
+    return gruppiereNachKoalitionsStanz(
+      visibleGesetze.filter((g) => g.status === 'entwurf'),
+      koalitionsvertragProfil,
+      schluesselthemen,
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleGesetze, koalitionsvertragProfil, schluesselthemen]);
 
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
   const [pendingCollapsed, setPendingCollapsed] = useState(false);
@@ -221,6 +250,16 @@ export function GesetzAgendaView() {
           >
             {t('game:gesetzAgenda.sortEmpfohlen', 'Empfohlen')}
           </button>
+          {koalitionsvertragProfil && (
+            <button
+              type="button"
+              className={`${styles.filterChip} ${sortMode === 'koalition' ? styles.filterChipActive : ''}`}
+              onClick={() => setSortMode('koalition')}
+              title={t('game:gesetzAgenda.sortKoalitionTooltip', 'Gesetze nach Koalitionsvertrag gruppieren')}
+            >
+              {t('game:gesetzAgenda.sortKoalition', 'Koalition')}
+            </button>
+          )}
         </div>
         <input
           className={styles.searchInput}
@@ -289,7 +328,39 @@ export function GesetzAgendaView() {
         </section>
       )}
 
-      {filteredClusters.length === 0 ? (
+      {sortMode === 'koalition' && koalitionsGruppen ? (
+        // Koalitions-Gruppierungsansicht
+        <div className={styles.clusterList}>
+          {(['priorisiert', 'moeglich', 'abgelehnt'] as const).map((stanz) => {
+            const gesetze = koalitionsGruppen[stanz];
+            if (gesetze.length === 0) return null;
+            return (
+              <section key={stanz} className={styles.politikfeldSection}>
+                <header className={styles.politikfeldHeader}>
+                  <span className={styles.politikfeldName}>
+                    {t(`game:koalition.stanz.${stanz}`, stanz)}
+                  </span>
+                  <span className={styles.politikfeldCount}>
+                    ({gesetze.length} {t('game:gesetzAgenda.gesetzeCount', 'Gesetze')})
+                  </span>
+                </header>
+                <div className={styles.list}>
+                  {gesetze.map((law) => (
+                    <AgendaCard
+                      key={law.id}
+                      law={law}
+                      isRecommended={top5Empfohlen.has(law.id)}
+                      showKongruenz={complexity >= 2}
+                      recommendationScore={scoreMap.get(law.id)}
+                      koalitionsStanz={stanz}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      ) : filteredClusters.length === 0 ? (
         <p className={styles.leer}>
           {isFiltering
             ? t('game:gesetzAgenda.keineErgebnisse', 'Keine Gesetze gefunden.')
@@ -340,6 +411,7 @@ export function GesetzAgendaView() {
                         isRecommended={top5Empfohlen.has(law.id)}
                         showKongruenz={complexity >= 2}
                         recommendationScore={law.status === 'entwurf' ? scoreMap.get(law.id) : undefined}
+                        koalitionsStanz={stanzMap.get(law.id)}
                       />
                     ))}
                   </div>

@@ -1048,7 +1048,9 @@ def downgrade() -> None:
         {"ids": new_ids},
     )
     for gid in new_ids:
-        conn.execute(sa.text("DELETE FROM gesetze_i18n WHERE gesetz_id = :g"), {"g": gid})
+        conn.execute(
+            sa.text("DELETE FROM gesetze_i18n WHERE gesetz_id = :g"), {"g": gid}
+        )
         conn.execute(sa.text("DELETE FROM gesetze WHERE id = :g"), {"g": gid})
 
     op.drop_column("gesetze", "zustimmungspflichtig")

@@ -23,4 +23,3 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Schema-Only Merge ohne zusätzliche DDL."""
-

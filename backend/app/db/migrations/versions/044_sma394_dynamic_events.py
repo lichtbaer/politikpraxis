@@ -25,7 +25,9 @@ def upgrade() -> None:
     op.add_column("events", sa.Column("trigger_params", JSONB(), nullable=True))
     op.add_column(
         "events",
-        sa.Column("einmalig", sa.Boolean(), server_default=sa.text("true"), nullable=False),
+        sa.Column(
+            "einmalig", sa.Boolean(), server_default=sa.text("true"), nullable=False
+        ),
     )
 
     conn = op.get_bind()
@@ -253,10 +255,16 @@ def upgrade() -> None:
         log: str,
         kpd: int | None = None,
         mk: int | None = None,
-    ) -> tuple[str, str, str, int, dict[str, float], str, str, str, int | None, int | None]:
+    ) -> tuple[
+        str, str, str, int, dict[str, float], str, str, str, int | None, int | None
+    ]:
         return (eid, key, ctype, cost, eff, label, desc, log, kpd, mk)
 
-    choice_rows: list[tuple[str, str, str, int, dict[str, float], str, str, str, int | None, int | None]] = [
+    choice_rows: list[
+        tuple[
+            str, str, str, int, dict[str, float], str, str, str, int | None, int | None
+        ]
+    ] = [
         ch(
             "dyn_wirtschaftskrise_droht",
             "sparpaket",

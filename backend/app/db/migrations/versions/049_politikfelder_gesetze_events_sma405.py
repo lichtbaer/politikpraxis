@@ -566,7 +566,9 @@ def upgrade() -> None:
         """),
     )
 
-    max_id_result = conn.execute(sa.text("SELECT COALESCE(MAX(id), 0) FROM event_choices"))
+    max_id_result = conn.execute(
+        sa.text("SELECT COALESCE(MAX(id), 0) FROM event_choices")
+    )
     choice_id = int(max_id_result.scalar() or 0) + 1
     kommunal_choices = [
         (
@@ -647,7 +649,9 @@ def upgrade() -> None:
         )
         choice_id += 1
 
-    conn.execute(sa.text("SELECT setval('event_choices_id_seq', :mx)"), {"mx": choice_id - 1})
+    conn.execute(
+        sa.text("SELECT setval('event_choices_id_seq', :mx)"), {"mx": choice_id - 1}
+    )
 
     # --- EU reaktive Richtlinie Agrar ---
     conn.execute(
@@ -779,7 +783,11 @@ def upgrade() -> None:
                 "label": (
                     "Implement fully"
                     if ckey == "sofort_umsetzen"
-                    else ("Minimal implementation" if ckey == "minimal_umsetzen" else "Litigate")
+                    else (
+                        "Minimal implementation"
+                        if ckey == "minimal_umsetzen"
+                        else "Litigate"
+                    )
                 ),
                 "desc": (
                     "Full implementation. Co-financing 25%, stronger ecological impact."
@@ -804,7 +812,8 @@ def upgrade() -> None:
         eu_choice_id += 1
 
     conn.execute(
-        sa.text("SELECT setval('eu_event_choices_id_seq', :mx)"), {"mx": eu_choice_id - 1}
+        sa.text("SELECT setval('eu_event_choices_id_seq', :mx)"),
+        {"mx": eu_choice_id - 1},
     )
 
     # --- Reklassifikation: Stadtentwicklung → Digital + Wirtschaft sekundär ---
@@ -870,16 +879,22 @@ def downgrade() -> None:
         """),
         {"eid": eid_k},
     )
-    conn.execute(sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid_k})
+    conn.execute(
+        sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid_k}
+    )
     conn.execute(
         sa.text("DELETE FROM events_i18n WHERE event_id = :eid"), {"eid": eid_k}
     )
     conn.execute(sa.text("DELETE FROM events WHERE id = :eid"), {"eid": eid_k})
 
     conn.execute(
-        sa.text("DELETE FROM ministerial_initiativen_i18n WHERE initiative_id = 'wolf_oekolandbau'")
+        sa.text(
+            "DELETE FROM ministerial_initiativen_i18n WHERE initiative_id = 'wolf_oekolandbau'"
+        )
     )
-    conn.execute(sa.text("DELETE FROM ministerial_initiativen WHERE id = 'wolf_oekolandbau'"))
+    conn.execute(
+        sa.text("DELETE FROM ministerial_initiativen WHERE id = 'wolf_oekolandbau'")
+    )
 
     new_law_ids = [
         "agrar_oekologie_programm",
@@ -901,5 +916,7 @@ def downgrade() -> None:
     )
 
     for gid in new_law_ids:
-        conn.execute(sa.text("DELETE FROM gesetze_i18n WHERE gesetz_id = :g"), {"g": gid})
+        conn.execute(
+            sa.text("DELETE FROM gesetze_i18n WHERE gesetz_id = :g"), {"g": gid}
+        )
         conn.execute(sa.text("DELETE FROM gesetze WHERE id = :g"), {"g": gid})

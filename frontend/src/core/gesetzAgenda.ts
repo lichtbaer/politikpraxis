@@ -1,9 +1,68 @@
 /**
  * SMA-293: Gesetz-Agenda — Clustering nach Politikfeld + personalisierte Reihenfolge nach Ideologie.
  * Sortierung: Politikfelder nach durchschnittlicher Kongruenz, Gesetze innerhalb Feld nach Kongruenz.
+ *
+ * Koalitions-Klassifizierung: Gesetze werden anhand des Koalitionsvertrags-Profils und der
+ * Schlüsselthemen des Partners in 3 Stufen eingeteilt: priorisiert · moeglich · abgelehnt.
  */
-import type { Law, Ideologie, Politikfeld } from './types';
-import { gesetzKongruenz } from './ideologie';
+import type { Law, Ideologie, Politikfeld, KoalitionsStanz } from './types';
+import { gesetzKongruenz, berechneKongruenz } from './ideologie';
+
+const DEFAULT_IDEOLOGIE: Ideologie = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
+
+/**
+ * Klassifiziert ein Gesetz nach seiner Koalitionsvertrag-Kongruenz.
+ * - priorisiert: Gesetz-ID oder Politikfeld ist explizit in den Schlüsselthemen des Partners
+ * - moeglich: Kongruenz mit dem Koalitionsvertrag-Profil ≥ 50
+ * - abgelehnt: Kongruenz < 50 (koalitionskritisch)
+ */
+export function getKoalitionsStanz(
+  law: Law,
+  koalitionsvertragProfil: Ideologie,
+  schluesselthemen: string[],
+): KoalitionsStanz {
+  const imVertrag = schluesselthemen.some(
+    (t) => t === law.id || t === law.politikfeldId,
+  );
+  if (imVertrag) return 'priorisiert';
+
+  const kongruenz = berechneKongruenz(
+    koalitionsvertragProfil,
+    law.ideologie ?? DEFAULT_IDEOLOGIE,
+  );
+  return kongruenz >= 50 ? 'moeglich' : 'abgelehnt';
+}
+
+/**
+ * Gruppiert Gesetze nach KoalitionsStanz.
+ * Innerhalb jeder Gruppe nach Kongruenz absteigend sortiert.
+ */
+export function gruppiereNachKoalitionsStanz(
+  gesetze: Law[],
+  koalitionsvertragProfil: Ideologie,
+  schluesselthemen: string[],
+): Record<KoalitionsStanz, Law[]> {
+  const result: Record<KoalitionsStanz, Law[]> = {
+    priorisiert: [],
+    moeglich: [],
+    abgelehnt: [],
+  };
+  for (const law of gesetze) {
+    const stanz = getKoalitionsStanz(law, koalitionsvertragProfil, schluesselthemen);
+    result[stanz].push(law);
+  }
+  // Innerhalb jeder Gruppe nach Kongruenz sortieren
+  const sortByKongruenz = (laws: Law[]) =>
+    laws.sort(
+      (a, b) =>
+        berechneKongruenz(koalitionsvertragProfil, b.ideologie ?? DEFAULT_IDEOLOGIE) -
+        berechneKongruenz(koalitionsvertragProfil, a.ideologie ?? DEFAULT_IDEOLOGIE),
+    );
+  result.priorisiert = sortByKongruenz(result.priorisiert);
+  result.moeglich = sortByKongruenz(result.moeglich);
+  result.abgelehnt = sortByKongruenz(result.abgelehnt);
+  return result;
+}
 
 /** Politikfeld-Icon-Keys — aufgelöst via POLITIKFELD_ICONS aus ui/icons.tsx */
 export const POLITIKFELD_ICON_KEYS: Record<string, string> = {

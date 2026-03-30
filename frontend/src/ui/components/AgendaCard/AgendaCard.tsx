@@ -17,7 +17,7 @@ import { GesetzStepper } from '../GesetzStepper/GesetzStepper';
 import { AgendaCardEffects } from './AgendaCardEffects';
 import { AgendaCardProgress } from './AgendaCardProgress';
 import { AgendaCardActions } from './AgendaCardActions';
-import type { Law, LawStatus } from '../../../core/types';
+import type { Law, LawStatus, KoalitionsStanz } from '../../../core/types';
 import { formatMrd } from '../../../utils/format';
 import styles from './AgendaCard.module.css';
 
@@ -26,6 +26,7 @@ interface AgendaCardProps {
   isRecommended?: boolean;
   showKongruenz?: boolean;
   recommendationScore?: number;
+  koalitionsStanz?: KoalitionsStanz;
 }
 
 const STATUS_KEYS: Partial<Record<LawStatus, string>> = {
@@ -50,7 +51,13 @@ const STATUS_CLASS: Partial<Record<LawStatus, string>> = {
   br_einspruch: styles.statusBlockiert,
 };
 
-export function AgendaCard({ law, isRecommended, showKongruenz, recommendationScore }: AgendaCardProps) {
+const STANZ_CLASS: Record<KoalitionsStanz, string> = {
+  priorisiert: styles.stanzPriorisiert,
+  moeglich: styles.stanzMoeglich,
+  abgelehnt: styles.stanzAbgelehnt,
+};
+
+export function AgendaCard({ law, isRecommended, showKongruenz, recommendationScore, koalitionsStanz }: AgendaCardProps) {
   const { t } = useTranslation(['common', 'game']);
   const { state, content, complexity, ausrichtung } = useGameStore();
   const actions = useGameActions();
@@ -144,6 +151,14 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
         {isRecommended && (
           <span className={styles.empfohlenBadge}>
             {t('game:gesetzAgenda.empfohlen')}
+          </span>
+        )}
+        {koalitionsStanz != null && (
+          <span
+            className={`${styles.stanzBadge} ${STANZ_CLASS[koalitionsStanz]}`}
+            title={t(`game:koalition.stanzTooltip.${koalitionsStanz}`, { defaultValue: koalitionsStanz })}
+          >
+            {t(`game:koalition.stanz.${koalitionsStanz}`, { defaultValue: koalitionsStanz })}
           </span>
         )}
         {recommendationScore != null && (

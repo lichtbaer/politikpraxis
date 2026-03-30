@@ -1570,6 +1570,8 @@
     "sortStandardTooltip": "Sort policy fields and laws by congruence with your party alignment (best match first). “All” is the status filter; “Standard” controls ordering within the agenda.",
     "sortEmpfohlen": "Recommended",
     "sortEmpfohlenTooltip": "Sort laws within each policy field by recommendation score (KPI need, success outlook, congruence, efficiency).",
+    "sortKoalition": "Coalition",
+    "sortKoalitionTooltip": "Group laws by coalition agreement alignment: Prioritized · Compatible · Critical",
     "searchPlaceholder": "Search law…",
     "keineErgebnisse": "No laws found."
   },
@@ -1899,6 +1901,10 @@
     "cta1": "Congratulations. You have won.",
     "cta2": "Now the real work begins.",
     "insKanzleramt": "To the Chancellery",
+    "koalitionsvertragTitle": "Coalition Agreement",
+    "koalitionsvertragSubtitle": "Your legislative priorities for this term",
+    "koalitionsvertragMoeglich": "coalition-compatible laws",
+    "koalitionsvertragAbgelehnt": "coalition-critical laws (strain coalition)",
     "stepProgress": "Step {{current}} of {{total}}",
     "defaultGovName": "Chancellor",
     "erster_monat": "First month in office. The coalition is sworn in, ministries are staffed. Now the work begins.",
@@ -2189,7 +2195,17 @@
     "partner": "Coalition partner",
     "koalition": "Coalition",
     "koalitionsrunde": "Coalition meeting",
-    "zugestaendnis": "Concession"
+    "zugestaendnis": "Concession",
+    "stanz": {
+      "priorisiert": "In Coalition Agreement",
+      "moeglich": "Coalition-Compatible",
+      "abgelehnt": "Coalition-Critical"
+    },
+    "stanzTooltip": {
+      "priorisiert": "This law is part of the coalition agreement — passing it strengthens the coalition",
+      "moeglich": "Fits the coalition's course",
+      "abgelehnt": "Deviates from the coalition agreement — passing it strains the coalition relationship (−5)"
+    }
   },
   "verbaende": {
     "title": "Associations",

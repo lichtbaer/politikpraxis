@@ -146,6 +146,27 @@ export function updateKoalitionsvertragScore(
     }
   }
 
+  // Koalitions-Stanz-Malus: abgelehnte Gesetze belasten Koalitionsbeziehung (Stufe 2+)
+  if (featureActive(complexity, 'koalitionsvertrag_tracker') && state.koalitionsvertragProfil) {
+    const partner = getKoalitionspartner(content, state);
+    const law = state.gesetze.find(g => g.id === gesetzId);
+    if (law) {
+      const gesetzIdeologie = getGesetzIdeologie(law);
+      const kongruenz = berechneKongruenz(state.koalitionsvertragProfil, gesetzIdeologie);
+      const imVertrag = partner.schluesselthemen?.some(
+        (t) => t === gesetzId || t === law.politikfeldId,
+      );
+      if (!imVertrag && kongruenz < 50) {
+        kp = { ...kp, beziehung: Math.max(0, kp.beziehung - 5) };
+        next = addLog(
+          next,
+          `Koalitionskritisches Gesetz beschlossen — Beziehung −5`,
+          'r',
+        );
+      }
+    }
+  }
+
   return { ...next, koalitionspartner: kp };
 }
 

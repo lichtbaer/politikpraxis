@@ -193,7 +193,9 @@ def upgrade() -> None:
             """),
             {"eid": eid_del},
         )
-        conn.execute(sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid_del})
+        conn.execute(
+            sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid_del}
+        )
 
     for em in events_meta:
         conn.execute(
@@ -411,8 +413,12 @@ def downgrade() -> None:
             """),
             {"eid": eid},
         )
-        bind.execute(sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid})
-        bind.execute(sa.text("DELETE FROM events_i18n WHERE event_id = :eid"), {"eid": eid})
+        bind.execute(
+            sa.text("DELETE FROM event_choices WHERE event_id = :eid"), {"eid": eid}
+        )
+        bind.execute(
+            sa.text("DELETE FROM events_i18n WHERE event_id = :eid"), {"eid": eid}
+        )
         bind.execute(sa.text("DELETE FROM events WHERE id = :eid"), {"eid": eid})
 
     op.drop_column("event_choices", "haushalt_saldo_delta_mrd")

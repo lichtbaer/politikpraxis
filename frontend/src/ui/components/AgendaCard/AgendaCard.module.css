@@ -138,6 +138,32 @@
   gap: 4px;
 }
 
+.stanzBadge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+
+.stanzPriorisiert {
+  background: var(--green2, rgba(76, 175, 80, 0.2));
+  color: var(--green);
+}
+
+.stanzMoeglich {
+  background: var(--fg4, rgba(150, 150, 150, 0.15));
+  color: var(--fg2);
+}
+
+.stanzAbgelehnt {
+  background: rgba(231, 76, 60, 0.15);
+  color: var(--red, #e74c3c);
+}
+
 .scoreBadge {
   display: inline-block;
   min-width: 18px;
