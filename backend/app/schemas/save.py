@@ -39,6 +39,48 @@ class SaveUpsertRequest(BaseModel):
         # Basic structural check: month must be present and numeric
         if "month" not in v or not isinstance(v["month"], (int, float)):
             raise ValueError("game_state muss ein numerisches 'month'-Feld enthalten")
+
+        # Bounds: month 1–48
+        month_val = int(v["month"])
+        if not (0 <= month_val <= 48):
+            raise ValueError("game_state.month muss zwischen 0 und 48 liegen")
+
+        # Bounds: PK 0–200 (engine-max 150, etwas Spielraum für Migrationsfälle)
+        if "pk" in v:
+            try:
+                pk_val = float(v["pk"])
+            except (TypeError, ValueError):
+                raise ValueError("game_state.pk muss numerisch sein")
+            if not (0 <= pk_val <= 200):
+                raise ValueError("game_state.pk muss zwischen 0 und 200 liegen")
+
+        # Bounds: Zustimmung 0–100
+        zust = v.get("zust")
+        if isinstance(zust, dict) and "g" in zust:
+            try:
+                g_val = float(zust["g"])
+            except (TypeError, ValueError):
+                raise ValueError("game_state.zust.g muss numerisch sein")
+            if not (0 <= g_val <= 100):
+                raise ValueError("game_state.zust.g muss zwischen 0 und 100 liegen")
+
+        # Bounds: Koalitionsstabilität 0–100
+        if "coalition" in v:
+            try:
+                coa_val = float(v["coalition"])
+            except (TypeError, ValueError):
+                raise ValueError("game_state.coalition muss numerisch sein")
+            if not (0 <= coa_val <= 100):
+                raise ValueError("game_state.coalition muss zwischen 0 und 100 liegen")
+
+        # Struktur: gesetze muss Liste sein (wenn vorhanden)
+        if "gesetze" in v and not isinstance(v["gesetze"], list):
+            raise ValueError("game_state.gesetze muss eine Liste sein")
+
+        # Struktur: chars muss Liste sein (wenn vorhanden)
+        if "chars" in v and not isinstance(v["chars"], list):
+            raise ValueError("game_state.chars muss eine Liste sein")
+
         return v
 
 

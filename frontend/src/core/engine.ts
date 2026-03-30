@@ -42,6 +42,7 @@ import {
   checkKoalitionspartnerAlleingang,
   checkWahlkampfThemaWahl,
   checkWahlkampfVersprechen,
+  checkWahlkampfZwischenbilanz,
   tickWahlkampfPrognose,
   triggerWahlnacht,
 } from './systems/wahlkampf';
@@ -275,6 +276,7 @@ export function tick(
   if (s.wahlkampfAktiv) {
     s = { ...s, wahlkampfAktionenGenutzt: 0 };
     if (!s.activeEvent) s = checkWahlkampfThemaWahl(s, content, complexity);
+    if (!s.activeEvent) s = checkWahlkampfZwischenbilanz(s, content, complexity);
     if (!s.activeEvent) s = checkTVDuell(s, content, complexity);
     if (!s.activeEvent) s = checkWahlkampfVersprechen(s, content, complexity);
     if (!s.activeEvent) s = checkKoalitionspartnerAlleingang(s, content, complexity);

@@ -1,5 +1,6 @@
 import type { Ideologie as IdeologieType, Law, Milieu, GameState, GameEvent } from './types';
 import { withPause, getAutoPauseLevel } from './eventPause';
+import { addLog } from './log';
 
 const DEFAULT_IDEOLOGIE: IdeologieType = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 
@@ -123,6 +124,16 @@ export function tickExtremismusDruck(
         ...withPause(state, getAutoPauseLevel(ev)),
       };
     }
+  }
+
+  // Vorwarnung Verfassungsgericht: einmalig wenn Malus 15-20 — gibt Spieler Zeit zu reagieren
+  if (malus > 15 && !state.bverfgVorwarnung && !state.verfassungsgerichtAktiv) {
+    const warned = addLog(
+      { ...state, bverfgVorwarnung: true },
+      '⚠ Ihr politischer Kurs ist verfassungsrechtlich riskant — eine Klage beim BVerfG wird wahrscheinlicher. Moderatere Positionen könnten das Verfahren abwenden.',
+      'danger',
+    );
+    return warned;
   }
 
   // Verfassungsgericht (einmalig ab Malus > 20, min_complexity 3)

@@ -217,6 +217,7 @@ export interface GameState {
   opposition?: OppositionState;
   bundestagTabHinweisGezeigt?: boolean;
   extremismusWarnung?: boolean;
+  bverfgVorwarnung?: boolean;
   verfassungsgerichtAktiv?: boolean;
   verfassungsgerichtVerfahrenBisMonat?: number;
   verfassungsgerichtPolitikfeldIds?: string[];
