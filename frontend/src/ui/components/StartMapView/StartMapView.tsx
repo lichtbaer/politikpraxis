@@ -18,7 +18,7 @@ const MAP_GERMANY = 'startmap-germany';
  * wurde in ECharts hier nicht zuverlässig über Europa gerendert.)
  */
 const EUROPE_BOUNDING_COORDS: [[number, number], [number, number]] = [
-  [-24.542225, 29.486706],
+  [-24.542225, 34.56255],
   [50.37499, 71.154709],
 ];
 
