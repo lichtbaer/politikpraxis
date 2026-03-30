@@ -95,9 +95,9 @@ select:focus-visible {
   background: var(--gold);
   color: var(--bg);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   box-shadow: 0 4px 20px color-mix(in srgb, var(--gold) 25%, transparent);
 }
 
@@ -118,14 +118,19 @@ select:focus-visible {
   background: var(--bg3);
   color: var(--text);
   border: 1px solid var(--border2);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--bg4);
   border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-secondary:disabled {
@@ -141,9 +146,24 @@ select:focus-visible {
   border: none;
   cursor: pointer;
   padding: 8px 16px;
-  transition: color 0.15s;
+  transition: color var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-ghost:hover {
   color: var(--text2);
+  transform: translateY(-1px);
+}
+
+.btn-ghost:active {
+  transform: translateY(0);
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

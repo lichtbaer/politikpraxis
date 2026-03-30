@@ -14,23 +14,23 @@
   margin: 1rem 0 1.25rem;
   padding: 0.75rem 1rem;
   border-radius: var(--radius-md, 8px);
-  background: color-mix(in srgb, var(--color-surface-elevated) 88%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  background: color-mix(in srgb, var(--bg3) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
   font-size: 0.9rem;
 }
 
 .noteRow input {
   width: 1.1rem;
   height: 1.1rem;
-  accent-color: var(--color-accent, #3d6fd9);
+  accent-color: var(--gold);
 }
 
 .block {
   margin-bottom: 1.5rem;
   padding: 1rem 1.1rem;
   border-radius: var(--radius-md, 8px);
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  background: color-mix(in srgb, var(--bg2) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
 }
 
 .block h3 {
@@ -56,7 +56,7 @@
 .dimItem {
   padding: 0.35rem 0.5rem;
   border-radius: 6px;
-  background: color-mix(in srgb, var(--color-surface-elevated) 80%, transparent);
+  background: color-mix(in srgb, var(--bg3) 80%, transparent);
 }
 
 .grade {
@@ -69,7 +69,7 @@
 .titel {
   font-size: 1.05rem;
   font-weight: 600;
-  color: color-mix(in srgb, var(--color-text) 92%, var(--color-accent));
+  color: color-mix(in srgb, var(--text) 92%, var(--gold));
 }
 
 .chartRow {
@@ -83,7 +83,7 @@
 .bar {
   flex: 1;
   min-width: 4px;
-  background: color-mix(in srgb, var(--color-accent) 65%, #666);
+  background: color-mix(in srgb, var(--gold) 65%, #666);
   border-radius: 2px 2px 0 0;
   opacity: 0.85;
 }
@@ -97,33 +97,63 @@
 
 .btn {
   padding: 0.55rem 1rem;
-  border-radius: var(--radius-md, 8px);
+  border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
 }
 
 .btnPrimary {
   padding: 0.55rem 1rem;
-  border-radius: var(--radius-md, 8px);
+  border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
-  background: var(--color-accent, #3d6fd9);
+  background: var(--gold);
   color: #fff;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.btnPrimary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btnPrimary:active {
+  transform: translateY(0);
 }
 
 .btnSecondary {
   padding: 0.55rem 1rem;
-  border-radius: var(--radius-md, 8px);
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
-  background: color-mix(in srgb, var(--color-surface-elevated) 100%, transparent);
-  color: var(--color-text);
-  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btnSecondary:hover {
+  background: var(--bg4);
+  border-color: var(--border2);
+  transform: translateY(-1px);
+}
+
+.btnSecondary:active {
+  transform: translateY(0);
 }
 
 .muted {
@@ -189,13 +219,13 @@
 }
 
 .achievementUnlocked {
-  background: color-mix(in srgb, var(--color-success, #2e7d32) 10%, transparent);
-  border-color: color-mix(in srgb, var(--color-success, #2e7d32) 40%, transparent);
+  background: color-mix(in srgb, var(--green) 10%, transparent);
+  border-color: color-mix(in srgb, var(--green) 40%, transparent);
 }
 
 .achievementLocked {
-  background: color-mix(in srgb, var(--color-surface-elevated) 60%, transparent);
-  border-color: color-mix(in srgb, var(--color-border) 40%, transparent);
+  background: color-mix(in srgb, var(--bg3) 60%, transparent);
+  border-color: color-mix(in srgb, var(--border) 40%, transparent);
   opacity: 0.55;
 }
 

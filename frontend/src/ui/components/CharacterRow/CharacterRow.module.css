@@ -11,11 +11,12 @@
   cursor: pointer;
   text-align: left;
   font-family: var(--sans);
-  transition: background 0.15s ease, transform 0.15s;
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
 .root:hover {
   background: var(--bg3);
+  transform: translateX(2px);
 }
 
 .avatarWrap {

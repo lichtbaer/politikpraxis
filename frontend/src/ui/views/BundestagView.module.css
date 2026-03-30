@@ -123,11 +123,13 @@
   border-radius: 6px;
   color: var(--text);
   cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .lobbyBtn:hover:not(:disabled) {
   background: var(--bg);
   border-color: var(--text3);
+  transform: translateY(-1px);
 }
 
 .lobbyBtn:disabled {
@@ -196,10 +198,13 @@
   background: var(--bg3);
   color: var(--text);
   cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
 }
 
 .onboardingHintBtn:hover {
   border-color: var(--text3);
+  background: var(--bg4);
+  transform: translateY(-1px);
 }
 
 .nfCard {

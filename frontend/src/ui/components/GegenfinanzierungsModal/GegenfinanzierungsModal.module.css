@@ -10,13 +10,14 @@
 
 .modal {
   background: var(--bg2);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   padding: 24px;
   max-width: 480px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  animation: scaleIn 0.2s ease-out;
 }
 
 .title {
@@ -56,9 +57,13 @@
 /* SMA-336: OptionCard mit disabled-State */
 .optionCard {
   border: 2px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--bg3);
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color var(--transition-base), background var(--transition-base), transform var(--transition-fast);
+}
+
+.optionCard:hover:not(.disabled) {
+  transform: translateY(-1px);
 }
 
 .optionCard.selected {
@@ -248,6 +253,13 @@
   border-radius: 6px;
   color: var(--text2);
   cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btnSecondary:hover {
+  background: var(--bg4);
+  border-color: var(--border2);
+  transform: translateY(-1px);
 }
 
 .btnPrimary {
@@ -258,10 +270,13 @@
   color: var(--bg1);
   font-weight: 600;
   cursor: pointer;
+  transition: filter var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .btnPrimary:hover:not(:disabled) {
   filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .btnPrimary:disabled {

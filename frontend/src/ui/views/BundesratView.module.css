@@ -46,12 +46,12 @@
   padding: 14px;
   background: var(--bg3);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   gap: 10px;
   animation: slideIn 0.4s ease-out both;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-fast);
 }
 
 .karte:nth-child(1) { animation-delay: 0s; }
@@ -61,7 +61,8 @@
 
 .karte:hover {
   border-color: var(--border2);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .karteHeader {
@@ -434,10 +435,13 @@
   background: var(--bg3);
   color: var(--text);
   cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
 }
 
 .btnBilateral:hover:not(:disabled) {
   border-color: var(--gold);
+  background: var(--bg4);
+  transform: translateY(-1px);
 }
 
 .btnBilateral:disabled {
