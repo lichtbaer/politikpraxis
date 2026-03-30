@@ -1778,6 +1778,10 @@
     "cta1": "Glückwunsch. Du hast gewonnen.",
     "cta2": "Jetzt geht die Arbeit richtig los.",
     "insKanzleramt": "Ins Kanzleramt",
+    "koalitionsvertragTitle": "Koalitionsvertrag",
+    "koalitionsvertragSubtitle": "Deine Gesetzgebungsprioritäten für diese Legislaturperiode",
+    "koalitionsvertragMoeglich": "koalitionskonforme Gesetze",
+    "koalitionsvertragAbgelehnt": "koalitionskritische Gesetze (belasten Koalition)",
     "stepProgress": "Schritt {{current}} von {{total}}",
     "defaultGovName": "Kanzler/in",
     "erster_monat": "Erster Monat im Amt. Die Koalition ist vereidigt, die Ministerien besetzt. Jetzt geht es an die Arbeit.",
@@ -1865,7 +1869,17 @@
     "partner": "Koalitionspartner",
     "koalition": "Koalition",
     "koalitionsrunde": "Koalitionsrunde",
-    "zugestaendnis": "Zugeständnis"
+    "zugestaendnis": "Zugeständnis",
+    "stanz": {
+      "priorisiert": "Im Koalitionsvertrag",
+      "moeglich": "Koalitionskonform",
+      "abgelehnt": "Koalitionskritisch"
+    },
+    "stanzTooltip": {
+      "priorisiert": "Dieses Gesetz ist Teil des Koalitionsvertrags — Beschluss stärkt die Koalition",
+      "moeglich": "Passt zum koalitionsinternen Kurs",
+      "abgelehnt": "Abweichung vom Koalitionsvertrag — Beschluss belastet die Koalitionsbeziehung (−5)"
+    }
   },
   "verbaende": {
     "title": "Verbände",
@@ -1992,6 +2006,8 @@
     "sortStandardTooltip": "Politikfelder und Gesetze nach Kongruenz mit deiner Parteiausrichtung sortieren (passendste zuerst). Unterschied zu „Alle“: „Alle“ ist der Statusfilter; „Standard“ steuert die Reihenfolge innerhalb der Agenda.",
     "sortEmpfohlen": "Empfohlen",
     "sortEmpfohlenTooltip": "Gesetze innerhalb jedes Politikfeldes nach Empfehlungswert sortieren (KPI-Bedarf, Erfolgsaussicht, Kongruenz, Effizienz).",
+    "sortKoalition": "Koalition",
+    "sortKoalitionTooltip": "Gesetze nach Koalitionsvertrag-Kongruenz gruppieren: Priorisiert · Koalitionskonform · Koalitionskritisch",
     "searchPlaceholder": "Gesetz suchen…",
     "keineErgebnisse": "Keine Gesetze gefunden."
   },

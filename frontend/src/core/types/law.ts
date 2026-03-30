@@ -12,6 +12,9 @@ export interface LawEffects {
 
 export type LawStatus = 'entwurf' | 'eingebracht' | 'aktiv' | 'blockiert' | 'beschlossen' | 'ausweich' | 'bt_passed' | 'br_einspruch';
 
+/** Klassifizierung eines Gesetzes nach Koalitionsvertrag-Kongruenz */
+export type KoalitionsStanz = 'priorisiert' | 'moeglich' | 'abgelehnt';
+
 /** SMA-304: Eingebrachtes Gesetz in Ausschussphase (lag_months bis Abstimmung) */
 export interface EingebrachteGesetz {
   gesetzId: string;

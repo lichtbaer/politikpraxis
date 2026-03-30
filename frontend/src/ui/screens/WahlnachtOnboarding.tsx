@@ -2,7 +2,7 @@
  * SMA-289: Wahlnacht-Onboarding mit Partei-Auswahl (Stufe 2+) und Ideologie-Feinjustierung (Stufe 3+).
  * Stufe 1: Automatisch SDP, kein Partei-Screen.
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
@@ -14,12 +14,13 @@ import {
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
 } from '../../data/defaults/parteien';
-import { berechneKoalitionspartner } from '../../core/systems/koalition';
+import { berechneKoalitionspartner, getKoalitionspartner } from '../../core/systems/koalition';
+import { getKoalitionsStanz, gruppiereNachKoalitionsStanz } from '../../core/gesetzAgenda';
 import { IdeologieSlider } from '../components/IdeologieSlider/IdeologieSlider';
 import { ALLE_PARTEIEN } from '../../data/defaults/koalitionspartner';
 import styles from './WahlnachtOnboarding.module.css';
 
-/** Beat 0 = Partei, 1 = Ideologie (Stufe 3+), 2 = Headline, 3 = Kabinett, 4 = Memo, 5 = CTA */
+/** Beat 0 = Partei, 1 = Ideologie (Stufe 3+), 2 = Headline, 3 = Kabinett, 4 = Memo, 5 = Koalitionsvertrag, 6 = CTA */
 function clampToCorridor(
   value: number,
   corridor: [number, number]
@@ -51,7 +52,7 @@ export function WahlnachtOnboarding() {
   });
 
   const advance = useCallback(() => {
-    const maxBeat = showIdeologieScreen ? 6 : 5;
+    const maxBeat = showIdeologieScreen ? 7 : 6;
     if (beat < maxBeat) setBeat((b) => b + 1);
     else startGame();
   }, [beat, startGame, showIdeologieScreen]);
@@ -117,17 +118,37 @@ export function WahlnachtOnboarding() {
 
   const chars: Character[] = state.chars;
   const name = (state.kanzlerName ?? playerName).trim() || t('game:onboarding.defaultGovName');
-  const lawCount = state.gesetze.length;
   const pk = state.pk;
   const showBundesratLine = featureActive(complexity, 'bundesrat_sichtbar');
   const memoBrLine = showBundesratLine ? t('game:onboarding.memoBrLine') : '';
 
+  // Koalitions-Klassifizierung für Onboarding-Beat 5 (Memo) und Beat 6 (Koalitionsvertrag)
+  const koalitionspartnerContent = state.koalitionspartner
+    ? getKoalitionspartner(undefined, state)
+    : null;
+  const onboardingSch = koalitionspartnerContent?.schluesselthemen ?? [];
+  const onboardingKvProfil = state.koalitionsvertragProfil ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
+
+  const koalitionsGruppen = useMemo(() => {
+    if (state.gesetze.length === 0) return null;
+    return gruppiereNachKoalitionsStanz(state.gesetze, onboardingKvProfil, onboardingSch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.gesetze]);
+
+  const prioLawCount = useMemo(
+    () => state.gesetze.filter((g) => getKoalitionsStanz(g, onboardingKvProfil, onboardingSch) === 'priorisiert').length,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state.gesetze],
+  );
+  // Fallback: wenn kein Koalitionspartner vorhanden, alle Gesetze zeigen
+  const lawCount = prioLawCount > 0 ? prioLawCount : state.gesetze.length;
+
   /* SMA-302: Fortschritts-Dots — Schritte je nach Komplexität */
   const steps = showIdeologieScreen
-    ? [0, 1, 2, 3, 4, 5, 6]
+    ? [0, 1, 2, 3, 4, 5, 6, 7]
     : showParteiScreen
-      ? [0, 1, 3, 4, 5, 6]
-      : [3, 4, 5, 6];
+      ? [0, 1, 3, 4, 5, 6, 7]
+      : [3, 4, 5, 6, 7];
   const currentStepIndex = steps.indexOf(beat);
 
   return (
@@ -307,8 +328,52 @@ export function WahlnachtOnboarding() {
           </div>
         )}
 
-        {/* Beat 6 — Call to Action */}
+        {/* Beat 6 — Koalitionsvertrag-Übersicht */}
         {beat === 6 && (
+          <div className={styles.beatKoalition}>
+            <h1 className={styles.koalitionsvertragTitle}>
+              {t('game:onboarding.koalitionsvertragTitle')}
+            </h1>
+            <p className={styles.koalitionsvertragSubtitle}>
+              {t('game:onboarding.koalitionsvertragSubtitle')}
+            </p>
+            {koalitionsGruppen ? (
+              <div className={styles.stanzSections}>
+                {koalitionsGruppen.priorisiert.length > 0 && (
+                  <div className={`${styles.stanzSection} ${styles.stanzSectionPriorisiert}`}>
+                    <span className={styles.stanzLabel}>
+                      {t('game:koalition.stanz.priorisiert')}
+                    </span>
+                    <ul className={styles.stanzList}>
+                      {koalitionsGruppen.priorisiert.slice(0, 5).map((g) => (
+                        <li key={g.id}>{g.titel || t(`game:laws.${g.id}.titel`, g.id)}</li>
+                      ))}
+                      {koalitionsGruppen.priorisiert.length > 5 && (
+                        <li>… +{koalitionsGruppen.priorisiert.length - 5}</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+                <div className={styles.stanzRow}>
+                  <div className={`${styles.stanzStat} ${styles.stanzStatMoeglich}`}>
+                    <span className={styles.stanzStatNum}>{koalitionsGruppen.moeglich.length}</span>
+                    <span className={styles.stanzStatLabel}>{t('game:onboarding.koalitionsvertragMoeglich')}</span>
+                  </div>
+                  <div className={`${styles.stanzStat} ${styles.stanzStatAbgelehnt}`}>
+                    <span className={styles.stanzStatNum}>{koalitionsGruppen.abgelehnt.length}</span>
+                    <span className={styles.stanzStatLabel}>{t('game:onboarding.koalitionsvertragAbgelehnt')}</span>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+            <button type="button" className={styles.weiter} onClick={advance}>
+              {t('game:onboarding.weiter')}
+            </button>
+          </div>
+        )}
+
+        {/* Beat 7 — Call to Action */}
+        {beat === 7 && (
           <div className={styles.beat4}>
             <p className={styles.ctaText}>
               <em>{t('game:onboarding.cta1')}</em>
