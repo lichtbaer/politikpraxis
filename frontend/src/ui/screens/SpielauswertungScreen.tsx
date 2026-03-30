@@ -12,6 +12,7 @@ import {
   berechneTopPolitikfeld,
 } from '../../core/auswertung';
 import { getKoalitionspartner } from '../../core/systems/koalition';
+import { checkAchievements, getAllAchievements } from '../../core/systems/achievements';
 import { useGameStore } from '../../store/gameStore';
 import { useAuthStore } from '../../store/authStore';
 import { useContentStore } from '../../store/contentStore';
@@ -42,6 +43,12 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
 
   const [optIn, setOptIn] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [achievements, setAchievements] = useState<ReturnType<typeof getAllAchievements>>([]);
+
+  useEffect(() => {
+    checkAchievements(state);
+    setAchievements(getAllAchievements());
+  }, [state]);
   const [gameStatId, setGameStatId] = useState<string | null>(null);
   const submittedRef = useRef(false);
   const [community, setCommunity] = useState<Awaited<ReturnType<typeof fetchCommunityStats>> | null>(
@@ -318,6 +325,24 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
             <strong>{community.gewinnrate}%</strong>
             <span>{t('game:auswertung.commWahl', 'Ø Wahlprognose')}</span>
             <strong>{community.wahlprognose_avg}%</strong>
+          </div>
+        </div>
+      )}
+
+      {achievements.length > 0 && (
+        <div className={styles.block}>
+          <h3>{t('game:auswertung.blockAchievements', 'Errungenschaften')}</h3>
+          <div className={styles.achievementGrid}>
+            {achievements.map((a) => (
+              <div
+                key={a.id}
+                className={`${styles.achievementTile} ${a.unlocked ? styles.achievementUnlocked : styles.achievementLocked}`}
+                title={a.desc}
+              >
+                <span className={styles.achievementTitle}>{a.unlocked ? a.title : '???'}</span>
+                <span className={styles.achievementDesc}>{a.unlocked ? a.desc : t('game:auswertung.achievementLocked', 'Noch nicht freigeschaltet')}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}

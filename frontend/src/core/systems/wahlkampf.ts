@@ -6,7 +6,12 @@ import { getKoalitionspartner } from './koalition';
 import { berechneWahlprognose } from './wahlprognose';
 import { berechneKongruenz } from '../ideologie';
 import { verbrauchePK } from '../pk';
-import { DEFAULT_ELECTION_THRESHOLD } from '../constants';
+import {
+  DEFAULT_ELECTION_THRESHOLD,
+  PK_WAHLKAMPF_REDE,
+  PK_WAHLKAMPF_KOALITION,
+  PK_WAHLKAMPF_MEDIENOFFENSIVE,
+} from '../constants';
 
 /** Opposition-Stärke aus Bundesrat (Anteil Opposition-Stimmen in %) */
 function berechneOppositionStaerke(state: GameState): number {
@@ -152,7 +157,7 @@ export function wahlkampfRede(
   if (!state.wahlkampfAktiv) return state;
   if ((state.wahlkampfAktionenGenutzt ?? 0) >= 2) return state;
 
-  const next = verbrauchePK(state, 8);
+  const next = verbrauchePK(state, PK_WAHLKAMPF_REDE);
   if (!next) return state;
 
   const milieu = content.milieus?.find(m => m.id === milieuId);
@@ -192,7 +197,7 @@ export function wahlkampfKoalition(
   const kp = state.koalitionspartner;
   if (!kp || kp.beziehung < 50) return state;
 
-  const next = verbrauchePK(state, 12);
+  const next = verbrauchePK(state, PK_WAHLKAMPF_KOALITION);
   if (!next) return state;
 
   const partner = getKoalitionspartner(content, state);
@@ -228,7 +233,7 @@ export function wahlkampfMedienoffensive(
   if (!state.wahlkampfAktiv) return state;
   if (state.medienoffensiveGenutzt) return state;
 
-  const next = verbrauchePK(state, 15);
+  const next = verbrauchePK(state, PK_WAHLKAMPF_MEDIENOFFENSIVE);
   if (!next) return state;
 
   const medienKlima = Math.min(100, (next.medienKlima ?? 50) + 10);
@@ -428,6 +433,64 @@ export function checkKoalitionspartnerAlleingang(
   }
 
   return state;
+}
+
+/**
+ * Zwischenbilanz-Event (Monat 45, einmalig) — füllt die Lücke wenn TV-Duell auf 46 fällt.
+ */
+export function checkWahlkampfZwischenbilanz(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): GameState {
+  if (!featureActive(complexity, 'wahlkampf')) return state;
+  if (!state.wahlkampfAktiv) return state;
+  if (state.month !== 45) return state;
+  if (state.firedEvents.includes('wahlkampf_zwischenbilanz')) return state;
+  if (state.firedEvents.includes('tv_duell')) return state; // TV-Duell schon gelaufen
+  if (state.activeEvent) return state;
+
+  const ev = content.events?.find(e => e.id === 'wahlkampf_zwischenbilanz');
+  if (ev) {
+    return {
+      ...state,
+      activeEvent: ev,
+      firedEvents: [...state.firedEvents, 'wahlkampf_zwischenbilanz'],
+      ...withPause(state, getAutoPauseLevel(ev)),
+    };
+  }
+  return state;
+}
+
+/**
+ * Effekte der Wahlkampf-Zwischenbilanz-Entscheidung anwenden.
+ * Wird in resolveEvent aufgerufen wenn wahlkampf_zwischenbilanz entschieden wird.
+ */
+export function applyWahlkampfZwischenbilanz(state: GameState, choiceKey: string): GameState {
+  const milieuZustimmung = { ...(state.milieuZustimmung ?? {}) };
+  let medienKlima = state.medienKlima ?? 50;
+
+  if (choiceKey === 'schwache') {
+    // Schwächste Milieus identifizieren und +3 geben
+    const sorted = Object.entries(milieuZustimmung).sort((a, b) => a[1] - b[1]);
+    for (const [mid] of sorted.slice(0, 2)) {
+      milieuZustimmung[mid] = Math.min(100, (milieuZustimmung[mid] ?? 50) + 3);
+    }
+    medienKlima = Math.max(0, medienKlima - 5);
+  } else if (choiceKey === 'medien') {
+    // Alle Milieus +1, Medienklima +8
+    for (const mid of Object.keys(milieuZustimmung)) {
+      milieuZustimmung[mid] = Math.min(100, (milieuZustimmung[mid] ?? 50) + 1);
+    }
+    medienKlima = Math.min(100, medienKlima + 8);
+  }
+  // 'sparen': keine Effekte
+
+  return addLog(
+    { ...state, milieuZustimmung, medienKlima },
+    `Wahlkampf-Halbzeit: Strategie "${choiceKey}" gewählt.`,
+    'g',
+  );
 }
 
 /** Wahlprognose monatlich aktualisieren (aus Milieu-Zustimmung) */

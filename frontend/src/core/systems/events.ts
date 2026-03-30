@@ -8,7 +8,7 @@ import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from './ministerAgenden';
 import { resolveMisstrauensvotum } from './election';
 import { startKommunalPilot } from './gesetzLebenszyklus';
 import { applyVorbildBonus } from './gesetzLebenszyklus';
-import { resolveTVDuell } from './wahlkampf';
+import { resolveTVDuell, applyWahlkampfThema, applyWahlkampfZwischenbilanz } from './wahlkampf';
 import { setNormenkontrollReaktion } from './verfassungsgericht';
 import { applyMedienChoiceDelta, adjustMedienKlimaGlobal } from './medienklima';
 import { applyMilieuDelta } from './dynamischeEvents';
@@ -60,7 +60,10 @@ function applySprecherWechselEffect(state: GameState, event: GameEvent): GameSta
 }
 
 /** Wahlkampf-Events werden nie zufällig getriggert; nur durch dedizierte Check-Funktionen (Monat 43–48) */
-const WAHLKAMPF_EVENT_IDS = new Set(['wahlkampf_beginn', 'tv_duell', 'koalitionspartner_alleingang']);
+const WAHLKAMPF_EVENT_IDS = new Set([
+  'wahlkampf_beginn', 'tv_duell', 'koalitionspartner_alleingang',
+  'wahlkampf_thema_wahl', 'wahlkampf_versprechen', 'wahlkampf_zwischenbilanz',
+]);
 
 export { isOnCooldown, isEventAvailable, recordEventFired } from './eventUtils';
 import { isEventAvailable, recordEventFired } from './eventUtils';
@@ -560,6 +563,20 @@ export function resolveEvent(
     if (vorbereitet && !canAfford(state, choice)) return state;
     let s = vorbereitet ? deductPk(state, choice) : state;
     s = resolveTVDuell(s, vorbereitet);
+    return finalizeEvent(s, event, choice, choice.log);
+  }
+
+  // Wahlkampf-Themenwahl (SMA-278)
+  if (event.id === 'wahlkampf_thema_wahl') {
+    if (!canAfford(state, choice)) return state;
+    const s = applyWahlkampfThema(deductPk(state, choice), choice.key ?? '');
+    return finalizeEvent(s, event, choice, choice.log);
+  }
+
+  // Wahlkampf-Zwischenbilanz (Monat 45)
+  if (event.id === 'wahlkampf_zwischenbilanz') {
+    if (!canAfford(state, choice)) return state;
+    const s = applyWahlkampfZwischenbilanz(deductPk(state, choice), choice.key ?? '');
     return finalizeEvent(s, event, choice, choice.log);
   }
 

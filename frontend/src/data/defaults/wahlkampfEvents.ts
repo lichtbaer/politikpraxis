@@ -144,6 +144,51 @@ export const WAHLKAMPF_VERSPRECHEN_EVENT: GameEvent = {
   ],
 };
 
+/**
+ * Zwischenbilanz Wahlkampf (Monat 45, einmalig) — Wenn kein TV-Duell: kurze Lagebeurteilung.
+ * Gibt dem Spieler in der Mitte des Wahlkampfs eine Entscheidung über das Wahlkampfbudget.
+ */
+export const WAHLKAMPF_ZWISCHENBILANZ_EVENT: GameEvent = {
+  id: 'wahlkampf_zwischenbilanz',
+  type: 'info',
+  icon: 'wahlkampf',
+  typeLabel: 'Wahlkampf',
+  title: 'Halbzeit im Wahlkampf',
+  quote: '„Noch 3 Monate — wie setzen wir unsere restlichen Ressourcen ein?"',
+  context:
+    'Der Wahlkampf läuft auf Hochtouren. Ihr Stab analysiert die Lage: Wo liegen noch Potentiale? Wo müssen Sie verteidigen?',
+  ticker: 'Wahlkampf: Halbzeit — Strategiebesprechung',
+  choices: [
+    {
+      label: 'Schwächste Milieus priorisieren',
+      desc: 'Konzentration auf rückläufige Gruppen: +3 für zwei schwächste Milieus, -5 Medienklima',
+      cost: 8,
+      type: 'safe',
+      effect: {},
+      log: 'Strategie: Schwächste Milieus gezielt angesprochen.',
+      key: 'schwache',
+    },
+    {
+      label: 'Breite Medienpräsenz',
+      desc: 'Überall präsent: +8 Medienklima, alle Milieus +1',
+      cost: 10,
+      type: 'primary',
+      effect: {},
+      log: 'Strategie: Breite Medienpräsenz aufgebaut.',
+      key: 'medien',
+    },
+    {
+      label: 'Ressourcen schonen',
+      desc: 'PK für TV-Duell und Endspurt sparen',
+      cost: 0,
+      type: 'danger',
+      effect: {},
+      log: 'Strategie: Ressourcen für Endspurt gespart.',
+      key: 'sparen',
+    },
+  ],
+};
+
 /** Koalitionspartner-Alleingang (Stufe 4, Beziehung < 50) */
 export const KOALITIONSPARTNER_ALLEINGANG_EVENT: GameEvent = {
   id: 'koalitionspartner_alleingang',

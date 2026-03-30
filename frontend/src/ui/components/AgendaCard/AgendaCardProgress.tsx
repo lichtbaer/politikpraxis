@@ -15,6 +15,7 @@ interface AgendaCardProgressProps {
     pending: PendingEffect[];
     eingebrachteGesetze?: Array<{ gesetzId: string; abstimmungMonat: number; eingebrachtMonat: number; lagMonths: number }>;
     gekoppelteGesetze?: Record<string, string[]>;
+    eu?: { aktiveRoute?: { gesetzId: string; phase: 1 | 2 | 3; dauer: number; startMonat: number } | null };
   };
   complexity: number;
   projekt: GesetzProjekt | undefined;
@@ -92,6 +93,14 @@ export function AgendaCardProgress({ law, state, complexity, projekt, boni, acti
           </div>
           <span className={styles.progressLabel}>
             {t('game:agenda.routeFormat', { route: t(`game:routes.${law.route}`), progress: law.rprog, duration: law.rdur })}
+            {law.route === 'eu' && (() => {
+              const euRoute = state.eu?.aktiveRoute;
+              if (euRoute && euRoute.gesetzId === law.id) {
+                const phaseLabel = t(`game:euRoute.phase${euRoute.phase}`, { defaultValue: `Phase ${euRoute.phase}` });
+                return <span className={styles.euPhaseTag}> · {phaseLabel}</span>;
+              }
+              return null;
+            })()}
           </span>
         </div>
       )}

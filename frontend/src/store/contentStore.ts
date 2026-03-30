@@ -43,9 +43,38 @@ import {
   KOALITIONSPARTNER_ALLEINGANG_EVENT,
   WAHLKAMPF_THEMA_WAHL_EVENT,
   WAHLKAMPF_VERSPRECHEN_EVENT,
+  WAHLKAMPF_ZWISCHENBILANZ_EVENT,
 } from '../data/defaults/wahlkampfEvents';
 import { DEFAULT_MEDIEN_EVENTS } from '../data/defaults/medienEvents';
 import { DEFAULT_MEDIEN_AKTEURE, type MedienAkteurContent, type MedienAkteurTyp } from '../data/defaults/medienAkteure';
+
+/** Leichtgewichtige Laufzeit-Guard für API-Rohdaten.
+ *  Warnt bei unerwarteter Struktur und gibt einen sicheren Fallback zurück. */
+function guardString(val: unknown, path: string, fallback = ''): string {
+  if (typeof val === 'string') return val;
+  console.warn(`[ContentGuard] ${path} ist kein String (${typeof val}), Fallback: "${fallback}"`);
+  return fallback;
+}
+
+function guardNumber(val: unknown, path: string, fallback = 0): number {
+  if (typeof val === 'number' && isFinite(val)) return val;
+  const n = Number(val);
+  if (!isNaN(n) && isFinite(n)) return n;
+  console.warn(`[ContentGuard] ${path} ist keine gültige Zahl (${String(val)}), Fallback: ${fallback}`);
+  return fallback;
+}
+
+function guardArray<T>(val: unknown, path: string): T[] {
+  if (Array.isArray(val)) return val as T[];
+  console.warn(`[ContentGuard] ${path} ist kein Array (${typeof val}), Fallback: []`);
+  return [];
+}
+
+function guardObject<T extends object>(val: unknown, path: string, fallback: T): T {
+  if (val !== null && typeof val === 'object' && !Array.isArray(val)) return val as T;
+  console.warn(`[ContentGuard] ${path} ist kein Objekt (${typeof val}), Fallback: {}`);
+  return fallback;
+}
 
 const EVENT_TYPE_ICON_KEYS: Record<string, string> = {
   danger: 'danger',
@@ -112,15 +141,18 @@ function transformChar(api: CharApi): Character {
 }
 
 function transformGesetz(api: GesetzApi): Law {
+  const id = guardString(api.id, 'Gesetz.id', '_unknown_');
+  const tags = guardArray<'bund' | 'eu' | 'land' | 'kommune'>(api.tags, `Gesetz[${id}].tags`);
+  const btJa = guardNumber(api.bt_stimmen_ja, `Gesetz[${id}].bt_stimmen_ja`, 50);
   const law: Law = {
-    id: api.id,
-    titel: api.titel,
-    kurz: api.kurz,
-    desc: api.desc,
-    tags: api.tags as ('bund' | 'eu' | 'land' | 'kommune')[],
+    id,
+    titel: guardString(api.titel, `Gesetz[${id}].titel`, id),
+    kurz: guardString(api.kurz, `Gesetz[${id}].kurz`, ''),
+    desc: guardString(api.desc, `Gesetz[${id}].desc`, ''),
+    tags,
     status: 'entwurf',
-    ja: api.bt_stimmen_ja,
-    nein: 100 - api.bt_stimmen_ja,
+    ja: btJa,
+    nein: 100 - btJa,
     effekte: api.effekte,
     lag: api.effekt_lag,
     expanded: false,
@@ -153,7 +185,7 @@ function transformGesetz(api: GesetzApi): Law {
     sektor_effekte: (api as { sektor_effekte?: Law['sektor_effekte'] }).sektor_effekte ?? [],
     // Art. 77 GG: Einspruchsgesetz vs. Zustimmungsgesetz.
     // Default: land-Gesetze sind zustimmungspflichtig, es sei denn explizit als Einspruchsgesetz markiert.
-    zustimmungspflichtig: api.zustimmungspflichtig ?? (api.tags.includes('land') ? true : undefined),
+    zustimmungspflichtig: api.zustimmungspflichtig ?? (tags.includes('land') ? true : undefined),
   };
   if (api.locked_until_event) {
     law.locked_until_event = api.locked_until_event;
@@ -184,19 +216,20 @@ function transformEventChoice(api: {
   sektor_delta?: Record<string, number>;
   haushalt_saldo_delta_mrd?: number;
 }): EventChoice {
+  const choiceKey = guardString(api.key, 'EventChoice.key', '_choice_');
   const type = (['primary', 'danger', 'safe'].includes(api.type)
     ? api.type
     : 'safe') as 'primary' | 'danger' | 'safe';
   const choice: EventChoice = {
-    label: api.label,
-    desc: api.desc,
-    cost: api.cost_pk,
+    label: guardString(api.label, `EventChoice[${choiceKey}].label`, choiceKey),
+    desc: guardString(api.desc, `EventChoice[${choiceKey}].desc`, ''),
+    cost: guardNumber(api.cost_pk, `EventChoice[${choiceKey}].cost_pk`, 0),
     type,
-    effect: api.effekte,
-    charMood: api.char_mood,
+    effect: guardObject(api.effekte, `EventChoice[${choiceKey}].effekte`, {}),
+    charMood: guardObject(api.char_mood, `EventChoice[${choiceKey}].char_mood`, {}),
     loyalty: api.loyalty,
-    log: api.log_msg,
-    key: api.key,
+    log: guardString(api.log_msg, `EventChoice[${choiceKey}].log_msg`, ''),
+    key: choiceKey,
   };
   if (api.koalitionspartner_beziehung_delta != null) {
     choice.koalitionspartnerBeziehung = api.koalitionspartner_beziehung_delta;
@@ -238,18 +271,20 @@ function transformEventChoice(api: {
 }
 
 function transformEvent(api: EventApi): GameEvent {
+  const id = guardString(api.id, 'Event.id', '_unknown_event_');
   const eventType = EVENT_TYPE_MAP[api.event_type] ?? 'info';
   const icon = EVENT_TYPE_ICON_KEYS[api.event_type] ?? 'random';
+  const choices = guardArray<Parameters<typeof transformEventChoice>[0]>(api.choices, `Event[${id}].choices`);
   const ev: GameEvent = {
-    id: api.id,
+    id,
     type: eventType,
     icon,
-    typeLabel: api.type_label,
-    title: api.title,
+    typeLabel: guardString(api.type_label, `Event[${id}].type_label`, ''),
+    title: guardString(api.title, `Event[${id}].title`, id),
     quote: api.quote,
     context: api.context,
     ticker: api.ticker,
-    choices: api.choices.map(transformEventChoice),
+    choices: choices.map(transformEventChoice),
   };
   if (api.politikfeld_id) ev.politikfeldId = api.politikfeld_id;
   if (api.trigger_druck_min != null) ev.triggerDruckMin = api.trigger_druck_min;
@@ -584,6 +619,7 @@ export function getContentBundle(): ContentBundle {
     KOALITIONSPARTNER_ALLEINGANG_EVENT,
     WAHLKAMPF_THEMA_WAHL_EVENT,
     WAHLKAMPF_VERSPRECHEN_EVENT,
+    WAHLKAMPF_ZWISCHENBILANZ_EVENT,
   ];
   return {
     characters: s.chars,

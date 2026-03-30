@@ -236,6 +236,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const prevMonth = s.month;
     const nextState = tick(s, content, complexity, ausrichtung);
     set({ state: nextState });
+    // Notify player when an engine system crashed during tick
+    const engineFehler = nextState.tickLog.filter((e) => e.source.startsWith('Engine-Fehler:'));
+    if (engineFehler.length > 0) {
+      toast(`Spielfehler in ${engineFehler.length} System(en) — Fortschritt gesichert`, 'warning');
+    }
     const diff = nextState.letzterMonatsDiff;
     if (
       phase === 'playing' &&

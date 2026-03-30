@@ -169,6 +169,28 @@ export const APPROVAL_GI_FAKTOR = 0.25;
 /** Gewicht der Zufriedenheit in der Zustimmungsformel */
 export const APPROVAL_ZF_FAKTOR = 0.4;
 
+// --- Wahlkampf PK-Kosten ---
+/** PK für Wahlkampf-Rede (Milieu-Boost) */
+export const PK_WAHLKAMPF_REDE = 8;
+/** PK für Wahlkampf-Koalition (Partner-Kernmilieus) */
+export const PK_WAHLKAMPF_KOALITION = 12;
+/** PK für Wahlkampf-Medienoffensive (einmalig) */
+export const PK_WAHLKAMPF_MEDIENOFFENSIVE = 15;
+/** PK für TV-Duell-Vorbereitung */
+export const PK_TV_DUELL_VORBEREITUNG = 15;
+
+// --- Multilevel-Routen PK-Kosten ---
+/** PK für EU-Route (Gesamtkosten) */
+export const PK_EU_ROUTE = 28;
+/** PK für Länder-Pilot-Route */
+export const PK_LAENDER_ROUTE = 18;
+/** PK für Kommunal-Pilot-Route */
+export const PK_KOMMUNAL_ROUTE = 10;
+/** PK für EU-Lobbying-Runde */
+export const PK_EU_LOBBYING = 8;
+/** PK für EU-Kompromiss */
+export const PK_EU_KOMPROMISS = 5;
+
 // --- Einnahmen-Formel ---
 /** AL-Referenzwert für Einnahmen-Berechnung (neutral bei AL = 5%) */
 export const EINNAHMEN_AL_REFERENZ = 5;
