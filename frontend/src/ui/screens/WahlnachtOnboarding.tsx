@@ -6,7 +6,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
-import type { Character } from '../../core/types';
+import { berechneWahlprognose } from '../../core/systems/wahlprognose';
+import type { Character, ContentBundle } from '../../core/types';
 import type { Ausrichtung } from '../../core/systems/ausrichtung';
 import {
   PARTEI_STARTPUNKTE,
@@ -27,10 +28,38 @@ function clampToCorridor(
   return Math.max(corridor[0], Math.min(corridor[1], value));
 }
 
+function formatOnboardingPercent(value: number, locale: string): string {
+  const n = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value);
+  return `${n}%`;
+}
+
+function berechneOnboardingWahlbeteiligung(
+  content: ContentBundle,
+  complexity: number,
+): number {
+  const milieus = content.milieus ?? [];
+  const visible = milieus.filter((m) => m.min_complexity <= complexity);
+  if (visible.length === 0) return 76;
+  let sum = 0;
+  let gewichtSum = 0;
+  for (const m of visible) {
+    const g = m.gewicht ?? 14;
+    const b = m.basisbeteiligung ?? 70;
+    sum += b * g;
+    gewichtSum += g;
+  }
+  if (gewichtSum <= 0) return 76;
+  return Math.round((sum / gewichtSum) * 10) / 10;
+}
+
 export function WahlnachtOnboarding() {
-  const { t } = useTranslation('game');
+  const { t, i18n } = useTranslation('game');
   const {
     state,
+    content,
     playerName,
     complexity,
     init,
@@ -121,6 +150,29 @@ export function WahlnachtOnboarding() {
   const pk = state.pk;
   const showBundesratLine = featureActive(complexity, 'bundesrat_sichtbar');
   const memoBrLine = showBundesratLine ? t('game:onboarding.memoBrLine') : '';
+
+  const locale = i18n.language.startsWith('de') ? 'de-DE' : 'en-US';
+  const approvalPrognose = berechneWahlprognose(state, content, complexity);
+  const turnoutBeteiligung = berechneOnboardingWahlbeteiligung(content, complexity);
+  const partnerId = state.koalitionspartner?.id;
+  const spielerParteiState = state.spielerPartei;
+  const coalitionLine =
+    partnerId && spielerParteiState
+      ? t('game:onboarding.coalitionLikely', {
+          a: spielerParteiState.kuerzel,
+          b:
+            ALLE_PARTEIEN.find((p) => p.id === partnerId)?.kuerzel ??
+            String(partnerId).toUpperCase(),
+        })
+      : t('game:onboarding.leadingPartyLikely', {
+          kuerzel: spielerParteiState?.kuerzel ?? 'SDP',
+        });
+  const headlineMetaText = t('game:onboarding.headlineMeta', {
+    approval: formatOnboardingPercent(approvalPrognose, locale),
+    coalitionLine,
+    turnout: formatOnboardingPercent(turnoutBeteiligung, locale),
+    tagline: t('game:onboarding.headlineMetaTagline'),
+  });
 
   /* SMA-302: Fortschritts-Dots — Schritte je nach Komplexität */
   const steps = showIdeologieScreen
@@ -250,7 +302,7 @@ export function WahlnachtOnboarding() {
                   </span>
                 ))}
             </h2>
-            <p className={styles.meta}>{t('game:onboarding.headlineMeta')}</p>
+            <p className={styles.meta}>{headlineMetaText}</p>
           </div>
             <button type="button" className={styles.weiter} onClick={advance}>
               {t('game:onboarding.weiter')}
