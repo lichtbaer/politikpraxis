@@ -4,7 +4,7 @@ Dieses Dokument beschreibt das Produktions-Deployment mit **Docker Compose**, **
 
 ## Architektur (Kurz)
 
-- **nginx** (Ports 80/443): TLS-Terminierung, HTTP→HTTPS, Proxy für `/api/` → Backend, sonst Frontend-SPA.
+- **nginx** (Ports 80/443): TLS-Terminierung, HTTP und Apex-HTTPS → **kanonisch https://www.politikpraxis.de**, Proxy für `/api/` → Backend, sonst Frontend-SPA.
 - **frontend**: gebautes Vite-Static-Asset, interner nginx nur für `try_files` (SPA-Fallback).
 - **backend**: FastAPI (Uvicorn), Alembic-Migrationen beim Container-Start.
 - **db**: PostgreSQL 16.
@@ -35,8 +35,8 @@ DATABASE_URL=postgresql+asyncpg://pp_user:<pass>@db:5432/politikpraxis
 # Auth / API
 SECRET_KEY=<64-Byte-Zufallsstring>
 CORS_ORIGINS=["https://politikpraxis.de","https://www.politikpraxis.de"]
-FRONTEND_BASE_URL=https://politikpraxis.de
-PUBLIC_API_BASE_URL=https://politikpraxis.de/api
+FRONTEND_BASE_URL=https://www.politikpraxis.de
+PUBLIC_API_BASE_URL=https://www.politikpraxis.de/api
 
 DEBUG=false
 
@@ -58,6 +58,8 @@ VITE_REGISTRATION_NUMBER=<HRB … nach UG-Eintragung>
 ```
 
 Hinweis: Die Anwendung liest `SECRET_KEY` (nicht `JWT_SECRET`). Siehe `backend/.env.example`.
+
+**CORS:** Beide Origins in `CORS_ORIGINS` eintragen — nginx leitet Apex auf www um; für API-Aufrufe kann die Origin kurzzeitig noch der Apex-Host sein.
 
 ## Erstmalig: SSL-Zertifikat (Let's Encrypt)
 
