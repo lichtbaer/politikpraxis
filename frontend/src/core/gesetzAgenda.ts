@@ -30,7 +30,7 @@ export function getKoalitionsStanz(
     koalitionsvertragProfil,
     law.ideologie ?? DEFAULT_IDEOLOGIE,
   );
-  return kongruenz >= 50 ? 'moeglich' : 'abgelehnt';
+  return kongruenz >= 60 ? 'moeglich' : 'abgelehnt';
 }
 
 /**

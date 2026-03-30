@@ -19,8 +19,9 @@ import {
   applyGesetzMedienAkteureNachBeschluss,
 } from './medienklima';
 import { berechneKongruenz } from '../ideologie';
-import { getGesetzIdeologie } from './koalition';
+import { getGesetzIdeologie, getKoalitionspartner } from './koalition';
 import { kannGesetzEingebracht } from '../gesetz';
+import { getKoalitionsStanz } from '../gesetzAgenda';
 import { getNfBundestagBtModifikator, getNfBundestagMedienDelta } from './bundestagNf';
 import { checkNormenkontrollKlage } from './verfassungsgericht';
 import { getIdeologieMalusFuerBt, pruefePartnerWiderstand } from './ideologiePartner';
@@ -373,9 +374,23 @@ export function abstimmen(
     featureActive(complexityBt, 'ideologie_bt_malus')
       ? getIdeologieMalusFuerBt(law, state.spielerPartei?.id, state.koalitionspartner?.id)
       : 0;
+  let koalitionStanzMalus = 0;
+  if (featureActive(complexityBt, 'ideologie_bt_malus') && state.koalitionsvertragProfil && state.koalitionspartner) {
+    const bundle = beschlussContext?.content;
+    const partner = getKoalitionspartner(bundle, state);
+    const schluesselthemen = partner.schluesselthemen ?? [];
+    const stanz = getKoalitionsStanz(law, state.koalitionsvertragProfil, schluesselthemen);
+    if (stanz === 'abgelehnt') {
+      const kongruenz = berechneKongruenz(
+        state.koalitionsvertragProfil,
+        law.ideologie ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
+      );
+      koalitionStanzMalus = kongruenz < 40 ? -25 : -15;
+    }
+  }
   const effectiveJa = Math.min(
     95,
-    law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod + ideologieMalus,
+    law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod + ideologieMalus + koalitionStanzMalus,
   );
 
   if (effectiveJa > 50) {
@@ -483,6 +498,20 @@ export function resolveEingebrachteAbstimmung(
       : 0;
   const bundle = beschlussContext?.content;
 
+  let koalitionStanzMalusResolve = 0;
+  if (featureActive(complexity, 'ideologie_bt_malus') && state.koalitionsvertragProfil && state.koalitionspartner) {
+    const partner = getKoalitionspartner(bundle, state);
+    const schluesselthemen = partner.schluesselthemen ?? [];
+    const stanz = getKoalitionsStanz(law, state.koalitionsvertragProfil, schluesselthemen);
+    if (stanz === 'abgelehnt') {
+      const kongruenz = berechneKongruenz(
+        state.koalitionsvertragProfil,
+        law.ideologie ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
+      );
+      koalitionStanzMalusResolve = kongruenz < 40 ? -25 : -15;
+    }
+  }
+
   // Fraktionsdisziplin: Abweichler-Risiko (Art. 38 GG)
   let abweichlerMalus = 0;
   if (featureActive(complexity, 'fraktionsdisziplin')) {
@@ -507,7 +536,8 @@ export function resolveEingebrachteAbstimmung(
       btBonus +
       vorstufenBtBonus +
       nfBtMod +
-      ideologieMalusResolve -
+      ideologieMalusResolve +
+      koalitionStanzMalusResolve -
       abweichlerMalus,
   );
   const bundesratAktiv = featureActive(complexity, 'bundesrat_sichtbar');
