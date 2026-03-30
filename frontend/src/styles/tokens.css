@@ -11,6 +11,23 @@
   --leading-loose:  1.8;
 }
 
+/* ─── Transitions, Radien & Schatten ─────────────────────────────────────────── */
+:root {
+  --transition-fast:   0.15s ease;
+  --transition-base:   0.2s ease;
+  --transition-smooth: 0.3s ease-out;
+  --transition-slow:   0.5s ease-out;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
+  --shadow-glow: 0 0 12px color-mix(in srgb, var(--gold) 25%, transparent);
+}
+
 /* ─── Amtsstube (Default) ────────────────────────────────────────────────────
    Warm, erdig, institutionell. Berliner Ministerium trifft Regierungsalltag.
    ─────────────────────────────────────────────────────────────────────────── */

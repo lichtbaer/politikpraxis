@@ -2,15 +2,16 @@
 .card {
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-fast);
 }
 
 .card:hover {
   border-color: var(--border2);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 /* SMA-312: Gesperrt/ausgeschlossen ausgegraut */
@@ -58,7 +59,7 @@
   gap: 12px;
   padding: 12px 16px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--transition-base);
 }
 
 .header:hover {
@@ -432,15 +433,16 @@
   font-size: 12px;
   background: var(--bg3);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   color: var(--text);
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color var(--transition-base), background var(--transition-base), transform var(--transition-fast);
 }
 
 .btn:hover:not(:disabled) {
   background: var(--bg4);
   border-color: var(--gold);
+  transform: translateY(-1px);
 }
 
 .btn:disabled {

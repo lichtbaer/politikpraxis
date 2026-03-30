@@ -6,15 +6,17 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeIn 0.15s ease-out;
 }
 
 .dialog {
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   max-width: 380px;
   width: 90%;
   padding: 20px;
+  animation: scaleIn 0.2s ease-out;
 }
 
 .title {
@@ -77,12 +79,13 @@
   border-radius: 6px;
   color: var(--text);
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color var(--transition-base), background var(--transition-base), transform var(--transition-fast);
 }
 
 .btnCancel:hover {
   background: var(--bg4);
   border-color: var(--text2);
+  transform: translateY(-1px);
 }
 
 .btnConfirm {
@@ -93,10 +96,11 @@
   border-radius: 6px;
   color: var(--gold);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--transition-base), color var(--transition-base), transform var(--transition-fast);
 }
 
 .btnConfirm:hover {
   background: var(--gold);
   color: var(--bg2);
+  transform: translateY(-1px);
 }

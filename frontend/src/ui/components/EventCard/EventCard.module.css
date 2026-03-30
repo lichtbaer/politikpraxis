@@ -2,10 +2,10 @@
 .card {
   animation: slideInDown 0.3s ease-out;
   background: var(--bg2);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
 }
 
 .header {
@@ -121,12 +121,13 @@
   border-radius: 6px;
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  transition: border-color var(--transition-base), background var(--transition-base), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .choice:hover {
   background: var(--bg4);
-  transform: translateX(2px);
+  transform: translateX(3px);
+  box-shadow: var(--shadow-sm);
 }
 
 .choicePrimary:hover {

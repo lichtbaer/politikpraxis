@@ -26,12 +26,13 @@
   font-family: var(--sans);
   font-size: 13px;
   color: var(--text2);
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .tab:hover:not(:disabled) {
   background: var(--bg3);
   color: var(--text);
+  transform: translateY(-1px);
 }
 
 /* SMA-302: Aktiver Tab klar hervorgehoben (Hintergrund + Farbe) */
