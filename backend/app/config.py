@@ -1,6 +1,9 @@
+import logging
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -10,7 +13,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "Bundesrepublik API"
-    debug: bool = True
+    debug: bool = False
 
     database_url: str = (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/bundesrepublik"
@@ -59,12 +62,28 @@ def get_settings() -> Settings:
     if not s.debug:
         problems: list[str] = []
         if s.secret_key == "dev-secret-change-in-production":
-            problems.append("SECRET_KEY is still the default — set a secure value")
+            problems.append(
+                "SECRET_KEY ist noch der Standardwert — "
+                "generiere einen sicheren Wert mit: openssl rand -hex 32"
+            )
+        if len(s.secret_key) < 32:
+            problems.append(
+                "SECRET_KEY ist zu kurz (< 32 Zeichen) — "
+                "generiere einen sicheren Wert mit: openssl rand -hex 32"
+            )
         if not s.admin_password:
-            problems.append("ADMIN_PASSWORD is empty — admin API will be inaccessible")
+            problems.append(
+                "ADMIN_PASSWORD ist nicht gesetzt — "
+                "setze ein starkes Passwort für die Admin-API"
+            )
         if problems:
-            import warnings
-
-            for p in problems:
-                warnings.warn(p, stacklevel=2)
+            raise ValueError(
+                "Unsichere Produktionskonfiguration — Server wird nicht gestartet:\n"
+                + "\n".join(f"  - {p}" for p in problems)
+            )
+        if not s.smtp_host:
+            _logger.warning(
+                "SMTP_HOST nicht konfiguriert — Magic Links und Kontaktformular "
+                "geben zur Laufzeit HTTP 503 zurück"
+            )
     return s

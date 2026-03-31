@@ -40,6 +40,12 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
+    # SECURITY: DEPLOY_SSH_KEY muss ein Ed25519-Key für einen dedizierten
+    # deploy-User ohne sudo-Rechte sein.
+    # Auf dem Server in authorized_keys mit forced command absichern:
+    #   command="/opt/politikpraxis/deploy.sh",no-pty,no-port-forwarding,
+    #   no-agent-forwarding,no-X11-forwarding ssh-ed25519 AAAA...
+    # Siehe docs/deployment.md für vollständige Anleitung.
     steps:
       - uses: actions/checkout@v4
 

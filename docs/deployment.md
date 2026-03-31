@@ -126,10 +126,45 @@ Workflow: `.github/workflows/deploy.yml`
 | Secret | Bedeutung |
 |--------|-----------|
 | `DEPLOY_HOST` | Hostname oder IP des Servers |
-| `DEPLOY_USER` | SSH-Benutzer (z. B. `deploy`) |
-| `DEPLOY_SSH_KEY` | Privater SSH-Key (Deploy-Key) |
+| `DEPLOY_USER` | SSH-Benutzer (dedizierter `deploy`-User, **kein** root/sudo) |
+| `DEPLOY_SSH_KEY` | Privater Ed25519-SSH-Key (Deploy-Key) |
 
-Der Server muss den öffentlichen Key akzeptieren und `git pull` in `/opt/politikpraxis` dürfen.
+### SSH Deploy-Key absichern
+
+Der `DEPLOY_SSH_KEY` sollte **minimale Rechte** haben:
+
+1. **Dedizierten Deploy-User anlegen** (kein sudo, kein Login-Shell nötig):
+   ```bash
+   adduser --disabled-password --gecos "" deploy
+   chown -R deploy:deploy /opt/politikpraxis
+   ```
+
+2. **Ed25519-Schlüsselpaar erzeugen** (lokal, nicht auf dem Server):
+   ```bash
+   ssh-keygen -t ed25519 -C "github-actions-deploy" -f deploy_key
+   # Privaten Key (deploy_key) als GitHub Secret DEPLOY_SSH_KEY hinterlegen
+   # Öffentlichen Key (deploy_key.pub) auf dem Server eintragen (s. u.)
+   ```
+
+3. **Öffentlichen Key mit Forced Command in `~deploy/.ssh/authorized_keys` eintragen:**
+   ```
+   command="/opt/politikpraxis/deploy.sh",no-pty,no-port-forwarding,no-agent-forwarding,no-X11-forwarding ssh-ed25519 AAAA...
+   ```
+
+4. **Deploy-Script `/opt/politikpraxis/deploy.sh` anlegen** (nur die nötigen Befehle):
+   ```bash
+   #!/bin/bash
+   set -e
+   cd /opt/politikpraxis
+   git pull origin main
+   docker compose -f docker-compose.prod.yml build
+   docker compose -f docker-compose.prod.yml up -d --remove-orphans
+   docker system prune -f
+   ```
+   Rechte setzen: `chmod 750 /opt/politikpraxis/deploy.sh`
+
+5. **Key-Rotation:** Den Deploy-Key mindestens jährlich und bei Teamveränderungen rotieren.
+
 
 ## nginx: Sicherheit
 
