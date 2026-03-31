@@ -9,56 +9,56 @@ from pydantic import BaseModel, Field
 
 
 class CharCreate(BaseModel):
-    id: str
-    initials: str
-    color: str
+    id: str = Field(max_length=64)
+    initials: str = Field(max_length=8)
+    color: str = Field(max_length=32)
     mood_start: int = 3
     loyalty_start: int = 3
     ultimatum_mood_thresh: int | None = None
-    ultimatum_event_id: str | None = None
-    bonus_trigger: str | None = None
-    bonus_applies: str | None = None
-    sonderregel: str | None = None
+    ultimatum_event_id: str | None = Field(default=None, max_length=64)
+    bonus_trigger: str | None = Field(default=None, max_length=64)
+    bonus_applies: str | None = Field(default=None, max_length=64)
+    sonderregel: str | None = Field(default=None, max_length=256)
     min_complexity: int | None = 1
 
 
 class CharUpdate(BaseModel):
-    initials: str | None = None
-    color: str | None = None
+    initials: str | None = Field(default=None, max_length=8)
+    color: str | None = Field(default=None, max_length=32)
     mood_start: int | None = None
     loyalty_start: int | None = None
     ultimatum_mood_thresh: int | None = None
-    ultimatum_event_id: str | None = None
-    bonus_trigger: str | None = None
-    bonus_applies: str | None = None
-    sonderregel: str | None = None
+    ultimatum_event_id: str | None = Field(default=None, max_length=64)
+    bonus_trigger: str | None = Field(default=None, max_length=64)
+    bonus_applies: str | None = Field(default=None, max_length=64)
+    sonderregel: str | None = Field(default=None, max_length=256)
     min_complexity: int | None = None
 
 
 class CharI18nCreate(BaseModel):
-    locale: str
-    name: str
-    role: str
-    bio: str
-    bonus_desc: str | None = None
+    locale: str = Field(max_length=8)
+    name: str = Field(max_length=128)
+    role: str = Field(max_length=128)
+    bio: str = Field(max_length=2000)
+    bonus_desc: str | None = Field(default=None, max_length=512)
     interests: list[str] = Field(default_factory=list)
-    keyword: str | None = None
+    keyword: str | None = Field(default=None, max_length=64)
 
 
 class CharI18nUpdate(BaseModel):
-    name: str | None = None
-    role: str | None = None
-    bio: str | None = None
-    bonus_desc: str | None = None
+    name: str | None = Field(default=None, max_length=128)
+    role: str | None = Field(default=None, max_length=128)
+    bio: str | None = Field(default=None, max_length=2000)
+    bonus_desc: str | None = Field(default=None, max_length=512)
     interests: list[str] | None = None
-    keyword: str | None = None
+    keyword: str | None = Field(default=None, max_length=64)
 
 
 # --- Gesetze ---
 
 
 class GesetzCreate(BaseModel):
-    id: str
+    id: str = Field(max_length=64)
     tags: list[str] = Field(default_factory=list)
     bt_stimmen_ja: int
     effekt_al: Decimal | float = 0
@@ -67,7 +67,7 @@ class GesetzCreate(BaseModel):
     effekt_zf: Decimal | float = 0
     effekt_lag: int = 4
     foederalismus_freundlich: bool | None = None
-    locked_until_event: str | None = None
+    locked_until_event: str | None = Field(default=None, max_length=64)
     zustimmungspflichtig: bool | None = None
 
 
@@ -80,61 +80,61 @@ class GesetzUpdate(BaseModel):
     effekt_zf: Decimal | float | None = None
     effekt_lag: int | None = None
     foederalismus_freundlich: bool | None = None
-    locked_until_event: str | None = None
+    locked_until_event: str | None = Field(default=None, max_length=64)
     zustimmungspflichtig: bool | None = None
 
 
 class GesetzI18nUpdate(BaseModel):
-    titel: str | None = None
-    kurz: str | None = None
-    desc: str | None = None
+    titel: str | None = Field(default=None, max_length=256)
+    kurz: str | None = Field(default=None, max_length=256)
+    desc: str | None = Field(default=None, max_length=2000)
 
 
 # --- Events ---
 
 
 class EventCreate(BaseModel):
-    id: str
-    event_type: str
-    char_id: str | None = None
-    trigger_type: str | None = None
+    id: str = Field(max_length=64)
+    event_type: str = Field(max_length=64)
+    char_id: str | None = Field(default=None, max_length=64)
+    trigger_type: str | None = Field(default=None, max_length=64)
     trigger_month: int | None = None
     repeat_interval: int | None = None
-    condition_key: str | None = None
-    condition_op: str | None = None
+    condition_key: str | None = Field(default=None, max_length=64)
+    condition_op: str | None = Field(default=None, max_length=16)
     condition_val: int | None = None
     min_complexity: int | None = 1
-    trigger_typ: str | None = None
+    trigger_typ: str | None = Field(default=None, max_length=64)
     trigger_params: dict[str, Any] | None = None
     einmalig: bool | None = True
 
 
 class EventUpdate(BaseModel):
-    event_type: str | None = None
-    char_id: str | None = None
-    trigger_type: str | None = None
+    event_type: str | None = Field(default=None, max_length=64)
+    char_id: str | None = Field(default=None, max_length=64)
+    trigger_type: str | None = Field(default=None, max_length=64)
     trigger_month: int | None = None
     repeat_interval: int | None = None
-    condition_key: str | None = None
-    condition_op: str | None = None
+    condition_key: str | None = Field(default=None, max_length=64)
+    condition_op: str | None = Field(default=None, max_length=16)
     condition_val: int | None = None
     min_complexity: int | None = None
-    trigger_typ: str | None = None
+    trigger_typ: str | None = Field(default=None, max_length=64)
     trigger_params: dict[str, Any] | None = None
     einmalig: bool | None = None
 
 
 class EventI18nUpdate(BaseModel):
-    type_label: str | None = None
-    title: str | None = None
-    quote: str | None = None
-    context: str | None = None
-    ticker: str | None = None
+    type_label: str | None = Field(default=None, max_length=128)
+    title: str | None = Field(default=None, max_length=256)
+    quote: str | None = Field(default=None, max_length=512)
+    context: str | None = Field(default=None, max_length=2000)
+    ticker: str | None = Field(default=None, max_length=256)
 
 
 class EventChoiceCreate(BaseModel):
-    choice_key: str
-    choice_type: str
+    choice_key: str = Field(max_length=64)
+    choice_type: str = Field(max_length=64)
     cost_pk: int = 0
     effekt_al: Decimal | float = 0
     effekt_hh: Decimal | float = 0
@@ -142,39 +142,39 @@ class EventChoiceCreate(BaseModel):
     effekt_zf: Decimal | float = 0
     char_mood: dict[str, Any] = Field(default_factory=dict)
     loyalty: dict[str, Any] = Field(default_factory=dict)
-    followup_event_id: str | None = None
+    followup_event_id: str | None = Field(default=None, max_length=64)
 
 
 class EventChoiceI18nUpdate(BaseModel):
-    label: str | None = None
-    desc: str | None = None
-    log_msg: str | None = None
+    label: str | None = Field(default=None, max_length=256)
+    desc: str | None = Field(default=None, max_length=2000)
+    log_msg: str | None = Field(default=None, max_length=512)
 
 
 # --- Bundesrat ---
 
 
 class BundesratFraktionCreate(BaseModel):
-    id: str
+    id: str = Field(max_length=64)
     laender: list[str] = Field(default_factory=list)
     basis_bereitschaft: int
     beziehung_start: int
-    sonderregel: str | None = None
-    partei_id: str | None = None
-    sprecher_initials: str
-    sprecher_color: str
+    sonderregel: str | None = Field(default=None, max_length=256)
+    partei_id: str | None = Field(default=None, max_length=64)
+    sprecher_initials: str = Field(max_length=8)
+    sprecher_color: str = Field(max_length=32)
 
 
 class BundesratFraktionI18nUpdate(BaseModel):
-    name: str | None = None
-    sprecher_name: str | None = None
-    sprecher_partei: str | None = None
-    sprecher_land: str | None = None
-    sprecher_bio: str | None = None
+    name: str | None = Field(default=None, max_length=128)
+    sprecher_name: str | None = Field(default=None, max_length=128)
+    sprecher_partei: str | None = Field(default=None, max_length=128)
+    sprecher_land: str | None = Field(default=None, max_length=128)
+    sprecher_bio: str | None = Field(default=None, max_length=2000)
 
 
 class BundesratTradeoffCreate(BaseModel):
-    tradeoff_key: str
+    tradeoff_key: str = Field(max_length=64)
     effekt_al: Decimal | float = 0
     effekt_hh: Decimal | float = 0
     effekt_gi: Decimal | float = 0
@@ -183,5 +183,5 @@ class BundesratTradeoffCreate(BaseModel):
 
 
 class BundesratTradeoffI18nUpdate(BaseModel):
-    label: str | None = None
-    desc: str | None = None
+    label: str | None = Field(default=None, max_length=256)
+    desc: str | None = Field(default=None, max_length=2000)
