@@ -12,6 +12,17 @@
     "kompakt": "48 months. Federal, States, Municipalities, Europe. One coalition. One election. Lead the federal government.",
     "disclaimer": "Politikpraxis is a fictional politics simulation for educational purposes. All persons, parties and institutions depicted are fictitious. Politikpraxis does not load any external resources; all fonts and map data are served locally."
   },
+  "beta": {
+    "badge": "BETA",
+    "notice": "This is an early beta version. Content, game mechanics, and balancing are not final and may change at any time. Feedback is welcome!",
+    "inGame": "Beta"
+  },
+  "jugendschutz": {
+    "label": "Age Rating",
+    "freigabe": "Suitable for ages 12 and up",
+    "selbsteinstufung": "(self-classification)",
+    "hinweis": "No violence · No adult content · Political strategy simulation"
+  },
   "header": {
     "monthFormat": "Month {{month}}/48 · {{year}}",
     "pkTooltip": "Political capital — your action resource",

@@ -11,11 +11,32 @@
   z-index: 200;
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .title {
   font-family: var(--serif);
   font-size: 18px;
   letter-spacing: 0.02em;
   color: var(--gold);
+}
+
+.betaBadge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--warn, #d97706);
+  background: color-mix(in srgb, var(--warn, #d97706) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn, #d97706) 35%, transparent);
+  border-radius: 4px;
+  padding: 2px 5px;
+  cursor: default;
+  flex-shrink: 0;
 }
 
 .meta {

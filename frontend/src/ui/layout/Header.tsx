@@ -102,7 +102,10 @@ export function Header() {
 
   return (
     <header className={styles.header}>
-      <div className={styles.title}>{t('app.title')}</div>
+      <div className={styles.titleRow}>
+        <div className={styles.title}>{t('app.title')}</div>
+        <span className={styles.betaBadge} title={t('beta.notice')}>{t('beta.inGame')}</span>
+      </div>
       <div className={styles.meta}>
         {PLAYTEST_CONFIG.playtest_modus && (
           <button

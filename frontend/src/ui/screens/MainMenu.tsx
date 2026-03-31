@@ -117,6 +117,11 @@ export function MainMenu() {
           <h1 className={styles.title}>{t('app.title')}</h1>
           <p className={styles.subtitle}>{t('app.subtitle')}</p>
 
+          <div className={styles.betaBanner} role="status" aria-label={t('beta.badge')}>
+            <span className={styles.betaBadge}>{t('beta.badge')}</span>
+            <p className={styles.betaNotice}>{t('beta.notice')}</p>
+          </div>
+
           <div className={styles.authRow}>
             {isLoggedIn && email ? (
               <>
@@ -197,6 +202,12 @@ export function MainMenu() {
       </div>
 
       <div className={styles.bottomBar}>
+        <div className={styles.jugendschutzRow}>
+          <span className={styles.jugendschutzBadge}>12+</span>
+          <span className={styles.jugendschutzText}>
+            {t('jugendschutz.freigabe')} {t('jugendschutz.selbsteinstufung')} · {t('jugendschutz.hinweis')}
+          </span>
+        </div>
         <LegalFooter />
         <span className={styles.version}>v{__APP_VERSION__}</span>
       </div>
