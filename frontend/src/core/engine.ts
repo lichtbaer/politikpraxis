@@ -55,6 +55,7 @@ import { checkSachverstaendigenrat } from './systems/sachverstaendigenrat';
 import { tickNormenkontrolle } from './systems/verfassungsgericht';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bundesratEvents';
 import { berechneMonatsDiff } from './monatszusammenfassung';
+import { logger } from '../utils/logger';
 
 export { addLog } from './log';
 
@@ -105,7 +106,7 @@ export function tick(
     try {
       return fn(s);
     } catch (err) {
-      console.error(`[Engine] System "${name}" failed in tick ${s.month}:`, err);
+      logger.error(`Engine: System "${name}" failed in tick ${s.month}`, { error: String(err) });
       (failedSystems ??= []).push(name);
       return s;
     }
@@ -392,7 +393,7 @@ export function tick(
   // Performance monitoring: log slow ticks (>50ms)
   const tickDuration = performance.now() - t0;
   if (tickDuration > 50) {
-    console.warn(`[Engine] Tick ${s.month} took ${tickDuration.toFixed(1)}ms`);
+    logger.warn(`Engine: Tick ${s.month} took ${tickDuration.toFixed(1)}ms`, { durationMs: tickDuration });
   }
 
   return s;

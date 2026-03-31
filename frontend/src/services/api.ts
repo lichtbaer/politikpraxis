@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 interface RequestOptions {
@@ -56,6 +58,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
       credentials,
     });
   } catch {
+    logger.warn('API network error', { path, method });
     throw new ApiError('Netzwerkfehler — Server nicht erreichbar', 0, 'network');
   }
 
@@ -81,6 +84,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
         : Array.isArray(error.detail)
           ? error.detail.map((d: { msg?: string }) => d.msg).join(', ')
           : error.detail;
+    logger.warn('API HTTP error', { path, status: response.status, detail });
     throw new ApiError(detail || `HTTP ${response.status}`, response.status, 'http');
   }
 

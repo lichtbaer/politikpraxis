@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { logger } from '../utils/logger';
 import i18n from '../i18n';
 import { apiFetch } from '../services/api';
 import type {
@@ -52,7 +53,7 @@ import { DEFAULT_MEDIEN_AKTEURE, type MedienAkteurContent, type MedienAkteurTyp 
  *  Warnt bei unerwarteter Struktur und gibt einen sicheren Fallback zurück. */
 function guardString(val: unknown, path: string, fallback = ''): string {
   if (typeof val === 'string') return val;
-  console.warn(`[ContentGuard] ${path} ist kein String (${typeof val}), Fallback: "${fallback}"`);
+  logger.warn(`ContentGuard: ${path} ist kein String (${typeof val}), Fallback: "${fallback}"`);
   return fallback;
 }
 
@@ -60,19 +61,19 @@ function guardNumber(val: unknown, path: string, fallback = 0): number {
   if (typeof val === 'number' && isFinite(val)) return val;
   const n = Number(val);
   if (!isNaN(n) && isFinite(n)) return n;
-  console.warn(`[ContentGuard] ${path} ist keine gültige Zahl (${String(val)}), Fallback: ${fallback}`);
+  logger.warn(`ContentGuard: ${path} ist keine gültige Zahl (${String(val)}), Fallback: ${fallback}`);
   return fallback;
 }
 
 function guardArray<T>(val: unknown, path: string): T[] {
   if (Array.isArray(val)) return val as T[];
-  console.warn(`[ContentGuard] ${path} ist kein Array (${typeof val}), Fallback: []`);
+  logger.warn(`ContentGuard: ${path} ist kein Array (${typeof val}), Fallback: []`);
   return [];
 }
 
 function guardObject<T extends object>(val: unknown, path: string, fallback: T): T {
   if (val !== null && typeof val === 'object' && !Array.isArray(val)) return val as T;
-  console.warn(`[ContentGuard] ${path} ist kein Objekt (${typeof val}), Fallback: {}`);
+  logger.warn(`ContentGuard: ${path} ist kein Objekt (${typeof val}), Fallback: {}`);
   return fallback;
 }
 
@@ -611,7 +612,7 @@ const KOALITION_CHAR_EVENTS: Record<string, GameEvent> = {
 export function getContentBundle(): ContentBundle {
   const s = useContentStore.getState();
   if (!s.chars.length || !s.gesetze.length) {
-    console.warn('[ContentBundle] Kritische Daten fehlen — Content noch nicht vollständig geladen');
+    logger.warn('ContentBundle: Kritische Daten fehlen — Content noch nicht vollständig geladen');
   }
   const wahlkampfEvents = [
     WAHLKAMPF_BEGINN_EVENT,

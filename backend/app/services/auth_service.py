@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import time
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
@@ -24,6 +25,7 @@ from app.models.password_reset_token import PasswordResetToken
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 security = HTTPBearer()
 
@@ -118,10 +120,12 @@ async def consume_password_reset_token(
     )
     row = result.scalar_one_or_none()
     if not row or row.used or row.expires_at < datetime.now(UTC):
+        logger.warning("Invalid or expired password reset token")
         return None
     uresult = await db.execute(select(User).where(User.id == row.user_id))
     user = uresult.scalar_one_or_none()
     if not user or not user.is_active or not user.password_hash:
+        logger.warning("Password reset: user not found, inactive, or no password set")
         return None
     user.password_hash = hash_password(new_password)
     user.last_login = datetime.now(UTC)
@@ -154,8 +158,10 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
     if not user or not user.password_hash:
+        logger.warning("Authentication failed: user not found or no password")
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not verify_password(password, user.password_hash):
+        logger.warning("Authentication failed: wrong password")
         raise HTTPException(status_code=401, detail="Invalid credentials")
     user.last_login = datetime.now(UTC)
     await db.flush()
@@ -266,10 +272,12 @@ async def consume_magic_link_token(db: AsyncSession, token: str) -> User | None:
     result = await db.execute(select(MagicLink).where(MagicLink.token == token))
     row = result.scalar_one_or_none()
     if not row or row.used or row.expires_at < datetime.now(UTC):
+        logger.warning("Invalid or expired magic link token")
         return None
     uresult = await db.execute(select(User).where(User.id == row.user_id))
     user = uresult.scalar_one_or_none()
     if not user or not user.is_active:
+        logger.warning("Magic link: user not found or inactive")
         return None
     row.used = True
     user.last_login = datetime.now(UTC)
