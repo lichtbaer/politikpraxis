@@ -12,6 +12,17 @@
     "kompakt": "48 Monate. Bund, Länder, Kommunen, Europa. Eine Koalition. Eine Wahl. Führe die Bundesregierung.",
     "disclaimer": "Politikpraxis vereinfacht bewusst: Reale Institutionen wie Bundestag oder Bundesrat dienen als Vorlage, sind aber stark reduziert um spielbar zu bleiben. Parteien, Personen und Zahlen sind fiktiv. Politik ist komplexer — das Spiel soll neugierig darauf machen. Politikpraxis lädt keine externen Ressourcen; alle Schriften und Kartendaten werden lokal ausgeliefert."
   },
+  "beta": {
+    "badge": "BETA",
+    "notice": "Dies ist eine frühe Beta-Version. Inhalte, Spielmechaniken und Balancing sind noch nicht final und können sich jederzeit ändern. Wir freuen uns über Feedback!",
+    "inGame": "Beta"
+  },
+  "jugendschutz": {
+    "label": "Jugendschutz",
+    "freigabe": "Freigegeben ab 12 Jahren",
+    "selbsteinstufung": "(Selbsteinstufung)",
+    "hinweis": "Keine Gewalt · Keine Erotik · Politische Strategiesimulation"
+  },
   "header": {
     "monthFormat": "Monat {{month}}/48 · {{year}}",
     "pkTooltip": "Politisches Kapital — deine Handlungsressource",

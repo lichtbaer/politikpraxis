@@ -242,6 +242,76 @@
   width: 100%;
 }
 
+/* --- Beta Banner --- */
+
+.betaBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: color-mix(in srgb, var(--warn, #d97706) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn, #d97706) 40%, transparent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 4px 0 12px 0;
+  width: 100%;
+  max-width: 280px;
+}
+
+.betaBadge {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--warn, #d97706);
+  background: color-mix(in srgb, var(--warn, #d97706) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn, #d97706) 50%, transparent);
+  border-radius: 4px;
+  padding: 2px 6px;
+  line-height: 1.4;
+  margin-top: 1px;
+}
+
+.betaNotice {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: color-mix(in srgb, var(--warn, #d97706) 80%, var(--text2));
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* --- Jugendschutz --- */
+
+.jugendschutzRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.jugendschutzBadge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.jugendschutzText {
+  font-family: var(--sans);
+  font-size: 10px;
+  color: var(--text3);
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* --- Bottom Bar --- */
+
 .bottomBar {
   position: absolute;
   bottom: 0;
@@ -320,6 +390,10 @@
   .startButtons {
     max-width: 260px;
     min-width: 220px;
+  }
+
+  .betaBanner {
+    max-width: 260px;
   }
 
   .startButtons .primary {
