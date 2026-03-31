@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { logger } from '../utils/logger';
 import i18n from '../i18n';
 import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName, SpielerParteiState } from '../core/types';
 import { createInitialState } from '../core/state';
@@ -825,7 +826,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       });
       set({ state, content: getContentBundle() });
     } catch {
-      console.warn('[politikpraxis] Ungültiger Spielstand – Laden abgebrochen');
+      logger.warn('Ungültiger Spielstand – Laden abgebrochen');
     }
   },
 
@@ -854,7 +855,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         phase: 'playing',
       });
     } catch {
-      console.warn('[politikpraxis] Ungültiger Spielstand – Laden abgebrochen');
+      logger.warn('Ungültiger Spielstand – Laden abgebrochen (loadSaveFromFile)');
     }
   },
 }));

@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
@@ -38,6 +39,7 @@ from app.services.auth_service import (
 )
 from app.services.email_service import send_magic_link_email, send_password_reset_email
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 settings = get_settings()
 
@@ -79,6 +81,7 @@ async def request_magic_link(
         f"{settings.public_api_base_url.rstrip('/')}/auth/magic-link/verify?token={raw}"
     )
     await send_magic_link_email(req.email, verify_url)
+    logger.info("Magic link requested for user %s", user.id)
     return MessageResponse(detail="ok")
 
 
@@ -158,6 +161,7 @@ async def register(
         content=AccessTokenResponse(access_token=access).model_dump()
     )
     attach_refresh_cookie(response, raw)
+    logger.info("User registered: %s", user.id)
     return response
 
 
@@ -176,6 +180,7 @@ async def login(
         content=AccessTokenResponse(access_token=access).model_dump()
     )
     attach_refresh_cookie(response, raw)
+    logger.info("User login: %s", user.id)
     return response
 
 
@@ -216,8 +221,10 @@ async def delete_account(
     db: AsyncSession = Depends(get_db),
 ):
     await revoke_all_refresh_tokens(db, user.id)
+    user_id = user.id
     await delete_user_account(db, user)
     clear_refresh_cookie(response)
+    logger.info("Account deleted: %s", user_id)
     return MessageResponse(detail="ok")
 
 
