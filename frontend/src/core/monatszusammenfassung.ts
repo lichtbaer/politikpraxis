@@ -109,7 +109,7 @@ export function berechneMonatsDiff(
       if (delta === 0) continue;
       rows.push({
         akteurId: id,
-        akteurLabel: meta?.name_de ?? id,
+        akteurLabel: meta?.name ?? id,
         delta,
         akteur_typ: typ,
         delta_bedeutung: useReichweite ? 'reichweite' : 'stimmung',

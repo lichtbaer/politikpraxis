@@ -123,9 +123,12 @@ async def get_eu_events(
 
 
 @router.get("/bundeslaender", response_model=list[BundeslandResponse])
-async def get_bundeslaender(db: AsyncSession = Depends(get_db)):
-    """SMA-395: 16 Bundesländer mit Profil (Themen, Stimmgewicht, BR-Fraktion)."""
-    return await fetch_bundeslaender(db)
+async def get_bundeslaender(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/content/bundeslaender?locale=de — 16 Bundesländer mit lokalisiertem Namen."""
+    return await fetch_bundeslaender(db, locale)
 
 
 @router.get("/bundesrat", response_model=list[BundesratResponse])
@@ -168,12 +171,18 @@ async def get_verbaende(
 
 
 @router.get("/medien-akteure", response_model=list[MedienAkteurResponse])
-async def get_medien_akteure(db: AsyncSession = Depends(get_db)):
-    """GET /api/content/medien-akteure — Medienakteure (SMA-392)."""
-    return await fetch_medien_akteure(db)
+async def get_medien_akteure(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/content/medien-akteure?locale=de — Medienakteure mit lokalisiertem Namen."""
+    return await fetch_medien_akteure(db, locale)
 
 
 @router.get("/gesetz-relationen")
-async def get_gesetz_relationen(db: AsyncSession = Depends(get_db)):
-    """GET /api/content/gesetz-relationen — SMA-312: requires, excludes, enhances."""
-    return await fetch_gesetz_relationen(db)
+async def get_gesetz_relationen(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/content/gesetz-relationen?locale=de — SMA-312: requires, excludes, enhances."""
+    return await fetch_gesetz_relationen(db, locale)

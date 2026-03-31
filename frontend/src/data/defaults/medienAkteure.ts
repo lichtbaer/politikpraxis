@@ -12,7 +12,7 @@ export type MedienAkteurTyp =
 
 export interface MedienAkteurContent {
   id: string;
-  name_de: string;
+  name: string;
   typ: MedienAkteurTyp;
   /** Start-Reichweite 0–100 */
   reichweite: number;
@@ -21,12 +21,12 @@ export interface MedienAkteurContent {
 }
 
 export const DEFAULT_MEDIEN_AKTEURE: MedienAkteurContent[] = [
-  { id: 'oeffentlich', name_de: 'Öffentliche Medien', typ: 'oeffentlich', reichweite: 35, stimmung_start: 5, min_complexity: 2 },
-  { id: 'boulevard', name_de: 'BZ Today', typ: 'boulevard', reichweite: 25, stimmung_start: -5, min_complexity: 2 },
-  { id: 'qualitaet', name_de: 'Das Panorama', typ: 'qualitaet', reichweite: 15, stimmung_start: 0, min_complexity: 2 },
-  { id: 'social', name_de: 'TikFeed', typ: 'social', reichweite: 20, stimmung_start: 0, min_complexity: 2 },
-  { id: 'konservativ', name_de: 'Nationale Stimme', typ: 'konservativ', reichweite: 10, stimmung_start: -10, min_complexity: 3 },
-  { id: 'alternativ', name_de: 'WahrheitNow', typ: 'alternativ', reichweite: 5, stimmung_start: -20, min_complexity: 4 },
+  { id: 'oeffentlich', name: 'Öffentliche Medien', typ: 'oeffentlich', reichweite: 35, stimmung_start: 5, min_complexity: 2 },
+  { id: 'boulevard', name: 'BZ Today', typ: 'boulevard', reichweite: 25, stimmung_start: -5, min_complexity: 2 },
+  { id: 'qualitaet', name: 'Das Panorama', typ: 'qualitaet', reichweite: 15, stimmung_start: 0, min_complexity: 2 },
+  { id: 'social', name: 'TikFeed', typ: 'social', reichweite: 20, stimmung_start: 0, min_complexity: 2 },
+  { id: 'konservativ', name: 'Nationale Stimme', typ: 'konservativ', reichweite: 10, stimmung_start: -10, min_complexity: 3 },
+  { id: 'alternativ', name: 'WahrheitNow', typ: 'alternativ', reichweite: 5, stimmung_start: -20, min_complexity: 4 },
 ];
 
 /** SMA-392: Kurztexte zur Agenda je Akteurtyp (UI) */

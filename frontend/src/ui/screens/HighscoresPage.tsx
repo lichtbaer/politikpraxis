@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LegalPageShell } from './LegalPageShell';
 import { fetchHighscores, type HighscoreItem } from '../../services/stats';
+import { toBcp47 } from '../lib/locale';
 
 const PARTEIEN = ['sdp', 'cdp', 'gp', 'ldp', 'lp'] as const;
 
 export function HighscoresPage() {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const [partei, setPartei] = useState<string>('sdp');
   const [complexity, setComplexity] = useState<number | ''>('');
   const [items, setItems] = useState<HighscoreItem[]>([]);
@@ -113,7 +114,7 @@ export function HighscoresPage() {
                 </td>
                 <td style={{ textAlign: 'right', padding: '6px 8px' }}>{row.complexity}</td>
                 <td style={{ padding: '6px 8px', fontSize: '0.85rem' }}>
-                  {new Date(row.created_at).toLocaleDateString()}
+                  {new Date(row.created_at).toLocaleDateString(toBcp47(i18n.language))}
                 </td>
               </tr>
             ))}

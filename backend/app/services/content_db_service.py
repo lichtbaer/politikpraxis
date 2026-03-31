@@ -34,8 +34,9 @@ from app.models.content import (
     VerbandsTradeoff,
     VerbandsTradeoffI18n,
 )
-from app.models.medien_akteur import MedienAkteur
+from app.models.medien_akteur import MedienAkteur, MedienAkteurI18n
 
+# Erweiterung: neue Sprache hier ergänzen + PgEnum-Migration + Frontend-Locale-Dateien
 VALID_LOCALES = frozenset({"de", "en"})
 LOCALE_FALLBACK = {"en": "de", "de": "en"}
 CACHE_TTL = 3600  # 1 Stunde
@@ -118,27 +119,54 @@ async def _fetch_cached_i18n(
 # ---------------------------------------------------------------------------
 
 
-async def fetch_medien_akteure(db: AsyncSession) -> list[dict]:
-    """SMA-392: Medienakteure aus DB (kein Locale — nur name_de)."""
+async def fetch_medien_akteure(db: AsyncSession, locale: str = "de") -> list[dict]:
+    """Medienakteure aus DB mit lokalisiertem Namen (LEFT JOIN auf medien_akteure_i18n)."""
 
-    cache_key = ("medien_akteure", "all")
+    cache_key = ("medien_akteure", locale)
     cached = _get_cached(cache_key)
     if cached is not None:
         return cached
 
-    result = await db.execute(select(MedienAkteur).order_by(MedienAkteur.id))
-    rows_orm = result.scalars().all()
-    out = [
-        {
+    stmt = (
+        select(MedienAkteur, MedienAkteurI18n)
+        .outerjoin(
+            MedienAkteurI18n,
+            (MedienAkteur.id == MedienAkteurI18n.akteur_id)
+            & (MedienAkteurI18n.locale == locale),
+        )
+        .order_by(MedienAkteur.id)
+    )
+    rows_raw = (await db.execute(stmt)).all()
+
+    # Fallback auf DE wenn i18n-Eintrag fehlt
+    fallback_locale = LOCALE_FALLBACK.get(locale, "de")
+    if any(i18n_row is None for _, i18n_row in rows_raw):
+        fallback_stmt = (
+            select(MedienAkteur, MedienAkteurI18n)
+            .outerjoin(
+                MedienAkteurI18n,
+                (MedienAkteur.id == MedienAkteurI18n.akteur_id)
+                & (MedienAkteurI18n.locale == fallback_locale),
+            )
+            .order_by(MedienAkteur.id)
+        )
+        fallback_rows = {r.id: i for r, i in (await db.execute(fallback_stmt)).all()}
+    else:
+        fallback_rows = {}
+
+    out = []
+    for r, i18n_row in rows_raw:
+        resolved = i18n_row or fallback_rows.get(r.id)
+        name = resolved.name if resolved else r.name_de
+        out.append({
             "id": r.id,
-            "name_de": r.name_de,
+            "name": name,
             "typ": r.typ,
             "reichweite": float(r.reichweite),
             "stimmung_start": int(r.stimmung_start or 0),
             "min_complexity": int(r.min_complexity or 2),
-        }
-        for r in rows_orm
-    ]
+        })
+
     _set_cached(cache_key, out)
     return out
 
@@ -472,25 +500,33 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
     )
 
 
-async def fetch_bundeslaender(db: AsyncSession) -> list[dict]:
-    """SMA-395: Statische Länder-Profile (Themen, Stimmgewicht, BR-Fraktionszuordnung)."""
-    cache_key = ("bundeslaender", "all")
+async def fetch_bundeslaender(db: AsyncSession, locale: str = "de") -> list[dict]:
+    """Statische Länder-Profile mit lokalisiertem Namen (LEFT JOIN bundeslaender_i18n)."""
+    cache_key = ("bundeslaender", locale)
     cached = _get_cached(cache_key)
     if cached is not None:
         return cached
 
+    fallback = LOCALE_FALLBACK.get(locale, "de")
     result = await db.execute(
         text("""
-            SELECT id, name_de, partei, koalition, bundesrat_fraktion,
-                   wirtschaft_typ, themen, beziehung_start, stimmgewicht, min_complexity
-            FROM bundeslaender
-            ORDER BY id
-        """)
+            SELECT b.id, b.name_de, b.partei, b.koalition, b.bundesrat_fraktion,
+                   b.wirtschaft_typ, b.themen, b.beziehung_start, b.stimmgewicht,
+                   b.min_complexity,
+                   COALESCE(i.name, fb.name, b.name_de) AS name
+            FROM bundeslaender b
+            LEFT JOIN bundeslaender_i18n i
+                   ON i.land_id = b.id AND i.locale = :locale
+            LEFT JOIN bundeslaender_i18n fb
+                   ON fb.land_id = b.id AND fb.locale = :fallback
+            ORDER BY b.id
+        """),
+        {"locale": locale, "fallback": fallback},
     )
     rows = [
         {
             "id": r[0],
-            "name_de": r[1],
+            "name": r[10],
             "partei": r[2],
             "koalition": list(r[3] or []),
             "bundesrat_fraktion": r[4],
@@ -908,7 +944,7 @@ async def _get_tradeoff_key_mapping(db: AsyncSession) -> dict[int, str]:
     return {r[0]: r[1] for r in rows}
 
 
-async def fetch_gesetz_relationen(db: AsyncSession) -> list[dict]:
+async def fetch_gesetz_relationen(db: AsyncSession, locale: str = "de") -> list[dict]:
     """SMA-312: Lädt Gesetz-Relationen (requires, excludes, enhances)."""
     cache_key = ("gesetz_relationen", "all")
     cached = _get_cached(cache_key)
@@ -917,16 +953,22 @@ async def fetch_gesetz_relationen(db: AsyncSession) -> list[dict]:
 
     rows = await db.execute(
         text("""
-            SELECT gesetz_a_id, gesetz_b_id, relation_typ, beschreibung_de, enhances_faktor
+            SELECT gesetz_a_id, gesetz_b_id, relation_typ,
+                   CASE WHEN :locale = 'en' AND beschreibung_en IS NOT NULL
+                        THEN beschreibung_en
+                        ELSE beschreibung_de
+                   END AS beschreibung,
+                   enhances_faktor
             FROM gesetz_relationen
-        """)
+        """),
+        {"locale": locale},
     )
     result = [
         {
             "gesetz_a_id": r[0],
             "gesetz_b_id": r[1],
             "relation_typ": r[2],
-            "beschreibung_de": r[3],
+            "beschreibung": r[3],
             "enhances_faktor": float(r[4]) if r[4] is not None else 1.0,
         }
         for r in rows

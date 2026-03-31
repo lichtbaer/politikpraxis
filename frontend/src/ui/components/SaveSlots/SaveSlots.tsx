@@ -9,6 +9,7 @@ import {
   type SaveListItem,
 } from '../../../services/saves';
 import type { SaveFile } from '../../../services/localStorageSave';
+import { toBcp47 } from '../../lib/locale';
 import styles from './SaveSlots.module.css';
 
 interface SaveSlotsProps {
@@ -66,7 +67,7 @@ export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
 
   const formatDate = (iso: string) => {
     try {
-      return new Date(iso).toLocaleString(i18n.language === 'de' ? 'de-DE' : 'en-US', {
+      return new Date(iso).toLocaleString(toBcp47(i18n.language), {
         dateStyle: 'short',
         timeStyle: 'short',
       });

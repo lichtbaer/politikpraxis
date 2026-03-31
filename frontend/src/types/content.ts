@@ -199,7 +199,7 @@ export interface BundesratTradeoffApi {
 /** SMA-392: GET /api/content/medien-akteure */
 export interface MedienAkteurApi {
   id: string;
-  name_de: string;
+  name: string;
   typ: string;
   reichweite: number;
   stimmung_start: number;
@@ -209,7 +209,7 @@ export interface MedienAkteurApi {
 /** SMA-395: GET /api/content/bundeslaender */
 export interface BundeslandApi {
   id: string;
-  name_de: string;
+  name: string;
   partei: string | null;
   koalition: string[];
   bundesrat_fraktion: string;

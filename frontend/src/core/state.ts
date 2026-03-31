@@ -59,6 +59,7 @@ function mergeBundeslaenderProfile(
     landBeziehungen[land.id] = Math.max(0, Math.min(100, p.beziehung_start));
     return {
       ...land,
+      name: p.name ?? land.name,
       votes: p.stimmgewicht,
       stimmgewicht: p.stimmgewicht,
       regierungPartei: p.partei ?? land.party,
