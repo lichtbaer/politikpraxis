@@ -5,7 +5,7 @@ import type { Ideologie, KpiDelta } from './common';
 /** SMA-395: Rohdaten aus GET /content/bundeslaender */
 export interface BundeslandContent {
   id: string;
-  name_de: string;
+  name: string;
   partei: string | null;
   koalition: string[];
   bundesrat_fraktion: 'union' | 'spd_gruene' | 'fdp' | 'gemischt';

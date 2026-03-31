@@ -142,7 +142,7 @@ class BundesratTradeoffResponse(BaseModel):
 
 class BundeslandResponse(BaseModel):
     id: str
-    name_de: str
+    name: str
     partei: str | None = None
     koalition: list[str]
     bundesrat_fraktion: str
@@ -256,10 +256,10 @@ class EuEventResponse(BaseModel):
 
 
 class MedienAkteurResponse(BaseModel):
-    """SMA-392: Medienakteur-Definitionen (Seed aus DB)."""
+    """SMA-392: Medienakteur-Definitionen (Seed aus DB), lokalisierter Name."""
 
     id: str
-    name_de: str
+    name: str
     typ: str
     reichweite: float
     stimmung_start: int = 0

@@ -19,6 +19,7 @@ import { berechneKoalitionspartner, getKoalitionspartner } from '../../core/syst
 import { getKoalitionsStanz, gruppiereNachKoalitionsStanz } from '../../core/gesetzAgenda';
 import { IdeologieSlider } from '../components/IdeologieSlider/IdeologieSlider';
 import { ALLE_PARTEIEN } from '../../data/defaults/koalitionspartner';
+import { toBcp47 } from '../lib/locale';
 import styles from './WahlnachtOnboarding.module.css';
 
 /** Beat 0 = Partei, 1 = Ideologie (Stufe 3+), 2 = Headline, 3 = Kabinett, 4 = Memo, 5 = Koalitionsvertrag, 6 = CTA */
@@ -152,7 +153,7 @@ export function WahlnachtOnboarding() {
   const memoBrLine = showBundesratLine ? t('game:onboarding.memoBrLine') : '';
 
   // Dynamischer Headline-Meta-Text: Wahlprognose + Koalitionsvorschau (aus main)
-  const locale = i18n.language.startsWith('de') ? 'de-DE' : 'en-US';
+  const locale = toBcp47(i18n.language);
   const approvalPrognose = berechneWahlprognose(state, content, complexity);
   const turnoutBeteiligung = berechneOnboardingWahlbeteiligung(content, complexity);
   const partnerId = state.koalitionspartner?.id;

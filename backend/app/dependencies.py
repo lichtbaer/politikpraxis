@@ -75,20 +75,22 @@ def client_ip(request: Request) -> str:
 
 
 def validate_locale(locale: str = Query(default="de")) -> str:
-    """Validiert locale; nur 'de' und 'en' erlaubt. Nutzbar als FastAPI-Dependency."""
+    """Validates locale query parameter. Usable as FastAPI dependency."""
     if locale not in VALID_LOCALES:
+        allowed = ", ".join(sorted(VALID_LOCALES))
         raise HTTPException(
             status_code=400,
-            detail=f"Ungültige locale '{locale}'. Erlaubt sind: de, en",
+            detail=f"Invalid locale '{locale}'. Allowed: {allowed}",
         )
     return locale
 
 
 def validate_locale_value(locale: str) -> str:
-    """Validiert einen Locale-String (kein Query-Parameter, für direkten Aufruf)."""
+    """Validates a locale string (direct call, not a query parameter)."""
     if locale not in VALID_LOCALES:
+        allowed = ", ".join(sorted(VALID_LOCALES))
         raise HTTPException(
             status_code=400,
-            detail=f"Ungültige locale '{locale}'. Erlaubt: de, en",
+            detail=f"Invalid locale '{locale}'. Allowed: {allowed}",
         )
     return locale

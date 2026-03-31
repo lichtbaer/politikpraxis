@@ -54,7 +54,7 @@ export function MedienAkteurKarte({ def, stateRow, game }: MedienAkteurKarteProp
           {getMedienAkteurIcon(def.typ)}
         </span>
         <div className={styles.headerText}>
-          <h3 className={styles.title}>{def.name_de}</h3>
+          <h3 className={styles.title}>{def.name}</h3>
           <div className={styles.reichweite}>{t('medienAkteure.reichweite', { value: Math.round(stateRow.reichweite) })}</div>
         </div>
       </div>

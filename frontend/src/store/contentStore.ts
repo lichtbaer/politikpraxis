@@ -384,7 +384,7 @@ export interface GesetzRelationApi {
   gesetz_a_id: string;
   gesetz_b_id: string;
   relation_typ: 'requires' | 'excludes' | 'enhances';
-  beschreibung_de?: string | null;
+  beschreibung?: string | null;
   enhances_faktor?: number | null;
 }
 
@@ -422,7 +422,7 @@ export interface ContentStore {
 function transformBundesland(api: BundeslandApi): BundeslandContent {
   return {
     id: api.id,
-    name_de: api.name_de,
+    name: api.name,
     partei: api.partei,
     koalition: api.koalition ?? [],
     bundesrat_fraktion: api.bundesrat_fraktion as BundeslandContent['bundesrat_fraktion'],
@@ -437,7 +437,7 @@ function transformBundesland(api: BundeslandApi): BundeslandContent {
 function transformMedienAkteur(api: MedienAkteurApi): MedienAkteurContent {
   return {
     id: api.id,
-    name_de: api.name_de,
+    name: api.name,
     typ: api.typ as MedienAkteurTyp,
     reichweite: api.reichweite,
     stimmung_start: api.stimmung_start,
@@ -451,7 +451,7 @@ function buildGesetzRelationen(api: GesetzRelationApi[]): Record<string, GesetzR
     const rel: GesetzRelation = {
       typ: r.relation_typ,
       targetId: r.gesetz_b_id,
-      beschreibung: r.beschreibung_de ?? undefined,
+      beschreibung: r.beschreibung ?? undefined,
       enhancesFaktor: r.enhances_faktor ?? undefined,
     };
     if (!out[r.gesetz_a_id]) out[r.gesetz_a_id] = [];
@@ -511,9 +511,9 @@ export const useContentStore = create<ContentStore>((set) => ({
           apiFetch<MilieuApi[]>(`/content/milieus?locale=${locale}`).catch(() => []),
           apiFetch<PolitikfeldApi[]>(`/content/politikfelder?locale=${locale}`).catch(() => []),
           apiFetch<VerbandApi[]>(`/content/verbaende?locale=${locale}`).catch(() => []),
-          apiFetch<GesetzRelationApi[]>(`/content/gesetz-relationen`).catch(() => []),
-          apiFetch<MedienAkteurApi[]>(`/content/medien-akteure`).catch(() => []),
-          apiFetch<BundeslandApi[]>(`/content/bundeslaender`).catch(() => []),
+          apiFetch<GesetzRelationApi[]>(`/content/gesetz-relationen?locale=${locale}`).catch(() => []),
+          apiFetch<MedienAkteurApi[]>(`/content/medien-akteure?locale=${locale}`).catch(() => []),
+          apiFetch<BundeslandApi[]>(`/content/bundeslaender?locale=${locale}`).catch(() => []),
         ]);
 
       const events = eventsAll.map(transformEvent);

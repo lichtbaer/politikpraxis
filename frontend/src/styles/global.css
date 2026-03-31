@@ -1,4 +1,13 @@
 /* SMA-314: Lokale Fonts statt Google Fonts (DSGVO-konform) */
+/* Alle Fonts sind auf den Latin-Subset beschränkt (Latin Extended reicht für Türkisch: ı İ ğ ş ç).
+ * RTL-Erweiterung (Arabisch, Hebräisch, Farsi): Schritte für neue Sprachen:
+ *   1. Arabischen Font ergänzen, z. B.:
+ *        @import '@fontsource/noto-sans-arabic/arabic-400.css';
+ *   2. CSS Logical Properties verwenden (margin-inline-start statt margin-left) —
+ *      alle betroffenen Komponenten müssen geprüft werden.
+ *   3. Das <html dir="rtl"> wird bereits automatisch durch App.tsx gesetzt
+ *      (RTL_LANGS-Set: ar, he, fa, ur) — kein weiterer Eingriff nötig.
+ */
 @import '@fontsource/playfair-display/latin-400.css';
 @import '@fontsource/playfair-display/latin-400-italic.css';
 @import '@fontsource/playfair-display/latin-600.css';

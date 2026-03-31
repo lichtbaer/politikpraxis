@@ -30,6 +30,10 @@ export default function App() {
 
   useEffect(() => {
     load(i18n.language);
+    document.documentElement.lang = i18n.language;
+    // RTL-Vorbereitung: Arabisch, Hebräisch, Farsi, Urdu
+    const RTL_LANGS = new Set(['ar', 'he', 'fa', 'ur']);
+    document.documentElement.dir = RTL_LANGS.has(i18n.language) ? 'rtl' : 'ltr';
   }, [i18n.language, load]);
 
   useEffect(() => {

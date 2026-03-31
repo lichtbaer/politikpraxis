@@ -11,6 +11,7 @@ import { LegalFooter } from '../components/LegalFooter/LegalFooter';
 import { SaveSlots } from '../components/SaveSlots/SaveSlots';
 import { LoginModal } from '../components/LoginModal/LoginModal';
 import { SimpleConfirm } from '../components/SimpleConfirm/SimpleConfirm';
+import { toBcp47 } from '../lib/locale';
 import styles from './MainMenu.module.css';
 
 function toggleLang() {
@@ -156,7 +157,7 @@ export function MainMenu() {
                 {t('menu.loadGame')}
                 {saveInfo && (
                   <span className={styles.saveInfo}>
-                    {t('game:mainMenu.saveInfo', { month: saveInfo.month, approval: Math.round(saveInfo.approval) })} · {new Date(saveInfo.savedAt).toLocaleDateString(i18n.language === 'de' ? 'de-DE' : 'en-US')}
+                    {t('game:mainMenu.saveInfo', { month: saveInfo.month, approval: Math.round(saveInfo.approval) })} · {new Date(saveInfo.savedAt).toLocaleDateString(toBcp47(i18n.language))}
                   </span>
                 )}
               </button>

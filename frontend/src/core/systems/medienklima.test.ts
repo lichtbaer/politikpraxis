@@ -154,7 +154,7 @@ describe('getMedienPkZusatzkosten', () => {
 
 const singleAkteurContent = {
   medienAkteureContent: [
-    { id: 'oeffentlich', name_de: 'Test', typ: 'oeffentlich' as const, reichweite: 100, stimmung_start: 10, min_complexity: 2 },
+    { id: 'oeffentlich', name: 'Test', typ: 'oeffentlich' as const, reichweite: 100, stimmung_start: 10, min_complexity: 2 },
   ],
 } as import('../types').ContentBundle;
 
