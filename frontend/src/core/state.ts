@@ -15,7 +15,7 @@ import {
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
 } from '../data/defaults/parteien';
-import { MEDIEN_KLIMA_DEFAULT } from './constants';
+import { MEDIEN_KLIMA_DEFAULT, MAX_FIRED_EVENTS, MAX_PENDING, MAX_LOG_ENTRIES_VALIDATION } from './constants';
 import { selectEventPool } from './systems/eventPoolSelection';
 import {
   berechneMedianklima,
@@ -392,9 +392,7 @@ export function createInitialState(
 }
 
 /** Maximale Array-Längen für GameState (Schutz vor localStorage-Manipulation) */
-const MAX_LOG_ENTRIES = 500;
-const MAX_FIRED_EVENTS = 200;
-const MAX_PENDING = 100;
+const MAX_LOG_ENTRIES = MAX_LOG_ENTRIES_VALIDATION;
 
 /** Erlaubte View- und Speed-Werte */
 /** SMA-320: 10 Tabs */

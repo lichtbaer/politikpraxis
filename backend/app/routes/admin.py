@@ -1,5 +1,6 @@
 """Admin-API — Router-Aggregator. Basic-Auth geschützt."""
 
+import logging
 import time
 from collections import defaultdict
 
@@ -7,6 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from app.dependencies import verify_admin
 from app.routes import admin_bundesrat, admin_chars, admin_events, admin_gesetze
+
+_audit_logger = logging.getLogger("bundesrepublik.admin.audit")
 
 _ADMIN_RATE_LIMIT = 30  # Anfragen pro Minute
 _admin_request_times: dict[str, list[float]] = defaultdict(list)
@@ -28,7 +31,22 @@ async def admin_rate_limit(request: Request) -> None:
     times.append(now)
 
 
-router = APIRouter(dependencies=[Depends(verify_admin), Depends(admin_rate_limit)])
+async def admin_audit_log(
+    request: Request,
+    admin_user: str = Depends(verify_admin),
+) -> None:
+    """Strukturiertes Audit-Log für alle Admin-Schreiboperationen (POST, PUT, DELETE, PATCH)."""
+    if request.method in {"POST", "PUT", "DELETE", "PATCH"}:
+        resource = request.url.path.removeprefix("/api/admin")
+        _audit_logger.info(
+            "ADMIN_WRITE user=%s method=%s path=%s",
+            admin_user,
+            request.method,
+            resource,
+        )
+
+
+router = APIRouter(dependencies=[Depends(verify_admin), Depends(admin_rate_limit), Depends(admin_audit_log)])
 router.include_router(admin_chars.router)
 router.include_router(admin_gesetze.router)
 router.include_router(admin_events.router)
