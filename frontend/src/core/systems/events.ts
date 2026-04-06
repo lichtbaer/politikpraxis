@@ -67,6 +67,7 @@ const WAHLKAMPF_EVENT_IDS = new Set([
 
 export { isOnCooldown, isEventAvailable, recordEventFired } from './eventUtils';
 import { isEventAvailable, recordEventFired } from './eventUtils';
+import { nextRandom } from '../rng';
 
 export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): GameState {
   if (state.activeEvent) return state;
@@ -86,7 +87,7 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): Gam
 
   prob = Math.min(0.50, prob);
 
-  if (Math.random() >= prob) return state;
+  if (nextRandom() >= prob) return state;
 
   const firedSet = new Set(state.firedEvents);
   const available = eventPool
@@ -94,7 +95,7 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): Gam
     .filter(e => isEventAvailable(state, e, firedSet));
   if (!available.length) return state;
 
-  const ev = available[Math.floor(Math.random() * available.length)];
+  const ev = available[Math.floor(nextRandom() * available.length)];
   return {
     ...state,
     ...recordEventFired(state, ev),
@@ -171,10 +172,10 @@ export function checkBundesratEvents(
   }
 
   // 4. Zufällig: Landtagswahl (ab Monat 10)
-  if (state.month >= 10 && Math.random() < BR_LANDTAGSWAHL_CHANCE && !fired.includes('landtagswahl')) {
+  if (state.month >= 10 && nextRandom() < BR_LANDTAGSWAHL_CHANCE && !fired.includes('landtagswahl')) {
     const ev = bundesratEvents.find(e => e.id === 'landtagswahl');
     if (ev && landtagswahlTransitions.length > 0) {
-      const t = landtagswahlTransitions[Math.floor(Math.random() * landtagswahlTransitions.length)];
+      const t = landtagswahlTransitions[Math.floor(nextRandom() * landtagswahlTransitions.length)];
       const fromFraktion = state.bundesratFraktionen.find(f => f.id === t.fromFraktion);
       if (fromFraktion?.laender.includes(t.landId)) {
         return {
@@ -195,12 +196,12 @@ export function checkBundesratEvents(
   }
 
   // 5. Zufällig: Sprecher-Wechsel (nach Monat 24)
-  if (state.month >= 24 && Math.random() < BR_SPRECHER_WECHSEL_CHANCE && !fired.includes('sprecher_wechsel')) {
+  if (state.month >= 24 && nextRandom() < BR_SPRECHER_WECHSEL_CHANCE && !fired.includes('sprecher_wechsel')) {
     const ev = bundesratEvents.find(e => e.id === 'sprecher_wechsel');
     if (ev) {
       const fraktionen = state.bundesratFraktionen.filter(f => sprecherErsatz[f.id]);
       if (fraktionen.length > 0) {
-        const f = fraktionen[Math.floor(Math.random() * fraktionen.length)];
+        const f = fraktionen[Math.floor(nextRandom() * fraktionen.length)];
         const ersatz = sprecherErsatz[f.id];
         return {
           ...state,
@@ -218,11 +219,11 @@ export function checkBundesratEvents(
   }
 
   // 6. Konditionell: Bundesrat-Initiative (Fraktion 3 oder 4, ab Monat 18)
-  if (state.month >= 18 && Math.random() < BR_INITIATIVE_CHANCE && !fired.includes('bundesrat_initiative')) {
+  if (state.month >= 18 && nextRandom() < BR_INITIATIVE_CHANCE && !fired.includes('bundesrat_initiative')) {
     const ev = bundesratEvents.find(e => e.id === 'bundesrat_initiative');
     if (ev) {
       const initiatoren = ['konservativer_block', 'ostblock'];
-      const fraktionId = initiatoren[Math.floor(Math.random() * initiatoren.length)];
+      const fraktionId = initiatoren[Math.floor(nextRandom() * initiatoren.length)];
       return {
         ...state,
         firedBundesratEvents: [...fired, 'bundesrat_initiative'],

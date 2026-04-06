@@ -7,6 +7,7 @@ import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { scheduleEffects } from './economy';
 import { applyGesetzMedienAkteureNachBeschluss } from './medienklima';
+import { nextRandom } from '../rng';
 
 /** Default EU-Klima-Startwerte (Fallback wenn API nicht liefert) */
 const DEFAULT_EU_KLIMA: Record<string, number> = {
@@ -88,7 +89,7 @@ export function tickEUKlima(
 
   const klima = { ...state.eu.klima };
   for (const feldId of Object.keys(klima)) {
-    let drift = (Math.random() - 0.5) * 0.4;
+    let drift = (nextRandom() - 0.5) * 0.4;
     const verband = getVerbandFuerFeld(verbaende, feldId);
     if (
       verband &&
@@ -281,7 +282,7 @@ export function resolveEURoute(
   if (!gesetz) return state;
 
   const feldId = gesetz.politikfeldId ?? 'wirtschaft_finanzen';
-  const erfolg = Math.random() < route.erfolgschance;
+  const erfolg = nextRandom() < route.erfolgschance;
 
   let s = { ...state };
   const klima = { ...(s.eu!.klima ?? {}) };
@@ -449,7 +450,7 @@ export function checkEUEreignisse(
   }
 
   // Random EU-Events
-  if (featureActive(complexity, 'eu_events_voll') && Math.random() < 0.08) {
+  if (featureActive(complexity, 'eu_events_voll') && nextRandom() < 0.08) {
     const pool = getEUEventsPool(content);
     const eligible = pool.filter(
       e =>
@@ -459,7 +460,7 @@ export function checkEUEreignisse(
           (s.eu!.klima[e.politikfeld_id ?? ''] ?? 0) >= e.trigger_klima_min),
     );
     if (eligible.length > 0) {
-      const event = eligible[Math.floor(Math.random() * eligible.length)];
+      const event = eligible[Math.floor(nextRandom() * eligible.length)];
       s = triggerEUEvent(s, event.id);
       s = { ...s, firedEvents: [...s.firedEvents, event.id] };
     }

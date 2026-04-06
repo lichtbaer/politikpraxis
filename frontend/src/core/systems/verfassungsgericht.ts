@@ -5,6 +5,7 @@ import { featureActive } from './features';
 import { clamp } from '../constants';
 import { getGesetzIdeologie } from './koalition';
 import { adjustMedienKlimaGlobal } from './medienklima';
+import { nextRandom } from '../rng';
 
 /**
  * Normenkontrolle beim Bundesverfassungsgericht (Art. 93 GG).
@@ -100,10 +101,10 @@ export function checkNormenkontrollKlage(
   const prob = berechneKlageWahrscheinlichkeit(law, oppStaerke, state.bundesratFraktionen);
 
   // Würfelwurf
-  if (Math.random() * 100 >= prob) return state;
+  if (nextRandom() * 100 >= prob) return state;
 
   // Verfahrensdauer: 4-8 Monate
-  const dauer = 4 + Math.floor(Math.random() * 5);
+  const dauer = 4 + Math.floor(nextRandom() * 5);
   const event = buildNormenkontrollEvent(law);
 
   const verfahren = [...(state.normenkontrollVerfahren ?? []), {
@@ -127,7 +128,7 @@ export function checkNormenkontrollKlage(
 type Urteil = 'konform' | 'teilweise' | 'widrig';
 
 function wuerfleUrteil(): Urteil {
-  const roll = Math.random() * 100;
+  const roll = nextRandom() * 100;
   if (roll < 40) return 'konform';
   if (roll < 80) return 'teilweise';
   return 'widrig';

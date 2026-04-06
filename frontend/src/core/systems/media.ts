@@ -1,5 +1,6 @@
 import type { GameState } from '../types';
 import { addLog } from '../engine';
+import { nextRandom } from '../rng';
 
 export type MilieuKey = 'arbeit' | 'mitte' | 'prog';
 
@@ -37,7 +38,7 @@ export function medienkampagne(state: GameState, milieu: MilieuKey): GameState {
   const mk = state.medienKlima ?? 55;
 
   // Basis-Gain 2–5 (altes Verhalten) + Medienklima-Modifikator
-  const baseGain = Math.floor(Math.random() * 4) + 2;
+  const baseGain = Math.floor(nextRandom() * 4) + 2;
   const mkBonus = mk >= 60 ? 2 : mk < 30 ? -1 : 0;
   const gain = Math.max(1, baseGain + mkBonus);
 
@@ -61,7 +62,7 @@ export function medienkampagne(state: GameState, milieu: MilieuKey): GameState {
   }
 
   // Skandal-Risiko bei schlechtem Medienklima (< 30, 25% Chance)
-  if (mk < 30 && Math.random() < 0.25) {
+  if (mk < 30 && nextRandom() < 0.25) {
     const newMk = Math.max(0, mk - 5);
     newState = addLog(
       { ...newState, medienKlima: newMk },

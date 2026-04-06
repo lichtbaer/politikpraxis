@@ -1,6 +1,7 @@
 import type { GameState, Character } from '../types';
 import { addLog } from '../log';
 import { withPause, getAutoPauseLevel } from '../eventPause';
+import { nextRandom } from '../rng';
 
 /**
  * Mapping Legacy-Char-IDs → Ressort.
@@ -51,10 +52,10 @@ export function applyCharBonuses(state: GameState): GameState {
 
   // Innenminister — Sabotage (bei Stimmung ≤ 1)
   const innen = findByRessort(newState.chars, 'innen');
-  if (innen && innen.mood <= 1 && Math.random() < 0.3) {
+  if (innen && innen.mood <= 1 && nextRandom() < 0.3) {
     for (let i = 0; i < gesetze.length; i++) {
       const g = gesetze[i];
-      if ((g.status === 'aktiv' || g.status === 'entwurf' || g.status === 'eingebracht') && Math.random() < 0.4) {
+      if ((g.status === 'aktiv' || g.status === 'entwurf' || g.status === 'eingebracht') && nextRandom() < 0.4) {
         const ja = Math.max(30, g.ja - 1);
         gesetze[i] = { ...g, ja, nein: 100 - ja };
       }
@@ -63,7 +64,7 @@ export function applyCharBonuses(state: GameState): GameState {
 
   // Wirtschaftsminister — al-Bonus (bei Stimmung ≥ 4)
   const wirtschaft = findByRessort(newState.chars, 'wirtschaft');
-  if (wirtschaft && wirtschaft.mood >= 4 && Math.random() < 0.3) {
+  if (wirtschaft && wirtschaft.mood >= 4 && nextRandom() < 0.3) {
     newState.kpi.al = +Math.max(2, newState.kpi.al - 0.05).toFixed(2);
   }
 

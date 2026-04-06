@@ -270,6 +270,8 @@ export function createInitialState(
     log: [],
     ticker: 'Neue Legislaturperiode. Koalitionsvertrag unterzeichnet.',
 
+    rngSeed: Math.floor(Math.random() * 0xffffffff) + 1,
+
     gameOver: false,
     won: false,
     complexity,

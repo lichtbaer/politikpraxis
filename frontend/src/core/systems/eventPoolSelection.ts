@@ -1,4 +1,5 @@
 import type { GameEvent } from '../types';
+import { nextRandom } from '../rng';
 
 /** Anteil der Events die pro Durchlauf ausgewählt werden */
 const POOL_RATIO = 0.65;
@@ -15,7 +16,7 @@ export function selectEventPool(events: GameEvent[]): string[] {
   // Fisher-Yates Shuffle
   const shuffled = [...optional];
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(nextRandom() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
 

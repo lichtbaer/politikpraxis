@@ -145,6 +145,9 @@ export interface GameState {
   log: LogEntry[];
   ticker: string;
 
+  /** Seed für den deterministischen PRNG (Mulberry32). Einmalig bei Spielstart gesetzt. */
+  rngSeed: number;
+
   gameOver: boolean;
   won: boolean;
   electionThreshold?: number;

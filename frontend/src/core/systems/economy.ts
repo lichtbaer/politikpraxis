@@ -6,6 +6,7 @@ import {
   KPI_DRIFT_CHANCE, MAX_LOG_ENTRIES,
   KPI_AL_BOUNDS, KPI_HH_BOUNDS, KPI_GI_BOUNDS, KPI_ZF_BOUNDS,
 } from '../constants';
+import { nextRandom } from '../rng';
 
 /**
  * Berechnet Zustimmungswerte aus KPI-Werten.
@@ -49,20 +50,20 @@ export function applyPendingEffects(state: GameState): GameState {
 export function applyKPIDrift(kpi: KPI): KPI {
   const newKpi = { ...kpi };
   // AL: häufiger Drift mit leichtem Aufwärtstrend (Arbeitsmarkt verschlechtert sich ohne aktive Politik)
-  if (Math.random() < KPI_DRIFT_CHANCE) {
-    newKpi.al = clamp(newKpi.al + (Math.random() - 0.60) * 0.3, ...KPI_AL_BOUNDS);
+  if (nextRandom() < KPI_DRIFT_CHANCE) {
+    newKpi.al = clamp(newKpi.al + (nextRandom() - 0.60) * 0.3, ...KPI_AL_BOUNDS);
   }
   // HH: seltener Drift mit leichter Verschlechterung (strukturelle Ausgabensteigerungen)
-  if (Math.random() < 0.12) {
-    newKpi.hh = clamp(newKpi.hh + (Math.random() - 0.52) * 0.2, ...KPI_HH_BOUNDS);
+  if (nextRandom() < 0.12) {
+    newKpi.hh = clamp(newKpi.hh + (nextRandom() - 0.52) * 0.2, ...KPI_HH_BOUNDS);
   }
   // GI: selten, leicht steigend (Ungleichheit wächst ohne Gegenmaßnahmen)
-  if (Math.random() < 0.15) {
-    newKpi.gi = clamp(newKpi.gi + (Math.random() - 0.45) * 0.15, ...KPI_GI_BOUNDS);
+  if (nextRandom() < 0.15) {
+    newKpi.gi = clamp(newKpi.gi + (nextRandom() - 0.45) * 0.15, ...KPI_GI_BOUNDS);
   }
   // ZF: häufigerer Drift mit Abwärtstrend (Bevölkerung wird ohne aktive Politik unzufriedener)
-  if (Math.random() < 0.22) {
-    newKpi.zf = clamp(newKpi.zf + (Math.random() - 0.55) * 0.3, ...KPI_ZF_BOUNDS);
+  if (nextRandom() < 0.22) {
+    newKpi.zf = clamp(newKpi.zf + (nextRandom() - 0.55) * 0.3, ...KPI_ZF_BOUNDS);
   }
   // Natürlicher ZF-Verfall: Zufriedenheit sinkt langsam ohne aktive Maßnahmen
   newKpi.zf = clamp(newKpi.zf - 0.38, ...KPI_ZF_BOUNDS);

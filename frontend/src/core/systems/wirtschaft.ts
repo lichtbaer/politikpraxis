@@ -3,6 +3,7 @@
  */
 import type { GameState } from '../types';
 import { clamp, trimHistory, KPI_HISTORY_MAX_MONTHS } from '../constants';
+import { nextRandom } from '../rng';
 import { featureActive } from './features';
 import { berechneEinnahmen, berechnePflichtausgaben } from './haushaltBerechnung';
 import { addLog } from '../log';
@@ -128,7 +129,7 @@ function tickSektorMechanik(w: WirtschaftsState): WirtschaftsState {
     let z = s.zustand + s.trend;
     z = clamp(z, 0, 100);
     let t = s.trend * 0.92;
-    t += (Math.random() - 0.5) * 0.15;
+    t += (nextRandom() - 0.5) * 0.15;
     t = clamp(t, -5, 5);
     sektoren[id] = { zustand: z, trend: t };
   }
@@ -138,7 +139,7 @@ function tickSektorMechanik(w: WirtschaftsState): WirtschaftsState {
 function checkKonjunkturZyklus(state: GameState, w: WirtschaftsState, complexity: number): WirtschaftsState {
   if (!featureActive(complexity, 'konjunktur_cycles')) return w;
   if (state.month < 12) return w;
-  if (Math.random() >= 0.04) return w;
+  if (nextRandom() >= 0.04) return w;
 
   const sektoren = { ...w.sektoren };
   for (const id of WIRTSCHAFT_SEKTOR_IDS) {

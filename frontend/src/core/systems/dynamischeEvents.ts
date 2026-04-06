@@ -12,6 +12,7 @@ import { getEventNamespace } from '../eventNamespaces';
 import { applyMoodChange } from './characters';
 import { adjustMedienKlimaGlobal } from './medienklima';
 import i18n from '../../i18n';
+import { nextRandom } from '../rng';
 
 export interface DynamicResolveOptions {
   complexity?: number;
@@ -206,7 +207,7 @@ function evaluateTrigger(ev: GameEvent, state: GameState, complexity: number): b
       const bis = Number(p.bis ?? 48);
       const prob = Number(p.wahrscheinlichkeit ?? 0.1);
       if (state.month < von || state.month > bis) return false;
-      return Math.random() < prob;
+      return nextRandom() < prob;
     }
     case 'medienklima_unter_monate': {
       const wert = Number(p.wert ?? 25);

@@ -18,6 +18,7 @@ import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { applyGesetzKosten } from './haushalt';
 import { checkProaktiveErfuellung } from './ministerAgenden';
 import { applyGesetzMedienAkteureNachBeschluss } from './medienklima';
+import { nextRandom } from '../rng';
 
 const PK_SCHICHT_1 = 15;
 const PK_SCHICHT_1_REDUZIERT = 10; // bei Beziehung 60-79
@@ -587,7 +588,7 @@ export function lobbyLand(state: GameState, landId: string): GameState {
   if (idx === -1) return state;
   const land = state.bundesrat[idx];
 
-  const moodGain = Math.floor(Math.random() * 2) + 1;
+  const moodGain = Math.floor(nextRandom() * 2) + 1;
   const bundesrat = state.bundesrat.map((l, i) =>
     i === idx ? { ...l, mood: Math.min(4, l.mood + moodGain) } : l,
   );

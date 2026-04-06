@@ -4,6 +4,7 @@ import { withPause } from '../eventPause';
 import { einbringen } from './parliament';
 import { featureActive } from './features';
 import { resolveCharById } from './characters';
+import { nextRandom } from '../rng';
 
 const COOLDOWN_MONTHS = 8;
 
@@ -172,7 +173,7 @@ export function resolveMinisterialInitiative(
   }
 
   // ignorieren
-  const erfolg = Math.random() < 0.3;
+  const erfolg = nextRandom() < 0.3;
   if (erfolg) {
     const newCoalition = Math.max(0, state.coalition - 8);
     return addLog(

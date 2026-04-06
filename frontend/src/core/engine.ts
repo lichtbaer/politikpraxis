@@ -56,6 +56,7 @@ import { tickNormenkontrolle } from './systems/verfassungsgericht';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bundesratEvents';
 import { berechneMonatsDiff } from './monatszusammenfassung';
 import { logger } from '../utils/logger';
+import { seedRng } from './rng';
 
 export { addLog } from './log';
 
@@ -92,6 +93,9 @@ export function tick(
   ausrichtung?: { wirtschaft: number; gesellschaft: number; staat: number },
 ): GameState {
   if (state.gameOver) return state;
+
+  // Deterministischen PRNG für diesen Tick initialisieren (seed + month → jeder Monat reproduzierbar)
+  seedRng(state.rngSeed * 1_000_003 + state.month);
 
   const t0 = performance.now();
   const tickLog: TickLogEntry[] = [];

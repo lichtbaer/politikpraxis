@@ -12,6 +12,7 @@ import { addLog } from '../log';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { bewerteEURoute } from './eu';
+import { nextRandom } from '../rng';
 import type { ContentBundle } from '../types';
 
 /** Boni pro Vorstufen-Typ bei Erfolg */
@@ -314,7 +315,7 @@ function resolveVorstufe(
   content: ContentBundle,
   complexity: number,
 ): GameState {
-  const erfolg = Math.random() < vorstufe.erfolgschance;
+  const erfolg = nextRandom() < vorstufe.erfolgschance;
   const gesetz = state.gesetze.find(g => g.id === projekt.gesetzId);
   if (!gesetz) return state;
 
