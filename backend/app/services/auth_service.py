@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import logging
 import time
 from datetime import UTC, datetime, timedelta
@@ -31,6 +32,11 @@ security = HTTPBearer()
 
 MAGIC_LINK_EXPIRE_MINUTES = 15
 PASSWORD_RESET_EXPIRE_MINUTES = 30
+
+
+def _hash_magic_token(raw: str) -> str:
+    """SHA-256-Hash des rohen Magic-Link-Tokens für sichere DB-Speicherung."""
+    return hashlib.sha256(raw.encode()).hexdigest()
 
 
 def create_access_token(user_id: str) -> str:
@@ -246,12 +252,17 @@ async def purge_expired_refresh_tokens(db: AsyncSession) -> None:
 
 
 async def get_or_create_user_for_magic_link(db: AsyncSession, email: str) -> User:
+    """Sucht existierenden User oder legt neuen als inaktiv an.
+
+    Neue User-Accounts bleiben is_active=False bis der Magic-Link geklickt wird.
+    So können keine aktiven Accounts für fremde E-Mail-Adressen angelegt werden.
+    """
     email = email.lower().strip()
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
     if user:
         return user
-    user = User(email=email, password_hash=None)
+    user = User(email=email, password_hash=None, is_active=False)
     db.add(user)
     await db.flush()
     return user
@@ -261,7 +272,8 @@ async def create_magic_link_token(db: AsyncSession, user: User) -> str:
     await purge_expired_magic_links(db)
     raw = generate_secure_token()
     expires = datetime.now(UTC) + timedelta(minutes=MAGIC_LINK_EXPIRE_MINUTES)
-    row = MagicLink(user_id=user.id, token=raw, expires_at=expires, used=False)
+    # Token als SHA-256-Hash speichern — roher Token wird nur per E-Mail übermittelt
+    row = MagicLink(user_id=user.id, token=_hash_magic_token(raw), expires_at=expires, used=False)
     db.add(row)
     await db.flush()
     return raw
@@ -269,16 +281,19 @@ async def create_magic_link_token(db: AsyncSession, user: User) -> str:
 
 async def consume_magic_link_token(db: AsyncSession, token: str) -> User | None:
     await purge_expired_magic_links(db)
-    result = await db.execute(select(MagicLink).where(MagicLink.token == token))
+    result = await db.execute(select(MagicLink).where(MagicLink.token == _hash_magic_token(token)))
     row = result.scalar_one_or_none()
     if not row or row.used or row.expires_at < datetime.now(UTC):
         logger.warning("Invalid or expired magic link token")
         return None
     uresult = await db.execute(select(User).where(User.id == row.user_id))
     user = uresult.scalar_one_or_none()
-    if not user or not user.is_active:
-        logger.warning("Magic link: user not found or inactive")
+    if not user:
+        logger.warning("Magic link: user not found")
         return None
+    # Erstmalige Verifizierung: inaktiven Account aktivieren
+    if not user.is_active:
+        user.is_active = True
     row.used = True
     user.last_login = datetime.now(UTC)
     await db.flush()

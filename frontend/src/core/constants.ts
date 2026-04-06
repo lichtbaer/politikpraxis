@@ -145,6 +145,18 @@ export const EINSPRUCH_UEBERSTIMMUNG_PK = 15;
 /** BT-Ja-Schwelle für Überstimmung: absolute Mehrheit (>50% aller Mitglieder) */
 export const EINSPRUCH_UEBERSTIMMUNG_SCHWELLE = 50;
 
+// --- Medienklima ---
+/** Startwert und Migrations-Fallback für medienKlima (neutrale Stimmung) */
+export const MEDIEN_KLIMA_DEFAULT = 55;
+
+// --- State-Array-Bounds (Schutz vor localStorage-Manipulation) ---
+/** Max. Einträge in firedEvents, firedCharEvents, ausgeloesteEvents etc. */
+export const MAX_FIRED_EVENTS = 200;
+/** Max. ausstehende PendingEffects */
+export const MAX_PENDING = 100;
+/** Max. Einträge im Validierungs-Log (großzügiger als Engine MAX_LOG_ENTRIES=60) */
+export const MAX_LOG_ENTRIES_VALIDATION = 500;
+
 // --- Zustimmung/Approval ---
 /** Untere Grenze für allgemeine Zustimmung */
 export const APPROVAL_MIN = 15;

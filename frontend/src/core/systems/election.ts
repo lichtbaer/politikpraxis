@@ -10,6 +10,7 @@ import {
   MISSTRAUENSVOTUM_KOALITIONSRUNDE_PK,
 } from '../constants';
 import { featureActive } from './features';
+import { nextRandom } from '../rng';
 
 /** Schwelle für Misstrauensvotum: Zustimmung unter diesem Wert zählt als "kritisch niedrig" */
 const MISSTRAUENSVOTUM_APPROVAL_THRESHOLD = 20;
@@ -90,7 +91,7 @@ export function resolveMisstrauensvotum(
   if (choiceKey === 'vertrauensfrage') {
     // Art. 68 GG: Erfolg abhängig von Koalitionsstabilität
     // Basis-Chance: coalition% + Zufallsfaktor
-    const basisChance = state.coalition + Math.random() * 20;
+    const basisChance = state.coalition + nextRandom() * 20;
     const erfolg = basisChance > 45;
 
     if (erfolg) {

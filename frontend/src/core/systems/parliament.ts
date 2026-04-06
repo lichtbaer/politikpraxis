@@ -23,6 +23,7 @@ import { getGesetzIdeologie, getKoalitionspartner } from './koalition';
 import { kannGesetzEingebracht } from '../gesetz';
 import { getKoalitionsStanz } from '../gesetzAgenda';
 import { getNfBundestagBtModifikator, getNfBundestagMedienDelta } from './bundestagNf';
+import { nextRandom } from '../rng';
 import { checkNormenkontrollKlage } from './verfassungsgericht';
 import { getIdeologieMalusFuerBt, pruefePartnerWiderstand } from './ideologiePartner';
 
@@ -324,7 +325,7 @@ export function lobbying(state: GameState, lawId: string): GameState {
   if (law.status !== 'entwurf' && law.status !== 'aktiv' && law.status !== 'eingebracht') return state;
 
   const range = law.lobby_gain_range ?? { min: 2, max: 6 };
-  const gain = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+  const gain = Math.floor(nextRandom() * (range.max - range.min + 1)) + range.min;
   const gesetze = state.gesetze.map((g, i) => {
     if (i !== idx) return g;
     const ja = Math.min(90, g.ja + gain);
@@ -524,8 +525,8 @@ export function resolveEingebrachteAbstimmung(
     const egEntry = (state.eingebrachteGesetze ?? []).find(e => e.gesetzId === eg.gesetzId);
     if (egEntry?.fraktionssitzungGehalten) risiko = Math.round(risiko / 2);
     // Würfelwurf gegen Risiko
-    if (risiko > 0 && Math.random() * 100 < risiko) {
-      abweichlerMalus = Math.floor(5 + Math.random() * 8); // -5 bis -12
+    if (risiko > 0 && nextRandom() * 100 < risiko) {
+      abweichlerMalus = Math.floor(5 + nextRandom() * 8); // -5 bis -12
     }
   }
 

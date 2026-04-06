@@ -6,6 +6,7 @@ import { getKoalitionspartner } from './koalition';
 import { berechneWahlprognose } from './wahlprognose';
 import { berechneKongruenz } from '../ideologie';
 import { verbrauchePK } from '../pk';
+import { nextRandom } from '../rng';
 import {
   DEFAULT_ELECTION_THRESHOLD,
   PK_WAHLKAMPF_REDE,
@@ -281,10 +282,10 @@ export function resolveTVDuell(
   const basisChance =
     (medienKlima / 100) * 0.4 +
     (wahlprognose > 40 ? 0.3 : 0.15) +
-    Math.random() * 0.3;
+    nextRandom() * 0.3;
   const chance = vorbereitet ? Math.min(0.85, basisChance + 0.2) : basisChance;
 
-  const gewonnen = Math.random() < chance;
+  const gewonnen = nextRandom() < chance;
 
   let next: GameState = {
     ...state,
@@ -413,7 +414,7 @@ export function checkKoalitionspartnerAlleingang(
   const kp = state.koalitionspartner;
   if (!kp || kp.beziehung >= 50) return state;
 
-  if (Math.random() >= 0.2) return state;
+  if (nextRandom() >= 0.2) return state;
 
   const ev = content.events?.find(e => e.id === 'koalitionspartner_alleingang');
   if (ev) {

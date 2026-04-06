@@ -15,6 +15,7 @@ import {
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
 } from '../data/defaults/parteien';
+import { MEDIEN_KLIMA_DEFAULT, MAX_FIRED_EVENTS, MAX_PENDING, MAX_LOG_ENTRIES_VALIDATION } from './constants';
 import { selectEventPool } from './systems/eventPoolSelection';
 import {
   berechneMedianklima,
@@ -269,6 +270,8 @@ export function createInitialState(
     log: [],
     ticker: 'Neue Legislaturperiode. Koalitionsvertrag unterzeichnet.',
 
+    rngSeed: Math.floor(Math.random() * 0xffffffff) + 1,
+
     gameOver: false,
     won: false,
     complexity,
@@ -286,7 +289,7 @@ export function createInitialState(
     })(),
     politikfeldDruck: {},
     politikfeldLetzterBeschluss: {},
-    medienKlima: 55,
+    medienKlima: MEDIEN_KLIMA_DEFAULT,
     opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 },
     ...(spielerParteiState && { spielerPartei: spielerParteiState }),
     kanzlerGeschlecht,
@@ -329,7 +332,7 @@ export function createInitialState(
   function withMedienAkteureIfNeeded(s: GameState): GameState {
     if (!featureActive(complexity, 'medien_akteure_2')) return s;
     let medienAkteure = initMedienAkteureFromContent(content, complexity);
-    medienAkteure = kalibriereMedienAkteureZuIndex(medienAkteure, content, complexity, s.medienKlima ?? 55);
+    medienAkteure = kalibriereMedienAkteureZuIndex(medienAkteure, content, complexity, s.medienKlima ?? MEDIEN_KLIMA_DEFAULT);
     const next = { ...s, medienAkteure };
     return { ...next, medienKlima: berechneMedianklima(next) };
   }
@@ -338,7 +341,7 @@ export function createInitialState(
   function withMedienKlimaHistorySeed(s: GameState): GameState {
     const r = withMedienAkteureIfNeeded(s);
     if (r.medienKlimaHistory && r.medienKlimaHistory.length > 0) return r;
-    return { ...r, medienKlimaHistory: [r.medienKlima ?? 55] };
+    return { ...r, medienKlimaHistory: [r.medienKlima ?? MEDIEN_KLIMA_DEFAULT] };
   }
 
   if (featureActive(complexity, 'haushaltsdebatte')) {
@@ -391,9 +394,7 @@ export function createInitialState(
 }
 
 /** Maximale Array-Längen für GameState (Schutz vor localStorage-Manipulation) */
-const MAX_LOG_ENTRIES = 500;
-const MAX_FIRED_EVENTS = 200;
-const MAX_PENDING = 100;
+const MAX_LOG_ENTRIES = MAX_LOG_ENTRIES_VALIDATION;
 
 /** Erlaubte View- und Speed-Werte */
 /** SMA-320: 10 Tabs */
@@ -488,7 +489,7 @@ export function validateGameState(raw: unknown): GameState {
   const wahlergebnis = wahlergebnisVal != null ? clamp(Number(wahlergebnisVal), 0, 100) : undefined;
   const medienKlimaVal = get('medienKlima', undefined);
   const medienKlima =
-    medienKlimaVal != null ? roundMedienKlimaIndex(clamp(Number(medienKlimaVal), 0, 100)) : 55;
+    medienKlimaVal != null ? roundMedienKlimaIndex(clamp(Number(medienKlimaVal), 0, 100)) : MEDIEN_KLIMA_DEFAULT;
 
   const validated: GameState = {
     month,
@@ -593,19 +594,19 @@ export function migrateGameState(state: GameState): GameState {
     result = { ...result, wirtschaft: createInitialWirtschaft() };
   }
   if (result.medienKlima == null) {
-    result = { ...result, medienKlima: 55 };
+    result = { ...result, medienKlima: MEDIEN_KLIMA_DEFAULT };
   }
   // SMA-390: fehlende Akteure anlegen, Index an gespeichertes medienKlima anbinden
   const cx = result.complexity ?? 4;
   if (featureActive(cx, 'medien_akteure_2') && (!result.medienAkteure || Object.keys(result.medienAkteure).length === 0)) {
     const bundle = { medienAkteureContent: DEFAULT_MEDIEN_AKTEURE } as ContentBundle;
     let ma = initMedienAkteureFromContent(bundle, cx);
-    ma = kalibriereMedienAkteureZuIndex(ma, bundle, cx, result.medienKlima ?? 55);
+    ma = kalibriereMedienAkteureZuIndex(ma, bundle, cx, result.medienKlima ?? MEDIEN_KLIMA_DEFAULT);
     result = { ...result, medienAkteure: ma, medienKlima: berechneMedianklima({ ...result, medienAkteure: ma }) };
   }
   // SMA-412: alte Spielstände ohne Verlauf — Startpunkt für Chart (nach finalem medienKlima)
   if (!result.medienKlimaHistory?.length) {
-    result = { ...result, medienKlimaHistory: [result.medienKlima ?? 55] };
+    result = { ...result, medienKlimaHistory: [result.medienKlima ?? MEDIEN_KLIMA_DEFAULT] };
   }
   // SMA-409: bestehende Verläufe normalisieren (Floats aus älteren Saves)
   if (result.medienKlimaHistory?.length) {

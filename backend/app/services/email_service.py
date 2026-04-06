@@ -11,6 +11,50 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
+_SMTP_MAX_RETRIES = 3
+_SMTP_RETRY_BASE_DELAY = 2.0  # Sekunden (exponentiell: 2, 4, 8)
+
+
+async def _send_with_retry(msg: EmailMessage) -> None:
+    """Sendet E-Mail mit bis zu _SMTP_MAX_RETRIES Versuchen (exponentielles Backoff)."""
+    settings = get_settings()
+
+    def _send_sync() -> None:
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=30) as smtp:
+            if settings.smtp_use_tls:
+                smtp.starttls()
+            if settings.smtp_user:
+                smtp.login(settings.smtp_user, settings.smtp_password)
+            smtp.send_message(msg)
+
+    last_error: Exception | None = None
+    for attempt in range(1, _SMTP_MAX_RETRIES + 1):
+        try:
+            await asyncio.to_thread(_send_sync)
+            return
+        except Exception as exc:
+            last_error = exc
+            if attempt < _SMTP_MAX_RETRIES:
+                delay = _SMTP_RETRY_BASE_DELAY * (2 ** (attempt - 1))
+                logger.warning(
+                    "SMTP-Versuch %d/%d fehlgeschlagen (%s) — Retry in %.0fs",
+                    attempt,
+                    _SMTP_MAX_RETRIES,
+                    exc,
+                    delay,
+                )
+                await asyncio.sleep(delay)
+            else:
+                logger.error(
+                    "SMTP endgültig fehlgeschlagen nach %d Versuchen: %s",
+                    _SMTP_MAX_RETRIES,
+                    exc,
+                )
+    raise HTTPException(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        detail="E-Mail konnte nicht gesendet werden. Bitte versuche es später erneut.",
+    ) from last_error
+
 
 async def send_magic_link_email(to_email: str, verify_url: str) -> None:
     """Sendet Magic-Link-E-Mail. Ohne SMTP: 503 (konsistent mit Passwort-Reset)."""
@@ -37,15 +81,7 @@ async def send_magic_link_email(to_email: str, verify_url: str) -> None:
     msg["To"] = to_email
     msg.set_content(body)
 
-    def _send_sync() -> None:
-        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=30) as smtp:
-            if settings.smtp_use_tls:
-                smtp.starttls()
-            if settings.smtp_user:
-                smtp.login(settings.smtp_user, settings.smtp_password)
-            smtp.send_message(msg)
-
-    await asyncio.to_thread(_send_sync)
+    await _send_with_retry(msg)
 
 
 async def send_password_reset_email(to_email: str, reset_url: str) -> None:
@@ -74,12 +110,4 @@ async def send_password_reset_email(to_email: str, reset_url: str) -> None:
     msg["To"] = to_email
     msg.set_content(body)
 
-    def _send_sync() -> None:
-        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=30) as smtp:
-            if settings.smtp_use_tls:
-                smtp.starttls()
-            if settings.smtp_user:
-                smtp.login(settings.smtp_user, settings.smtp_password)
-            smtp.send_message(msg)
-
-    await asyncio.to_thread(_send_sync)
+    await _send_with_retry(msg)

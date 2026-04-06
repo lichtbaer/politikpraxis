@@ -24,6 +24,7 @@ export function roundMedienKlimaIndex(v: number): number {
   return Math.round(clamp(v, 0, 100));
 }
 import { getGesetzIdeologie } from './koalition';
+import { nextRandom } from '../rng';
 
 /** Reaktionsdeltas je Akteur (Stimmung, Skandal: alternativ +3 Reichweite zusätzlich) */
 const REAKTIONEN = {
@@ -509,9 +510,9 @@ function checkSkandale(
     },
   );
 
-  if (eligible.length === 0 || Math.random() >= SKANDAL_CHANCE) return state;
+  if (eligible.length === 0 || nextRandom() >= SKANDAL_CHANCE) return state;
 
-  const event = eligible[Math.floor(Math.random() * eligible.length)];
+  const event = eligible[Math.floor(nextRandom() * eligible.length)];
   const gameEvent = medienEventToGameEvent(event);
 
   let next: GameState = {
@@ -538,7 +539,7 @@ function checkPositiveMedienEvents(
   complexity: number,
 ): GameState {
   if (state.activeEvent) return state;
-  if (Math.random() >= POSITIV_MEDIEN_CHANCE) return state;
+  if (nextRandom() >= POSITIV_MEDIEN_CHANCE) return state;
 
   const pool = getMedienEventsPool(content.medienEvents ?? [], 'positiv');
   const eligible = pool.filter(
@@ -553,7 +554,7 @@ function checkPositiveMedienEvents(
 
   if (eligible.length === 0) return state;
 
-  const event = eligible[Math.floor(Math.random() * eligible.length)];
+  const event = eligible[Math.floor(nextRandom() * eligible.length)];
   const gameEvent = medienEventToGameEvent(event);
 
   return {
@@ -869,7 +870,7 @@ function tickOpposition(state: GameState, _complexity: number): GameState {
 
 function waehleOppositionsThema(): string {
   const themen = ['haushalt', 'koalition', 'politikfeld', 'sicherheit', 'wirtschaft'];
-  return themen[Math.floor(Math.random() * themen.length)];
+  return themen[Math.floor(nextRandom() * themen.length)];
 }
 
 function triggerOppositionsEvent(state: GameState, thema: string): GameState {

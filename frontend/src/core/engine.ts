@@ -3,7 +3,7 @@ import { withPause, getAutoPauseLevel } from './eventPause';
 import {
   PK_REGEN_DIVISOR, PK_REGEN_MIN, PK_MAX,
   HISTORY_MAX_MONTHS, KPI_HISTORY_MAX_MONTHS, MAX_LOG_ENTRIES,
-  MISSTRAUENSVOTUM_MONATE, trimHistory,
+  MISSTRAUENSVOTUM_MONATE, trimHistory, MEDIEN_KLIMA_DEFAULT,
 } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval, roundKpi } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
@@ -56,6 +56,7 @@ import { tickNormenkontrolle } from './systems/verfassungsgericht';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bundesratEvents';
 import { berechneMonatsDiff } from './monatszusammenfassung';
 import { logger } from '../utils/logger';
+import { seedRng } from './rng';
 
 export { addLog } from './log';
 
@@ -93,6 +94,9 @@ export function tick(
 ): GameState {
   if (state.gameOver) return state;
 
+  // Deterministischen PRNG für diesen Tick initialisieren (seed + month → jeder Monat reproduzierbar)
+  seedRng(state.rngSeed * 1_000_003 + state.month);
+
   const t0 = performance.now();
   const tickLog: TickLogEntry[] = [];
   let s: GameState = { ...state, month: state.month + 1, kpiPrev: { ...state.kpi }, tickLog: [] };
@@ -120,7 +124,7 @@ export function tick(
   if (s.gameOver) return s;
 
   // 2. Pending Effects
-  if (s.medienKlima == null) s = { ...s, medienKlima: 55 };
+  if (s.medienKlima == null) s = { ...s, medienKlima: MEDIEN_KLIMA_DEFAULT };
 
   const kpiBeforePending = { ...s.kpi };
   s = applyPendingEffects(s);

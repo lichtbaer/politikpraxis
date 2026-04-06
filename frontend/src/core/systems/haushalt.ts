@@ -11,6 +11,7 @@ import { featureActive } from './features';
 import { scheduleSektorEffekteFromGesetz } from './wirtschaft';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { applyMedienHaushaltKrise } from './medienklima';
+import { nextRandom } from '../rng';
 
 /** Erstellt initiales Haushalt-Objekt */
 export function createInitialHaushalt(state: GameState): Haushalt {
@@ -147,7 +148,7 @@ export function tickKonjunktur(state: GameState, complexity: number): GameState 
     featureActive(complexity, 'konjunkturindex') &&
     !featureActive(complexity, 'wirtschaftssektoren')
   ) {
-    const drift = (Math.random() - 0.5) * 0.6; // SMA-309: ±0.3 statt ±0.2
+    const drift = (nextRandom() - 0.5) * 0.6; // SMA-309: ±0.3 statt ±0.2
     neuerHaushalt = {
       ...neuerHaushalt,
       konjunkturIndex: clamp(haushaltNachKonjunktur.konjunkturIndex + drift, KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX),

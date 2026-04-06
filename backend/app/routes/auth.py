@@ -188,6 +188,7 @@ async def login(
 @limiter.limit("30/minute")
 async def refresh_token(
     request: Request,
+    response: Response,
     refresh_cookie: str | None = Cookie(None, alias="refresh_token"),
     db: AsyncSession = Depends(get_db),
 ):
@@ -197,7 +198,11 @@ async def refresh_token(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
         )
+    # Token-Rotation: alten Token widerrufen, neuen ausstellen
+    await revoke_refresh_cookie(db, refresh_cookie)
+    new_raw = await create_refresh_session(db, user)
     access = create_access_token(str(user.id))
+    attach_refresh_cookie(response, new_raw)
     return AccessTokenResponse(access_token=access)
 
 
