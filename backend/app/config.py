@@ -76,6 +76,11 @@ def get_settings() -> Settings:
                 "ADMIN_PASSWORD ist nicht gesetzt — "
                 "setze ein starkes Passwort für die Admin-API"
             )
+        if any("localhost" in o or "127.0.0.1" in o for o in s.cors_origins):
+            problems.append(
+                "CORS_ORIGINS enthält localhost/127.0.0.1 — "
+                "setze CORS_ORIGINS auf die tatsächliche Produktions-URL"
+            )
         if problems:
             raise ValueError(
                 "Unsichere Produktionskonfiguration — Server wird nicht gestartet:\n"

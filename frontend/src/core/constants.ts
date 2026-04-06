@@ -145,6 +145,10 @@ export const EINSPRUCH_UEBERSTIMMUNG_PK = 15;
 /** BT-Ja-Schwelle für Überstimmung: absolute Mehrheit (>50% aller Mitglieder) */
 export const EINSPRUCH_UEBERSTIMMUNG_SCHWELLE = 50;
 
+// --- Medienklima ---
+/** Startwert und Migrations-Fallback für medienKlima (neutrale Stimmung) */
+export const MEDIEN_KLIMA_DEFAULT = 55;
+
 // --- Zustimmung/Approval ---
 /** Untere Grenze für allgemeine Zustimmung */
 export const APPROVAL_MIN = 15;

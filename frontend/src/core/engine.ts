@@ -3,7 +3,7 @@ import { withPause, getAutoPauseLevel } from './eventPause';
 import {
   PK_REGEN_DIVISOR, PK_REGEN_MIN, PK_MAX,
   HISTORY_MAX_MONTHS, KPI_HISTORY_MAX_MONTHS, MAX_LOG_ENTRIES,
-  MISSTRAUENSVOTUM_MONATE, trimHistory,
+  MISSTRAUENSVOTUM_MONATE, trimHistory, MEDIEN_KLIMA_DEFAULT,
 } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval, roundKpi } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
@@ -120,7 +120,7 @@ export function tick(
   if (s.gameOver) return s;
 
   // 2. Pending Effects
-  if (s.medienKlima == null) s = { ...s, medienKlima: 55 };
+  if (s.medienKlima == null) s = { ...s, medienKlima: MEDIEN_KLIMA_DEFAULT };
 
   const kpiBeforePending = { ...s.kpi };
   s = applyPendingEffects(s);

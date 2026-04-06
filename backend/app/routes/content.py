@@ -83,18 +83,34 @@ async def scenarios():
 @router.get("/chars", response_model=list[CharResponse])
 async def get_chars(
     locale: str = Depends(validate_locale),
+    complexity: int | None = Query(
+        default=None,
+        ge=1,
+        le=4,
+        description="Filtert Chars auf min_complexity <= complexity",
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     rows = await fetch_chars(db, locale)
+    if complexity is not None:
+        rows = [r for r in rows if (r.get("min_complexity") or 1) <= complexity]
     return rows
 
 
 @router.get("/gesetze", response_model=list[GesetzResponse])
 async def get_gesetze(
     locale: str = Depends(validate_locale),
+    complexity: int | None = Query(
+        default=None,
+        ge=1,
+        le=4,
+        description="Filtert Gesetze auf min_complexity <= complexity",
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     rows = await fetch_gesetze(db, locale)
+    if complexity is not None:
+        rows = [r for r in rows if (r.get("min_complexity") or 1) <= complexity]
     return rows
 
 
@@ -106,9 +122,17 @@ async def get_events(
         alias="type",
         description="Filter: random, char_ultimatum, bundesrat",
     ),
+    complexity: int | None = Query(
+        default=None,
+        ge=1,
+        le=4,
+        description="Filtert Events auf min_complexity <= complexity",
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     rows = await fetch_events(db, locale, event_type=event_type)
+    if complexity is not None:
+        rows = [r for r in rows if (r.get("min_complexity") or 1) <= complexity]
     return rows
 
 

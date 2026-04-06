@@ -20,7 +20,7 @@ import { Users } from '../icons';
 import { MonatszusammenfassungModal } from '../components/MonatszusammenfassungModal/MonatszusammenfassungModal';
 import styles from './Shell.module.css';
 
-/** Alt+number → view tab mapping */
+/** Alt+number/letter → view tab mapping */
 const ALT_VIEW_MAP: Record<string, ViewName> = {
   '1': 'agenda',
   '2': 'bundestag',
@@ -32,6 +32,7 @@ const ALT_VIEW_MAP: Record<string, ViewName> = {
   '8': 'laender',
   '9': 'kommunen',
   '0': 'eu',
+  'w': 'wahlkampf',
 };
 
 export function Shell() {
