@@ -46,3 +46,4 @@ nav:
     - Balance-Simulation: entwicklung/balance-simulation.md
     - CI/CD: ci-cd.md
     - Deployment (Produktion): deployment.md
+    - Produktivbetrieb (Docker): entwicklung/produktivbetrieb-docker.md

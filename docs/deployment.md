@@ -2,6 +2,8 @@
 
 Dieses Dokument beschreibt das Produktions-Deployment mit **Docker Compose**, **nginx** als Reverse Proxy, **Let's Encrypt** (SSL) und **GitHub Actions** für CI/CD bei Push auf `main`.
 
+**Laufender Betrieb** (Zertifikate, Volumes, Logs, Backups): [Produktivbetrieb mit Docker](entwicklung/produktivbetrieb-docker.md).
+
 ## Architektur (Kurz)
 
 - **nginx** (Ports 80/443): TLS-Terminierung, HTTP und Apex-HTTPS → **kanonisch https://www.politikpraxis.de**, Proxy für `/api/` → Backend, sonst Frontend-SPA.
