@@ -28,6 +28,9 @@ jobs:
           cache: pip
           cache-dependency-path: docs/requirements.txt
 
+      - name: Upgrade build tools
+        run: pip install --upgrade pip setuptools wheel
+
       - name: Install MkDocs dependencies
         run: pip install -r docs/requirements.txt
 

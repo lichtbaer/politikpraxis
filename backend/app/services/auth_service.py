@@ -163,6 +163,10 @@ async def register_user(db: AsyncSession, email: str, password: str) -> User:
     return user
 
 
+_LOGIN_LOCKOUT_THRESHOLD = 10       # Fehlversuche bis zur Sperre
+_LOGIN_LOCKOUT_MINUTES = 15         # Sperrdauer in Minuten
+
+
 async def authenticate_user(db: AsyncSession, email: str, password: str) -> User:
     email = email.lower().strip()
     result = await db.execute(select(User).where(User.email == email))
@@ -170,10 +174,38 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
     if not user or not user.password_hash:
         logger.warning("Authentication failed: user not found or no password")
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # Lockout check (per account, IP-unabhängig)
+    now = datetime.now(UTC)
+    if user.locked_until and user.locked_until > now:
+        remaining = int((user.locked_until - now).total_seconds() / 60) + 1
+        logger.warning("Login blocked — account locked until %s", user.locked_until)
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Account gesperrt. Bitte warte noch {remaining} Minute(n).",
+        )
+
     if not verify_password(password, user.password_hash):
-        logger.warning("Authentication failed: wrong password")
+        user.failed_login_attempts += 1
+        if user.failed_login_attempts >= _LOGIN_LOCKOUT_THRESHOLD:
+            user.locked_until = now + timedelta(minutes=_LOGIN_LOCKOUT_MINUTES)
+            logger.warning(
+                "Account locked after %d failed attempts: %s",
+                user.failed_login_attempts,
+                user.id,
+            )
+        else:
+            logger.warning(
+                "Authentication failed: wrong password (attempt %d)",
+                user.failed_login_attempts,
+            )
+        await db.flush()
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    user.last_login = datetime.now(UTC)
+
+    # Erfolgreicher Login: Zähler zurücksetzen
+    user.failed_login_attempts = 0
+    user.locked_until = None
+    user.last_login = now
     await db.flush()
     return user
 

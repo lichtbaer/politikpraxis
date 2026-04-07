@@ -17,6 +17,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Upgrade build tools
+        run: pip install --upgrade pip setuptools wheel
+
       - name: Install backend and lint tools
         run: pip install -r requirements-test.txt
 
