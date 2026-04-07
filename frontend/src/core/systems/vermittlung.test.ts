@@ -26,6 +26,7 @@ function createMockState(overrides: Partial<GameState> = {}): GameState {
     gameOver: false,
     won: false,
     tickLog: [],
+    rngSeed: 12345,
     ...overrides,
   };
 }

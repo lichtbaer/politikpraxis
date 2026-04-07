@@ -491,6 +491,13 @@ export function validateGameState(raw: unknown): GameState {
   const medienKlima =
     medienKlimaVal != null ? roundMedienKlimaIndex(clamp(Number(medienKlimaVal), 0, 100)) : MEDIEN_KLIMA_DEFAULT;
 
+  const rngSeedRaw = get('rngSeed', undefined);
+  const rngSeedParsed = Number(rngSeedRaw);
+  const rngSeed =
+    Number.isFinite(rngSeedParsed) && rngSeedParsed > 0
+      ? Math.max(1, Math.min(0xffffffff, Math.floor(Math.abs(rngSeedParsed))))
+      : Math.floor(Math.random() * 0xffffffff) + 1;
+
   const validated: GameState = {
     month,
     speed,
@@ -514,6 +521,7 @@ export function validateGameState(raw: unknown): GameState {
     pending,
     log: log as GameState['log'],
     ticker: String(get('ticker', '')),
+    rngSeed,
     gameOver,
     won,
     electionThreshold,

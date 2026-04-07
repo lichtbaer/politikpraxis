@@ -14,7 +14,6 @@ const MINIMAL_CONTENT: ContentBundle = {
   extremismusEvents: [],
   steuerEvents: [],
   dynamicEvents: [],
-  followupEvents: [],
 };
 
 describe('tick — Grundverhalten', () => {
@@ -57,7 +56,7 @@ describe('tick — Grundverhalten', () => {
   it('approvalHistory wächst nach jedem Tick', () => {
     const state = makeState({ month: 2, approvalHistory: [50, 51] });
     const result = tick(state, MINIMAL_CONTENT, 4);
-    expect(result.approvalHistory.length).toBeGreaterThan(state.approvalHistory.length);
+    expect((result.approvalHistory ?? []).length).toBeGreaterThan((state.approvalHistory ?? []).length);
   });
 });
 

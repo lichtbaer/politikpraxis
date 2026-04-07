@@ -16,9 +16,9 @@ function stateWithBeschlossene(ids: string[]) {
 
 function makeRelation(overrides: Partial<GesetzRelation> & { typ: GesetzRelation['typ']; targetId: string }): GesetzRelation {
   return {
-    gesetzId: 'test_law',
     targetId: overrides.targetId,
     typ: overrides.typ,
+    beschreibung: overrides.beschreibung,
     enhancesFaktor: overrides.enhancesFaktor,
   };
 }

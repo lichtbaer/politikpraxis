@@ -34,6 +34,7 @@ function createMockState(overrides: Partial<GameState> = {}): GameState {
     gameOver: false,
     won: false,
     tickLog: [],
+    rngSeed: 12345,
     koalitionspartner: { id: 'gp', beziehung: 60, koalitionsvertragScore: 0, schluesselthemenErfuellt: [] },
     ...overrides,
   };

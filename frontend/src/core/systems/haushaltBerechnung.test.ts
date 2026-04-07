@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { berechneEinnahmen, berechnePflichtausgaben } from './haushaltBerechnung';
-import { makeState } from '../test-helpers';
+import { makeState, makeLaw } from '../test-helpers';
 import { EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS } from '../constants';
 
 describe('berechneEinnahmen', () => {
@@ -77,17 +77,15 @@ describe('berechnePflichtausgaben', () => {
     const state = makeState({
       kpi: { al: 5, hh: 0, gi: 30, zf: 55 },
       gesetze: [
-        makeState().gesetze[0] ? makeState().gesetze[0] : {
-          id: 'g1', titel: 'T', kurz: 'K', desc: 'D', tags: ['bund'],
-          ja: 55, nein: 45, effekte: {}, lag: 3, status: 'beschlossen' as const,
-          expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
+        makeLaw({
+          id: 'g1',
+          titel: 'T',
+          kurz: 'K',
+          desc: 'D',
+          status: 'beschlossen',
           pflichtausgaben_delta: 10,
-        },
-      ].filter(g => g.status === 'beschlossen' || true).map(g => ({
-        ...g,
-        status: 'beschlossen' as const,
-        pflichtausgaben_delta: 10,
-      })),
+        }),
+      ],
     });
     const result = berechnePflichtausgaben(state);
     // Jedes beschlossene Gesetz mit delta=10 sollte addiert werden
@@ -97,12 +95,16 @@ describe('berechnePflichtausgaben', () => {
   it('nur beschlossene Gesetze zählen (nicht aktiv/entwurf)', () => {
     const stateWithEntwurf = makeState({
       kpi: { al: 5, hh: 0, gi: 30, zf: 55 },
-      gesetze: [{
-        id: 'g1', titel: 'T', kurz: 'K', desc: 'D', tags: ['bund'],
-        ja: 55, nein: 45, effekte: {}, lag: 3, status: 'entwurf' as const,
-        expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
-        pflichtausgaben_delta: 99,
-      }],
+      gesetze: [
+        makeLaw({
+          id: 'g1',
+          titel: 'T',
+          kurz: 'K',
+          desc: 'D',
+          status: 'entwurf',
+          pflichtausgaben_delta: 99,
+        }),
+      ],
     });
     expect(berechnePflichtausgaben(stateWithEntwurf)).toBe(PFLICHTAUSGABEN_BASIS);
   });

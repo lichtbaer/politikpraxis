@@ -50,6 +50,7 @@ function createInitialState(): GameState {
     pending: [],
     log: [],
     ticker: '',
+    rngSeed: 42,
     gameOver: false,
     won: false,
     milieuZustimmung: { postmaterielle: 50, buergerliche_mitte: 50 },
