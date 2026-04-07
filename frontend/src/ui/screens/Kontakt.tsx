@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { LegalPageShell } from './LegalPageShell';
 import styles from './LegalPage.module.css';
 import formStyles from './Kontakt.module.css';
+import { apiFetch } from '../../services/api';
 
 const BETREFF_OPTIONEN = [
   'Allgemeine Anfrage',
@@ -11,20 +12,6 @@ const BETREFF_OPTIONEN = [
   'Datenschutzanfrage',
   'Presse & Kooperationen',
 ] as const;
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
-
-function formatFetchError(detail: unknown): string {
-  if (typeof detail === 'string') return detail;
-  if (Array.isArray(detail)) {
-    return detail
-      .map((d) =>
-        typeof d === 'object' && d !== null && 'msg' in d ? String((d as { msg: string }).msg) : JSON.stringify(d),
-      )
-      .join(' ');
-  }
-  return 'Unbekannter Fehler';
-}
 
 export function Kontakt() {
   const [name, setName] = useState('');
@@ -42,21 +29,11 @@ export function Kontakt() {
     setSuccess(false);
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/kontakt`, {
+      await apiFetch('/kontakt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          betreff,
-          nachricht,
-          website,
-        }),
+        body: { name, email, betreff, nachricht, website },
+        credentials: 'omit',
       });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(formatFetchError(data.detail) || `HTTP ${response.status}`);
-      }
       setSuccess(true);
       setName('');
       setEmail('');

@@ -108,11 +108,14 @@ async def get_user_with_password_by_email(db: AsyncSession, email: str) -> User 
 async def create_password_reset_token(db: AsyncSession, user: User) -> str:
     await purge_expired_password_reset_tokens(db)
     raw = generate_secure_token()
+    token_hash = _hash_magic_token(raw)  # Store only the hash, never the raw token
     expires = datetime.now(UTC) + timedelta(minutes=PASSWORD_RESET_EXPIRE_MINUTES)
-    row = PasswordResetToken(user_id=user.id, token=raw, expires_at=expires, used=False)
+    row = PasswordResetToken(
+        user_id=user.id, token=token_hash, expires_at=expires, used=False
+    )
     db.add(row)
     await db.flush()
-    return raw
+    return raw  # Return raw token for email link only
 
 
 async def consume_password_reset_token(
@@ -121,8 +124,9 @@ async def consume_password_reset_token(
     """Setzt neues Passwort, markiert Token als used, löscht übrige Reset-Tokens des Users."""
     validate_password_strength(new_password)
     await purge_expired_password_reset_tokens(db)
+    token_hash = _hash_magic_token(token)  # Hash incoming token before DB lookup
     result = await db.execute(
-        select(PasswordResetToken).where(PasswordResetToken.token == token)
+        select(PasswordResetToken).where(PasswordResetToken.token == token_hash)
     )
     row = result.scalar_one_or_none()
     if not row or row.used or row.expires_at < datetime.now(UTC):
