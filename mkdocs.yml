@@ -1,8 +1,9 @@
 site_name: politikpraxis — Dokumentation
 site_description: Dokumentation für das Projekt politikpraxis und das Spiel Bundesrepublik (Design + Entwicklung).
-site_url: https://github.com/your-org/politikpraxis
-repo_url: https://github.com/your-org/politikpraxis
-repo_name: politikpraxis
+site_url: https://lichtbaer.github.io/politikpraxis/
+repo_url: https://github.com/lichtbaer/politikpraxis
+repo_name: lichtbaer/politikpraxis
+edit_uri: edit/main/docs/
 
 theme:
   name: material
@@ -43,4 +44,5 @@ nav:
     - Projektstruktur: entwicklung/projektstruktur.md
     - Architektur: entwicklung/architektur.md
     - Balance-Simulation: entwicklung/balance-simulation.md
+    - CI/CD: ci-cd.md
     - Deployment (Produktion): deployment.md

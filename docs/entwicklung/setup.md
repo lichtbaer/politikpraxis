@@ -17,10 +17,10 @@ Dieser Abschnitt beschreibt, wie du die Anwendung lokal (ohne vollständigen Doc
 Aus dem Projektroot:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
-- Frontend: http://localhost (Port 80)
+- Frontend: http://localhost:8080
 - Backend läuft im Container und ist vom Frontend unter `/api` erreichbar (Proxy über nginx).
 
 ---
@@ -30,7 +30,7 @@ docker-compose up --build
 1. **Datenbank + Backend starten (ohne Frontend-Container):**
 
    ```bash
-   docker-compose up --build db backend
+   docker compose up --build db backend
    ```
 
 2. **Frontend lokal:**
@@ -44,7 +44,7 @@ docker-compose up --build
    Vite startet typischerweise unter http://localhost:5173. Damit das Frontend die API erreicht, muss `VITE_API_URL` auf die Backend-URL zeigen (z. B. `http://localhost:8000/api`). Entweder in `.env` im `frontend/`-Ordner setzen oder beim Aufruf: `VITE_API_URL=http://localhost:8000/api npm run dev`.
 
 3. **Produktion lokal testen (Frontend gebaut, nginx):**  
-   Vollständig `docker-compose up --build` nutzen.
+   Vollständig `docker compose up --build` nutzen.
 
 ---
 
@@ -106,3 +106,17 @@ mkdocs build
 ```
 
 Ausgabe in `site/`.
+
+---
+
+## Docker Dev-Umgebung (Vite mit HMR)
+
+Für eine Docker-basierte Entwicklungsumgebung mit echtem Vite-Dev-Server (HMR) nutzt ihr:
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+- Frontend (Vite): http://localhost:5174
+- Backend (FastAPI): http://localhost:8000 (API: `http://localhost:8000/api`)
+- PostgreSQL: localhost:5432 (für lokale Tools; im Stack intern via Service `db`)

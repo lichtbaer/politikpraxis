@@ -16,14 +16,14 @@
 ```bash
 git clone https://github.com/your-org/politikpraxis.git
 cd politikpraxis
-docker-compose up --build
+docker compose up --build
 ```
 
-- **Frontend (Spiel):** http://localhost (Port 80)
+- **Frontend (Spiel):** http://localhost:8080
 - **Backend-API:** unter `/api` erreichbar (Proxy über nginx)
 - **Datenbank:** PostgreSQL 16 im Container, nur intern erreichbar
 
-Zum Stoppen: `Ctrl+C` oder `docker-compose down`.
+Zum Stoppen: `Ctrl+C` oder `docker compose down`.
 
 ### Docker Dev-Umgebung (Vite mit HMR)
 
@@ -33,7 +33,7 @@ Für Frontend-Entwicklung im echten `npm run dev`-Modus:
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-- **Frontend (Vite Dev Server):** http://localhost:5173
+- **Frontend (Vite Dev Server):** http://localhost:5174
 - **Backend (FastAPI mit Reload):** http://localhost:8000
 - **API-Doku:** http://localhost:8000/api/docs
 
@@ -125,9 +125,9 @@ Inhalte:
 
 ## Entwicklung (Kurz)
 
-- **Frontend:** `cd frontend && npm install && npm run dev` (Vite: http://localhost:5173); Tests: `npm run test` bzw. `npm run test:watch` (Vitest)
+- **Frontend:** `cd frontend && npm install && npm run dev` (Vite i. d. R.: http://localhost:5173); Tests: `npm run test` bzw. `npm run test:watch` (Vitest)
 - **Backend:** `cd backend && python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`, dann `alembic upgrade head` und `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
-- **Datenbank:** PostgreSQL 16 lauffähig (lokal oder `docker-compose up db`)
+- **Datenbank:** PostgreSQL 16 lauffähig (lokal oder `docker compose up db`)
 - **Dokumentation:** siehe Abschnitt „Dokumentation“ oben
 
 Details (inkl. Umgebungsvariablen, DB-URL) stehen in [docs/entwicklung/setup.md](docs/entwicklung/setup.md).

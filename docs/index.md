@@ -39,6 +39,6 @@ Setup und Architektur für Entwickler:
 
 | Ziel | Befehl / Link |
 |------|----------------|
-| Spiel mit Docker starten | `docker-compose up --build` → http://localhost |
+| Spiel mit Docker starten | `docker compose up --build` → http://localhost:8080 |
 | Doku lokal ansehen | `pip install -r docs/requirements.txt && mkdocs serve` → http://127.0.0.1:8000 |
 | Doku bauen | `mkdocs build` → Ausgabe in `site/` |

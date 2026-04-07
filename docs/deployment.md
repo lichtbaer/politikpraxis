@@ -121,6 +121,19 @@ Workflow: `.github/workflows/deploy.yml`
 
 - Bei Push auf **main**: Backend-Tests (`pytest`), Frontend-Build (`npm run build`), danach SSH-Deploy auf den Server.
 
+---
+
+## Dokumentation (MkDocs) via GitHub Pages
+
+Zusätzlich zur App-Deployment-Pipeline gibt es einen separaten Docs-Workflow:
+
+- Workflow: `.github/workflows/docs.yml`
+- Trigger: Push auf `main` (deploy) und Pull Requests (Build-Check)
+- Build: `pip install -r docs/requirements.txt` → `mkdocs build --strict`
+- Veröffentlichung: GitHub Pages
+
+Die öffentliche Docs-URL ist in `mkdocs.yml` als `site_url` hinterlegt (GitHub Pages).
+
 ### Benötigte GitHub Secrets
 
 | Secret | Bedeutung |

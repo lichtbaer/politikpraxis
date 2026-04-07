@@ -51,10 +51,10 @@ Dieses Dokument richtet sich an AI-Coding-Agents (Cursor, GitHub Copilot, etc.) 
 ### Starten (Docker)
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
-- Frontend: http://localhost (Port 80)
+- Frontend: http://localhost:8080
 - Backend-API: unter `/api` erreichbar
 
 ### Frontend lokal
@@ -65,7 +65,16 @@ npm install
 npm run dev
 ```
 
-Vite: http://localhost:5173. Für API: `VITE_API_URL=http://localhost:8000/api` setzen.
+Vite: typischerweise http://localhost:5173. Für API: `VITE_API_URL=http://localhost:8000/api` setzen.
+
+### Docker Dev (Vite mit HMR)
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+- Frontend (Vite): http://localhost:5174
+- Backend: http://localhost:8000
 
 ### Backend lokal
 

@@ -35,7 +35,7 @@ mypy app                                          # Type check
 ### Docker
 
 ```bash
-docker-compose up --build                         # Production stack
+docker compose up --build                         # Production-like stack (ports: http://localhost:8080)
 docker compose -f docker-compose.dev.yml up --build  # Dev with HMR
 docker compose down                               # Stop
 ```

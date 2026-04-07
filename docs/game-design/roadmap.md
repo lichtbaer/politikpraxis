@@ -1,75 +1,66 @@
-# Entwicklungs-Roadmap
+# Roadmap (Design ↔ Implementierung)
 
-Stand der Liste: an die **laufende Implementierung** in `frontend/src/core/` und `frontend/src/store/` angeglichen. Release-Labels (v0.x) beschreiben Meilensteine; viele Systeme sind bereits über mehrere Stufen verteilt umgesetzt.
-
----
-
-## v0.1 — Skeleton (fertig)
-
-- Tick-System, Pause, Geschwindigkeit, Auto-Pause bei Events
-- Gesetze, Bundestagslogik (inkl. Eingebracht-/Ausschussphase, Stufe 1: kurzes Lag)
-- KPI-System mit Wirkungs-Lag
-- Basis-Wahl / Spielende (Wahlhürde abhängig von Komplexitätsstufe)
+Diese Roadmap beschreibt den **aktuellen Implementierungsstand** und die **nächsten Ausbauschritte**. Viele Systeme sind bereits vorhanden, werden aber je nach **Komplexitätsstufe** stufenweise sichtbar/aktiv (Progressive Disclosure über `featureActive(...)` in `frontend/src/core/systems/features.ts`).
 
 ---
 
-## v0.2 — Narrativ & Shell (fertig)
+## Done (implementiert, iterativ verfeinert)
 
-- Charakter-System, Events mit Pressezitat und Entscheidungen
-- Progressive Disclosure über Komplexitätsstufen (`featureActive` in `frontend/src/core/systems/features.ts`)
-- Milieu-System (Umfang und UI stufenweise)
-- **App-Shell:** React/Vite, Routing, i18n (de/en)
-- **Hauptmenü, Spielstart (`GameSetup`), Wahlnacht-Onboarding** (`WahlnachtOnboarding` / `WahlnachtScreen`)
-- **Spielstand:** `localStorage` + optional **Cloud-Slots** (API `/api/saves`, Login)
+### Core Engine & Spielrhythmus
+- Tick-System (Monatslogik), Pause, Geschwindigkeit, Auto-Pause bei Events
+- KPI-System inkl. **Wirkungslatenz** (Lag) und Monats-Bilanz/Log
+- Spielende/Wahl-Logik inkl. kompexitätsabhängiger Wahlhürde
 
----
+### Gesetzgebung & Mehr-Ebenen-Mechanik
+- Gesetz-Lebenszyklus: Entwurf → Einbringen/Ausschuss-Lag → BT-Abstimmung → (ggf.) Bundesrat/Vermittlung → beschlossen/blockiert
+- Ausweichrouten bei Blockade (EU/Land/Kommune) inkl. Fortschritt/Timing
+- Vorstufen/Projekte, Gegenfinanzierung/Kongruenz-Checks (stufenweise)
 
-## v0.3 — Kabinett, Koalition, erweiterte Politik (fertig)
+### Politik-Akteure (Kabinett/Koalition/Fraktionen)
+- Dynamisches Kabinett, Kanzlerprofil (Name/Geschlecht für Anrede)
+- Koalitionspartner, Stabilität, Prioritäten, Widerstände/Vetos (stufenweise)
+- Charakter-Events/Ultimaten und ministerielle Initiativen (stufenweise)
 
-- Dynamisches Kabinett aus Parteipools, Spieler als Kanzler/in (Name, Geschlecht für Anrede)
-- Spielbare Parteien, Koalitionspartner, Koalitionsvertrag-Tracking (Score/Profil, stufenweise)
-- Char-Ultimatums, Koalitionsstabilität, Minister-Agenden / Initiativen (stufenweise)
-- Verbände, Politikfeld-Druck, Kongruenz/Gegenfinanzierung beim Einbringen (stufenweise)
-- Fraktionsdisziplin, Ideologie-Einfluss auf BT, Partner-Widerstand (stufenweise)
+### Bundesrat & Föderalismus
+- Bundesrat-Ansicht ab Stufe 2, vertiefte Interaktion (Lobbying/Trade-offs/Beziehungen) ab höheren Stufen
+- Vermittlungsausschuss-Mechanik, Einspruch vs. Zustimmungsgesetz (stufenweise)
+- Normenkontrolle/Verfassungs-Mechaniken (stufenweise)
 
----
+### EU, Haushalt, Wirtschaft, Medien, Wahlkampf
+- EU-Route (3 Phasen), EU-Klima, Ratsvorsitz/Inhalte (stufenweise)
+- Haushalt (Konjunktur, Schuldenbremse, Debatten, Steuerquote, Dashboard) + Wirtschaftsindikatoren/Charts (stufenweise)
+- Medienklima/-akteure, Framing, Presse-/Skandal-/Oppositionsmechaniken (stufenweise)
+- Wahlkampf, TV-Duell, Legislaturbilanz, Wahlnacht-Analyse (stufenweise)
+- Follow-up-/Eventketten (u. a. ab Stufe 4)
 
-## v0.4 — Bundesrat & Föderalismus (fertig, iterativ verbessert)
-
-- Bundesrat-Tab stufenweise (sichtbar ab Stufe 2, Detail/Lobbying/Trade-offs ab Stufe 3)
-- Länderliste, bilaterale Landesgespräche (ab Stufe 3)
-- Fraktionsmodell, Beziehungen, Lobbying-Fenster, Events (Content-gesteuert)
-- Vermittlungsausschuss, Einspruch vs. Zustimmungsgesetz (stufenweise)
-- Normenkontrolle / Verfassungsgericht (stufenweise)
-
----
-
-## v0.5 — EU, Ebenen, Haushalt, Medien, Wahlkampf (überwiegend fertig)
-
-- EU-Route (3 Phasen), EU-Klima, reaktive EU-Inhalte, Ratsvorsitz (stufenweise)
-- Ausweichrouten Kommune/Land/EU, Gesetz-Vorstufen, Agenda-Ansichten
-- Haushalt: Konjunktur, Schuldenbremse, Haushaltsdebatte, Steuerquote/Dashboard (stufenweise)
-- **Wirtschaftssektoren**, Makroindikatoren, Charts im Haushalt (stufenweise)
-- Medienklima, Medienakteure, Framing, Pressemitteilung, Skandale, Opposition (stufenweise)
-- Wahlkampf, TV-Duell, Legislatur-Bilanz, Wahlnacht-Analyse (stufenweise)
-- Regierungserklärung, Vertrauensfrage, konstruktives Misstrauensvotum (stufenweise)
-- Dynamische / Follow-up-Events (u. a. ab Stufe 4)
+### App-Shell, Speicherung, i18n
+- React/Vite-App-Shell, Routing, i18n (de/en)
+- Spielstart/Onboarding (Wahlnacht) und Speicherstände: localStorage + optional Cloud-Saves (API `/api/saves`)
 
 ---
 
-## v0.6 — Geplant / Ausbau
+## Next (nächste Iterationen, 1–2 Milestones)
 
-- Koalitionsverhandlungs-Minispiel beim Start (vertieft, optional)
-- Zweite Legislaturperiode mit Szenario-Kontinuität
-- Historische Szenarien (Wiedervereinigung, Finanzkrise, Corona, …)
-- Erweiterter Content (Events, Gesetze) ohne neue Kern-Engine
+### Stabilität, UX und „Spielbarkeit“
+- Mehr **Polish**: klarere Feedbackschleifen (warum Zustimmung/Abstimmungen kippen), bessere Tooltips/Erklärungen je Stufe
+- Balancing: kontinuierliche Simulation/Regression gegen Content-Änderungen (siehe CI Balance-Check)
+- Performance: Tick-/UI-Hotspots identifizieren (insb. Charts/Listen) und glätten
+
+### Content-Ausbau ohne neue Kern-Engine
+- Mehr Gesetze, Events, Sprechertexte, Follow-ups (DE/EN) – Fokus: Varianz pro Legislatur
+- Mehr Szenario-Varianten (Startsituationen, Koalitionslagen) als Content-Pakete
+
+### Dev/Modding-Flows (wenn gewünscht)
+- Klarere „Content-Authoring“-Guides (Schemas, Validierung, typische Fehlerbilder)
+- Tooling für Content-Tests (z. B. schnelle Validierung + Smoke-Run)
 
 ---
 
-## v1.0 — Release-Ziel
+## Later (v1.0 / größere Optionen)
 
-- Optional: 16 MP-Charaktere statt/ergänzend zum Fraktionsmodell (falls gewünscht)
-- Sound-Design (Ambient, UI-Feedback)
-- Onboarding-Tutorial nur falls nötig (Design: „narratives“ Onboarding besteht)
-- Mehrere Startszenarien, ggf. Achievements / Meta-Fortschritt
-- itch.io-Release
+- Koalitionsverhandlungs-Minispiel beim Start (optional/vertieft)
+- Zweite Legislaturperiode mit Szenario-Kontinuität (Meta-Progression)
+- Historische Szenarien (z. B. Finanzkrise/Corona/…)
+- Audio/Sound-Design (Ambient, UI-Feedback)
+- Achievements/Meta-Fortschritt (nur wenn es die Kernfantasie stärkt)
+- Veröffentlichung (z. B. itch.io) inkl. Marketing-/Release-Checkliste

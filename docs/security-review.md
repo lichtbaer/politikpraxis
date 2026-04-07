@@ -1,6 +1,6 @@
 # Sicherheits-Review — politikpraxis / Bundesrepublik
 
-**Datum:** März 2025  
+**Datum:** April 2026  
 **Fokus:** Datenspeicherung, API-Sicherheit, Dependency-Vulnerabilities, GameState-Manipulation
 
 ---
@@ -13,7 +13,7 @@
 cd frontend && npm audit --audit-level=moderate
 ```
 
-**Ergebnis:** ✅ **0 vulnerabilities** (keine high/critical ungepacht)
+**Hinweis:** In CI wird `npm audit --audit-level=critical` ausgeführt (siehe `.github/workflows/lint.yml`).
 
 ### Backend (pip-audit)
 
@@ -21,7 +21,7 @@ cd frontend && npm audit --audit-level=moderate
 cd backend && pip install pip-audit && pip-audit -r requirements.txt
 ```
 
-**Hinweis:** pip-audit erfordert eine funktionierende Python-Umgebung (venv). Im CI/CD sollte `pip-audit -r requirements.txt` nach `pip install -r requirements.txt` ausgeführt werden.
+**Hinweis:** In CI wird `pip-audit -r backend/requirements.txt` ausgeführt (siehe `.github/workflows/lint.yml`).
 
 **Backend requirements.txt:** Die Hauptpakete (cryptography==46.0.5, FastAPI, SQLAlchemy, etc.) sind auf aktuelle Versionen gepinnt. Ein System-Scan (ohne Projekt-venv) zeigte CVEs in System-Paketen (ansible, jinja2, pip, etc.), die nicht Teil der Backend-Dependencies sind.
 
@@ -38,7 +38,7 @@ cd backend && pip install pip-audit && pip-audit -r requirements.txt
 | Credentials nicht hardcoded | ✅ | `ADMIN_USER` und `ADMIN_PASSWORD` aus Umgebungsvariablen (Pydantic BaseSettings, `.env`) |
 | Admin-API ohne Passwort | ✅ | Gibt 503 zurück, wenn `ADMIN_PASSWORD` fehlt |
 | CORS-Konfiguration | ✅ | `cors_origins` aus Settings; in Produktion nur erlaubte Origins setzen |
-| Rate-Limiting | ⚠️ | **Nicht vorhanden** — Empfehlung: slowapi oder ähnliches für Admin-Endpoints |
+| Rate-Limiting | ⚠️ | Empfehlung: Rate-Limiting für sensible Endpoints (Admin/Auth) prüfen/erzwingen (z. B. slowapi-Integration konsequent verwenden) |
 
 **Relevante Dateien:** `backend/app/dependencies.py`, `backend/app/config.py`, `backend/.env.example`
 
@@ -130,7 +130,7 @@ git log --all -p | grep -i "password\|secret\|api_key\|token"
 - `.env` ist nicht in der Git-History (nur `.env.example` mit Platzhaltern)
 - Gefundene Treffer: Dokumentation (SECRET_KEY, ADMIN_PASSWORD als Platzhalter), Test-Setup (`admin_password` für Tests), package-lock (js-tokens als Paketname) — alles unkritisch
 
-**Hinweis:** `.env` sollte in `.gitignore` stehen (aktuell nicht explizit; `.env` wird typischerweise nicht committed).
+**Hinweis:** `.env` sollte explizit in `.gitignore` stehen (zusätzlich zu Team-Regeln/Pre-Commit-Checks), um versehentliche Commits zu vermeiden.
 
 ---
 
@@ -154,6 +154,6 @@ git log --all -p | grep -i "password\|secret\|api_key\|token"
 ## 10. Offene Empfehlungen
 
 1. **Rate-Limiting** für Admin-API (z.B. slowapi)
-3. **pip-audit** in CI/CD integrieren (z.B. nach `pip install -r requirements.txt`)
-4. **`.env`** explizit in `.gitignore` aufnehmen, falls noch nicht vorhanden
-5. ~~**CSP-Header** in nginx setzen~~ — erledigt (SMA-314)
+2. **Dependency-Audits** regelmäßig prüfen und Findings zeitnah triagieren (CI enthält `npm audit`, `pip-audit`, `bandit`)
+3. **`.env`** explizit in `.gitignore` aufnehmen, falls noch nicht vorhanden
+4. ~~**CSP-Header** in nginx setzen~~ — erledigt (SMA-314)
