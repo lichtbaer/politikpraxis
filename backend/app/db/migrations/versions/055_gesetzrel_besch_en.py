@@ -1,6 +1,6 @@
 """Spalte beschreibung_en zu gesetz_relationen hinzufügen (EN-Übersetzung der internen Beschreibung).
 
-Revision ID: 055_gesetz_relationen_beschreibung_en
+Revision ID: 055_gesetzrel_besch_en
 Revises: 054_bundeslaender_i18n
 """
 
@@ -11,7 +11,7 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "055_gesetz_relationen_beschreibung_en"
+revision: str = "055_gesetzrel_besch_en"
 down_revision: Union[str, Sequence[str], None] = "054_bundeslaender_i18n"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

@@ -10,6 +10,7 @@ from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision: str = "053_medien_akteure_i18n"
 down_revision: Union[str, Sequence[str], None] = "052_umwelt_wirtschaft_gesetze"
@@ -29,7 +30,7 @@ def upgrade() -> None:
         sa.Column("akteur_id", sa.Text(), sa.ForeignKey("medien_akteure.id", ondelete="CASCADE"), nullable=False),
         sa.Column(
             "locale",
-            sa.Enum("de", "en", name="content_locale", create_type=False),
+            postgresql.ENUM("de", "en", name="content_locale", create_type=False),
             nullable=False,
         ),
         sa.Column("name", sa.Text(), nullable=False),
