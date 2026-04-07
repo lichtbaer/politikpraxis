@@ -1,4 +1,5 @@
 import os
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -47,9 +48,20 @@ def load_char_events() -> dict[str, dict]:
     return {}
 
 
+_SAFE_SCENARIO_ID = re.compile(r"^[a-zA-Z0-9_-]{1,64}$")
+
+
 def load_scenario(scenario_id: str = "standard") -> dict:
+    # Validate scenario_id to prevent path traversal
+    if not _SAFE_SCENARIO_ID.match(scenario_id):
+        scenario_id = "standard"
     path = _content_path("scenarios", f"{scenario_id}.yaml")
-    if not os.path.exists(path):
+    # Ensure resolved path stays within content_dir (defense-in-depth)
+    base = Path(settings.content_dir).resolve()
+    resolved = Path(path).resolve()
+    if not resolved.is_relative_to(base):
+        path = _content_path("scenarios", "standard.yaml")
+    elif not os.path.exists(path):
         path = _content_path("scenarios", "standard.yaml")
     return _load_yaml(path)
 

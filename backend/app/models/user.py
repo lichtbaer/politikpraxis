@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, String, func
+from sqlalchemy import Boolean, DateTime, Integer, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,6 +26,13 @@ class User(Base):
     )
     is_active: Mapped[bool] = mapped_column(
         Boolean(), nullable=False, server_default="true"
+    )
+    # Brute-force protection: failed login counter + temporary lockout
+    failed_login_attempts: Mapped[int] = mapped_column(
+        Integer(), nullable=False, server_default="0"
+    )
+    locked_until: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
     )
 
     saves = relationship(

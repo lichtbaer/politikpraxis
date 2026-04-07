@@ -66,9 +66,9 @@ def get_settings() -> Settings:
                 "SECRET_KEY ist noch der Standardwert — "
                 "generiere einen sicheren Wert mit: openssl rand -hex 32"
             )
-        if len(s.secret_key) < 32:
+        if len(s.secret_key) < 64:
             problems.append(
-                "SECRET_KEY ist zu kurz (< 32 Zeichen) — "
+                "SECRET_KEY ist zu kurz (< 64 Zeichen / 256 bit für HS256) — "
                 "generiere einen sicheren Wert mit: openssl rand -hex 32"
             )
         if not s.admin_password:

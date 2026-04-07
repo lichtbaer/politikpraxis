@@ -148,7 +148,8 @@ async def password_reset_confirm(
 
 
 @router.post("/register", response_model=AccessTokenResponse)
-@limiter.limit("5/minute")
+@limiter.limit("10/hour")
+@limiter.limit("3/minute")
 async def register(
     request: Request,
     req: RegisterRequest,
@@ -166,6 +167,7 @@ async def register(
 
 
 @router.post("/login", response_model=AccessTokenResponse)
+@limiter.limit("20/hour")
 @limiter.limit("5/minute")
 async def login(
     request: Request,

@@ -65,10 +65,12 @@ async def get_optional_user(
 
 
 def client_ip(request: Request) -> str:
-    """Extrahiert Client-IP aus X-Forwarded-For oder request.client."""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    """Extrahiert Client-IP. Bevorzugt X-Real-IP (von nginx gesetzt, nicht spoofbar),
+    fällt auf request.client zurück. X-Forwarded-For wird bewusst ignoriert,
+    da es vom Client manipuliert werden kann."""
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip.strip()
     if request.client:
         return request.client.host or "unknown"
     return "unknown"

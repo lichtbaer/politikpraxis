@@ -11,6 +11,9 @@ i18n
     ns: ['common', 'game'],
     defaultNS: 'common',
     backend: { loadPath: '/locales/{{lng}}/{{ns}}.json' },
+    // escapeValue: false ist korrekt für React — JSX escaped alle Werte automatisch.
+    // WICHTIG: Niemals User-Input direkt in Übersetzungskeys interpolieren;
+    // bei dangerouslySetInnerHTML mit t()-Werten muss DOMPurify verwendet werden.
     interpolation: { escapeValue: false },
     /** Bei fehlendem Key keinen Roh-Key anzeigen (z. B. "charEvents.mi_mi_wm_ee.title"), sondern leeren String. */
     parseMissingKeyHandler: () => '',
