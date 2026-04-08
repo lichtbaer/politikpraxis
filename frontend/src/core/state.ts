@@ -34,6 +34,7 @@ import {
 import { DEFAULT_MEDIEN_AKTEURE } from '../data/defaults/medienAkteure';
 import { bildeKabinett, waehleMinisterAusPool } from './kabinett';
 import { MINISTER_AGENDEN_CONFIG } from '../data/defaults/ministerAgenden';
+import { withInitialKoalitionsAgenda } from './onboardingAgenda';
 
 /** Milieu → zust-Feld für initiale Zustimmung (SMA-264) */
 const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
@@ -354,6 +355,10 @@ export function createInitialState(
     return { ...r, medienKlimaHistory: [r.medienKlima ?? MEDIEN_KLIMA_DEFAULT] };
   }
 
+  function seedKoalitionsAgenda(s: GameState): GameState {
+    return withInitialKoalitionsAgenda(s, content, complexity);
+  }
+
   if (featureActive(complexity, 'haushaltsdebatte')) {
     let withHaushalt: GameState = { ...base, haushalt: createInitialHaushalt(base) };
     if (featureActive(complexity, 'wirtschaftssektoren')) {
@@ -361,17 +366,19 @@ export function createInitialState(
     }
     if (hasKoalition && partner) {
       return withMedienKlimaHistorySeed(
-        applyEUKlimaAndRatsvorsitz({
-          ...withHaushalt,
-          koalitionspartner: {
-            id: partner.id,
-            beziehung: beziehungStart,
-            koalitionsvertragScore: 0,
-            schluesselthemenErfuellt: [],
-          },
-          koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
-          verbandsBeziehungen: { uvb: 50, bvd: 50, ...withHaushalt.verbandsBeziehungen },
-        }),
+        seedKoalitionsAgenda(
+          applyEUKlimaAndRatsvorsitz({
+            ...withHaushalt,
+            koalitionspartner: {
+              id: partner.id,
+              beziehung: beziehungStart,
+              koalitionsvertragScore: 0,
+              schluesselthemenErfuellt: [],
+            },
+            koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
+            verbandsBeziehungen: { uvb: 50, bvd: 50, ...withHaushalt.verbandsBeziehungen },
+          }),
+        ),
       );
     }
     return withMedienKlimaHistorySeed(applyEUKlimaAndRatsvorsitz(withHaushalt));
@@ -386,17 +393,19 @@ export function createInitialState(
     verbandsBeziehungen['uvb'] = 50;
     verbandsBeziehungen['bvd'] = 50;
     return withMedienKlimaHistorySeed(
-      applyEUKlimaAndRatsvorsitz({
-        ...base,
-        koalitionspartner: {
-          id: partner.id,
-          beziehung: beziehungStart,
-          koalitionsvertragScore: 0,
-          schluesselthemenErfuellt: [],
-        },
-        koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
-        verbandsBeziehungen,
-      }),
+      seedKoalitionsAgenda(
+        applyEUKlimaAndRatsvorsitz({
+          ...base,
+          koalitionspartner: {
+            id: partner.id,
+            beziehung: beziehungStart,
+            koalitionsvertragScore: 0,
+            schluesselthemenErfuellt: [],
+          },
+          koalitionsvertragProfil: berechneKoalitionsvertragProfil(ideologie, partner),
+          verbandsBeziehungen,
+        }),
+      ),
     );
   }
 
@@ -549,8 +558,6 @@ export function validateGameState(raw: unknown): GameState {
     'gesetzBTStimmen', 'spielerPartei', 'kanzlerName', 'kanzlerGeschlecht', 'speedBeforePause', 'eingebrachteGesetze',
     'koalitionspartner', 'koalitionsvertragProfil', 'milieuZustimmungHistory', 'milieuGesetzReaktionen', 'partnerPrioGesetz',
     'partnerWiderstandVetoFreigabeGesetzId',
-    'spielerAgenda',
-    'koalitionsAgenda',
     'milieuHistory',
     'medienklimaBelowMonths',
     'charMoodHistory',
@@ -579,6 +586,24 @@ export function validateGameState(raw: unknown): GameState {
       (validated as unknown as Record<string, unknown>)[key] = v;
     }
   }
+
+  const MAX_AGENDA_IDS = 12;
+  const MAX_ID_LEN = 80;
+  const sanitizeAgendaIds = (raw: unknown): string[] | undefined => {
+    if (!Array.isArray(raw)) return undefined;
+    const out: string[] = [];
+    for (const x of raw) {
+      if (typeof x !== 'string' || x.length === 0 || x.length > MAX_ID_LEN) continue;
+      if (x === '__proto__' || x === 'constructor' || x === 'prototype') continue;
+      out.push(x);
+      if (out.length >= MAX_AGENDA_IDS) break;
+    }
+    return out.length ? out : undefined;
+  };
+  const sa = sanitizeAgendaIds(get('spielerAgenda', undefined));
+  const ka = sanitizeAgendaIds(get('koalitionsAgenda', undefined));
+  if (sa) (validated as GameState).spielerAgenda = sa;
+  if (ka) (validated as GameState).koalitionsAgenda = ka;
 
   return validated as GameState;
 }

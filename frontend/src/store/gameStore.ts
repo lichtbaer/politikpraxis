@@ -39,7 +39,7 @@ import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { SPIELBARE_PARTEIEN } from '../data/defaults/parteien';
 import { saveGame, type SaveFile } from '../services/localStorageSave';
 import { useAuthStore } from './authStore';
-import { checkAutosave } from '../core/autosave';
+import { checkAutosave, registerAutosaveCloudSaveHandler } from '../core/autosave';
 import { migrateGameState, validateGameState } from '../core/state';
 import {
   setHaushaltsdebattePrioritaeten,
@@ -96,6 +96,9 @@ interface GameStore {
   ausrichtungApplied: boolean;
   /** SMA-289: Gewählte Partei (Stufe 1: SDP default) */
   spielerPartei: SpielerParteiState | null;
+  /** Cloud-Spielstand-UUID (game_saves.id), z. B. für POST /api/game/{id}/agenda */
+  cloudSaveId: string | null;
+  setCloudSaveId: (id: string | null) => void;
 
   init: (content?: ContentBundle) => void;
   startGame: () => void;
@@ -104,6 +107,8 @@ interface GameStore {
   setComplexity: (c: number) => void;
   setAusrichtung: (a: Ausrichtung) => void;
   setSpielerPartei: (partei: SpielerParteiState | null) => void;
+  /** SMA-503: Spieler-Agenda nach Onboarding (Ziel-IDs) */
+  setSpielerAgendaIds: (ids: string[]) => void;
   gameTick: () => void;
   setSpeed: (speed: SpeedLevel) => void;
   /** SMA-295: Pause/Play umschalten — bei Pause wird vorheriger Speed wiederhergestellt */
@@ -183,6 +188,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ausrichtung: DEFAULT_AUSRICHTUNG,
   ausrichtungApplied: false,
   spielerPartei: null,
+  cloudSaveId: null,
 
   init: (content?: ContentBundle) => {
     const { ausrichtung, ausrichtungApplied, complexity, spielerPartei, playerName, kanzlerGeschlecht } = get();
@@ -217,10 +223,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ...(kanzlerName && { kanzlerName }),
       kanzlerGeschlecht,
     };
-    set({ state: withExpanded, content: c });
+    set({ state: withExpanded, content: c, cloudSaveId: null });
   },
 
   startGame: () => set({ phase: 'playing' }),
+
+  setCloudSaveId: (cloudSaveId) => set({ cloudSaveId }),
 
   setPlayerName: (playerName) => set({ playerName }),
 
@@ -230,6 +238,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setAusrichtung: (ausrichtung) => set({ ausrichtung, ausrichtungApplied: false }),
   setSpielerPartei: (spielerPartei) => set({ spielerPartei }),
+
+  setSpielerAgendaIds: (ids) =>
+    set((prev) => ({
+      state: { ...prev.state, spielerAgenda: [...ids] },
+    })),
 
   gameTick: () => {
     const { state: s, content, phase, playerName, complexity, ausrichtung, spielerPartei, kanzlerGeschlecht } = get();
@@ -253,6 +266,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       useUIStore.getState().setOpenMonatszusammenfassung(true);
     }
     if (phase === 'playing' && !nextState.gameOver) {
+      const cloudSaveId = get().cloudSaveId;
       saveGame({
         gameState: nextState,
         playerName: nextState.kanzlerName ?? playerName,
@@ -260,6 +274,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ausrichtung,
         spielerPartei: nextState.spielerPartei,
         kanzlerGeschlecht: nextState.kanzlerGeschlecht ?? kanzlerGeschlecht ?? 'sie',
+        ...(cloudSaveId ? { cloudSaveId } : {}),
       });
       checkAutosave(nextState.month, useAuthStore.getState().accessToken, nextState, {
         playerName: nextState.kanzlerName ?? playerName,
@@ -852,6 +867,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ausrichtungApplied: true,
         spielerPartei,
         kanzlerGeschlecht,
+        cloudSaveId: save.cloudSaveId ?? null,
         phase: 'playing',
       });
     } catch {
@@ -859,3 +875,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
   },
 }));
+
+registerAutosaveCloudSaveHandler((id) => {
+  useGameStore.getState().setCloudSaveId(id);
+});

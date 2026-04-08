@@ -1,5 +1,10 @@
 """Pytest-Fixtures für Backend-Tests."""
 
+import os
+
+# Tests laden app.main — ohne DEBUG schlägt get_settings() in CI ohne Prod-.env fehl
+os.environ.setdefault("DEBUG", "1")
+
 import pytest
 from app.main import app
 from httpx import ASGITransport, AsyncClient

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { berechneWahlprognose } from '../../core/systems/wahlprognose';
-import type { Character, ContentBundle } from '../../core/types';
+import type { AgendaZielContent, Character, ContentBundle } from '../../core/types';
 import type { Ausrichtung } from '../../core/systems/ausrichtung';
 import {
   PARTEI_STARTPUNKTE,
@@ -21,8 +21,18 @@ import { IdeologieSlider } from '../components/IdeologieSlider/IdeologieSlider';
 import { ALLE_PARTEIEN } from '../../data/defaults/koalitionspartner';
 import { toBcp47 } from '../lib/locale';
 import styles from './WahlnachtOnboarding.module.css';
+import { useAuthStore } from '../../store/authStore';
+import { postGameAgenda } from '../../services/saves';
 
-/** Beat 0 = Partei, 1 = Ideologie (Stufe 3+), 2 = Headline, 3 = Kabinett, 4 = Memo, 5 = Koalitionsvertrag, 6 = CTA */
+/** Onboarding-Beats: Partei (0), Bestätigung (1), Ideologie (2, Stufe 3+), Schlagzeile (3), Kabinett (4), Agenda (5, Stufe 2+), Memo, KV, CTA */
+const AGENDA_KATEGORIE_ORDER = [
+  'gesetzgebung',
+  'milieu',
+  'medien',
+  'verbaende',
+  'haushalt',
+  'kabinett',
+] as const;
 function clampToCorridor(
   value: number,
   corridor: [number, number]
@@ -68,10 +78,14 @@ export function WahlnachtOnboarding() {
     startGame,
     setSpielerPartei,
     setAusrichtung,
+    setSpielerAgendaIds,
+    cloudSaveId,
   } = useGameStore();
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   const showParteiScreen = complexity >= 2;
   const showIdeologieScreen = complexity >= 3;
+  const showAgendaScreen = complexity >= 2;
 
   const [beat, setBeat] = useState(showParteiScreen ? 0 : 3);
   const [selectedPartei, setSelectedPartei] = useState<SpielerParteiId | null>(null);
@@ -80,12 +94,21 @@ export function WahlnachtOnboarding() {
     gesellschaft: 0,
     staat: 0,
   });
+  const [gewaehlteAgendaIds, setGewaehlteAgendaIds] = useState<string[]>([]);
+  const [agendaSubmitting, setAgendaSubmitting] = useState(false);
+
+  const maxBeat = showIdeologieScreen
+    ? showAgendaScreen
+      ? 9
+      : 7
+    : showAgendaScreen
+      ? 8
+      : 7;
 
   const advance = useCallback(() => {
-    const maxBeat = showIdeologieScreen ? 7 : 6;
     if (beat < maxBeat) setBeat((b) => b + 1);
     else startGame();
-  }, [beat, startGame, showIdeologieScreen]);
+  }, [beat, startGame, maxBeat]);
 
   const handleParteiSelect = useCallback(
     (parteiId: SpielerParteiId) => {
@@ -105,15 +128,15 @@ export function WahlnachtOnboarding() {
       setBeat(2);
     } else {
       init();
-      setBeat(3);
+      setBeat(showAgendaScreen ? 5 : 3);
     }
-  }, [showIdeologieScreen, init]);
+  }, [showIdeologieScreen, showAgendaScreen, init]);
 
   const handleIdeologieWeiter = useCallback(() => {
     setAusrichtung(ausrichtung);
     init();
-    setBeat(3);
-  }, [ausrichtung, setAusrichtung, init]);
+    setBeat(showAgendaScreen ? 5 : 3);
+  }, [ausrichtung, setAusrichtung, init, showAgendaScreen]);
 
   const handleAusrichtungChange = useCallback(
     (axis: keyof Ausrichtung, value: number) => {
@@ -125,6 +148,79 @@ export function WahlnachtOnboarding() {
     },
     [selectedPartei]
   );
+
+  const agendaBeat = showAgendaScreen ? 5 : -1;
+  const memoBeat = showAgendaScreen ? 6 : 5;
+  const kvBeat = showAgendaScreen ? 7 : 6;
+  const ctaBeat = showAgendaScreen ? 8 : 7;
+
+  const spielerZielAnzahl = complexity === 2 ? 2 : complexity >= 3 ? 3 : 0;
+
+  const parteiIdFilter = state.spielerPartei?.id ?? selectedPartei;
+
+  const zielPoolNachKategorie = useMemo(() => {
+    const alle = content.agendaZiele ?? [];
+    const filtered = alle.filter((z) => {
+      if (z.min_complexity > complexity) return false;
+      if (z.partei_filter && z.partei_filter.length > 0 && parteiIdFilter) {
+        if (!z.partei_filter.includes(parteiIdFilter)) return false;
+      }
+      return true;
+    });
+    const byKat = new Map<string, AgendaZielContent[]>();
+    for (const z of filtered) {
+      const arr = byKat.get(z.kategorie) ?? [];
+      arr.push(z);
+      byKat.set(z.kategorie, arr);
+    }
+    return byKat;
+  }, [content.agendaZiele, complexity, parteiIdFilter]);
+
+  const koalitionsZieleAnzeige = useMemo(() => {
+    const ids = state.koalitionsAgenda ?? [];
+    const alle = content.koalitionsZiele ?? [];
+    return ids
+      .map((id) => alle.find((z) => z.id === id))
+      .filter((z): z is NonNullable<typeof z> => Boolean(z));
+  }, [state.koalitionsAgenda, content.koalitionsZiele]);
+
+  const toggleAgendaZiel = useCallback(
+    (id: string) => {
+      setGewaehlteAgendaIds((prev) => {
+        if (prev.includes(id)) return prev.filter((x) => x !== id);
+        if (prev.length >= spielerZielAnzahl) return prev;
+        return [...prev, id];
+      });
+    },
+    [spielerZielAnzahl]
+  );
+
+  const handleAgendaBestaetigen = useCallback(async () => {
+    if (gewaehlteAgendaIds.length !== spielerZielAnzahl || agendaSubmitting) return;
+    setAgendaSubmitting(true);
+    setSpielerAgendaIds(gewaehlteAgendaIds);
+    const koa = state.koalitionsAgenda ?? [];
+    if (accessToken && cloudSaveId) {
+      try {
+        await postGameAgenda(accessToken, cloudSaveId, {
+          spielerAgenda: gewaehlteAgendaIds,
+          koalitionsAgenda: koa.length ? koa : undefined,
+        });
+      } catch {
+        // Lokaler State ist gesetzt; Cloud-Sync kann später über Save nachziehen
+      }
+    }
+    setAgendaSubmitting(false);
+    setBeat((b) => b + 1);
+  }, [
+    gewaehlteAgendaIds,
+    spielerZielAnzahl,
+    agendaSubmitting,
+    setSpielerAgendaIds,
+    state.koalitionsAgenda,
+    accessToken,
+    cloudSaveId,
+  ]);
 
   // Beat 3 (Headline): Auto-Weiter nach 4s
   useEffect(() => {
@@ -138,13 +234,13 @@ export function WahlnachtOnboarding() {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        if (beat === 0 || beat === 1 || beat === 2) return;
+        if (beat === 0 || beat === 1 || beat === 2 || beat === agendaBeat) return;
         advance();
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [advance, beat]);
+  }, [advance, beat, agendaBeat]);
 
   const chars: Character[] = state.chars;
   const name = (state.kanzlerName ?? playerName).trim() || t('game:onboarding.defaultGovName');
@@ -197,12 +293,18 @@ export function WahlnachtOnboarding() {
   // Fallback: wenn kein Koalitionspartner vorhanden, alle Gesetze zeigen
   const lawCount = prioLawCount > 0 ? prioLawCount : state.gesetze.length;
 
-  /* SMA-302: Fortschritts-Dots — Schritte je nach Komplexität */
+  /* SMA-302 / SMA-503: Fortschritts-Dots — Schritte je nach Komplexität */
   const steps = showIdeologieScreen
-    ? [0, 1, 2, 3, 4, 5, 6, 7]
+    ? showAgendaScreen
+      ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      : [0, 1, 2, 3, 4, 5, 6, 7]
     : showParteiScreen
-      ? [0, 1, 3, 4, 5, 6, 7]
-      : [3, 4, 5, 6, 7];
+      ? showAgendaScreen
+        ? [0, 1, 3, 4, 5, 6, 7, 8]
+        : [0, 1, 3, 4, 5, 6, 7]
+      : showAgendaScreen
+        ? [3, 4, 5, 6, 7, 8]
+        : [3, 4, 5, 6, 7];
   const currentStepIndex = steps.indexOf(beat);
 
   return (
@@ -368,8 +470,88 @@ export function WahlnachtOnboarding() {
           </div>
         )}
 
-        {/* Beat 5 — Internes Memo */}
-        {beat === 5 && (
+        {/* SMA-503: Legislatur-Agenda (Stufe 2+) */}
+        {showAgendaScreen && beat === agendaBeat && (
+          <div className={styles.beatAgenda}>
+            <h1 className={styles.agendaTitle}>{t('game:onboarding.agendaTitle')}</h1>
+            <p className={styles.agendaSubtitle}>{t('game:onboarding.agendaSubtitle')}</p>
+            <p className={styles.agendaHint}>
+              {t('game:onboarding.agendaPickHint', {
+                count: spielerZielAnzahl,
+                current: gewaehlteAgendaIds.length,
+              })}
+            </p>
+            <div className={styles.agendaScroll}>
+              {AGENDA_KATEGORIE_ORDER.map((kat) => {
+                const goals = zielPoolNachKategorie.get(kat);
+                if (!goals?.length) return null;
+                return (
+                  <section key={kat} className={styles.agendaCategory}>
+                    <h2 className={styles.agendaCategoryTitle}>
+                      {t(`game:onboarding.agendaKategorie.${kat}`)}
+                    </h2>
+                    <ul className={styles.agendaGoalList}>
+                      {goals.map((z) => {
+                        const selected = gewaehlteAgendaIds.includes(z.id);
+                        const atCap = !selected && gewaehlteAgendaIds.length >= spielerZielAnzahl;
+                        return (
+                          <li key={z.id}>
+                            <button
+                              type="button"
+                              className={`${styles.agendaGoalRow} ${selected ? styles.agendaGoalRowSelected : ''} ${atCap ? styles.agendaGoalRowDisabled : ''}`}
+                              onClick={() => !atCap && toggleAgendaZiel(z.id)}
+                              disabled={atCap}
+                              aria-pressed={selected}
+                            >
+                              <span className={styles.agendaGoalCheck} aria-hidden>
+                                {selected ? '✓' : ''}
+                              </span>
+                              <span className={styles.agendaGoalBody}>
+                                <span className={styles.agendaGoalTitel}>{z.titel}</span>
+                                {z.beschreibung ? (
+                                  <p className={styles.agendaGoalBeschreibung}>{z.beschreibung}</p>
+                                ) : null}
+                              </span>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
+                );
+              })}
+            </div>
+            {koalitionsZieleAnzeige.length > 0 && (
+              <div className={styles.agendaKoalitionBlock}>
+                <h3 className={styles.agendaKoalitionTitle}>
+                  <span className={styles.agendaKoalitionIcon} aria-hidden>
+                    ✦
+                  </span>
+                  {t('game:onboarding.agendaKoalitionTitle')}
+                </h3>
+                <ul className={styles.agendaKoalitionList}>
+                  {koalitionsZieleAnzeige.map((z) => (
+                    <li key={z.id} className={styles.agendaKoalitionItem}>
+                      <strong>{z.titel}</strong>
+                      {z.beschreibung ? ` — ${z.beschreibung}` : ''}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <button
+              type="button"
+              className={styles.weiter}
+              onClick={() => void handleAgendaBestaetigen()}
+              disabled={gewaehlteAgendaIds.length !== spielerZielAnzahl || agendaSubmitting}
+            >
+              {agendaSubmitting ? t('game:onboarding.agendaSaving') : t('game:onboarding.agendaConfirm')}
+            </button>
+          </div>
+        )}
+
+        {/* Internes Memo */}
+        {beat === memoBeat && (
           <div className={styles.beat3}>
           <div className={styles.memoContainer}>
             <pre className={styles.memo}>
@@ -382,8 +564,8 @@ export function WahlnachtOnboarding() {
           </div>
         )}
 
-        {/* Beat 6 — Koalitionsvertrag-Übersicht */}
-        {beat === 6 && (
+        {/* Koalitionsvertrag-Übersicht */}
+        {beat === kvBeat && (
           <div className={styles.beatKoalition}>
             <h1 className={styles.koalitionsvertragTitle}>
               {t('game:onboarding.koalitionsvertragTitle')}
@@ -426,8 +608,8 @@ export function WahlnachtOnboarding() {
           </div>
         )}
 
-        {/* Beat 7 — Call to Action */}
-        {beat === 7 && (
+        {/* Call to Action */}
+        {beat === ctaBeat && (
           <div className={styles.beat4}>
             <p className={styles.ctaText}>
               <em>{t('game:onboarding.cta1')}</em>
