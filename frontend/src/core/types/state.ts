@@ -91,6 +91,20 @@ export interface MedienAkteurBuffState {
   bisMonat: number;
 }
 
+/** SMA-502: Laufende Milieu-Zustimmung über die Legislatur (min/max/Ø) */
+export interface MilieuHistoryStats {
+  min: number;
+  max: number;
+  sum: number;
+  months: number;
+}
+
+/** SMA-502: Kumulierte Koalitionspartner-Beziehung (Summe/Monate → Ø = sum/months) */
+export interface KoalitionsbeziehungLegislaturStats {
+  sum: number;
+  months: number;
+}
+
 /** Legislatur-Bilanz (SMA-278) — berechnet ab Monat 43 für Wahlkampf */
 export interface LegislaturBilanz {
   gesetzeBeschlossen: number;
@@ -163,8 +177,8 @@ export interface GameState {
   koalitionsvertragProfil?: Ideologie;
   milieuZustimmung?: Record<string, number>;
   milieuZustimmungHistory?: Record<string, number[]>;
-  /** SMA-500: Monatsverlauf je Milieu (Agenda-/Ziel-Evaluierung) */
-  milieuHistory?: Record<string, number[]>;
+  /** SMA-502: Aggregierte Zustimmung je Milieu über die Legislatur */
+  milieuHistory?: Record<string, MilieuHistoryStats>;
   milieuGesetzReaktionen?: Record<string, { gesetzId: string; delta: number }[]>;
   verbandsBeziehungen?: Record<string, number>;
   /** SMA-405: zuletzt aus Wirtschaftssektor ausgelöste Verbands-Anpassung (Anzeige Verbände-Tab) */
@@ -222,8 +236,8 @@ export interface GameState {
   /** SMA-392: additive Stimmungs-Buffs mit Ablaufmonat */
   medienAkteurBuffs?: Record<string, MedienAkteurBuffState>;
   medienKlimaHistory?: number[];
-  /** SMA-500: Monate, in denen das Medienklima unter der Agenda-Schwelle lag */
-  medienklimaBelowMonths?: number[];
+  /** SMA-502: Anzahl Monate mit Medienklima unter Agenda-Schwelle */
+  medienklimaBelowMonths?: number;
   letzterSkandal?: number;
   letztesPressemitteilungMonat?: number;
   opposition?: OppositionState;
@@ -262,8 +276,10 @@ export interface GameState {
   };
   wahlergebnis?: number;
   charGespraechCooldowns?: Record<string, number>;
-  /** SMA-500: Stimmungsverlauf je Charakter-ID (Agenda-Evaluierung) */
-  charMoodHistory?: Record<string, number[]>;
+  /** SMA-502: Zähler je Char-ID — Monate mit Mood ≤ Schwellenwert */
+  charMoodHistory?: Record<string, number>;
+  /** SMA-502: Kumulierte Partner-Beziehung (Ø = sum/months) */
+  koalitionsbeziehungLegislatur?: KoalitionsbeziehungLegislaturStats;
   approvalHistory?: number[];
   kpiHistory?: { al: number[]; hh: number[]; gi: number[]; zf: number[] };
   haushaltSaldoHistory?: number[];
