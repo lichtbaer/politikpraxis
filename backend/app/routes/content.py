@@ -17,6 +17,7 @@ from app.schemas.content import (
     VerbandResponse,
 )
 from app.services.content_db_service import (
+    fetch_agenda_ziele,
     fetch_bundeslaender,
     fetch_bundesrat,
     fetch_chars,
@@ -24,6 +25,7 @@ from app.services.content_db_service import (
     fetch_events,
     fetch_gesetz_relationen,
     fetch_gesetze,
+    fetch_koalitions_ziele,
     fetch_medien_akteure,
     fetch_milieus,
     fetch_politikfelder,
@@ -210,3 +212,21 @@ async def get_gesetz_relationen(
 ):
     """GET /api/content/gesetz-relationen?locale=de — SMA-312: requires, excludes, enhances."""
     return await fetch_gesetz_relationen(db, locale)
+
+
+@router.get("/agenda-ziele")
+async def get_agenda_ziele(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/content/agenda-ziele — Spieler-Agenda-Ziele (SMA-501)."""
+    return await fetch_agenda_ziele(db, locale)
+
+
+@router.get("/koalitions-ziele")
+async def get_koalitions_ziele(
+    locale: str = Depends(validate_locale),
+    db: AsyncSession = Depends(get_db),
+):
+    """GET /api/content/koalitions-ziele — Koalitionspartner-Ziele (SMA-501)."""
+    return await fetch_koalitions_ziele(db, locale)
