@@ -158,6 +158,18 @@
   filter: brightness(1.1);
 }
 
+.bilanzCta {
+  margin-top: 24px;
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.bilanzCta:hover {
+  background: var(--bg4);
+  filter: none;
+}
+
 .btnSecondary {
   padding: 12px 24px;
   background: var(--bg3);
