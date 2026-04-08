@@ -41,6 +41,8 @@ export interface GameStatPayload {
   pk_verbraucht?: number;
   top_politikfeld?: string | null;
   bewertung_gesamt?: string;
+  /** SMA-499: Gesamtpunkte 0–100 (Bilanz/Agenda/Urteil + Wahlbonus) */
+  spielziel_gesamtpunkte?: number;
   titel?: string;
   opt_in_community: boolean;
 }

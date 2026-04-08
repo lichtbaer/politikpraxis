@@ -2200,6 +2200,19 @@
   },
   "auswertung": {
     "noteHint": "Note aus fünf Dimensionen (Demokratie, Wirtschaft, Gesellschaft, Kommunikation, Effizienz).",
+    "spielzielHint": "Gesamtnote aus Legislatur-Bilanz (30 %), Agenda (35 %) und historischem Urteil der Gesetze (35 %). Die Wahlhürde gibt einen kleinen Bonus.",
+    "spielzielPunkte": "{{pts}} von 100 Punkten",
+    "spielzielBilanz": "Bilanz (30 %)",
+    "spielzielAgenda": "Agenda (35 %)",
+    "spielzielUrteil": "Historisches Urteil (35 %)",
+    "spielzielWahlbonus": "Wahlbonus",
+    "spielzielAgendaDetail": "Agenda erfüllt: Spieler {{sE}}/{{sG}}, Koalition {{kE}}/{{kG}}",
+    "spielzielUrteilDetail": "Historisches Urteil bezieht sich auf {{n}} beschlossene Gesetze (Content-Feld Langzeit-Score).",
+    "profilHint": "Zusätzliche Profil-Einordnung (fünf Dimensionen):",
+    "wahlHuerdeJa": "Mit {{pct}}% liegt dein Wahlergebnis über der Hürde ({{threshold}}%) — {{partei}}.",
+    "wahlHuerdeNein": "Mit {{pct}}% liegt dein Wahlergebnis unter der Hürde ({{threshold}}%) — {{partei}}.",
+    "legislaturErfolgJa": "Nach Bilanz, Agenda und historischem Urteil wertet das Spiel diese Legislatur als erfolgreich.",
+    "legislaturErfolgNein": "Nach Bilanz, Agenda und historischem Urteil reicht die Gesamtwertung nicht für eine erfolgreiche Legislatur.",
     "dim": {
       "demokratie": "Demokratie",
       "wirtschaft": "Wirtschaft",
@@ -2429,6 +2442,8 @@
     "tvDuellBanner": "TV-Duell in diesem oder nächstem Monat!"
   },
   "wahlnacht": {
+    "trotzHuerde": "Du hast die Wahlhürde überschritten, aber die Gesamtbewertung der Legislatur reicht nicht.",
+    "ohneHuerde": "Die Legislatur ist nach Gesamtbewertung erfolgreich, obwohl die Wahlhürde nicht erreicht wurde.",
     "hochrechnung": "Hochrechnung",
     "tiefenanalyse": "Tiefenanalyse",
     "analyseTitle": "Analyse der Legislatur",

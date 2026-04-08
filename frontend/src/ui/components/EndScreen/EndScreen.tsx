@@ -153,25 +153,46 @@ export function EndScreen() {
 
   if (!state.gameOver) return null;
 
+  const wahlergebnisEnd = state.wahlergebnis ?? state.zust.g;
+  const thresholdEnd = state.electionThreshold ?? 40;
+  const wahlUeberHuerdeEnd = state.wahlUeberHuerde ?? wahlergebnisEnd >= thresholdEnd;
+  const legislaturErfolgEnd = state.legislaturErfolg ?? state.won;
+
   // Start KPI snapshot from game initialization
   const startKpi = state.kpiStart ?? null;
 
   return (
     <div className={styles.overlay}>
       <div className={styles.content}>
-        <h1 className={state.won ? styles.titleWon : styles.titleLost}>
-          {state.won ? t('game:endScreen.won') : t('game:endScreen.lost')}
+        <h1 className={legislaturErfolgEnd ? styles.titleWon : styles.titleLost}>
+          {legislaturErfolgEnd ? t('game:endScreen.won') : t('game:endScreen.lost')}
         </h1>
         <p className={styles.subtitle}>
-          {state.won
-            ? t('game:endScreen.wonSubtitle', { percent: state.zust.g.toFixed(1) })
-            : t('game:endScreen.lostSubtitle', { percent: state.zust.g.toFixed(1) })}
+          {legislaturErfolgEnd
+            ? t('game:endScreen.wonSubtitle', { percent: wahlergebnisEnd.toFixed(1) })
+            : t('game:endScreen.lostSubtitle', { percent: wahlergebnisEnd.toFixed(1) })}
         </p>
+        {!legislaturErfolgEnd && wahlUeberHuerdeEnd && (
+          <p className={styles.subtitle}>
+            {t(
+              'game:wahlnacht.trotzHuerde',
+              'Du hast die Wahlhürde überschritten, aber die Gesamtbewertung der Legislatur reicht nicht.',
+            )}
+          </p>
+        )}
+        {legislaturErfolgEnd && !wahlUeberHuerdeEnd && (
+          <p className={styles.subtitle}>
+            {t(
+              'game:wahlnacht.ohneHuerde',
+              'Die Legislatur ist nach Gesamtbewertung erfolgreich, obwohl die Wahlhürde nicht erreicht wurde.',
+            )}
+          </p>
+        )}
 
         {approvalHistory.length > 1 && (
           <div className={styles.chartSection}>
             <span className={styles.chartSectionLabel}>{t('game:endScreen.approvalChart')}</span>
-            <ApprovalHistoryChart data={approvalHistory} threshold={state.electionThreshold} />
+            <ApprovalHistoryChart data={approvalHistory} threshold={thresholdEnd} />
           </div>
         )}
 

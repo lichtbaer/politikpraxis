@@ -2174,6 +2174,19 @@
   },
   "auswertung": {
     "noteHint": "Overall grade from five dimensions (democracy, economy, society, communication, efficiency).",
+    "spielzielHint": "Overall grade combines legislative balance (30%), agenda (35%), and the long-term impact of passed laws (35%). Clearing the election threshold adds a small bonus.",
+    "spielzielPunkte": "{{pts}} out of 100 points",
+    "spielzielBilanz": "Balance (30%)",
+    "spielzielAgenda": "Agenda (35%)",
+    "spielzielUrteil": "Historical verdict (35%)",
+    "spielzielWahlbonus": "Election bonus",
+    "spielzielAgendaDetail": "Agenda fulfilled: player {{sE}}/{{sG}}, coalition {{kE}}/{{kG}}",
+    "spielzielUrteilDetail": "Historical verdict is based on {{n}} passed laws (content long-term score).",
+    "profilHint": "Additional profile breakdown (five dimensions):",
+    "wahlHuerdeJa": "At {{pct}}%, your result is above the threshold ({{threshold}}%) — {{partei}}.",
+    "wahlHuerdeNein": "At {{pct}}%, your result is below the threshold ({{threshold}}%) — {{partei}}.",
+    "legislaturErfolgJa": "By balance, agenda, and historical verdict, the game rates this term as successful.",
+    "legislaturErfolgNein": "By balance, agenda, and historical verdict, the overall score is not enough for a successful term.",
     "dim": {
       "demokratie": "Democracy",
       "wirtschaft": "Economy",
@@ -2358,6 +2371,8 @@
     "tvDuellBanner": "TV debate this or next month!"
   },
   "wahlnacht": {
+    "trotzHuerde": "You cleared the election threshold, but the overall term rating is not enough.",
+    "ohneHuerde": "The term is rated successful overall even though the election threshold was not reached.",
     "hochrechnung": "Projection",
     "tiefenanalyse": "Detailed analysis",
     "analyseTitle": "Legislature analysis",

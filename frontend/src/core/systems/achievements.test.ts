@@ -35,23 +35,33 @@ describe('checkAchievements', () => {
     expect(ids).toContain('erste_legislatur');
   });
 
-  it('wiedergewaehlt: wird freigeschaltet wenn won=true', () => {
-    const state = makeState({ gameOver: true, won: true });
+  it('wiedergewaehlt: wird freigeschaltet wenn Wahlhürde überschritten', () => {
+    const state = makeState({ gameOver: true, won: false, wahlUeberHuerde: true });
     const result = checkAchievements(state);
     const ids = result.map((a) => a.id);
     expect(ids).toContain('wiedergewaehlt');
   });
 
-  it('wiedergewaehlt: wird NICHT freigeschaltet wenn won=false', () => {
-    const state = makeState({ gameOver: true, won: false });
+  it('wiedergewaehlt: wird NICHT freigeschaltet ohne Wahlhürde', () => {
+    const state = makeState({ gameOver: true, won: true, wahlUeberHuerde: false });
     const result = checkAchievements(state);
     const ids = result.map((a) => a.id);
     expect(ids).not.toContain('wiedergewaehlt');
   });
 
-  it('erdrutschsieg: nur wenn won=true UND zust.g > 55', () => {
-    const stateHigh = makeState({ gameOver: true, won: true, zust: { g: 56, arbeit: 60, mitte: 55, prog: 50 } });
-    const stateLow = makeState({ gameOver: true, won: true, zust: { g: 54, arbeit: 60, mitte: 55, prog: 50 } });
+  it('erdrutschsieg: nur wenn Wahlhürde UND zust.g > 55', () => {
+    const stateHigh = makeState({
+      gameOver: true,
+      won: false,
+      wahlUeberHuerde: true,
+      zust: { g: 56, arbeit: 60, mitte: 55, prog: 50 },
+    });
+    const stateLow = makeState({
+      gameOver: true,
+      won: false,
+      wahlUeberHuerde: true,
+      zust: { g: 54, arbeit: 60, mitte: 55, prog: 50 },
+    });
     expect(checkAchievements(stateHigh).map((a) => a.id)).toContain('erdrutschsieg');
     expect(checkAchievements(stateLow).map((a) => a.id)).not.toContain('erdrutschsieg');
   });

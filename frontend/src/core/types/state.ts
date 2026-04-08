@@ -140,6 +140,24 @@ export interface LegislaturBilanz {
   };
 }
 
+/** SMA-499: Gesamtbewertung aus Bilanz, Agenda, Urteil (+ Wahlbonus) */
+export interface SpielzielSnapshot {
+  gesamtpunkte: number;
+  gesamtnote: LegislaturBilanzNote;
+  bilanzPunkte: number;
+  agendaPunkte: number;
+  urteilPunkte: number;
+  wahlbonus: number;
+}
+
+export interface SpielzielErgebnis extends SpielzielSnapshot {
+  agendaSpielerErfuellt: number;
+  agendaSpielerGesamt: number;
+  agendaKoalitionErfuellt: number;
+  agendaKoalitionGesamt: number;
+  beschlosseneGesetzeUrteil: number;
+}
+
 export interface GameState {
   month: number;
   speed: SpeedLevel;
@@ -189,6 +207,12 @@ export interface GameState {
 
   gameOver: boolean;
   won: boolean;
+  /** SMA-499: Erfolg nach dreistufigem Spielziel (unabhängig von reiner Wahlhürde) */
+  legislaturErfolg?: boolean;
+  /** Wahlergebnis hat die konfigurierte Hürde überschritten (für Achievements / Text) */
+  wahlUeberHuerde?: boolean;
+  /** SMA-499: Auswertung Bilanz / Agenda / Urteil / Wahlbonus */
+  spielziel?: SpielzielErgebnis | null;
   electionThreshold?: number;
   lowApprovalMonths?: number;
   misstrauensvotumAbgewendet?: boolean;

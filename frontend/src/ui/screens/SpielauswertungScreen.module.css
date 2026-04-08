@@ -59,6 +59,13 @@
   background: color-mix(in srgb, var(--bg3) 80%, transparent);
 }
 
+.spielzielMeta {
+  margin: 0.35rem 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text) 88%, var(--gold));
+}
+
 .grade {
   font-size: 2rem;
   font-weight: 700;

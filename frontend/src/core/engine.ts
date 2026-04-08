@@ -122,7 +122,7 @@ export function tick(
   s = pruneExpiredCooldowns(s);
 
   // 1. Zeit: Spielende prüfen
-  s = checkGameEnd(s);
+  s = checkGameEnd(s, content);
   if (s.gameOver) return s;
 
   // 2. Pending Effects

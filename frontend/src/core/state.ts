@@ -579,6 +579,9 @@ export function validateGameState(raw: unknown): GameState {
     'letzterMonatsDiff',
     'wirtschaft',
     'verbandsLetzteWirtschaftsReaktion',
+    'legislaturErfolg',
+    'wahlUeberHuerde',
+    'spielziel',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
