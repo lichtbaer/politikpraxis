@@ -110,6 +110,15 @@ class Gesetz(Base):
     )
     locked_until_event: Mapped[str | None] = mapped_column(Text(), nullable=True)
     zustimmungspflichtig: Mapped[bool | None] = mapped_column(Boolean(), nullable=True)
+    langzeit_score: Mapped[int] = mapped_column(
+        Integer(), nullable=False, server_default="0"
+    )
+    langzeitwirkung_positiv_de: Mapped[list[str]] = mapped_column(
+        ARRAY(Text()), nullable=False, server_default="{}"
+    )
+    langzeitwirkung_negativ_de: Mapped[list[str]] = mapped_column(
+        ARRAY(Text()), nullable=False, server_default="{}"
+    )
 
 
 class GesetzI18n(Base):

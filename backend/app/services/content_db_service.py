@@ -158,14 +158,16 @@ async def fetch_medien_akteure(db: AsyncSession, locale: str = "de") -> list[dic
     for r, i18n_row in rows_raw:
         resolved = i18n_row or fallback_rows.get(r.id)
         name = resolved.name if resolved else r.name_de
-        out.append({
-            "id": r.id,
-            "name": name,
-            "typ": r.typ,
-            "reichweite": float(r.reichweite),
-            "stimmung_start": int(r.stimmung_start or 0),
-            "min_complexity": int(r.min_complexity or 2),
-        })
+        out.append(
+            {
+                "id": r.id,
+                "name": name,
+                "typ": r.typ,
+                "reichweite": float(r.reichweite),
+                "stimmung_start": int(r.stimmung_start or 0),
+                "min_complexity": int(r.min_complexity or 2),
+            }
+        )
 
     _set_cached(cache_key, out)
     return out
@@ -289,6 +291,9 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
                     "sektor_effekte": list(g.sektor_effekte or []),
                     "locked_until_event": g.locked_until_event,
                     "zustimmungspflichtig": g.zustimmungspflichtig,
+                    "langzeit_score": int(g.langzeit_score or 0),
+                    "langzeitwirkung_positiv": list(g.langzeitwirkung_positiv_de or []),
+                    "langzeitwirkung_negativ": list(g.langzeitwirkung_negativ_de or []),
                     "titel": i18n.titel,
                     "kurz": i18n.kurz,
                     "desc": i18n.desc,

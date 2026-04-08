@@ -122,6 +122,10 @@ export interface GameState {
   coalition: number;
 
   chars: Character[];
+  /** SMA-500: vom Spieler gewählte Agenda-Ziel-IDs (Content-Referenzen) */
+  spielerAgenda?: string[];
+  /** SMA-500: aktive Koalitions-Ziel-IDs */
+  koalitionsAgenda?: string[];
   gesetze: Law[];
   eingebrachteGesetze?: EingebrachteGesetz[];
   bundesrat: BundesratLand[];
@@ -158,6 +162,8 @@ export interface GameState {
   koalitionsvertragProfil?: Ideologie;
   milieuZustimmung?: Record<string, number>;
   milieuZustimmungHistory?: Record<string, number[]>;
+  /** SMA-500: Monatsverlauf je Milieu (Agenda-/Ziel-Evaluierung) */
+  milieuHistory?: Record<string, number[]>;
   milieuGesetzReaktionen?: Record<string, { gesetzId: string; delta: number }[]>;
   verbandsBeziehungen?: Record<string, number>;
   /** SMA-405: zuletzt aus Wirtschaftssektor ausgelöste Verbands-Anpassung (Anzeige Verbände-Tab) */
@@ -215,6 +221,8 @@ export interface GameState {
   /** SMA-392: additive Stimmungs-Buffs mit Ablaufmonat */
   medienAkteurBuffs?: Record<string, MedienAkteurBuffState>;
   medienKlimaHistory?: number[];
+  /** SMA-500: Monate, in denen das Medienklima unter der Agenda-Schwelle lag */
+  medienklimaBelowMonths?: number[];
   letzterSkandal?: number;
   letztesPressemitteilungMonat?: number;
   opposition?: OppositionState;
@@ -253,6 +261,8 @@ export interface GameState {
   };
   wahlergebnis?: number;
   charGespraechCooldowns?: Record<string, number>;
+  /** SMA-500: Stimmungsverlauf je Charakter-ID (Agenda-Evaluierung) */
+  charMoodHistory?: Record<string, number[]>;
   approvalHistory?: number[];
   kpiHistory?: { al: number[]; hh: number[]; gi: number[]; zf: number[] };
   haushaltSaldoHistory?: number[];

@@ -59,9 +59,7 @@ def load_scenario(scenario_id: str = "standard") -> dict:
     # Ensure resolved path stays within content_dir (defense-in-depth)
     base = Path(settings.content_dir).resolve()
     resolved = Path(path).resolve()
-    if not resolved.is_relative_to(base):
-        path = _content_path("scenarios", "standard.yaml")
-    elif not os.path.exists(path):
+    if not resolved.is_relative_to(base) or not os.path.exists(path):
         path = _content_path("scenarios", "standard.yaml")
     return _load_yaml(path)
 
@@ -92,6 +90,12 @@ def _gesetz_row_to_bundle_law(d: dict[str, Any]) -> dict[str, Any]:
     }
     if d.get("locked_until_event"):
         out["locked_until_event"] = d["locked_until_event"]
+    if "langzeit_score" in d:
+        out["langzeit_score"] = int(d["langzeit_score"] or 0)
+    if d.get("langzeitwirkung_positiv"):
+        out["langzeitwirkung_positiv"] = d["langzeitwirkung_positiv"]
+    if d.get("langzeitwirkung_negativ"):
+        out["langzeitwirkung_negativ"] = d["langzeitwirkung_negativ"]
     return out
 
 

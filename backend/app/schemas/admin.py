@@ -69,6 +69,9 @@ class GesetzCreate(BaseModel):
     foederalismus_freundlich: bool | None = None
     locked_until_event: str | None = Field(default=None, max_length=64)
     zustimmungspflichtig: bool | None = None
+    langzeit_score: int = 0
+    langzeitwirkung_positiv_de: list[str] = Field(default_factory=list)
+    langzeitwirkung_negativ_de: list[str] = Field(default_factory=list)
 
 
 class GesetzUpdate(BaseModel):
@@ -82,6 +85,9 @@ class GesetzUpdate(BaseModel):
     foederalismus_freundlich: bool | None = None
     locked_until_event: str | None = Field(default=None, max_length=64)
     zustimmungspflichtig: bool | None = None
+    langzeit_score: int | None = None
+    langzeitwirkung_positiv_de: list[str] | None = None
+    langzeitwirkung_negativ_de: list[str] | None = None
 
 
 class GesetzI18nUpdate(BaseModel):

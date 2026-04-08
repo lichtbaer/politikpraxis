@@ -163,8 +163,8 @@ async def register_user(db: AsyncSession, email: str, password: str) -> User:
     return user
 
 
-_LOGIN_LOCKOUT_THRESHOLD = 10       # Fehlversuche bis zur Sperre
-_LOGIN_LOCKOUT_MINUTES = 15         # Sperrdauer in Minuten
+_LOGIN_LOCKOUT_THRESHOLD = 10  # Fehlversuche bis zur Sperre
+_LOGIN_LOCKOUT_MINUTES = 15  # Sperrdauer in Minuten
 
 
 async def authenticate_user(db: AsyncSession, email: str, password: str) -> User:
@@ -309,7 +309,9 @@ async def create_magic_link_token(db: AsyncSession, user: User) -> str:
     raw = generate_secure_token()
     expires = datetime.now(UTC) + timedelta(minutes=MAGIC_LINK_EXPIRE_MINUTES)
     # Token als SHA-256-Hash speichern — roher Token wird nur per E-Mail übermittelt
-    row = MagicLink(user_id=user.id, token=_hash_magic_token(raw), expires_at=expires, used=False)
+    row = MagicLink(
+        user_id=user.id, token=_hash_magic_token(raw), expires_at=expires, used=False
+    )
     db.add(row)
     await db.flush()
     return raw
@@ -317,7 +319,9 @@ async def create_magic_link_token(db: AsyncSession, user: User) -> str:
 
 async def consume_magic_link_token(db: AsyncSession, token: str) -> User | None:
     await purge_expired_magic_links(db)
-    result = await db.execute(select(MagicLink).where(MagicLink.token == _hash_magic_token(token)))
+    result = await db.execute(
+        select(MagicLink).where(MagicLink.token == _hash_magic_token(token))
+    )
     row = result.scalar_one_or_none()
     if not row or row.used or row.expires_at < datetime.now(UTC):
         logger.warning("Invalid or expired magic link token")

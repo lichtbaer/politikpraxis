@@ -118,11 +118,13 @@ export function GesetzAgendaView() {
   }, [recommended]);
 
   // Koalitions-Stanz: Klassifizierung pro Gesetz basierend auf Koalitionsvertrag-Profil
-  const partner = state.koalitionspartner
-    ? getKoalitionspartner(undefined, state)
-    : null;
-  const schluesselthemen = partner?.schluesselthemen ?? [];
   const koalitionsvertragProfil = state.koalitionsvertragProfil;
+  const schluesselthemen = useMemo((): string[] => {
+    if (!state.koalitionspartner) return [];
+    return getKoalitionspartner(undefined, state).schluesselthemen ?? [];
+    // getKoalitionspartner: nur partner-/spieler-IDs; `state` gesamt würde jeden Tick invalidieren.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.koalitionspartner?.id, state.spielerPartei?.id]);
 
   const stanzMap = useMemo((): Map<string, KoalitionsStanz> => {
     if (!koalitionsvertragProfil || schluesselthemen.length === 0) return new Map();
@@ -131,7 +133,6 @@ export function GesetzAgendaView() {
       map.set(law.id, getKoalitionsStanz(law, koalitionsvertragProfil, schluesselthemen));
     }
     return map;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleGesetze, koalitionsvertragProfil, schluesselthemen]);
 
   // Koalitions-Gruppierung für 'koalition'-SortMode
@@ -142,7 +143,6 @@ export function GesetzAgendaView() {
       koalitionsvertragProfil,
       schluesselthemen,
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleGesetze, koalitionsvertragProfil, schluesselthemen]);
 
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());

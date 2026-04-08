@@ -85,6 +85,9 @@ class GesetzResponse(BaseModel):
     desc: str
     locked_until_event: str | None = None
     zustimmungspflichtig: bool | None = None
+    langzeit_score: int = 0
+    langzeitwirkung_positiv: list[str] = []
+    langzeitwirkung_negativ: list[str] = []
 
     model_config = ConfigDict(from_attributes=True)
 

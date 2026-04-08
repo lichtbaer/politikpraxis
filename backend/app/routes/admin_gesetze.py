@@ -33,6 +33,9 @@ async def admin_list_gesetze(db: AsyncSession = Depends(get_db)):
             "foederalismus_freundlich": r.foederalismus_freundlich,
             "locked_until_event": r.locked_until_event,
             "zustimmungspflichtig": r.zustimmungspflichtig,
+            "langzeit_score": r.langzeit_score,
+            "langzeitwirkung_positiv_de": r.langzeitwirkung_positiv_de or [],
+            "langzeitwirkung_negativ_de": r.langzeitwirkung_negativ_de or [],
         }
         for r in rows
     ]
@@ -55,6 +58,9 @@ async def admin_create_gesetz(data: GesetzCreate, db: AsyncSession = Depends(get
         foederalismus_freundlich=data.foederalismus_freundlich,
         locked_until_event=data.locked_until_event,
         zustimmungspflichtig=data.zustimmungspflichtig,
+        langzeit_score=data.langzeit_score,
+        langzeitwirkung_positiv_de=data.langzeitwirkung_positiv_de or [],
+        langzeitwirkung_negativ_de=data.langzeitwirkung_negativ_de or [],
     )
     db.add(gesetz)
     await db.flush()
@@ -80,6 +86,9 @@ async def admin_get_gesetz(gesetz_id: str, db: AsyncSession = Depends(get_db)):
         "foederalismus_freundlich": g.foederalismus_freundlich,
         "locked_until_event": g.locked_until_event,
         "zustimmungspflichtig": g.zustimmungspflichtig,
+        "langzeit_score": g.langzeit_score,
+        "langzeitwirkung_positiv_de": g.langzeitwirkung_positiv_de or [],
+        "langzeitwirkung_negativ_de": g.langzeitwirkung_negativ_de or [],
     }
 
 
@@ -111,6 +120,12 @@ async def admin_update_gesetz(
         g.locked_until_event = data.locked_until_event
     if data.zustimmungspflichtig is not None:
         g.zustimmungspflichtig = data.zustimmungspflichtig
+    if data.langzeit_score is not None:
+        g.langzeit_score = data.langzeit_score
+    if data.langzeitwirkung_positiv_de is not None:
+        g.langzeitwirkung_positiv_de = data.langzeitwirkung_positiv_de
+    if data.langzeitwirkung_negativ_de is not None:
+        g.langzeitwirkung_negativ_de = data.langzeitwirkung_negativ_de
     content_cache_clear()
     return {"id": g.id}
 

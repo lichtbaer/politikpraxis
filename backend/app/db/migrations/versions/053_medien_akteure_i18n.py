@@ -27,14 +27,21 @@ def upgrade() -> None:
             server_default=sa.text("gen_random_uuid()"),
             primary_key=True,
         ),
-        sa.Column("akteur_id", sa.Text(), sa.ForeignKey("medien_akteure.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "akteur_id",
+            sa.Text(),
+            sa.ForeignKey("medien_akteure.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column(
             "locale",
             postgresql.ENUM("de", "en", name="content_locale", create_type=False),
             nullable=False,
         ),
         sa.Column("name", sa.Text(), nullable=False),
-        sa.UniqueConstraint("akteur_id", "locale", name="uq_medien_akteure_i18n_akteur_locale"),
+        sa.UniqueConstraint(
+            "akteur_id", "locale", name="uq_medien_akteure_i18n_akteur_locale"
+        ),
     )
 
     # Seed: DE-Daten (1:1 aus name_de), EN-Daten (Übersetzungen)

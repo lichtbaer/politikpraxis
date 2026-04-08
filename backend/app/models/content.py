@@ -5,6 +5,12 @@ Die eigentlichen Model-Definitionen befinden sich in den Domain-Modulen:
   politikfelder.py, verbaende.py, eu.py, ministerial.py
 """
 
+from app.models.agenda_ziele import (
+    AgendaZiel,
+    AgendaZielI18n,
+    KoalitionsZiel,
+    KoalitionsZielI18n,
+)
 from app.models.bundesrat import (
     BundesratFraktion,
     BundesratFraktionI18n,
@@ -32,6 +38,10 @@ from app.models.verbaende import (
 )
 
 __all__ = [
+    "AgendaZiel",
+    "AgendaZielI18n",
+    "KoalitionsZiel",
+    "KoalitionsZielI18n",
     "BundesratFraktion",
     "BundesratFraktionI18n",
     "BundesratTradeoff",
