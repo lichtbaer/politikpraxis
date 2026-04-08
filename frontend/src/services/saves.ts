@@ -69,6 +69,27 @@ export async function upsertSaveSlot(
   });
 }
 
+export interface GameAgendaPayload {
+  spielerAgenda: string[];
+  koalitionsAgenda?: string[];
+}
+
+/** SMA-503: Agenda im Cloud-Spielstand speichern */
+export async function postGameAgenda(
+  token: string,
+  saveId: string,
+  payload: GameAgendaPayload,
+): Promise<void> {
+  await apiFetch<{ ok: boolean }>(`/game/${saveId}/agenda`, {
+    method: 'POST',
+    token,
+    body: {
+      spieler_agenda: payload.spielerAgenda,
+      koalitions_agenda: payload.koalitionsAgenda,
+    },
+  });
+}
+
 export async function deleteSaveSlot(token: string, slot: number): Promise<void> {
   await apiFetch(`/saves/${slot}`, { method: 'DELETE', token });
 }
@@ -85,5 +106,6 @@ export function serverDetailToSaveFile(detail: SaveDetailResponse): SaveFile {
     ausrichtung: meta.ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
     spielerPartei: detail.game_state.spielerPartei,
     kanzlerGeschlecht: meta.kanzler_geschlecht ?? detail.game_state.kanzlerGeschlecht ?? 'sie',
+    cloudSaveId: detail.id,
   };
 }

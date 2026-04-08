@@ -62,7 +62,8 @@ export function Header() {
       spielerPartei,
       kanzlerGeschlecht: state.kanzlerGeschlecht ?? kanzlerGeschlecht,
     })
-      .then(() => {
+      .then((item) => {
+        useGameStore.getState().setCloudSaveId(item.id);
         useUIStore.getState().showToast(t('game.manualSaveOk'), 'success');
       })
       .catch(() => {

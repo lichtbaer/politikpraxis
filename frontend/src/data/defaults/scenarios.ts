@@ -1,4 +1,11 @@
-import type { ContentBundle, BundesratLand, Verband, MinisterialInitiative } from '../../core/types';
+import type {
+  AgendaZielContent,
+  ContentBundle,
+  BundesratLand,
+  KoalitionsZielContent,
+  MinisterialInitiative,
+  Verband,
+} from '../../core/types';
 import { GRUENE } from './koalitionspartner';
 import { DEFAULT_MEDIEN_EVENTS } from './medienEvents';
 
@@ -78,6 +85,57 @@ const DEFAULT_EU_KLIMA_STARTWERTE: ContentBundle['euKlimaStartwerte'] = [
   { politikfeld_id: 'landwirtschaft', startwert: 75 },
 ];
 
+/** Minimal-Stub für Offline/Fallback — IDs konsistent mit DB-Seed (058_sma501) */
+const DEFAULT_AGENDA_ZIELE: AgendaZielContent[] = [
+  {
+    id: 'ag_gesetz_breit_regieren',
+    kategorie: 'gesetzgebung',
+    schwierigkeit: 2,
+    partei_filter: null,
+    min_complexity: 1,
+    bedingung_typ: 'gesetz_anzahl_beschlossen',
+    bedingung_param: { min_beschlossen: 5 },
+    titel: 'Breit regieren',
+    beschreibung: '',
+  },
+  {
+    id: 'ag_milieu_mitte',
+    kategorie: 'milieu',
+    schwierigkeit: 2,
+    partei_filter: null,
+    min_complexity: 1,
+    bedingung_typ: 'milieu_zustimmung_min',
+    bedingung_param: { milieu_id: 'soziale_mitte', min_pct: 48 },
+    titel: 'Mitte halten',
+    beschreibung: '',
+  },
+];
+
+const DEFAULT_KOALITIONS_ZIELE: KoalitionsZielContent[] = [
+  {
+    id: 'kz_gp_umweltgesetz',
+    partner_profil: 'gp',
+    kategorie: 'gesetzgebung',
+    min_complexity: 1,
+    bedingung_typ: 'gesetz_politikfeld',
+    bedingung_param: { politikfeld_id: 'umwelt_energie', min_beschlossen: 1 },
+    beziehung_malus: 8,
+    titel: 'Koalitionsziel',
+    beschreibung: '',
+  },
+  {
+    id: 'kz_sdp_sozialgesetz',
+    partner_profil: 'sdp',
+    kategorie: 'gesetzgebung',
+    min_complexity: 1,
+    bedingung_typ: 'gesetz_politikfeld',
+    bedingung_param: { politikfeld_id: 'arbeit_soziales', min_beschlossen: 1 },
+    beziehung_malus: 8,
+    titel: 'Koalitionsziel',
+    beschreibung: '',
+  },
+];
+
 /** Fallback ContentBundle wenn API nicht erreichbar (nur für init-Fallback) */
 export const DEFAULT_CONTENT: ContentBundle = {
   characters: [],
@@ -85,6 +143,8 @@ export const DEFAULT_CONTENT: ContentBundle = {
   charEvents: {},
   bundesratEvents: [],
   laws: [],
+  agendaZiele: DEFAULT_AGENDA_ZIELE,
+  koalitionsZiele: DEFAULT_KOALITIONS_ZIELE,
   bundesrat: DEFAULT_BUNDESRAT,
   bundesratFraktionen: [],
   koalitionspartner: GRUENE,

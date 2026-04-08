@@ -5,6 +5,13 @@ import { useUIStore } from '../store/uiStore';
 
 const AUTOSAVE_INTERVAL = 5;
 
+/** Wird von gameStore nach create() registriert — vermeidet Zirkelimport */
+let cloudSaveIdSetter: ((id: string) => void) | null = null;
+
+export function registerAutosaveCloudSaveHandler(fn: (id: string) => void): void {
+  cloudSaveIdSetter = fn;
+}
+
 export interface AutosaveMeta {
   playerName: string;
   complexity: number;
@@ -43,8 +50,9 @@ export function checkAutosave(monat: number, token: string | null, state: GameSt
   };
 
   void upsertSaveSlot(token, 1, payload)
-    .then(() => {
+    .then((item) => {
       consecutiveFailures = 0;
+      cloudSaveIdSetter?.(item.id);
       useUIStore.getState().showToast(`Spielstand gespeichert (Monat ${monat})`, 'success');
     })
     .catch(() => {
@@ -52,8 +60,9 @@ export function checkAutosave(monat: number, token: string | null, state: GameSt
       // Single retry after 2s delay
       setTimeout(() => {
         void upsertSaveSlot(token, 1, payload)
-          .then(() => {
+          .then((item) => {
             consecutiveFailures = 0;
+            cloudSaveIdSetter?.(item.id);
           })
           .catch(() => {
             useUIStore.getState().showToast('Cloud-Speichern fehlgeschlagen – lokal gesichert', 'warning');

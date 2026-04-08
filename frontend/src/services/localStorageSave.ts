@@ -17,6 +17,8 @@ export interface SaveFile {
   spielerPartei?: SpielerParteiState;
   /** SMA-327: Kanzler-Geschlecht (optional für ältere Saves) */
   kanzlerGeschlecht?: 'sie' | 'er' | 'they';
+  /** Cloud-Spielstand (game_saves.id) für API-Aufrufe wie POST /api/game/{id}/agenda */
+  cloudSaveId?: string;
 }
 
 function isLocalStorageAvailable(): boolean {

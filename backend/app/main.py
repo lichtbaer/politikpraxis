@@ -17,6 +17,7 @@ from app.routes import (
     analytics,
     auth,
     content,
+    game,
     kontakt,
     mods,
     saves,
@@ -99,6 +100,7 @@ async def security_headers(request: Request, call_next: Callable) -> Response:
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(saves.router, prefix="/api/saves", tags=["saves"])
+app.include_router(game.router, prefix="/api/game", tags=["game"])
 app.include_router(content.router, prefix="/api/content", tags=["content"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
 app.include_router(mods.router, prefix="/api/mods", tags=["mods"])
