@@ -149,6 +149,12 @@ export const EINSPRUCH_UEBERSTIMMUNG_SCHWELLE = 50;
 /** Startwert und Migrations-Fallback für medienKlima (neutrale Stimmung) */
 export const MEDIEN_KLIMA_DEFAULT = 55;
 
+// --- Agenda-/Bilanz-Tracking (SMA-502, passiv) ---
+/** Medienklima unter diesem Index zählt als „unter Schwelle“ für Tracker */
+export const AGENDA_TRACKING_MEDIENKLIMA_SCHWELLE = 45;
+/** Char-Mood ≤ dieser Stufe (0–4) erhöht den Monatszähler in charMoodHistory */
+export const AGENDA_TRACKING_CHAR_MOOD_MAX = 1;
+
 // --- State-Array-Bounds (Schutz vor localStorage-Manipulation) ---
 /** Max. Einträge in firedEvents, firedCharEvents, ausgeloesteEvents etc. */
 export const MAX_FIRED_EVENTS = 200;

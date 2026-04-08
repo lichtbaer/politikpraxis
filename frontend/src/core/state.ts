@@ -1,4 +1,5 @@
 import type { GameState, ContentBundle, SpielerParteiState, BundeslandContent } from './types';
+import type { MilieuHistoryStats } from './types/state';
 import type { Approval } from './types';
 import { featureActive } from './systems/features';
 import { berechneKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
@@ -15,7 +16,14 @@ import {
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
 } from '../data/defaults/parteien';
-import { MEDIEN_KLIMA_DEFAULT, MAX_FIRED_EVENTS, MAX_PENDING, MAX_LOG_ENTRIES_VALIDATION } from './constants';
+import {
+  AGENDA_TRACKING_CHAR_MOOD_MAX,
+  AGENDA_TRACKING_MEDIENKLIMA_SCHWELLE,
+  MEDIEN_KLIMA_DEFAULT,
+  MAX_FIRED_EVENTS,
+  MAX_PENDING,
+  MAX_LOG_ENTRIES_VALIDATION,
+} from './constants';
 import { selectEventPool } from './systems/eventPoolSelection';
 import {
   berechneMedianklima,
@@ -546,6 +554,7 @@ export function validateGameState(raw: unknown): GameState {
     'milieuHistory',
     'medienklimaBelowMonths',
     'charMoodHistory',
+    'koalitionsbeziehungLegislatur',
     'pendingPartnerWiderstand',
     'btStimmenBonus', 'koalitionsbruchSeitMonat', 'ministerialCooldowns', 'aktiveMinisterialInitiative', 'ministerAgenden', 'aktiveMinisterAgenda',
     'eu', 'haushalt', 'lehmannUltimatumBeschleunigt', 'lehmannSparvorschlagAktiv', 'aktivesStrukturEvent',
@@ -665,5 +674,98 @@ export function migrateGameState(state: GameState): GameState {
   if (!result.kanzlerGeschlecht) {
     result = { ...result, kanzlerGeschlecht: 'sie' as const };
   }
+
+  // SMA-502: ältere/fehlerhafte Serialisierungen (Arrays statt Aggregate/Zähler)
+  result = migrateAgendaHistoryFields(result);
+
   return result;
+}
+
+function migrateAgendaHistoryFields(state: GameState): GameState {
+  let s = state;
+
+  const rawMilieu = s.milieuHistory as unknown;
+  if (rawMilieu && typeof rawMilieu === 'object' && !Array.isArray(rawMilieu)) {
+    const out: Record<string, MilieuHistoryStats> = {};
+    for (const [k, v] of Object.entries(rawMilieu as Record<string, unknown>)) {
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+      if (Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === 'number' && Number.isFinite(x))) {
+        const arr = v as number[];
+        out[k] = {
+          min: Math.min(...arr),
+          max: Math.max(...arr),
+          sum: arr.reduce((a, b) => a + b, 0),
+          months: arr.length,
+        };
+      } else if (
+        v &&
+        typeof v === 'object' &&
+        !Array.isArray(v) &&
+        typeof (v as { min?: unknown }).min === 'number' &&
+        typeof (v as { max?: unknown }).max === 'number' &&
+        typeof (v as { sum?: unknown }).sum === 'number' &&
+        typeof (v as { months?: unknown }).months === 'number'
+      ) {
+        const o = v as MilieuHistoryStats;
+        out[k] = {
+          min: Math.max(0, Math.min(100, o.min)),
+          max: Math.max(0, Math.min(100, o.max)),
+          sum: o.sum,
+          months: Math.max(0, Math.floor(o.months)),
+        };
+      }
+    }
+    if (Object.keys(out).length > 0) {
+      s = { ...s, milieuHistory: out };
+    }
+  }
+
+  const mb = s.medienklimaBelowMonths as unknown;
+  if (Array.isArray(mb)) {
+    const nums = mb.filter((x): x is number => typeof x === 'number' && Number.isFinite(x));
+    let count = 0;
+    if (nums.length === mb.length && nums.length > 0) {
+      const onlyFlags = nums.every((x) => x === 0 || x === 1);
+      if (onlyFlags) {
+        count = nums.reduce<number>((acc, x) => acc + x, 0);
+      } else {
+        count = nums.filter((x) => x < AGENDA_TRACKING_MEDIENKLIMA_SCHWELLE).length;
+      }
+    }
+    s = { ...s, medienklimaBelowMonths: count };
+  }
+
+  const cmh = s.charMoodHistory as unknown;
+  if (cmh && typeof cmh === 'object' && !Array.isArray(cmh)) {
+    const out: Record<string, number> = {};
+    for (const [id, v] of Object.entries(cmh as Record<string, unknown>)) {
+      if (id === '__proto__' || id === 'constructor' || id === 'prototype') continue;
+      if (Array.isArray(v)) {
+        const moods = v.filter((x): x is number => typeof x === 'number' && Number.isFinite(x));
+        out[id] = moods.filter((m) => m <= AGENDA_TRACKING_CHAR_MOOD_MAX).length;
+      } else if (typeof v === 'number' && Number.isFinite(v)) {
+        out[id] = Math.max(0, Math.floor(v));
+      }
+    }
+    if (Object.keys(out).length > 0) {
+      s = { ...s, charMoodHistory: out };
+    }
+  }
+
+  const kbl = s.koalitionsbeziehungLegislatur as unknown;
+  if (kbl && typeof kbl === 'object' && !Array.isArray(kbl)) {
+    const sum = Number((kbl as { sum?: unknown }).sum);
+    const months = Number((kbl as { months?: unknown }).months);
+    if (Number.isFinite(sum) && Number.isFinite(months)) {
+      s = {
+        ...s,
+        koalitionsbeziehungLegislatur: {
+          sum: Math.max(0, sum),
+          months: Math.max(0, Math.floor(months)),
+        },
+      };
+    }
+  }
+
+  return s;
 }

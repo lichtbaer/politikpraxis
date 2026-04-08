@@ -57,6 +57,7 @@ import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bund
 import { berechneMonatsDiff } from './monatszusammenfassung';
 import { logger } from '../utils/logger';
 import { seedRng } from './rng';
+import { updateAgendaHistoryTrackers } from './systems/agendaHistory';
 
 export { addLog } from './log';
 
@@ -85,6 +86,7 @@ function formatTickTime(month: number): string {
  * 14. Wahlkampf: Beginn, TV-Duell, Koalitionspartner-Alleingang (Monat 43+)
  * 15. Zustimmung: Milieu-Wahlprognose, Zustimmung neu berechnen
  * 16. Milieu-History: Zustimmung pro Milieu speichern
+ * 17. SMA-502: Agenda-/Bilanz-Tracker (Milieu-Aggregate, Medienklima, Char-Mood, Koalitionsbeziehung)
  */
 export function tick(
   state: GameState,
@@ -393,6 +395,9 @@ export function tick(
     ...s,
     medienKlimaHistory: trimHistory(s.medienKlimaHistory ?? [], mkEnd, HISTORY_MAX_MONTHS),
   };
+
+  // SMA-502: Agenda-/Bilanz-Tracker (passiv, kein Gameplay-Effekt)
+  s = updateAgendaHistoryTrackers(s, mkEnd);
 
   // Performance monitoring: log slow ticks (>50ms)
   const tickDuration = performance.now() - t0;
