@@ -95,6 +95,36 @@ export interface GesetzApi {
   zustimmungspflichtig?: boolean;
   /** Gesetz erst nach diesem Event im Entwurf-Pool (API/DB Single Source of Truth). */
   locked_until_event?: string | null;
+  /** SMA-501 */
+  langzeit_score?: number;
+  langzeitwirkung_positiv?: string[];
+  langzeitwirkung_negativ?: string[];
+}
+
+/** SMA-501: Spieler-Agenda-Ziel (API) */
+export interface AgendaZielApi {
+  id: string;
+  kategorie: string;
+  schwierigkeit: number;
+  partei_filter: string[] | null;
+  min_complexity: number;
+  bedingung_typ: string;
+  bedingung_param: Record<string, unknown>;
+  titel: string;
+  beschreibung: string;
+}
+
+/** SMA-501: Koalitionspartner-Ziel (API) */
+export interface KoalitionsZielApi {
+  id: string;
+  partner_profil: string;
+  kategorie: string;
+  min_complexity: number;
+  bedingung_typ: string;
+  bedingung_param: Record<string, unknown>;
+  beziehung_malus: number;
+  titel: string;
+  beschreibung: string;
 }
 
 export interface MilieuApi {

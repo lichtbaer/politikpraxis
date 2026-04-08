@@ -1,6 +1,7 @@
 /** GameState, ContentBundle, and related compound types. */
 
 import type { Approval, Ideologie, KPI, LogEntry, PendingEffect, SpeedLevel, TickLogEntry, ViewName } from './common';
+import type { AgendaZielContent, KoalitionsZielContent } from './agenda';
 import type { AgendaStatus, Character, MinisterAgendaState } from './character';
 import type { EingebrachteGesetz, GesetzProjekt, GesetzRelation, Law, SteuerContent } from './law';
 import type { GameEvent, MedienEventContent } from './event';
@@ -300,6 +301,10 @@ export interface ContentBundle {
   kommunalEvents?: GameEvent[];
   vorstufenEvents?: GameEvent[];
   laws: Law[];
+  /** SMA-501: kuratierter Pool Spieler-Agenda-Ziele */
+  agendaZiele?: AgendaZielContent[];
+  /** SMA-501: Koalitionspartner-Ziele je Profil */
+  koalitionsZiele?: KoalitionsZielContent[];
   bundesrat: BundesratLand[];
   bundesratFraktionen?: BundesratFraktion[];
   landBeziehungen?: Record<string, number>;

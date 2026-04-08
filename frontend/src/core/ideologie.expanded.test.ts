@@ -122,8 +122,15 @@ describe('tickExtremismusDruck', () => {
   });
 
   it('triggert Verfassungsgericht bei Malus > 20', () => {
-    // wirtschaft 100: ((100-65)/10)^2*4 = (3.5)^2*4 = 49
-    const state = makeState({ activeEvent: null, firedEvents: [], verfassungsgerichtAktiv: false, extremismusWarnung: true });
+    // wirtschaft 100: ((100-65)/10)^2*4 = (3.5)^2*4 = 49; +1 NF-Malus (SMA-344) → > 20
+    // bverfgVorwarnung muss schon gesetzt sein, sonst bricht der Tick nach der 15er-Vorwarnung ab.
+    const state = makeState({
+      activeEvent: null,
+      firedEvents: [],
+      verfassungsgerichtAktiv: false,
+      extremismusWarnung: true,
+      bverfgVorwarnung: true,
+    });
     const result = tickExtremismusDruck(state, { wirtschaft: 100, gesellschaft: 100, staat: 0 }, [warnEvent, verfassungEvent]);
     expect(result.verfassungsgerichtAktiv).toBe(true);
     expect(result.verfassungsgerichtVerfahrenBisMonat).toBeDefined();

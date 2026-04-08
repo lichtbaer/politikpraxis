@@ -276,6 +276,8 @@ class ContentBundleResponse(BaseModel):
     events: list[dict[str, Any]]
     charEvents: dict[str, dict[str, Any]]
     laws: list[dict[str, Any]]
+    agendaZiele: list[dict[str, Any]] = []
+    koalitionsZiele: list[dict[str, Any]] = []
     bundesrat: list[dict[str, Any]]
     scenario: dict[str, Any]
     scenarios: list[dict[str, Any]] = []

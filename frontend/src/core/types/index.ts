@@ -1,5 +1,6 @@
 /** Barrel re-export aller Game-Types. */
 export * from './common';
+export * from './agenda';
 export * from './character';
 export * from './law';
 export * from './event';

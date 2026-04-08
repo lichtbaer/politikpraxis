@@ -8,6 +8,8 @@ from sqlalchemy import Select, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.content import (
+    AgendaZiel,
+    AgendaZielI18n,
     BundesratFraktion,
     BundesratFraktionI18n,
     BundesratTradeoff,
@@ -24,6 +26,8 @@ from app.models.content import (
     EventI18n,
     Gesetz,
     GesetzI18n,
+    KoalitionsZiel,
+    KoalitionsZielI18n,
     Milieu,
     MilieuI18n,
     Partei,
@@ -303,6 +307,84 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
 
     return await _fetch_cached_i18n(
         db, locale, ("gesetze", locale), build_stmt, map_rows
+    )
+
+
+async def fetch_agenda_ziele(db: AsyncSession, locale: str) -> list[dict]:
+    """Spieler-wählbare Agenda-Ziele (SMA-501) mit Lokalisierung."""
+
+    def build_stmt(loc: str) -> Select[Any]:
+        return (
+            select(AgendaZiel, AgendaZielI18n)
+            .join(
+                AgendaZielI18n,
+                (AgendaZiel.id == AgendaZielI18n.agenda_ziel_id)
+                & (AgendaZielI18n.locale == loc),
+            )
+            .order_by(AgendaZiel.id)
+        )
+
+    async def map_rows(
+        rows_raw: Sequence[Any], _loc: str, _db: AsyncSession
+    ) -> list[dict]:
+        out: list[dict] = []
+        for z, i18n in rows_raw:
+            out.append(
+                {
+                    "id": z.id,
+                    "kategorie": z.kategorie,
+                    "schwierigkeit": int(z.schwierigkeit or 1),
+                    "partei_filter": z.partei_filter,
+                    "min_complexity": int(z.min_complexity or 1),
+                    "bedingung_typ": z.bedingung_typ,
+                    "bedingung_param": dict(z.bedingung_param or {}),
+                    "titel": i18n.titel,
+                    "beschreibung": i18n.beschreibung,
+                }
+            )
+        return out
+
+    return await _fetch_cached_i18n(
+        db, locale, ("agenda_ziele", locale), build_stmt, map_rows
+    )
+
+
+async def fetch_koalitions_ziele(db: AsyncSession, locale: str) -> list[dict]:
+    """Koalitionspartner-Ziele (SMA-501) mit Lokalisierung."""
+
+    def build_stmt(loc: str) -> Select[Any]:
+        return (
+            select(KoalitionsZiel, KoalitionsZielI18n)
+            .join(
+                KoalitionsZielI18n,
+                (KoalitionsZiel.id == KoalitionsZielI18n.koalitions_ziel_id)
+                & (KoalitionsZielI18n.locale == loc),
+            )
+            .order_by(KoalitionsZiel.id)
+        )
+
+    async def map_rows(
+        rows_raw: Sequence[Any], _loc: str, _db: AsyncSession
+    ) -> list[dict]:
+        out: list[dict] = []
+        for z, i18n in rows_raw:
+            out.append(
+                {
+                    "id": z.id,
+                    "partner_profil": z.partner_profil,
+                    "kategorie": z.kategorie,
+                    "min_complexity": int(z.min_complexity or 1),
+                    "bedingung_typ": z.bedingung_typ,
+                    "bedingung_param": dict(z.bedingung_param or {}),
+                    "beziehung_malus": int(z.beziehung_malus or 0),
+                    "titel": i18n.titel,
+                    "beschreibung": i18n.beschreibung,
+                }
+            )
+        return out
+
+    return await _fetch_cached_i18n(
+        db, locale, ("koalitions_ziele", locale), build_stmt, map_rows
     )
 
 

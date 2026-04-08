@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import type { GameState, Law } from '../types';
+import * as rng from '../rng';
 import {
   berechneKlageWahrscheinlichkeit,
   checkNormenkontrollKlage,
@@ -147,8 +148,8 @@ describe('checkNormenkontrollKlage', () => {
   });
 
   it('returns unchanged state when random roll fails (prob too low)', () => {
-    // With base prob 5, Math.random returning 0.9 => 90 >= 5, no klage
-    vi.spyOn(Math, 'random').mockReturnValue(0.9);
+    // nextRandom()*100 >= prob => keine Klage (prob ≈ 9 bei Opp 40)
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.9);
     const state = makeState({ activeEvent: null });
     const law = makeLaw();
     const result = checkNormenkontrollKlage(state, law, 3);
@@ -156,10 +157,10 @@ describe('checkNormenkontrollKlage', () => {
   });
 
   it('creates event and Verfahren when roll succeeds', () => {
-    // Math.random: first call for roll (0.01 => 1 < 5), second for duration
-    vi.spyOn(Math, 'random')
-      .mockReturnValueOnce(0.01)  // roll: 1 < 5 => klage
-      .mockReturnValueOnce(0.5);  // duration: 4 + floor(0.5*5) = 6
+    // nextRandom: erster Wurf für Klage, zweiter für Dauer
+    vi.spyOn(rng, 'nextRandom')
+      .mockReturnValueOnce(0.01) // roll: 1 < prob
+      .mockReturnValueOnce(0.5); // duration: 4 + floor(0.5*5) = 6
     const state = makeState({ activeEvent: null, month: 10 });
     const law = makeLaw({ id: 'klage_law', kurz: 'KL' });
     const result = checkNormenkontrollKlage(state, law, 3);
@@ -245,8 +246,7 @@ describe('tickNormenkontrolle', () => {
   });
 
   it('resolves Verfahren when urteilMonat is reached (konform)', () => {
-    // Mock wuerfleUrteil to return 'konform' (roll < 40)
-    vi.spyOn(Math, 'random').mockReturnValue(0.1); // 10 < 40 => konform
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.1); // wuerfleUrteil: < 40 => konform
 
     const law = makeLaw({ id: 'resolved_law', kurz: 'RL' });
     const state = makeState({
@@ -267,7 +267,7 @@ describe('tickNormenkontrolle', () => {
   });
 
   it('konform with akzeptieren reaction gives +3 bonus to medienKlima', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.1); // konform
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.1); // konform
 
     const law = makeLaw({ id: 'ak_law' });
     const state = makeState({
@@ -285,7 +285,7 @@ describe('tickNormenkontrolle', () => {
   });
 
   it('teilweise without nachbesserung adds pending effects (50% negated)', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.5); // 50 => teilweise (40-80)
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.5); // teilweise (40–80)
 
     const law = makeLaw({ id: 'teil_law', effekte: { hh: -0.4, zf: 1.0 } });
     const state = makeState({
@@ -310,7 +310,7 @@ describe('tickNormenkontrolle', () => {
   });
 
   it('teilweise with nachbesserung does not add pending effects', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.5); // teilweise
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.5); // teilweise
 
     const law = makeLaw({ id: 'nach_law', effekte: { hh: -0.4 } });
     const state = makeState({
@@ -327,7 +327,7 @@ describe('tickNormenkontrolle', () => {
   });
 
   it('widrig reverses all effects and reduces medienKlima by 12', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.9); // 90 >= 80 => widrig
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.9); // widrig (>= 80)
 
     const law = makeLaw({ id: 'widrig_law', effekte: { hh: -0.2, zf: 0.5 } });
     const state = makeState({
@@ -352,7 +352,7 @@ describe('tickNormenkontrolle', () => {
   });
 
   it('kritisieren reaction polarizes milieus', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.1); // konform
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.1); // konform
 
     const law = makeLaw({ id: 'krit_law' });
     const state = makeState({

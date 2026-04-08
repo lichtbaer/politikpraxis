@@ -103,15 +103,23 @@ async def get_content_bundle_from_db(
     db: "AsyncSession", locale: str, scenario_id: str = "standard"
 ) -> dict[str, Any]:
     """Content-Bundle mit Gesetzen ausschließlich aus der DB (Single Source of Truth)."""
-    from app.services.content_db_service import fetch_gesetze
+    from app.services.content_db_service import (
+        fetch_agenda_ziele,
+        fetch_gesetze,
+        fetch_koalitions_ziele,
+    )
 
     scenario = load_scenario(scenario_id)
     laws_raw = await fetch_gesetze(db, locale)
+    agenda_ziele = await fetch_agenda_ziele(db, locale)
+    koalitions_ziele = await fetch_koalitions_ziele(db, locale)
     return {
         "characters": load_characters(),
         "events": load_events(),
         "charEvents": load_char_events(),
         "laws": [_gesetz_row_to_bundle_law(x) for x in laws_raw],
+        "agendaZiele": agenda_ziele,
+        "koalitionsZiele": koalitions_ziele,
         "bundesrat": load_bundesrat_mps(),
         "scenario": scenario,
         "scenarios": load_all_scenarios(),

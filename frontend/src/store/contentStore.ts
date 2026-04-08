@@ -3,6 +3,7 @@ import { logger } from '../utils/logger';
 import i18n from '../i18n';
 import { apiFetch } from '../services/api';
 import type {
+  AgendaZielApi,
   CharApi,
   GesetzApi,
   EventApi,
@@ -12,6 +13,7 @@ import type {
   PolitikfeldApi,
   VerbandApi,
   MedienAkteurApi,
+  KoalitionsZielApi,
 } from '../types/content';
 import type {
   ContentBundle,
@@ -25,6 +27,8 @@ import type {
   Milieu,
   Politikfeld,
   GesetzRelation,
+  AgendaZielContent,
+  KoalitionsZielContent,
 } from '../core/types';
 import { DEFAULT_VERBAENDE, DEFAULT_MINISTERIAL_INITIATIVEN } from '../data/defaults/scenarios';
 import { DEFAULT_BUNDESRAT, DEFAULT_SCENARIO } from '../data/defaults/scenarios';
@@ -191,7 +195,44 @@ function transformGesetz(api: GesetzApi): Law {
   if (api.locked_until_event) {
     law.locked_until_event = api.locked_until_event;
   }
+  if (api.langzeit_score != null) {
+    law.langzeit_score = guardNumber(api.langzeit_score, `Gesetz[${id}].langzeit_score`, 0);
+  }
+  const lzPos = (api as { langzeitwirkung_positiv?: string[] }).langzeitwirkung_positiv;
+  if (lzPos && lzPos.length) law.langzeitwirkung_positiv = lzPos;
+  const lzNeg = (api as { langzeitwirkung_negativ?: string[] }).langzeitwirkung_negativ;
+  if (lzNeg && lzNeg.length) law.langzeitwirkung_negativ = lzNeg;
   return law;
+}
+
+function transformAgendaZiel(api: AgendaZielApi): AgendaZielContent {
+  const id = guardString(api.id, 'AgendaZiel.id', '_ag_');
+  return {
+    id,
+    kategorie: guardString(api.kategorie, `AgendaZiel[${id}].kategorie`, ''),
+    schwierigkeit: guardNumber(api.schwierigkeit, `AgendaZiel[${id}].schwierigkeit`, 1),
+    partei_filter: Array.isArray(api.partei_filter) ? api.partei_filter : null,
+    min_complexity: guardNumber(api.min_complexity, `AgendaZiel[${id}].min_complexity`, 1),
+    bedingung_typ: guardString(api.bedingung_typ, `AgendaZiel[${id}].bedingung_typ`, ''),
+    bedingung_param: guardObject(api.bedingung_param, `AgendaZiel[${id}].bedingung_param`, {}),
+    titel: guardString(api.titel, `AgendaZiel[${id}].titel`, id),
+    beschreibung: guardString(api.beschreibung, `AgendaZiel[${id}].beschreibung`, ''),
+  };
+}
+
+function transformKoalitionsZiel(api: KoalitionsZielApi): KoalitionsZielContent {
+  const id = guardString(api.id, 'KoalitionsZiel.id', '_kz_');
+  return {
+    id,
+    partner_profil: guardString(api.partner_profil, `KoalitionsZiel[${id}].partner_profil`, ''),
+    kategorie: guardString(api.kategorie, `KoalitionsZiel[${id}].kategorie`, ''),
+    min_complexity: guardNumber(api.min_complexity, `KoalitionsZiel[${id}].min_complexity`, 1),
+    bedingung_typ: guardString(api.bedingung_typ, `KoalitionsZiel[${id}].bedingung_typ`, ''),
+    bedingung_param: guardObject(api.bedingung_param, `KoalitionsZiel[${id}].bedingung_param`, {}),
+    beziehung_malus: guardNumber(api.beziehung_malus, `KoalitionsZiel[${id}].beziehung_malus`, 0),
+    titel: guardString(api.titel, `KoalitionsZiel[${id}].titel`, id),
+    beschreibung: guardString(api.beschreibung, `KoalitionsZiel[${id}].beschreibung`, ''),
+  };
 }
 
 function transformEventChoice(api: {
@@ -413,6 +454,8 @@ export interface ContentStore {
   gesetzRelationen: Record<string, GesetzRelation[]>;
   medienAkteureContent: ContentBundle['medienAkteureContent'];
   dynamicEvents: GameEvent[];
+  agendaZiele: AgendaZielContent[];
+  koalitionsZiele: KoalitionsZielContent[];
   scenario: ContentBundle['scenario'];
   loading: boolean;
   loaded: boolean;
@@ -484,6 +527,8 @@ export const useContentStore = create<ContentStore>((set) => ({
   gesetzRelationen: {},
   medienAkteureContent: undefined,
   dynamicEvents: [],
+  agendaZiele: [],
+  koalitionsZiele: [],
   scenario: DEFAULT_SCENARIO,
   loading: false,
   loaded: false,
@@ -503,6 +548,8 @@ export const useContentStore = create<ContentStore>((set) => ({
         gesetzRelationenRaw,
         medienAkteureRaw,
         bundeslaenderRaw,
+        agendaZieleRaw,
+        koalitionsZieleRaw,
       ] =
         await Promise.all([
           apiFetch<CharApi[]>(`/content/chars?locale=${locale}`),
@@ -515,6 +562,8 @@ export const useContentStore = create<ContentStore>((set) => ({
           apiFetch<GesetzRelationApi[]>(`/content/gesetz-relationen?locale=${locale}`).catch(() => []),
           apiFetch<MedienAkteurApi[]>(`/content/medien-akteure?locale=${locale}`).catch(() => []),
           apiFetch<BundeslandApi[]>(`/content/bundeslaender?locale=${locale}`).catch(() => []),
+          apiFetch<AgendaZielApi[]>(`/content/agenda-ziele?locale=${locale}`).catch(() => []),
+          apiFetch<KoalitionsZielApi[]>(`/content/koalitions-ziele?locale=${locale}`).catch(() => []),
         ]);
 
       const events = eventsAll.map(transformEvent);
@@ -587,6 +636,8 @@ export const useContentStore = create<ContentStore>((set) => ({
         gesetzRelationen: buildGesetzRelationen(gesetzRelationenRaw ?? []),
         medienAkteureContent,
         dynamicEvents: dynamicEventsList,
+        agendaZiele: (agendaZieleRaw ?? []).map(transformAgendaZiel),
+        koalitionsZiele: (koalitionsZieleRaw ?? []).map(transformKoalitionsZiel),
         loading: false,
         loaded: true,
         error: null,
@@ -625,6 +676,8 @@ export function getContentBundle(): ContentBundle {
   return {
     characters: s.chars,
     laws: s.gesetze,
+    agendaZiele: s.agendaZiele,
+    koalitionsZiele: s.koalitionsZiele,
     events: [...wahlkampfEvents, ...s.events],
     charEvents: { ...KOALITION_CHAR_EVENTS, ...s.charEvents },
     bundesratEvents: s.bundesratEvents,
