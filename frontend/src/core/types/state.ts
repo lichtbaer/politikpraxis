@@ -105,6 +105,9 @@ export interface KoalitionsbeziehungLegislaturStats {
   months: number;
 }
 
+/** SMA-505: Gesamtnote der Legislatur-Bilanz (100 Punkte, Schwellen wie Ticket) */
+export type LegislaturBilanzNote = 'A' | 'B' | 'C' | 'D' | 'F';
+
 /** Legislatur-Bilanz (SMA-278) — berechnet ab Monat 43 für Wahlkampf */
 export interface LegislaturBilanz {
   gesetzeBeschlossen: number;
@@ -118,6 +121,23 @@ export interface LegislaturBilanz {
   kernthemen: string[];
   schwachstellen: string[];
   glaubwuerdigkeitsBonus: number;
+  /** SMA-505: Reform-Tiefe aus History (Milieu-Impact, Gesetze) */
+  reformTiefe?: 'tief' | 'mittel' | 'flach';
+  /** SMA-505: Koalitionslage aus Verlauf (Ø-Beziehung, Vertrag) */
+  koalitionsBilanz?: 'harmonisch' | 'angespannt' | 'kritisch';
+  /** SMA-505: nur bei Spielende (Monat 48) gesetzt */
+  bilanzPunkte?: number;
+  bilanzNote?: LegislaturBilanzNote;
+  /** SMA-505: optional Aufschlüsselung für Analytics/UI */
+  bilanzPunkteDetail?: {
+    gesetze: number;
+    politikfelder: number;
+    haushalt: number;
+    stabilitaet: number;
+    koalition: number;
+    zusammenhalt: number;
+    reformTiefe: number;
+  };
 }
 
 export interface GameState {

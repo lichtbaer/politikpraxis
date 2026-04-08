@@ -7,8 +7,11 @@ import {
   checkTVDuell,
   checkKoalitionspartnerAlleingang,
   berechneLegislaturBilanz,
+  berechneBilanzNote,
+  finalisiereLegislaturBilanzAmSpielende,
   berechneWahlergebnis,
   resolveTVDuell,
+  triggerWahlnacht,
 } from './wahlkampf';
 
 describe('wahlkampf', () => {
@@ -31,6 +34,56 @@ describe('wahlkampf', () => {
     expect(['stark', 'moderat', 'schwach']).toContain(bilanz.reformStaerke);
     expect(['stabil', 'turbulent', 'krise']).toContain(bilanz.stabilitaet);
     expect(['positiv', 'neutral', 'negativ']).toContain(bilanz.wirtschaftsBilanz);
+    expect(['tief', 'mittel', 'flach']).toContain(bilanz.reformTiefe);
+    expect(['harmonisch', 'angespannt', 'kritisch']).toContain(bilanz.koalitionsBilanz);
+    expect(bilanz.bilanzPunkte).toBeUndefined();
+  });
+
+  it('berechneBilanzNote: Summe der Teilscores ≤ 100 und Note passt zu Schwellen', () => {
+    const state = createInitialState(content, complexity);
+    const bilanz = berechneLegislaturBilanz(state, content);
+    const scored = berechneBilanzNote(bilanz, state);
+    expect(scored.bilanzPunkte).toBeGreaterThanOrEqual(0);
+    expect(scored.bilanzPunkte).toBeLessThanOrEqual(100);
+    const d = scored.bilanzPunkteDetail;
+    const sum =
+      d.gesetze +
+      d.politikfelder +
+      d.haushalt +
+      d.stabilitaet +
+      d.koalition +
+      d.zusammenhalt +
+      d.reformTiefe;
+    expect(sum).toBe(scored.bilanzPunkte);
+    if (scored.bilanzPunkte >= 80) expect(scored.bilanzNote).toBe('A');
+    else if (scored.bilanzPunkte >= 60) expect(scored.bilanzNote).toBe('B');
+    else if (scored.bilanzPunkte >= 40) expect(scored.bilanzNote).toBe('C');
+    else if (scored.bilanzPunkte >= 20) expect(scored.bilanzNote).toBe('D');
+    else expect(scored.bilanzNote).toBe('F');
+  });
+
+  it('finalisiereLegislaturBilanzAmSpielende setzt bilanzPunkte und bilanzNote', () => {
+    let state = createInitialState(content, complexity);
+    state = { ...state, month: 48, wahlkampfAktiv: true };
+    const full = finalisiereLegislaturBilanzAmSpielende(state, content);
+    expect(full.bilanzPunkte).toBeDefined();
+    expect(full.bilanzNote).toBeDefined();
+    expect(full.bilanzPunkteDetail).toBeDefined();
+  });
+
+  it('triggerWahlnacht finalisiert Legislatur-Bilanz bei Wahlkampf', () => {
+    let state = createInitialState(content, complexity);
+    state = {
+      ...state,
+      month: 48,
+      wahlkampfAktiv: true,
+      wahlprognose: 45,
+      gameOver: false,
+    };
+    const after = triggerWahlnacht(state, content, complexity);
+    expect(after.gameOver).toBe(true);
+    expect(after.legislaturBilanz?.bilanzNote).toBeDefined();
+    expect(after.legislaturBilanz?.bilanzPunkte).toBeDefined();
   });
 
   it('berechneWahlergebnis liefert Zahl', () => {
