@@ -1,7 +1,7 @@
 /**
  * SMA-343: Vollständige Legislatur-Auswertung (6 Blöcke + Opt-In + Aktionen)
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -43,17 +43,16 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
 
   const [optIn, setOptIn] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [achievements, setAchievements] = useState<ReturnType<typeof getAllAchievements>>([]);
-
-  useEffect(() => {
-    checkAchievements(state);
-    setAchievements(getAllAchievements());
-  }, [state]);
   const [gameStatId, setGameStatId] = useState<string | null>(null);
   const submittedRef = useRef(false);
   const [community, setCommunity] = useState<Awaited<ReturnType<typeof fetchCommunityStats>> | null>(
     null,
   );
+
+  const achievements = useMemo(() => {
+    checkAchievements(state);
+    return getAllAchievements();
+  }, [state]);
 
   const bewertung = berechneLegislaturBewertung(state);
   const titel = berechneTitel(state);
