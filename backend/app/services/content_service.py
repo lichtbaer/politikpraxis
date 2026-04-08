@@ -59,9 +59,7 @@ def load_scenario(scenario_id: str = "standard") -> dict:
     # Ensure resolved path stays within content_dir (defense-in-depth)
     base = Path(settings.content_dir).resolve()
     resolved = Path(path).resolve()
-    if not resolved.is_relative_to(base):
-        path = _content_path("scenarios", "standard.yaml")
-    elif not os.path.exists(path):
+    if not resolved.is_relative_to(base) or not os.path.exists(path):
         path = _content_path("scenarios", "standard.yaml")
     return _load_yaml(path)
 

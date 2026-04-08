@@ -2,7 +2,14 @@
 
 import uuid
 
-from sqlalchemy import CheckConstraint, ForeignKey, Integer, Numeric, Text, UniqueConstraint
+from sqlalchemy import (
+    CheckConstraint,
+    ForeignKey,
+    Integer,
+    Numeric,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.database import Base

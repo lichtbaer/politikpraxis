@@ -5,9 +5,11 @@ Refresh-Token-Rotation (soweit ohne DB testbar).
 
 import hashlib
 
-import pytest
-from app.services.auth_service import _hash_magic_token, create_access_token, decode_token
-
+from app.services.auth_service import (
+    _hash_magic_token,
+    create_access_token,
+    decode_token,
+)
 
 # ---------------------------------------------------------------------------
 # _hash_magic_token

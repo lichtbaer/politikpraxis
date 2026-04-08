@@ -4,12 +4,10 @@ Keine DB erforderlich — reine Unit-Tests der Logik in routes/admin.py.
 """
 
 import time
-from collections import defaultdict
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi import HTTPException
-
 
 # ---------------------------------------------------------------------------
 # admin_rate_limit: Sliding-Window-Logik
@@ -38,7 +36,11 @@ async def test_rate_limit_allows_first_request():
 @pytest.mark.asyncio
 async def test_rate_limit_blocks_after_limit():
     """Anfragen über dem Limit (30/min) werden mit 429 blockiert."""
-    from app.routes.admin import _ADMIN_RATE_LIMIT, _admin_request_times, admin_rate_limit
+    from app.routes.admin import (
+        _ADMIN_RATE_LIMIT,
+        _admin_request_times,
+        admin_rate_limit,
+    )
 
     _admin_request_times.clear()
     ip = "10.0.0.99"
@@ -56,7 +58,11 @@ async def test_rate_limit_blocks_after_limit():
 @pytest.mark.asyncio
 async def test_rate_limit_expires_old_requests():
     """Anfragen älter als 60 Sekunden werden nicht gezählt."""
-    from app.routes.admin import _ADMIN_RATE_LIMIT, _admin_request_times, admin_rate_limit
+    from app.routes.admin import (
+        _ADMIN_RATE_LIMIT,
+        _admin_request_times,
+        admin_rate_limit,
+    )
 
     _admin_request_times.clear()
     ip = "10.0.0.77"
@@ -72,7 +78,11 @@ async def test_rate_limit_expires_old_requests():
 @pytest.mark.asyncio
 async def test_rate_limit_isolates_by_ip():
     """Rate-Limit ist IP-spezifisch — verschiedene IPs sind unabhängig."""
-    from app.routes.admin import _ADMIN_RATE_LIMIT, _admin_request_times, admin_rate_limit
+    from app.routes.admin import (
+        _ADMIN_RATE_LIMIT,
+        _admin_request_times,
+        admin_rate_limit,
+    )
 
     _admin_request_times.clear()
     ip_a = "10.0.0.1"

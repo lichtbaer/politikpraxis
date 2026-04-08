@@ -50,7 +50,7 @@ class SaveUpsertRequest(BaseModel):
             try:
                 pk_val = float(v["pk"])
             except (TypeError, ValueError):
-                raise ValueError("game_state.pk muss numerisch sein")
+                raise ValueError("game_state.pk muss numerisch sein") from None
             if not (0 <= pk_val <= 200):
                 raise ValueError("game_state.pk muss zwischen 0 und 200 liegen")
 
@@ -60,7 +60,7 @@ class SaveUpsertRequest(BaseModel):
             try:
                 g_val = float(zust["g"])
             except (TypeError, ValueError):
-                raise ValueError("game_state.zust.g muss numerisch sein")
+                raise ValueError("game_state.zust.g muss numerisch sein") from None
             if not (0 <= g_val <= 100):
                 raise ValueError("game_state.zust.g muss zwischen 0 und 100 liegen")
 
@@ -69,7 +69,7 @@ class SaveUpsertRequest(BaseModel):
             try:
                 coa_val = float(v["coalition"])
             except (TypeError, ValueError):
-                raise ValueError("game_state.coalition muss numerisch sein")
+                raise ValueError("game_state.coalition muss numerisch sein") from None
             if not (0 <= coa_val <= 100):
                 raise ValueError("game_state.coalition muss zwischen 0 und 100 liegen")
 
