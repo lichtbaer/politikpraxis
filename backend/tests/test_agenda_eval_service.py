@@ -55,7 +55,10 @@ def test_note_from_ratio_and_koalition_malus():
             "id": "kz1",
             "partner_profil": "gp",
             "bedingung_typ": "gesetz_politikfeld",
-            "bedingung_param": {"politikfeld_id": "umwelt_energie", "min_beschlossen": 5},
+            "bedingung_param": {
+                "politikfeld_id": "umwelt_energie",
+                "min_beschlossen": 5,
+            },
             "beziehung_malus": 8,
             "titel": "Test-Ziel",
         },
