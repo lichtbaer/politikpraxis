@@ -2376,7 +2376,67 @@
     "hochrechnung": "Projection",
     "tiefenanalyse": "Detailed analysis",
     "analyseTitle": "Legislature analysis",
-    "analyseDesc": "Summary of your government's performance."
+    "analyseDesc": "Summary of your government's performance.",
+    "weiterKanzlerbilanz": "View chancellor's balance sheet"
+  },
+  "kanzlerbilanz": {
+    "title": "Chancellor's balance sheet",
+    "subtitle": "Balance, agenda, and long-term verdict feed into the overall grade (election bonus is shown separately in the full report).",
+    "cardBilanz": "Balance",
+    "cardAgenda": "Agenda",
+    "cardUrteil": "Verdict",
+    "details": "Details →",
+    "gesamtnote": "Overall grade",
+    "gesamtpunkte": "{{pts}} out of 100 points",
+    "zuruckAuswertung": "Back to full report",
+    "historischCta": "Five years later — long-term verdict",
+    "historischTitle": "Five years later",
+    "historischIntro": "Looking back: how do your passed laws play out over time?",
+    "archetypLabel": "Archetype",
+    "detailBilanz": "Balance — KPI breakdown",
+    "detailAgenda": "Agenda — goals",
+    "detailUrteil": "Long-term verdict",
+    "noBilanzDetail": "No detailed data available.",
+    "noAgenda": "No agenda goals set.",
+    "noUrteilContent": "No long-term texts in content. The grade uses default long-term scores per law.",
+    "agendaSpielerPrefix": "Player",
+    "agendaKoalitionPrefix": "Coalition",
+    "langzeitPos": "Positive long-term effects",
+    "langzeitNeg": "Negative long-term effects",
+    "nachhaltAvg": "Avg. long-term score (0–10)",
+    "nachhaltMin": "Minimum",
+    "nachhaltMax": "Maximum",
+    "nachhaltN": "Laws with score",
+    "kpi": {
+      "gesetze": "Laws (points)",
+      "politikfelder": "Policy fields (points)",
+      "haushalt": "Budget (points)",
+      "stabilitaet": "Stability (points)",
+      "koalition": "Coalition (points)",
+      "zusammenhalt": "Milieus cohesion (points)",
+      "reformTiefe": "Reform depth (points)"
+    },
+    "bilanzText": {
+      "A": "Strong term balance — reform capacity and fiscal track record convince.",
+      "B": "Solid balance — some weaknesses, overall workable.",
+      "C": "Mixed balance — ups and downs even out.",
+      "D": "Weak balance — several areas below expectations.",
+      "F": "Critical balance — the term leaves many open questions."
+    },
+    "agendaText": {
+      "A": "Agenda largely achieved — player and coalition goals align.",
+      "B": "Agenda mostly on track — a few goals still open.",
+      "C": "Mixed agenda — met and open items side by side.",
+      "D": "Agenda barely met — many goals missed.",
+      "F": "Agenda failed — core goals not reached."
+    },
+    "urteilText": {
+      "A": "Long-term verdict positive — laws' lasting impact is convincing.",
+      "B": "Long-term verdict mostly positive.",
+      "C": "Long-term verdict balanced.",
+      "D": "Long-term verdict critical — negative lasting effects dominate.",
+      "F": "Long-term verdict very poor."
+    }
   },
   "opposition": {
     "angriff": "Opposition attacks: {{thema}}",

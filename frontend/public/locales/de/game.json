@@ -2447,7 +2447,67 @@
     "hochrechnung": "Hochrechnung",
     "tiefenanalyse": "Tiefenanalyse",
     "analyseTitle": "Analyse der Legislatur",
-    "analyseDesc": "Zusammenfassung Ihrer Regierungsbilanz."
+    "analyseDesc": "Zusammenfassung Ihrer Regierungsbilanz.",
+    "weiterKanzlerbilanz": "Kanzlerbilanz ansehen"
+  },
+  "kanzlerbilanz": {
+    "title": "Kanzlerbilanz",
+    "subtitle": "Bilanz, Agenda und historisches Urteil fließen in die Gesamtnote ein (Wahlbonus separat in der Auswertung).",
+    "cardBilanz": "Bilanz",
+    "cardAgenda": "Agenda",
+    "cardUrteil": "Urteil",
+    "details": "Details →",
+    "gesamtnote": "Gesamtnote",
+    "gesamtpunkte": "{{pts}} von 100 Punkten",
+    "zuruckAuswertung": "Zurück zur Auswertung",
+    "historischCta": "5 Jahre später — historisches Urteil",
+    "historischTitle": "Fünf Jahre später",
+    "historischIntro": "Rückblick: Wie wirken deine beschlossenen Gesetze langfristig?",
+    "archetypLabel": "Archetyp",
+    "detailBilanz": "Bilanz — KPI-Aufschlüsselung",
+    "detailAgenda": "Agenda — Ziele",
+    "detailUrteil": "Historisches Urteil",
+    "noBilanzDetail": "Keine Detaildaten verfügbar.",
+    "noAgenda": "Keine Agenda-Ziele gesetzt.",
+    "noUrteilContent": "Keine Langzeit-Texte im Content hinterlegt. Die Note basiert auf den Standard-Langzeit-Scores der Gesetze.",
+    "agendaSpielerPrefix": "Spieler",
+    "agendaKoalitionPrefix": "Koalition",
+    "langzeitPos": "Positive Langzeitwirkungen",
+    "langzeitNeg": "Negative Langzeitwirkungen",
+    "nachhaltAvg": "Ø Langzeit-Score (0–10)",
+    "nachhaltMin": "Minimum",
+    "nachhaltMax": "Maximum",
+    "nachhaltN": "Gesetze mit Score",
+    "kpi": {
+      "gesetze": "Gesetze (Punkte)",
+      "politikfelder": "Politikfelder (Punkte)",
+      "haushalt": "Haushalt (Punkte)",
+      "stabilitaet": "Stabilität (Punkte)",
+      "koalition": "Koalition (Punkte)",
+      "zusammenhalt": "Milieu-Zusammenhalt (Punkte)",
+      "reformTiefe": "Reformtiefe (Punkte)"
+    },
+    "bilanzText": {
+      "A": "Starke Legislaturbilanz — Reformfähigkeit und Haushaltslage überzeugen.",
+      "B": "Solide Bilanz — einige Schwächen, insgesamt tragfähig.",
+      "C": "Ausgewogene Bilanz — Licht und Schatten halten sich die Waage.",
+      "D": "Schwache Bilanz — mehrere Bereiche bleiben unter Erwartung.",
+      "F": "Kritische Bilanz — die Legislatur hinterlässt viele offene Fragen."
+    },
+    "agendaText": {
+      "A": "Agenda weitgehend erreicht — Ziele und Koalitionsaufgaben stimmen.",
+      "B": "Agenda größtenteils im Plan — einzelne Ziele offen.",
+      "C": "Agenda gemischt — erfüllt und offene Punkte nebeneinander.",
+      "D": "Agenda kaum erfüllt — viele Ziele verfehlt.",
+      "F": "Agenda gescheitert — Kernziele nicht erreicht."
+    },
+    "urteilText": {
+      "A": "Historisches Urteil positiv — Langzeitwirkungen der Gesetze überzeugen.",
+      "B": "Historisches Urteil überwiegend positiv.",
+      "C": "Historisches Urteil ausgewogen.",
+      "D": "Historisches Urteil kritisch — negative Langzeitfolgen überwiegen.",
+      "F": "Historisches Urteil sehr schlecht."
+    }
   },
   "opposition": {
     "angriff": "Opposition greift an: {{thema}}",

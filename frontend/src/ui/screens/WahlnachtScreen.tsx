@@ -1,11 +1,14 @@
 /**
  * SMA-279: Wahlnacht-Screen (Monat 48) — animierte Hochrechnung, Sieg/Niederlage
  * SMA-343: Anschließend vollständige Spielauswertung
+ * SMA-509: Beat 3 Kanzlerbilanz vor der Auswertung
  */
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
+import { featureActive } from '../../core/systems/features';
 import { SpielauswertungScreen } from './SpielauswertungScreen';
+import { KanzlerbilanzBeat } from './KanzlerbilanzBeat';
 import styles from './WahlnachtScreen.module.css';
 
 const HOCHRECHNUNG_DURATION_MS = 2500;
@@ -13,7 +16,7 @@ const THRESHOLD_DISPLAY = 40;
 
 export function WahlnachtScreen() {
   const { t } = useTranslation('game');
-  const { state } = useGameStore();
+  const { state, content, complexity } = useGameStore();
   const [beat, setBeat] = useState(1);
   const [displayPercent, setDisplayPercent] = useState(0);
 
@@ -21,6 +24,8 @@ export function WahlnachtScreen() {
   const threshold = state.electionThreshold ?? THRESHOLD_DISPLAY;
   const wahlUeberHuerde = state.wahlUeberHuerde ?? wahlergebnis >= threshold;
   const legislaturErfolg = state.legislaturErfolg ?? state.won ?? false;
+  const showKanzlerbilanzDetails = featureActive(complexity, 'wahlnacht_analyse');
+  const showArchetyp = complexity >= 4;
 
   useEffect(() => {
     if (!state.gameOver || beat !== 1) return;
@@ -77,7 +82,7 @@ export function WahlnachtScreen() {
         </div>
       )}
 
-      {beat >= 2 && (
+      {beat === 2 && (
         <div className={styles.content}>
           <h1 className={legislaturErfolg ? styles.titleWon : styles.titleLost}>
             {legislaturErfolg ? t('game:endScreen.won') : t('game:endScreen.lost')}
@@ -105,6 +110,22 @@ export function WahlnachtScreen() {
           )}
 
           <SpielauswertungScreen wahlergebnis={wahlergebnis} gewonnen={legislaturErfolg} threshold={threshold} />
+
+          <button type="button" className={`${styles.restart} ${styles.bilanzCta}`} onClick={() => setBeat(3)}>
+            {t('game:wahlnacht.weiterKanzlerbilanz', 'Kanzlerbilanz ansehen')}
+          </button>
+        </div>
+      )}
+
+      {beat === 3 && (
+        <div className={styles.content}>
+          <KanzlerbilanzBeat
+            state={state}
+            content={content}
+            showDetails={showKanzlerbilanzDetails}
+            showArchetype={showArchetyp}
+            onWeiter={() => setBeat(2)}
+          />
         </div>
       )}
     </div>

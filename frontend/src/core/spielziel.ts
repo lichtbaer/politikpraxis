@@ -19,8 +19,8 @@ export const SPIELZIEL_WAHLBONUS_MAX = 4;
 /** Mindestpunkte für „erfolgreiche Legislatur“ (entspricht grob Note D) */
 export const SPIELZIEL_ERFOLG_SCHWELLE = 40;
 
-/** Gleiche Schwellen wie Legislatur-Bilanz (SMA-505) */
-function noteFromHundred(score: number): LegislaturBilanzNote {
+/** Gleiche Schwellen wie Legislatur-Bilanz (SMA-505) — für UI (Kanzlerbilanz, Auswertung). */
+export function noteFromHundred(score: number): LegislaturBilanzNote {
   if (score >= 80) return 'A';
   if (score >= 60) return 'B';
   if (score >= 40) return 'C';
