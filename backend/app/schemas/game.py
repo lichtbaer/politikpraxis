@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 MAX_AGENDA_IDS = 12
 MAX_AGENDA_ID_LEN = 80
@@ -64,3 +64,57 @@ class AgendaEvalResponse(BaseModel):
     koalition_verfehlt: list[AgendaEvalKoalitionMiss] = Field(default_factory=list)
     koalition_beziehung_delta: int = 0
     already_applied: bool = False
+
+
+class SpielendeWiederwahl(BaseModel):
+    """SMA-508: Wiederwahl — Keys wie im Frontend-GameState (camelCase)."""
+
+    won: bool | None = None
+    wahlUeberHuerde: bool | None = None
+    wahlergebnis: float
+    wahlhuerde: float
+
+
+class SpielendeBilanzTeil(BaseModel):
+    punkte: int
+    note: str | None = None
+
+
+class SpielendeAgendaTeil(BaseModel):
+    punkte: int
+    spielerZieleGewertet: int
+    koalitionZieleGewertet: int
+
+
+class SpielendeHistorischesUrteilTeil(BaseModel):
+    punkte: int
+    note: str
+    detail: dict[str, Any] | None = None
+
+
+class SpielendeGesamtAnteile(BaseModel):
+    bilanz: float
+    agenda: float
+    historischesUrteil: float
+
+
+class SpielendeGesamtTeil(BaseModel):
+    punkte: float
+    note: str
+    gewichteteBasisPunkte: float
+    wahlBonusPunkte: float
+    anteile: SpielendeGesamtAnteile
+
+
+class SpielendeResponse(BaseModel):
+    """SMA-508: Abschluss-Screen; optionale Blöcke ab Komplexität 2–4."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    complexity: int
+    wiederwahl: SpielendeWiederwahl
+    bilanz: SpielendeBilanzTeil | None = None
+    agenda: SpielendeAgendaTeil | None = None
+    historischesUrteil: SpielendeHistorischesUrteilTeil | None = None
+    gesamt: SpielendeGesamtTeil | None = None
+    kanzlerArchetyp: str | None = None

@@ -12,6 +12,7 @@ from app.schemas.game import (
     AgendaEvalResponse,
     AgendaUpdateRequest,
     AgendaUpdateResponse,
+    SpielendeResponse,
 )
 from app.services.agenda_eval_service import apply_agenda_am_spielende
 from app.services.auth_service import get_current_user
@@ -23,6 +24,7 @@ from app.services.content_db_service import (
 from app.services.game_state_service import get_save_for_user, update_save_game_state
 from app.services.historisches_urteil_service import apply_historisches_urteil_zu_bilanz
 from app.services.save_metadata import extract_from_game_state
+from app.services.spielende_service import build_spielende_response
 
 router = APIRouter()
 
@@ -114,3 +116,34 @@ async def post_game_agenda_eval(
         koalition_beziehung_delta=result.koalition_beziehung_delta,
         already_applied=result.already_applied,
     )
+
+
+@router.get("/{save_id}/spielende", response_model=SpielendeResponse)
+@limiter.limit("60/minute")
+async def get_game_spielende(
+    request: Request,
+    save_id: uuid.UUID = Path(..., description="UUID des Spielstands (game_saves.id)"),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    SMA-508: Abschluss-Daten (Wiederwahl, optional Bilanz/Agenda/Urteil/Gesamtnote/Archetyp).
+    """
+    save = await get_save_for_user(db, user.id, save_id)
+    if not save:
+        raise HTTPException(status_code=404, detail="Spielstand nicht gefunden")
+
+    gs = dict(save.game_state or {})
+    if not gs.get("gameOver"):
+        raise HTTPException(
+            status_code=400,
+            detail="Spielende-Daten nur bei beendetem Spiel (gameOver=true)",
+        )
+
+    loc = "de"
+    agenda_ziele = await fetch_agenda_ziele(db, loc)
+    koalitions_ziele = await fetch_koalitions_ziele(db, loc)
+    gesetze_rows = await fetch_gesetze(db, loc)
+
+    payload = build_spielende_response(gs, gesetze_rows, agenda_ziele, koalitions_ziele)
+    return SpielendeResponse.model_validate(payload)
