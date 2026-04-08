@@ -45,3 +45,22 @@ def _validate_agenda_id_list(v: list[str], field: str) -> list[str]:
 class AgendaUpdateResponse(BaseModel):
     ok: bool = True
     game_state: dict[str, Any]
+
+
+class AgendaEvalKoalitionMiss(BaseModel):
+    id: str
+    titel: str
+    beziehung_malus: int
+
+
+class AgendaEvalResponse(BaseModel):
+    """SMA-506: Ergebnis der serverseitigen Agenda-Auswertung am Spielende."""
+
+    ok: bool = True
+    game_state: dict[str, Any]
+    spieler_erfuellt: int
+    spieler_gesamt: int
+    spieler_note: str
+    koalition_verfehlt: list[AgendaEvalKoalitionMiss] = Field(default_factory=list)
+    koalition_beziehung_delta: int = 0
+    already_applied: bool = False
