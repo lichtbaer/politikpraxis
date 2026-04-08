@@ -47,14 +47,21 @@ def upgrade() -> None:
             server_default=sa.text("gen_random_uuid()"),
             primary_key=True,
         ),
-        sa.Column("land_id", sa.Text(), sa.ForeignKey("bundeslaender.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "land_id",
+            sa.Text(),
+            sa.ForeignKey("bundeslaender.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column(
             "locale",
             postgresql.ENUM("de", "en", name="content_locale", create_type=False),
             nullable=False,
         ),
         sa.Column("name", sa.Text(), nullable=False),
-        sa.UniqueConstraint("land_id", "locale", name="uq_bundeslaender_i18n_land_locale"),
+        sa.UniqueConstraint(
+            "land_id", "locale", name="uq_bundeslaender_i18n_land_locale"
+        ),
     )
 
     conn = op.get_bind()

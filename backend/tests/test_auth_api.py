@@ -107,7 +107,9 @@ async def test_me_no_token(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_me_invalid_token(client: AsyncClient):
     """Ungültiges Bearer-Token → 401."""
-    r = await client.get("/api/auth/me", headers={"Authorization": "Bearer invalid.token.here"})
+    r = await client.get(
+        "/api/auth/me", headers={"Authorization": "Bearer invalid.token.here"}
+    )
     assert r.status_code == 401
 
 

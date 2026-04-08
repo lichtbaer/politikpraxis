@@ -65,7 +65,9 @@ def test_decode_token_expired_returns_none():
 def test_decode_token_wrong_secret_returns_none():
     now = int(time.time())
     payload = {"sub": "user-y", "exp": now + 3600, "iat": now}
-    token_with_wrong_secret = jwt.encode(payload, "wrong-secret", algorithm=settings.algorithm)
+    token_with_wrong_secret = jwt.encode(
+        payload, "wrong-secret", algorithm=settings.algorithm
+    )
     result = decode_token(token_with_wrong_secret)
     assert result is None
 

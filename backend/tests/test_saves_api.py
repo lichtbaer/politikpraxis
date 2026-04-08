@@ -5,7 +5,6 @@ Schema-Tests laufen ohne Datenbank.
 Route-Tests (requires_db) benötigen PostgreSQL.
 """
 
-
 import pytest
 from app.schemas.save import SaveUpsertRequest
 from pydantic import ValidationError

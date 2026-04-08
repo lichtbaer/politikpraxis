@@ -26,7 +26,9 @@ async def test_send_with_retry_succeeds_on_first_try():
     msg["To"] = "to@test.com"
     msg.set_content("body")
 
-    with patch("app.services.email_service.asyncio.to_thread", new_callable=AsyncMock) as mock_thread:
+    with patch(
+        "app.services.email_service.asyncio.to_thread", new_callable=AsyncMock
+    ) as mock_thread:
         await _send_with_retry(msg)
         assert mock_thread.call_count == 1
 
@@ -51,7 +53,10 @@ async def test_send_with_retry_retries_on_failure():
             raise smtplib.SMTPException("Transient error")
 
     with (
-        patch("app.services.email_service.asyncio.to_thread", side_effect=failing_then_succeed),
+        patch(
+            "app.services.email_service.asyncio.to_thread",
+            side_effect=failing_then_succeed,
+        ),
         patch("app.services.email_service.asyncio.sleep", new_callable=AsyncMock),
     ):
         await _send_with_retry(msg)
@@ -130,6 +135,8 @@ async def test_send_magic_link_email_no_smtp_raises_503():
         mock_settings.return_value.mail_from = "noreply@test.com"
 
         with pytest.raises(HTTPException) as exc_info:
-            await send_magic_link_email("user@example.com", "http://example.com/verify?token=abc")
+            await send_magic_link_email(
+                "user@example.com", "http://example.com/verify?token=abc"
+            )
 
     assert exc_info.value.status_code == 503

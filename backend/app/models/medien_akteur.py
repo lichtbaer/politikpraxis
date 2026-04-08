@@ -39,10 +39,16 @@ class MedienAkteur(Base):
 class MedienAkteurI18n(Base):
     __tablename__ = "medien_akteure_i18n"
     __table_args__ = (
-        UniqueConstraint("akteur_id", "locale", name="uq_medien_akteure_i18n_akteur_locale"),
+        UniqueConstraint(
+            "akteur_id", "locale", name="uq_medien_akteure_i18n_akteur_locale"
+        ),
     )
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default="gen_random_uuid()")
-    akteur_id: Mapped[str] = mapped_column(Text(), ForeignKey("medien_akteure.id", ondelete="CASCADE"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default="gen_random_uuid()"
+    )
+    akteur_id: Mapped[str] = mapped_column(
+        Text(), ForeignKey("medien_akteure.id", ondelete="CASCADE"), nullable=False
+    )
     locale: Mapped[str] = mapped_column(locale_type, nullable=False)
     name: Mapped[str] = mapped_column(Text(), nullable=False)

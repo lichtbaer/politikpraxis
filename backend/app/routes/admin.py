@@ -46,7 +46,13 @@ async def admin_audit_log(
         )
 
 
-router = APIRouter(dependencies=[Depends(verify_admin), Depends(admin_rate_limit), Depends(admin_audit_log)])
+router = APIRouter(
+    dependencies=[
+        Depends(verify_admin),
+        Depends(admin_rate_limit),
+        Depends(admin_audit_log),
+    ]
+)
 router.include_router(admin_chars.router)
 router.include_router(admin_gesetze.router)
 router.include_router(admin_events.router)
