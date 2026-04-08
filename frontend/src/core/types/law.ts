@@ -97,6 +97,11 @@ export interface Law {
   steuer_delta?: number | null;
   zustimmungspflichtig?: boolean;
   brEinspruchEingelegt?: boolean;
+  /** SMA-500: Gewichtung für Langzeit-/Agenda-Bewertung (Content) */
+  langzeit_score?: number;
+  /** Kurztexte Langzeitwirkung (API: aus DB-Spalten _de, bei EN ggf. leer) */
+  langzeitwirkung_positiv?: string[];
+  langzeitwirkung_negativ?: string[];
 }
 
 /** Vorstufen-Boni (SMA-273): Akkumuliert aus erfolgreichen Vorstufen */
