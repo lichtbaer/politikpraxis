@@ -361,7 +361,7 @@ export function tick(
   }
 
   if (s.month === 48) {
-    s = triggerWahlnacht(s, complexity);
+    s = triggerWahlnacht(s, content, complexity);
   }
 
   // Misstrauensvotum-Warnung im Log

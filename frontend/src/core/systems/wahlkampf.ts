@@ -1,4 +1,10 @@
-import type { GameState, ContentBundle, LegislaturBilanz, Ideologie } from '../types';
+import type {
+  GameState,
+  ContentBundle,
+  LegislaturBilanz,
+  LegislaturBilanzNote,
+  Ideologie,
+} from '../types';
 import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { featureActive } from './features';
@@ -29,6 +35,191 @@ function berechneKVErfuellung(state: GameState): number {
   const kp = state.koalitionspartner;
   if (!kp) return 1;
   return Math.max(0, Math.min(1, kp.koalitionsvertragScore / 100));
+}
+
+function mean(nums: number[]): number {
+  if (nums.length === 0) return 0;
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
+}
+
+function stdevSample(nums: number[]): number {
+  if (nums.length < 2) return 0;
+  const m = mean(nums);
+  const v = nums.reduce((s, x) => s + (x - m) ** 2, 0) / (nums.length - 1);
+  return Math.sqrt(v);
+}
+
+/**
+ * SMA-505: Reform-Tiefe aus Milieu-Reaktionen auf beschlossene Gesetze (History).
+ */
+export function berechneReformTiefeQualitativ(state: GameState): 'tief' | 'mittel' | 'flach' {
+  const beschlossen = state.gesetze.filter((g) => g.status === 'beschlossen');
+  const n = beschlossen.length;
+  const reaktionen = state.milieuGesetzReaktionen ?? {};
+  let sumAbs = 0;
+  let nReakt = 0;
+  for (const list of Object.values(reaktionen)) {
+    for (const { delta } of list) {
+      sumAbs += Math.abs(delta);
+      nReakt += 1;
+    }
+  }
+  const impactPerLaw = n > 0 ? sumAbs / n : 0;
+  if (n >= 7 && impactPerLaw >= 6) return 'tief';
+  if (n >= 5 && impactPerLaw >= 4) return 'tief';
+  if (n >= 4 && impactPerLaw >= 3) return 'mittel';
+  if (n >= 2 && (impactPerLaw >= 2 || nReakt >= 6)) return 'mittel';
+  return 'flach';
+}
+
+/**
+ * SMA-505: Stabilität aus Zustimmungsverlauf, Krisenmonaten und Koalitionsbruch.
+ */
+export function berechneStabilitaetQualitativ(state: GameState): 'stabil' | 'turbulent' | 'krise' {
+  const approvals = state.approvalHistory ?? [];
+  const avgApp = approvals.length > 0 ? mean(approvals) : state.zust.g;
+  const sd =
+    approvals.length >= 3 ? stdevSample(approvals.slice(-36)) : stdevSample(approvals);
+  const lowM = state.lowApprovalMonths ?? 0;
+
+  if (state.koalitionsbruchSeitMonat != null) return 'krise';
+  if (lowM >= 5) return 'krise';
+  if (approvals.length >= 8 && avgApp < 24) return 'krise';
+
+  if (lowM >= 2) return 'turbulent';
+  if (sd > 12) return 'turbulent';
+  if (approvals.length >= 8 && avgApp < 38) return 'turbulent';
+
+  return 'stabil';
+}
+
+/**
+ * SMA-505: Koalitionsbilanz aus Legislatur-Ø der Partnerbeziehung und Vertragsscore.
+ */
+export function berechneKoalitionsBilanzQualitativ(
+  state: GameState,
+): 'harmonisch' | 'angespannt' | 'kritisch' {
+  const kp = state.koalitionspartner;
+  if (!kp) return 'harmonisch';
+
+  const leg = state.koalitionsbeziehungLegislatur;
+  const avgRel = leg && leg.months > 0 ? leg.sum / leg.months : kp.beziehung;
+  const kv = kp.koalitionsvertragScore;
+
+  if (state.koalitionsbruchSeitMonat != null) return 'kritisch';
+  if (avgRel < 32 || kv < 35) return 'kritisch';
+  if (avgRel < 48 || kv < 55) return 'angespannt';
+  return 'harmonisch';
+}
+
+/** SMA-505: Zusammenhalt — niedrige Spreizung der Milieu-Zustimmung (Aggregat-History) = hohe Punktzahl */
+function scoreMilieuZusammenhalt(state: GameState): number {
+  const mh = state.milieuHistory;
+  const avgs: number[] = [];
+  if (mh && Object.keys(mh).length > 0) {
+    for (const s of Object.values(mh)) {
+      if (s.months > 0) avgs.push(s.sum / s.months);
+    }
+  }
+  if (avgs.length < 2) {
+    const z = state.milieuZustimmung ?? {};
+    const vals = Object.values(z);
+    if (vals.length >= 2) {
+      const spread = Math.max(...vals) - Math.min(...vals);
+      if (spread <= 18) return 10;
+      if (spread <= 30) return 7;
+      if (spread <= 45) return 4;
+      return 1;
+    }
+    return 6;
+  }
+  const spread = Math.max(...avgs) - Math.min(...avgs);
+  if (spread <= 15) return 10;
+  if (spread <= 28) return 7;
+  if (spread <= 40) return 4;
+  return 1;
+}
+
+function scoreReformTiefe(tiefe: 'tief' | 'mittel' | 'flach'): number {
+  if (tiefe === 'tief') return 9;
+  if (tiefe === 'mittel') return 5;
+  return 2;
+}
+
+function scoreStabilitaet(stab: 'stabil' | 'turbulent' | 'krise'): number {
+  if (stab === 'stabil') return 15;
+  if (stab === 'turbulent') return 8;
+  return 2;
+}
+
+function scoreKoalitionsBilanz(kb: 'harmonisch' | 'angespannt' | 'kritisch'): number {
+  if (kb === 'harmonisch') return 10;
+  if (kb === 'angespannt') return 5;
+  return 1;
+}
+
+function scoreHaushaltSaldo(saldoKumulativ: number): number {
+  if (saldoKumulativ >= 5) return 15;
+  if (saldoKumulativ >= 0) return 12;
+  if (saldoKumulativ >= -15) return 8;
+  if (saldoKumulativ >= -35) return 4;
+  return 0;
+}
+
+function noteFromPunkte(punkte: number): LegislaturBilanzNote {
+  if (punkte >= 80) return 'A';
+  if (punkte >= 60) return 'B';
+  if (punkte >= 40) return 'C';
+  if (punkte >= 20) return 'D';
+  return 'F';
+}
+
+export interface BilanzNoteErgebnis {
+  bilanzPunkte: number;
+  bilanzNote: LegislaturBilanzNote;
+  bilanzPunkteDetail: NonNullable<LegislaturBilanz['bilanzPunkteDetail']>;
+}
+
+/**
+ * SMA-505: 100-Punkte-Scoring + Notenstufe (A–F) aus LegislaturBilanz + GameState (Milieu-Spread).
+ */
+export function berechneBilanzNote(
+  bilanz: LegislaturBilanz,
+  state: GameState,
+): BilanzNoteErgebnis {
+  const gesetze = Math.min(25, bilanz.gesetzeBeschlossen * 3);
+  const politikfelder = Math.min(16, bilanz.politikfelderAbgedeckt * 2);
+  const haushalt = scoreHaushaltSaldo(bilanz.haushaltsaldo);
+  const stabilitaet = scoreStabilitaet(bilanz.stabilitaet);
+  const koalition = scoreKoalitionsBilanz(
+    bilanz.koalitionsBilanz ?? 'angespannt',
+  );
+  const zusammenhalt = scoreMilieuZusammenhalt(state);
+  const reformTiefe = scoreReformTiefe(bilanz.reformTiefe ?? 'mittel');
+
+  const bilanzPunkte = Math.min(
+    100,
+    gesetze +
+      politikfelder +
+      haushalt +
+      stabilitaet +
+      koalition +
+      zusammenhalt +
+      reformTiefe,
+  );
+  return {
+    bilanzPunkte,
+    bilanzNote: noteFromPunkte(bilanzPunkte),
+    bilanzPunkteDetail: {
+      gesetze,
+      politikfelder,
+      haushalt,
+      stabilitaet,
+      koalition,
+      zusammenhalt,
+      reformTiefe,
+    },
+  };
 }
 
 /** Kernthemen (Politikfelder mit meisten Beschlüssen) */
@@ -62,7 +253,14 @@ function berechneSchwachstellen(state: GameState, _content: ContentBundle): stri
     .map(([id]) => id);
 }
 
-/** Legislatur-Bilanz berechnen (Monat 43) */
+function median(nums: number[]): number {
+  if (nums.length === 0) return 50;
+  const s = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid]! : (s[mid - 1]! + s[mid]!) / 2;
+}
+
+/** Legislatur-Bilanz berechnen (ab Monat 43; Punkte/Note erst bei Spielende via finalisiereLegislaturBilanzAmSpielende) */
 export function berechneLegislaturBilanz(
   state: GameState,
   content: ContentBundle,
@@ -75,10 +273,14 @@ export function berechneLegislaturBilanz(
   const history = state.medienKlimaHistory ?? [];
   const medienDurchschnitt =
     history.length > 0 ? history.reduce((a, b) => a + b, 0) / history.length : 50;
+  const medienMedian = history.length > 0 ? median(history) : medienDurchschnitt;
 
   const haushaltsaldo = state.haushalt?.saldoKumulativ ?? 0;
   const arbeitslosigkeit = state.kpi.al;
-  const kpBeziehung = state.koalitionspartner?.beziehung ?? 50;
+
+  const reformTiefe = berechneReformTiefeQualitativ(state);
+  const stabilitaet = berechneStabilitaetQualitativ(state);
+  const koalitionsBilanz = berechneKoalitionsBilanzQualitativ(state);
 
   return {
     gesetzeBeschlossen: beschlossen.length,
@@ -87,15 +289,31 @@ export function berechneLegislaturBilanz(
     koalitionsvertragErfuellt: kvErfuellt,
     reformStaerke:
       beschlossen.length >= 8 ? 'stark' : beschlossen.length >= 4 ? 'moderat' : 'schwach',
-    stabilitaet:
-      kpBeziehung >= 50 ? 'stabil' : kpBeziehung >= 25 ? 'turbulent' : 'krise',
+    stabilitaet,
     wirtschaftsBilanz:
       arbeitslosigkeit < 5 ? 'positiv' : arbeitslosigkeit > 7 ? 'negativ' : 'neutral',
     medienbilanz:
-      medienDurchschnitt > 55 ? 'gut' : medienDurchschnitt > 35 ? 'gemischt' : 'schlecht',
+      medienMedian > 55 ? 'gut' : medienMedian > 35 ? 'gemischt' : 'schlecht',
     kernthemen: berechneKernthemen(state, content),
     schwachstellen: berechneSchwachstellen(state, content),
     glaubwuerdigkeitsBonus: kvErfuellt >= 0.8 ? 3 : 0,
+    reformTiefe,
+    koalitionsBilanz,
+  };
+}
+
+/** SMA-505: Bilanz zum Legislatur-Ende inkl. Punkte und Note (Monat 48). */
+export function finalisiereLegislaturBilanzAmSpielende(
+  state: GameState,
+  content: ContentBundle,
+): LegislaturBilanz {
+  const base = berechneLegislaturBilanz(state, content);
+  const scored = berechneBilanzNote(base, state);
+  return {
+    ...base,
+    bilanzPunkte: scored.bilanzPunkte,
+    bilanzNote: scored.bilanzNote,
+    bilanzPunkteDetail: scored.bilanzPunkteDetail,
   };
 }
 
@@ -536,18 +754,30 @@ export function berechneWahlergebnis(state: GameState): number {
 }
 
 /** Wahlnacht-Trigger (Monat 48) — berechnet Wahlergebnis und setzt Spielende */
-export function triggerWahlnacht(state: GameState, _complexity: number): GameState {
+export function triggerWahlnacht(
+  state: GameState,
+  content: ContentBundle,
+  _complexity: number,
+): GameState {
   if (state.month !== 48) return state;
   if (state.gameOver) return state;
 
-  const wahlergebnis = state.wahlkampfAktiv
-    ? berechneWahlergebnis(state)
-    : (state.wahlprognose ?? state.zust.g);
-  const threshold = state.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD;
+  let s = state;
+  if (s.wahlkampfAktiv) {
+    s = {
+      ...s,
+      legislaturBilanz: finalisiereLegislaturBilanzAmSpielende(s, content),
+    };
+  }
+
+  const wahlergebnis = s.wahlkampfAktiv
+    ? berechneWahlergebnis(s)
+    : (s.wahlprognose ?? s.zust.g);
+  const threshold = s.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD;
   const won = wahlergebnis >= threshold;
 
   return {
-    ...state,
+    ...s,
     wahlergebnis,
     gameOver: true,
     won,
