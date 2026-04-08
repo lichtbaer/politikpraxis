@@ -15,8 +15,13 @@ from app.schemas.game import (
 )
 from app.services.agenda_eval_service import apply_agenda_am_spielende
 from app.services.auth_service import get_current_user
-from app.services.content_db_service import fetch_agenda_ziele, fetch_koalitions_ziele
+from app.services.content_db_service import (
+    fetch_agenda_ziele,
+    fetch_gesetze,
+    fetch_koalitions_ziele,
+)
 from app.services.game_state_service import get_save_for_user, update_save_game_state
+from app.services.historisches_urteil_service import apply_historisches_urteil_zu_bilanz
 from app.services.save_metadata import extract_from_game_state
 
 router = APIRouter()
@@ -82,6 +87,9 @@ async def post_game_agenda_eval(
     koalitions_ziele = await fetch_koalitions_ziele(db, loc)
     result = apply_agenda_am_spielende(gs, agenda_ziele, koalitions_ziele, locale=loc)
     new_gs = result.game_state
+
+    gesetze_rows = await fetch_gesetze(db, loc)
+    apply_historisches_urteil_zu_bilanz(new_gs, gesetze_rows)
 
     monat, partei, wahlprognose = extract_from_game_state(new_gs)
     save.monat = monat
