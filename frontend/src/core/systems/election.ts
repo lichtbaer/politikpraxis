@@ -1,4 +1,4 @@
-import type { GameState, GameEvent } from '../types';
+import type { GameState, GameEvent, ContentBundle } from '../types';
 import { withPause } from '../eventPause';
 import {
   DEFAULT_ELECTION_THRESHOLD,
@@ -11,6 +11,8 @@ import {
 } from '../constants';
 import { featureActive } from './features';
 import { nextRandom } from '../rng';
+import { berechneSpielzielErgebnis, berechneWahlbonus, istLegislaturErfolg } from '../spielziel';
+import { finalisiereLegislaturBilanzAmSpielende } from './wahlkampf';
 
 /** Schwelle für Misstrauensvotum: Zustimmung unter diesem Wert zählt als "kritisch niedrig" */
 const MISSTRAUENSVOTUM_APPROVAL_THRESHOLD = 20;
@@ -114,11 +116,34 @@ export function resolveMisstrauensvotum(
   return state;
 }
 
-export function checkGameEnd(state: GameState): GameState {
+export function checkGameEnd(state: GameState, content?: ContentBundle): GameState {
   if (state.month > LEGISLATUR_MONATE) {
     const threshold = state.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD;
-    const won = state.zust.g >= threshold;
-    return { ...state, gameOver: true, won, speed: 0 };
+    const wahlergebnis = state.wahlergebnis ?? state.wahlprognose ?? state.zust.g;
+
+    if (content) {
+      const finalized = finalisiereLegislaturBilanzAmSpielende(state, content);
+      const sMitBilanz = { ...state, legislaturBilanz: finalized };
+      const bilanzPunkte = finalized.bilanzPunkte ?? 0;
+      const wahlbonus = berechneWahlbonus(wahlergebnis, threshold);
+      const spielziel = berechneSpielzielErgebnis(sMitBilanz, content, bilanzPunkte, wahlbonus);
+      const wahlUeberHuerde = wahlergebnis >= threshold;
+      const won = istLegislaturErfolg(spielziel.gesamtpunkte);
+      return {
+        ...sMitBilanz,
+        gameOver: true,
+        won,
+        legislaturErfolg: won,
+        wahlUeberHuerde,
+        spielziel,
+        wahlergebnis: state.wahlergebnis ?? wahlergebnis,
+        speed: 0,
+      };
+    }
+
+    const wahlUeberHuerde = wahlergebnis >= threshold;
+    const won = wahlUeberHuerde;
+    return { ...state, gameOver: true, won, wahlUeberHuerde, speed: 0 };
   }
 
   // Koalitionsbruch

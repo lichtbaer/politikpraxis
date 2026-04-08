@@ -19,6 +19,7 @@ import {
   PK_WAHLKAMPF_KOALITION,
   PK_WAHLKAMPF_MEDIENOFFENSIVE,
 } from '../constants';
+import { berechneSpielzielErgebnis, berechneWahlbonus, istLegislaturErfolg } from '../spielziel';
 
 /** Opposition-Stärke aus Bundesrat (Anteil Opposition-Stimmen in %) */
 function berechneOppositionStaerke(state: GameState): number {
@@ -763,24 +764,29 @@ export function triggerWahlnacht(
   if (state.gameOver) return state;
 
   let s = state;
-  if (s.wahlkampfAktiv) {
-    s = {
-      ...s,
-      legislaturBilanz: finalisiereLegislaturBilanzAmSpielende(s, content),
-    };
-  }
+  s = {
+    ...s,
+    legislaturBilanz: finalisiereLegislaturBilanzAmSpielende(s, content),
+  };
 
   const wahlergebnis = s.wahlkampfAktiv
     ? berechneWahlergebnis(s)
     : (s.wahlprognose ?? s.zust.g);
   const threshold = s.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD;
-  const won = wahlergebnis >= threshold;
+  const bilanzPunkte = s.legislaturBilanz!.bilanzPunkte!;
+  const wahlbonus = berechneWahlbonus(wahlergebnis, threshold);
+  const spielziel = berechneSpielzielErgebnis(s, content, bilanzPunkte, wahlbonus);
+  const wahlUeberHuerde = wahlergebnis >= threshold;
+  const won = istLegislaturErfolg(spielziel.gesamtpunkte);
 
   return {
     ...s,
     wahlergebnis,
     gameOver: true,
     won,
+    legislaturErfolg: won,
+    wahlUeberHuerde,
+    spielziel,
     speed: 0,
   };
 }

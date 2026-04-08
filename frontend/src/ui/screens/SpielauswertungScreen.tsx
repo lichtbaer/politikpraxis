@@ -56,6 +56,8 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
 
   const bewertung = berechneLegislaturBewertung(state);
   const titel = berechneTitel(state);
+  const spielziel = state.spielziel;
+  const wahlUeberHuerde = state.wahlUeberHuerde ?? (wahlergebnis >= threshold);
   const top3 = berechneTop3Gesetze(state);
   const topPf = berechneTopPolitikfeld(state);
 
@@ -97,12 +99,14 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
       skandale_gesamt: state.skandaleGesamt ?? 0,
       pk_verbraucht: state.pkVerbrauchtGesamt ?? 0,
       top_politikfeld: topPf,
-      bewertung_gesamt: bewertung.gesamtnote,
+      bewertung_gesamt: spielziel?.gesamtnote ?? bewertung.gesamtnote,
+      spielziel_gesamtpunkte: spielziel?.gesamtpunkte,
       titel,
     };
   }, [
     beschlossen,
     bewertung.gesamtnote,
+    spielziel,
     complexity,
     gescheitert,
     gewonnen,
@@ -177,10 +181,66 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
   return (
     <div className={styles.wrap}>
       <div className={styles.block}>
-        <div className={styles.grade}>{bewertung.gesamtnote}</div>
+        <div className={styles.grade}>
+          {spielziel ? spielziel.gesamtnote : bewertung.gesamtnote}
+        </div>
         <div className={styles.titel}>{titel}</div>
+        {spielziel ? (
+          <>
+            <p className={styles.muted}>
+              {t(
+                'game:auswertung.spielzielHint',
+                'Gesamtnote aus Legislatur-Bilanz (30 %), Agenda (35 %) und historischem Urteil der Gesetze (35 %). Die Wahlhürde gibt einen kleinen Bonus.',
+              )}
+            </p>
+            <div className={styles.spielzielMeta}>
+              <span>
+                {t('game:auswertung.spielzielPunkte', '{{pts}} von 100 Punkten', {
+                  pts: spielziel.gesamtpunkte.toFixed(1),
+                })}
+              </span>
+            </div>
+            <div className={styles.dimGrid}>
+              <div className={styles.dimItem}>
+                {t('game:auswertung.spielzielBilanz', 'Bilanz (30 %)')}: {spielziel.bilanzPunkte}
+              </div>
+              <div className={styles.dimItem}>
+                {t('game:auswertung.spielzielAgenda', 'Agenda (35 %)')}: {spielziel.agendaPunkte}
+              </div>
+              <div className={styles.dimItem}>
+                {t('game:auswertung.spielzielUrteil', 'Historisches Urteil (35 %)')}: {spielziel.urteilPunkte}
+              </div>
+              <div className={styles.dimItem}>
+                {t('game:auswertung.spielzielWahlbonus', 'Wahlbonus')}: +{spielziel.wahlbonus.toFixed(1)}
+              </div>
+            </div>
+            {(spielziel.agendaSpielerGesamt > 0 || spielziel.agendaKoalitionGesamt > 0) && (
+              <p className={styles.muted}>
+                {t('game:auswertung.spielzielAgendaDetail', 'Agenda erfüllt: Spieler {{sE}}/{{sG}}, Koalition {{kE}}/{{kG}}', {
+                  sE: spielziel.agendaSpielerErfuellt,
+                  sG: spielziel.agendaSpielerGesamt,
+                  kE: spielziel.agendaKoalitionErfuellt,
+                  kG: spielziel.agendaKoalitionGesamt,
+                })}
+              </p>
+            )}
+            {spielziel.beschlosseneGesetzeUrteil > 0 && (
+              <p className={styles.muted}>
+                {t(
+                  'game:auswertung.spielzielUrteilDetail',
+                  'Historisches Urteil bezieht sich auf {{n}} beschlossene Gesetze (Content-Feld Langzeit-Score).',
+                  { n: spielziel.beschlosseneGesetzeUrteil },
+                )}
+              </p>
+            )}
+          </>
+        ) : (
+          <p className={styles.muted}>
+            {t('game:auswertung.noteHint', 'Note aus fünf Dimensionen (Demokratie, Wirtschaft, …).')}
+          </p>
+        )}
         <p className={styles.muted}>
-          {t('game:auswertung.noteHint', 'Note aus fünf Dimensionen (Demokratie, Wirtschaft, …).')}
+          {t('game:auswertung.profilHint', 'Zusätzliche Profil-Einordnung (fünf Dimensionen):')}
         </p>
         <BewertungRadarChart dimensionen={bewertung.dimensionen} />
         <div className={styles.dimGrid}>
@@ -203,18 +263,25 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
       <div className={styles.block}>
         <h3>{t('game:auswertung.blockWahl', 'Wahlergebnis')}</h3>
         <p>
-          {gewonnen
-            ? t('game:auswertung.wonLine', {
+          {wahlUeberHuerde
+            ? t('game:auswertung.wahlHuerdeJa', {
                 pct: wahlergebnis.toFixed(1),
                 threshold,
                 partei: spielerPartei?.kuerzel ?? '—',
               })
-            : t('game:auswertung.lostLine', {
+            : t('game:auswertung.wahlHuerdeNein', {
                 pct: wahlergebnis.toFixed(1),
                 threshold,
                 partei: spielerPartei?.kuerzel ?? '—',
               })}
         </p>
+        {spielziel && (
+          <p className={styles.muted}>
+            {gewonnen
+              ? t('game:auswertung.legislaturErfolgJa')
+              : t('game:auswertung.legislaturErfolgNein')}
+          </p>
+        )}
         <p className={styles.muted}>
           {t('game:auswertung.koalition', 'Koalition: {{partner}}', { partner: partnerName })}
         </p>

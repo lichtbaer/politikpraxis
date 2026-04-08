@@ -22,14 +22,16 @@ const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'wiedergewaehlt',
     title: 'Wiedergewählt',
-    desc: 'Gewinne die Wahl am Ende der Legislatur.',
-    check: (s) => s.won === true,
+    desc: 'Überwinde die Wahlhürde am Ende der Legislatur.',
+    check: (s) => s.wahlUeberHuerde === true || (s.wahlUeberHuerde == null && s.won === true),
   },
   {
     id: 'erdrutschsieg',
     title: 'Erdrutschsieg',
-    desc: 'Gewinne mit über 55% Zustimmung.',
-    check: (s) => s.won === true && s.zust.g > 55,
+    desc: 'Überwinde die Wahlhürde mit über 55% Prognose.',
+    check: (s) =>
+      (s.wahlUeberHuerde === true || (s.wahlUeberHuerde == null && s.won === true)) &&
+      s.zust.g > 55,
   },
   {
     id: 'gesetzesmaschine',

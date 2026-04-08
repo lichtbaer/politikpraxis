@@ -19,7 +19,8 @@ export function WahlnachtScreen() {
 
   const wahlergebnis = state.wahlergebnis ?? state.zust.g;
   const threshold = state.electionThreshold ?? THRESHOLD_DISPLAY;
-  const won = state.won ?? wahlergebnis >= threshold;
+  const wahlUeberHuerde = state.wahlUeberHuerde ?? wahlergebnis >= threshold;
+  const legislaturErfolg = state.legislaturErfolg ?? state.won ?? false;
 
   useEffect(() => {
     if (!state.gameOver || beat !== 1) return;
@@ -52,7 +53,7 @@ export function WahlnachtScreen() {
   if (!state.gameOver) return null;
 
   return (
-    <div className={`${styles.overlay} ${won ? styles.overlayWon : styles.overlayLost}`}>
+    <div className={`${styles.overlay} ${legislaturErfolg ? styles.overlayWon : styles.overlayLost}`}>
       {beat === 1 && (
         <div className={styles.hochrechnung}>
           <h2 className={styles.hochrechnungTitle}>{t('game:wahlnacht.hochrechnung')}</h2>
@@ -78,16 +79,32 @@ export function WahlnachtScreen() {
 
       {beat >= 2 && (
         <div className={styles.content}>
-          <h1 className={won ? styles.titleWon : styles.titleLost}>
-            {won ? t('game:endScreen.won') : t('game:endScreen.lost')}
+          <h1 className={legislaturErfolg ? styles.titleWon : styles.titleLost}>
+            {legislaturErfolg ? t('game:endScreen.won') : t('game:endScreen.lost')}
           </h1>
           <p className={styles.subtitle}>
-            {won
+            {legislaturErfolg
               ? t('game:endScreen.wonSubtitle', { percent: wahlergebnis.toFixed(1) })
               : t('game:endScreen.lostSubtitle', { percent: wahlergebnis.toFixed(1) })}
           </p>
+          {!legislaturErfolg && wahlUeberHuerde && (
+            <p className={styles.subtitle}>
+              {t(
+                'game:wahlnacht.trotzHuerde',
+                'Du hast die Wahlhürde überschritten, aber die Gesamtbewertung der Legislatur reicht nicht.',
+              )}
+            </p>
+          )}
+          {legislaturErfolg && !wahlUeberHuerde && (
+            <p className={styles.subtitle}>
+              {t(
+                'game:wahlnacht.ohneHuerde',
+                'Die Legislatur ist nach Gesamtbewertung erfolgreich, obwohl die Wahlhürde nicht erreicht wurde.',
+              )}
+            </p>
+          )}
 
-          <SpielauswertungScreen wahlergebnis={wahlergebnis} gewonnen={won} threshold={threshold} />
+          <SpielauswertungScreen wahlergebnis={wahlergebnis} gewonnen={legislaturErfolg} threshold={threshold} />
         </div>
       )}
     </div>

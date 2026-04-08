@@ -84,6 +84,9 @@ describe('wahlkampf', () => {
     expect(after.gameOver).toBe(true);
     expect(after.legislaturBilanz?.bilanzNote).toBeDefined();
     expect(after.legislaturBilanz?.bilanzPunkte).toBeDefined();
+    expect(after.spielziel).toBeDefined();
+    expect(after.wahlUeberHuerde).toBeDefined();
+    expect(typeof after.legislaturErfolg).toBe('boolean');
   });
 
   it('berechneWahlergebnis liefert Zahl', () => {

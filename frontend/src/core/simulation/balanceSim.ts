@@ -220,7 +220,7 @@ export function runSingleSim(
     const saldo = state.haushalt?.saldo ?? 0;
 
     return {
-      gewonnen: state.won,
+      gewonnen: state.legislaturErfolg ?? state.won,
       wahlprognose: state.zust.g,
       saldo,
       koalition: state.coalition,
