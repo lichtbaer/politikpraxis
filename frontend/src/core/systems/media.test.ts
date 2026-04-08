@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import * as rng from '../rng';
 import { medienkampagne } from './media';
 import { createInitialState } from '../state';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
@@ -11,7 +12,7 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 
 describe('medienkampagne', () => {
   it('kostet 10 PK', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.5);
     const state = makeState();
     const result = medienkampagne(state, 'arbeit');
     expect(result.pk).toBe(40);
@@ -19,7 +20,7 @@ describe('medienkampagne', () => {
   });
 
   it('erhöht Zustimmung im gewählten Milieu', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.5);
     const state = makeState({ zust: { g: 50, arbeit: 50, mitte: 50, prog: 50 } });
     const result = medienkampagne(state, 'arbeit');
     expect(result.zust.arbeit).toBeGreaterThan(50);
@@ -27,7 +28,7 @@ describe('medienkampagne', () => {
   });
 
   it('funktioniert für alle Milieu-Keys', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.5);
     const state = makeState({ zust: { g: 50, arbeit: 50, mitte: 50, prog: 50 } });
 
     const resultArbeit = medienkampagne(state, 'arbeit');
@@ -43,7 +44,7 @@ describe('medienkampagne', () => {
   });
 
   it('clampt Zustimmung auf max 90', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.99);
     const state = makeState({ zust: { g: 50, arbeit: 89, mitte: 50, prog: 50 } });
     const result = medienkampagne(state, 'arbeit');
     expect(result.zust.arbeit).toBeLessThanOrEqual(90);
@@ -58,12 +59,12 @@ describe('medienkampagne', () => {
 
   it('Gain liegt zwischen 2 und 5', () => {
     // random=0 → floor(0*4)+2 = 2; random=0.99 → floor(3.96)+2 = 5
-    vi.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
     const state = makeState({ zust: { g: 50, arbeit: 50, mitte: 50, prog: 50 } });
     const resultMin = medienkampagne(state, 'arbeit');
     expect(resultMin.zust.arbeit).toBe(52);
 
-    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.99);
     const resultMax = medienkampagne(state, 'arbeit');
     expect(resultMax.zust.arbeit).toBe(55);
 

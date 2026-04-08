@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { ContentBundle, GameEvent, GameState } from '../types';
+import * as rng from '../rng';
 import { checkDynamischeEvents } from './dynamischeEvents';
 
 function baseState(over: Partial<GameState> = {}): GameState {
@@ -66,7 +67,7 @@ const saldoEv: GameEvent = {
 
 describe('checkDynamischeEvents', () => {
   it('löst Saldo-Trigger aus wenn letzte 3 Monate unter Schwelle', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.99);
     const state = baseState({
       haushaltSaldoHistory: [-40, -38, -36],
       haushalt: {
@@ -94,7 +95,7 @@ describe('checkDynamischeEvents', () => {
   });
 
   it('löst monat_range mit Zufall aus', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.01);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.01);
     const rangeEv: GameEvent = {
       ...saldoEv,
       id: 'dyn_energiekrise_eu',

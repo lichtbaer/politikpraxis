@@ -7,6 +7,7 @@ import {
   isEventAvailable,
   recordEventFired,
 } from './events';
+import * as rng from '../rng';
 import { createInitialState } from '../state';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
 import type { GameState, GameEvent, EventChoice } from '../types';
@@ -32,8 +33,9 @@ function makeEvent(overrides: Partial<GameEvent> = {}): GameEvent {
 }
 
 describe('checkRandomEvents (extended)', () => {
-  it('triggert Event bei random < 0.22', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.1); // < 0.22
+  it('triggert Event wenn nextRandom unter dynamischer Schwelle liegt', () => {
+    // Monat 10: Basis 0,20, kein Dürreschutz (letzterEvent=0 → month-letzter >= 3), Koalition 70
+    vi.spyOn(rng, 'nextRandom').mockReturnValueOnce(0.1).mockReturnValueOnce(0); // Ziehung + Index in Pool
     const event = makeEvent({ id: 'random_ev' });
     const state = makeState();
     const result = checkRandomEvents(state, [event]);
@@ -43,8 +45,8 @@ describe('checkRandomEvents (extended)', () => {
     vi.restoreAllMocks();
   });
 
-  it('triggert kein Event bei random >= 0.22', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+  it('triggert kein Event wenn nextRandom über Schwelle liegt', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.5);
     const event = makeEvent();
     const state = makeState();
     const result = checkRandomEvents(state, [event]);
@@ -53,7 +55,7 @@ describe('checkRandomEvents (extended)', () => {
   });
 
   it('triggert nicht wenn Event bereits gefeuert', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
     const event = makeEvent({ id: 'already_fired' });
     const state = makeState({ firedEvents: ['already_fired'] });
     const result = checkRandomEvents(state, [event]);
@@ -62,7 +64,6 @@ describe('checkRandomEvents (extended)', () => {
   });
 
   it('triggert nicht wenn activeEvent vorhanden', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0);
     const event = makeEvent();
     const existing = makeEvent({ id: 'existing' });
     const state = makeState({ activeEvent: existing });
@@ -72,7 +73,7 @@ describe('checkRandomEvents (extended)', () => {
   });
 
   it('triggert nicht bei leerer Event-Liste', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
     const state = makeState();
     const result = checkRandomEvents(state, []);
     expect(result.activeEvent).toBeNull();
@@ -358,7 +359,7 @@ describe('repeatable events', () => {
   });
 
   it('checkRandomEvents uses cooldown for repeatable events instead of firedEvents', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(rng, 'nextRandom').mockReturnValueOnce(0).mockReturnValueOnce(0);
     const event = makeEvent({ id: 'rep_random', repeatable: true, cooldownMonths: 6 });
     const state = makeState({ month: 10 });
 
@@ -371,7 +372,7 @@ describe('repeatable events', () => {
   });
 
   it('checkRandomEvents blocks repeatable event on cooldown', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
     const event = makeEvent({ id: 'rep_random', repeatable: true, cooldownMonths: 6 });
     const state = makeState({ month: 10, eventCooldowns: { rep_random: 15 } });
 
@@ -381,7 +382,7 @@ describe('repeatable events', () => {
   });
 
   it('checkRandomEvents allows repeatable event after cooldown expires', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(rng, 'nextRandom').mockReturnValueOnce(0).mockReturnValueOnce(0);
     const event = makeEvent({ id: 'rep_random', repeatable: true, cooldownMonths: 6 });
     const state = makeState({ month: 20, eventCooldowns: { rep_random: 15 } });
 
