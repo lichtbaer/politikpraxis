@@ -8,6 +8,7 @@ import { useGameStore } from '../../store/gameStore';
 import { CoalitionMeter } from '../components/CoalitionMeter/CoalitionMeter';
 import { MedienklimaBadge } from '../components/MedienklimaBadge/MedienklimaBadge';
 import { MilieuSidebar } from '../components/MilieuSidebar/MilieuSidebar';
+import { AgendaSidebar } from '../components/AgendaSidebar/AgendaSidebar';
 import { ApprovalChart } from '../components/ApprovalChart/ApprovalChart';
 import { formatMrdSaldo } from '../../utils/format';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
@@ -60,6 +61,8 @@ export function LeftPanel() {
         <h3 className={styles.sectionTitle}><Erklaerung begriff="koalitionsstabilitaet" kinder={t('game:leftPanel.koalitionsstabilitaet')} /></h3>
         <CoalitionMeter value={coalition} />
       </section>
+
+      <AgendaSidebar />
 
       {haushalt && complexity >= 2 && (
         <section className={styles.section}>
