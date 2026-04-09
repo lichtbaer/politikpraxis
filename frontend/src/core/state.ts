@@ -127,35 +127,36 @@ export function createInitialState(
   );
 
   // SMA-327/328: Dynamisches Kabinett — automatisch aus Pool bilden
+  // Synthetischen Kanzler vorab erstellen — wird als Fallback benötigt auch wenn kein Pool vorhanden
+  const kanzlerNameDisplay = kanzlerName?.trim() || 'Kanzler/in';
+  const kanzlerChar = relevanteChars.find((c) => c.id === 'kanzler' || c.ist_kanzler);
+  const kanzlerBase = kanzlerChar ?? relevanteChars[0] ?? null;
+  const kanzlerSynthetic = {
+    ...(kanzlerBase ?? {
+      bio: '',
+      quote: '',
+      ressort: null,
+      min_complexity: 1,
+    }),
+    id: 'kanzler',
+    name: kanzlerNameDisplay,
+    role: KANZLER_ROLLE[kanzlerGeschlecht],
+    ist_kanzler: true,
+    pool_partei: parteiId,
+    partei_kuerzel: spielerParteiState?.kuerzel,
+    partei_farbe: spielerParteiState?.farbe,
+    mood: kanzlerBase?.mood ?? 3,
+    loyalty: kanzlerBase?.loyalty ?? 5,
+    initials: kanzlerNameDisplay.slice(0, 2).toUpperCase() || '??',
+    color: spielerParteiState?.farbe ?? '#8a7030',
+  } as typeof relevanteChars[0];
+
   const hasPoolChars = relevanteChars.some((c) => c.pool_partei && !c.ist_kanzler);
-  let activeChars = relevanteChars;
+  let activeChars: typeof relevanteChars;
   if (hasPoolChars) {
     const config = bildeKabinett(parteiId, partnerParteiId, complexity);
     const usedIds = new Set<string>();
     const selected: typeof relevanteChars = [];
-    // SMA-328: Kanzler ist immer der Spieler — synthetischer Char, kein DB-Char
-    const kanzlerNameDisplay = kanzlerName?.trim() || 'Kanzler/in';
-    const kanzlerChar = relevanteChars.find((c) => c.id === 'kanzler' || c.ist_kanzler);
-    const kanzlerBase = kanzlerChar ?? relevanteChars[0] ?? null;
-    const kanzlerSynthetic = {
-      ...(kanzlerBase ?? {
-        bio: '',
-        quote: '',
-        ressort: null,
-        min_complexity: 1,
-      }),
-      id: 'kanzler',
-      name: kanzlerNameDisplay,
-      role: KANZLER_ROLLE[kanzlerGeschlecht],
-      ist_kanzler: true,
-      pool_partei: parteiId,
-      partei_kuerzel: spielerParteiState?.kuerzel,
-      partei_farbe: spielerParteiState?.farbe,
-      mood: kanzlerBase?.mood ?? 3,
-      loyalty: kanzlerBase?.loyalty ?? 5,
-      initials: kanzlerNameDisplay.slice(0, 2).toUpperCase() || '??',
-      color: spielerParteiState?.farbe ?? '#8a7030',
-    } as typeof relevanteChars[0];
     selected.push(kanzlerSynthetic);
     usedIds.add('kanzler');
     for (const ressort of config.spielerRessorts) {
@@ -185,6 +186,10 @@ export function createInitialState(
     }
     // SMA-337: Fallback nur auf synthetischen Kanzler, nie auf ungefilterte Liste
     activeChars = selected.length > 0 ? selected : [kanzlerSynthetic];
+  } else {
+    // Kein Pool vorhanden (fehlende DB-Daten) — zeige mindestens den synthetischen Kanzler
+    console.warn('[state] Keine Pool-Chars für Partei', parteiId, '— Fallback auf synthetischen Kanzler');
+    activeChars = [kanzlerSynthetic];
   }
 
   const charsWithPartei = activeChars.map((c) => {
