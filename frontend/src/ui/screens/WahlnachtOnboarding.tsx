@@ -97,13 +97,8 @@ export function WahlnachtOnboarding() {
   const [gewaehlteAgendaIds, setGewaehlteAgendaIds] = useState<string[]>([]);
   const [agendaSubmitting, setAgendaSubmitting] = useState(false);
 
-  const maxBeat = showIdeologieScreen
-    ? showAgendaScreen
-      ? 9
-      : 7
-    : showAgendaScreen
-      ? 8
-      : 7;
+  // maxBeat = letzter Beat mit Inhalt (ctaBeat), damit advance() dort startGame() aufruft
+  const maxBeat = showAgendaScreen ? 8 : 7;
 
   const advance = useCallback(() => {
     if (beat < maxBeat) setBeat((b) => b + 1);
@@ -128,15 +123,15 @@ export function WahlnachtOnboarding() {
       setBeat(2);
     } else {
       init();
-      setBeat(showAgendaScreen ? 5 : 3);
+      setBeat(3); // Schlagzeile → Kabinett → weiter per advance()
     }
-  }, [showIdeologieScreen, showAgendaScreen, init]);
+  }, [showIdeologieScreen, init]);
 
   const handleIdeologieWeiter = useCallback(() => {
     setAusrichtung(ausrichtung);
     init();
-    setBeat(showAgendaScreen ? 5 : 3);
-  }, [ausrichtung, setAusrichtung, init, showAgendaScreen]);
+    setBeat(3); // Schlagzeile → Kabinett → weiter per advance()
+  }, [ausrichtung, setAusrichtung, init]);
 
   const handleAusrichtungChange = useCallback(
     (axis: keyof Ausrichtung, value: number) => {
@@ -296,7 +291,7 @@ export function WahlnachtOnboarding() {
   /* SMA-302 / SMA-503: Fortschritts-Dots — Schritte je nach Komplexität */
   const steps = showIdeologieScreen
     ? showAgendaScreen
-      ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      ? [0, 1, 2, 3, 4, 5, 6, 7, 8]
       : [0, 1, 2, 3, 4, 5, 6, 7]
     : showParteiScreen
       ? showAgendaScreen
