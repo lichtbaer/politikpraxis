@@ -1,7 +1,7 @@
 import os
 from logging.config import fileConfig
 
-from sqlalchemy import create_engine, pool
+from sqlalchemy import create_engine, pool, text
 from alembic import context
 
 from app.db.database import Base
@@ -54,6 +54,58 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 
+def _ensure_alembic_version_column_length(connection) -> None:
+    """
+    Unsere Alembic-Revision-IDs sind teils länger als 32 Zeichen.
+    Ältere DBs haben `alembic_version.version_num` oft als VARCHAR(32) angelegt.
+    """
+    try:
+        table_exists = connection.execute(
+            # resolve via search_path (nicht hart auf `public` festnageln)
+            text("SELECT to_regclass('alembic_version') IS NOT NULL")
+        ).scalar()
+        if not table_exists:
+            # Leere DB: Alembic würde die Tabelle sonst mit VARCHAR(32) anlegen,
+            # was für unsere langen Revision-IDs nicht reicht.
+            connection.execute(
+                text(
+                    "CREATE TABLE alembic_version ("
+                    "version_num VARCHAR(128) NOT NULL PRIMARY KEY"
+                    ")"
+                )
+            )
+            connection.commit()
+            return
+
+        max_len = connection.execute(
+            text(
+                """
+                SELECT character_maximum_length
+                FROM information_schema.columns
+                WHERE table_name = 'alembic_version'
+                  AND column_name = 'version_num'
+                ORDER BY CASE WHEN table_schema = 'public' THEN 0 ELSE 1 END
+                LIMIT 1
+                """
+            )
+        ).scalar()
+
+        # NULL bedeutet i.d.R. TEXT oder nicht-varchar -> ok
+        if isinstance(max_len, int) and max_len < 128:
+            connection.execute(
+                text(
+                    "ALTER TABLE alembic_version "
+                    "ALTER COLUMN version_num TYPE VARCHAR(128)"
+                )
+            )
+            # DDL läuft in einer impliziten Transaktion -> explizit committen,
+            # bevor Alembic seine eigene Migrations-Transaktion startet.
+            connection.commit()
+    except Exception:
+        # Best effort: wenn das fehlschlägt, soll Alembic normal weiterlaufen
+        return
+
+
 def get_url() -> str:
     """DB-URL aus Umgebung (Docker) oder aus alembic.ini (lokal). Sync-URL für Alembic."""
     url = os.environ.get("DATABASE_URL")
@@ -83,6 +135,7 @@ def run_migrations_online() -> None:
     connectable = create_engine(url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
+        _ensure_alembic_version_column_length(connection)
         context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
