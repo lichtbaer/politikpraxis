@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import csv
 import io
 import logging
@@ -20,6 +21,7 @@ from app.schemas.usertest_feedback import (
     UserTestFeedbackCreate,
     UserTestFeedbackResponse,
 )
+from app.services.email_service import send_feedback_notification_email
 from app.services.rate_limit import check_and_record
 
 logger = logging.getLogger(__name__)
@@ -64,6 +66,23 @@ async def submit_feedback(
     db.add(entry)
     await db.commit()
     await db.refresh(entry)
+
+    asyncio.create_task(
+        send_feedback_notification_email(
+            {
+                "id": str(entry.id),
+                "kontext": entry.kontext,
+                "bewertung_gesamt": entry.bewertung_gesamt,
+                "verstaendlichkeit": entry.verstaendlichkeit,
+                "fehler_gemeldet": entry.fehler_gemeldet,
+                "fehler_beschreibung": entry.fehler_beschreibung,
+                "positives": entry.positives,
+                "verbesserungen": entry.verbesserungen,
+                "sonstiges": entry.sonstiges,
+                "created_at": entry.created_at.isoformat(),
+            }
+        )
+    )
 
     return UserTestFeedbackResponse(
         id=str(entry.id),
