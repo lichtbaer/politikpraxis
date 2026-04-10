@@ -84,6 +84,49 @@ async def send_magic_link_email(to_email: str, verify_url: str) -> None:
     await _send_with_retry(msg)
 
 
+async def send_feedback_notification_email(feedback: dict) -> None:
+    """Benachrichtigung bei neuem Playtest-Feedback (fire-and-forget, wirft keine Exception)."""
+    settings = get_settings()
+    if not settings.feedback_recipient or not settings.smtp_host:
+        logger.debug("Feedback-Benachrichtigung übersprungen (nicht konfiguriert)")
+        return
+
+    subject = f"Neues Playtest-Feedback [{feedback['kontext']}] — Bundesrepublik"
+
+    lines = [
+        f"Kontext: {feedback['kontext']}",
+        f"Gesamtbewertung: {feedback.get('bewertung_gesamt') or '—'}",
+        f"Verständlichkeit: {feedback.get('verstaendlichkeit') or '—'}",
+        f"Fehler gemeldet: {'Ja' if feedback.get('fehler_gemeldet') else 'Nein'}",
+    ]
+    if feedback.get("fehler_beschreibung"):
+        lines.append(f"Fehlerbeschreibung: {feedback['fehler_beschreibung']}")
+    if feedback.get("positives"):
+        lines.append(f"Positives: {feedback['positives']}")
+    if feedback.get("verbesserungen"):
+        lines.append(f"Verbesserungen: {feedback['verbesserungen']}")
+    if feedback.get("sonstiges"):
+        lines.append(f"Sonstiges: {feedback['sonstiges']}")
+    lines.append(f"\nEingegangen: {feedback['created_at']}")
+    lines.append(f"ID: {feedback['id']}")
+
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = settings.mail_from
+    msg["To"] = settings.feedback_recipient
+    msg.set_content("\n".join(lines))
+
+    try:
+        await _send_with_retry(msg)
+        logger.info(
+            "Feedback-Benachrichtigung gesendet an %s", settings.feedback_recipient
+        )
+    except Exception:
+        logger.warning(
+            "Feedback-Benachrichtigung fehlgeschlagen (Feedback ist in DB gespeichert)"
+        )
+
+
 async def send_password_reset_email(to_email: str, reset_url: str) -> None:
     """Sendet Passwort-Reset-Mail. Ohne SMTP: 503 (kein stilles Ausweichen)."""
     settings = get_settings()

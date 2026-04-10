@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     mail_from: str = "noreply@localhost"
     # Empfänger für Kontaktformular (getrennt von Absender mail_from)
     contact_recipient: str = ""
+    # Empfänger für Playtest-Feedback-Benachrichtigungen (leer = kein Versand)
+    feedback_recipient: str = ""
 
     content_dir: str = "app/content"
 

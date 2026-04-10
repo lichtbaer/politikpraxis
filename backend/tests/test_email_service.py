@@ -140,3 +140,92 @@ async def test_send_magic_link_email_no_smtp_raises_503():
             )
 
     assert exc_info.value.status_code == 503
+
+
+# ---------------------------------------------------------------------------
+# send_feedback_notification_email
+# ---------------------------------------------------------------------------
+
+_SAMPLE_FEEDBACK = {
+    "id": "abc123",
+    "kontext": "spielende",
+    "bewertung_gesamt": 4,
+    "verstaendlichkeit": 3,
+    "fehler_gemeldet": True,
+    "fehler_beschreibung": "Button reagiert nicht",
+    "positives": "Tolles Spiel",
+    "verbesserungen": "Mehr Levels",
+    "sonstiges": None,
+    "created_at": "2026-04-10T12:00:00",
+}
+
+
+@pytest.mark.asyncio
+async def test_feedback_notification_skipped_when_not_configured():
+    """Ohne feedback_recipient oder smtp_host: kein Versand, keine Exception."""
+    from app.services.email_service import send_feedback_notification_email
+
+    with patch("app.services.email_service.get_settings") as mock_settings:
+        mock_settings.return_value.feedback_recipient = ""
+        mock_settings.return_value.smtp_host = "smtp.example.com"
+
+        with patch(
+            "app.services.email_service._send_with_retry", new_callable=AsyncMock
+        ) as mock_send:
+            await send_feedback_notification_email(_SAMPLE_FEEDBACK)
+            mock_send.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_feedback_notification_skipped_when_no_smtp():
+    """Ohne smtp_host: kein Versand auch wenn feedback_recipient gesetzt ist."""
+    from app.services.email_service import send_feedback_notification_email
+
+    with patch("app.services.email_service.get_settings") as mock_settings:
+        mock_settings.return_value.feedback_recipient = "admin@example.com"
+        mock_settings.return_value.smtp_host = ""
+
+        with patch(
+            "app.services.email_service._send_with_retry", new_callable=AsyncMock
+        ) as mock_send:
+            await send_feedback_notification_email(_SAMPLE_FEEDBACK)
+            mock_send.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_feedback_notification_sends_email_when_configured():
+    """Mit feedback_recipient + smtp_host: E-Mail wird gesendet."""
+    from app.services.email_service import send_feedback_notification_email
+
+    with patch("app.services.email_service.get_settings") as mock_settings:
+        mock_settings.return_value.feedback_recipient = "admin@example.com"
+        mock_settings.return_value.smtp_host = "smtp.example.com"
+        mock_settings.return_value.mail_from = "noreply@example.com"
+
+        with patch(
+            "app.services.email_service._send_with_retry", new_callable=AsyncMock
+        ) as mock_send:
+            await send_feedback_notification_email(_SAMPLE_FEEDBACK)
+            mock_send.assert_called_once()
+            msg = mock_send.call_args[0][0]
+            assert "spielende" in msg["Subject"]
+            assert msg["To"] == "admin@example.com"
+
+
+@pytest.mark.asyncio
+async def test_feedback_notification_does_not_raise_on_smtp_error():
+    """SMTP-Fehler: keine Exception nach außen (fire-and-forget)."""
+    from app.services.email_service import send_feedback_notification_email
+
+    with patch("app.services.email_service.get_settings") as mock_settings:
+        mock_settings.return_value.feedback_recipient = "admin@example.com"
+        mock_settings.return_value.smtp_host = "smtp.example.com"
+        mock_settings.return_value.mail_from = "noreply@example.com"
+
+        with patch(
+            "app.services.email_service._send_with_retry",
+            new_callable=AsyncMock,
+            side_effect=HTTPException(status_code=503, detail="SMTP down"),
+        ):
+            # Darf keine Exception werfen
+            await send_feedback_notification_email(_SAMPLE_FEEDBACK)
