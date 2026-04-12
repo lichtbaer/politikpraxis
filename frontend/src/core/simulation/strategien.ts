@@ -440,6 +440,68 @@ export function strategieAllrounder(state: GameState): StrategyAction {
   return { typ: 'nichts' };
 }
 
+// =============================================================================
+// Neue Strategien: Balance-Coverage für Gewinn-/Verlust-Varianten
+// =============================================================================
+
+/**
+ * Vermittlungsprofi: Nutzt den Vermittlungsausschuss auf blockierten Gesetzen.
+ * Testet den Vermittlungsausschuss-Mechanismus (bisher ungetestet in Balance-Sim).
+ */
+export function strategieVermittlungsprofi(state: GameState): StrategyAction {
+  // Blockierte Gesetze (Bundesrat hat abgelehnt) → Vermittlungsausschuss
+  const blockiert = state.gesetze.filter(g => g.status === 'blockiert');
+  if (blockiert.length > 0 && state.pk >= 15) {
+    return { typ: 'vermittlungsausschuss', gesetzId: blockiert[0].id };
+  }
+  // Neue Gesetze einbringen
+  const gesetze = verfuegbareGesetze(state);
+  if (gesetze.length > 0 && state.pk >= 15) {
+    const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
+    return { typ: 'einbringen', gesetzId: passend[0].id };
+  }
+  if (state.pk >= 5) return { typ: 'pressemitteilung' };
+  return { typ: 'nichts' };
+}
+
+/**
+ * Schuldenmacher: Priorisiert absichtlich teure Gesetze.
+ * Testet den Haushaltskonflikt und Saldo-Effekte auf die Bilanz.
+ */
+export function strategieSchuldenmacher(state: GameState): StrategyAction {
+  const gesetze = verfuegbareGesetze(state);
+  if (gesetze.length === 0 || state.pk < 15) {
+    if (state.pk >= 5) return { typ: 'pressemitteilung' };
+    return { typ: 'nichts' };
+  }
+  // Teuerste Gesetze priorisieren (höchste laufende Kosten / negativer HH-Effekt)
+  const teuerste = [...gesetze].sort((a, b) => {
+    const scoreB = (b.kosten_laufend ?? 0) * 12 + Math.abs(Math.min(b.effekte.hh ?? 0, 0)) * 10;
+    const scoreA = (a.kosten_laufend ?? 0) * 12 + Math.abs(Math.min(a.effekte.hh ?? 0, 0)) * 10;
+    return scoreB - scoreA;
+  });
+  return { typ: 'einbringen', gesetzId: teuerste[0].id };
+}
+
+/**
+ * Historiker: Priorisiert Gesetze mit hohem langzeit_score.
+ * Testet die Urteil-Dimension des Spielziels (35% Gewicht).
+ */
+export function strategieHistoriker(state: GameState): StrategyAction {
+  const gesetze = verfuegbareGesetze(state);
+  if (gesetze.length === 0 || state.pk < 15) {
+    // PK aufbauen mit Koalitionsrunde falls nötig
+    if (state.pk >= 15 && state.coalition < 70) return { typ: 'koalitionsrunde' };
+    if (state.pk >= 5) return { typ: 'pressemitteilung' };
+    return { typ: 'nichts' };
+  }
+  // Höchster langzeit_score (historisches Erbe), Fallback: 5 (Mittelwert)
+  const best = [...gesetze].sort(
+    (a, b) => (b.langzeit_score ?? 5) - (a.langzeit_score ?? 5)
+  );
+  return { typ: 'einbringen', gesetzId: best[0].id };
+}
+
 /** Alle Strategien */
 export function alleStrategien(): Record<string, Strategy> {
   return {
@@ -463,5 +525,9 @@ export function alleStrategien(): Record<string, Strategy> {
     wahlkaempfer: strategieWahlkaempfer,
     koalitionsmanager: strategieKoalitionsmanager,
     allrounder: strategieAllrounder,
+    // Neue Strategien: Mechanik-Coverage & Gewinnvarianten
+    vermittlungsprofi: strategieVermittlungsprofi,
+    schuldenmacher: strategieSchuldenmacher,
+    historiker: strategieHistoriker,
   };
 }

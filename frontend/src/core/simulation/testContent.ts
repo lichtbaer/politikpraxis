@@ -239,6 +239,94 @@ const SIM_CHARACTERS: Character[] = [
   },
 ];
 
+/**
+ * Unlock-Events für event-locked Gesetze.
+ * Diese Events werden benötigt damit die 10 event-locked Gesetze im Spielverlauf
+ * freigeschaltet werden können. Minimale Definitionen ohne spielerische Nebeneffekte.
+ */
+const SIM_UNLOCK_EVENTS: GameEvent[] = [
+  {
+    id: 'verfassungsgericht', type: 'warn', icon: '⚖️', typeLabel: 'Verfassungsgericht',
+    title: 'Verfassungsgerichtsurteil erwartet',
+    quote: 'Das Bundesverfassungsgericht kündigt ein Urteil an.',
+    context: 'Das Gericht prüft aktuelle Gesetzgebung.',
+    ticker: 'BVerfG-Urteil steht bevor',
+    choices: [{ label: 'Zur Kenntnis nehmen', desc: 'Urteil abwarten', cost: 0, type: 'safe', effect: {}, log: 'Urteil wird erwartet.' }],
+  },
+  {
+    id: 'naturkatastrophe', type: 'danger', icon: '🌊', typeLabel: 'Naturkatastrophe',
+    title: 'Schwere Naturkatastrophe trifft Deutschland',
+    quote: 'Überschwemmungen und Stürme fordern Menschenleben.',
+    context: 'Hilfsmaßnahmen werden koordiniert.',
+    ticker: 'Katastrophenschutz unter Druck',
+    choices: [{ label: 'Hilfsmaßnahmen einleiten', desc: 'Sofortmaßnahmen', cost: 5, type: 'primary', effect: { zf: 2 }, log: 'Hilfsmaßnahmen eingeleitet.' }],
+  },
+  {
+    id: 'cyberangriff', type: 'danger', icon: '💻', typeLabel: 'Cyberangriff',
+    title: 'Cyberangriff auf Bundesbehörden',
+    quote: 'Staatliche Systeme wurden angegriffen.',
+    context: 'IT-Sicherheitsbehörden reagieren.',
+    ticker: 'BSI reagiert auf Cyberangriff',
+    choices: [{ label: 'Notfallprogramm starten', desc: 'IT-Sicherheit stärken', cost: 5, type: 'primary', effect: {}, log: 'Notfallprogramm aktiv.' }],
+  },
+  {
+    id: 'whistleblower', type: 'warn', icon: '📢', typeLabel: 'Whistleblower',
+    title: 'Whistleblower enthüllt Missstände',
+    quote: 'Interne Dokumente zeigen Verwaltungsversagen.',
+    context: 'Medien berichten breit.',
+    ticker: 'Whistleblower-Enthüllung',
+    choices: [{ label: 'Transparenz zeigen', desc: 'Offene Aufklärung', cost: 0, type: 'safe', effect: { zf: -2 }, log: 'Aufklärung eingeleitet.' }],
+  },
+  {
+    id: 'streikwelle', type: 'warn', icon: '✊', typeLabel: 'Streikwelle',
+    title: 'Bundesweite Streikwelle in Schlüsselbranchen',
+    quote: 'Gewerkschaften fordern bessere Arbeitsbedingungen.',
+    context: 'Verhandlungen stocken.',
+    ticker: 'Streiks lähmen Infrastruktur',
+    choices: [{ label: 'Vermittlung anbieten', desc: 'Tarifgespräche anstoßen', cost: 5, type: 'primary', effect: { zf: 1, al: -0.2 }, log: 'Vermittlung eingeleitet.' }],
+  },
+  {
+    id: 'wohnungsnot', type: 'warn', icon: '🏠', typeLabel: 'Wohnungsnot',
+    title: 'Wohnungsnot in Großstädten eskaliert',
+    quote: 'Mietpreise auf Rekordhoch.',
+    context: 'Soziale Spannungen wachsen.',
+    ticker: 'Wohnungskrise verschärft sich',
+    choices: [{ label: 'Programm ankündigen', desc: 'Sofortmaßnahmen', cost: 5, type: 'primary', effect: { zf: 2 }, log: 'Wohnungsprogramm angekündigt.' }],
+  },
+  {
+    id: 'rechtsextremismus', type: 'danger', icon: '⚠️', typeLabel: 'Rechtsextremismus',
+    title: 'Anstieg rechtsextremer Vorfälle',
+    quote: 'Sicherheitsbehörden registrieren mehr Straftaten.',
+    context: 'Zivilgesellschaft fordert Handeln.',
+    ticker: 'Behörden verschärfen Maßnahmen',
+    choices: [{ label: 'Entschieden reagieren', desc: 'Klares Signal', cost: 0, type: 'safe', effect: { zf: 2 }, log: 'Klares Zeichen gesetzt.' }],
+  },
+  {
+    id: 'fachkraeftemangel', type: 'warn', icon: '👷', typeLabel: 'Fachkräftemangel',
+    title: 'Fachkräftemangel bremst Wirtschaft',
+    quote: 'Unternehmen finden kaum qualifizierte Bewerber.',
+    context: 'Investitionen bleiben aus.',
+    ticker: 'Fachkräftemangel verschärft sich',
+    choices: [{ label: 'Qualifizierungsoffensive', desc: 'Weiterbildung fördern', cost: 5, type: 'primary', effect: { al: -0.3 }, log: 'Qualifizierungsprogramm gestartet.' }],
+  },
+  {
+    id: 'rentendebatte', type: 'warn', icon: '👴', typeLabel: 'Rentendebatte',
+    title: 'Generationenkonflikt um Rente eskaliert',
+    quote: 'Junge Generation protestiert gegen Rentenlasten.',
+    context: 'Demografischer Wandel ist spürbar.',
+    ticker: 'Rentendebatte erhitzt Gemüter',
+    choices: [{ label: 'Expertenkommission einsetzen', desc: 'Lösungen erarbeiten', cost: 0, type: 'safe', effect: {}, log: 'Kommission eingesetzt.' }],
+  },
+  {
+    id: 'pandemie_vorbereitung', type: 'warn', icon: '🦠', typeLabel: 'Pandemieschutz',
+    title: 'WHO warnt vor neuer Pandemiegefahr',
+    quote: 'Gesundheitsbehörden mahnen zur Vorbereitung.',
+    context: 'Vorsorgemaßnahmen werden diskutiert.',
+    ticker: 'Pandemieschutz auf Agenda',
+    choices: [{ label: 'Vorsorgeplan aktivieren', desc: 'Frühzeitig vorbereiten', cost: 5, type: 'primary', effect: { zf: 1 }, log: 'Vorsorgeplan aktiviert.' }],
+  },
+];
+
 /** Wichtigste Events für Balance-Simulation */
 const SIM_EVENTS: GameEvent[] = [
   {
@@ -322,4 +410,14 @@ export const SIM_CONTENT: ContentBundle = {
   bundesrat: DEFAULT_BUNDESRAT,
   verbaende: DEFAULT_VERBAENDE,
   ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
+};
+
+/**
+ * Erweitertes ContentBundle mit Unlock-Events für alle event-locked Gesetze.
+ * Damit können auch die 10 event-locked Gesetze im Spielverlauf freigeschaltet werden.
+ * Für Komplexitäts- und Mechanik-Coverage-Tests.
+ */
+export const SIM_CONTENT_WITH_UNLOCK_EVENTS: ContentBundle = {
+  ...SIM_CONTENT,
+  events: [...SIM_EVENTS, ...SIM_UNLOCK_EVENTS],
 };
