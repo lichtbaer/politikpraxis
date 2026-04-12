@@ -30,14 +30,31 @@ export interface SimResult {
   gesetze: number;
   crash: boolean;
   error?: string;
+  /** SMA-BalanceTests: Scoring-Dimensionen aus spielziel */
+  bilanzPunkte?: number;
+  agendaPunkte?: number;
+  urteilPunkte?: number;
+  wahlbonus?: number;
+  gesamtpunkte?: number;
+  /** Ob die Wahlhürde überschritten wurde (unabhängig von legislaturErfolg) */
+  wahlUeberHuerde?: boolean;
+  /** Grund für Niederlage falls !gewonnen */
+  verlustGrund?: 'koalitionsbruch' | 'misstrauensvotum' | 'punkte' | 'unbekannt';
 }
 
 export interface AggregatedResult {
   n: number;
   gewinnRate: number;
-  wahlprognose: { median: number; mittel: number; min: number; max: number; p10: number; p90: number };
+  wahlprognose: { median: number; mittel: number; min: number; max: number; p10: number; p90: number; p25: number; p75: number };
   saldo: { median: number; min: number; max: number };
   crashes: number;
+  /** Anteil der Runs mit Wahlsieg (wahlUeberHuerde) */
+  wahlUeberHuerdeRate: number;
+  /** Mediane Scoring-Dimensionen (nur nicht-gecrashhte Runs) */
+  gesamtpunkte: { median: number; min: number; max: number };
+  bilanzPunkte: { median: number };
+  agendaPunkte: { median: number };
+  urteilPunkte: { median: number };
 }
 
 const DEFAULT_AUSRICHTUNG = { wirtschaft: -20, gesellschaft: -40, staat: -15 };
@@ -218,15 +235,37 @@ export function runSingleSim(
     }
 
     const saldo = state.haushalt?.saldo ?? 0;
+    const gewonnen = state.legislaturErfolg ?? state.won ?? false;
+
+    // Verlustgrund bestimmen
+    let verlustGrund: SimResult['verlustGrund'] | undefined;
+    if (!gewonnen && state.gameOver) {
+      if ((state.coalition ?? 100) < 15) {
+        verlustGrund = 'koalitionsbruch';
+      } else if ((state.lowApprovalMonths ?? 0) >= 6) {
+        verlustGrund = 'misstrauensvotum';
+      } else if (state.spielziel && state.spielziel.gesamtpunkte < 40) {
+        verlustGrund = 'punkte';
+      } else {
+        verlustGrund = 'unbekannt';
+      }
+    }
 
     return {
-      gewonnen: state.legislaturErfolg ?? state.won,
+      gewonnen,
       wahlprognose: state.zust.g,
       saldo,
       koalition: state.coalition,
       monat: state.month,
       gesetze: state.gesetze.filter(g => g.status === 'beschlossen').length,
       crash: false,
+      bilanzPunkte: state.spielziel?.bilanzPunkte,
+      agendaPunkte: state.spielziel?.agendaPunkte,
+      urteilPunkte: state.spielziel?.urteilPunkte,
+      wahlbonus: state.spielziel?.wahlbonus,
+      gesamtpunkte: state.spielziel?.gesamtpunkte,
+      wahlUeberHuerde: state.wahlUeberHuerde,
+      verlustGrund,
     };
   } catch (e) {
     return {
@@ -247,17 +286,29 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
   const n = ergebnisse.length;
   const gewonnen = ergebnisse.filter(e => e.gewonnen).length;
   const crashes = ergebnisse.filter(e => e.crash).length;
+  const valid = ergebnisse.filter(e => !e.crash);
 
-  const prognosen = ergebnisse.filter(e => !e.crash).map(e => e.wahlprognose).sort((a, b) => a - b);
-  const saldi = ergebnisse.filter(e => !e.crash).map(e => e.saldo).sort((a, b) => a - b);
+  const prognosen = valid.map(e => e.wahlprognose).sort((a, b) => a - b);
+  const saldi = valid.map(e => e.saldo).sort((a, b) => a - b);
+  const gesamtpunkteArr = valid.map(e => e.gesamtpunkte ?? 0).sort((a, b) => a - b);
+  const bilanzArr = valid.map(e => e.bilanzPunkte ?? 0).sort((a, b) => a - b);
+  const agendaArr = valid.map(e => e.agendaPunkte ?? 0).sort((a, b) => a - b);
+  const urteilArr = valid.map(e => e.urteilPunkte ?? 0).sort((a, b) => a - b);
+  const wahlUeberHuerdeMit = valid.filter(e => e.wahlUeberHuerde === true).length;
 
   if (prognosen.length === 0) prognosen.push(0);
   if (saldi.length === 0) saldi.push(0);
+  if (gesamtpunkteArr.length === 0) gesamtpunkteArr.push(0);
+  if (bilanzArr.length === 0) bilanzArr.push(0);
+  if (agendaArr.length === 0) agendaArr.push(0);
+  if (urteilArr.length === 0) urteilArr.push(0);
 
   const median = (arr: number[]) => {
     const mid = Math.floor(arr.length / 2);
     return arr.length % 2 ? arr[mid] : (arr[mid - 1] + arr[mid]) / 2;
   };
+  const pct = (arr: number[], p: number) =>
+    arr[Math.floor(arr.length * p)] ?? arr[arr.length - 1];
 
   return {
     n,
@@ -267,8 +318,10 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
       mittel: prognosen.reduce((a, b) => a + b, 0) / prognosen.length,
       min: prognosen[0],
       max: prognosen[prognosen.length - 1],
-      p10: prognosen[Math.floor(prognosen.length * 0.1)] ?? prognosen[0],
-      p90: prognosen[Math.floor(prognosen.length * 0.9)] ?? prognosen[prognosen.length - 1],
+      p10: pct(prognosen, 0.1),
+      p25: pct(prognosen, 0.25),
+      p75: pct(prognosen, 0.75),
+      p90: pct(prognosen, 0.9),
     },
     saldo: {
       median: median(saldi),
@@ -276,6 +329,15 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
       max: saldi[saldi.length - 1],
     },
     crashes,
+    wahlUeberHuerdeRate: valid.length > 0 ? wahlUeberHuerdeMit / valid.length : 0,
+    gesamtpunkte: {
+      median: median(gesamtpunkteArr),
+      min: gesamtpunkteArr[0],
+      max: gesamtpunkteArr[gesamtpunkteArr.length - 1],
+    },
+    bilanzPunkte: { median: median(bilanzArr) },
+    agendaPunkte: { median: median(agendaArr) },
+    urteilPunkte: { median: median(urteilArr) },
   };
 }
 
