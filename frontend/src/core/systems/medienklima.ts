@@ -376,6 +376,21 @@ export function applyFraming(
 
   newState = adjustMedienKlimaGlobal(newState, framing.medienklima_delta, complexity, content);
 
+  if (framing.effekte && Object.keys(framing.effekte).length > 0) {
+    const gesetze = newState.gesetze.map((g) => {
+      if (g.id !== gesetzId) return g;
+      const merged = { ...g.effekte };
+      for (const [k, v] of Object.entries(framing.effekte!)) {
+        if (v != null) {
+          const prev = (merged as Record<string, number>)[k] ?? 0;
+          (merged as Record<string, number>)[k] = +(prev + v).toFixed(2);
+        }
+      }
+      return { ...g, effekte: merged };
+    });
+    newState = { ...newState, gesetze };
+  }
+
   const label = framing.label ?? framing.key;
   if (framing.key === 'standard' || framing.key === 'keine' || !label || label === 'Kein Framing') {
     return newState;

@@ -192,7 +192,7 @@ export function EbeneView({ type }: EbeneViewProps) {
           <h3 className={styles.euRouteTitle}>{t('game:eu.aktiveRoute')}</h3>
           <div className={styles.euRouteCard}>
             <span className={styles.euRouteGesetz}>
-              {getGesetz(aktiveRoute.gesetzId)?.kurz ?? aktiveRoute.gesetzId}
+              {getGesetz(aktiveRoute.gesetzId)?.titel ?? getGesetz(aktiveRoute.gesetzId)?.kurz ?? aktiveRoute.gesetzId}
             </span>
             <div className={styles.euRouteProgress}>
               <div className={styles.progressTrack}>
@@ -243,14 +243,11 @@ export function EbeneView({ type }: EbeneViewProps) {
           <p className={styles.potentialHint}>{t('game:ebene.potentialHint')}</p>
           <div className={styles.potentialGrid}>
             {potentialLaws.slice(0, 8).map((law) => {
-              const zeile =
-                type === 'land'
-                  ? ebeneGesetzAnzeige(law, t)
-                  : null;
+              const zeile = ebeneGesetzAnzeige(law, t);
               return (
                 <div key={law.id} className={styles.potentialCard}>
                   <span className={styles.potentialName}>
-                    {type === 'land' && zeile ? (
+                    {zeile ? (
                       <>
                         {zeile.titel}
                         {zeile.kuerzelKlammer && (
@@ -297,14 +294,13 @@ export function EbeneView({ type }: EbeneViewProps) {
                 : law.rprog;
             const routeDur = type === 'eu' && aktiveRoute?.gesetzId === law.id ? aktiveRoute.dauer : law.rdur;
 
-            const lawTitleZeile =
-              type === 'land' ? ebeneGesetzAnzeige(law, t) : null;
+            const lawTitleZeile = ebeneGesetzAnzeige(law, t);
 
             return (
               <div key={law.id} className={styles.lawCard}>
                 <div className={styles.lawHeader}>
                   <span className={styles.lawTitle}>
-                    {type === 'land' && lawTitleZeile ? (
+                    {lawTitleZeile ? (
                       <>
                         {lawTitleZeile.titel}
                         {lawTitleZeile.kuerzelKlammer && (

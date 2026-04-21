@@ -506,6 +506,19 @@
   color: var(--text3);
 }
 
+.einspruchActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 0;
+}
+
+.einspruchHint {
+  font-size: 12px;
+  color: var(--text3);
+  margin: 0 0 4px;
+}
+
 .effectPreviewTags {
   display: flex;
   flex-wrap: wrap;
