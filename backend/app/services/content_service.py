@@ -96,6 +96,8 @@ def _gesetz_row_to_bundle_law(d: dict[str, Any]) -> dict[str, Any]:
         out["langzeitwirkung_positiv"] = d["langzeitwirkung_positiv"]
     if d.get("langzeitwirkung_negativ"):
         out["langzeitwirkung_negativ"] = d["langzeitwirkung_negativ"]
+    if d.get("pflichtausgaben_delta"):
+        out["pflichtausgaben_delta"] = float(d["pflichtausgaben_delta"])
     return out
 
 

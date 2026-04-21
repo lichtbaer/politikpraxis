@@ -450,7 +450,9 @@ export function strategieAllrounder(state: GameState): StrategyAction {
  */
 export function strategieVermittlungsprofi(state: GameState): StrategyAction {
   // Blockierte Gesetze (Bundesrat hat abgelehnt) → Vermittlungsausschuss
-  const blockiert = state.gesetze.filter(g => g.status === 'blockiert');
+  const blockiert = state.gesetze.filter(
+    g => g.status === 'blockiert' || g.status === 'br_einspruch',
+  );
   if (blockiert.length > 0 && state.pk >= 15) {
     return { typ: 'vermittlungsausschuss', gesetzId: blockiert[0].id };
   }

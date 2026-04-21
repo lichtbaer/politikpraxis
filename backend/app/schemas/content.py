@@ -70,6 +70,7 @@ class GesetzResponse(BaseModel):
     kosten_einmalig: float = 0
     kosten_laufend: float = 0
     einnahmeeffekt: float = 0
+    pflichtausgaben_delta: float = 0
     investiv: bool = False
     kommunal_pilot_moeglich: bool = True
     laender_pilot_moeglich: bool = True

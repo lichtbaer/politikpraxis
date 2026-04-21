@@ -25,6 +25,8 @@ interface AgendaCardActionsProps {
     abstimmen: (lawId: string) => void;
     setView: (view: ViewName) => void;
     startRoute: (lawId: string, route: RouteType) => void;
+    vermittlungsausschuss: (lawId: string) => void;
+    ueberstimmeBReinspruch: (lawId: string) => void;
   };
 }
 
@@ -116,6 +118,30 @@ export function AgendaCardActions({
           >
             {t('game:agenda.bundesratLobbying')}
           </button>
+        )}
+        {law.status === 'br_einspruch' && (
+          <div className={styles.einspruchActions}>
+            <p className={styles.einspruchHint}>
+              {t('game:agenda.brEinspruchHint', 'Bundesrat hat Einspruch eingelegt (Art. 77 GG).')}
+            </p>
+            <button
+              type="button"
+              className={styles.btn}
+              disabled={pk < 15 || law.ja <= 50}
+              title={law.ja <= 50 ? t('game:agenda.ueberstimmenKeineMehrheit', 'Absolute Mehrheit im Bundestag nicht erreichbar') : undefined}
+              onClick={() => actions.ueberstimmeBReinspruch(law.id)}
+            >
+              {t('game:agenda.ueberstimmen', 'Einspruch überstimmen')} (15 PK)
+            </button>
+            <button
+              type="button"
+              className={styles.btn}
+              disabled={pk < 20}
+              onClick={() => actions.vermittlungsausschuss(law.id)}
+            >
+              {t('game:agenda.vermittlungsausschuss', 'Vermittlungsausschuss')} (20 PK)
+            </button>
+          </div>
         )}
         {law.status === 'blockiert' && law.blockiert === 'bundesrat' && (
           <table className={styles.routeTable}>

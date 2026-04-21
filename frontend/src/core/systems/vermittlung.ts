@@ -25,8 +25,8 @@ export function kannVermitteln(state: GameState, lawId: string, complexity: numb
   if (!featureActive(complexity, 'vermittlungsausschuss')) return false;
   const law = state.gesetze.find(g => g.id === lawId);
   if (!law) return false;
-  // Nur bei Bundesrat-Blockade
-  if (law.blockiert !== 'bundesrat') return false;
+  // Nur bei Bundesrat-Blockade (Zustimmungsgesetz) oder Einspruch (Einspruchsgesetz)
+  if (law.blockiert !== 'bundesrat' && law.status !== 'br_einspruch') return false;
   // Nicht wenn bereits in Vermittlung
   if (state.vermittlungAktiv?.[lawId] != null) return false;
   // Genug PK?

@@ -45,6 +45,8 @@ export interface FramingOption {
   milieu_effekte: Record<string, number>;
   verband_effekte?: Record<string, number>;
   medienklima_delta: number;
+  /** Optionaler kleiner KPI-Modifier — wird bei Einbringen auf law.effekte addiert */
+  effekte?: Partial<LawEffects>;
 }
 
 export interface Law {

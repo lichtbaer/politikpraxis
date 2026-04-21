@@ -46,5 +46,7 @@ export function useGameActions() {
     partnerWiderstandTrotzdem: store.doPartnerWiderstandTrotzdem,
     partnerWiderstandKoalitionsverhandlung: store.doPartnerWiderstandKoalitionsverhandlung,
     partnerWiderstandAnpassen: store.doPartnerWiderstandAnpassen,
+    vermittlungsausschuss: store.doVermittlungsausschuss,
+    ueberstimmeBReinspruch: store.doUeberstimmeBReinspruch,
   };
 }
