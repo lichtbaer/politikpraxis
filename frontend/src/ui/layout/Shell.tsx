@@ -114,7 +114,6 @@ export function Shell() {
         togglePause();
       }
       if (e.key === '1') setSpeed(1);
-      if (e.key === '3') setSpeed(2);
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
@@ -187,7 +186,6 @@ export function Shell() {
             <div className={styles.shortcutGrid}>
               <kbd>{t('shortcuts.space')}</kbd><span>{t('shortcuts.pauseResume')}</span>
               <kbd>1</kbd><span>{t('shortcuts.slowSpeed')}</span>
-              <kbd>3</kbd><span>{t('shortcuts.fastSpeed')}</span>
               <kbd>Esc</kbd><span>{t('shortcuts.closeDrawer')}</span>
               <kbd>1-3</kbd><span>{t('shortcuts.eventChoice')}</span>
               <kbd>Enter</kbd><span>{t('shortcuts.confirmOnly')}</span>

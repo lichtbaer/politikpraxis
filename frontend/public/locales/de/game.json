@@ -2548,7 +2548,7 @@
     "understood": "Verstanden",
     "geschwindigkeit": {
       "title": "Spielgeschwindigkeit",
-      "text": "Drücke Leertaste zum Pausieren/Fortsetzen. Mit den Tasten 1 und 3 steuerst du die Geschwindigkeit. Das Spiel pausiert automatisch bei wichtigen Ereignissen."
+      "text": "Drücke Leertaste oder Taste 1 zum Pausieren/Fortsetzen. Das Spiel pausiert automatisch bei wichtigen Ereignissen."
     },
     "kabinettIntro": {
       "title": "Dein Kabinett",
@@ -2821,8 +2821,7 @@
     "title": "Tastaturkürzel",
     "space": "Leertaste",
     "pauseResume": "Pause / Fortsetzen",
-    "slowSpeed": "Langsame Geschwindigkeit",
-    "fastSpeed": "Schnelle Geschwindigkeit",
+    "slowSpeed": "Spielgeschwindigkeit",
     "closeDrawer": "Drawer schließen",
     "eventChoice": "Event-Auswahl (bei Event)",
     "confirmOnly": "Einzige Option bestätigen",

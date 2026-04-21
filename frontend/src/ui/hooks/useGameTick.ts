@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
 
-const SPEEDS = [0, 2000, 700];
+const SPEEDS = [0, 2000];
 
 export function useGameTick() {
   const speed = useGameStore(s => s.state.speed);

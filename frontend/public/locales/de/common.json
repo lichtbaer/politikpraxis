@@ -93,10 +93,8 @@
     "speed": {
       "pause": "Pause",
       "slow": "1×",
-      "fast": "3×",
       "pauseTitle": "Spiel pausieren / fortsetzen (Leertaste)",
-      "slowTitle": "Normal (1)",
-      "fastTitle": "Schnell (3)"
+      "slowTitle": "Normal (Leertaste / 1)"
     },
     "actions": {
       "introduce": "Einbringen",

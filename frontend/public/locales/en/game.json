@@ -2550,7 +2550,7 @@
     "understood": "Got it",
     "geschwindigkeit": {
       "title": "Game speed",
-      "text": "Press Space to pause/resume. Use keys 1 and 3 to control speed. The game pauses automatically for important events."
+      "text": "Press Space or key 1 to pause/resume. The game pauses automatically for important events."
     },
     "kabinettIntro": {
       "title": "Your cabinet",
@@ -2823,8 +2823,7 @@
     "title": "Keyboard shortcuts",
     "space": "Space",
     "pauseResume": "Pause / Resume",
-    "slowSpeed": "Slow speed",
-    "fastSpeed": "Fast speed",
+    "slowSpeed": "Game speed",
     "closeDrawer": "Close drawer",
     "eventChoice": "Event choice (during event)",
     "confirmOnly": "Confirm single option",
