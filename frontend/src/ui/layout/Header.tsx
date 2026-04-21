@@ -98,7 +98,6 @@ export function Header() {
   const speeds: { level: SpeedLevel; label: string; title: string; shortcut: string }[] = [
     { level: 0, label: '⏸', title: pauseTooltip, shortcut: '␣' },
     { level: 1, label: t('game.speed.slow'), title: t('game.speed.slowTitle'), shortcut: '1' },
-    { level: 2, label: t('game.speed.fast'), title: t('game.speed.fastTitle'), shortcut: '3' },
   ];
 
   return (

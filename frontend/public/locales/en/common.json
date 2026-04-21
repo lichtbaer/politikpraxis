@@ -93,10 +93,8 @@
     "speed": {
       "pause": "Pause",
       "slow": "1×",
-      "fast": "3×",
       "pauseTitle": "Pause / resume game (Space)",
-      "slowTitle": "Normal (1)",
-      "fastTitle": "Fast (3)"
+      "slowTitle": "Normal (Space / 1)"
     },
     "actions": {
       "introduce": "Introduce",
