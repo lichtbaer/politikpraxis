@@ -3,6 +3,7 @@
  * SMA-303: Label, Slogan, lesbare Milieu-Effekte
  */
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { Law, FramingOption } from '../../../core/types';
 import { Users, Newspaper } from '../../icons';
@@ -31,7 +32,7 @@ export function FramingModal({ law, onConfirm, onClose }: FramingModalProps) {
     onClose();
   };
 
-  return (
+  return createPortal(
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h3 className={styles.title}>{t('game:framing.title')}</h3>
@@ -92,6 +93,7 @@ export function FramingModal({ law, onConfirm, onClose }: FramingModalProps) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
