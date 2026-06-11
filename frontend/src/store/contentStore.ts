@@ -31,7 +31,13 @@ import type {
   KoalitionsZielContent,
 } from '../core/types';
 import { DEFAULT_VERBAENDE, DEFAULT_MINISTERIAL_INITIATIVEN } from '../data/defaults/scenarios';
-import { DEFAULT_BUNDESRAT, DEFAULT_SCENARIO } from '../data/defaults/scenarios';
+import { DEFAULT_BUNDESRAT, DEFAULT_SCENARIO, DEFAULT_CONTENT } from '../data/defaults/scenarios';
+import {
+  FALLBACK_CHARS,
+  FALLBACK_LAWS,
+  FALLBACK_EVENTS,
+  FALLBACK_BUNDESRAT_FRAKTIONEN,
+} from '../data/defaults/fallbackContent';
 import {
   BUNDESRAT_EVENTS,
   SPRECHER_ERSATZ,
@@ -459,6 +465,8 @@ export interface ContentStore {
   scenario: ContentBundle['scenario'];
   loading: boolean;
   loaded: boolean;
+  /** true wenn das Backend nicht erreichbar war und der gebündelte Fallback-Content läuft */
+  offline: boolean;
   error: string | null;
   load: (locale: string) => Promise<void>;
 }
@@ -532,10 +540,11 @@ export const useContentStore = create<ContentStore>((set) => ({
   scenario: DEFAULT_SCENARIO,
   loading: false,
   loaded: false,
+  offline: false,
   error: null,
 
   load: async (locale: string) => {
-    set({ error: null, loaded: false, loading: true });
+    set({ error: null, loaded: false, loading: true, offline: false });
     try {
       const [
         chars,
@@ -552,10 +561,12 @@ export const useContentStore = create<ContentStore>((set) => ({
         koalitionsZieleRaw,
       ] =
         await Promise.all([
-          apiFetch<CharApi[]>(`/content/chars?locale=${locale}`),
-          apiFetch<GesetzApi[]>(`/content/gesetze?locale=${locale}`),
-          apiFetch<EventApi[]>(`/content/events?locale=${locale}`),
-          apiFetch<BundesratFraktionApi[]>(`/content/bundesrat?locale=${locale}`),
+          // Kritische Endpoints: einzeln catchen, damit „Backend komplett weg“
+          // vom Teilausfall unterscheidbar ist (→ Offline-Fallback statt Fehlerscreen)
+          apiFetch<CharApi[]>(`/content/chars?locale=${locale}`).catch(() => null),
+          apiFetch<GesetzApi[]>(`/content/gesetze?locale=${locale}`).catch(() => null),
+          apiFetch<EventApi[]>(`/content/events?locale=${locale}`).catch(() => null),
+          apiFetch<BundesratFraktionApi[]>(`/content/bundesrat?locale=${locale}`).catch(() => null),
           apiFetch<MilieuApi[]>(`/content/milieus?locale=${locale}`).catch(() => []),
           apiFetch<PolitikfeldApi[]>(`/content/politikfelder?locale=${locale}`).catch(() => []),
           apiFetch<VerbandApi[]>(`/content/verbaende?locale=${locale}`).catch(() => []),
@@ -565,6 +576,43 @@ export const useContentStore = create<ContentStore>((set) => ({
           apiFetch<AgendaZielApi[]>(`/content/agenda-ziele?locale=${locale}`).catch(() => []),
           apiFetch<KoalitionsZielApi[]>(`/content/koalitions-ziele?locale=${locale}`).catch(() => []),
         ]);
+
+      if (chars == null && gesetze == null && eventsAll == null && bundesratFraktionen == null) {
+        // Backend nicht erreichbar → Spiel mit gebündeltem Fallback-Content starten
+        logger.warn('Content-API nicht erreichbar — starte Offline-Modus mit Fallback-Content');
+        set({
+          chars: FALLBACK_CHARS,
+          gesetze: FALLBACK_LAWS,
+          events: FALLBACK_EVENTS,
+          charEvents: {},
+          bundesratEvents: BUNDESRAT_EVENTS,
+          kommunalEvents: [],
+          vorstufenEvents: [],
+          extremismusEvents: [],
+          kommunalLaenderEvents: [],
+          steuerEvents: [],
+          bundesratFraktionen: FALLBACK_BUNDESRAT_FRAKTIONEN,
+          bundeslaender: [],
+          milieus: DEFAULT_CONTENT.milieus,
+          politikfelder: DEFAULT_CONTENT.politikfelder,
+          verbaende: DEFAULT_VERBAENDE,
+          ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
+          gesetzRelationen: {},
+          medienAkteureContent: DEFAULT_MEDIEN_AKTEURE,
+          dynamicEvents: [],
+          agendaZiele: DEFAULT_CONTENT.agendaZiele,
+          koalitionsZiele: DEFAULT_CONTENT.koalitionsZiele,
+          loading: false,
+          loaded: true,
+          offline: true,
+          error: null,
+        });
+        return;
+      }
+      if (chars == null || gesetze == null || eventsAll == null || bundesratFraktionen == null) {
+        // Teilausfall: inkonsistenter Mischzustand wäre schlimmer als ein Fehlerscreen
+        throw new Error('Content-API: Teilausfall kritischer Endpoints');
+      }
 
       const events = eventsAll.map(transformEvent);
 

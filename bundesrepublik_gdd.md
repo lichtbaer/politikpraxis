@@ -58,7 +58,7 @@ Monat 48: Wahl → Wiederwahl ≥ Wahlhürde?
 
 ### 3.1 Politisches Kapital (PK)
 
-Die zentrale Ressource. Jede Aktion kostet PK. Regeneration: +1–6 PK/Monat abhängig von Gesamtzustimmung.
+Die zentrale Ressource. Jede Aktion kostet PK. Regeneration: zustimmungsabhängig — Basis je Komplexitätsstufe (5/4/3/3) plus 1 PK je 10 Zustimmungspunkte über 40 (bzw. minus 1 je 10 darunter), begrenzt auf 1 bis 8/7/6/6 PK/Monat (Stufe 1–4). Gute Regierungsarbeit wird so direkt mit Handlungsspielraum belohnt.
 
 | Aktion | Kosten |
 |--------|--------|

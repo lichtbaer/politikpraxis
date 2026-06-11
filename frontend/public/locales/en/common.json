@@ -231,5 +231,9 @@
   "nav": {
     "legalFooter": "Legal",
     "back": "← Back"
+  },
+  "offline": {
+    "banner": "Offline mode: server unreachable — simplified game content, saves are stored locally only.",
+    "retry": "Reconnect"
   }
 }

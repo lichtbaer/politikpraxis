@@ -7,21 +7,8 @@
  */
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
-import type { ViewName } from '../../../core/types';
+import { TABS } from './tabs';
 import styles from './EbenenTabBar.module.css';
-
-const TABS: Array<{ id: ViewName; labelKey: string; icon: string; minLevel: number }> = [
-  { id: 'agenda', labelKey: 'game:tabBar.agenda', icon: '📋', minLevel: 1 },
-  { id: 'bundestag', labelKey: 'game:tabBar.bundestag', icon: '🏛', minLevel: 1 },
-  { id: 'kabinett', labelKey: 'game:tabBar.kabinett', icon: '👥', minLevel: 1 },
-  { id: 'haushalt', labelKey: 'game:tabBar.haushalt', icon: '💰', minLevel: 2 },
-  { id: 'medien', labelKey: 'game:tabBar.medien', icon: '📰', minLevel: 2 },
-  { id: 'verbaende', labelKey: 'game:tabBar.verbaende', icon: '🤝', minLevel: 2 },
-  { id: 'bundesrat', labelKey: 'game:tabBar.bundesrat', icon: '⚖️', minLevel: 2 },
-  { id: 'laender', labelKey: 'game:tabBar.laender', icon: '🗺', minLevel: 3 },
-  { id: 'kommunen', labelKey: 'game:tabBar.kommunen', icon: '🏘', minLevel: 3 },
-  { id: 'eu', labelKey: 'game:tabBar.eu', icon: '🇪🇺', minLevel: 3 },
-];
 
 const EBENE_COLORS: Record<string, string> = {
   agenda: 'var(--gold)',

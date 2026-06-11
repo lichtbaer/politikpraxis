@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
+import { useUIStore } from '../../store/uiStore';
 import { getKoalitionspartner } from '../../core/systems/koalition';
 import { featureActive } from '../../core/systems/features';
+import { getViewMinLevel } from '../components/EbenenTabBar/tabs';
 import { EventCard } from '../components/EventCard/EventCard';
 import { GegenfinanzierungsModal } from '../components/GegenfinanzierungsModal/GegenfinanzierungsModal';
 import { PartnerWiderstandModal } from '../components/PartnerWiderstandModal/PartnerWiderstandModal';
@@ -46,22 +48,20 @@ export function CenterPanel() {
       : undefined;
 
   useEffect(() => {
-    if (state.view === 'bundesrat' && !featureActive(complexity, 'bundesrat_sichtbar')) {
+    const gesperrt =
+      (state.view === 'bundesrat' && !featureActive(complexity, 'bundesrat_sichtbar')) ||
+      (state.view === 'verbaende' && !featureActive(complexity, 'verbands_lobbying')) ||
+      (state.view === 'haushalt' && complexity < 2) ||
+      ((state.view === 'laender' || state.view === 'kommunen') && complexity < 3) ||
+      (state.view === 'eu' && !featureActive(complexity, 'eu_route'));
+    if (gesperrt) {
+      // Nicht stumm umleiten (Alt-Shortcuts, geladene Saves) — erklären, ab wann es das gibt
+      useUIStore
+        .getState()
+        .showToast(t('game:tabBar.lockedTooltip', { level: getViewMinLevel(state.view) }), 'info');
       setView('agenda');
     }
-    if (state.view === 'verbaende' && !featureActive(complexity, 'verbands_lobbying')) {
-      setView('agenda');
-    }
-    if (state.view === 'haushalt' && complexity < 2) {
-      setView('agenda');
-    }
-    if ((state.view === 'laender' || state.view === 'kommunen') && complexity < 3) {
-      setView('agenda');
-    }
-    if (state.view === 'eu' && !featureActive(complexity, 'eu_route')) {
-      setView('agenda');
-    }
-  }, [state.view, complexity, setView]);
+  }, [state.view, complexity, setView, t]);
 
   const handleChoice = (event: GameEvent, choice: EventChoice) => {
     resolveEvent(event, choice);
