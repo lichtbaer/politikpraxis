@@ -208,6 +208,8 @@ def _spieler_ziel_ampel(gs: dict[str, Any], z: dict[str, Any]) -> str:
     typ = _str(z.get("bedingung_typ"))
     p = z.get("bedingung_param")
     param: dict[str, Any] = p if isinstance(p, dict) else {}
+    target: float
+    current: float
 
     if typ == "gesetz_anzahl_beschlossen":
         target = max(0, round(_num(param.get("min_beschlossen"))))
@@ -267,6 +269,8 @@ def _koalitions_ziel_ampel(gs: dict[str, Any], z: dict[str, Any]) -> str:
     p = z.get("bedingung_param")
     param: dict[str, Any] = p if isinstance(p, dict) else {}
     partner = _str(z.get("partner_profil"))
+    target: float
+    current: float
 
     if typ == "gesetz_politikfeld":
         pf = _str(param.get("politikfeld_id"))
