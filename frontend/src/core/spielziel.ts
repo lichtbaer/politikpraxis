@@ -19,6 +19,14 @@ export const SPIELZIEL_WAHLBONUS_MAX = 4;
 /** Mindestpunkte für „erfolgreiche Legislatur“ (entspricht grob Note D) */
 export const SPIELZIEL_ERFOLG_SCHWELLE = 40;
 
+/**
+ * Historisches Urteil wenn kein einziges Gesetz beschlossen wurde.
+ * Vorher neutral 50 — dadurch erreichte komplette Passivität zusammen mit dem
+ * Agenda-Default (55) fast die Erfolgsschwelle. Eine Regierung ohne ein
+ * einziges Gesetz hinterlässt historisch ein schlechtes Urteil.
+ */
+export const URTEIL_OHNE_GESETZE = 25;
+
 /** Gleiche Schwellen wie Legislatur-Bilanz (SMA-505) — für UI (Kanzlerbilanz, Auswertung). */
 export function noteFromHundred(score: number): LegislaturBilanzNote {
   if (score >= 80) return 'A';
@@ -79,7 +87,7 @@ function agendaAnteilPunkte(state: GameState, content: ContentBundle): {
  */
 function urteilAnteilPunkte(state: GameState): { punkte: number; anzahl: number } {
   const beschlossen = state.gesetze.filter((g) => g.status === 'beschlossen');
-  if (beschlossen.length === 0) return { punkte: 50, anzahl: 0 };
+  if (beschlossen.length === 0) return { punkte: URTEIL_OHNE_GESETZE, anzahl: 0 };
 
   let sum = 0;
   let wSum = 0;

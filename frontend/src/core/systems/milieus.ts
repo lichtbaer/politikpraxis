@@ -1,9 +1,9 @@
-import type { GameState, GesetzRelation, Approval } from '../types';
+import type { GameState, GesetzRelation } from '../types';
 import { milieuGesetzKongruenz } from '../ideologie';
 import { featureActive } from './features';
 import { getMedienMultiplikator } from './medienklima';
 import { berechneGesetzEffektMitSynergien } from '../gesetz';
-import { clamp, MILIEU_SCORE_SCHWELLEN, MILIEU_DELTAS } from '../constants';
+import { clamp, MILIEU_SCORE_SCHWELLEN, MILIEU_DELTAS, MILIEU_TO_ZUST } from '../constants';
 
 /**
  * Wendet Milieu-Effekte nach einem Gesetzesbeschluss an.
@@ -56,17 +56,6 @@ export function applyMilieuEffekte(
 
   return { ...state, milieuZustimmung, milieuGesetzReaktionen };
 }
-
-/** Milieu → zust-Segment Mapping */
-const MILIEU_TO_ZUST: Record<string, keyof Approval> = {
-  postmaterielle: 'prog',
-  soziale_mitte: 'arbeit',
-  prekaere: 'arbeit',
-  buergerliche_mitte: 'mitte',
-  leistungstraeger: 'mitte',
-  etablierte: 'mitte',
-  traditionelle: 'mitte',
-};
 
 /**
  * Monatlicher Milieu-Drift: Zieht milieuZustimmung langsam Richtung KPI-basierte Segmentwerte.

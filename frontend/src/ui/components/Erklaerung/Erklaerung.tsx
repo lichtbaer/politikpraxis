@@ -1,24 +1,27 @@
 /**
  * SMA-331: Universeller Wrapper für Fachbegriffe mit Tooltip-Erklärung.
  * Inline = dezente gepunktete Unterlinie, Icon = kleines ?-Icon daneben.
+ * Texte kommen lokalisiert aus `game:begriffe.<key>.{label,text}`.
  */
 import { useState, useRef, useEffect } from 'react';
-import { BEGRIFFE } from '../../../constants/begriffe';
+import { useTranslation } from 'react-i18next';
+import { BEGRIFF_KEYS } from '../../../constants/begriffe';
 import styles from './Erklaerung.module.css';
 
 interface ErklaerungProps {
-  /** Key aus BEGRIFFE-Dictionary */
+  /** Key aus BEGRIFF_KEYS */
   begriff: string;
-  /** Optional: eigener Label-Text statt BEGRIFFE[label] */
+  /** Optional: eigener Label-Text statt des Begriff-Labels */
   kinder?: React.ReactNode;
   /** true = unterstrichen (inline), false = ?-Icon */
   inline?: boolean;
 }
 
 export function Erklaerung({ begriff, kinder, inline = true }: ErklaerungProps) {
+  const { t } = useTranslation('game');
   const [showTooltip, setShowTooltip] = useState(false);
   const wrapperRef = useRef<HTMLSpanElement>(null);
-  const erklaerung = BEGRIFFE[begriff];
+  const bekannt = BEGRIFF_KEYS.has(begriff);
 
   useEffect(() => {
     if (!showTooltip) return;
@@ -31,7 +34,7 @@ export function Erklaerung({ begriff, kinder, inline = true }: ErklaerungProps) 
     return () => document.removeEventListener('mousedown', handleClick);
   }, [showTooltip]);
 
-  if (!erklaerung) {
+  if (!bekannt) {
     return <>{kinder ?? begriff}</>;
   }
 
@@ -44,7 +47,7 @@ export function Erklaerung({ begriff, kinder, inline = true }: ErklaerungProps) 
       role="tooltip"
       aria-describedby={showTooltip ? `erklaerung-${begriff}` : undefined}
     >
-      {kinder ?? erklaerung.label}
+      {kinder ?? t(`begriffe.${begriff}.label`)}
       {!inline && <span className={styles.icon} aria-hidden>?</span>}
       {showTooltip && (
         <span
@@ -52,18 +55,7 @@ export function Erklaerung({ begriff, kinder, inline = true }: ErklaerungProps) 
           className={styles.tooltip}
           role="tooltip"
         >
-          {erklaerung.text}
-          {erklaerung.link && (
-            <a
-              href={erklaerung.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.tooltipLink}
-              onClick={(e) => e.stopPropagation()}
-            >
-              Mehr erfahren →
-            </a>
-          )}
+          {t(`begriffe.${begriff}.text`)}
         </span>
       )}
     </span>

@@ -43,14 +43,14 @@ Random Events reagieren (pausieren Spiel, fordern Entscheidung)
     ↓
 Monat +1
     ↓
-Monat 48: Wahl → Wiederwahl ≥ 40%?
+Monat 48: Wahl → Wiederwahl ≥ Wahlhürde?
 ```
 
-**Zeitstruktur:** Echtzeit mit Pause. 1 Spieltick = 1 Monat. Geschwindigkeiten: Pause / 1× (1,8 Sek/Monat) / 3× (0,6 Sek/Monat). Events pausieren automatisch.
+**Zeitstruktur:** Echtzeit mit Pause. 1 Spieltick = 1 Monat. Geschwindigkeiten: Pause / 1× (1,8 Sek/Monat). Events pausieren automatisch.
 
-**Win-Bedingung:** Gesamtzustimmung in Monat 48 ≥ **Wahlhürde** der gewählten Komplexitätsstufe (35 % / 38 % / 40 % / 42 % für Stufen 1–4; Feld `electionThreshold` im Spielstand).
+**Win-Bedingung:** Gesamtzustimmung in Monat 48 ≥ **Wahlhürde** der gewählten Komplexitätsstufe (35 % / 38 % / 40 % / 42 % für Stufen 1–4; zentral in `ELECTION_THRESHOLDS_BY_COMPLEXITY`, Feld `electionThreshold` im Spielstand). Zusätzlich zählt das dreistufige Spielziel (Bilanz 30 % / Agenda 35 % / Historisches Urteil 35 %, Erfolgsschwelle 40 Punkte) — ohne ein einziges beschlossenes Gesetz fällt das historische Urteil schlecht aus.
 
-**Lose-Bedingungen:** Wahlzustimmung unter 40% bei Wahl, oder Koalitionsbruch (Stabilitätswert < 15%).
+**Lose-Bedingungen:** Wahlzustimmung unter der Wahlhürde bei der Wahl, oder Koalitionsbruch (Stabilitätswert < 15%).
 
 ---
 

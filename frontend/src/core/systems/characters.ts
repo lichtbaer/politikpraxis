@@ -2,6 +2,7 @@ import type { GameState, Character } from '../types';
 import { addLog } from '../log';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { nextRandom } from '../rng';
+import { CHAR_BONUS_MOOD_MIN, CHAR_KPI_BONUS, KPI_ZF_BOUNDS, KPI_AL_BOUNDS } from '../constants';
 
 /**
  * Mapping Legacy-Char-IDs → Ressort.
@@ -34,20 +35,28 @@ function findByRessort(chars: Character[], ressort: string): Character | undefin
   return chars.find((c) => c.ressort === ressort);
 }
 
+/**
+ * Monatliche Minister-Boni. Einheitliches Muster: Mood ≥ CHAR_BONUS_MOOD_MIN
+ * gibt einen deterministischen, persistenten KPI-Bonus von CHAR_KPI_BONUS.
+ * (Vorher inkonsistent: Wirtschaft nur mit 30%-Chance, Umwelt wirkungslos,
+ * weil der zust-Bonus von recalcApproval im selben Tick überschrieben wurde.)
+ * Innenminister: Sabotage bei Mood ≤ 1 (Downside); sein Upside ist die
+ * halbierte Skandal-Chance in medienklima.ts (INNEN_SKANDAL_SCHUTZ_FAKTOR).
+ */
 export function applyCharBonuses(state: GameState): GameState {
   const newState = { ...state, kpi: { ...state.kpi }, zust: { ...state.zust } };
   const gesetze = newState.gesetze.map(g => ({ ...g }));
 
-  // Umweltminister — prog-Bonus (bei Stimmung ≥ 4)
+  // Umweltminister — ZF-Bonus (Umwelt-/Lebensqualitätspolitik wirkt auf Zufriedenheit)
   const umwelt = findByRessort(newState.chars, 'umwelt');
-  if (umwelt && umwelt.mood >= 4) {
-    newState.zust.prog = Math.min(90, newState.zust.prog + 0.3);
+  if (umwelt && umwelt.mood >= CHAR_BONUS_MOOD_MIN) {
+    newState.kpi.zf = +Math.min(KPI_ZF_BOUNDS[1], newState.kpi.zf + CHAR_KPI_BONUS).toFixed(2);
   }
 
-  // Finanzminister — hh-Bonus (bei Stimmung ≥ 4 und negativem Haushalt)
+  // Finanzminister — hh-Bonus (bei negativem Haushalt, bis maximal 0)
   const finanzen = findByRessort(newState.chars, 'finanzen');
-  if (finanzen && finanzen.mood >= 4 && newState.kpi.hh < 0) {
-    newState.kpi.hh = +Math.min(0, newState.kpi.hh + 0.05).toFixed(2);
+  if (finanzen && finanzen.mood >= CHAR_BONUS_MOOD_MIN && newState.kpi.hh < 0) {
+    newState.kpi.hh = +Math.min(0, newState.kpi.hh + CHAR_KPI_BONUS).toFixed(2);
   }
 
   // Innenminister — Sabotage (bei Stimmung ≤ 1)
@@ -62,10 +71,10 @@ export function applyCharBonuses(state: GameState): GameState {
     }
   }
 
-  // Wirtschaftsminister — al-Bonus (bei Stimmung ≥ 4)
+  // Wirtschaftsminister — al-Bonus
   const wirtschaft = findByRessort(newState.chars, 'wirtschaft');
-  if (wirtschaft && wirtschaft.mood >= 4 && nextRandom() < 0.3) {
-    newState.kpi.al = +Math.max(2, newState.kpi.al - 0.05).toFixed(2);
+  if (wirtschaft && wirtschaft.mood >= CHAR_BONUS_MOOD_MIN) {
+    newState.kpi.al = +Math.max(KPI_AL_BOUNDS[0], newState.kpi.al - CHAR_KPI_BONUS).toFixed(2);
   }
 
   return { ...newState, gesetze };
@@ -96,13 +105,6 @@ export function checkUltimatums(
   }
 
   return state;
-}
-
-export function updateCoalition(state: GameState): GameState {
-  const avgMood = state.chars.reduce((s, c) => s + c.mood, 0) / state.chars.length;
-  const avgLoy = state.chars.reduce((s, c) => s + c.loyalty, 0) / state.chars.length;
-  const coalition = Math.round(Math.min(100, Math.max(0, (avgMood / 4) * 50 + (avgLoy / 5) * 50)));
-  return { ...state, coalition };
 }
 
 export function applyMoodChange(

@@ -10,6 +10,7 @@ import { MedienklimaTrendChart } from '../components/MedienklimaTrendChart/Medie
 import { MedienAkteureGrid } from '../components/MedienAkteure/MedienAkteureGrid';
 import { MedienAktionen } from '../components/MedienAkteure/MedienAktionen';
 import type { Milieu } from '../../core/types';
+import { MILIEU_TO_ZUST } from '../../core/constants';
 import styles from './MediaView.module.css';
 
 /** Stufe 1: 3 aggregierte Gruppen — Mapping für Anzeige */
@@ -28,17 +29,6 @@ const ALL_7_IDS = [
   'etablierte', 'soziale_mitte', 'buergerliche_mitte', 'postmaterielle',
   'leistungstraeger', 'traditionelle', 'prekaere',
 ] as const;
-
-/** Aggregation Stufe 1: Milieu-IDs → zust-Gruppe (für Fallback wenn milieuZustimmung fehlt) */
-const MILIEU_TO_ZUST: Record<string, 'arbeit' | 'mitte' | 'prog'> = {
-  postmaterielle: 'prog',
-  soziale_mitte: 'arbeit',
-  prekaere: 'arbeit',
-  buergerliche_mitte: 'mitte',
-  leistungstraeger: 'mitte',
-  etablierte: 'mitte',
-  traditionelle: 'mitte',
-};
 
 function getBarColor(value: number): string {
   if (value >= 55) return 'var(--green)';

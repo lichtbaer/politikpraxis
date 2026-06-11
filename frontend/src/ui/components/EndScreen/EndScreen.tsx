@@ -4,6 +4,7 @@ import type { EChartsOption } from 'echarts';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { checkAchievements } from '../../../core/systems/achievements';
+import { DEFAULT_ELECTION_THRESHOLD } from '../../../core/constants';
 import styles from './EndScreen.module.css';
 
 function ApprovalHistoryChart({ data, threshold }: { data: number[]; threshold?: number }) {
@@ -154,7 +155,7 @@ export function EndScreen() {
   if (!state.gameOver) return null;
 
   const wahlergebnisEnd = state.wahlergebnis ?? state.zust.g;
-  const thresholdEnd = state.electionThreshold ?? 40;
+  const thresholdEnd = state.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD;
   const wahlUeberHuerdeEnd = state.wahlUeberHuerde ?? wahlergebnisEnd >= thresholdEnd;
   const legislaturErfolgEnd = state.legislaturErfolg ?? state.won;
 

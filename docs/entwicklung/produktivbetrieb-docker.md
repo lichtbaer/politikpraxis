@@ -44,7 +44,7 @@ In den Containern `nginx` und `certbot` ist `certbot_conf` auf **`/etc/letsencry
 
 - `fullchain.pem` / `privkey.pem` unter `/etc/letsencrypt/live/<Zertifikatsname>/`
 
-Der übliche Name entspricht der **ersten** mit `certbot certonly … -d` angegebenen Domain (im Projektbeispiel: `politikpraxis.de` → Pfade wie `live/politikpraxis.de/`). Bei **eigener Domain** müssen `server_name`, `ssl_certificate` und `certbot -d` konsistent sein — siehe auch [Deployment — nginx: Sicherheit](deployment.md).
+Der übliche Name entspricht der **ersten** mit `certbot certonly … -d` angegebenen Domain (im Projektbeispiel: `politikpraxis.de` → Pfade wie `live/politikpraxis.de/`). Bei **eigener Domain** müssen `server_name`, `ssl_certificate` und `certbot -d` konsistent sein — siehe auch [Deployment — nginx: Sicherheit](../deployment.md).
 
 ### Erstausstellung
 
@@ -154,7 +154,7 @@ Ziel: Certbot lauscht **selbst** kurz auf Port 80. Alle anderen Dienste auf Port
 
 ---
 
-Ergänzende Hinweise zu `.env`, CORS und Deploy-Pipeline: [Deployment (Produktion)](deployment.md).
+Ergänzende Hinweise zu `.env`, CORS und Deploy-Pipeline: [Deployment (Produktion)](../deployment.md).
 
 ### Erneuerung im laufenden Betrieb
 
@@ -207,7 +207,7 @@ docker compose -f docker-compose.prod.yml exec nginx nginx -s reload
 docker compose -f docker-compose.prod.yml restart backend
 ```
 
-**Updates (Images neu bauen):** wie in [Deployment — Manuelles Deployment](deployment.md): `git pull`, `build`, `up -d --remove-orphans`. Datenbank-Migrationen laufen beim Backend-Start mit Alembic — vor größeren Releases ggf. Backup einplanen.
+**Updates (Images neu bauen):** wie in [Deployment — Manuelles Deployment](../deployment.md): `git pull`, `build`, `up -d --remove-orphans`. Datenbank-Migrationen laufen beim Backend-Start mit Alembic — vor größeren Releases ggf. Backup einplanen.
 
 ---
 
@@ -243,7 +243,7 @@ Produktions-Tipps: regelmäßige, getestete Backups; Aufbewahrung außerhalb des
 | Renew schlägt fehl | Port 80, DNS, Rate-Limit | `certbot` Logs, `renew --dry-run`, externe Erreichbarkeit testen |
 | Nach Deploy alte API | Browser-Cache / alter Container | Hard-Reload; prüfen ob neues Image läuft (`docker compose images`) |
 
-Weitere Hinweise: [Deployment — Troubleshooting](deployment.md).
+Weitere Hinweise: [Deployment — Troubleshooting](../deployment.md).
 
 ---
 

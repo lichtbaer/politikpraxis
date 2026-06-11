@@ -50,9 +50,15 @@ describe('Balance-Simulation (echte Engine)', () => {
     );
   }, 120_000);
 
-  it('musterschueler: Gewinnrate mindestens 20%', () => {
+  it('musterschueler: Gewinnrate über 50% — gutes Spiel wird zuverlässig belohnt', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['musterschueler'], N, COMPLEXITY);
-    expect(result.gewinnRate).toBeGreaterThanOrEqual(0.20);
+    expect(result.gewinnRate).toBeGreaterThan(0.5);
+  });
+
+  it('pk_horten (nichts tun): Gewinnrate unter 50% — Passivität gewinnt nicht', () => {
+    // Ohne beschlossene Gesetze fällt das historische Urteil schlecht aus (URTEIL_OHNE_GESETZE)
+    const result = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
+    expect(result.gewinnRate).toBeLessThan(0.5);
   });
 
   it('pk_horten (nichts tun): mediane Wahlprognose unter 55%', () => {
@@ -79,17 +85,22 @@ describe('Balance-Simulation (echte Engine)', () => {
     expect(medien.wahlprognose.median).toBeGreaterThanOrEqual(mogul.wahlprognose.median);
   });
 
-  it('kabinettspfleger: Gewinnrate mindestens 20%', () => {
+  it('kabinettspfleger: Gewinnrate über 50%', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['kabinettspfleger'], N, COMPLEXITY);
-    expect(result.gewinnRate).toBeGreaterThanOrEqual(0.20);
+    expect(result.gewinnRate).toBeGreaterThan(0.5);
+  });
+
+  it('Wahlhürde differenziert: wahlkaempfer schafft die Hürde deutlich öfter als pk_horten', () => {
+    const aktiv = monteCarlo(SIM_CONTENT, strategien['wahlkaempfer'], N, COMPLEXITY);
+    const passiv = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
+    expect(aktiv.wahlUeberHuerdeRate).toBeGreaterThan(passiv.wahlUeberHuerdeRate + 0.25);
   });
 });
 
 // =============================================================================
 // Block B: Gewinnvarianten
 // Testet verschiedene Wege zum Sieg über Score-Qualität und Wahlprognose.
-// Hinweis: Da electionThreshold=35% sehr niedrig ist, gewinnen fast alle
-// Strategien die Wahl. Wir testen daher Gesamtpunktzahl und Prognose-Qualität.
+// Die Sim läuft mit der realen Wahlhürde der Stufe (42% bei Komplexität 4).
 // =============================================================================
 describe('Gewinnvarianten', () => {
   const strategien = alleStrategien();
@@ -108,11 +119,11 @@ describe('Gewinnvarianten', () => {
     expect(wahlk.wahlprognose.median).toBeGreaterThanOrEqual(muster.wahlprognose.median - 5);
   });
 
-  it('Erdrutschsieg möglich: allrounder erreicht obere Prognose-Quantile deutlich über Schwelle', () => {
+  it('Erdrutschsieg möglich: allrounder erreicht obere Prognose-Quantile über der Wahlhürde', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['allrounder'], N, COMPLEXITY);
     // Erdrutschsieg-Schwelle (55%+) ist mit einfachem Testinhalt (4 Basis-Gesetze) nicht erreichbar.
-    // Wir prüfen p90 > 43%: die besten 10% der Runs sollen deutlich über der Wahlhürde (35%) liegen.
-    expect(result.wahlprognose.p90).toBeGreaterThan(43);
+    // Wir prüfen p90 > 45%: die besten 10% der Runs sollen über der realen Wahlhürde (42%) liegen.
+    expect(result.wahlprognose.p90).toBeGreaterThan(45);
     expect(result.crashes).toBe(0);
   });
 

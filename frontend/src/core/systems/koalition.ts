@@ -6,6 +6,7 @@ import { featureActive } from './features';
 import { applyMoodChange } from './characters';
 import { scheduleEffects } from './economy';
 import { berechneKongruenz } from '../ideologie';
+import { MILIEU_TO_ZUST } from '../constants';
 import {
   ALLE_PARTEIEN,
   GRUENE,
@@ -29,12 +30,6 @@ export function berechneKoalitionspartner(
   return mitDistanz[0].partei.id;
 }
 
-/** Milieu-ID zu zust-Feld (Approval) */
-const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
-  postmaterielle: 'prog',
-  soziale_mitte: 'mitte',
-  arbeit: 'arbeit',
-};
 
 /** Holt Koalitionspartner-Content (SMA-299: dynamisch aus State wenn vorhanden) */
 export function getKoalitionspartner(

@@ -23,6 +23,8 @@ import {
   MAX_FIRED_EVENTS,
   MAX_PENDING,
   MAX_LOG_ENTRIES_VALIDATION,
+  MILIEU_TO_ZUST,
+  DEFAULT_ELECTION_THRESHOLD,
 } from './constants';
 import { selectEventPool } from './systems/eventPoolSelection';
 import {
@@ -36,16 +38,6 @@ import { bildeKabinett, waehleMinisterAusPool } from './kabinett';
 import { MINISTER_AGENDEN_CONFIG } from '../data/defaults/ministerAgenden';
 import { withInitialKoalitionsAgenda } from './onboardingAgenda';
 
-/** Milieu → zust-Feld für initiale Zustimmung (SMA-264) */
-const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
-  postmaterielle: 'prog',
-  soziale_mitte: 'arbeit',
-  prekaere: 'arbeit',
-  buergerliche_mitte: 'mitte',
-  leistungstraeger: 'mitte',
-  etablierte: 'mitte',
-  traditionelle: 'mitte',
-};
 
 /** SMA-327: Kanzler-Rolle je nach Geschlecht */
 const KANZLER_ROLLE: Record<'sie' | 'er' | 'they', string> = {
@@ -509,7 +501,7 @@ export function validateGameState(raw: unknown): GameState {
   const pendingRaw = Array.isArray(get('pending', [])) ? (get('pending', []) as unknown[]) : [];
   const pending = pendingRaw.slice(0, MAX_PENDING).filter((e): e is GameState['pending'][number] => e != null && typeof e === 'object');
 
-  const electionThreshold = clamp(Number(get('electionThreshold', 40)), 30, 50);
+  const electionThreshold = clamp(Number(get('electionThreshold', DEFAULT_ELECTION_THRESHOLD)), 30, 50);
   const wahlprognoseVal = get('wahlprognose', undefined);
   const wahlprognose = wahlprognoseVal != null ? clamp(Number(wahlprognoseVal), 0, 100) : undefined;
   const wahlergebnisVal = get('wahlergebnis', undefined);

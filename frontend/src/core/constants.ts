@@ -36,6 +36,20 @@ export const KONGRUENZ_PK_MODS = [-3, 0, 8, 12] as const;
 /** Milieu-Delta-Grenzen: Score ≥85: +4, ≥70: +2, ≥55: +1, ≥35: -1, ≥20: -2, <20: -4 */
 export const MILIEU_SCORE_SCHWELLEN = [85, 70, 55, 35, 20] as const;
 export const MILIEU_DELTAS = [4, 2, 1, -1, -2, -4] as const;
+/**
+ * Zentrales Mapping Milieu-ID → Zustimmungssegment (einzige Quelle der Wahrheit).
+ * Wird von Init (state.ts), Drift (milieus.ts), Prognose (wahlprognose.ts),
+ * Koalition (koalition.ts) und UI verwendet.
+ */
+export const MILIEU_TO_ZUST: Record<string, 'arbeit' | 'mitte' | 'prog'> = {
+  postmaterielle: 'prog',
+  soziale_mitte: 'arbeit',
+  prekaere: 'arbeit',
+  buergerliche_mitte: 'mitte',
+  leistungstraeger: 'mitte',
+  etablierte: 'mitte',
+  traditionelle: 'mitte',
+};
 
 // --- Gesetz-Vorstufen / Boni ---
 /** Max. BT-Stimmen-Bonus in % */
@@ -66,8 +80,15 @@ export const KOALITION_SITZANTEIL = 53;
 export const BUNDESTAG_SITZE = 600;
 
 // --- Wahl / Spielende ---
-/** Standard-Wahlhürde in % */
-export const DEFAULT_ELECTION_THRESHOLD = 45;
+/** Wahlhürde in % je Komplexitätsstufe (1 = Einstieg … 4 = Vollständig) */
+export const ELECTION_THRESHOLDS_BY_COMPLEXITY: Record<number, number> = {
+  1: 35,
+  2: 38,
+  3: 40,
+  4: 42,
+};
+/** Standard-Wahlhürde in % — Fallback wenn keine Stufe bekannt ist (z. B. alte Spielstände) */
+export const DEFAULT_ELECTION_THRESHOLD = 40;
 /** Min. Koalitionsstärke für Spielfortsetzung */
 export const MIN_KOALITION_FORTGANG = 15;
 /** Legislaturperiode in Monaten */
@@ -102,10 +123,41 @@ export const BR_SPRECHER_WECHSEL_CHANCE = 0.2;
 export const BR_INITIATIVE_CHANCE = 0.25;
 /** Chance auf Skandal-Event */
 export const SKANDAL_CHANCE = 0.08;
+/** Skandal-Chance-Faktor wenn Innenminister sehr zufrieden ist (Mood ≥ 4) */
+export const INNEN_SKANDAL_SCHUTZ_FAKTOR = 0.5;
 /** Chance auf positives Medien-Event */
 export const POSITIV_MEDIEN_CHANCE = 0.1;
 /** Chance auf KPI-Drift (Arbeitslosigkeit) */
 export const KPI_DRIFT_CHANCE = 0.30;
+
+// --- KPI-Drift Parameter (vorher Magic Numbers in economy.ts) ---
+/** AL-Drift: Bias (random − Bias, > 0.5 = Aufwärtstrend) und Magnitude */
+export const KPI_AL_DRIFT_BIAS = 0.60;
+export const KPI_AL_DRIFT_MAGNITUDE = 0.3;
+/** HH-Drift: Chance, Bias, Magnitude */
+export const KPI_HH_DRIFT_CHANCE = 0.12;
+export const KPI_HH_DRIFT_BIAS = 0.52;
+export const KPI_HH_DRIFT_MAGNITUDE = 0.2;
+/** GI-Drift: Chance, Bias (< 0.5 = Aufwärtstrend bei Ungleichheit), Magnitude */
+export const KPI_GI_DRIFT_CHANCE = 0.15;
+export const KPI_GI_DRIFT_BIAS = 0.45;
+export const KPI_GI_DRIFT_MAGNITUDE = 0.15;
+/** ZF-Drift: Chance, Bias, Magnitude */
+export const KPI_ZF_DRIFT_CHANCE = 0.22;
+export const KPI_ZF_DRIFT_BIAS = 0.55;
+export const KPI_ZF_DRIFT_MAGNITUDE = 0.3;
+/**
+ * Natürlicher ZF-Verfall pro Monat ohne aktive Politik.
+ * Vorher -0.38/Monat (≈ -18 über 48 Monate) — erzeugte eine Abwärtsspirale,
+ * die das Spätspiel mechanisch immer schwerer machte. Kalibriert per
+ * Monte-Carlo-Sim: -0.25 differenziert aktive von passiven Strategien,
+ * ohne in die Spirale zu kippen; dazu milde Erholung bei sehr niedriger ZF.
+ */
+export const KPI_ZF_VERFALL = 0.25;
+/** Unter dieser ZF-Schwelle greift eine milde natürliche Erholung */
+export const KPI_ZF_ERHOLUNG_SCHWELLE = 35;
+/** Erholungsrate pro Monat wenn ZF < Schwelle (Bevölkerung gewöhnt sich an Krisen) */
+export const KPI_ZF_ERHOLUNG = 0.15;
 
 // --- KPI-Drift Clamp-Grenzen ---
 /** AL-Drift: [min, max] — Arbeitslosigkeit kann nicht unter 2% fallen */
@@ -144,6 +196,17 @@ export const MISSTRAUENSVOTUM_KOALITIONSRUNDE_PK = 20;
 export const EINSPRUCH_UEBERSTIMMUNG_PK = 15;
 /** BT-Ja-Schwelle für Überstimmung: absolute Mehrheit (>50% aller Mitglieder) */
 export const EINSPRUCH_UEBERSTIMMUNG_SCHWELLE = 50;
+
+// --- Charakter-Boni (Minister mit Mood ≥ Schwelle geben monatliche KPI-Boni) ---
+/** Mood-Schwelle ab der Minister-Boni greifen */
+export const CHAR_BONUS_MOOD_MIN = 4;
+/**
+ * Monatlicher KPI-Bonus eines zufriedenen Ministers (kumuliert über die Legislatur).
+ * Einheitlich für Finanzen (HH), Wirtschaft (AL) und Umwelt (ZF) —
+ * vorher inkonsistent: teils zufallsbasiert, teils wirkungslos (prog wurde
+ * von recalcApproval im selben Tick überschrieben).
+ */
+export const CHAR_KPI_BONUS = 0.05;
 
 // --- Medienklima ---
 /** Startwert und Migrations-Fallback für medienKlima (neutrale Stimmung) */
@@ -186,6 +249,21 @@ export const APPROVAL_HH_FAKTOR = 2.5;
 export const APPROVAL_GI_FAKTOR = 0.25;
 /** Gewicht der Zufriedenheit in der Zustimmungsformel */
 export const APPROVAL_ZF_FAKTOR = 0.4;
+
+// --- Segment-Zustimmungs-Faktoren (arbeit/mitte/prog relativ zur Basis g) ---
+/** arbeit: profitiert von niedriger AL, leidet unter Ungleichheit */
+export const SEGMENT_ARBEIT_AL_FAKTOR = 1.5;
+export const SEGMENT_ARBEIT_GI_FAKTOR = 0.4;
+/**
+ * mitte: Haushalts-Sensitivität. Vorher 3.0 — zusammen mit APPROVAL_HH_FAKTOR 2.5
+ * dominierte Fiskalpolitik die Zustimmung ~5x stärker als Sozialpolitik.
+ */
+export const SEGMENT_MITTE_HH_FAKTOR = 1.0;
+/** prog: leidet unter Ungleichheit, profitiert von Zufriedenheit (vorher 0.15 — kaum spürbar) */
+export const SEGMENT_PROG_GI_FAKTOR = 0.5;
+export const SEGMENT_PROG_ZF_FAKTOR = 0.3;
+/** Gemeinsame GI-Baseline für Segmente (vorher inkonsistent 28 vs. 30) */
+export const SEGMENT_GI_BASELINE = 30;
 
 // --- Wahlkampf PK-Kosten ---
 /** PK für Wahlkampf-Rede (Milieu-Boost) */

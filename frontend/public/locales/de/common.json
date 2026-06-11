@@ -33,6 +33,8 @@
     "newGame": "Neues Spiel",
     "loadGame": "Spiel laden",
     "settings": "Einstellungen",
+    "settingsComingSoon": "Einstellungen sind in Arbeit und bald verfügbar",
+    "comingSoon": "Bald verfügbar",
     "credits": "Credits",
     "loadVersionError": "Spielstand ist nicht kompatibel mit dieser Version.",
     "loadParseError": "Spielstand konnte nicht gelesen werden.",
@@ -144,8 +146,9 @@
     "manualSaveFallback": "Server nicht erreichbar – lokal gespeichert",
     "manualSaveSlotLabel": "Speicher-Slot",
     "manualSaveTooltip": "Spielstand speichern (Cloud)",
-    "saveHintBanner": "Melde dich an, um deinen Spielstand zu speichern und auf mehreren Geräten weiterzuspielen.",
-    "saveHintLogin": "Anmelden"
+    "saveHintBanner": "Dein Spielstand wird automatisch in diesem Browser gespeichert. Melde dich an, um in der Cloud zu speichern und auf mehreren Geräten weiterzuspielen.",
+    "saveHintLogin": "Anmelden",
+    "autoSaveFailed": "Automatisches Speichern fehlgeschlagen — Browser-Speicher voll oder blockiert. Spielstand manuell exportieren!"
   },
   "startMap": {
     "subtitle": "Bund · Länder · Kommunen · Europa"
@@ -214,6 +217,11 @@
     "content": "Inhalte werden geladen…"
   },
   "contentError": "Inhalte konnten nicht geladen werden.",
+  "errors": {
+    "network": "Netzwerkfehler — Server nicht erreichbar",
+    "invalidResponse": "Ungültige Server-Antwort",
+    "generic": "Ein Fehler ist aufgetreten."
+  },
   "nav": {
     "legalFooter": "Rechtliches",
     "back": "← Zurück"

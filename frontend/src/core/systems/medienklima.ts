@@ -17,7 +17,13 @@ import { withPause, getAutoPauseLevel } from '../eventPause';
 import { featureActive } from './features';
 import { verbrauchePK } from '../pk';
 import { isEventAvailable, recordEventFired } from './eventUtils';
-import { clamp, SKANDAL_CHANCE, POSITIV_MEDIEN_CHANCE } from '../constants';
+import {
+  clamp,
+  SKANDAL_CHANCE,
+  POSITIV_MEDIEN_CHANCE,
+  INNEN_SKANDAL_SCHUTZ_FAKTOR,
+  CHAR_BONUS_MOOD_MIN,
+} from '../constants';
 
 /** SMA-409: Index 0–100 ganzzahlig für State, Historie und Anzeige (keine Float-Artefakte). */
 export function roundMedienKlimaIndex(v: number): number {
@@ -525,7 +531,15 @@ function checkSkandale(
     },
   );
 
-  if (eligible.length === 0 || nextRandom() >= SKANDAL_CHANCE) return state;
+  // Zufriedener Innenminister (Mood ≥ 4) halbiert die Skandal-Chance —
+  // Gegenstück zu seiner Sabotage bei Mood ≤ 1 (characters.ts)
+  const innen = state.chars.find((c) => c.ressort === 'innen' && !c.ist_kanzler);
+  const skandalChance =
+    innen && innen.mood >= CHAR_BONUS_MOOD_MIN
+      ? SKANDAL_CHANCE * INNEN_SKANDAL_SCHUTZ_FAKTOR
+      : SKANDAL_CHANCE;
+
+  if (eligible.length === 0 || nextRandom() >= skandalChance) return state;
 
   const event = eligible[Math.floor(nextRandom() * eligible.length)];
   const gameEvent = medienEventToGameEvent(event);

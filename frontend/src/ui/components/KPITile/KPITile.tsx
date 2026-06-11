@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TickLogEntry, KPI } from '../../../core/types';
 import { Erklaerung } from '../Erklaerung/Erklaerung';
-import { BEGRIFFE, KPI_TO_BEGRIFF } from '../../../constants/begriffe';
+import { KPI_TO_BEGRIFF } from '../../../constants/begriffe';
 import styles from './KPITile.module.css';
 
 interface KPITileProps {
@@ -142,8 +142,8 @@ export function KPITile({
       </div>
       {showPopover && hasPopoverContent && (
         <div className={styles.popover}>
-          {kpiKey && KPI_TO_BEGRIFF[kpiKey] && BEGRIFFE[KPI_TO_BEGRIFF[kpiKey]] && (
-            <p className={styles.popoverDesc}>{BEGRIFFE[KPI_TO_BEGRIFF[kpiKey]].text}</p>
+          {kpiKey && KPI_TO_BEGRIFF[kpiKey] && (
+            <p className={styles.popoverDesc}>{t(`begriffe.${KPI_TO_BEGRIFF[kpiKey]}.text`)}</p>
           )}
           {changeReasons && changeReasons.length > 0 && (
             <div className={styles.popoverChanges}>

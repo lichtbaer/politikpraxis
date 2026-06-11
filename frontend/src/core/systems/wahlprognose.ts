@@ -1,16 +1,6 @@
 import type { GameState, ContentBundle } from '../types';
 import { featureActive } from './features';
-
-/** Milieu → zust-Feld für initiale Zustimmung */
-const MILIEU_TO_ZUST: Record<string, keyof GameState['zust']> = {
-  postmaterielle: 'prog',
-  soziale_mitte: 'arbeit',
-  prekaere: 'arbeit',
-  buergerliche_mitte: 'mitte',
-  leistungstraeger: 'mitte',
-  etablierte: 'mitte',
-  traditionelle: 'mitte',
-};
+import { MILIEU_TO_ZUST } from '../constants';
 
 /**
  * Berechnet Wahlprognose (zust.g) aus gewichteter Milieu-Zustimmung.

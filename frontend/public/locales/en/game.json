@@ -758,47 +758,47 @@
     "bauernproteste": {
       "typeLabel": "Agricultural crisis",
       "title": "Farmers block motorways and ministries",
-      "quote": "Thousands of tractors are heading for Berlin \u2014 the mood in rural areas is at boiling point.",
+      "quote": "Thousands of tractors are heading for Berlin — the mood in rural areas is at boiling point.",
       "context": "Farmers' associations are protesting against the planned reduction of agricultural diesel subsidies and rising regulatory burdens. Economics Minister Maier warns of supply shortages; Interior Minister Braun demands firm action.",
-      "ticker": "Farmers' protest: tractors block capital \u2014 government under pressure",
+      "ticker": "Farmers' protest: tractors block capital — government under pressure",
       "choices": {
         "0": {
           "label": "Launch emergency programme",
-          "desc": "Agricultural diesel compensation and deregulation \u2014 costly but de-escalating",
+          "desc": "Agricultural diesel compensation and deregulation — costly but de-escalating",
           "log": "Emergency programme for farmers passed. Protests ease, budget burdened."
         },
         "1": {
           "label": "Offer dialogue",
-          "desc": "Convene a round table \u2014 buys time, solves nothing immediately",
+          "desc": "Convene a round table — buys time, solves nothing immediately",
           "log": "Agricultural round table convened. Farmers sceptical, protests continue."
         },
         "2": {
           "label": "Order police to clear blockades",
-          "desc": "Clearing blockades \u2014 politically risky",
+          "desc": "Clearing blockades — politically risky",
           "log": "Police action against blockades. Rural sentiment shifts permanently."
         }
       }
     },
     "pflegenotstand": {
       "typeLabel": "Health crisis",
-      "title": "Hospitals sound the alarm \u2014 care emergency declared",
+      "title": "Hospitals sound the alarm — care emergency declared",
       "quote": "We can no longer guarantee care, warns the German Hospital Association.",
-      "context": "Hundreds of thousands of care positions are unfilled. Health Minister Neumann demands immediate action \u2014 health insurers resist higher contributions.",
+      "context": "Hundreds of thousands of care positions are unfilled. Health Minister Neumann demands immediate action — health insurers resist higher contributions.",
       "ticker": "Care emergency: hospitals warn of care system collapse",
       "choices": {
         "0": {
           "label": "Launch care emergency programme",
-          "desc": "Fast-track nursing staff act \u2014 expensive",
+          "desc": "Fast-track nursing staff act — expensive",
           "log": "Care emergency programme passed. Neumann relieved, budget burdened."
         },
         "1": {
           "label": "Appoint expert commission",
-          "desc": "Buys time, reduces pressure \u2014 but no immediate effect",
+          "desc": "Buys time, reduces pressure — but no immediate effect",
           "log": "Expert commission on care appointed. Report expected in 6 months."
         },
         "2": {
           "label": "Require health insurers to act",
-          "desc": "Contribution increase \u2014 unpopular but effective",
+          "desc": "Contribution increase — unpopular but effective",
           "log": "Health insurers must increase care funding. Business criticism follows."
         }
       }
@@ -807,12 +807,12 @@
       "typeLabel": "Digital attack",
       "title": "AI deepfake attack on federal agency uncovered",
       "quote": "An AI-generated video of the Federal Interior Minister spread uncontrollably on social networks.",
-      "context": "A state actor used generative AI for targeted disinformation. The BSI is overwhelmed \u2014 the EU Commission demands national emergency regulation before the EU AI Act takes effect.",
+      "context": "A state actor used generative AI for targeted disinformation. The BSI is overwhelmed — the EU Commission demands national emergency regulation before the EU AI Act takes effect.",
       "ticker": "AI deepfake scandal: federal agency targeted by state disinformation",
       "choices": {
         "0": {
           "label": "Suspend AI in government agencies",
-          "desc": "Security pause \u2014 hampers innovation, protects immediately",
+          "desc": "Security pause — hampers innovation, protects immediately",
           "log": "AI use suspended in federal agencies. BSI reviewing all systems."
         },
         "1": {
@@ -822,7 +822,7 @@
         },
         "2": {
           "label": "Seek EU coordination",
-          "desc": "Wait for a European solution \u2014 loses time",
+          "desc": "Wait for a European solution — loses time",
           "log": "EU coordination requested. Risk remains until response arrives."
         }
       }
@@ -2522,6 +2522,34 @@
       }
     }
   },
+  "introTour": {
+    "ariaLabel": "Game introduction",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "weiter": "Next",
+    "zurueck": "Back",
+    "ueberspringen": "Skip",
+    "losgehts": "Let's go!",
+    "ziel": {
+      "title": "Your goal: re-election",
+      "text": "You lead the federal government through 48 months. On the left you see your election forecast — it must be above the election threshold at the end. A successful term also requires passed laws and fulfilled agenda goals."
+    },
+    "gesetze": {
+      "title": "Introducing laws",
+      "text": "In the center you find your agenda. Select laws and introduce them to parliament. Passed laws affect unemployment, budget, equality and satisfaction with a delay."
+    },
+    "pk": {
+      "title": "Political Capital (PK)",
+      "text": "Almost every action costs PK — your key resource, shown in the header. PK regenerates monthly based on your approval. Spend it wisely!"
+    },
+    "zeit": {
+      "title": "Time is running",
+      "text": "The game advances in monthly steps. Press Space to pause at any time. Important events pause the game automatically and ask for your decision."
+    },
+    "hilfe": {
+      "title": "Help is always available",
+      "text": "In the top right you find the glossary (?) with all game terms and the keyboard shortcuts (⌨). Underlined terms in the game can be clicked for an explanation."
+    }
+  },
   "tips": {
     "erstesGesetz": {
       "title": "Your first law",
@@ -2821,6 +2849,7 @@
   },
   "shortcuts": {
     "title": "Keyboard shortcuts",
+    "headerButton": "Show keyboard shortcuts (?)",
     "space": "Space",
     "pauseResume": "Pause / Resume",
     "slowSpeed": "Game speed",
@@ -2859,5 +2888,135 @@
     "neutral": "Neutral",
     "opposition": "Opposition",
     "votes": "{{count}} votes"
+  },
+  "begriffe": {
+    "gini_index": {
+      "label": "Gini index",
+      "text": "Measures inequality of income distribution. 0 = everyone earns the same, 100 = one person has everything. Germany is normally around 30–33."
+    },
+    "konjunkturindex": {
+      "label": "Economic index",
+      "text": "Shows whether the economy is currently growing or shrinking. Positive = upswing, negative = downturn. Affects tax revenue and unemployment."
+    },
+    "arbeitslosigkeit": {
+      "label": "Unemployment",
+      "text": "Share of people without a job among the working-age population. Below 5% counts as full employment. High unemployment strains the budget and satisfaction."
+    },
+    "zufriedenheit": {
+      "label": "Satisfaction",
+      "text": "General life satisfaction of the population. Directly affects the election forecast — dissatisfied citizens vote for the opposition."
+    },
+    "schuldenbremse": {
+      "label": "Debt brake",
+      "text": "Constitutional rule obliging the state not to spend more money than it takes in. Exceptions apply only in crises or for investments."
+    },
+    "haushaltssaldo": {
+      "label": "Budget balance",
+      "text": "Difference between government revenue and spending. Negative = deficit (the state spends more than it earns). Positive = surplus."
+    },
+    "pflichtausgaben": {
+      "label": "Mandatory spending",
+      "text": "Spending the state is legally required to provide — e.g. pensions, social benefits, interest. It cannot simply be cut."
+    },
+    "strukturelles_defizit": {
+      "label": "Structural deficit",
+      "text": "A permanent budget gap that persists even in good economic times — not explained by the business cycle. Harder to fix than a cyclical deficit."
+    },
+    "sondervermoegen": {
+      "label": "Special fund",
+      "text": "A state investment fund outside the regular budget. Enables large spending (e.g. climate protection, defence) without violating the debt brake — politically controversial."
+    },
+    "koalitionsstabilitaet": {
+      "label": "Coalition stability",
+      "text": "How well the governing party and coalition partner work together. Drops when laws are passed that contradict the partner or when ministers' demands are rejected."
+    },
+    "bt_stimmen": {
+      "label": "Bundestag votes",
+      "text": "Share of MPs voting for a law. A simple majority requires more than 50%. Some laws (e.g. constitutional amendments) require 2/3."
+    },
+    "abstimmungsbereitschaft": {
+      "label": "Voting readiness",
+      "text": "How likely a Bundesrat faction is to vote for a law. Influenced by lobbying, relationship building and trade-offs."
+    },
+    "bundesrat": {
+      "label": "Bundesrat",
+      "text": "Representation of the 16 federal states at the federal level. Certain laws (e.g. state matters) require Bundesrat approval. If dominated by the opposition, it can block laws."
+    },
+    "pk": {
+      "label": "Political Capital (PK)",
+      "text": "Your political capacity to act. Every action (introducing laws, lobbying, talks) costs PK. It regenerates monthly — budget it wisely."
+    },
+    "framing": {
+      "label": "Framing",
+      "text": "How a law is presented to the public. The same law can be framed as \"climate protection\" or as \"a burden on the economy\" — with different effects on milieus and the media climate."
+    },
+    "lobbying": {
+      "label": "Lobbying",
+      "text": "Targeted influence on political decision-makers. In the game: you can influence associations and Bundesrat factions with PK to secure majorities."
+    },
+    "milieus": {
+      "label": "Voter milieus",
+      "text": "Social groups with similar values and lifestyles. Each milieu reacts differently to laws. Their approval determines your election forecast."
+    },
+    "postmaterielle": {
+      "label": "Post-materialists",
+      "text": "Academically oriented voters focused on the environment and justice. Support climate protection, civil rights and progressive change. React positively to green policies, negatively to security and austerity laws."
+    },
+    "etablierte": {
+      "label": "Established",
+      "text": "Wealthy, economically successful voters with high turnout. Value stability, low taxes and business-friendly policies."
+    },
+    "prekaere": {
+      "label": "Precariat",
+      "text": "People in insecure living conditions with low income. React strongly to social policy, minimum wage and housing issues. Have lower voter turnout."
+    },
+    "leistungstraeger": {
+      "label": "High performers",
+      "text": "Professionally committed middle class oriented towards advancement. Value economic dynamism, performance-based taxes and education."
+    },
+    "buergerliche_mitte": {
+      "label": "Bourgeois middle",
+      "text": "Economically oriented middle class with bourgeois values. Broad spectrum, reacts to economic and security issues."
+    },
+    "traditionelle": {
+      "label": "Traditionals",
+      "text": "Older, conservatively oriented voters with strong local roots. Value order, family and proven structures. React critically to rapid social change."
+    },
+    "soziale_mitte": {
+      "label": "Social middle",
+      "text": "Socially oriented middle class with progressive tendencies. Support solidarity, education and fair wages."
+    },
+    "politikfeld_druck": {
+      "label": "Policy field pressure",
+      "text": "How strongly an association is currently exerting pressure in its policy field. High pressure means: this association expects a response soon. Ignore it too long and the relationship deteriorates."
+    },
+    "konflikt_partner": {
+      "label": "Conflict partner",
+      "text": "This association actively opposes your policies. It can publicly campaign against your laws and worsen your media climate."
+    },
+    "gesetz_lag": {
+      "label": "Committee phase",
+      "text": "Time between introducing a law and the vote. Laws pass through parliamentary committees before the vote — this takes 1–6 months."
+    },
+    "investiv": {
+      "label": "Investment law",
+      "text": "A law that costs money but relieves the budget in the long run or generates economic growth. The economic effect kicks in with a delay."
+    },
+    "kongruenz": {
+      "label": "Ideological congruence",
+      "text": "How well a law fits your political orientation. High congruence = cheaper PK costs and better milieu reactions. Low congruence = more expensive and politically risky."
+    },
+    "multilevel_governance": {
+      "label": "Multilevel governance",
+      "text": "Politics happens on several levels at once: EU, federal, state, municipal. Laws can be prepared on one level to achieve more impact on another."
+    },
+    "medienklima": {
+      "label": "Media climate",
+      "text": "How the press reports on your government. A positive media climate strengthens your election forecast. Scandals, mistakes and poor communication worsen it."
+    },
+    "wahlprognose": {
+      "label": "Election forecast",
+      "text": "Current polling numbers — what percentage would vote for your party. At the end of the term you must exceed the election threshold to win."
+    }
   }
 }

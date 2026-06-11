@@ -7,12 +7,12 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
+import { DEFAULT_ELECTION_THRESHOLD } from '../../core/constants';
 import { SpielauswertungScreen } from './SpielauswertungScreen';
 import { KanzlerbilanzBeat } from './KanzlerbilanzBeat';
 import styles from './WahlnachtScreen.module.css';
 
 const HOCHRECHNUNG_DURATION_MS = 2500;
-const THRESHOLD_DISPLAY = 40;
 
 export function WahlnachtScreen() {
   const { t } = useTranslation('game');
@@ -21,7 +21,7 @@ export function WahlnachtScreen() {
   const [displayPercent, setDisplayPercent] = useState(0);
 
   const wahlergebnis = state.wahlergebnis ?? state.zust.g;
-  const threshold = state.electionThreshold ?? THRESHOLD_DISPLAY;
+  const threshold = state.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD;
   const wahlUeberHuerde = state.wahlUeberHuerde ?? wahlergebnis >= threshold;
   const legislaturErfolg = state.legislaturErfolg ?? state.won ?? false;
   const showKanzlerbilanzDetails = featureActive(complexity, 'wahlnacht_analyse');

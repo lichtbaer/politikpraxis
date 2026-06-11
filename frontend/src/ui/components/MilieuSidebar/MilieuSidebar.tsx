@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { MilieuBar } from '../MilieuBar/MilieuBar';
+import { MILIEU_TO_ZUST } from '../../../core/constants';
 import styles from './MilieuSidebar.module.css';
 
 /** SMA-321: Immer 3 aggregierte Gruppen in der Sidebar (nie individuelle Milieus) */
@@ -15,19 +16,11 @@ function gewichtesMittel(
   milieuZustimmung: Record<string, number>,
   zust: { arbeit: number; mitte: number; prog: number },
 ): number {
-  const MILIEU_TO_ZUST: Record<string, number> = {
-    postmaterielle: zust.prog,
-    soziale_mitte: zust.arbeit,
-    prekaere: zust.arbeit,
-    buergerliche_mitte: zust.mitte,
-    leistungstraeger: zust.mitte,
-    etablierte: zust.mitte,
-    traditionelle: zust.mitte,
-  };
   let sum = 0;
   let count = 0;
   for (const id of milieuIds) {
-    const v = milieuZustimmung[id] ?? MILIEU_TO_ZUST[id] ?? 50;
+    const segment = MILIEU_TO_ZUST[id];
+    const v = milieuZustimmung[id] ?? (segment ? zust[segment] : 50);
     sum += v;
     count++;
   }

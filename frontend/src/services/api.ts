@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger';
+import i18n from '../i18n';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -59,7 +60,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     });
   } catch {
     logger.warn('API network error', { path, method });
-    throw new ApiError('Netzwerkfehler — Server nicht erreichbar', 0, 'network');
+    throw new ApiError(i18n.t('errors.network'), 0, 'network');
   }
 
   // Auto-refresh: on 401 with a token, try refreshing once then retry.
@@ -100,6 +101,6 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   try {
     return JSON.parse(text) as T;
   } catch {
-    throw new ApiError('Ungültige Server-Antwort', response.status, 'parse');
+    throw new ApiError(i18n.t('errors.invalidResponse'), response.status, 'parse');
   }
 }

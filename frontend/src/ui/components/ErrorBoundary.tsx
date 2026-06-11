@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { logger } from '../../utils/logger';
+import i18n from '../../i18n';
 
 interface Props {
   children: ReactNode;
@@ -33,7 +34,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         this.props.fallback ?? (
           <div style={{ padding: '1rem', color: 'red' }}>
-            Ein Fehler ist aufgetreten.
+            {i18n.t('errors.generic')}
           </div>
         )
       );

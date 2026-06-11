@@ -3,6 +3,7 @@ import { logger } from '../utils/logger';
 import i18n from '../i18n';
 import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName, SpielerParteiState } from '../core/types';
 import { createInitialState } from '../core/state';
+import { ELECTION_THRESHOLDS_BY_COMPLEXITY, DEFAULT_ELECTION_THRESHOLD } from '../core/constants';
 import { tick, addLog } from '../core/engine';
 import { einbringen, lobbying, abstimmen, fraktionssitzung, type EinbringenContext, type GesetzBeschlussContext } from '../core/systems/parliament';
 import {
@@ -210,8 +211,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       addLog(initial, 'game:logs.legislaturBegonnen', 'hi'),
       'game:logs.koalitionsvertrag', 'g',
     );
-    const ELECTION_THRESHOLDS: Record<number, number> = { 1: 35, 2: 38, 3: 40, 4: 42 };
-    const electionThreshold = ELECTION_THRESHOLDS[get().complexity] ?? 40;
+    const electionThreshold =
+      ELECTION_THRESHOLDS_BY_COMPLEXITY[get().complexity] ?? DEFAULT_ELECTION_THRESHOLD;
     const ersterMonatTicker = i18n.exists('game:onboarding.erster_monat')
       ? i18n.t('game:onboarding.erster_monat')
       : 'Neue Legislaturperiode. Koalitionsvertrag unterzeichnet.';
@@ -837,7 +838,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ...validated,
         bundesratFraktionen: validated.bundesratFraktionen ?? initial.bundesratFraktionen,
         firedBundesratEvents: validated.firedBundesratEvents ?? [],
-        electionThreshold: validated.electionThreshold ?? 40,
+        electionThreshold: validated.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD,
       });
       set({ state, content: getContentBundle() });
     } catch {
@@ -854,7 +855,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ...validated,
         bundesratFraktionen: validated.bundesratFraktionen ?? initial.bundesratFraktionen,
         firedBundesratEvents: validated.firedBundesratEvents ?? [],
-        electionThreshold: validated.electionThreshold ?? 40,
+        electionThreshold: validated.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD,
       });
       const spielerPartei = save.spielerPartei ?? state.spielerPartei ?? null;
       const kanzlerGeschlecht = save.kanzlerGeschlecht ?? state.kanzlerGeschlecht ?? 'sie';

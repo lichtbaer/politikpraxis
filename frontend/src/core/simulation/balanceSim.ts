@@ -19,7 +19,11 @@ import { vermittlungsausschuss } from '../systems/vermittlung';
 import { resolveEvent } from '../systems/events';
 import type { GameState, ContentBundle } from '../types';
 import type { StrategyAction, Strategy } from './strategien';
-import { LEGISLATUR_MONATE } from '../constants';
+import {
+  LEGISLATUR_MONATE,
+  ELECTION_THRESHOLDS_BY_COMPLEXITY,
+  DEFAULT_ELECTION_THRESHOLD,
+} from '../constants';
 
 export interface SimResult {
   gewonnen: boolean;
@@ -207,8 +211,11 @@ export function runSingleSim(
 ): SimResult {
   try {
     let state = createInitialState(content, complexity, DEFAULT_AUSRICHTUNG);
-    // Balance-Test: etwas niedrigere Schwelle als Standard 40–42 (Monte Carlo soll Erfolg messen, nicht nur Hardcore).
-    state = { ...state, electionThreshold: 35 };
+    // Reale Wahlhürde der simulierten Stufe — die Sim soll messen, was Spieler tatsächlich erleben.
+    state = {
+      ...state,
+      electionThreshold: ELECTION_THRESHOLDS_BY_COMPLEXITY[complexity] ?? DEFAULT_ELECTION_THRESHOLD,
+    };
 
     for (let _month = 1; _month <= LEGISLATUR_MONATE; _month++) {
       // Wenn ein Event aktiv ist, zuerst auflösen

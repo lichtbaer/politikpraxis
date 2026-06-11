@@ -15,8 +15,17 @@ i18n
     // WICHTIG: Niemals User-Input direkt in Übersetzungskeys interpolieren;
     // bei dangerouslySetInnerHTML mit t()-Werten muss DOMPurify verwendet werden.
     interpolation: { escapeValue: false },
-    /** Bei fehlendem Key keinen Roh-Key anzeigen (z. B. "charEvents.mi_mi_wm_ee.title"), sondern leeren String. */
-    parseMissingKeyHandler: () => '',
+    /**
+     * Fehlende Keys: in Produktion leerer String statt Roh-Key
+     * (z. B. "charEvents.mi_mi_wm_ee.title"). Im Dev-Modus loggen und den
+     * Key anzeigen, damit fehlende Übersetzungen nicht unbemerkt bleiben.
+     */
+    parseMissingKeyHandler: import.meta.env.DEV
+      ? (key: string) => {
+          console.warn(`i18n: fehlender Übersetzungskey "${key}"`);
+          return key;
+        }
+      : () => '',
   });
 
 export default i18n;

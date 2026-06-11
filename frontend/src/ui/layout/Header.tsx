@@ -220,6 +220,15 @@ export function Header() {
         >
           ?
         </button>
+        <button
+          type="button"
+          className={styles.glossarBtn}
+          onClick={() => useUIStore.getState().setShowShortcutHelp(true)}
+          title={t('game:shortcuts.headerButton')}
+          aria-label={t('game:shortcuts.headerButton')}
+        >
+          ⌨
+        </button>
       </div>
       {showPressemitteilungModal && (
         <PressemitteilungModal
