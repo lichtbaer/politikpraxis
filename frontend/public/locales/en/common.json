@@ -217,6 +217,11 @@
     "content": "Loading content…"
   },
   "contentError": "Content could not be loaded.",
+  "errors": {
+    "network": "Network error — server unreachable",
+    "invalidResponse": "Invalid server response",
+    "generic": "An error occurred."
+  },
   "nav": {
     "legalFooter": "Legal",
     "back": "← Back"

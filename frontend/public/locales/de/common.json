@@ -217,6 +217,11 @@
     "content": "Inhalte werden geladen…"
   },
   "contentError": "Inhalte konnten nicht geladen werden.",
+  "errors": {
+    "network": "Netzwerkfehler — Server nicht erreichbar",
+    "invalidResponse": "Ungültige Server-Antwort",
+    "generic": "Ein Fehler ist aufgetreten."
+  },
   "nav": {
     "legalFooter": "Rechtliches",
     "back": "← Zurück"
