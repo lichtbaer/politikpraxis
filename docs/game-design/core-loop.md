@@ -25,7 +25,7 @@ Monat 48: Wahl → Wiederwahl über **wahlhürde** (35–42 % je nach Komplexit�
 
 ## Zeitstruktur
 
-Echtzeit mit Pause. 1 Spieltick = 1 Monat. Geschwindigkeiten: Pause / 1× (1,8 Sek/Monat) / 3× (0,6 Sek/Monat). Events pausieren automatisch.
+Echtzeit mit Pause. 1 Spieltick = 1 Monat. Geschwindigkeiten: Pause / 1× (1,8 Sek/Monat). Events pausieren automatisch.
 
 ---
 

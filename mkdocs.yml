@@ -44,6 +44,7 @@ nav:
     - Projektstruktur: entwicklung/projektstruktur.md
     - Architektur: entwicklung/architektur.md
     - Balance-Simulation: entwicklung/balance-simulation.md
+    - Verbesserungsplan: entwicklung/verbesserungsplan.md
     - CI/CD: ci-cd.md
     - Deployment (Produktion): deployment.md
     - Produktivbetrieb (Docker): entwicklung/produktivbetrieb-docker.md
