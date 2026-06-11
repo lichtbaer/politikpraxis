@@ -3,8 +3,15 @@ import {
   clamp,
   APPROVAL_BASE, APPROVAL_AL_FAKTOR, APPROVAL_HH_FAKTOR, APPROVAL_GI_FAKTOR, APPROVAL_ZF_FAKTOR,
   APPROVAL_MIN, APPROVAL_MAX, SEGMENT_APPROVAL_MIN,
+  SEGMENT_ARBEIT_AL_FAKTOR, SEGMENT_ARBEIT_GI_FAKTOR, SEGMENT_MITTE_HH_FAKTOR,
+  SEGMENT_PROG_GI_FAKTOR, SEGMENT_PROG_ZF_FAKTOR, SEGMENT_GI_BASELINE,
   KPI_DRIFT_CHANCE, MAX_LOG_ENTRIES,
   KPI_AL_BOUNDS, KPI_HH_BOUNDS, KPI_GI_BOUNDS, KPI_ZF_BOUNDS,
+  KPI_AL_DRIFT_BIAS, KPI_AL_DRIFT_MAGNITUDE,
+  KPI_HH_DRIFT_CHANCE, KPI_HH_DRIFT_BIAS, KPI_HH_DRIFT_MAGNITUDE,
+  KPI_GI_DRIFT_CHANCE, KPI_GI_DRIFT_BIAS, KPI_GI_DRIFT_MAGNITUDE,
+  KPI_ZF_DRIFT_CHANCE, KPI_ZF_DRIFT_BIAS, KPI_ZF_DRIFT_MAGNITUDE,
+  KPI_ZF_VERFALL, KPI_ZF_ERHOLUNG_SCHWELLE, KPI_ZF_ERHOLUNG,
 } from '../constants';
 import { nextRandom } from '../rng';
 
@@ -19,9 +26,15 @@ export function recalcApproval(kpi: KPI, _currentApproval: Approval): Approval {
     + (50 - kpi.gi) * APPROVAL_GI_FAKTOR
     + (kpi.zf - 50) * APPROVAL_ZF_FAKTOR;
   const g = clamp(Math.round(w), APPROVAL_MIN, APPROVAL_MAX);
-  const arbeit = clamp(Math.round(g + (10 - kpi.al) * 1.5 - (kpi.gi - 30) * 0.4), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
-  const mitte = clamp(Math.round(g + kpi.hh * 3), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
-  const prog = clamp(Math.round(g - (kpi.gi - 28) * 0.5 + (kpi.zf - 50) * 0.15), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
+  const arbeit = clamp(
+    Math.round(g + (10 - kpi.al) * SEGMENT_ARBEIT_AL_FAKTOR - (kpi.gi - SEGMENT_GI_BASELINE) * SEGMENT_ARBEIT_GI_FAKTOR),
+    SEGMENT_APPROVAL_MIN, APPROVAL_MAX,
+  );
+  const mitte = clamp(Math.round(g + kpi.hh * SEGMENT_MITTE_HH_FAKTOR), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
+  const prog = clamp(
+    Math.round(g - (kpi.gi - SEGMENT_GI_BASELINE) * SEGMENT_PROG_GI_FAKTOR + (kpi.zf - 50) * SEGMENT_PROG_ZF_FAKTOR),
+    SEGMENT_APPROVAL_MIN, APPROVAL_MAX,
+  );
   return { g, arbeit, mitte, prog };
 }
 
@@ -51,22 +64,27 @@ export function applyKPIDrift(kpi: KPI): KPI {
   const newKpi = { ...kpi };
   // AL: häufiger Drift mit leichtem Aufwärtstrend (Arbeitsmarkt verschlechtert sich ohne aktive Politik)
   if (nextRandom() < KPI_DRIFT_CHANCE) {
-    newKpi.al = clamp(newKpi.al + (nextRandom() - 0.60) * 0.3, ...KPI_AL_BOUNDS);
+    newKpi.al = clamp(newKpi.al + (nextRandom() - KPI_AL_DRIFT_BIAS) * KPI_AL_DRIFT_MAGNITUDE, ...KPI_AL_BOUNDS);
   }
   // HH: seltener Drift mit leichter Verschlechterung (strukturelle Ausgabensteigerungen)
-  if (nextRandom() < 0.12) {
-    newKpi.hh = clamp(newKpi.hh + (nextRandom() - 0.52) * 0.2, ...KPI_HH_BOUNDS);
+  if (nextRandom() < KPI_HH_DRIFT_CHANCE) {
+    newKpi.hh = clamp(newKpi.hh + (nextRandom() - KPI_HH_DRIFT_BIAS) * KPI_HH_DRIFT_MAGNITUDE, ...KPI_HH_BOUNDS);
   }
   // GI: selten, leicht steigend (Ungleichheit wächst ohne Gegenmaßnahmen)
-  if (nextRandom() < 0.15) {
-    newKpi.gi = clamp(newKpi.gi + (nextRandom() - 0.45) * 0.15, ...KPI_GI_BOUNDS);
+  if (nextRandom() < KPI_GI_DRIFT_CHANCE) {
+    newKpi.gi = clamp(newKpi.gi + (nextRandom() - KPI_GI_DRIFT_BIAS) * KPI_GI_DRIFT_MAGNITUDE, ...KPI_GI_BOUNDS);
   }
   // ZF: häufigerer Drift mit Abwärtstrend (Bevölkerung wird ohne aktive Politik unzufriedener)
-  if (nextRandom() < 0.22) {
-    newKpi.zf = clamp(newKpi.zf + (nextRandom() - 0.55) * 0.3, ...KPI_ZF_BOUNDS);
+  if (nextRandom() < KPI_ZF_DRIFT_CHANCE) {
+    newKpi.zf = clamp(newKpi.zf + (nextRandom() - KPI_ZF_DRIFT_BIAS) * KPI_ZF_DRIFT_MAGNITUDE, ...KPI_ZF_BOUNDS);
   }
-  // Natürlicher ZF-Verfall: Zufriedenheit sinkt langsam ohne aktive Maßnahmen
-  newKpi.zf = clamp(newKpi.zf - 0.38, ...KPI_ZF_BOUNDS);
+  // Natürlicher ZF-Verfall mit Bodenbildung: bei sehr niedriger ZF erholt sich
+  // die Stimmung leicht statt weiter zu fallen (verhindert die Abwärtsspirale).
+  if (newKpi.zf < KPI_ZF_ERHOLUNG_SCHWELLE) {
+    newKpi.zf = clamp(newKpi.zf + KPI_ZF_ERHOLUNG, ...KPI_ZF_BOUNDS);
+  } else {
+    newKpi.zf = clamp(newKpi.zf - KPI_ZF_VERFALL, ...KPI_ZF_BOUNDS);
+  }
   return newKpi;
 }
 

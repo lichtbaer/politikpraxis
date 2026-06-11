@@ -152,13 +152,35 @@ describe('checkUltimatums', () => {
 });
 
 describe('applyCharBonuses', () => {
-  it('Umweltminister mood >= 4: erhöht prog leicht', () => {
+  it('Umweltminister mood >= 4: erhöht zf leicht (persistenter KPI-Bonus)', () => {
     const state = makeState({
       chars: [makeChar({ id: 'gp_um', ressort: 'umwelt', mood: 4 })],
-      zust: { g: 50, arbeit: 50, mitte: 50, prog: 50 },
+      kpi: { al: 5, hh: 0, gi: 30, zf: 60 },
     });
     const result = applyCharBonuses(state);
-    expect(result.zust.prog).toBeGreaterThan(50);
+    expect(result.kpi.zf).toBeGreaterThan(60);
+  });
+
+  it('Wirtschaftsminister mood >= 4: senkt al deterministisch', () => {
+    const state = makeState({
+      chars: [makeChar({ id: 'cdp_wm', ressort: 'wirtschaft', mood: 4 })],
+      kpi: { al: 5, hh: 0, gi: 30, zf: 60 },
+    });
+    const result = applyCharBonuses(state);
+    expect(result.kpi.al).toBeLessThan(5);
+  });
+
+  it('Minister mit mood < 4: kein Bonus', () => {
+    const state = makeState({
+      chars: [
+        makeChar({ id: 'gp_um', ressort: 'umwelt', mood: 3 }),
+        makeChar({ id: 'cdp_wm', ressort: 'wirtschaft', mood: 3 }),
+      ],
+      kpi: { al: 5, hh: 0, gi: 30, zf: 60 },
+    });
+    const result = applyCharBonuses(state);
+    expect(result.kpi.al).toBe(5);
+    expect(result.kpi.zf).toBe(60);
   });
 
   it('Finanzminister mood >= 4 und negatives hh: verbessert hh', () => {
