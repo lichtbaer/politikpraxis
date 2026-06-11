@@ -6,6 +6,7 @@ from typing import Any
 
 from sqlalchemy import Select, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from app.models.content import (
     AgendaZiel,
@@ -88,32 +89,48 @@ def _ideologie(
 
 
 # ---------------------------------------------------------------------------
-# Generic cached i18n fetch helper
+# Generic cached i18n fetch helper (per-item locale fallback)
 # ---------------------------------------------------------------------------
+
+
+def _fallback_locale(locale: str) -> str:
+    return LOCALE_FALLBACK.get(locale, "de")
+
+
+def _pick_i18n(
+    primary: Any | None,
+    fallback: Any | None,
+    field: str,
+    default: Any = None,
+) -> Any:
+    """Primäre Locale bevorzugen, sonst Fallback-Locale für ein i18n-Feld."""
+    if primary is not None:
+        val = getattr(primary, field, None)
+        if val is not None:
+            return val
+    if fallback is not None:
+        val = getattr(fallback, field, None)
+        if val is not None:
+            return val
+    return default
 
 
 async def _fetch_cached_i18n(
     db: AsyncSession,
     locale: str,
     cache_key: tuple[str, str],
-    build_stmt: Callable[[str], Select[Any]],
+    build_stmt: Callable[[str, str], Select[Any]],
     map_rows: Callable[[Sequence[Any], str, AsyncSession], Awaitable[list[dict]]],
 ) -> list[dict]:
-    """Generic helper: cache check → query with locale fallback → map rows → cache set."""
+    """Cache → alle Basiszeilen mit LEFT JOIN primär + Fallback-Locale → map."""
     cached = _get_cached(cache_key)
     if cached is not None:
         return cached
 
-    use_locale = locale
-    result = await db.execute(build_stmt(use_locale))
+    fallback = _fallback_locale(locale)
+    result = await db.execute(build_stmt(locale, fallback))
     rows_raw = result.all()
-
-    if not rows_raw and locale in LOCALE_FALLBACK:
-        use_locale = LOCALE_FALLBACK[locale]
-        result = await db.execute(build_stmt(use_locale))
-        rows_raw = result.all()
-
-    rows = await map_rows(rows_raw, use_locale, db)
+    rows = await map_rows(rows_raw, locale, db)
     _set_cached(cache_key, rows)
     return rows
 
@@ -178,10 +195,19 @@ async def fetch_medien_akteure(db: AsyncSession, locale: str = "de") -> list[dic
 
 
 async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(CharI18n)
+        i18n_f = aliased(CharI18n)
         return (
-            select(Char, CharI18n, Partei)
-            .join(CharI18n, (Char.id == CharI18n.char_id) & (CharI18n.locale == loc))
+            select(Char, i18n_p, i18n_f, Partei)
+            .outerjoin(
+                i18n_p,
+                (Char.id == i18n_p.char_id) & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (Char.id == i18n_f.char_id) & (i18n_f.locale == fb),
+            )
             .outerjoin(Partei, Char.partei_id == Partei.id)
         )
 
@@ -189,7 +215,7 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
         rows_raw: Sequence[Any], _loc: str, _db: AsyncSession
     ) -> list[dict]:
         rows = []
-        for c, i18n, partei in rows_raw:
+        for c, i18n_p, i18n_f, partei in rows_raw:
             row = {
                 "id": c.id,
                 "initials": c.initials,
@@ -206,13 +232,13 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
                 "ideologie": _ideologie(
                     c.ideologie_wirtschaft, c.ideologie_gesellschaft, c.ideologie_staat
                 ),
-                "name": i18n.name,
-                "role": i18n.role,
-                "bio": i18n.bio,
-                "eingangszitat": i18n.eingangszitat,
-                "bonus_desc": i18n.bonus_desc,
-                "interests": i18n.interests or [],
-                "keyword": i18n.keyword,
+                "name": _pick_i18n(i18n_p, i18n_f, "name", ""),
+                "role": _pick_i18n(i18n_p, i18n_f, "role", ""),
+                "bio": _pick_i18n(i18n_p, i18n_f, "bio", ""),
+                "eingangszitat": _pick_i18n(i18n_p, i18n_f, "eingangszitat"),
+                "bonus_desc": _pick_i18n(i18n_p, i18n_f, "bonus_desc"),
+                "interests": _pick_i18n(i18n_p, i18n_f, "interests", []) or [],
+                "keyword": _pick_i18n(i18n_p, i18n_f, "keyword"),
                 "pool_partei": c.pool_partei,
                 "ressort": c.ressort,
                 "ressort_partner": c.ressort_partner,
@@ -233,17 +259,26 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
 
 
 async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str) -> Select[Any]:
-        return select(Gesetz, GesetzI18n).join(
-            GesetzI18n,
-            (Gesetz.id == GesetzI18n.gesetz_id) & (GesetzI18n.locale == loc),
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(GesetzI18n)
+        i18n_f = aliased(GesetzI18n)
+        return (
+            select(Gesetz, i18n_p, i18n_f)
+            .outerjoin(
+                i18n_p,
+                (Gesetz.id == i18n_p.gesetz_id) & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (Gesetz.id == i18n_f.gesetz_id) & (i18n_f.locale == fb),
+            )
         )
 
     async def map_rows(
         rows_raw: Sequence[Any], _loc: str, _db: AsyncSession
     ) -> list[dict]:
         rows = []
-        for g, i18n in rows_raw:
+        for g, i18n_p, i18n_f in rows_raw:
             rows.append(
                 {
                     "id": g.id,
@@ -298,9 +333,9 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
                     "langzeit_score": int(g.langzeit_score or 0),
                     "langzeitwirkung_positiv": list(g.langzeitwirkung_positiv_de or []),
                     "langzeitwirkung_negativ": list(g.langzeitwirkung_negativ_de or []),
-                    "titel": i18n.titel,
-                    "kurz": i18n.kurz,
-                    "desc": i18n.desc,
+                    "titel": _pick_i18n(i18n_p, i18n_f, "titel", ""),
+                    "kurz": _pick_i18n(i18n_p, i18n_f, "kurz", ""),
+                    "desc": _pick_i18n(i18n_p, i18n_f, "desc", ""),
                 }
             )
         return rows
@@ -313,13 +348,20 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
 async def fetch_agenda_ziele(db: AsyncSession, locale: str) -> list[dict]:
     """Spieler-wählbare Agenda-Ziele (SMA-501) mit Lokalisierung."""
 
-    def build_stmt(loc: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(AgendaZielI18n)
+        i18n_f = aliased(AgendaZielI18n)
         return (
-            select(AgendaZiel, AgendaZielI18n)
-            .join(
-                AgendaZielI18n,
-                (AgendaZiel.id == AgendaZielI18n.agenda_ziel_id)
-                & (AgendaZielI18n.locale == loc),
+            select(AgendaZiel, i18n_p, i18n_f)
+            .outerjoin(
+                i18n_p,
+                (AgendaZiel.id == i18n_p.agenda_ziel_id)
+                & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (AgendaZiel.id == i18n_f.agenda_ziel_id)
+                & (i18n_f.locale == fb),
             )
             .order_by(AgendaZiel.id)
         )
@@ -328,7 +370,7 @@ async def fetch_agenda_ziele(db: AsyncSession, locale: str) -> list[dict]:
         rows_raw: Sequence[Any], _loc: str, _db: AsyncSession
     ) -> list[dict]:
         out: list[dict] = []
-        for z, i18n in rows_raw:
+        for z, i18n_p, i18n_f in rows_raw:
             out.append(
                 {
                     "id": z.id,
@@ -338,8 +380,8 @@ async def fetch_agenda_ziele(db: AsyncSession, locale: str) -> list[dict]:
                     "min_complexity": int(z.min_complexity or 1),
                     "bedingung_typ": z.bedingung_typ,
                     "bedingung_param": dict(z.bedingung_param or {}),
-                    "titel": i18n.titel,
-                    "beschreibung": i18n.beschreibung,
+                    "titel": _pick_i18n(i18n_p, i18n_f, "titel", ""),
+                    "beschreibung": _pick_i18n(i18n_p, i18n_f, "beschreibung", ""),
                 }
             )
         return out
@@ -352,13 +394,20 @@ async def fetch_agenda_ziele(db: AsyncSession, locale: str) -> list[dict]:
 async def fetch_koalitions_ziele(db: AsyncSession, locale: str) -> list[dict]:
     """Koalitionspartner-Ziele (SMA-501) mit Lokalisierung."""
 
-    def build_stmt(loc: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(KoalitionsZielI18n)
+        i18n_f = aliased(KoalitionsZielI18n)
         return (
-            select(KoalitionsZiel, KoalitionsZielI18n)
-            .join(
-                KoalitionsZielI18n,
-                (KoalitionsZiel.id == KoalitionsZielI18n.koalitions_ziel_id)
-                & (KoalitionsZielI18n.locale == loc),
+            select(KoalitionsZiel, i18n_p, i18n_f)
+            .outerjoin(
+                i18n_p,
+                (KoalitionsZiel.id == i18n_p.koalitions_ziel_id)
+                & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (KoalitionsZiel.id == i18n_f.koalitions_ziel_id)
+                & (i18n_f.locale == fb),
             )
             .order_by(KoalitionsZiel.id)
         )
@@ -367,7 +416,7 @@ async def fetch_koalitions_ziele(db: AsyncSession, locale: str) -> list[dict]:
         rows_raw: Sequence[Any], _loc: str, _db: AsyncSession
     ) -> list[dict]:
         out: list[dict] = []
-        for z, i18n in rows_raw:
+        for z, i18n_p, i18n_f in rows_raw:
             out.append(
                 {
                     "id": z.id,
@@ -377,8 +426,8 @@ async def fetch_koalitions_ziele(db: AsyncSession, locale: str) -> list[dict]:
                     "bedingung_typ": z.bedingung_typ,
                     "bedingung_param": dict(z.bedingung_param or {}),
                     "beziehung_malus": int(z.beziehung_malus or 0),
-                    "titel": i18n.titel,
-                    "beschreibung": i18n.beschreibung,
+                    "titel": _pick_i18n(i18n_p, i18n_f, "titel", ""),
+                    "beschreibung": _pick_i18n(i18n_p, i18n_f, "beschreibung", ""),
                 }
             )
         return out
@@ -391,36 +440,58 @@ async def fetch_koalitions_ziele(db: AsyncSession, locale: str) -> list[dict]:
 async def fetch_events(
     db: AsyncSession, locale: str, event_type: str | None = None
 ) -> list[dict]:
-    def build_stmt(loc: str) -> Select[Any]:
-        stmt = select(Event, EventI18n).join(
-            EventI18n, (Event.id == EventI18n.event_id) & (EventI18n.locale == loc)
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(EventI18n)
+        i18n_f = aliased(EventI18n)
+        stmt = (
+            select(Event, i18n_p, i18n_f)
+            .outerjoin(
+                i18n_p,
+                (Event.id == i18n_p.event_id) & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (Event.id == i18n_f.event_id) & (i18n_f.locale == fb),
+            )
         )
         if event_type:
             stmt = stmt.where(Event.event_type == event_type)
         return stmt
 
     async def map_rows(
-        rows_raw: Sequence[Any], use_locale: str, db_inner: AsyncSession
+        rows_raw: Sequence[Any], loc: str, db_inner: AsyncSession
     ) -> list[dict]:
-        event_ids = [e.id for e, _ in rows_raw]
+        event_ids = [e.id for e, _, _ in rows_raw]
+        if not event_ids:
+            return []
+        fb = _fallback_locale(loc)
+        ch_i18n_p = aliased(EventChoiceI18n)
+        ch_i18n_f = aliased(EventChoiceI18n)
         all_choices_stmt = (
-            select(EventChoice, EventChoiceI18n)
-            .join(
-                EventChoiceI18n,
-                (EventChoice.id == EventChoiceI18n.choice_id)
-                & (EventChoiceI18n.locale == use_locale),
+            select(EventChoice, ch_i18n_p, ch_i18n_f)
+            .outerjoin(
+                ch_i18n_p,
+                (EventChoice.id == ch_i18n_p.choice_id)
+                & (ch_i18n_p.locale == loc),
+            )
+            .outerjoin(
+                ch_i18n_f,
+                (EventChoice.id == ch_i18n_f.choice_id)
+                & (ch_i18n_f.locale == fb),
             )
             .where(EventChoice.event_id.in_(event_ids))
         )
         all_choices_result = await db_inner.execute(all_choices_stmt)
-        choices_by_event: dict[str, list[tuple[Any, Any]]] = {}
-        for ch, chi18n in all_choices_result.all():
-            choices_by_event.setdefault(ch.event_id, []).append((ch, chi18n))
+        choices_by_event: dict[str, list[tuple[Any, Any, Any]]] = {}
+        for ch, chi18n_p, chi18n_f in all_choices_result.all():
+            choices_by_event.setdefault(ch.event_id, []).append(
+                (ch, chi18n_p, chi18n_f)
+            )
 
         rows = []
-        for e, ei18n in rows_raw:
+        for e, ei18n_p, ei18n_f in rows_raw:
             choices = []
-            for ch, chi18n in choices_by_event.get(e.id, []):
+            for ch, chi18n_p, chi18n_f in choices_by_event.get(e.id, []):
                 c: dict[str, Any] = {
                     "key": ch.choice_key,
                     "type": ch.choice_type,
@@ -430,9 +501,9 @@ async def fetch_events(
                     ),
                     "char_mood": ch.char_mood or {},
                     "loyalty": ch.loyalty or {},
-                    "label": chi18n.label,
-                    "desc": chi18n.desc,
-                    "log_msg": chi18n.log_msg,
+                    "label": _pick_i18n(chi18n_p, chi18n_f, "label", ""),
+                    "desc": _pick_i18n(chi18n_p, chi18n_f, "desc", ""),
+                    "log_msg": _pick_i18n(chi18n_p, chi18n_f, "log_msg", ""),
                 }
                 if getattr(ch, "koalitionspartner_beziehung_delta", None) is not None:
                     c["koalitionspartner_beziehung_delta"] = (
@@ -476,11 +547,11 @@ async def fetch_events(
                 "event_type": e.event_type,
                 "trigger_type": e.trigger_type,
                 "min_complexity": getattr(e, "min_complexity", None),
-                "type_label": ei18n.type_label,
-                "title": ei18n.title,
-                "quote": ei18n.quote,
-                "context": ei18n.context,
-                "ticker": ei18n.ticker,
+                "type_label": _pick_i18n(ei18n_p, ei18n_f, "type_label", ""),
+                "title": _pick_i18n(ei18n_p, ei18n_f, "title", ""),
+                "quote": _pick_i18n(ei18n_p, ei18n_f, "quote", ""),
+                "context": _pick_i18n(ei18n_p, ei18n_f, "context", ""),
+                "ticker": _pick_i18n(ei18n_p, ei18n_f, "ticker", ""),
                 "choices": choices,
             }
             for attr, key in [
@@ -513,39 +584,58 @@ async def fetch_events(
 
 
 async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(BundesratFraktionI18n)
+        i18n_f = aliased(BundesratFraktionI18n)
         return (
-            select(BundesratFraktion, BundesratFraktionI18n, Partei)
-            .join(
-                BundesratFraktionI18n,
-                (BundesratFraktion.id == BundesratFraktionI18n.fraktion_id)
-                & (BundesratFraktionI18n.locale == loc),
+            select(BundesratFraktion, i18n_p, i18n_f, Partei)
+            .outerjoin(
+                i18n_p,
+                (BundesratFraktion.id == i18n_p.fraktion_id)
+                & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (BundesratFraktion.id == i18n_f.fraktion_id)
+                & (i18n_f.locale == fb),
             )
             .outerjoin(Partei, BundesratFraktion.partei_id == Partei.id)
         )
 
     async def map_rows(
-        rows_raw: Sequence[Any], use_locale: str, db_inner: AsyncSession
+        rows_raw: Sequence[Any], loc: str, db_inner: AsyncSession
     ) -> list[dict]:
-        fraktion_ids = [f.id for f, _, _ in rows_raw]
+        fraktion_ids = [f.id for f, _, _, _ in rows_raw]
+        if not fraktion_ids:
+            return []
+        fb = _fallback_locale(loc)
+        t_i18n_p = aliased(BundesratTradeoffI18n)
+        t_i18n_f = aliased(BundesratTradeoffI18n)
         all_tradeoffs_stmt = (
-            select(BundesratTradeoff, BundesratTradeoffI18n)
-            .join(
-                BundesratTradeoffI18n,
-                (BundesratTradeoff.id == BundesratTradeoffI18n.tradeoff_id)
-                & (BundesratTradeoffI18n.locale == use_locale),
+            select(BundesratTradeoff, t_i18n_p, t_i18n_f)
+            .outerjoin(
+                t_i18n_p,
+                (BundesratTradeoff.id == t_i18n_p.tradeoff_id)
+                & (t_i18n_p.locale == loc),
+            )
+            .outerjoin(
+                t_i18n_f,
+                (BundesratTradeoff.id == t_i18n_f.tradeoff_id)
+                & (t_i18n_f.locale == fb),
             )
             .where(BundesratTradeoff.fraktion_id.in_(fraktion_ids))
         )
         all_tradeoffs_result = await db_inner.execute(all_tradeoffs_stmt)
-        tradeoffs_by_fraktion: dict[str, list[tuple[Any, Any]]] = {}
-        for t, ti18n in all_tradeoffs_result.all():
-            tradeoffs_by_fraktion.setdefault(t.fraktion_id, []).append((t, ti18n))
+        tradeoffs_by_fraktion: dict[str, list[tuple[Any, Any, Any]]] = {}
+        for t, ti18n_p, ti18n_f in all_tradeoffs_result.all():
+            tradeoffs_by_fraktion.setdefault(t.fraktion_id, []).append(
+                (t, ti18n_p, ti18n_f)
+            )
 
         rows = []
-        for f, fi18n, partei in rows_raw:
+        for f, fi18n_p, fi18n_f, partei in rows_raw:
             tradeoffs = []
-            for t, ti18n in tradeoffs_by_fraktion.get(f.id, []):
+            for t, ti18n_p, ti18n_f in tradeoffs_by_fraktion.get(f.id, []):
                 tradeoffs.append(
                     {
                         "key": t.tradeoff_key,
@@ -553,12 +643,16 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
                             t.effekt_al, t.effekt_hh, t.effekt_gi, t.effekt_zf
                         ),
                         "char_mood": t.char_mood or {},
-                        "label": ti18n.label,
-                        "desc": ti18n.desc,
+                        "label": _pick_i18n(ti18n_p, ti18n_f, "label", ""),
+                        "desc": _pick_i18n(ti18n_p, ti18n_f, "desc", ""),
                     }
                 )
 
-            sprecher_partei = partei.kuerzel if partei else fi18n.sprecher_partei
+            sprecher_partei = (
+                partei.kuerzel
+                if partei
+                else _pick_i18n(fi18n_p, fi18n_f, "sprecher_partei")
+            )
             sprecher_color = partei.farbe if partei else f.sprecher_color
             rows.append(
                 {
@@ -569,11 +663,11 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
                     "sonderregel": f.sonderregel,
                     "sprecher_initials": f.sprecher_initials,
                     "sprecher_color": sprecher_color,
-                    "name": fi18n.name,
-                    "sprecher_name": fi18n.sprecher_name,
+                    "name": _pick_i18n(fi18n_p, fi18n_f, "name", ""),
+                    "sprecher_name": _pick_i18n(fi18n_p, fi18n_f, "sprecher_name", ""),
                     "sprecher_partei": sprecher_partei,
-                    "sprecher_land": fi18n.sprecher_land,
-                    "sprecher_bio": fi18n.sprecher_bio,
+                    "sprecher_land": _pick_i18n(fi18n_p, fi18n_f, "sprecher_land", ""),
+                    "sprecher_bio": _pick_i18n(fi18n_p, fi18n_f, "sprecher_bio", ""),
                     "partei_id": f.partei_id,
                     "partei_kuerzel": partei.kuerzel if partei else None,
                     "partei_farbe": partei.farbe if partei else None,
@@ -632,23 +726,40 @@ async def fetch_bundeslaender(db: AsyncSession, locale: str = "de") -> list[dict
 async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
     """Lädt alle EU-Events mit Choices für die gegebene Locale."""
 
-    def build_stmt(loc: str) -> Select[Any]:
-        return select(EuEvent, EuEventI18n).join(
-            EuEventI18n,
-            (EuEvent.id == EuEventI18n.event_id) & (EuEventI18n.locale == loc),
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(EuEventI18n)
+        i18n_f = aliased(EuEventI18n)
+        return (
+            select(EuEvent, i18n_p, i18n_f)
+            .outerjoin(
+                i18n_p,
+                (EuEvent.id == i18n_p.event_id) & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (EuEvent.id == i18n_f.event_id) & (i18n_f.locale == fb),
+            )
         )
 
     async def map_rows(
-        rows_raw: Sequence[Any], use_locale: str, db_inner: AsyncSession
+        rows_raw: Sequence[Any], loc: str, db_inner: AsyncSession
     ) -> list[dict]:
+        fb = _fallback_locale(loc)
+        ch_i18n_p = aliased(EuEventChoiceI18n)
+        ch_i18n_f = aliased(EuEventChoiceI18n)
         rows = []
-        for e, ei18n in rows_raw:
+        for e, ei18n_p, ei18n_f in rows_raw:
             ch_stmt = (
-                select(EuEventChoice, EuEventChoiceI18n)
-                .join(
-                    EuEventChoiceI18n,
-                    (EuEventChoice.id == EuEventChoiceI18n.choice_id)
-                    & (EuEventChoiceI18n.locale == use_locale),
+                select(EuEventChoice, ch_i18n_p, ch_i18n_f)
+                .outerjoin(
+                    ch_i18n_p,
+                    (EuEventChoice.id == ch_i18n_p.choice_id)
+                    & (ch_i18n_p.locale == loc),
+                )
+                .outerjoin(
+                    ch_i18n_f,
+                    (EuEventChoice.id == ch_i18n_f.choice_id)
+                    & (ch_i18n_f.locale == fb),
                 )
                 .where(EuEventChoice.event_id == e.id)
             )
@@ -656,7 +767,7 @@ async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
             choices_raw = ch_result.all()
 
             choices = []
-            for ch, chi18n in choices_raw:
+            for ch, chi18n_p, chi18n_f in choices_raw:
                 choices.append(
                     {
                         "key": ch.choice_key,
@@ -666,9 +777,9 @@ async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
                         ),
                         "eu_klima_delta": ch.eu_klima_delta or 0,
                         "kofinanzierung": float(ch.kofinanzierung or 0),
-                        "label": chi18n.label,
-                        "desc": chi18n.desc,
-                        "log_msg": chi18n.log_msg,
+                        "label": _pick_i18n(chi18n_p, chi18n_f, "label", ""),
+                        "desc": _pick_i18n(chi18n_p, chi18n_f, "desc", ""),
+                        "log_msg": _pick_i18n(chi18n_p, chi18n_f, "log_msg", ""),
                     }
                 )
 
@@ -680,10 +791,10 @@ async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
                     "trigger_klima_min": e.trigger_klima_min,
                     "trigger_monat": e.trigger_monat,
                     "min_complexity": e.min_complexity or 3,
-                    "title": ei18n.title,
-                    "quote": ei18n.quote,
-                    "context": ei18n.context,
-                    "ticker": ei18n.ticker,
+                    "title": _pick_i18n(ei18n_p, ei18n_f, "title", ""),
+                    "quote": _pick_i18n(ei18n_p, ei18n_f, "quote", ""),
+                    "context": _pick_i18n(ei18n_p, ei18n_f, "context", ""),
+                    "ticker": _pick_i18n(ei18n_p, ei18n_f, "ticker", ""),
                     "choices": choices,
                 }
             )
@@ -695,10 +806,19 @@ async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
 
 
 async def fetch_milieus(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str) -> Select[Any]:
-        return select(Milieu, MilieuI18n).join(
-            MilieuI18n,
-            (Milieu.id == MilieuI18n.milieu_id) & (MilieuI18n.locale == loc),
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(MilieuI18n)
+        i18n_f = aliased(MilieuI18n)
+        return (
+            select(Milieu, i18n_p, i18n_f)
+            .outerjoin(
+                i18n_p,
+                (Milieu.id == i18n_p.milieu_id) & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (Milieu.id == i18n_f.milieu_id) & (i18n_f.locale == fb),
+            )
         )
 
     async def map_rows(
@@ -714,11 +834,11 @@ async def fetch_milieus(db: AsyncSession, locale: str) -> list[dict]:
                 ),
                 "min_complexity": m.min_complexity or 1,
                 "aggregat_gruppe": m.aggregat_gruppe,
-                "name": i18n.name,
-                "kurzcharakter": i18n.kurzcharakter,
-                "beschreibung": i18n.beschreibung,
+                "name": _pick_i18n(i18n_p, i18n_f, "name", ""),
+                "kurzcharakter": _pick_i18n(i18n_p, i18n_f, "kurzcharakter", ""),
+                "beschreibung": _pick_i18n(i18n_p, i18n_f, "beschreibung", ""),
             }
-            for m, i18n in rows_raw
+            for m, i18n_p, i18n_f in rows_raw
         ]
 
     return await _fetch_cached_i18n(
@@ -727,11 +847,19 @@ async def fetch_milieus(db: AsyncSession, locale: str) -> list[dict]:
 
 
 async def fetch_politikfelder(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str) -> Select[Any]:
-        return select(Politikfeld, PolitikfeldI18n).join(
-            PolitikfeldI18n,
-            (Politikfeld.id == PolitikfeldI18n.feld_id)
-            & (PolitikfeldI18n.locale == loc),
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(PolitikfeldI18n)
+        i18n_f = aliased(PolitikfeldI18n)
+        return (
+            select(Politikfeld, i18n_p, i18n_f)
+            .outerjoin(
+                i18n_p,
+                (Politikfeld.id == i18n_p.feld_id) & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (Politikfeld.id == i18n_f.feld_id) & (i18n_f.locale == fb),
+            )
         )
 
     async def map_rows(
@@ -745,10 +873,10 @@ async def fetch_politikfelder(db: AsyncSession, locale: str) -> list[dict]:
                 "eu_relevanz": p.eu_relevanz or 1,
                 "kommunal_relevanz": p.kommunal_relevanz or 1,
                 "min_complexity": p.min_complexity or 1,
-                "name": i18n.name,
-                "kurz": i18n.kurz,
+                "name": _pick_i18n(i18n_p, i18n_f, "name", ""),
+                "kurz": _pick_i18n(i18n_p, i18n_f, "kurz", ""),
             }
-            for p, i18n in rows_raw
+            for p, i18n_p, i18n_f in rows_raw
         ]
 
     return await _fetch_cached_i18n(
@@ -757,23 +885,40 @@ async def fetch_politikfelder(db: AsyncSession, locale: str) -> list[dict]:
 
 
 async def fetch_verbaende(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str) -> Select[Any]:
-        return select(Verband, VerbandI18n).join(
-            VerbandI18n,
-            (Verband.id == VerbandI18n.verband_id) & (VerbandI18n.locale == loc),
+    def build_stmt(loc: str, fb: str) -> Select[Any]:
+        i18n_p = aliased(VerbandI18n)
+        i18n_f = aliased(VerbandI18n)
+        return (
+            select(Verband, i18n_p, i18n_f)
+            .outerjoin(
+                i18n_p,
+                (Verband.id == i18n_p.verband_id) & (i18n_p.locale == loc),
+            )
+            .outerjoin(
+                i18n_f,
+                (Verband.id == i18n_f.verband_id) & (i18n_f.locale == fb),
+            )
         )
 
     async def map_rows(
-        rows_raw: Sequence[Any], use_locale: str, db_inner: AsyncSession
+        rows_raw: Sequence[Any], loc: str, db_inner: AsyncSession
     ) -> list[dict]:
+        fb = _fallback_locale(loc)
+        t_i18n_p = aliased(VerbandsTradeoffI18n)
+        t_i18n_f = aliased(VerbandsTradeoffI18n)
         rows = []
-        for v, i18n in rows_raw:
+        for v, i18n_p, i18n_f in rows_raw:
             t_stmt = (
-                select(VerbandsTradeoff, VerbandsTradeoffI18n)
-                .join(
-                    VerbandsTradeoffI18n,
-                    (VerbandsTradeoff.id == VerbandsTradeoffI18n.tradeoff_id)
-                    & (VerbandsTradeoffI18n.locale == use_locale),
+                select(VerbandsTradeoff, t_i18n_p, t_i18n_f)
+                .outerjoin(
+                    t_i18n_p,
+                    (VerbandsTradeoff.id == t_i18n_p.tradeoff_id)
+                    & (t_i18n_p.locale == loc),
+                )
+                .outerjoin(
+                    t_i18n_f,
+                    (VerbandsTradeoff.id == t_i18n_f.tradeoff_id)
+                    & (t_i18n_f.locale == fb),
                 )
                 .where(VerbandsTradeoff.verband_id == v.id)
             )
@@ -781,7 +926,7 @@ async def fetch_verbaende(db: AsyncSession, locale: str) -> list[dict]:
             tradeoffs_raw = t_result.all()
 
             tradeoffs = []
-            for t, ti18n in tradeoffs_raw:
+            for t, ti18n_p, ti18n_f in tradeoffs_raw:
                 tradeoffs.append(
                     {
                         "key": t.tradeoff_key,
@@ -792,8 +937,8 @@ async def fetch_verbaende(db: AsyncSession, locale: str) -> list[dict]:
                         "feld_druck_delta": t.feld_druck_delta or 0,
                         "medienklima_delta": t.medienklima_delta or 0,
                         "verband_effekte": t.verband_effekte or {},
-                        "label": ti18n.label,
-                        "desc": ti18n.desc,
+                        "label": _pick_i18n(ti18n_p, ti18n_f, "label", ""),
+                        "desc": _pick_i18n(ti18n_p, ti18n_f, "desc", ""),
                     }
                 )
 
@@ -815,9 +960,9 @@ async def fetch_verbaende(db: AsyncSession, locale: str) -> list[dict]:
                     },
                     "konflikt_mit": v.konflikt_mit or [],
                     "min_complexity": v.min_complexity or 2,
-                    "name": i18n.name,
-                    "kurz": i18n.kurz,
-                    "bio": i18n.bio,
+                    "name": _pick_i18n(i18n_p, i18n_f, "name", ""),
+                    "kurz": _pick_i18n(i18n_p, i18n_f, "kurz", ""),
+                    "bio": _pick_i18n(i18n_p, i18n_f, "bio", ""),
                     "tradeoffs": tradeoffs,
                 }
             )

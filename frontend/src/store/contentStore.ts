@@ -50,7 +50,7 @@ import {
   WAHLKAMPF_VERSPRECHEN_EVENT,
   WAHLKAMPF_ZWISCHENBILANZ_EVENT,
 } from '../data/defaults/wahlkampfEvents';
-import { DEFAULT_MEDIEN_EVENTS } from '../data/defaults/medienEvents';
+import { getMedienEventsForLocale } from '../data/defaults/medienEvents';
 import { DEFAULT_MEDIEN_AKTEURE, type MedienAkteurContent, type MedienAkteurTyp } from '../data/defaults/medienAkteure';
 
 /** Leichtgewichtige Laufzeit-Guard für API-Rohdaten.
@@ -698,7 +698,7 @@ export function getContentBundle(): ContentBundle {
     euKlimaStartwerte: s.euKlimaStartwerte ?? [],
     euEvents: s.euEvents ?? [],
     gesetzRelationen: s.gesetzRelationen,
-    medienEvents: DEFAULT_MEDIEN_EVENTS,
+    medienEvents: getMedienEventsForLocale(i18n.language),
     medienAkteureContent:
       s.medienAkteureContent && s.medienAkteureContent.length > 0
         ? s.medienAkteureContent

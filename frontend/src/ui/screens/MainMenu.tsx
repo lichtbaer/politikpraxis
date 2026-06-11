@@ -123,6 +123,17 @@ export function MainMenu() {
             <p className={styles.betaNotice}>{t('beta.notice')}</p>
           </div>
 
+          {i18n.language === 'en' && (
+            <div
+              className={styles.enPreviewBanner}
+              role="status"
+              aria-label={t('language.enPreview.badge')}
+            >
+              <span className={styles.enPreviewBadge}>{t('language.enPreview.badge')}</span>
+              <p className={styles.enPreviewNotice}>{t('language.enPreview.notice')}</p>
+            </div>
+          )}
+
           <div className={styles.authRow}>
             {isLoggedIn && email ? (
               <>

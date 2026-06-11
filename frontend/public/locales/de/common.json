@@ -17,6 +17,12 @@
     "notice": "Dies ist eine frühe Beta-Version. Inhalte, Spielmechaniken und Balancing sind noch nicht final und können sich jederzeit ändern. Wir freuen uns über Feedback!",
     "inGame": "Beta"
   },
+  "language": {
+    "enPreview": {
+      "badge": "EN Preview",
+      "notice": "Die Oberfläche ist übersetzt; einige Spieltexte (Gesetze, Events, Framing) können noch auf Deutsch erscheinen."
+    }
+  },
   "jugendschutz": {
     "label": "Jugendschutz",
     "freigabe": "Freigegeben ab 12 Jahren",

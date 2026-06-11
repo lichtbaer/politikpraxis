@@ -3,6 +3,7 @@
  * Entspricht Backend-Migration 017_seed_medien_events
  */
 import type { MedienEventContent } from '../../core/types';
+import { DEFAULT_MEDIEN_EVENTS_EN } from './medienEventsEn';
 
 export const DEFAULT_MEDIEN_EVENTS: MedienEventContent[] = [
   {
@@ -168,3 +169,8 @@ export const DEFAULT_MEDIEN_EVENTS: MedienEventContent[] = [
     ],
   },
 ];
+
+/** Locale-aware media event defaults (DE from migration 017, EN in medienEventsEn.ts). */
+export function getMedienEventsForLocale(locale: string): MedienEventContent[] {
+  return locale === 'en' ? DEFAULT_MEDIEN_EVENTS_EN : DEFAULT_MEDIEN_EVENTS;
+}

@@ -77,8 +77,35 @@ async def test_get_gesetze_happy_path(client: AsyncClient):
 async def test_get_gesetze_locale_fallback(client: AsyncClient):
     """GET /api/content/gesetze?locale=en nutzt Fallback auf de wenn keine en-Daten."""
     r = await client.get("/api/content/gesetze", params={"locale": "en"})
-    # Sollte 200 sein (Fallback auf de) oder leere Liste wenn en existiert
     assert r.status_code == 200
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_locale_en_same_count_as_de(client: AsyncClient):
+    """EN liefert denselben Katalog wie DE (per-Item-Fallback auf fehlende Übersetzungen)."""
+    endpoints = [
+        "/api/content/gesetze",
+        "/api/content/events",
+        "/api/content/chars",
+        "/api/content/milieus",
+    ]
+    for path in endpoints:
+        de = (await client.get(path, params={"locale": "de"})).json()
+        en = (await client.get(path, params={"locale": "en"})).json()
+        assert len(de) == len(en), f"{path}: de={len(de)} en={len(en)}"
+        assert {x["id"] for x in de} == {x["id"] for x in en}, f"{path}: ID-Mismatch"
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_gesetz_ee_stays_english(client: AsyncClient):
+    """MVP-Gesetz ee behält EN-Titel bei locale=en."""
+    r = await client.get("/api/content/gesetze", params={"locale": "en"})
+    assert r.status_code == 200
+    ee = next((g for g in r.json() if g["id"] == "ee"), None)
+    assert ee is not None
+    assert "Renewable" in ee["titel"]
 
 
 @pytest.mark.asyncio

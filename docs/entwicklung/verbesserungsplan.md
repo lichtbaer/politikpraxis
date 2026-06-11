@@ -68,7 +68,7 @@ Komplexität 4, reale Wahlhürde 42 %). Details: [Balance-Simulation](balance-si
 | ✅ | **Glossar nur deutsch** | 32 Fachbegriffe (`Erklaerung`-Tooltips) waren hartcodiert deutsch in `constants/begriffe.ts` — englische Spieler sahen deutsche Tooltips. Jetzt lokalisiert unter `game:begriffe.*` (de + en). |
 | ✅ | **Hartcodierte deutsche Fehlertexte** | `api.ts` (Netzwerk/Parse), `ErrorBoundary`-Fallback → `common:errors.*` (de + en). |
 | ✅ | **Fehlende i18n-Keys unsichtbar** | `parseMissingKeyHandler` gab still `''` zurück. Im Dev-Modus wird jetzt geloggt und der Key angezeigt. |
-| ⬜ | **EN-Übersetzungen für Gesetze/Events ab Migration 006** | Nur die 4 MVP-Gesetze haben EN-Übersetzungen (Migration 003); ~140 weitere fallen per `LOCALE_FALLBACK` auf Deutsch zurück. Großer Content-Task — EN sollte bis dahin als „experimentell“ kommuniziert werden. |
+| ✅ | **EN-Content: Fallback + fehlende Übersetzungen** | Per-Item-`LOCALE_FALLBACK` in `content_db_service.py` (vollständiger Katalog bei `locale=en`). Migration 059: EN für Events 013/044/048, Milieus/Politikfelder/Verbände, Agenda/Koalitionsziele, EU-Events. Medien-Events lokalisiert (`medienEventsEn.ts`). EN-Preview-Hinweis im Hauptmenü. Offen (P2): `framing_optionen`, `langzeitwirkung_*_de`. |
 | ⬜ | Gebündelte Frontend-Defaults (Medien-/Bundesrat-Events) in DB seeden | Funktionierender Fallback, aber zweite Quelle der Wahrheit mit Drift-Risiko. |
 | ⬜ | JSON-Schema-Validierung für JSONB-Content (`framing_optionen`, `lobby_mood_effekte`) | Aktuell keine Compile-Time-Sicherheit zwischen Backend-JSONB und Frontend-Typen. |
 
