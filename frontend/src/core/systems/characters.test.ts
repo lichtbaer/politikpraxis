@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyCharBonuses, checkUltimatums, updateCoalition, applyMoodChange } from './characters';
+import { applyCharBonuses, checkUltimatums, applyMoodChange } from './characters';
 import { createInitialState } from '../state';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
 import type { GameState, Character, GameEvent } from '../types';
@@ -58,38 +58,6 @@ describe('applyMoodChange', () => {
     const state = makeState({ chars: [makeChar({ id: 'fm', loyalty: 5 })] });
     const result = applyMoodChange(state, {}, { fm: 2 });
     expect(result.chars.find(c => c.id === 'fm')!.loyalty).toBe(5);
-  });
-});
-
-describe('updateCoalition', () => {
-  it('berechnet Koalitionswert aus Mood und Loyalty', () => {
-    const state = makeState({
-      chars: [
-        makeChar({ mood: 4, loyalty: 5 }),
-        makeChar({ id: 'c2', mood: 4, loyalty: 5 }),
-      ],
-    });
-    const result = updateCoalition(state);
-    expect(result.coalition).toBe(100);
-  });
-
-  it('gibt 0 bei minimalen Werten', () => {
-    const state = makeState({
-      chars: [
-        makeChar({ mood: 0, loyalty: 0 }),
-      ],
-    });
-    const result = updateCoalition(state);
-    expect(result.coalition).toBe(0);
-  });
-
-  it('clampt auf 0-100', () => {
-    const state = makeState({
-      chars: [makeChar({ mood: 2, loyalty: 3 })],
-    });
-    const result = updateCoalition(state);
-    expect(result.coalition).toBeGreaterThanOrEqual(0);
-    expect(result.coalition).toBeLessThanOrEqual(100);
   });
 });
 

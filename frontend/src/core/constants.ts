@@ -36,6 +36,20 @@ export const KONGRUENZ_PK_MODS = [-3, 0, 8, 12] as const;
 /** Milieu-Delta-Grenzen: Score ≥85: +4, ≥70: +2, ≥55: +1, ≥35: -1, ≥20: -2, <20: -4 */
 export const MILIEU_SCORE_SCHWELLEN = [85, 70, 55, 35, 20] as const;
 export const MILIEU_DELTAS = [4, 2, 1, -1, -2, -4] as const;
+/**
+ * Zentrales Mapping Milieu-ID → Zustimmungssegment (einzige Quelle der Wahrheit).
+ * Wird von Init (state.ts), Drift (milieus.ts), Prognose (wahlprognose.ts),
+ * Koalition (koalition.ts) und UI verwendet.
+ */
+export const MILIEU_TO_ZUST: Record<string, 'arbeit' | 'mitte' | 'prog'> = {
+  postmaterielle: 'prog',
+  soziale_mitte: 'arbeit',
+  prekaere: 'arbeit',
+  buergerliche_mitte: 'mitte',
+  leistungstraeger: 'mitte',
+  etablierte: 'mitte',
+  traditionelle: 'mitte',
+};
 
 // --- Gesetz-Vorstufen / Boni ---
 /** Max. BT-Stimmen-Bonus in % */
@@ -66,8 +80,15 @@ export const KOALITION_SITZANTEIL = 53;
 export const BUNDESTAG_SITZE = 600;
 
 // --- Wahl / Spielende ---
-/** Standard-Wahlhürde in % */
-export const DEFAULT_ELECTION_THRESHOLD = 45;
+/** Wahlhürde in % je Komplexitätsstufe (1 = Einstieg … 4 = Vollständig) */
+export const ELECTION_THRESHOLDS_BY_COMPLEXITY: Record<number, number> = {
+  1: 35,
+  2: 38,
+  3: 40,
+  4: 42,
+};
+/** Standard-Wahlhürde in % — Fallback wenn keine Stufe bekannt ist (z. B. alte Spielstände) */
+export const DEFAULT_ELECTION_THRESHOLD = 40;
 /** Min. Koalitionsstärke für Spielfortsetzung */
 export const MIN_KOALITION_FORTGANG = 15;
 /** Legislaturperiode in Monaten */

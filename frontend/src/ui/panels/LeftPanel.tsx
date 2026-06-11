@@ -12,6 +12,7 @@ import { AgendaSidebar } from '../components/AgendaSidebar/AgendaSidebar';
 import { ApprovalChart } from '../components/ApprovalChart/ApprovalChart';
 import { formatMrdSaldo } from '../../utils/format';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
+import { DEFAULT_ELECTION_THRESHOLD } from '../../core/constants';
 import styles from './LeftPanel.module.css';
 
 const EMPTY_APPROVAL_HISTORY: number[] = [];
@@ -26,7 +27,7 @@ function getSaldoKlasse(saldo: number): string {
 export function LeftPanel() {
   const { t } = useTranslation('game');
   const zustG = useGameStore((s) => s.state.zust.g);
-  const electionThreshold = useGameStore((s) => s.state.electionThreshold ?? 40);
+  const electionThreshold = useGameStore((s) => s.state.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD);
   const coalition = useGameStore((s) => s.state.coalition);
   const approvalHistory = useGameStore((s) => s.state.approvalHistory) ?? EMPTY_APPROVAL_HISTORY;
   const month = useGameStore((s) => s.state.month);
