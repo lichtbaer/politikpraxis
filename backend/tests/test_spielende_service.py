@@ -27,7 +27,9 @@ def _minimal_gs(**kwargs):
 def test_wahlbonus_sieg_und_niederlage():
     assert berechne_wiederwahl_bonus_punkte({"won": True}) == 0.3
     assert berechne_wiederwahl_bonus_punkte({"won": False}) == -0.1
-    assert berechne_wiederwahl_bonus_punkte({"won": None, "wahlUeberHuerde": True}) == 0.3
+    assert (
+        berechne_wiederwahl_bonus_punkte({"won": None, "wahlUeberHuerde": True}) == 0.3
+    )
 
 
 def test_build_spielende_stufe1_nur_wiederwahl():

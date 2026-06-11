@@ -80,7 +80,10 @@ def _count_beschlossen_politikfeld(gs: dict[str, Any], politikfeld_id: str) -> i
     for g in gs.get("gesetze") or []:
         if not isinstance(g, dict):
             continue
-        if g.get("status") == "beschlossen" and g.get("politikfeldId") == politikfeld_id:
+        if (
+            g.get("status") == "beschlossen"
+            and g.get("politikfeldId") == politikfeld_id
+        ):
             n += 1
     return n
 
@@ -284,7 +287,11 @@ def _koalitions_ziel_ampel(gs: dict[str, Any], z: dict[str, Any]) -> str:
     if typ == "koalitionsbeziehung_min":
         schwelle = _num(param.get("min_beziehung"))
         kp = gs.get("koalitionspartner")
-        current = _num(kp.get("beziehung")) if isinstance(kp, dict) and kp.get("id") == partner else 0.0
+        current = (
+            _num(kp.get("beziehung"))
+            if isinstance(kp, dict) and kp.get("id") == partner
+            else 0.0
+        )
         return _ampel_higher_is_better(current, schwelle)
     if typ == "koalitionsbeziehung_monate_unter":
         schwelle = _num(param.get("schwelle"))
@@ -297,7 +304,9 @@ def _koalitions_ziel_ampel(gs: dict[str, Any], z: dict[str, Any]) -> str:
         current = _monate_char_mood_schlecht(gs, pro_char)
         return _ampel_lower_is_better(current, max_sum)
     if typ == "medienklima_monate_max_unter":
-        schwelle = _num(param.get("schwelle"), float(AGENDA_TRACKING_MEDIENKLIMA_SCHWELLE))
+        schwelle = _num(
+            param.get("schwelle"), float(AGENDA_TRACKING_MEDIENKLIMA_SCHWELLE)
+        )
         max_monate = max(0, round(_num(param.get("max_monate"))))
         current = int(_num(gs.get("medienklimaBelowMonths")))
         return _ampel_lower_is_better(current, max_monate)
@@ -437,7 +446,11 @@ def berechne_gesamtnote(
     urteil_punkte = int(urteil["historischesUrteilPunkte"])
     urteil_note = str(urteil["historischesUrteilNote"])
 
-    basis = GEWICHT_BILANZ * bilanz_punkte + GEWICHT_AGENDA * agenda_punkte + GEWICHT_URTEIL * urteil_punkte
+    basis = (
+        GEWICHT_BILANZ * bilanz_punkte
+        + GEWICHT_AGENDA * agenda_punkte
+        + GEWICHT_URTEIL * urteil_punkte
+    )
     basis_rund = max(0.0, min(100.0, round(basis)))
 
     wahl_delta = berechne_wiederwahl_bonus_punkte(gs)
@@ -477,7 +490,9 @@ def build_spielende_response(
     complexity = max(1, min(4, complexity))
 
     zust = gs.get("zust")
-    zust_g = _num(zust.get("g")) if isinstance(zust, dict) else _num(gs.get("zustimmung"))
+    zust_g = (
+        _num(zust.get("g")) if isinstance(zust, dict) else _num(gs.get("zustimmung"))
+    )
 
     wahlergebnis_raw = gs.get("wahlergebnis")
     prognose_raw = gs.get("wahlprognose")
