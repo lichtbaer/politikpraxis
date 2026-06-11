@@ -9,6 +9,7 @@ import { CharacterDetail } from '../components/CharacterDetail/CharacterDetail';
 import { WahlnachtScreen } from '../screens/WahlnachtScreen';
 import { Toast } from '../components/Toast/Toast';
 import { GameTips } from '../components/GameTips/GameTips';
+import { IntroTour } from '../components/IntroTour/IntroTour';
 import { HaushaltsdebatteScreen } from '../screens/HaushaltsdebatteScreen';
 import { LegislaturBilanzScreen } from '../screens/LegislaturBilanzScreen';
 import { useGameTick } from '../hooks/useGameTick';
@@ -53,7 +54,8 @@ export function Shell() {
 
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
-  const [showShortcuts, setShowShortcuts] = useState(false);
+  const showShortcuts = useUIStore((s) => s.showShortcutHelp);
+  const setShowShortcuts = useUIStore((s) => s.setShowShortcutHelp);
 
   const closeDrawers = () => {
     setLeftOpen(false);
@@ -97,7 +99,7 @@ export function Shell() {
       // ? — Shortcut-Hilfe anzeigen
       if (e.key === '?' || (e.shiftKey && e.code === 'Slash')) {
         e.preventDefault();
-        setShowShortcuts((prev) => !prev);
+        setShowShortcuts(!useUIStore.getState().showShortcutHelp);
         return;
       }
 
@@ -117,7 +119,7 @@ export function Shell() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [setSpeed, togglePause, doResolveEvent, setView]);
+  }, [setSpeed, togglePause, doResolveEvent, setView, setShowShortcuts]);
 
   return (
     <>
@@ -160,6 +162,7 @@ export function Shell() {
       <CharacterDetail />
       <WahlnachtScreen />
       <Toast />
+      <IntroTour />
       <GameTips />
       {aktivesStrukturEvent && <HaushaltsdebatteScreen />}
       <LegislaturBilanzScreen />

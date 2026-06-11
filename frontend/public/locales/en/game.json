@@ -2522,6 +2522,34 @@
       }
     }
   },
+  "introTour": {
+    "ariaLabel": "Game introduction",
+    "stepIndicator": "Step {{current}} of {{total}}",
+    "weiter": "Next",
+    "zurueck": "Back",
+    "ueberspringen": "Skip",
+    "losgehts": "Let's go!",
+    "ziel": {
+      "title": "Your goal: re-election",
+      "text": "You lead the federal government through 48 months. On the left you see your election forecast — it must be above the election threshold at the end. A successful term also requires passed laws and fulfilled agenda goals."
+    },
+    "gesetze": {
+      "title": "Introducing laws",
+      "text": "In the center you find your agenda. Select laws and introduce them to parliament. Passed laws affect unemployment, budget, equality and satisfaction with a delay."
+    },
+    "pk": {
+      "title": "Political Capital (PK)",
+      "text": "Almost every action costs PK — your key resource, shown in the header. PK regenerates monthly based on your approval. Spend it wisely!"
+    },
+    "zeit": {
+      "title": "Time is running",
+      "text": "The game advances in monthly steps. Press Space to pause at any time. Important events pause the game automatically and ask for your decision."
+    },
+    "hilfe": {
+      "title": "Help is always available",
+      "text": "In the top right you find the glossary (?) with all game terms and the keyboard shortcuts (⌨). Underlined terms in the game can be clicked for an explanation."
+    }
+  },
   "tips": {
     "erstesGesetz": {
       "title": "Your first law",
@@ -2821,6 +2849,7 @@
   },
   "shortcuts": {
     "title": "Keyboard shortcuts",
+    "headerButton": "Show keyboard shortcuts (?)",
     "space": "Space",
     "pauseResume": "Pause / Resume",
     "slowSpeed": "Game speed",

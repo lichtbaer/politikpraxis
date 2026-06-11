@@ -33,6 +33,8 @@
     "newGame": "New Game",
     "loadGame": "Load Game",
     "settings": "Settings",
+    "settingsComingSoon": "Settings are in the works and coming soon",
+    "comingSoon": "Coming soon",
     "credits": "Credits",
     "loadVersionError": "Save game is not compatible with this version.",
     "loadParseError": "Save game could not be read.",
@@ -144,8 +146,9 @@
     "manualSaveFallback": "Server unreachable – saved locally",
     "manualSaveSlotLabel": "Save slot",
     "manualSaveTooltip": "Save game (cloud)",
-    "saveHintBanner": "Sign in to save your game and continue on multiple devices.",
-    "saveHintLogin": "Sign in"
+    "saveHintBanner": "Your game is saved automatically in this browser. Sign in to save to the cloud and continue on multiple devices.",
+    "saveHintLogin": "Sign in",
+    "autoSaveFailed": "Auto-save failed — browser storage is full or blocked. Export your save manually!"
   },
   "startMap": {
     "subtitle": "Federal · States · Municipalities · Europe"

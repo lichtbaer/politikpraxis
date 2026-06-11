@@ -19,6 +19,8 @@ interface UIStore {
   openMonatszusammenfassung: boolean;
   /** SMA-406: Monatszusammenfassung „Details“ → Fokus Ereignisprotokoll (rechtes Panel) */
   focusEreignisprotokollRequestId: number;
+  /** Tastatur-Shortcut-Hilfe (Shell) — auch per Header-Button erreichbar */
+  showShortcutHelp: boolean;
 
   showCharDetail: (id: string) => void;
   closeCharDetail: () => void;
@@ -28,6 +30,7 @@ interface UIStore {
   setPlayerSettings: (partial: Partial<PlayerSettings>) => void;
   setOpenMonatszusammenfassung: (open: boolean) => void;
   requestFocusEreignisprotokoll: () => void;
+  setShowShortcutHelp: (show: boolean) => void;
 }
 
 let toastCounter = 0;
@@ -41,6 +44,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
   playerSettings: loadPlayerSettings(),
   openMonatszusammenfassung: false,
   focusEreignisprotokollRequestId: 0,
+  showShortcutHelp: false,
 
   showCharDetail: (id) => set({ charDetailId: id }),
   closeCharDetail: () => set({ charDetailId: null }),
@@ -70,4 +74,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   requestFocusEreignisprotokoll: () =>
     set((s) => ({ focusEreignisprotokollRequestId: s.focusEreignisprotokollRequestId + 1 })),
+
+  setShowShortcutHelp: (show) => set({ showShortcutHelp: show }),
 }));

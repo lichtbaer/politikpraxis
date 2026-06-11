@@ -1,0 +1,86 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 24px 28px;
+  max-width: min(480px, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stepIndicator {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text2);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.skip {
+  margin-right: auto;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 8px 4px;
+  text-decoration: underline;
+}
+
+.back,
+.next {
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.back {
+  background: none;
+  border: 1px solid var(--text2);
+  color: var(--text);
+}
+
+.next {
+  background: var(--gold);
+  border: 1px solid var(--gold);
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

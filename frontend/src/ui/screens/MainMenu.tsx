@@ -165,8 +165,14 @@ export function MainMenu() {
             {loadError && (
               <p className={styles.loadError}>{loadError}</p>
             )}
-            <button type="button" className={styles.secondary} disabled>
-              {t('menu.settings')}
+            <button
+              type="button"
+              className={styles.secondary}
+              disabled
+              title={t('menu.settingsComingSoon')}
+              aria-label={`${t('menu.settings')} — ${t('menu.settingsComingSoon')}`}
+            >
+              {t('menu.settings')} <span aria-hidden="true">({t('menu.comingSoon')})</span>
             </button>
             <button
               type="button"
