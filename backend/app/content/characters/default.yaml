@@ -93,6 +93,72 @@
     moodThresh: 1
     event: kern_ultimatum
 
+# Hinweis: am/gm/bm wurden ursprünglich nur per Migration 006 in der DB angelegt.
+# Hier gespiegelt, damit der Legacy-Endpoint /content/characters und die
+# Content-Validierung (scripts/validate_content.py) das volle Kabinett kennen.
+- id: am
+  name: Dr. Anna Schulze
+  role: Arbeits- und Sozialministerin
+  initials: AS
+  color: "#5a7898"
+  mood: 3
+  loyalty: 4
+  min_complexity: 3
+  bio: "Gewerkschaftsnah und kampfeslustig. Schulze kennt die Betriebe von innen und fordert konsequent für Mindestlohn und Tarifbindung."
+  interests:
+    - Mindestlohn
+    - Tarifbindung
+    - Sozialleistungen
+  bonus:
+    trigger: "mood>=3"
+    desc: "GBD-Beziehung regeneriert passiv wenn Mood ≥ 3"
+    applies: gbd_regen
+  ultimatum:
+    moodThresh: 1
+    event: am_ultimatum
+
+- id: gm
+  name: Prof. Thomas Neumann
+  role: Gesundheits- und Pflegeminister
+  initials: TN
+  color: "#7a5898"
+  mood: 3
+  loyalty: 3
+  min_complexity: 3
+  bio: "Klinischer Pragmatiker. Neumann denkt in Systemen und sucht nachhaltige Lösungen für Pflege und Krankenversicherung."
+  interests:
+    - Pflegefinanzierung
+    - Krankenversicherung
+    - Prävention
+  bonus:
+    trigger: "mood>=3"
+    desc: "Gesundheitsfeld-Druck steigt langsamer wenn Mood ≥ 3"
+    applies: gesundheit_druck_slow
+  ultimatum:
+    moodThresh: 1
+    event: gm_ultimatum
+
+- id: bm
+  name: Dr. Sabine Becker
+  role: Bildungs- und Forschungsministerin
+  initials: SB
+  color: "#987830"
+  mood: 3
+  loyalty: 3
+  min_complexity: 4
+  bio: "Unermüdliche Reformerin mit Föderalismusfrust. Becker will Bund und Länder zusammenbringen — oft vergeblich."
+  interests:
+    - Bildungsföderalismus
+    - Kitaausbau
+    - Forschungsförderung
+  bonus:
+    trigger: "mood>=3"
+    desc: "Bundesrat-Blockade bei Bildungsgesetzen -15% wenn Mood ≥ 3"
+    applies: bildung_br_rabatt
+  ultimatum:
+    moodThresh: 1
+    event: bm_ultimatum
+
 - id: um
   name: Jonas Wolf
   role: Umweltminister
