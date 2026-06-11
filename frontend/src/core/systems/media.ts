@@ -1,6 +1,7 @@
 import type { GameState } from '../types';
 import { addLog } from '../engine';
 import { nextRandom } from '../rng';
+import { addZustOffset } from './economy';
 
 export type MilieuKey = 'arbeit' | 'mitte' | 'prog';
 
@@ -44,10 +45,12 @@ export function medienkampagne(state: GameState, milieu: MilieuKey): GameState {
 
   let newState: GameState = { ...state, pk: state.pk - 10 };
 
-  // 1. Immer: einfaches zust-System aktualisieren
+  // 1. Immer: einfaches zust-System aktualisieren (sofortige Anzeige) und
+  // den Gain als persistenten Offset hinterlegen — sonst würde recalcApproval
+  // den Boost beim nächsten Tick überschreiben und die 10 PK wären wirkungslos
   const zust = { ...newState.zust };
   zust[milieu] = Math.min(90, zust[milieu] + gain);
-  newState = { ...newState, zust };
+  newState = { ...newState, zust, zustOffsets: addZustOffset(newState.zustOffsets, milieu, gain) };
 
   // 2. Zusätzlich: erweitertes milieuZustimmung-System wenn vorhanden
   if (newState.milieuZustimmung) {

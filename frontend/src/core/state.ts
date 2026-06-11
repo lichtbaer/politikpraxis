@@ -25,6 +25,7 @@ import {
   MAX_LOG_ENTRIES_VALIDATION,
   MILIEU_TO_ZUST,
   DEFAULT_ELECTION_THRESHOLD,
+  ZUST_OFFSET_MAX,
 } from './constants';
 import { selectEventPool } from './systems/eventPoolSelection';
 import {
@@ -483,6 +484,18 @@ export function validateGameState(raw: unknown): GameState {
     prog: clamp(Number(zustRaw?.prog ?? 44), 0, 100),
   };
 
+  // Segment-Offsets: nur übernehmen wenn vorhanden, Werte hart begrenzen
+  // (Schutz vor localStorage-Manipulation, analog zu zust)
+  const zustOffsetsRaw = get('zustOffsets', undefined) as Record<string, number> | undefined;
+  const zustOffsets =
+    zustOffsetsRaw && typeof zustOffsetsRaw === 'object'
+      ? {
+          arbeit: clamp(Number(zustOffsetsRaw.arbeit ?? 0) || 0, -ZUST_OFFSET_MAX, ZUST_OFFSET_MAX),
+          mitte: clamp(Number(zustOffsetsRaw.mitte ?? 0) || 0, -ZUST_OFFSET_MAX, ZUST_OFFSET_MAX),
+          prog: clamp(Number(zustOffsetsRaw.prog ?? 0) || 0, -ZUST_OFFSET_MAX, ZUST_OFFSET_MAX),
+        }
+      : undefined;
+
   const coalition = clamp(Number(get('coalition', 50)), 0, 100);
   const gameOver = Boolean(get('gameOver', false));
   const won = Boolean(get('won', false));
@@ -526,6 +539,7 @@ export function validateGameState(raw: unknown): GameState {
     kpiPrev: get('kpiPrev', null) as GameState['kpiPrev'],
     tickLog: [],
     zust,
+    ...(zustOffsets ? { zustOffsets } : {}),
     coalition,
     chars: Array.isArray(get('chars', [])) ? (get('chars', []) as GameState['chars']) : [],
     gesetze: Array.isArray(get('gesetze', [])) ? (get('gesetze', []) as GameState['gesetze']) : [],

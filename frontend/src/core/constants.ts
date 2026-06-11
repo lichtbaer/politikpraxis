@@ -18,10 +18,34 @@ export function trimHistory<T>(arr: T[], value: T, maxLength: number): T[] {
 }
 
 // --- PK (Politik-Kapital) ---
-/** Divisor für PK-Regen: PK = floor(Zustimmung / PK_REGEN_DIVISOR) */
-export const PK_REGEN_DIVISOR = 25;
-/** Minimum PK-Regen pro Monat — verhindert Handlungsunfähigkeit bei niedriger Zustimmung */
-export const PK_REGEN_MIN = 3;
+/**
+ * PK-Regen: Basis je Komplexitätsstufe (gilt bei Zustimmung ≈ Referenz 40).
+ * Die alte Formel max(min, floor(zust/divisor)) wurde auf allen Stufen vom
+ * Minimum dominiert (selbst zust=95 → floor(95/25)=3 < min 6) — der Regen
+ * war konstant und Zustimmung wirkungslos. GDD: +1–6 PK/Monat zustimmungsabhängig.
+ */
+export const PK_REGEN_BASE: Record<number, number> = { 1: 5, 2: 4, 3: 3, 4: 3 };
+/** PK-Regen: Obergrenze je Komplexitätsstufe */
+export const PK_REGEN_CAP: Record<number, number> = { 1: 8, 2: 7, 3: 6, 4: 6 };
+/** Zustimmungs-Referenzpunkt: darüber/darunter ±1 PK je Schritt */
+export const PK_REGEN_ZUST_REFERENZ = 40;
+/** Zustimmungs-Schrittweite in Punkten für ±1 PK-Regen */
+export const PK_REGEN_ZUST_SCHRITT = 10;
+/** Absolutes Minimum — verhindert völlige Handlungsunfähigkeit */
+export const PK_REGEN_FLOOR = 1;
+
+/**
+ * Monatlicher PK-Regen: Basis(Stufe) + 1 je 15 Zustimmungspunkte über 40
+ * (bzw. −1 je 15 darunter), begrenzt auf [Floor, Cap(Stufe)].
+ * Einzige Quelle der Wahrheit — Engine (tick) und UI (Header) nutzen sie.
+ */
+export function berechnePkRegen(zustG: number, complexity: number): number {
+  const base = PK_REGEN_BASE[complexity] ?? PK_REGEN_BASE[4];
+  const cap = PK_REGEN_CAP[complexity] ?? PK_REGEN_CAP[4];
+  const zustMod = Math.floor((zustG - PK_REGEN_ZUST_REFERENZ) / PK_REGEN_ZUST_SCHRITT);
+  return clamp(base + zustMod, PK_REGEN_FLOOR, cap);
+}
+
 /** Maximale PK-Kapazität */
 export const PK_MAX = 150;
 
@@ -227,6 +251,16 @@ export const MAX_PENDING = 100;
 export const MAX_LOG_ENTRIES_VALIDATION = 500;
 
 // --- Zustimmung/Approval ---
+/**
+ * Monatlicher Abklingfaktor für persistente Segment-Offsets (zustOffsets).
+ * 0.85 ≈ Halbwertszeit von ~4 Monaten — eine Medienkampagne wirkt spürbar
+ * über mehrere Monate, dominiert aber nicht die KPI-basierte Grundformel.
+ */
+export const ZUST_OFFSET_DECAY = 0.85;
+/** Betrags-Obergrenze je Segment-Offset (verhindert Stacking durch Spam) */
+export const ZUST_OFFSET_MAX = 15;
+/** Offsets unter diesem Betrag werden auf 0 gesetzt (Floating-Point-Hygiene) */
+export const ZUST_OFFSET_EPSILON = 0.5;
 /** Untere Grenze für allgemeine Zustimmung */
 export const APPROVAL_MIN = 15;
 /** Obere Grenze für allgemeine Zustimmung */

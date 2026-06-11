@@ -1,11 +1,11 @@
 import type { GameState, ContentBundle, TickLogEntry } from './types';
 import { withPause, getAutoPauseLevel } from './eventPause';
 import {
-  PK_REGEN_DIVISOR, PK_REGEN_MIN, PK_MAX,
+  berechnePkRegen, PK_MAX,
   HISTORY_MAX_MONTHS, KPI_HISTORY_MAX_MONTHS, MAX_LOG_ENTRIES,
   MISSTRAUENSVOTUM_MONATE, trimHistory, MEDIEN_KLIMA_DEFAULT,
 } from './constants';
-import { applyPendingEffects, applyKPIDrift, recalcApproval, roundKpi } from './systems/economy';
+import { applyPendingEffects, applyKPIDrift, recalcApproval, decayZustOffsets, roundKpi } from './systems/economy';
 import { berechneWahlprognose } from './systems/wahlprognose';
 import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
@@ -204,10 +204,8 @@ export function tick(
     s = safeSystem((st) => tickExtremismusDruck(st, ausrichtung!, content.extremismusEvents!, complexity), 'tickExtremismusDruck');
   }
 
-  // 6. PK-Regen (skaliert nach Schwierigkeitsgrad: höhere Stufe = weniger PK)
-  const pkRegenDivisor = PK_REGEN_DIVISOR + (complexity - 1) * 3; // Stufe 1: 25, Stufe 2: 28, Stufe 3: 31, Stufe 4: 34
-  const pkRegenMin = PK_REGEN_MIN + Math.max(0, 4 - complexity); // Stufe 1: 6, Stufe 2: 5, Stufe 3: 4, Stufe 4: 3
-  const pkRegen = Math.max(pkRegenMin, Math.floor(s.zust.g / pkRegenDivisor));
+  // 6. PK-Regen: zustimmungsabhängig (Basis je Stufe ± 1 je 15 Punkte um Referenz 40)
+  const pkRegen = berechnePkRegen(s.zust.g, complexity);
   s = { ...s, pk: Math.min(PK_MAX, s.pk + pkRegen) };
 
   // Krisen-PK: Bei drohendem Misstrauensvotum (2+ Monate unter 20%) erhält Spieler Bonus-PK
@@ -292,8 +290,10 @@ export function tick(
   // 14b. KPI-Rundung: einmalig am Tick-Ende statt pro Einzeleffekt (vermeidet Rundungsfehler-Kaskaden)
   s = { ...s, kpi: roundKpi(s.kpi) };
 
-  // 15. Zustimmung
-  let newZust = recalcApproval(s.kpi, s.zust);
+  // 15. Zustimmung — Segment-Offsets (Medienkampagne, Ausrichtung) klingen
+  // monatlich ab und werden additiv auf die KPI-basierten Segmente angewendet
+  s = { ...s, zustOffsets: decayZustOffsets(s.zustOffsets) };
+  let newZust = recalcApproval(s.kpi, s.zust, s.zustOffsets);
   if (content.milieus && content.milieus.length > 0) {
     let g = berechneWahlprognose({ ...s, zust: newZust }, content, complexity);
     // SMA-280: Verfassungsgericht-Verfahren: -3% Wahlprognose

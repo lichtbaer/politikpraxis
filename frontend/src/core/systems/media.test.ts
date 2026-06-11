@@ -57,6 +57,15 @@ describe('medienkampagne', () => {
     expect(result).toBe(state);
   });
 
+  it('hinterlegt den Gain als persistenten zustOffset (überlebt recalcApproval)', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.5);
+    const state = makeState({ zust: { g: 50, arbeit: 50, mitte: 50, prog: 50 } });
+    const result = medienkampagne(state, 'arbeit');
+    expect(result.zustOffsets?.arbeit).toBeGreaterThan(0);
+    expect(result.zustOffsets?.mitte ?? 0).toBe(0);
+    vi.restoreAllMocks();
+  });
+
   it('Gain liegt zwischen 2 und 5', () => {
     // random=0 → floor(0*4)+2 = 2; random=0.99 → floor(3.96)+2 = 5
     vi.spyOn(rng, 'nextRandom').mockReturnValue(0);

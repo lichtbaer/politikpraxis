@@ -34,7 +34,7 @@ type Props = {
 
 export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Props) {
   const { t } = useTranslation(['game', 'common']);
-  const { state, complexity, spielerPartei, content } = useGameStore();
+  const { state, complexity, spielerPartei, content, resetGame } = useGameStore();
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const accessToken = useAuthStore((s) => s.accessToken);
   const milieus = useContentStore((s) => s.milieus ?? EMPTY_MILIEUS);
@@ -160,12 +160,20 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
 
   const handleNeuesSpiel = async () => {
     await sendStatsOnce();
-    window.location.reload();
+    resetGame();
+    navigate('/setup');
   };
 
   const handleNochmalPartei = async () => {
     await sendStatsOnce();
+    resetGame({ keepPartei: true });
     navigate('/setup');
+  };
+
+  const handleHauptmenue = async () => {
+    await sendStatsOnce();
+    resetGame();
+    navigate('/');
   };
 
   const handleSaveAuswertung = async () => {
@@ -455,6 +463,9 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
             {t('game:auswertung.save', 'Auswertung speichern')}
           </button>
         )}
+        <button type="button" className={styles.btnSecondary} onClick={() => void handleHauptmenue()}>
+          {t('game:endScreen.zumHauptmenue', 'Zum Hauptmenü')}
+        </button>
       </div>
 
       {showFeedbackModal && (

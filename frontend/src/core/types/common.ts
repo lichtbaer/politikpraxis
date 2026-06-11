@@ -28,6 +28,18 @@ export interface Approval {
   prog: number;
 }
 
+/**
+ * Persistente Segment-Zustimmungs-Offsets (arbeit/mitte/prog).
+ * recalcApproval leitet die Segmente jeden Tick aus den KPIs ab — direkte
+ * zust-Änderungen (Medienkampagne, Start-Ausrichtung) überlebten daher
+ * keinen Tick. Offsets werden additiv angewendet und klingen monatlich ab.
+ */
+export interface ZustOffsets {
+  arbeit: number;
+  mitte: number;
+  prog: number;
+}
+
 export interface PendingEffect {
   month: number;
   key: keyof KPI;

@@ -23,6 +23,7 @@ import {
   LEGISLATUR_MONATE,
   ELECTION_THRESHOLDS_BY_COMPLEXITY,
   DEFAULT_ELECTION_THRESHOLD,
+  berechnePkRegen,
 } from '../constants';
 
 export interface SimResult {
@@ -44,6 +45,14 @@ export interface SimResult {
   wahlUeberHuerde?: boolean;
   /** Grund für Niederlage falls !gewonnen */
   verlustGrund?: 'koalitionsbruch' | 'misstrauensvotum' | 'punkte' | 'unbekannt';
+  /** Ressourcen-Balance: PK am Legislaturende */
+  pkEnde: number;
+  /** Anzahl Monate mit PK < 10 (Dauerbankrott-Indikator) */
+  pkKnappeMonate: number;
+  /** Kumulierter zustimmungsabhängiger PK-Regen über die Legislatur */
+  pkRegenSumme: number;
+  /** Zufriedenheits-KPI am Legislaturende (Spiral-Indikator) */
+  zfEnde: number;
 }
 
 export interface AggregatedResult {
@@ -59,6 +68,11 @@ export interface AggregatedResult {
   bilanzPunkte: { median: number };
   agendaPunkte: { median: number };
   urteilPunkte: { median: number };
+  /** Ressourcen-Balance-Metriken (Mediane über nicht-gecrashte Runs) */
+  pkEnde: { median: number };
+  pkKnappeMonate: { median: number };
+  pkRegenSumme: { median: number };
+  zfEnde: { median: number };
 }
 
 const DEFAULT_AUSRICHTUNG = { wirtschaft: -20, gesellschaft: -40, staat: -15 };
@@ -217,6 +231,9 @@ export function runSingleSim(
       electionThreshold: ELECTION_THRESHOLDS_BY_COMPLEXITY[complexity] ?? DEFAULT_ELECTION_THRESHOLD,
     };
 
+    let pkKnappeMonate = 0;
+    let pkRegenSumme = 0;
+
     for (let _month = 1; _month <= LEGISLATUR_MONATE; _month++) {
       // Wenn ein Event aktiv ist, zuerst auflösen
       if (state.activeEvent) {
@@ -229,6 +246,9 @@ export function runSingleSim(
       // Aktion anwenden
       state = applyAction(state, action, content, complexity);
 
+      // Ressourcen-Metrik: zustimmungsabhängiger Regen dieses Monats (gleiche Formel wie tick)
+      pkRegenSumme += berechnePkRegen(state.zust.g, complexity);
+
       // Engine-Tick (echte Engine!)
       state = tick(state, content, complexity, DEFAULT_AUSRICHTUNG);
 
@@ -236,6 +256,8 @@ export function runSingleSim(
       if (state.activeEvent) {
         state = autoResolveEvent(state, complexity, content);
       }
+
+      if (state.pk < 10) pkKnappeMonate++;
 
       // Spielende prüfen
       if (state.gameOver) break;
@@ -273,6 +295,10 @@ export function runSingleSim(
       gesamtpunkte: state.spielziel?.gesamtpunkte,
       wahlUeberHuerde: state.wahlUeberHuerde,
       verlustGrund,
+      pkEnde: state.pk,
+      pkKnappeMonate,
+      pkRegenSumme,
+      zfEnde: state.kpi.zf,
     };
   } catch (e) {
     return {
@@ -284,6 +310,10 @@ export function runSingleSim(
       gesetze: 0,
       crash: true,
       error: e instanceof Error ? e.message : String(e),
+      pkEnde: 0,
+      pkKnappeMonate: 0,
+      pkRegenSumme: 0,
+      zfEnde: 0,
     };
   }
 }
@@ -301,6 +331,10 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
   const bilanzArr = valid.map(e => e.bilanzPunkte ?? 0).sort((a, b) => a - b);
   const agendaArr = valid.map(e => e.agendaPunkte ?? 0).sort((a, b) => a - b);
   const urteilArr = valid.map(e => e.urteilPunkte ?? 0).sort((a, b) => a - b);
+  const pkEndeArr = valid.map(e => e.pkEnde).sort((a, b) => a - b);
+  const pkKnappArr = valid.map(e => e.pkKnappeMonate).sort((a, b) => a - b);
+  const pkRegenArr = valid.map(e => e.pkRegenSumme).sort((a, b) => a - b);
+  const zfEndeArr = valid.map(e => e.zfEnde).sort((a, b) => a - b);
   const wahlUeberHuerdeMit = valid.filter(e => e.wahlUeberHuerde === true).length;
 
   if (prognosen.length === 0) prognosen.push(0);
@@ -309,6 +343,10 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
   if (bilanzArr.length === 0) bilanzArr.push(0);
   if (agendaArr.length === 0) agendaArr.push(0);
   if (urteilArr.length === 0) urteilArr.push(0);
+  if (pkEndeArr.length === 0) pkEndeArr.push(0);
+  if (pkKnappArr.length === 0) pkKnappArr.push(0);
+  if (pkRegenArr.length === 0) pkRegenArr.push(0);
+  if (zfEndeArr.length === 0) zfEndeArr.push(0);
 
   const median = (arr: number[]) => {
     const mid = Math.floor(arr.length / 2);
@@ -345,6 +383,10 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
     bilanzPunkte: { median: median(bilanzArr) },
     agendaPunkte: { median: median(agendaArr) },
     urteilPunkte: { median: median(urteilArr) },
+    pkEnde: { median: median(pkEndeArr) },
+    pkKnappeMonate: { median: median(pkKnappArr) },
+    pkRegenSumme: { median: median(pkRegenArr) },
+    zfEnde: { median: median(zfEndeArr) },
   };
 }
 

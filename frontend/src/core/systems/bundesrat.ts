@@ -27,10 +27,11 @@ const PK_GEGENVORSCHLAG = 20;
 
 const BEREITSCHAFT_PK_BONUS = 20;
 
+/** Absolute Mehrheit der Stimmgewichte: 35 von 69 (Art. 52 Abs. 3 GG analog) */
 const BR_MEHRHEIT_STIMMEN = 35;
 const BR_TOTAL_STIMMEN = 69;
 
-/** SMA-395: Länder-Profile geladen (Themen) — Stimmgewicht-Summe 69, Mehrheit >35 */
+/** SMA-395: Länder-Profile geladen (Themen) — Stimmgewicht-Summe 69, Mehrheit ≥35 */
 export function bundesratNutztLandgewichte(state: GameState): boolean {
   return state.bundesrat.some(l => (l.themen?.length ?? 0) > 0);
 }
@@ -193,7 +194,7 @@ export function calcBundesratMehrheit(
     return {
       ja,
       nein,
-      mehrheit: ja > BR_MEHRHEIT_STIMMEN,
+      mehrheit: ja >= BR_MEHRHEIT_STIMMEN,
       details,
     };
   }

@@ -1,8 +1,9 @@
-import type { GameState, KPI, Approval } from '../types';
+import type { GameState, KPI, Approval, ZustOffsets } from '../types';
 import {
   clamp,
   APPROVAL_BASE, APPROVAL_AL_FAKTOR, APPROVAL_HH_FAKTOR, APPROVAL_GI_FAKTOR, APPROVAL_ZF_FAKTOR,
   APPROVAL_MIN, APPROVAL_MAX, SEGMENT_APPROVAL_MIN,
+  ZUST_OFFSET_DECAY, ZUST_OFFSET_MAX, ZUST_OFFSET_EPSILON,
   SEGMENT_ARBEIT_AL_FAKTOR, SEGMENT_ARBEIT_GI_FAKTOR, SEGMENT_MITTE_HH_FAKTOR,
   SEGMENT_PROG_GI_FAKTOR, SEGMENT_PROG_ZF_FAKTOR, SEGMENT_GI_BASELINE,
   KPI_DRIFT_CHANCE, MAX_LOG_ENTRIES,
@@ -18,8 +19,12 @@ import { nextRandom } from '../rng';
 /**
  * Berechnet Zustimmungswerte aus KPI-Werten.
  * Formel: w = BASE + (10 - AL) × AL_F + HH × HH_F + (50 - GI) × GI_F + (ZF - 50) × ZF_F
+ *
+ * Optionale zustOffsets (Medienkampagne, Start-Ausrichtung) werden additiv
+ * auf die Segmente angewendet — ohne sie gingen direkte Segment-Boosts
+ * beim nächsten Tick verloren, weil die Formel zustandslos ist.
  */
-export function recalcApproval(kpi: KPI, _currentApproval: Approval): Approval {
+export function recalcApproval(kpi: KPI, _currentApproval: Approval, offsets?: ZustOffsets): Approval {
   const w = APPROVAL_BASE
     + (10 - kpi.al) * APPROVAL_AL_FAKTOR
     + kpi.hh * APPROVAL_HH_FAKTOR
@@ -27,15 +32,47 @@ export function recalcApproval(kpi: KPI, _currentApproval: Approval): Approval {
     + (kpi.zf - 50) * APPROVAL_ZF_FAKTOR;
   const g = clamp(Math.round(w), APPROVAL_MIN, APPROVAL_MAX);
   const arbeit = clamp(
-    Math.round(g + (10 - kpi.al) * SEGMENT_ARBEIT_AL_FAKTOR - (kpi.gi - SEGMENT_GI_BASELINE) * SEGMENT_ARBEIT_GI_FAKTOR),
+    Math.round(g + (10 - kpi.al) * SEGMENT_ARBEIT_AL_FAKTOR - (kpi.gi - SEGMENT_GI_BASELINE) * SEGMENT_ARBEIT_GI_FAKTOR + (offsets?.arbeit ?? 0)),
     SEGMENT_APPROVAL_MIN, APPROVAL_MAX,
   );
-  const mitte = clamp(Math.round(g + kpi.hh * SEGMENT_MITTE_HH_FAKTOR), SEGMENT_APPROVAL_MIN, APPROVAL_MAX);
+  const mitte = clamp(
+    Math.round(g + kpi.hh * SEGMENT_MITTE_HH_FAKTOR + (offsets?.mitte ?? 0)),
+    SEGMENT_APPROVAL_MIN, APPROVAL_MAX,
+  );
   const prog = clamp(
-    Math.round(g - (kpi.gi - SEGMENT_GI_BASELINE) * SEGMENT_PROG_GI_FAKTOR + (kpi.zf - 50) * SEGMENT_PROG_ZF_FAKTOR),
+    Math.round(g - (kpi.gi - SEGMENT_GI_BASELINE) * SEGMENT_PROG_GI_FAKTOR + (kpi.zf - 50) * SEGMENT_PROG_ZF_FAKTOR + (offsets?.prog ?? 0)),
     SEGMENT_APPROVAL_MIN, APPROVAL_MAX,
   );
   return { g, arbeit, mitte, prog };
+}
+
+/**
+ * Lässt Segment-Offsets monatlich abklingen (×ZUST_OFFSET_DECAY).
+ * Werte unter ZUST_OFFSET_EPSILON werden 0; sind alle 0, wird undefined
+ * zurückgegeben, damit alte Saves/States kompakt bleiben.
+ */
+export function decayZustOffsets(offsets: ZustOffsets | undefined): ZustOffsets | undefined {
+  if (!offsets) return undefined;
+  const decay = (v: number) => {
+    const d = v * ZUST_OFFSET_DECAY;
+    return Math.abs(d) < ZUST_OFFSET_EPSILON ? 0 : +d.toFixed(2);
+  };
+  const next = { arbeit: decay(offsets.arbeit), mitte: decay(offsets.mitte), prog: decay(offsets.prog) };
+  if (next.arbeit === 0 && next.mitte === 0 && next.prog === 0) return undefined;
+  return next;
+}
+
+/** Addiert ein Delta auf einen Segment-Offset (geclampt auf ±ZUST_OFFSET_MAX) */
+export function addZustOffset(
+  offsets: ZustOffsets | undefined,
+  segment: keyof ZustOffsets,
+  delta: number,
+): ZustOffsets {
+  const base: ZustOffsets = offsets ?? { arbeit: 0, mitte: 0, prog: 0 };
+  return {
+    ...base,
+    [segment]: clamp(+(base[segment] + delta).toFixed(2), -ZUST_OFFSET_MAX, ZUST_OFFSET_MAX),
+  };
 }
 
 export function applyPendingEffects(state: GameState): GameState {

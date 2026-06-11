@@ -2196,7 +2196,8 @@
     "ziel": "Ziel: {{threshold}}%",
     "monatTooltip": "Monat {{month}}: <b>{{value}}%</b>",
     "meilensteine": "Meilensteine",
-    "neueErfolge": "Neue Erfolge freigeschaltet!"
+    "neueErfolge": "Neue Erfolge freigeschaltet!",
+    "zumHauptmenue": "Zum Hauptmenü"
   },
   "auswertung": {
     "noteHint": "Note aus fünf Dimensionen (Demokratie, Wirtschaft, Gesellschaft, Kommunikation, Effizienz).",
@@ -2714,7 +2715,7 @@
   "headerUI": {
     "pkRegen": "+{{regen}}/Mo",
     "glossarTitle": "Glossar — Spielbegriffe erklärt",
-    "pkRegenTooltip": "PK-Regeneration: {{regen}}/Monat ({{approval}}% Zustimmung ÷ {{divisor}})"
+    "pkRegenTooltip": "PK-Regeneration: {{regen}}/Monat (abhängig von {{approval}}% Zustimmung)"
   },
   "ui": {
     "cancel": "Abbrechen",

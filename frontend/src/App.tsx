@@ -14,6 +14,7 @@ import { StatistikenPage } from './ui/screens/StatistikenPage';
 import { HighscoresPage } from './ui/screens/HighscoresPage';
 import { LoadingScreen } from './ui/screens/LoadingScreen';
 import { ErrorScreen } from './ui/screens/ErrorScreen';
+import { OfflineBanner } from './ui/components/OfflineBanner/OfflineBanner';
 import { useUIStore } from './store/uiStore';
 import { useContentStore } from './store/contentStore';
 import { useAuthStore } from './store/authStore';
@@ -49,6 +50,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <OfflineBanner />
       <Routes>
         <Route path="/" element={<MainMenu />} />
         <Route path="/setup" element={<GameSetup />} />

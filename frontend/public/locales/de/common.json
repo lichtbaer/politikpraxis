@@ -231,5 +231,9 @@
   "nav": {
     "legalFooter": "Rechtliches",
     "back": "← Zurück"
+  },
+  "offline": {
+    "banner": "Offline-Modus: Server nicht erreichbar — vereinfachter Spielinhalt, Spielstände werden nur lokal gespeichert.",
+    "retry": "Erneut verbinden"
   }
 }

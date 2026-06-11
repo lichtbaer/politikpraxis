@@ -176,6 +176,12 @@ interface GameStore {
   doVertrauensfrage: () => void;
   loadSave: (savedState: GameState) => void;
   loadSaveFromFile: (save: SaveFile) => void;
+  /**
+   * Setzt das Spiel nach Legislaturende sauber zurück (statt location.reload()):
+   * Phase zurück auf Onboarding, frischer State, Cloud-Save-Bindung gelöst.
+   * keepPartei: Partei behalten („Nochmal als X“), sonst freie Neuwahl.
+   */
+  resetGame: (options?: { keepPartei?: boolean }) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -228,6 +234,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   startGame: () => set({ phase: 'playing' }),
+
+  resetGame: (options) => {
+    const content = getContentBundle();
+    set({
+      phase: 'onboarding',
+      state: createInitialState(content, get().complexity),
+      content,
+      ausrichtungApplied: false,
+      cloudSaveId: null,
+      ...(options?.keepPartei ? {} : { spielerPartei: null }),
+    });
+  },
 
   setCloudSaveId: (cloudSaveId) => set({ cloudSaveId }),
 

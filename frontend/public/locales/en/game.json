@@ -2170,7 +2170,8 @@
     "ziel": "Target: {{threshold}}%",
     "monatTooltip": "Month {{month}}: <b>{{value}}%</b>",
     "meilensteine": "Milestones",
-    "neueErfolge": "New achievements unlocked!"
+    "neueErfolge": "New achievements unlocked!",
+    "zumHauptmenue": "Back to main menu"
   },
   "auswertung": {
     "noteHint": "Overall grade from five dimensions (democracy, economy, society, communication, efficiency).",
@@ -2716,7 +2717,7 @@
   "headerUI": {
     "pkRegen": "+{{regen}}/mo",
     "glossarTitle": "Glossary — Game terms explained",
-    "pkRegenTooltip": "PK regeneration: {{regen}}/month ({{approval}}% approval ÷ {{divisor}})"
+    "pkRegenTooltip": "PK regeneration: {{regen}}/month (based on {{approval}}% approval)"
   },
   "ui": {
     "cancel": "Cancel",

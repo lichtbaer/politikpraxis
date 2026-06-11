@@ -1,4 +1,5 @@
 import type { GameState } from '../types';
+import { addZustOffset } from './economy';
 
 export interface Ausrichtung {
   wirtschaft: number;   // -100 Umverteilung … +100 Wachstum
@@ -6,33 +7,38 @@ export interface Ausrichtung {
   staat: number;       // -100 Gemeinschaft … +100 Eigenverantwortung
 }
 
-/** Wendet die politische Ausrichtung einmalig auf den Spielstart-State an. */
+/**
+ * Wendet die politische Ausrichtung einmalig auf den Spielstart-State an.
+ * Segment-Änderungen gehen zusätzlich in zustOffsets, damit sie den ersten
+ * recalcApproval-Tick überleben und über mehrere Monate abklingen.
+ */
 export function applyAusrichtung(state: GameState, ausrichtung: Ausrichtung): GameState {
   let next = { ...state };
+
+  const bumpSegment = (s: GameState, segment: 'arbeit' | 'mitte' | 'prog', delta: number): GameState => ({
+    ...s,
+    zust: {
+      ...s.zust,
+      [segment]: Math.max(0, Math.min(100, s.zust[segment] + delta)),
+    },
+    zustOffsets: addZustOffset(s.zustOffsets, segment, delta),
+  });
 
   // Wirtschaft: Umverteilung (negativ) vs Wachstum (positiv)
   if (ausrichtung.wirtschaft < 0) {
     const scale = Math.abs(ausrichtung.wirtschaft) / 100;
+    next = bumpSegment(bumpSegment(next, 'arbeit', 8 * scale), 'mitte', -5 * scale);
     next = {
       ...next,
-      zust: {
-        ...next.zust,
-        arbeit: Math.max(0, Math.min(100, next.zust.arbeit + 8 * scale)),
-        mitte: Math.max(0, Math.min(100, next.zust.mitte - 5 * scale)),
-      },
       chars: next.chars.map((c) =>
         c.ressort === 'finanzen' ? { ...c, loyalty: Math.max(0, Math.min(5, Math.round(c.loyalty - 1 * scale))) } : c
       ),
     };
   } else if (ausrichtung.wirtschaft > 0) {
     const scale = ausrichtung.wirtschaft / 100;
+    next = bumpSegment(bumpSegment(next, 'mitte', 8 * scale), 'arbeit', -5 * scale);
     next = {
       ...next,
-      zust: {
-        ...next.zust,
-        mitte: Math.max(0, Math.min(100, next.zust.mitte + 8 * scale)),
-        arbeit: Math.max(0, Math.min(100, next.zust.arbeit - 5 * scale)),
-      },
       chars: next.chars.map((c) =>
         c.ressort === 'wirtschaft' ? { ...c, loyalty: Math.min(5, Math.round(c.loyalty + 1 * scale)) } : c
       ),
@@ -42,12 +48,9 @@ export function applyAusrichtung(state: GameState, ausrichtung: Ausrichtung): Ga
   // Gesellschaft: Offenheit (negativ) vs Ordnung (positiv)
   if (ausrichtung.gesellschaft < 0) {
     const scale = Math.abs(ausrichtung.gesellschaft) / 100;
+    next = bumpSegment(next, 'prog', 10 * scale);
     next = {
       ...next,
-      zust: {
-        ...next.zust,
-        prog: Math.max(0, Math.min(100, next.zust.prog + 10 * scale)),
-      },
       chars: next.chars.map((c) => {
         if (c.ressort === 'innen') return { ...c, mood: Math.max(0, Math.round(c.mood - 1 * scale)) };
         if (c.ressort === 'justiz') return { ...c, mood: Math.min(4, Math.round(c.mood + 1 * scale)) };
@@ -56,12 +59,9 @@ export function applyAusrichtung(state: GameState, ausrichtung: Ausrichtung): Ga
     };
   } else if (ausrichtung.gesellschaft > 0) {
     const scale = ausrichtung.gesellschaft / 100;
+    next = bumpSegment(next, 'prog', -8 * scale);
     next = {
       ...next,
-      zust: {
-        ...next.zust,
-        prog: Math.max(0, Math.min(100, next.zust.prog - 8 * scale)),
-      },
       chars: next.chars.map((c) =>
         c.ressort === 'innen' ? { ...c, mood: Math.min(4, Math.round(c.mood + 1 * scale)) } : c
       ),

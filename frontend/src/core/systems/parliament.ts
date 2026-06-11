@@ -569,6 +569,15 @@ export function resolveEingebrachteAbstimmung(
     newState = addLog(newState, `Abweichler in der Fraktion: ${abweichlerMalus} Stimmen verloren bei ${law.kurz}`, 'r');
   }
 
+  // Ideologie-Malus sichtbar machen (ab Stufe 2 aktiv, sonst scheitern Gesetze „aus dem Nichts“)
+  if (ideologieMalusResolve <= -15) {
+    newState = addLog(
+      newState,
+      `Koalitionsfraktionen murren: ideologischer Abstand kostet ${Math.abs(ideologieMalusResolve)}% Ja-Stimmen bei ${law.kurz}`,
+      'r',
+    );
+  }
+
   if (effectiveJa > 50) {
     if (!needsBundesrat) {
       newState = applyGesetzKosten(newState, eg.gesetzId);
