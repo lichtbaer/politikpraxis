@@ -289,3 +289,51 @@ describe('Mechanik-Coverage', () => {
     expect(result.crashes).toBe(0);
   });
 });
+
+// =============================================================================
+// Block G: Ressourcen-Balance
+// Verifiziert die PK-Regen-Rekalibrierung (zustimmungsabhängig) und dass
+// weder PK-Dauerbankrott noch eine ZF-Abwärtsspirale auftreten.
+// =============================================================================
+describe('Ressourcen-Balance', () => {
+  const strategien = alleStrategien();
+
+  it('musterschueler Stufe 4: kein PK-Dauerbankrott (Median < 24 knappe Monate)', () => {
+    const result = monteCarlo(SIM_CONTENT, strategien['musterschueler'], N, COMPLEXITY);
+    expect(result.pkKnappeMonate.median).toBeLessThan(24);
+  });
+
+  it('pk_horten: PK-System liefert über die Legislatur netto Ressourcen', () => {
+    // Passive Strategie gibt fast nichts aus — Endstand muss klar über Start (~100) liegen
+    const result = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
+    expect(result.pkEnde.median).toBeGreaterThan(100);
+  });
+
+  it('keine ZF-Abwärtsspirale: passive Strategie endet über dem ZF-Boden', () => {
+    const result = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
+    // KPI_ZF_BOUNDS[0] = 20; Bodenbildung + Erholung müssen deutlich darüber halten
+    expect(result.zfEnde.median).toBeGreaterThan(25);
+  });
+
+  it('PK-Regen ist zustimmungsgekoppelt: musterschueler regeneriert mehr als pk_horten', () => {
+    // musterschueler hält die Zustimmung hoch → muss kumuliert mehr PK erhalten
+    const muster = monteCarlo(SIM_CONTENT, strategien['musterschueler'], N, COMPLEXITY);
+    const passiv = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
+    expect(muster.pkRegenSumme.median).toBeGreaterThan(passiv.pkRegenSumme.median);
+  });
+
+  it('Übersicht Ressourcen-Metriken (console.table)', () => {
+    const report: Record<string, { pkEnde: number; pkKnapp: number; regenSumme: number; zfEnde: number }> = {};
+    for (const name of ['musterschueler', 'pk_horten', 'allrounder', 'wahlkaempfer'] as const) {
+      const r = monteCarlo(SIM_CONTENT, strategien[name], N, COMPLEXITY);
+      report[name] = {
+        pkEnde: Math.round(r.pkEnde.median),
+        pkKnapp: Math.round(r.pkKnappeMonate.median),
+        regenSumme: Math.round(r.pkRegenSumme.median),
+        zfEnde: Math.round(r.zfEnde.median * 10) / 10,
+      };
+    }
+    console.table(report);
+    expect(Object.keys(report).length).toBe(4);
+  }, 120_000);
+});

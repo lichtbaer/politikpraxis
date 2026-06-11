@@ -458,6 +458,36 @@ describe('SMA-395: Länder-gewichteter Bundesrat', () => {
     expect(r.ja + r.nein).toBe(69);
   });
 
+  it('exakt 35 von 69 Stimmgewichten ist die absolute Mehrheit, 34 nicht', () => {
+    // Ja-Länder (BY6+NW6+BW6+NI6+HE5+HH3+HB3 = 35) via hohe Land-Beziehung,
+    // Rest (34) via niedrige Beziehung — deterministisch, da landStimmtJa p >= 0.5 prüft
+    const jaLaender = ['BY', 'NW', 'BW', 'NI', 'HE', 'HH', 'HB'];
+    const bundesrat = DEFAULT_BUNDESRAT.map((l) => ({ ...l, themen: ['kein_match'] }));
+    const landBeziehungen = Object.fromEntries(
+      DEFAULT_BUNDESRAT.map((l) => [l.id, jaLaender.includes(l.id) ? 90 : 10]),
+    );
+    const alleLaenderFraktion = makeFraktion({
+      laender: DEFAULT_BUNDESRAT.map((l) => l.id),
+      basisBereitschaft: 45,
+      beziehung: 50,
+    });
+    const state = makeState({
+      bundesrat,
+      bundesratFraktionen: [alleLaenderFraktion],
+      landBeziehungen,
+      gesetze: [makeLaw({ politikfeldId: 'umwelt_energie' })],
+    });
+    const knapp = calcBundesratMehrheit(state, 'test_law');
+    expect(knapp.ja).toBe(35);
+    expect(knapp.mehrheit).toBe(true);
+
+    // Ein 1-Stimmen-Land (HB) kippt auf Nein → 32... (35-3=32) keine Mehrheit
+    const state34 = { ...state, landBeziehungen: { ...landBeziehungen, HB: 10 } };
+    const verfehlt = calcBundesratMehrheit(state34, 'test_law');
+    expect(verfehlt.ja).toBeLessThan(35);
+    expect(verfehlt.mehrheit).toBe(false);
+  });
+
   it('bundeslandGespraech erhöht Land-Beziehung und zieht PK ab', () => {
     const bundesrat = DEFAULT_BUNDESRAT.map((l) => ({ ...l, themen: ['x'] }));
     let s = makeState({ bundesrat, landBeziehungen: { BY: 40 }, pk: 20 });

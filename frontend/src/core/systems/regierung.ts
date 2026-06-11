@@ -68,7 +68,7 @@ export function regierungserklaerung(state: GameState, complexity: number): Game
   }
 
   const newG = Math.max(15, Math.min(95, next.zust.g + zustDelta));
-  const newZust = recalcApproval(next.kpi, { ...next.zust, g: newG });
+  const newZust = recalcApproval(next.kpi, { ...next.zust, g: newG }, next.zustOffsets);
 
   let out: GameState = {
     ...next,

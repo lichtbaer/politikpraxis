@@ -60,6 +60,26 @@ describe('tick — Grundverhalten', () => {
   });
 });
 
+describe('tick — zustOffsets (persistente Segment-Boosts)', () => {
+  it('Offset wirkt auf Segmente und klingt über Ticks ab', () => {
+    const ohneOffset = tick(makeState({ month: 5, rngSeed: 42 }), MINIMAL_CONTENT, 4);
+    let s = makeState({ month: 5, rngSeed: 42, zustOffsets: { arbeit: 10, mitte: 0, prog: 0 } });
+    s = tick(s, MINIMAL_CONTENT, 4);
+    expect(s.zust.arbeit).toBeGreaterThan(ohneOffset.zust.arbeit);
+    const ersterOffset = s.zustOffsets?.arbeit ?? 0;
+    expect(ersterOffset).toBeGreaterThan(0);
+    expect(ersterOffset).toBeLessThan(10);
+    s = tick(s, MINIMAL_CONTENT, 4);
+    expect(s.zustOffsets?.arbeit ?? 0).toBeLessThan(ersterOffset);
+  });
+
+  it('vollständig abgeklungene Offsets verschwinden aus dem State', () => {
+    let s = makeState({ month: 5, zustOffsets: { arbeit: 0.5, mitte: 0, prog: 0 } });
+    s = tick(s, MINIMAL_CONTENT, 4);
+    expect(s.zustOffsets).toBeUndefined();
+  });
+});
+
 describe('tick — Fehlertoleranz (safeSystem)', () => {
   it('stürzt nicht ab wenn Content-Felder undefined sind', () => {
     const state = makeState({ month: 1 });

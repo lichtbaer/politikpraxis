@@ -1,6 +1,6 @@
 /** GameState, ContentBundle, and related compound types. */
 
-import type { Approval, Ideologie, KPI, LogEntry, PendingEffect, SpeedLevel, TickLogEntry, ViewName } from './common';
+import type { Approval, Ideologie, KPI, LogEntry, PendingEffect, SpeedLevel, TickLogEntry, ViewName, ZustOffsets } from './common';
 import type { AgendaZielContent, KoalitionsZielContent } from './agenda';
 import type { AgendaStatus, Character, MinisterAgendaState } from './character';
 import type { EingebrachteGesetz, GesetzProjekt, GesetzRelation, Law, SteuerContent } from './law';
@@ -172,6 +172,8 @@ export interface GameState {
   kpiPrev: KPI | null;
   tickLog: TickLogEntry[];
   zust: Approval;
+  /** Persistente Segment-Offsets (Medienkampagne, Start-Ausrichtung) — klingen monatlich ab */
+  zustOffsets?: ZustOffsets;
   coalition: number;
 
   chars: Character[];

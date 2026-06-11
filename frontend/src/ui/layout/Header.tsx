@@ -8,7 +8,7 @@ import { upsertSaveSlot } from '../../services/saves';
 import { saveGame } from '../../services/localStorageSave';
 import { useGameActions } from '../hooks/useGameActions';
 import { featureActive } from '../../core/systems/features';
-import { PK_REGEN_DIVISOR, PK_REGEN_MIN } from '../../core/constants';
+import { berechnePkRegen } from '../../core/constants';
 import { PLAYTEST_CONFIG } from '../../config/playtest';
 import { PressemitteilungModal } from '../components/PressemitteilungModal/PressemitteilungModal';
 import { Glossar } from '../components/Glossar/Glossar';
@@ -79,12 +79,10 @@ export function Header() {
       });
   };
 
-  const pkRegenDivisor = PK_REGEN_DIVISOR + (complexity - 1) * 3;
-  const pkRegen = Math.max(PK_REGEN_MIN, Math.floor(zustG / pkRegenDivisor));
+  const pkRegen = berechnePkRegen(zustG, complexity);
   const pkRegenTooltip = t('game:headerUI.pkRegenTooltip', {
     regen: pkRegen,
     approval: Math.round(zustG),
-    divisor: pkRegenDivisor,
   });
 
   const canPressemitteilung =

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { recalcApproval, applyPendingEffects, applyKPIDrift, scheduleEffects } from './economy';
+import { recalcApproval, applyPendingEffects, applyKPIDrift, scheduleEffects, decayZustOffsets, addZustOffset } from './economy';
 import { makeState } from '../test-helpers';
+import { ZUST_OFFSET_MAX, ZUST_OFFSET_DECAY } from '../constants';
 import type { KPI, Approval } from '../types';
 
 function makeKpi(overrides: Partial<KPI> = {}): KPI {
@@ -45,6 +46,40 @@ describe('recalcApproval', () => {
     expect(extreme.arbeit).toBeGreaterThanOrEqual(0);
     expect(extreme.mitte).toBeGreaterThanOrEqual(0);
     expect(extreme.prog).toBeGreaterThanOrEqual(0);
+  });
+
+  it('zustOffsets werden additiv auf die Segmente angewendet', () => {
+    const ohne = recalcApproval(makeKpi(), makeApproval());
+    const mit = recalcApproval(makeKpi(), makeApproval(), { arbeit: 5, mitte: -3, prog: 0 });
+    expect(mit.arbeit).toBe(ohne.arbeit + 5);
+    expect(mit.mitte).toBe(ohne.mitte - 3);
+    expect(mit.prog).toBe(ohne.prog);
+    expect(mit.g).toBe(ohne.g);
+  });
+});
+
+describe('zustOffsets (Decay & Clamp)', () => {
+  it('addZustOffset clampt auf ±ZUST_OFFSET_MAX', () => {
+    let o = addZustOffset(undefined, 'arbeit', 10);
+    o = addZustOffset(o, 'arbeit', 10);
+    expect(o.arbeit).toBe(ZUST_OFFSET_MAX);
+    let n = addZustOffset(undefined, 'prog', -20);
+    expect(n.prog).toBe(-ZUST_OFFSET_MAX);
+    n = addZustOffset(n, 'mitte', 4);
+    expect(n.mitte).toBe(4);
+    expect(n.prog).toBe(-ZUST_OFFSET_MAX);
+  });
+
+  it('decayZustOffsets lässt Offsets monatlich abklingen', () => {
+    const decayed = decayZustOffsets({ arbeit: 10, mitte: 0, prog: -10 });
+    expect(decayed?.arbeit).toBeCloseTo(10 * ZUST_OFFSET_DECAY, 2);
+    expect(decayed?.prog).toBeCloseTo(-10 * ZUST_OFFSET_DECAY, 2);
+    expect(decayed?.mitte).toBe(0);
+  });
+
+  it('decayZustOffsets gibt undefined zurück wenn alles abgeklungen ist', () => {
+    expect(decayZustOffsets(undefined)).toBeUndefined();
+    expect(decayZustOffsets({ arbeit: 0.4, mitte: 0, prog: -0.3 })).toBeUndefined();
   });
 });
 

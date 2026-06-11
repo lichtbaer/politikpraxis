@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { berechneEffektiveBTStimmen } from './parliament';
+import { berechneEffektiveBTStimmen, resolveEingebrachteAbstimmung } from './parliament';
+import { makeState } from '../test-helpers';
 import type { Law } from '../types';
 
 function eeGesetz(): Law {
@@ -91,5 +92,55 @@ describe('berechneEffektiveBTStimmen', () => {
     const effektiv = berechneEffektiveBTStimmen(ee, 50, extrem, extrem);
     expect(effektiv).toBeLessThanOrEqual(90);
     expect(effektiv).toBeGreaterThanOrEqual(20);
+  });
+});
+
+describe('resolveEingebrachteAbstimmung — Ideologie-Malus-Transparenz', () => {
+  it('loggt einen Hinweis wenn der ideologische Abstand ≥15% Ja-Stimmen kostet', () => {
+    // Koalition SDP+GP (Skalar −35) vs. stark rechtes Gesetz (+85) → Abstand 120 → Malus −40
+    const law: Law = {
+      ...eeGesetz(),
+      id: 'hartes_gesetz',
+      kurz: 'HG',
+      status: 'eingebracht',
+      ja: 80,
+      ideologie: { wirtschaft: 85, gesellschaft: 85, staat: 85 },
+      ideologie_wert: 85,
+    };
+    const base = makeState({
+      gesetze: [law],
+      eingebrachteGesetze: [{ gesetzId: 'hartes_gesetz', abstimmungMonat: 5, eingebrachtMonat: 3, lagMonths: 2 }],
+      month: 5,
+    });
+    const state = {
+      ...base,
+      spielerPartei: { id: 'sdp' as const, kuerzel: 'SDP', farbe: '#c00', name: 'SDP' },
+      koalitionspartner: { id: 'gp' as const, beziehung: 60, koalitionsvertragScore: 50, schluesselthemenErfuellt: [] },
+    };
+    const result = resolveEingebrachteAbstimmung(state, { gesetzId: 'hartes_gesetz' }, { complexity: 2, milieus: [] });
+    expect(result.log.some((l) => l.msg.includes('Koalitionsfraktionen murren'))).toBe(true);
+  });
+
+  it('loggt nichts bei ideologisch passendem Gesetz', () => {
+    const law: Law = {
+      ...eeGesetz(),
+      id: 'passendes_gesetz',
+      kurz: 'PG',
+      status: 'eingebracht',
+      ja: 80,
+      ideologie_wert: -35,
+    };
+    const base = makeState({
+      gesetze: [law],
+      eingebrachteGesetze: [{ gesetzId: 'passendes_gesetz', abstimmungMonat: 5, eingebrachtMonat: 3, lagMonths: 2 }],
+      month: 5,
+    });
+    const state = {
+      ...base,
+      spielerPartei: { id: 'sdp' as const, kuerzel: 'SDP', farbe: '#c00', name: 'SDP' },
+      koalitionspartner: { id: 'gp' as const, beziehung: 60, koalitionsvertragScore: 50, schluesselthemenErfuellt: [] },
+    };
+    const result = resolveEingebrachteAbstimmung(state, { gesetzId: 'passendes_gesetz' }, { complexity: 2, milieus: [] });
+    expect(result.log.some((l) => l.msg.includes('Koalitionsfraktionen murren'))).toBe(false);
   });
 });
