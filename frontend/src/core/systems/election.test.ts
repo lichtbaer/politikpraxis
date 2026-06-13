@@ -89,3 +89,44 @@ describe('checkGameEnd', () => {
     expect(result.gameOver).toBe(false);
   });
 });
+
+// Dokumentiert die tatsächlichen Wahlhürden je Komplexitätsstufe (35/38/40/42%).
+// won wird ohne Content rein über wahlUeberHuerde bestimmt (Fallback-Pfad in checkGameEnd).
+describe('electionThreshold je Komplexitätsstufe', () => {
+  const thresholds: Array<[number, number]> = [
+    [1, 35],
+    [2, 38],
+    [3, 40],
+    [4, 42],
+  ];
+
+  it.each(thresholds)(
+    'Stufe %i: wahlUeberHuerde=true bei Zustimmung = Wahlhürde (%i%)',
+    (complexity, threshold) => {
+      const state = makeState({
+        month: 49,
+        complexity,
+        electionThreshold: threshold,
+        zust: { g: threshold, arbeit: 50, mitte: 50, prog: 50 },
+      });
+      const result = checkGameEnd(state);
+      expect(result.gameOver).toBe(true);
+      expect(result.wahlUeberHuerde).toBe(true);
+    },
+  );
+
+  it.each(thresholds)(
+    'Stufe %i: wahlUeberHuerde=false bei Zustimmung 1pp unter Wahlhürde (%i% - 1)',
+    (complexity, threshold) => {
+      const state = makeState({
+        month: 49,
+        complexity,
+        electionThreshold: threshold,
+        zust: { g: threshold - 1, arbeit: 50, mitte: 50, prog: 50 },
+      });
+      const result = checkGameEnd(state);
+      expect(result.gameOver).toBe(true);
+      expect(result.wahlUeberHuerde).toBe(false);
+    },
+  );
+});

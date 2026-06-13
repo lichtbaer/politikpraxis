@@ -2180,8 +2180,8 @@
   "endScreen": {
     "won": "Wiedergewählt",
     "lost": "Abgewählt",
-    "wonSubtitle": "Sie haben die Wahl mit {{percent}}% Zustimmung gewonnen.",
-    "lostSubtitle": "Die Legislaturperiode endet mit {{percent}}% Zustimmung — unter der erforderlichen Mehrheit.",
+    "wonSubtitle": "Legislaturbilanz erfolgreich — Wahlergebnis: {{percent}}% Zustimmung.",
+    "lostSubtitle": "Legislaturbilanz unzureichend — Wahlergebnis: {{percent}}% Zustimmung.",
     "lostMisstrauen": "Misstrauensvotum! Sechs Monate unter 20% Zustimmung führen zum Sturz der Regierung.",
     "lostKoalitionsbruch": "Koalitionsbruch! Die Koalition ist zerbrochen.",
     "beschlosseneGesetze": "Beschlossene Gesetze",
