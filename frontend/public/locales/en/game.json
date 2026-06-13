@@ -2154,8 +2154,8 @@
   "endScreen": {
     "won": "Re-elected",
     "lost": "Voted out",
-    "wonSubtitle": "You won the election with {{percent}}% approval.",
-    "lostSubtitle": "The legislative period ends with {{percent}}% approval — below the required majority.",
+    "wonSubtitle": "Legislative record successful — election result: {{percent}}% approval.",
+    "lostSubtitle": "Legislative record insufficient — election result: {{percent}}% approval.",
     "lostMisstrauen": "Vote of no confidence! Six months below 20% approval lead to the fall of the government.",
     "lostKoalitionsbruch": "Coalition collapse! The coalition has broken apart.",
     "beschlosseneGesetze": "Laws passed",

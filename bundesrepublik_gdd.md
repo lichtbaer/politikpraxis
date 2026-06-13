@@ -48,9 +48,9 @@ Monat 48: Wahl → Wiederwahl ≥ Wahlhürde?
 
 **Zeitstruktur:** Echtzeit mit Pause. 1 Spieltick = 1 Monat. Geschwindigkeiten: Pause / 1× (1,8 Sek/Monat). Events pausieren automatisch.
 
-**Win-Bedingung:** Gesamtzustimmung in Monat 48 ≥ **Wahlhürde** der gewählten Komplexitätsstufe (35 % / 38 % / 40 % / 42 % für Stufen 1–4; zentral in `ELECTION_THRESHOLDS_BY_COMPLEXITY`, Feld `electionThreshold` im Spielstand). Zusätzlich zählt das dreistufige Spielziel (Bilanz 30 % / Agenda 35 % / Historisches Urteil 35 %, Erfolgsschwelle 40 Punkte) — ohne ein einziges beschlossenes Gesetz fällt das historische Urteil schlecht aus.
+**Win-Bedingung:** Das dreistufige Spielziel entscheidet: `spielziel.gesamtpunkte ≥ 40` (Skala 0–100) aus Bilanz 30 % / Agenda 35 % / Historisches Urteil 35 %; bei überschrittener Wahlhürde zusätzlicher Bonus von 0–4 Punkten. Die Wahlhürde je Komplexitätsstufe (35 % / 38 % / 40 % / 42 %, zentral in `ELECTION_THRESHOLDS_BY_COMPLEXITY`, Feld `electionThreshold` im Spielstand) ist kein alleiniges Siegkriterium — man kann trotz überschrittener Hürde verlieren und trotz verfehlter Hürde gewinnen. Ohne ein einziges beschlossenes Gesetz fällt das Historische Urteil auf 25 (statt neutral 50).
 
-**Lose-Bedingungen:** Wahlzustimmung unter der Wahlhürde bei der Wahl, oder Koalitionsbruch (Stabilitätswert < 15%).
+**Lose-Bedingungen:** `spielziel.gesamtpunkte < 40` am Legislaturende (Dreipfeiler-Score: Bilanz/Agenda/Urteil), Koalitionsbruch (Stabilitätswert < 15 %), Misstrauensvotum (6 Monate Zustimmung < 20 %), gescheiterte Vertrauensfrage oder Rücktritt. Die Wahlhürde allein ist kein Verlustkriterium — sie beeinflusst nur den Wahlbonus (0–4 Punkte).
 
 ---
 
