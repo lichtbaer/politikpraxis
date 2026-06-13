@@ -1,11 +1,120 @@
 /**
  * SMA-396: Monatszusammenfassung — Diff zwischen Spielzustand vor/nach einem Monats-Tick.
  */
-import type { ContentBundle, GameState, Law, MonatsDiff } from './types';
+import type {
+  ContentBundle,
+  GameState,
+  Law,
+  MonatsDiff,
+  MonatsUrsache,
+  UrsacheKategorie,
+} from './types';
+import type { KPI } from './types/common';
 import type { MedienAkteurTyp } from '../data/defaults/medienAkteure';
 import { berechneMedienSpielerPerspektive } from './medienSpielerPerspektive';
 
 export type { MonatsDiff } from './types';
+
+/**
+ * Issue #209 — Schwellen, ab denen eine Metrik als relevante Ursache zählt.
+ * Verhindert Rauschen durch routinemäßige Mini-Schwankungen.
+ */
+const URSACHE_SCHWELLE = {
+  /** aggregiertes tickLog-KPI-Delta (al/hh/gi/zf) */
+  kpi: 1,
+  /** Wahlprognose/Zustimmung (Punkte) */
+  zustimmung: 2,
+  medienklima: 2,
+  koalition: 2,
+  /** PK-Regen ist monatlich → höhere Schwelle, nur markante Schwünge zeigen */
+  pk: 3,
+  /** Haushaltssaldo in Mrd. € */
+  saldo: 0.5,
+} as const;
+
+/** Festes Anzeige-Gewicht narrativer Events (zwischen mittleren Zahl-Ursachen). */
+const EVENT_GEWICHT = 4;
+
+/** Maximale Anzahl zurückgegebener Top-Ursachen. */
+const MAX_URSACHEN = 6;
+
+/** tickLog-Quelle → Ursachen-Kategorie (siehe engine.ts). */
+const TICKLOG_SOURCE_KATEGORIE: Record<string, UrsacheKategorie> = {
+  Gesetzwirkung: 'gesetzwirkung',
+  'Haushalt & Konjunktur': 'haushalt',
+  Konjunkturdrift: 'konjunktur',
+};
+
+const round1 = (n: number) => Math.round(n * 10) / 10;
+
+/** Issue #209: Event-Titel best-effort aus den Haupt-Event-Listen auflösen. */
+function findEventTitle(content: ContentBundle | undefined, id: string): string | undefined {
+  if (!content) return undefined;
+  const alle = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
+  return alle.find((e) => e.id === id)?.title;
+}
+
+/**
+ * Issue #209: Aggregiert tickLog-KPI-Änderungen, High-Level-Metrik-Deltas und
+ * narrative Events zu einer nach Relevanz (|delta|) sortierten Ursachenliste.
+ * Reine Aufbereitung bestehender Simulationsdaten — keine neue Spielmechanik.
+ */
+export function berechneTopUrsachen(
+  nach: GameState,
+  diff: MonatsDiff,
+  content?: ContentBundle,
+): MonatsUrsache[] {
+  const ursachen: MonatsUrsache[] = [];
+
+  // 1. Harte KPI-Ursachen aus tickLog: pro (Quelle, KPI) Deltas aggregieren.
+  const agg = new Map<string, { kategorie: UrsacheKategorie; kpi: keyof KPI; delta: number }>();
+  for (const e of nach.tickLog ?? []) {
+    const kategorie = TICKLOG_SOURCE_KATEGORIE[e.source];
+    if (!kategorie) continue; // u. a. "Engine-Fehler:" werden ignoriert
+    const key = `${kategorie}|${e.target}`;
+    const prev = agg.get(key);
+    if (prev) prev.delta += e.delta;
+    else agg.set(key, { kategorie, kpi: e.target, delta: e.delta });
+  }
+  for (const { kategorie, kpi, delta } of agg.values()) {
+    const d = round1(delta);
+    if (Math.abs(d) < URSACHE_SCHWELLE.kpi) continue;
+    ursachen.push({ kategorie, art: 'zahl', kpi, delta: d, gewicht: Math.abs(d) });
+  }
+
+  // 2. High-Level-Metrik-Deltas aus dem Diff.
+  const highLevel: Array<{ kategorie: UrsacheKategorie; delta: number; schwelle: number }> = [
+    { kategorie: 'zustimmung', delta: diff.wahlprognose_delta, schwelle: URSACHE_SCHWELLE.zustimmung },
+    { kategorie: 'medienklima', delta: diff.medienklima_delta, schwelle: URSACHE_SCHWELLE.medienklima },
+    { kategorie: 'koalition', delta: diff.koalition_delta, schwelle: URSACHE_SCHWELLE.koalition },
+    { kategorie: 'pk', delta: Math.round(diff.pk_delta), schwelle: URSACHE_SCHWELLE.pk },
+    { kategorie: 'saldo', delta: diff.saldo_delta, schwelle: URSACHE_SCHWELLE.saldo },
+  ];
+  for (const { kategorie, delta, schwelle } of highLevel) {
+    if (Math.abs(delta) < schwelle) continue;
+    ursachen.push({ kategorie, art: 'zahl', delta, gewicht: Math.abs(delta) });
+  }
+
+  // 3. Narrative Ursachen aus neu ausgelösten Events.
+  for (const eventId of diff.events_ausgeloest) {
+    ursachen.push({
+      kategorie: 'event',
+      art: 'narrativ',
+      delta: 0,
+      gewicht: EVENT_GEWICHT,
+      refId: eventId,
+      label: findEventTitle(content, eventId),
+    });
+  }
+
+  // Sortierung: größtes Gewicht zuerst; bei Gleichstand harte Zahlen vor Events.
+  ursachen.sort((a, b) => {
+    if (b.gewicht !== a.gewicht) return b.gewicht - a.gewicht;
+    if (a.art !== b.art) return a.art === 'zahl' ? -1 : 1;
+    return 0;
+  });
+  return ursachen.slice(0, MAX_URSACHEN);
+}
 
 function lawById(gesetze: Law[], id: string): Law | undefined {
   return gesetze.find((g) => g.id === id);
@@ -69,8 +178,6 @@ export function berechneMonatsDiff(
 
   const wahlVor = vor.zust.g;
   const wahlNach = nach.zust.g;
-
-  const round1 = (n: number) => Math.round(n * 10) / 10;
 
   const milieu_deltas: Record<string, number> = {};
   const mzNach = nach.milieuZustimmung ?? {};
@@ -138,7 +245,7 @@ export function berechneMonatsDiff(
   const evDyn = collectNeueFired(vor.ausgeloesteEvents, nach.ausgeloesteEvents);
   const events_ausgeloest = [...new Set([...evRand, ...evChar, ...evBr, ...evKom, ...evDyn])];
 
-  return {
+  const diff: MonatsDiff = {
     monat,
     beschlosseneGesetze,
     gescheiterteGesetze,
@@ -159,5 +266,8 @@ export function berechneMonatsDiff(
     milieu_deltas,
     medien_highlights,
     events_ausgeloest,
+    topUrsachen: [],
   };
+  diff.topUrsachen = berechneTopUrsachen(nach, diff, content);
+  return diff;
 }

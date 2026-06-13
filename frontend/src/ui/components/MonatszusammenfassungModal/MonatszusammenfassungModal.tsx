@@ -1,8 +1,9 @@
 /**
  * SMA-396: „Was ist passiert?“ nach jedem Monats-Tick
  */
+import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import type { Law, MonatsDiff } from '../../../core/types';
+import type { Law, MonatsDiff, MonatsUrsache } from '../../../core/types';
 import { useUIStore } from '../../../store/uiStore';
 import styles from './MonatszusammenfassungModal.module.css';
 
@@ -16,6 +17,35 @@ interface MonatszusammenfassungModalProps {
 function getGesetzMeta(laws: Law[], id: string): { kurz: string; ja?: number } | null {
   const g = laws.find((l) => l.id === id);
   return g ? { kurz: g.kurz, ja: g.ja } : null;
+}
+
+/**
+ * Issue #209: Ist die Änderung aus Regierungssicht positiv? Bei AL/Gini ist
+ * niedriger besser; sonst ist höher besser. `null` = neutral/narrativ.
+ */
+function istGutFuerSpieler(u: MonatsUrsache): boolean | null {
+  if (u.art === 'narrativ' || u.delta === 0) return null;
+  const niedrigerBesser = u.kpi === 'al' || u.kpi === 'gi';
+  return niedrigerBesser ? u.delta < 0 : u.delta > 0;
+}
+
+function formatUrsacheDelta(delta: number): string {
+  const abs = Math.abs(delta);
+  const betrag = Number.isInteger(abs) ? String(abs) : abs.toFixed(1);
+  const sign = delta > 0 ? '+' : delta < 0 ? '−' : '±';
+  return `${sign}${betrag}`;
+}
+
+/** Issue #209: „{Kategorie}: {KPI}" bzw. nur Kategorie / Event-Titel. */
+function ursacheLabel(t: TFunction, u: MonatsUrsache): string {
+  if (u.kategorie === 'event') {
+    return u.label ?? t('monatszusammenfassung.ursache.event');
+  }
+  const kat = t(`monatszusammenfassung.ursache.${u.kategorie}`);
+  if (u.kpi) {
+    return `${kat}: ${t(`monatszusammenfassung.ursacheKpi.${u.kpi}`)}`;
+  }
+  return kat;
 }
 
 function KpiDeltaZeile(props: {
@@ -65,6 +95,17 @@ export function MonatszusammenfassungModal({
   const hatGesetze =
     diff.beschlosseneGesetze.length > 0 || diff.gescheiterteGesetze.length > 0;
 
+  // Issue #209: Fallback für ältere Spielstände ohne topUrsachen.
+  const topUrsachen = diff.topUrsachen ?? [];
+
+  // Issue #209: Handlungs-Tipp zur stärksten Ursache, die der Regierung schadet.
+  const schlechtesteUrsache = topUrsachen.find((u) => istGutFuerSpieler(u) === false);
+  const tipp = schlechtesteUrsache
+    ? t(`monatszusammenfassung.tipp.${schlechtesteUrsache.kategorie}_negativ`, {
+        defaultValue: '',
+      })
+    : '';
+
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="monatszusammenfassung-title">
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -76,6 +117,48 @@ export function MonatszusammenfassungModal({
         </div>
 
         <div className={styles.body}>
+          <section className={styles.block}>
+            <h3 className={styles.blockTitle}>{t('monatszusammenfassung.blockUrsachen')}</h3>
+            {topUrsachen.length === 0 ? (
+              <p className={styles.neutralMsg}>{t('monatszusammenfassung.keineAenderung')}</p>
+            ) : (
+              <>
+                {topUrsachen.map((u, i) => {
+                  const gut = istGutFuerSpieler(u);
+                  const farbe =
+                    gut === true ? styles.positiv : gut === false ? styles.negativ : styles.neutral;
+                  const pfeil = u.delta > 0 ? '▲' : u.delta < 0 ? '▼' : '→';
+                  const istEvent = u.art === 'narrativ';
+                  return (
+                    <div key={`${u.kategorie}-${u.kpi ?? u.refId ?? i}`} className={styles.ursacheRow}>
+                      <span
+                        className={`${styles.ursacheBadge} ${istEvent ? styles.ursacheBadgeEvent : ''}`}
+                      >
+                        {t(istEvent ? 'monatszusammenfassung.badgeEvent' : 'monatszusammenfassung.badgeZahl')}
+                      </span>
+                      <span className={styles.ursacheLabel}>{ursacheLabel(t, u)}</span>
+                      {istEvent ? (
+                        <span className={styles.neutral} />
+                      ) : (
+                        <span className={`${styles.ursacheDelta} ${farbe}`}>
+                          {pfeil} {formatUrsacheDelta(u.delta)}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+                {tipp && (
+                  <p className={styles.ursacheTipp}>
+                    <span className={styles.ursacheTippLabel}>
+                      {t('monatszusammenfassung.tippLabel')}
+                    </span>{' '}
+                    {tipp}
+                  </p>
+                )}
+              </>
+            )}
+          </section>
+
           {hatGesetze && (
             <section className={styles.block}>
               <h3 className={styles.blockTitle}>{t('monatszusammenfassung.blockGesetze')}</h3>

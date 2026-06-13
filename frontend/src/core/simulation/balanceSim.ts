@@ -64,6 +64,8 @@ export interface AggregatedResult {
   saldo: { median: number; min: number; max: number };
   crashes: number;
   engineErrors: number;
+  /** Gesammelte Engine-Fehler-Details aller Runs (für Testdiagnostik) */
+  engineErrorDetails?: string[];
   /** Anteil der Runs mit Wahlsieg (wahlUeberHuerde) */
   wahlUeberHuerdeRate: number;
   /** Mediane Scoring-Dimensionen (nur nicht-gecrashhte Runs) */
@@ -340,6 +342,7 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
   const gewonnen = ergebnisse.filter(e => e.gewonnen).length;
   const crashes = ergebnisse.filter(e => e.crash).length;
   const engineErrors = ergebnisse.reduce((sum, e) => sum + e.engineErrors, 0);
+  const engineErrorDetails = ergebnisse.flatMap(e => e.engineErrorDetails ?? []);
   const valid = ergebnisse.filter(e => !e.crash);
 
   const prognosen = valid.map(e => e.wahlprognose).sort((a, b) => a - b);
@@ -392,6 +395,7 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
     },
     crashes,
     engineErrors,
+    engineErrorDetails: engineErrorDetails.length > 0 ? engineErrorDetails : undefined,
     wahlUeberHuerdeRate: valid.length > 0 ? wahlUeberHuerdeMit / valid.length : 0,
     gesamtpunkte: {
       median: median(gesamtpunkteArr),

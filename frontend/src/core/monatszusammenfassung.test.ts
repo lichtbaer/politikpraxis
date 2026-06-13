@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ContentBundle, GameState } from './types';
-import { berechneMonatsDiff } from './monatszusammenfassung';
+import { berechneMonatsDiff, berechneTopUrsachen } from './monatszusammenfassung';
 import { DEFAULT_MEDIEN_AKTEURE } from '../data/defaults/medienAkteure';
 
 function minimalContent(): ContentBundle {
@@ -163,5 +163,86 @@ describe('berechneMonatsDiff', () => {
     expect(alt!.delta).toBe(1);
     expect(alt!.delta_bedeutung).toBe('reichweite');
     expect(alt!.spieler_perspektive).toBe('negativ');
+  });
+});
+
+describe('berechneTopUrsachen (Issue #209)', () => {
+  it('aggregiert tickLog-Einträge gleicher Quelle+KPI', () => {
+    const vor = baseState();
+    const nach = {
+      ...vor,
+      month: 6,
+      tickLog: [
+        { source: 'Gesetzwirkung', target: 'hh' as const, delta: 2 },
+        { source: 'Gesetzwirkung', target: 'hh' as const, delta: 1.5 },
+      ],
+    };
+    const diff = berechneMonatsDiff(vor, nach, minimalContent());
+    const gw = diff.topUrsachen.filter(
+      (u) => u.kategorie === 'gesetzwirkung' && u.kpi === 'hh',
+    );
+    expect(gw).toHaveLength(1);
+    expect(gw[0].delta).toBe(3.5);
+    expect(gw[0].art).toBe('zahl');
+    expect(gw[0].gewicht).toBe(3.5);
+  });
+
+  it('sortiert nach Gewicht absteigend (größte Änderung zuerst)', () => {
+    const vor = baseState();
+    const nach = {
+      ...vor,
+      month: 6,
+      zust: { ...vor.zust, g: 55 }, // wahlprognose +5
+      tickLog: [
+        { source: 'Gesetzwirkung', target: 'hh' as const, delta: 3 },
+        { source: 'Haushalt & Konjunktur', target: 'zf' as const, delta: -2 },
+      ],
+    };
+    const diff = berechneMonatsDiff(vor, nach, minimalContent());
+    expect(diff.topUrsachen[0].kategorie).toBe('zustimmung');
+    expect(diff.topUrsachen[0].delta).toBe(5);
+    const gewichte = diff.topUrsachen.map((u) => u.gewicht);
+    expect(gewichte).toEqual([...gewichte].sort((a, b) => b - a));
+  });
+
+  it('filtert High-Level-Deltas unterhalb der Schwelle', () => {
+    const vor = baseState();
+    const nach = { ...vor, month: 6, zust: { ...vor.zust, g: 51 } }; // +1 < Schwelle 2
+    const diff = berechneMonatsDiff(vor, nach, minimalContent());
+    expect(diff.topUrsachen.some((u) => u.kategorie === 'zustimmung')).toBe(false);
+  });
+
+  it('erfasst narrative Events als art "narrativ"', () => {
+    const vor = baseState({ firedEvents: [] });
+    const nach = { ...vor, month: 6, firedEvents: ['ev_streik'] };
+    const diff = berechneMonatsDiff(vor, nach, minimalContent());
+    const ev = diff.topUrsachen.find((u) => u.kategorie === 'event');
+    expect(ev).toBeDefined();
+    expect(ev!.art).toBe('narrativ');
+    expect(ev!.refId).toBe('ev_streik');
+  });
+
+  it('ignoriert Engine-Fehler-Einträge im tickLog', () => {
+    const nach = baseState({
+      tickLog: [{ source: 'Engine-Fehler: foo', target: 'zf', delta: 0 }],
+    });
+    const diff = berechneMonatsDiff(baseState(), { ...nach, month: 6 }, minimalContent());
+    expect(diff.topUrsachen).toHaveLength(0);
+  });
+
+  it('liefert bei ruhigem Monat eine leere Ursachenliste', () => {
+    const vor = baseState();
+    const nach = { ...vor, month: 6 };
+    const diff = berechneMonatsDiff(vor, nach, minimalContent());
+    expect(diff.topUrsachen).toHaveLength(0);
+  });
+
+  it('berechneTopUrsachen ist direkt aufrufbar', () => {
+    const nach = baseState({
+      tickLog: [{ source: 'Konjunkturdrift', target: 'al', delta: 2 }],
+    });
+    const diff = berechneMonatsDiff(baseState(), { ...nach, month: 6 }, minimalContent());
+    const direkt = berechneTopUrsachen({ ...nach, month: 6 }, diff);
+    expect(direkt.some((u) => u.kategorie === 'konjunktur' && u.kpi === 'al')).toBe(true);
   });
 });
