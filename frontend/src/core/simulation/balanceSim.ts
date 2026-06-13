@@ -35,6 +35,8 @@ export interface SimResult {
   gesetze: number;
   crash: boolean;
   error?: string;
+  engineErrors: number;
+  engineErrorDetails?: string[];
   /** SMA-BalanceTests: Scoring-Dimensionen aus spielziel */
   bilanzPunkte?: number;
   agendaPunkte?: number;
@@ -61,6 +63,7 @@ export interface AggregatedResult {
   wahlprognose: { median: number; mittel: number; min: number; max: number; p10: number; p90: number; p25: number; p75: number };
   saldo: { median: number; min: number; max: number };
   crashes: number;
+  engineErrors: number;
   /** Anteil der Runs mit Wahlsieg (wahlUeberHuerde) */
   wahlUeberHuerdeRate: number;
   /** Mediane Scoring-Dimensionen (nur nicht-gecrashhte Runs) */
@@ -233,6 +236,8 @@ export function runSingleSim(
 
     let pkKnappeMonate = 0;
     let pkRegenSumme = 0;
+    let engineErrors = 0;
+    const engineErrorDetails: string[] = [];
 
     for (let _month = 1; _month <= LEGISLATUR_MONATE; _month++) {
       // Wenn ein Event aktiv ist, zuerst auflösen
@@ -251,6 +256,14 @@ export function runSingleSim(
 
       // Engine-Tick (echte Engine!)
       state = tick(state, content, complexity, DEFAULT_AUSRICHTUNG);
+
+      // Abgefangene Systemfehler aus tickLog erfassen (Engine-Fehler: <Name>)
+      for (const entry of state.tickLog) {
+        if (entry.source.startsWith('Engine-Fehler:')) {
+          engineErrors++;
+          engineErrorDetails.push(`Monat ${state.month}: ${entry.source}`);
+        }
+      }
 
       // Nach Tick: Event auflösen falls eines getriggert wurde
       if (state.activeEvent) {
@@ -288,6 +301,8 @@ export function runSingleSim(
       monat: state.month,
       gesetze: state.gesetze.filter(g => g.status === 'beschlossen').length,
       crash: false,
+      engineErrors,
+      engineErrorDetails: engineErrorDetails.length > 0 ? engineErrorDetails : undefined,
       bilanzPunkte: state.spielziel?.bilanzPunkte,
       agendaPunkte: state.spielziel?.agendaPunkte,
       urteilPunkte: state.spielziel?.urteilPunkte,
@@ -310,6 +325,7 @@ export function runSingleSim(
       gesetze: 0,
       crash: true,
       error: e instanceof Error ? e.message : String(e),
+      engineErrors: 0,
       pkEnde: 0,
       pkKnappeMonate: 0,
       pkRegenSumme: 0,
@@ -323,6 +339,7 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
   const n = ergebnisse.length;
   const gewonnen = ergebnisse.filter(e => e.gewonnen).length;
   const crashes = ergebnisse.filter(e => e.crash).length;
+  const engineErrors = ergebnisse.reduce((sum, e) => sum + e.engineErrors, 0);
   const valid = ergebnisse.filter(e => !e.crash);
 
   const prognosen = valid.map(e => e.wahlprognose).sort((a, b) => a - b);
@@ -374,6 +391,7 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
       max: saldi[saldi.length - 1],
     },
     crashes,
+    engineErrors,
     wahlUeberHuerdeRate: valid.length > 0 ? wahlUeberHuerdeMit / valid.length : 0,
     gesamtpunkte: {
       median: median(gesamtpunkteArr),
