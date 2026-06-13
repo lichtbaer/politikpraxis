@@ -355,13 +355,11 @@ async def fetch_agenda_ziele(db: AsyncSession, locale: str) -> list[dict]:
             select(AgendaZiel, i18n_p, i18n_f)
             .outerjoin(
                 i18n_p,
-                (AgendaZiel.id == i18n_p.agenda_ziel_id)
-                & (i18n_p.locale == loc),
+                (AgendaZiel.id == i18n_p.agenda_ziel_id) & (i18n_p.locale == loc),
             )
             .outerjoin(
                 i18n_f,
-                (AgendaZiel.id == i18n_f.agenda_ziel_id)
-                & (i18n_f.locale == fb),
+                (AgendaZiel.id == i18n_f.agenda_ziel_id) & (i18n_f.locale == fb),
             )
             .order_by(AgendaZiel.id)
         )
@@ -471,13 +469,11 @@ async def fetch_events(
             select(EventChoice, ch_i18n_p, ch_i18n_f)
             .outerjoin(
                 ch_i18n_p,
-                (EventChoice.id == ch_i18n_p.choice_id)
-                & (ch_i18n_p.locale == loc),
+                (EventChoice.id == ch_i18n_p.choice_id) & (ch_i18n_p.locale == loc),
             )
             .outerjoin(
                 ch_i18n_f,
-                (EventChoice.id == ch_i18n_f.choice_id)
-                & (ch_i18n_f.locale == fb),
+                (EventChoice.id == ch_i18n_f.choice_id) & (ch_i18n_f.locale == fb),
             )
             .where(EventChoice.event_id.in_(event_ids))
         )
@@ -591,13 +587,11 @@ async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
             select(BundesratFraktion, i18n_p, i18n_f, Partei)
             .outerjoin(
                 i18n_p,
-                (BundesratFraktion.id == i18n_p.fraktion_id)
-                & (i18n_p.locale == loc),
+                (BundesratFraktion.id == i18n_p.fraktion_id) & (i18n_p.locale == loc),
             )
             .outerjoin(
                 i18n_f,
-                (BundesratFraktion.id == i18n_f.fraktion_id)
-                & (i18n_f.locale == fb),
+                (BundesratFraktion.id == i18n_f.fraktion_id) & (i18n_f.locale == fb),
             )
             .outerjoin(Partei, BundesratFraktion.partei_id == Partei.id)
         )
