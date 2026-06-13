@@ -2,6 +2,46 @@
 
 import type { MedienAkteurTyp } from '../../data/defaults/medienAkteure';
 import type { MedienSpielerPerspektive } from '../medienSpielerPerspektive';
+import type { KPI } from './common';
+
+/** Issue #209: harte Zahlenänderung vs. narratives Event */
+export type UrsacheArt = 'zahl' | 'narrativ';
+
+/**
+ * Issue #209: Kategorie einer Monatsursache. tickLog-Quellen (gesetzwirkung,
+ * haushalt, konjunktur) und High-Level-Metriken (zustimmung, medienklima,
+ * koalition, pk, saldo) sind harte Zahlen; `event` ist narrativ.
+ */
+export type UrsacheKategorie =
+  | 'gesetzwirkung'
+  | 'haushalt'
+  | 'konjunktur'
+  | 'zustimmung'
+  | 'medienklima'
+  | 'koalition'
+  | 'pk'
+  | 'saldo'
+  | 'event';
+
+/**
+ * Issue #209: Eine priorisierte Ursache eines Monats — erklärt verständlich,
+ * warum sich Werte verändert haben. Keine neue Spielmechanik, nur Aufbereitung
+ * bestehender Simulationsdaten (tickLog + MonatsDiff-Deltas + Events).
+ */
+export interface MonatsUrsache {
+  kategorie: UrsacheKategorie;
+  art: UrsacheArt;
+  /** betroffener KPI bei tickLog-Ursachen (al|hh|gi|zf), sonst undefined */
+  kpi?: keyof KPI;
+  /** gerichtete Stärke; bei narrativen Events 0 → über `gewicht` einsortiert */
+  delta: number;
+  /** Sortier-/Anzeige-Gewicht = |delta| (Events erhalten festes Mindestgewicht) */
+  gewicht: number;
+  /** optionale Roh-Referenz (z. B. Event-ID) für i18n/Label im UI */
+  refId?: string;
+  /** aufgelöster Klartext-Titel (z. B. Event-Titel); sonst i18n im UI */
+  label?: string;
+}
 
 export interface MonatsDiff {
   monat: number;
@@ -41,4 +81,10 @@ export interface MonatsDiff {
   }>;
 
   events_ausgeloest: string[];
+
+  /**
+   * Issue #209: nach Relevanz (|delta|) sortierte Top-Ursachen des Monats.
+   * Leeres Array → Monat ohne relevante Änderung (UI zeigt Neutral-Meldung).
+   */
+  topUrsachen: MonatsUrsache[];
 }

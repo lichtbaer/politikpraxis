@@ -2319,7 +2319,39 @@
     "medienTooltipStimmungGut": "From the government’s perspective: helpful — sentiment at this outlet moved in your favour.",
     "medienTooltipStimmungSchlecht": "From the government’s perspective: harmful — sentiment at this outlet moved against you.",
     "medienTooltipReichweiteGut": "From the government’s perspective: helpful — this channel’s reach shrinks (less anti-establishment influence).",
-    "medienTooltipReichweiteSchlecht": "From the government’s perspective: harmful — reach grows; anti-establishment media gain influence."
+    "medienTooltipReichweiteSchlecht": "From the government’s perspective: harmful — reach grows; anti-establishment media gain influence.",
+    "blockUrsachen": "Top drivers",
+    "keineAenderung": "A quiet month — no significant swings in key figures or events.",
+    "badgeZahl": "Number",
+    "badgeEvent": "Event",
+    "tippLabel": "Tip:",
+    "ursache": {
+      "gesetzwirkung": "Law effects",
+      "haushalt": "Budget & economy",
+      "konjunktur": "Economic drift",
+      "zustimmung": "Approval",
+      "medienklima": "Media climate",
+      "koalition": "Coalition stability",
+      "pk": "Political capital",
+      "saldo": "Budget balance",
+      "event": "Event"
+    },
+    "ursacheKpi": {
+      "al": "Unemployment",
+      "hh": "Budget",
+      "gi": "Inequality",
+      "zf": "Satisfaction"
+    },
+    "tipp": {
+      "gesetzwirkung_negativ": "Review the planned effects of your laws — some have delayed negative impacts. Counter them with suitable reforms.",
+      "haushalt_negativ": "Budget and economy are weighing on the situation. Watch for counter-financing and avoid costly double burdens.",
+      "konjunktur_negativ": "The economy is cooling. Favour growth-friendly measures and keep political capital ready for crisis responses.",
+      "zustimmung_negativ": "Approval is falling. Address the concerns of key milieus and communicate your successes more assertively.",
+      "medienklima_negativ": "The media climate is turning. A media campaign or visible successes can shift the mood.",
+      "koalition_negativ": "The coalition is becoming less stable. Deliver on key coalition agreement topics or seek dialogue in a coalition meeting.",
+      "pk_negativ": "Your political capital is dwindling. Choose your actions more sparingly and boost approval for faster PK regeneration.",
+      "saldo_negativ": "The budget balance is worsening. Look for savings or counter-financing to stay within the debt brake."
+    }
   },
   "legislaturBilanz": {
     "beat1Title": "Legislature summary",

@@ -2390,7 +2390,39 @@
     "medienTooltipStimmungGut": "Aus Sicht der Regierung: günstiger — die Stimmung bei diesem Medium entwickelt sich für dich positiv.",
     "medienTooltipStimmungSchlecht": "Aus Sicht der Regierung: belastend — die Stimmung bei diesem Medium entwickelt sich für dich negativ.",
     "medienTooltipReichweiteGut": "Aus Sicht der Regierung: günstiger — die Reichweite dieses Kanals sinkt (weniger antiestablishmentärer Einfluss).",
-    "medienTooltipReichweiteSchlecht": "Aus Sicht der Regierung: belastend — die Reichweite wächst; antiestablishmentäre Medien gewinnen an Einfluss."
+    "medienTooltipReichweiteSchlecht": "Aus Sicht der Regierung: belastend — die Reichweite wächst; antiestablishmentäre Medien gewinnen an Einfluss.",
+    "blockUrsachen": "Top-Ursachen",
+    "keineAenderung": "Dieser Monat verlief ruhig — keine größeren Ausschläge bei Kennzahlen oder Ereignissen.",
+    "badgeZahl": "Zahl",
+    "badgeEvent": "Ereignis",
+    "tippLabel": "Tipp:",
+    "ursache": {
+      "gesetzwirkung": "Gesetzwirkung",
+      "haushalt": "Haushalt & Konjunktur",
+      "konjunktur": "Konjunkturdrift",
+      "zustimmung": "Zustimmung",
+      "medienklima": "Medienklima",
+      "koalition": "Koalitionsstabilität",
+      "pk": "Politisches Kapital",
+      "saldo": "Haushaltssaldo",
+      "event": "Ereignis"
+    },
+    "ursacheKpi": {
+      "al": "Arbeitslosigkeit",
+      "hh": "Haushalt",
+      "gi": "Ungleichheit",
+      "zf": "Zufriedenheit"
+    },
+    "tipp": {
+      "gesetzwirkung_negativ": "Prüfe die geplanten Auswirkungen deiner Gesetze — manche entfalten erst verzögert negative Effekte. Steuere mit passenden Reformen gegen.",
+      "haushalt_negativ": "Haushalt und Konjunktur belasten die Lage. Achte auf Gegenfinanzierung und vermeide teure Doppelbelastungen.",
+      "konjunktur_negativ": "Die Konjunktur trübt sich ein. Setze auf wachstumsfreundliche Maßnahmen und halte politisches Kapital für Krisenreaktionen bereit.",
+      "zustimmung_negativ": "Die Zustimmung sinkt. Adressiere die Anliegen wichtiger Milieus und kommuniziere Erfolge offensiver.",
+      "medienklima_negativ": "Das Medienklima kippt. Eine Medienkampagne oder sichtbare Erfolge können die Stimmung drehen.",
+      "koalition_negativ": "Die Koalition wird instabiler. Erfülle Schlüsselthemen des Koalitionsvertrags oder suche in einer Koalitionsrunde das Gespräch.",
+      "pk_negativ": "Dein politisches Kapital schwindet. Wähle deine Aktionen sparsamer und stärke die Zustimmung für mehr PK-Regeneration.",
+      "saldo_negativ": "Der Haushaltssaldo verschlechtert sich. Prüfe Einsparungen oder Gegenfinanzierung, um die Schuldenbremse einzuhalten."
+    }
   },
   "legislaturBilanz": {
     "beat1Title": "Legislatur-Bilanz",
