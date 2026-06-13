@@ -24,11 +24,24 @@ describe('Balance-Simulation (echte Engine)', () => {
   const strategien = alleStrategien();
 
   for (const [name, strategy] of Object.entries(strategien)) {
-    it(`${name}: keine Crashes`, () => {
+    it(`${name}: keine Crashes und keine Engine-Fehler`, () => {
       const result = monteCarlo(SIM_CONTENT, strategy, N, COMPLEXITY);
       expect(result.crashes).toBe(0);
+      expect(result.engineErrors).toBe(0);
     });
   }
+
+  it('Alle Strategien: keine abgefangenen Engine-Systemfehler', () => {
+    for (const [name, strategy] of Object.entries(strategien)) {
+      const result = monteCarlo(SIM_CONTENT, strategy, N, COMPLEXITY);
+      if (result.engineErrors > 0) {
+        throw new Error(
+          `Strategie "${name}": ${result.engineErrors} Engine-Systemfehler – ` +
+          (result.engineErrorDetails ?? []).slice(0, 5).join('; ')
+        );
+      }
+    }
+  }, 120_000);
 
   it('Übersicht: Gewinnraten aller Strategien', () => {
     const report: Record<string, { gewinnRate: number; median: number; saldo: number }> = {};
@@ -72,9 +85,10 @@ describe('Balance-Simulation (echte Engine)', () => {
     expect(result.wahlprognose.median).toBeLessThan(60);
   });
 
-  it('allrounder: Smoke — keine Crashes, moderate Stichprobe (Gewinnrate stark varianzbehaftet)', () => {
+  it('allrounder: Smoke — keine Crashes und keine Engine-Fehler, moderate Stichprobe (Gewinnrate stark varianzbehaftet)', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['allrounder'], N, COMPLEXITY);
     expect(result.crashes).toBe(0);
+    expect(result.engineErrors).toBe(0);
     expect(result.gewinnRate).toBeGreaterThanOrEqual(0);
     expect(result.gewinnRate).toBeLessThanOrEqual(1);
   });
@@ -163,9 +177,10 @@ describe('Verlust-Varianten', () => {
     expect(schuld.saldo.median).toBeLessThanOrEqual(muster.saldo.median);
   });
 
-  it('schuldenmacher: keine Crashes (auch bei Haushaltskrise stabil)', () => {
+  it('schuldenmacher: keine Crashes und keine Engine-Fehler (auch bei Haushaltskrise stabil)', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['schuldenmacher'], N, COMPLEXITY);
     expect(result.crashes).toBe(0);
+    expect(result.engineErrors).toBe(0);
   });
 });
 
@@ -177,9 +192,10 @@ describe('Komplexitäts-Skalierung', () => {
   const strategien = alleStrategien();
 
   for (const complexity of [1, 2, 3] as const) {
-    it(`musterschueler auf COMPLEXITY=${complexity}: keine Crashes`, () => {
+    it(`musterschueler auf COMPLEXITY=${complexity}: keine Crashes und keine Engine-Fehler`, () => {
       const result = monteCarlo(SIM_CONTENT, strategien['musterschueler'], N, complexity);
       expect(result.crashes).toBe(0);
+      expect(result.engineErrors).toBe(0);
     });
 
     it(`musterschueler auf COMPLEXITY=${complexity}: Gewinnrate mindestens 20%`, () => {
@@ -187,9 +203,10 @@ describe('Komplexitäts-Skalierung', () => {
       expect(result.gewinnRate).toBeGreaterThanOrEqual(0.20);
     });
 
-    it(`allrounder auf COMPLEXITY=${complexity}: keine Crashes`, () => {
+    it(`allrounder auf COMPLEXITY=${complexity}: keine Crashes und keine Engine-Fehler`, () => {
       const result = monteCarlo(SIM_CONTENT, strategien['allrounder'], N, complexity);
       expect(result.crashes).toBe(0);
+      expect(result.engineErrors).toBe(0);
     });
   }
 }, 120_000);
@@ -225,9 +242,10 @@ describe('Score-Dimensionen', () => {
     expect(hist.urteilPunkte.median).toBeGreaterThanOrEqual(rand.urteilPunkte.median);
   });
 
-  it('historiker: keine Crashes', () => {
+  it('historiker: keine Crashes und keine Engine-Fehler', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['historiker'], N, COMPLEXITY);
     expect(result.crashes).toBe(0);
+    expect(result.engineErrors).toBe(0);
   });
 
   it('koalitionsmanager: medianer agendaPunkte mindestens so hoch wie koalitionsbrecher', () => {
@@ -266,9 +284,10 @@ describe('Score-Dimensionen', () => {
 describe('Mechanik-Coverage', () => {
   const strategien = alleStrategien();
 
-  it('vermittlungsprofi: keine Crashes', () => {
+  it('vermittlungsprofi: keine Crashes und keine Engine-Fehler', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['vermittlungsprofi'], N, COMPLEXITY);
     expect(result.crashes).toBe(0);
+    expect(result.engineErrors).toBe(0);
   });
 
   it('vermittlungsprofi: Gewinnrate im gültigen Bereich', () => {
@@ -281,12 +300,14 @@ describe('Mechanik-Coverage', () => {
     // SIM_CONTENT_WITH_UNLOCK_EVENTS schaltet event-locked Gesetze frei
     const result = monteCarlo(SIM_CONTENT_WITH_UNLOCK_EVENTS, strategien['musterschueler'], N, COMPLEXITY);
     expect(result.crashes).toBe(0);
+    expect(result.engineErrors).toBe(0);
     expect(result.gewinnRate).toBeGreaterThanOrEqual(0.15);
   });
 
-  it('Mit Unlock-Events: allrounder bleibt crash-frei', () => {
+  it('Mit Unlock-Events: allrounder bleibt crash-frei und ohne Engine-Fehler', () => {
     const result = monteCarlo(SIM_CONTENT_WITH_UNLOCK_EVENTS, strategien['allrounder'], N, COMPLEXITY);
     expect(result.crashes).toBe(0);
+    expect(result.engineErrors).toBe(0);
   });
 });
 
