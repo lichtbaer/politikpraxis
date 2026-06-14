@@ -222,6 +222,32 @@ describe('berechneTopUrsachen (Issue #209)', () => {
     expect(ev!.refId).toBe('ev_streik');
   });
 
+  it('löst Event-Titel aus bundesratEvents auf (Issue #220)', () => {
+    const content = {
+      ...minimalContent(),
+      bundesratEvents: [{ id: 'br_krise', title: 'Bundesrat-Krise' }] as ContentBundle['bundesratEvents'],
+    };
+    const vor = baseState({ firedBundesratEvents: [] });
+    const nach = { ...vor, month: 6, firedBundesratEvents: ['br_krise'] };
+    const diff = berechneMonatsDiff(vor, nach, content);
+    const ev = diff.topUrsachen.find((u) => u.kategorie === 'event' && u.refId === 'br_krise');
+    expect(ev).toBeDefined();
+    expect(ev!.label).toBe('Bundesrat-Krise');
+  });
+
+  it('löst Event-Titel aus kommunalEvents auf (Issue #220)', () => {
+    const content = {
+      ...minimalContent(),
+      kommunalEvents: [{ id: 'kom_protest', title: 'Bürgerprotest' }] as ContentBundle['kommunalEvents'],
+    };
+    const vor = baseState({ firedKommunalEvents: [] });
+    const nach = { ...vor, month: 6, firedKommunalEvents: ['kom_protest'] };
+    const diff = berechneMonatsDiff(vor, nach, content);
+    const ev = diff.topUrsachen.find((u) => u.kategorie === 'event' && u.refId === 'kom_protest');
+    expect(ev).toBeDefined();
+    expect(ev!.label).toBe('Bürgerprotest');
+  });
+
   it('engineDiagnostics-Einträge landen nicht in topUrsachen (keine tickLog-Einträge mehr)', () => {
     // Engine-Fehler werden seit #219 über engineDiagnostics kommuniziert, nicht als Null-Delta im tickLog.
     // Defensiver Schutz: alte Save-Daten mit Engine-Fehler-Einträgen im tickLog werden trotzdem ignoriert.
