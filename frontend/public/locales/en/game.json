@@ -2499,7 +2499,7 @@
       },
       "zustimmung": {
         "term": "Approval / Election forecast",
-        "explanation": "How popular your government is. At the end of the legislative period (Month 48) you must exceed the election threshold to win."
+        "explanation": "How popular your government is. The election forecast influences the election bonus (0–4 points). Victory requires the three-pillar score (legislative balance 30%, agenda 35%, historical verdict 35% + election bonus) to reach ≥ 40 points."
       },
       "kongruenz": {
         "term": "Congruence",
@@ -2564,7 +2564,7 @@
     "losgehts": "Let's go!",
     "ziel": {
       "title": "Your goal: re-election",
-      "text": "You lead the federal government through 48 months. On the left you see your election forecast — it must be above the election threshold at the end. A successful term also requires passed laws and fulfilled agenda goals."
+      "text": "You lead the federal government through 48 months. On the left you see your election forecast — it influences your election bonus (0–4 points). Victory is decided by the three-pillar score: legislative balance (30%), agenda (35%), and historical verdict of passed laws (35%), plus election bonus — ≥ 40 out of 100 points in total."
     },
     "gesetze": {
       "title": "Introducing laws",
@@ -3049,7 +3049,7 @@
     },
     "wahlprognose": {
       "label": "Election forecast",
-      "text": "Current polling numbers — what percentage would vote for your party. At the end of the term you must exceed the election threshold to win."
+      "text": "Current polling numbers — what percentage would vote for your party. The election forecast influences the election bonus (up to 4 points). The primary victory criterion is the three-pillar score ≥ 40 points — the election threshold alone does not decide the outcome."
     }
   }
 }
