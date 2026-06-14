@@ -58,6 +58,7 @@ import { berechneMonatsDiff } from './monatszusammenfassung';
 import { logger } from '../utils/logger';
 import { seedRng } from './rng';
 import { updateAgendaHistoryTrackers } from './systems/agendaHistory';
+import { syncMediaState } from './state';
 
 export { addLog } from './log';
 
@@ -307,6 +308,9 @@ function phasePublicAndMedia(ctx: TickContext): void {
   // 13b. Follow-up Events (complexity >= 4)
   safeSystem(ctx, (st) => checkFollowupEvents(st, content.events), 'checkFollowupEvents');
   safeSystem(ctx, (st) => checkRandomEvents(st, content.events), 'checkRandomEvents');
+
+  // Issue #223: media-Substate mit flachen Feldern synchron halten
+  ctx.s = syncMediaState(ctx.s);
 }
 
 /**
@@ -348,6 +352,9 @@ function phaseElectionAndGameEnd(ctx: TickContext): void {
   if (content.milieus && content.milieus.length > 0) {
     ctx.s = applyMilieuDrift(ctx.s, content.milieus, complexity);
   }
+
+  // Issue #223: media-Substate mit Wahlkampf-Medienänderungen synchron halten
+  ctx.s = syncMediaState(ctx.s);
 }
 
 /**
@@ -455,6 +462,9 @@ function phaseHistoryAndDiagnostics(ctx: TickContext): void {
 
   // SMA-502: Agenda-/Bilanz-Tracker (passiv, kein Gameplay-Effekt)
   ctx.s = updateAgendaHistoryTrackers(ctx.s, mkEnd);
+
+  // Issue #223: media-Substate nach klimaHistory + klimaBelowMonths-Update synchron halten
+  ctx.s = syncMediaState(ctx.s);
 
   // Performance monitoring: log slow ticks (>50ms)
   const tickDuration = performance.now() - ctx.t0;

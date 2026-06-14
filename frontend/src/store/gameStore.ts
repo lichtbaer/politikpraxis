@@ -41,7 +41,7 @@ import { SPIELBARE_PARTEIEN } from '../data/defaults/parteien';
 import { saveGame, type SaveFile } from '../services/localStorageSave';
 import { useAuthStore } from './authStore';
 import { checkAutosave, registerAutosaveCloudSaveHandler } from '../core/autosave';
-import { migrateGameState, validateGameState } from '../core/state';
+import { migrateGameState, validateGameState, syncMediaState } from '../core/state';
 import {
   setHaushaltsdebattePrioritaeten,
   advanceHaushaltsdebattePhase,
@@ -737,12 +737,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
   doWahlkampfMedienoffensive: () =>
     set(prev => ({
-      state: wahlkampfMedienoffensive(prev.state, prev.content, prev.complexity),
+      state: syncMediaState(wahlkampfMedienoffensive(prev.state, prev.content, prev.complexity)),
     })),
   doPressemitteilung: (thema) =>
     set(prev => {
       const next = pressemitteilung(prev.state, thema, prev.complexity, prev.content);
-      return next ? { state: next } : {};
+      return next ? { state: syncMediaState(next) } : {};
     }),
   doMedienAktion: (aktion) =>
     set(prev => {
@@ -768,7 +768,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           '📱 Backlash! Social-Media-Kampagne nach hinten losgegangen — Öffentliche Medien (Social) Stimmung −20',
           'danger',
         );
-        return { state: next };
+        return { state: syncMediaState(next) };
       }
       switch (outcome.aktion) {
         case 'oeffentlich_talkshow':
@@ -788,12 +788,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
           break;
         case 'qualitaet_gespraech':
           toast(
-            '💻 Hintergrundgespräch mit Qualitätspresse vereinbart — Qualität +8, Milieu „Etablierte“ +3 (−15 PK)',
+            '💻 Hintergrundgespräch mit Qualitätspresse vereinbart — Qualität +8, Milieu „Etablierte” +3 (−15 PK)',
             'success',
           );
           break;
       }
-      return { state: next };
+      return { state: syncMediaState(next) };
     }),
   doKabinettsgespraech: (charId) =>
     set(prev => ({ state: kabinettsgespraech(prev.state, charId) })),
