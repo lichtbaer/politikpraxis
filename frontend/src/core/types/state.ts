@@ -91,6 +91,34 @@ export interface MedienAkteurBuffState {
   bisMonat: number;
 }
 
+/**
+ * MediaState — Issue #223 Phase 1.
+ * Alle neuen Medienklima/Akteure-Felder kommen hierher, nicht flach in GameState.
+ * Befüllt durch createInitialMedia() und migrateGameState().
+ * Flache GameState-Felder (medienKlima, medienAkteure, …) bleiben für die Adapter-Phase
+ * erhalten und sind als @deprecated markiert.
+ */
+export interface MediaState {
+  /** Globaler Medienklima-Index 0–100 (SMA-277) */
+  klima: number;
+  /** Plurales Medienökosystem (SMA-390, Stufe 2+) */
+  akteure?: Record<string, MedienAkteurState>;
+  /** Letzter Monat je Medien-Aktion für Cooldown (SMA-390/392) */
+  aktionenGenutzt?: Record<string, number>;
+  /** Additive Stimmungs-Buffs mit Ablaufmonat (SMA-392) */
+  akteurBuffs?: Record<string, MedienAkteurBuffState>;
+  /** Verlauf des Medienklima-Index (ein Wert pro Monat) */
+  klimaHistory?: number[];
+  /** Monat des letzten Skandals */
+  letzterSkandal?: number;
+  /** Letzter Monat mit Pressemitteilung (1×/Monat-Limit) */
+  letztesPressemitteilungMonat?: number;
+  /** SMA-278/Wahlkampf: Medienoffensive einmalig genutzt */
+  offensiveGenutzt?: boolean;
+  /** SMA-502: Monate mit Medienklima unter Agenda-Schwelle */
+  klimaBelowMonths?: number;
+}
+
 /** SMA-502: Laufende Milieu-Zustimmung über die Legislatur (min/max/Ø) */
 export interface MilieuHistoryStats {
   min: number;
@@ -261,6 +289,12 @@ export interface GameState {
   ministerAgenden?: Record<string, MinisterAgendaState>;
   aktiveMinisterAgenda?: { charId: string; status: AgendaStatus } | null;
   eu?: EUState;
+  /**
+   * Konvention: Neue domänenspezifische Felder kommen in den zugehörigen Substate
+   * (media, politics, economy, …), nicht flach in GameState.
+   * Flache Felder werden schrittweise deprecated (#223).
+   */
+  media?: MediaState;
   haushalt?: Haushalt;
   lehmannUltimatumBeschleunigt?: boolean;
   lehmannSparvorschlagAktiv?: boolean;
@@ -276,17 +310,21 @@ export interface GameState {
   wahlkampfBotschaften?: string[];
   tvDuellAbgehalten?: boolean;
   tvDuellGewonnen?: boolean | null;
+  /** @deprecated use state.media.klima */
   medienKlima?: number;
-  /** SMA-390: plurales Medienökosystem (Stufe 2+) */
+  /** @deprecated use state.media.akteure — SMA-390: plurales Medienökosystem (Stufe 2+) */
   medienAkteure?: Record<string, MedienAkteurState>;
-  /** SMA-390/392: letzter Monat je Medien-Aktion (Cooldown 3 Monate) */
+  /** @deprecated use state.media.aktionenGenutzt — SMA-390/392: letzter Monat je Medien-Aktion (Cooldown 3 Monate) */
   medienAktionenGenutzt?: Record<string, number>;
-  /** SMA-392: additive Stimmungs-Buffs mit Ablaufmonat */
+  /** @deprecated use state.media.akteurBuffs — SMA-392: additive Stimmungs-Buffs mit Ablaufmonat */
   medienAkteurBuffs?: Record<string, MedienAkteurBuffState>;
+  /** @deprecated use state.media.klimaHistory */
   medienKlimaHistory?: number[];
-  /** SMA-502: Anzahl Monate mit Medienklima unter Agenda-Schwelle */
+  /** @deprecated use state.media.klimaBelowMonths — SMA-502: Anzahl Monate mit Medienklima unter Agenda-Schwelle */
   medienklimaBelowMonths?: number;
+  /** @deprecated use state.media.letzterSkandal */
   letzterSkandal?: number;
+  /** @deprecated use state.media.letztesPressemitteilungMonat */
   letztesPressemitteilungMonat?: number;
   opposition?: OppositionState;
   bundestagTabHinweisGezeigt?: boolean;
@@ -301,6 +339,7 @@ export interface GameState {
   kanzlerName?: string;
   kanzlerGeschlecht?: 'sie' | 'er' | 'they';
   wahlprognose?: number;
+  /** @deprecated use state.media.offensiveGenutzt */
   medienoffensiveGenutzt?: boolean;
   steuerquoteAktionJahr?: number;
   gekoppelteGesetze?: Record<string, string[]>;

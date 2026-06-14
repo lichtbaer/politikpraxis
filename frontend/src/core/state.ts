@@ -1,5 +1,5 @@
 import type { GameState, ContentBundle, SpielerParteiState, BundeslandContent } from './types';
-import type { MilieuHistoryStats } from './types/state';
+import type { MilieuHistoryStats, MediaState } from './types/state';
 import type { Approval } from './types';
 import { featureActive } from './systems/features';
 import { berechneKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
@@ -39,6 +39,33 @@ import { bildeKabinett, waehleMinisterAusPool } from './kabinett';
 import { MINISTER_AGENDEN_CONFIG } from '../data/defaults/ministerAgenden';
 import { withInitialKoalitionsAgenda } from './onboardingAgenda';
 
+
+/** Baut MediaState aus den flachen GameState-Feldern (Adapter-Periode). */
+function buildMediaState(s: GameState): MediaState {
+  return {
+    klima: s.medienKlima ?? MEDIEN_KLIMA_DEFAULT,
+    akteure: s.medienAkteure,
+    aktionenGenutzt: s.medienAktionenGenutzt,
+    akteurBuffs: s.medienAkteurBuffs,
+    klimaHistory: s.medienKlimaHistory,
+    letzterSkandal: s.letzterSkandal,
+    letztesPressemitteilungMonat: s.letztesPressemitteilungMonat,
+    offensiveGenutzt: s.medienoffensiveGenutzt,
+    klimaBelowMonths: s.medienklimaBelowMonths,
+  };
+}
+
+/**
+ * Synchronisiert state.media aus den flachen Feldern (Adapter-Periode, Issue #223).
+ * Nur aktiv wenn state.media bereits existiert; no-op für States ohne Substate.
+ */
+export function syncMediaState(s: GameState): GameState {
+  if (!s.media) return s;
+  return {
+    ...s,
+    media: buildMediaState(s),
+  };
+}
 
 /** SMA-327: Kanzler-Rolle je nach Geschlecht */
 const KANZLER_ROLLE: Record<'sie' | 'er' | 'they', string> = {
@@ -343,14 +370,17 @@ export function createInitialState(
     let medienAkteure = initMedienAkteureFromContent(content, complexity);
     medienAkteure = kalibriereMedienAkteureZuIndex(medienAkteure, content, complexity, s.medienKlima ?? MEDIEN_KLIMA_DEFAULT);
     const next = { ...s, medienAkteure };
-    return { ...next, medienKlima: berechneMedianklima(next) };
+    const withKlima = { ...next, medienKlima: berechneMedianklima(next) };
+    return { ...withKlima, media: buildMediaState(withKlima) };
   }
 
   /** SMA-412: Startwert für Verlauf-Chart (ein Punkt vor erstem Tick) */
   function withMedienKlimaHistorySeed(s: GameState): GameState {
     const r = withMedienAkteureIfNeeded(s);
-    if (r.medienKlimaHistory && r.medienKlimaHistory.length > 0) return r;
-    return { ...r, medienKlimaHistory: [r.medienKlima ?? MEDIEN_KLIMA_DEFAULT] };
+    const withHistory = r.medienKlimaHistory?.length
+      ? r
+      : { ...r, medienKlimaHistory: [r.medienKlima ?? MEDIEN_KLIMA_DEFAULT] };
+    return { ...withHistory, media: buildMediaState(withHistory) };
   }
 
   function seedKoalitionsAgenda(s: GameState): GameState {
@@ -598,6 +628,7 @@ export function validateGameState(raw: unknown): GameState {
     'legislaturErfolg',
     'wahlUeberHuerde',
     'spielziel',
+    'media',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
@@ -721,6 +752,11 @@ export function migrateGameState(state: GameState): GameState {
 
   // SMA-502: ältere/fehlerhafte Serialisierungen (Arrays statt Aggregate/Zähler)
   result = migrateAgendaHistoryFields(result);
+
+  // Issue #223 Phase 1: MediaState aus flachen Feldern ableiten (idempotent)
+  if (!result.media) {
+    result = { ...result, media: buildMediaState(result) };
+  }
 
   return result;
 }
