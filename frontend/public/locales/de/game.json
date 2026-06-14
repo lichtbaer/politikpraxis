@@ -2294,7 +2294,7 @@
       },
       "zustimmung": {
         "term": "Zustimmung / Wahlprognose",
-        "explanation": "Wie beliebt deine Regierung ist. Am Ende der Legislatur (Monat 48) musst du die Wahlhürde überschreiten um zu gewinnen."
+        "explanation": "Wie beliebt deine Regierung ist. Die Wahlprognose beeinflusst den Wahlbonus (0–4 Punkte). Gewonnen wird, wenn der Dreipfeiler-Score (Legislatur-Bilanz 30 %, Agenda 35 %, historisches Urteil 35 % + Wahlbonus) am Ende ≥ 40 Punkte erreicht."
       },
       "kongruenz": {
         "term": "Kongruenz",
@@ -2562,7 +2562,7 @@
     "losgehts": "Los geht's!",
     "ziel": {
       "title": "Dein Ziel: die Wiederwahl",
-      "text": "Du führst die Bundesregierung durch 48 Monate. Links siehst du deine Wahlprognose — sie muss am Ende über der Wahlhürde liegen. Eine erfolgreiche Legislatur braucht außerdem beschlossene Gesetze und erfüllte Agenda-Ziele."
+      "text": "Du führst die Bundesregierung durch 48 Monate. Links siehst du deine Wahlprognose — sie beeinflusst deinen Wahlbonus (0–4 Punkte). Gewonnen wird durch den Dreipfeiler-Score aus Legislatur-Bilanz (30 %), Agenda (35 %) und historischem Urteil der Gesetze (35 %), plus Wahlbonus — insgesamt ≥ 40 von 100 Punkten."
     },
     "gesetze": {
       "title": "Gesetze einbringen",
@@ -3047,7 +3047,7 @@
     },
     "wahlprognose": {
       "label": "Wahlprognose",
-      "text": "Aktuelle Umfragewerte — wie viele Prozent würden deine Partei wählen. Am Ende der Legislatur musst du die Wahlhürde überschreiten um zu gewinnen."
+      "text": "Aktuelle Umfragewerte — wie viele Prozent würden deine Partei wählen. Die Wahlprognose beeinflusst den Wahlbonus (bis zu 4 Punkte). Primäres Siegkriterium ist der Dreipfeiler-Score ≥ 40 Punkte — die Wahlhürde allein entscheidet nicht."
     }
   }
 }

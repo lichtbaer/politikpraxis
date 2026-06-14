@@ -18,7 +18,7 @@ Random Events reagieren (pausieren Spiel, fordern Entscheidung)
     ↓
 Monat +1
     ↓
-Monat 48: Wahl → Wiederwahl über **wahlhürde** (35–42 % je nach Komplexitätsstufe, gespeichert in `electionThreshold`)
+Monat 48: Wahl → Spielziel-Auswertung (Dreipfeiler ≥ 40 Punkte; Wahlhürde gibt Bonus von 0–4 Punkten)
 ```
 
 ---
