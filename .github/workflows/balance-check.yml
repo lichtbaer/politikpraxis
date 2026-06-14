@@ -27,3 +27,16 @@ jobs:
       - name: Run Balance Simulation
         run: cd frontend && npx vitest run src/core/simulation/balanceSim.test.ts --reporter=verbose
         timeout-minutes: 5
+
+      - name: Generate Balance Report
+        if: always()
+        run: cd frontend && npm run balance:report -- --n=25 --seed=42 --out=../balance-report.md
+        timeout-minutes: 5
+
+      - name: Upload Balance Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: balance-report
+          path: balance-report.md
+          if-no-files-found: warn

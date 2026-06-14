@@ -78,7 +78,14 @@ export interface AggregatedResult {
   pkKnappeMonate: { median: number };
   pkRegenSumme: { median: number };
   zfEnde: { median: number };
+  /** Verlustgrund-Verteilung über alle Niederlagen (häufigster + Zählung) */
+  verlustGrund: {
+    haeufigster: VerlustGrund | null;
+    counts: Record<VerlustGrund, number>;
+  };
 }
+
+type VerlustGrund = NonNullable<SimResult['verlustGrund']>;
 
 const DEFAULT_AUSRICHTUNG = { wirtschaft: -20, gesellschaft: -40, staat: -15 };
 
@@ -357,6 +364,22 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
   const zfEndeArr = valid.map(e => e.zfEnde).sort((a, b) => a - b);
   const wahlUeberHuerdeMit = valid.filter(e => e.wahlUeberHuerde === true).length;
 
+  // Verlustgrund-Verteilung über alle Niederlagen (gecrashte Runs ausgenommen)
+  const verlustCounts: Record<VerlustGrund, number> = {
+    koalitionsbruch: 0,
+    misstrauensvotum: 0,
+    punkte: 0,
+    unbekannt: 0,
+  };
+  for (const e of ergebnisse) {
+    if (!e.crash && !e.gewonnen && e.verlustGrund) {
+      verlustCounts[e.verlustGrund]++;
+    }
+  }
+  const verlustHaeufigster = (Object.entries(verlustCounts) as [VerlustGrund, number][])
+    .filter(([, c]) => c > 0)
+    .sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+
   if (prognosen.length === 0) prognosen.push(0);
   if (saldi.length === 0) saldi.push(0);
   if (gesamtpunkteArr.length === 0) gesamtpunkteArr.push(0);
@@ -409,6 +432,7 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
     pkKnappeMonate: { median: median(pkKnappArr) },
     pkRegenSumme: { median: median(pkRegenArr) },
     zfEnde: { median: median(zfEndeArr) },
+    verlustGrund: { haeufigster: verlustHaeufigster, counts: verlustCounts },
   };
 }
 

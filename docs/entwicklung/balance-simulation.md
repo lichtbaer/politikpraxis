@@ -1,6 +1,6 @@
 # Balance-Simulation (TypeScript, echte Engine)
 
-Die Balance-Simulation testet 13 Spielstrategien gegen die echte Game-Engine (`frontend/src/core/engine.ts`). Im Gegensatz zur früheren Python-Replik werden hier exakt die gleichen Funktionen (`tick()`, `einbringen()`, etc.) wie im Browser genutzt.
+Die Balance-Simulation testet 23 Spielstrategien gegen die echte Game-Engine (`frontend/src/core/engine.ts`). Im Gegensatz zur früheren Python-Replik werden hier exakt die gleichen Funktionen (`tick()`, `einbringen()`, etc.) wie im Browser genutzt.
 
 ---
 
@@ -9,9 +9,10 @@ Die Balance-Simulation testet 13 Spielstrategien gegen die echte Game-Engine (`f
 | Komponente | Beschreibung |
 |------------|--------------|
 | `frontend/src/core/simulation/balanceSim.ts` | Simulations-Runner, Monte-Carlo-Aggregation |
-| `frontend/src/core/simulation/strategien.ts` | 13 Strategie-Definitionen (random, musterschueler, etc.) |
+| `frontend/src/core/simulation/strategien.ts` | 23 Strategie-Definitionen (random, musterschueler, etc.) |
 | `frontend/src/core/simulation/testContent.ts` | Content-Fixture (Gesetze, Minister, Events) |
 | `frontend/src/core/simulation/balanceSim.test.ts` | Vitest-Tests mit Gewinnraten-Prüfung |
+| `frontend/scripts/balanceReport.ts` | Report-Generator (Markdown/JSON pro Strategie & Komplexität) |
 
 ---
 
@@ -21,6 +22,33 @@ Die Balance-Simulation testet 13 Spielstrategien gegen die echte Game-Engine (`f
 cd frontend
 npx vitest run src/core/simulation/balanceSim.test.ts --reporter=verbose
 ```
+
+---
+
+## Balance-Report erzeugen
+
+Für Game-Design-Entscheidungen lässt sich ein lesbarer Report über **alle Strategien**
+(`alleStrategien()`) und die **Komplexitätsstufen 1–4** erzeugen:
+
+```bash
+cd frontend
+npm run balance:report                       # Default: N=200, Komplexität 1-4, Seed 42
+npm run balance:report -- --n=25             # schnellerer Lauf (z. B. CI)
+npm run balance:report -- --complexity=1,4   # nur ausgewählte Stufen
+npm run balance:report -- --json             # zusätzlich JSON neben dem Markdown
+npm run balance:report -- --out=../report.md # eigener Ausgabepfad (relativ zu cwd)
+```
+
+- **Ausgabe** (Default): `docs/entwicklung/balance-report.md` — eine Tabelle je
+  Komplexitätsstufe mit Gewinnrate, Wahlhürden-Rate, Wahlprognose (Median/p10/p90),
+  Score-Dimensionen (Gesamt/Bilanz/Agenda/Urteil), Haushaltssaldo, PK-Ende, Monaten
+  mit PK < 10, häufigstem Verlustgrund sowie Crash-/Engine-Error-Count.
+- **Reproduzierbarkeit:** Der Generator ersetzt `Math.random` durch einen seedbaren
+  Mulberry32-PRNG. Gleicher `--seed` ⇒ identischer Report. N und Seed stehen im
+  Report-Kopf.
+- **Keine Test-Schwellen** im Report — harte Schwellen bleiben in `balanceSim.test.ts`.
+- **CI:** `balance-check.yml` erzeugt den Report (kleines N) und lädt ihn als Artefakt
+  `balance-report` hoch.
 
 ---
 

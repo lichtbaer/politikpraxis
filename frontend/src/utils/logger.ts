@@ -6,7 +6,7 @@
 
 type Level = 'debug' | 'info' | 'warn' | 'error';
 
-const isDev = import.meta.env.DEV;
+const isDev = import.meta.env?.DEV;
 
 function log(level: Level, message: string, context?: Record<string, unknown>): void {
   if (!isDev && level === 'debug') return;
