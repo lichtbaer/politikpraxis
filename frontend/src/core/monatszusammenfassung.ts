@@ -47,10 +47,21 @@ const TICKLOG_SOURCE_KATEGORIE: Record<string, UrsacheKategorie> = {
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
-/** Issue #209: Event-Titel best-effort aus den Haupt-Event-Listen auflösen. */
+/** Issue #220: Event-Titel best-effort aus allen relevanten Event-Pools auflösen. */
 function findEventTitle(content: ContentBundle | undefined, id: string): string | undefined {
   if (!content) return undefined;
-  const alle = [...(content.events ?? []), ...Object.values(content.charEvents ?? {})];
+  const alle: Array<{ id: string; title: string }> = [
+    ...(content.events ?? []),
+    ...Object.values(content.charEvents ?? {}),
+    ...(content.bundesratEvents ?? []),
+    ...(content.kommunalEvents ?? []),
+    ...(content.vorstufenEvents ?? []),
+    ...(content.extremismusEvents ?? []),
+    ...(content.kommunalLaenderEvents ?? []),
+    ...(content.steuerEvents ?? []),
+    ...(content.dynamicEvents ?? []),
+    ...(content.medienEvents ?? []),
+  ];
   return alle.find((e) => e.id === id)?.title;
 }
 
