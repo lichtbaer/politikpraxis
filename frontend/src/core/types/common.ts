@@ -21,6 +21,15 @@ export interface TickLogEntry {
   delta: number;
 }
 
+/** Strukturierter Engine-Diagnostik-Eintrag — getrennt von Spieler-Deltas im tickLog */
+export interface EngineDiagnosticEntry {
+  month: number;
+  phase: string;
+  system: string;
+  level: 'error';
+  message?: string;
+}
+
 export interface Approval {
   g: number;
   arbeit: number;

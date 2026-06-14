@@ -1,4 +1,4 @@
-import type { GameState, ContentBundle, TickLogEntry } from './types';
+import type { GameState, ContentBundle, EngineDiagnosticEntry, TickLogEntry } from './types';
 import { withPause, getAutoPauseLevel } from './eventPause';
 import {
   berechnePkRegen, PK_MAX,
@@ -86,8 +86,8 @@ interface TickContext {
   readonly t0: number;
   /** Gesammelte KPI-Änderungen pro Quelle, am Tick-Ende an den State gehängt. */
   tickLog: TickLogEntry[];
-  /** Namen der Systeme, die in diesem Tick eine Exception geworfen haben. */
-  failedSystems?: string[];
+  /** Systeme, die in diesem Tick eine Exception geworfen haben — mit zugehöriger Phase. */
+  failedSystems?: { name: string; phase: string }[];
   /** Name der aktuell laufenden Phase — von tick() vor jeder Phase gesetzt. */
   phase: string;
 }
@@ -105,7 +105,7 @@ function safeSystem(ctx: TickContext, fn: (current: GameState) => GameState, nam
       error: String(err),
       phase: ctx.phase,
     });
-    (ctx.failedSystems ??= []).push(name);
+    (ctx.failedSystems ??= []).push({ name, phase: ctx.phase });
   }
 }
 
@@ -427,11 +427,18 @@ function phaseHistoryAndDiagnostics(ctx: TickContext): void {
     };
   }
 
-  // Attach the tick change log (including failed systems for diagnostics)
+  // Attach the tick change log and engine diagnostics (separate from player KPI deltas)
   if (ctx.failedSystems?.length) {
-    for (const name of ctx.failedSystems) {
-      ctx.tickLog.push({ source: `Engine-Fehler: ${name}`, target: 'zf', delta: 0 });
-    }
+    const diagnostics: EngineDiagnosticEntry[] = ctx.failedSystems.map(({ name, phase }) => ({
+      month: ctx.s.month,
+      phase,
+      system: name,
+      level: 'error',
+    }));
+    ctx.s = {
+      ...ctx.s,
+      engineDiagnostics: [...(ctx.s.engineDiagnostics ?? []), ...diagnostics],
+    };
   }
   ctx.s = { ...ctx.s, tickLog: ctx.tickLog };
 

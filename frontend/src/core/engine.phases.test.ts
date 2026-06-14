@@ -80,6 +80,11 @@ describe('Engine-Phasen — safeSystem trägt Systemname und Phase', () => {
       expect(() => phaseActorsAndInstitutions(ctx)).not.toThrow();
 
       expect(ctx.failedSystems?.length).toBeGreaterThan(0);
+      // failedSystems enthält jetzt Objekte mit name und phase
+      expect(ctx.failedSystems?.[0]).toMatchObject({
+        name: expect.any(String),
+        phase: 'phaseActorsAndInstitutions',
+      });
       // Der Fehler-Log nennt sowohl ein System als auch die Phase.
       const loggedWithPhase = errorSpy.mock.calls.some(
         ([msg, meta]) =>
@@ -99,7 +104,13 @@ describe('Engine-Phasen — safeSystem trägt Systemname und Phase', () => {
       const result = tick(makeState({ month: 5 }), contentThatThrowsOnVerbaende(), 4);
       expect(result.month).toBe(6);
       expect(Array.isArray(result.tickLog)).toBe(true);
-      expect(result.tickLog.some((e) => e.source.startsWith('Engine-Fehler:'))).toBe(true);
+      // Engine-Fehler landen jetzt in engineDiagnostics, nicht mehr als Null-Delta im tickLog
+      expect(result.engineDiagnostics?.length).toBeGreaterThan(0);
+      expect(result.engineDiagnostics?.[0]).toMatchObject({
+        phase: expect.any(String),
+        system: expect.any(String),
+        level: 'error',
+      });
     } finally {
       errorSpy.mockRestore();
     }

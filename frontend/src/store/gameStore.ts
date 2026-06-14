@@ -270,7 +270,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const nextState = tick(s, content, complexity, ausrichtung);
     set({ state: nextState });
     // Notify player when an engine system crashed during tick
-    const engineFehler = nextState.tickLog.filter((e) => e.source.startsWith('Engine-Fehler:'));
+    const engineFehler = (nextState.engineDiagnostics ?? []).filter(d => d.month === nextState.month);
     if (engineFehler.length > 0) {
       toast(`Spielfehler in ${engineFehler.length} System(en) — Fortschritt gesichert`, 'warning');
     }
