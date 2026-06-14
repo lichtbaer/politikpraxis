@@ -266,11 +266,11 @@ export function runSingleSim(
       // Engine-Tick (echte Engine!)
       state = tick(state, content, complexity, DEFAULT_AUSRICHTUNG);
 
-      // Abgefangene Systemfehler aus tickLog erfassen (Engine-Fehler: <Name>)
-      for (const entry of state.tickLog) {
-        if (entry.source.startsWith('Engine-Fehler:')) {
+      // Abgefangene Systemfehler aus engineDiagnostics erfassen (Monat + Phase + System)
+      for (const diag of state.engineDiagnostics ?? []) {
+        if (diag.month === state.month) {
           engineErrors++;
-          engineErrorDetails.push(`Monat ${state.month}: ${entry.source}`);
+          engineErrorDetails.push(`Monat ${diag.month}: Engine-Fehler: ${diag.phase}/${diag.system}`);
         }
       }
 

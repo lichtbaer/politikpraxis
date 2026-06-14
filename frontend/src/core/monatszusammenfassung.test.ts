@@ -222,9 +222,12 @@ describe('berechneTopUrsachen (Issue #209)', () => {
     expect(ev!.refId).toBe('ev_streik');
   });
 
-  it('ignoriert Engine-Fehler-Einträge im tickLog', () => {
+  it('engineDiagnostics-Einträge landen nicht in topUrsachen (keine tickLog-Einträge mehr)', () => {
+    // Engine-Fehler werden seit #219 über engineDiagnostics kommuniziert, nicht als Null-Delta im tickLog.
+    // Defensiver Schutz: alte Save-Daten mit Engine-Fehler-Einträgen im tickLog werden trotzdem ignoriert.
     const nach = baseState({
       tickLog: [{ source: 'Engine-Fehler: foo', target: 'zf', delta: 0 }],
+      engineDiagnostics: [{ month: 6, phase: 'testPhase', system: 'foo', level: 'error' }],
     });
     const diff = berechneMonatsDiff(baseState(), { ...nach, month: 6 }, minimalContent());
     expect(diff.topUrsachen).toHaveLength(0);
