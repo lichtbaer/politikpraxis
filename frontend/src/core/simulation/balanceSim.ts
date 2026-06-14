@@ -4,8 +4,13 @@
  */
 import { tick } from '../engine';
 import { createInitialState } from '../state';
-import { einbringen, lobbying, fraktionssitzung, type EinbringenContext } from '../systems/parliament';
+import { lobbying, fraktionssitzung } from '../systems/parliament';
 import { koalitionsrunde, prioritaetsgespraech } from '../systems/koalition';
+import {
+  einbringenCommand,
+  partnerWiderstandTrotzdemCommand,
+  partnerWiderstandKoalitionsverhandlungCommand,
+} from '../commands/einbringen';
 import { pressemitteilung } from '../systems/medienklima';
 import { medienkampagne } from '../systems/media';
 import { kabinettsgespraech } from '../systems/characters';
@@ -89,60 +94,29 @@ type VerlustGrund = NonNullable<SimResult['verlustGrund']>;
 
 const DEFAULT_AUSRICHTUNG = { wirtschaft: -20, gesellschaft: -40, staat: -15 };
 
-/**
- * SMA-403: Simuliert die Partner-Widerstand-Modals ohne UI — gleiche Logik wie gameStore
- * (hinweis/widerstand: „trotzdem“ mit Beziehungs-Malus; veto: Koalitionsrunde + Freigabe).
- */
-function autoResolvePartnerWiderstandModal(
+/** Löst pendingPartnerWiderstand in der Simulation automatisch auf (ohne UI). */
+function autoResolvePartnerWiderstand(
   state: GameState,
   content: ContentBundle,
   complexity: number,
 ): GameState {
-  const pending = state.pendingPartnerWiderstand;
-  if (!pending) return state;
+  if (!state.pendingPartnerWiderstand) return state;
+  const { intensitaet } = state.pendingPartnerWiderstand;
 
-  const baseCtx: EinbringenContext = {
+  if (intensitaet === 'veto') {
+    const { state: s } = partnerWiderstandKoalitionsverhandlungCommand(state, {
+      complexity,
+      content,
+    });
+    return s;
+  }
+
+  const { state: s } = partnerWiderstandTrotzdemCommand(state, {
     ausrichtung: DEFAULT_AUSRICHTUNG,
     complexity,
-    gesetzRelationen: content.gesetzRelationen,
     content,
-  };
-
-  if (pending.intensitaet === 'veto') {
-    if (state.pk < 15) {
-      return { ...state, pendingPartnerWiderstand: undefined };
-    }
-    let s = koalitionsrunde(state, content, complexity);
-    if (s.pk === state.pk) {
-      return { ...state, pendingPartnerWiderstand: undefined };
-    }
-    s = {
-      ...s,
-      partnerWiderstandVetoFreigabeGesetzId: pending.lawId,
-      pendingPartnerWiderstand: undefined,
-    };
-    return einbringen(s, pending.lawId, {
-      ...baseCtx,
-      framingKey: pending.framingKey ?? undefined,
-    });
-  }
-
-  const kp = state.koalitionspartner;
-  if (
-    kp &&
-    pending.koalitionsMalus !== 0 &&
-    kp.beziehung + pending.koalitionsMalus < 28
-  ) {
-    return { ...state, pendingPartnerWiderstand: undefined };
-  }
-
-  return einbringen(state, pending.lawId, {
-    ...baseCtx,
-    framingKey: pending.framingKey ?? undefined,
-    skipPartnerWiderstandCheck: true,
-    partnerWiderstandKoalitionsMalus: pending.koalitionsMalus,
-    fromPartnerWiderstandConfirm: true,
   });
+  return s;
 }
 
 /** Wendet eine Strategie-Aktion auf den GameState an */
@@ -155,14 +129,13 @@ function applyAction(
   switch (action.typ) {
     case 'einbringen': {
       const { gesetzId } = action;
-      let s = einbringen(state, gesetzId, {
+      const { state: s1 } = einbringenCommand(state, {
+        lawId: gesetzId,
         ausrichtung: DEFAULT_AUSRICHTUNG,
         complexity,
-        gesetzRelationen: content.gesetzRelationen,
         content,
       });
-      s = autoResolvePartnerWiderstandModal(s, content, complexity);
-      return s;
+      return autoResolvePartnerWiderstand(s1, content, complexity);
     }
     case 'lobbying':
       return lobbying(state, action.gesetzId);

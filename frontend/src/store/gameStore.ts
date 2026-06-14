@@ -5,17 +5,14 @@ import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, Rout
 import { createInitialState } from '../core/state';
 import { ELECTION_THRESHOLDS_BY_COMPLEXITY, DEFAULT_ELECTION_THRESHOLD } from '../core/constants';
 import { tick, addLog } from '../core/engine';
-import { einbringen, lobbying, abstimmen, fraktionssitzung, type EinbringenContext, type GesetzBeschlussContext } from '../core/systems/parliament';
+import { lobbying, abstimmen, fraktionssitzung, type GesetzBeschlussContext } from '../core/systems/parliament';
+import type { GegenfinanzierungsOption } from '../core/systems/gegenfinanzierung';
 import {
-  brauchtGegenfinanzierung,
-  berechneOptionen,
-  wendeGegenfinanzierungAn,
-  type GegenfinanzierungsOption,
-} from '../core/systems/gegenfinanzierung';
-import { applyKongruenzEffekte, getEinbringenPkKosten } from '../core/systems/kongruenz';
-import { getMedienPkZusatzkosten } from '../core/systems/medienklima';
-import { getVorstufenBoni } from '../core/systems/gesetzLebenszyklus';
-import { featureActive } from '../core/systems/features';
+  einbringenCommand,
+  gegenfinanzierungAuswaehlenCommand,
+  partnerWiderstandTrotzdemCommand,
+  partnerWiderstandKoalitionsverhandlungCommand,
+} from '../core/commands/einbringen';
 import {
   updateKoalitionsvertragScore,
   koalitionsrunde,
@@ -324,55 +321,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   doEinbringen: (lawId) =>
     set((prev) => {
-      const law = prev.state.gesetze.find(g => g.id === lawId);
-      if (
-        law &&
-        featureActive(prev.complexity, 'gegenfinanzierung') &&
-        brauchtGegenfinanzierung(law)
-      ) {
-        const optionen = berechneOptionen(prev.state, law, prev.content, prev.complexity);
-        const kosten = Math.abs(law.kosten_laufend ?? 0) || Math.abs(law.kosten_einmalig ?? 0) / 10;
-        const boni = getVorstufenBoni(prev.state, lawId);
-        const kongruenzEffekt = applyKongruenzEffekte(prev.state, lawId, prev.ausrichtung, prev.complexity);
-        const medienZusatz = featureActive(prev.complexity, 'medienklima')
-          ? getMedienPkZusatzkosten(prev.state.medienKlima ?? 55)
-          : 0;
-        const pkKosten = Math.max(2, getEinbringenPkKosten(kongruenzEffekt.pkModifikator) - boni.pkKostenRabatt + medienZusatz);
-        return { state: { ...prev.state, pendingGegenfinanzierung: { gesetzId: lawId, optionen, kosten, pkKosten } } };
-      }
-      const ctx: EinbringenContext = {
+      const { state, effect } = einbringenCommand(prev.state, {
+        lawId,
         ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
-        gesetzRelationen: prev.content.gesetzRelationen,
         content: prev.content,
-      };
-      const nextState = einbringen(prev.state, lawId, ctx);
-      const newLaw = nextState.gesetze.find(g => g.id === lawId);
-      if (newLaw && newLaw.status !== 'entwurf') {
-        const pkUsed = prev.state.pk - nextState.pk;
-        toast(`${newLaw.kurz} eingebracht (−${pkUsed} PK)`, 'success');
-      }
-      return { state: nextState };
+      });
+      if (effect.type === 'toast') toast(effect.message, effect.variant);
+      return { state };
     }),
   doGegenfinanzierungAuswaehlen: (gesetzId, option, subOption) =>
     set((prev) => {
-      const { pendingGegenfinanzierung } = prev.state;
-      if (!pendingGegenfinanzierung || pendingGegenfinanzierung.gesetzId !== gesetzId) return prev;
-      const law = prev.state.gesetze.find(g => g.id === gesetzId);
-      if (!law) return prev;
-      const ctx: EinbringenContext = {
+      const { state } = gegenfinanzierungAuswaehlenCommand(prev.state, {
+        gesetzId,
+        option,
+        subOption,
         ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
-        framingKey: pendingGegenfinanzierung.framingKey,
-        gesetzRelationen: prev.content.gesetzRelationen,
         content: prev.content,
-        skipPartnerWiderstandCheck: pendingGegenfinanzierung.partnerWiderstandConfirmed === true,
-        partnerWiderstandKoalitionsMalus: pendingGegenfinanzierung.partnerWiderstandKoalitionsMalus,
-        fromPartnerWiderstandConfirm: pendingGegenfinanzierung.partnerWiderstandConfirmed === true,
-      };
-      let state = wendeGegenfinanzierungAn(prev.state, law, option, subOption, prev.complexity, prev.content);
-      state = { ...state, pendingGegenfinanzierung: undefined };
-      state = einbringen(state, gesetzId, ctx);
+      });
       return { state };
     }),
   doGegenfinanzierungAbbrechen: () =>
@@ -381,47 +348,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
   doEinbringenMitFraming: (lawId, framingKey) =>
     set((prev) => {
-      const law = prev.state.gesetze.find(g => g.id === lawId);
-      if (
-        law &&
-        featureActive(prev.complexity, 'gegenfinanzierung') &&
-        brauchtGegenfinanzierung(law)
-      ) {
-        const optionen = berechneOptionen(prev.state, law, prev.content, prev.complexity);
-        const kosten = Math.abs(law.kosten_laufend ?? 0) || Math.abs(law.kosten_einmalig ?? 0) / 10;
-        const boni = getVorstufenBoni(prev.state, lawId);
-        const kongruenzEffekt = applyKongruenzEffekte(prev.state, lawId, prev.ausrichtung, prev.complexity);
-        const medienZusatz = featureActive(prev.complexity, 'medienklima')
-          ? getMedienPkZusatzkosten(prev.state.medienKlima ?? 55)
-          : 0;
-        const pkKosten = Math.max(2, getEinbringenPkKosten(kongruenzEffekt.pkModifikator) - boni.pkKostenRabatt + medienZusatz);
-        return {
-          state: {
-            ...prev.state,
-            pendingGegenfinanzierung: {
-              gesetzId: lawId,
-              optionen,
-              kosten,
-              pkKosten,
-              framingKey: framingKey ?? undefined,
-            },
-          },
-        };
-      }
-      const ctx: EinbringenContext = {
+      const { state, effect } = einbringenCommand(prev.state, {
+        lawId,
         ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
-        framingKey: framingKey ?? undefined,
-        gesetzRelationen: prev.content.gesetzRelationen,
         content: prev.content,
-      };
-      const nextState = einbringen(prev.state, lawId, ctx);
-      const newLaw = nextState.gesetze.find(g => g.id === lawId);
-      if (newLaw && newLaw.status !== 'entwurf') {
-        const pkUsed = prev.state.pk - nextState.pk;
-        toast(`${newLaw.kurz} eingebracht (−${pkUsed} PK)`, 'success');
-      }
-      return { state: nextState };
+        framingKey,
+      });
+      if (effect.type === 'toast') toast(effect.message, effect.variant);
+      return { state };
     }),
 
   doPartnerWiderstandAbbrechen: () =>
@@ -431,91 +366,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   doPartnerWiderstandTrotzdem: () =>
     set((prev) => {
-      const p = prev.state.pendingPartnerWiderstand;
-      if (!p || p.intensitaet === 'veto') return prev;
-      const law = prev.state.gesetze.find((g) => g.id === p.lawId);
-      if (!law) {
-        return { state: { ...prev.state, pendingPartnerWiderstand: undefined } };
-      }
-      if (
-        featureActive(prev.complexity, 'gegenfinanzierung') &&
-        brauchtGegenfinanzierung(law)
-      ) {
-        const optionen = berechneOptionen(prev.state, law, prev.content, prev.complexity);
-        const kosten =
-          Math.abs(law.kosten_laufend ?? 0) || Math.abs(law.kosten_einmalig ?? 0) / 10;
-        const boni = getVorstufenBoni(prev.state, p.lawId);
-        const kongruenzEffekt = applyKongruenzEffekte(
-          prev.state,
-          p.lawId,
-          prev.ausrichtung,
-          prev.complexity,
-        );
-        const medienZusatz = featureActive(prev.complexity, 'medienklima')
-          ? getMedienPkZusatzkosten(prev.state.medienKlima ?? 55)
-          : 0;
-        const pkKosten = Math.max(
-          2,
-          getEinbringenPkKosten(kongruenzEffekt.pkModifikator) - boni.pkKostenRabatt + medienZusatz,
-        );
-        return {
-          state: {
-            ...prev.state,
-            pendingPartnerWiderstand: undefined,
-            pendingGegenfinanzierung: {
-              gesetzId: p.lawId,
-              optionen,
-              kosten,
-              pkKosten,
-              framingKey: p.framingKey ?? undefined,
-              partnerWiderstandConfirmed: true,
-              partnerWiderstandKoalitionsMalus: p.koalitionsMalus,
-            },
-          },
-        };
-      }
-      const ctx: EinbringenContext = {
+      const { state, effect } = partnerWiderstandTrotzdemCommand(prev.state, {
         ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
-        framingKey: p.framingKey ?? undefined,
-        gesetzRelationen: prev.content.gesetzRelationen,
         content: prev.content,
-        skipPartnerWiderstandCheck: true,
-        partnerWiderstandKoalitionsMalus: p.koalitionsMalus,
-        fromPartnerWiderstandConfirm: true,
-      };
-      const nextState = einbringen(prev.state, p.lawId, ctx);
-      const newLaw = nextState.gesetze.find((g) => g.id === p.lawId);
-      if (newLaw && newLaw.status !== 'entwurf') {
-        const pkUsed = prev.state.pk - nextState.pk;
-        toast(`${newLaw.kurz} eingebracht (−${pkUsed} PK)`, 'success');
-      }
-      return { state: nextState };
+      });
+      if (effect.type === 'toast') toast(effect.message, effect.variant);
+      return { state };
     }),
 
   doPartnerWiderstandKoalitionsverhandlung: () =>
     set((prev) => {
-      const p = prev.state.pendingPartnerWiderstand;
-      if (!p || p.intensitaet !== 'veto') return prev;
-      if (prev.state.pk < 15) {
-        toast(i18n.t('game:partnerWiderstand.pkZuWenig', 'Nicht genug PK (15 für Koalitionsrunde).'), 'warning');
-        return prev;
-      }
-      let s = koalitionsrunde(prev.state, prev.content, prev.complexity);
-      if (s.pk === prev.state.pk) return prev;
-      s = {
-        ...s,
-        partnerWiderstandVetoFreigabeGesetzId: p.lawId,
-        pendingPartnerWiderstand: undefined,
-      };
-      toast(
-        i18n.t(
-          'game:partnerWiderstand.vetoFreigabe',
-          'Koalitionsrunde abgehalten — du kannst das Gesetz jetzt einbringen.',
-        ),
-        'success',
-      );
-      return { state: s };
+      const { state, effect } = partnerWiderstandKoalitionsverhandlungCommand(prev.state, {
+        complexity: prev.complexity,
+        content: prev.content,
+      });
+      if (effect.type === 'toast') toast(effect.message, effect.variant);
+      return { state };
     }),
 
   doPartnerWiderstandAnpassen: () =>
