@@ -5,10 +5,22 @@ on:
     paths:
       - 'backend/app/content/**'
       - 'frontend/src/core/**'
+      - 'frontend/scripts/**'
+      - 'frontend/package.json'
+      - 'frontend/package-lock.json'
+      - '.github/workflows/balance-check.yml'
+      - 'docs/entwicklung/balance-simulation.md'
+      - 'docs/entwicklung/balance-report.md'
   pull_request:
     paths:
       - 'backend/app/content/**'
       - 'frontend/src/core/**'
+      - 'frontend/scripts/**'
+      - 'frontend/package.json'
+      - 'frontend/package-lock.json'
+      - '.github/workflows/balance-check.yml'
+      - 'docs/entwicklung/balance-simulation.md'
+      - 'docs/entwicklung/balance-report.md'
 
 jobs:
   balance-simulation:
