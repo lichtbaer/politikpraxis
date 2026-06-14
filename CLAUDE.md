@@ -136,8 +136,8 @@ mkdocs build          # Static build to site/
 |----------|---------|--------------|
 | `lint.yml` | Push to main, PRs | Ruff check/format + MyPy (backend), ESLint (frontend) |
 | `deploy.yml` | Push to main | pytest + npm build, then SSH deploy to server |
-| `balance-check.yml` | Changes to content/core | Monte Carlo simulation (500 iterations) |
-| `scenarios.yml` | Push to main, PRs | Scenario integration tests |
+| `balance-check.yml` | Changes to content/core/scripts/workflow | Monte Carlo simulation (500 iterations) + balance report artifact |
+| `docs.yml` | Push to main | MkDocs build and deploy |
 
 ## Environment Variables
 
@@ -178,6 +178,20 @@ mkdocs build          # Static build to site/
 | `frontend/src/core/engine.ts` | Game tick engine |
 | `backend/app/config.py` | Backend configuration (all env vars) |
 | `backend/app/main.py` | FastAPI app initialization and router setup |
+
+## GitHub Issues Workflow (AI Agent)
+
+Wenn aus einem GitHub-Issue heraus gearbeitet wird, gilt dieses Standardvorgehen:
+
+1. **Issue wählen**: Offene Issues abrufen (`mcp__github__list_issues`, state=OPEN, orderBy=CREATED_AT ASC). Das Issue mit der niedrigsten Nummer nehmen. Kommentare lesen (`issue_read` → `get_comments`).
+2. **Code prüfen**: Relevante Dateien und bestehende Muster im Code untersuchen, bevor etwas implementiert wird.
+3. **Planen**: Im Plan-Modus einen Implementierungsplan erstellen und vom Nutzer genehmigen lassen.
+4. **Branch**: Alle Änderungen auf dem vorgegebenen Feature-Branch entwickeln (z. B. `claude/github-issues-review-*`). Branch anlegen falls er nicht existiert.
+5. **Implementieren & committen**: Änderungen umsetzen, committen (`feat:`/`fix:`/`ci:` etc.) und pushen (`git push -u origin <branch>`).
+6. **PR erstellen**: Pull Request gegen `main` erstellen (`mcp__github__create_pull_request`). Titel enthält Issue-Referenz, Body listet Akzeptanzkriterien und schließt das Issue mit `Closes #NNN`.
+7. **PR abonnieren**: Direkt nach PR-Erstellung `mcp__github__subscribe_pr_activity` aufrufen, um CI-Status und Review-Kommentare zu empfangen.
+8. **Issue kommentieren**: Einen kurzen Kommentar auf dem Issue hinterlassen, der auf die PR verweist (`mcp__github__add_issue_comment`).
+9. **CI abwarten & Issue schließen**: Wenn CI grün ist, Issue schließen (`mcp__github__issue_write`, state=closed, state_reason=completed). Bei CI-Fehlern: Ursache analysieren, Fix pushen, erneut prüfen.
 
 ## API Overview
 
