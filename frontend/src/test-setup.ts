@@ -1,3 +1,5 @@
+import '@testing-library/jest-dom/vitest';
+
 /** Vitest Setup: Mock localStorage für Node-Umgebung */
 const localStorageMock = {
   getItem: () => null,

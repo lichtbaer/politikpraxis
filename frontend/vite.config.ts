@@ -33,12 +33,18 @@ export default defineConfig({
     },
   },
   test: {
+    environment: 'jsdom',
     setupFiles: ['src/test-setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'text-summary', 'html'],
-      include: ['src/core/**/*.ts'],
+      include: [
+        'src/core/**/*.ts',
+        'src/ui/screens/**/*.tsx',
+        'src/ui/layout/**/*.tsx',
+        'src/ui/components/**/*.tsx',
+      ],
       exclude: ['src/core/**/*.test.ts', 'src/core/**/*.spec.ts', '**/types.ts'],
     },
   },
