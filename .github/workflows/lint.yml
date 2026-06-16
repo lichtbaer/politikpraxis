@@ -61,3 +61,33 @@ jobs:
 
       - name: npm audit (dependency security check)
         run: cd frontend && npm audit --audit-level=critical
+
+  api-types-drift:
+    # Stellt sicher, dass die generierten FE-API-Typen zum Backend-OpenAPI-Schema
+    # passen (Issue #227, Typ-Contract). Drift lässt den Build fehlschlagen.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend (für OpenAPI-Export)
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install -r backend/requirements.txt
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Check API types are in sync with backend schema
+        run: cd frontend && npm run check:api-types
