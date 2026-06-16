@@ -170,16 +170,21 @@ async def test_save_slot_invalid_state(client):
 
 @pytest.mark.asyncio
 async def test_save_slot_out_of_range(client):
-    """POST /api/saves/4 liefert 422 (Slot 4 existiert nicht)."""
+    """POST /api/saves/4 ohne Token liefert 401.
+
+    Auth (get_current_user) greift vor der Pfad-Validierung (Path(ge=1, le=3)).
+    Die Slot-Grenzen bleiben im Code erzwungen, werden für authentifizierte
+    Requests durchgesetzt.
+    """
     r = await client.post("/api/saves/4", json={"game_state": VALID_STATE})
-    assert r.status_code == 422
+    assert r.status_code == 401
 
 
 @pytest.mark.asyncio
 async def test_save_slot_zero(client):
-    """POST /api/saves/0 liefert 422 (Slot 0 ungültig)."""
+    """POST /api/saves/0 ohne Token liefert 401 (Auth vor Pfad-Validierung)."""
     r = await client.post("/api/saves/0", json={"game_state": VALID_STATE})
-    assert r.status_code == 422
+    assert r.status_code == 401
 
 
 @pytest.mark.asyncio
