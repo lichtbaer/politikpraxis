@@ -81,6 +81,12 @@ class GesetzResponse(BaseModel):
     lobby_gain_range: dict[str, int] = {}
     route_overrides: dict[str, Any] = {}
     sektor_effekte: list[dict[str, Any]] = []
+    min_complexity: int = 1
+    # SMA-335: Steuer-/Konjunktur-Effekte (werden vom DB-Service geliefert)
+    steuer_id: str | None = None
+    steuer_delta: float | None = None
+    konjunktur_effekt: float = 0
+    konjunktur_lag: int = 0
     titel: str
     kurz: str
     desc: str
@@ -102,8 +108,12 @@ class EventChoiceResponse(BaseModel):
     label: str
     desc: str
     log_msg: str
+    loyalty: dict[str, int] | None = None
     koalitionspartner_beziehung_delta: int | None = None
     medienklima_delta: int | None = None
+    # SMA-280: Verfassungsgericht-Verfahrensdauer / Bundesrat-Bonus
+    verfahren_dauer_monate: int | None = None
+    bundesrat_bonus: int | None = None
     milieu_delta: dict[str, int] | None = None
     schuldenbremse_spielraum_delta: int | None = None
     steuerpolitik_modifikator_delta: float | None = None
@@ -130,6 +140,13 @@ class EventResponse(BaseModel):
     context: str
     ticker: str
     choices: list[EventChoiceResponse]
+    # SMA-275: Kommunal-Initiative-Trigger (werden vom DB-Service geliefert)
+    politikfeld_id: str | None = None
+    trigger_druck_min: int | None = None
+    trigger_milieu_key: str | None = None
+    trigger_milieu_op: str | None = None
+    trigger_milieu_val: int | None = None
+    gesetz_ref: list[str] | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -179,8 +196,11 @@ class BundesratResponse(BaseModel):
 
 class VerbandTradeoffResponse(BaseModel):
     key: str
+    cost_pk: int = 0
     effekte: EffekteSchema
     feld_druck_delta: int = 0
+    medienklima_delta: int = 0
+    verband_effekte: dict[str, int] = {}
     label: str
     desc: str
 

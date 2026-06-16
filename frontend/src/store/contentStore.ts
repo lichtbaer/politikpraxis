@@ -183,17 +183,18 @@ function transformGesetz(api: GesetzApi): Law {
     kommunal_pilot_moeglich: api.kommunal_pilot_moeglich ?? true,
     laender_pilot_moeglich: api.laender_pilot_moeglich ?? true,
     eu_initiative_moeglich: api.eu_initiative_moeglich ?? true,
-    framing_optionen: (api as { framing_optionen?: { key: string; label?: string; slogan?: string; milieu_effekte: Record<string, number>; verband_effekte?: Record<string, number>; medienklima_delta: number }[] }).framing_optionen ?? [],
+    // JSON-Felder werden im OpenAPI-Schema als lose dict[str, Any] generiert → präzise casten.
+    framing_optionen: (api.framing_optionen ?? []) as unknown as Law['framing_optionen'],
     lobby_mood_effekte: api.lobby_mood_effekte ?? {},
     lobby_pk_kosten: api.lobby_pk_kosten ?? 12,
-    lobby_gain_range: api.lobby_gain_range ?? { min: 2, max: 6 },
-    route_overrides: api.route_overrides ?? {},
-    min_complexity: (api as { min_complexity?: number }).min_complexity ?? 1,
-    steuer_id: (api as { steuer_id?: string | null }).steuer_id ?? null,
-    steuer_delta: (api as { steuer_delta?: number | null }).steuer_delta ?? null,
-    konjunktur_effekt: (api as { konjunktur_effekt?: number }).konjunktur_effekt ?? 0,
-    konjunktur_lag: (api as { konjunktur_lag?: number }).konjunktur_lag ?? 0,
-    sektor_effekte: (api as { sektor_effekte?: Law['sektor_effekte'] }).sektor_effekte ?? [],
+    lobby_gain_range: (api.lobby_gain_range as { min: number; max: number }) ?? { min: 2, max: 6 },
+    route_overrides: (api.route_overrides ?? {}) as Record<string, { cost?: number; dur?: number }>,
+    min_complexity: api.min_complexity ?? 1,
+    steuer_id: api.steuer_id ?? null,
+    steuer_delta: api.steuer_delta ?? null,
+    konjunktur_effekt: api.konjunktur_effekt ?? 0,
+    konjunktur_lag: api.konjunktur_lag ?? 0,
+    sektor_effekte: (api.sektor_effekte ?? []) as unknown as Law['sektor_effekte'],
     // Art. 77 GG: Einspruchsgesetz vs. Zustimmungsgesetz.
     // Default: land-Gesetze sind zustimmungspflichtig, es sei denn explizit als Einspruchsgesetz markiert.
     zustimmungspflichtig: api.zustimmungspflichtig ?? (tags.includes('land') ? true : undefined),
@@ -344,7 +345,9 @@ function transformEvent(api: EventApi): GameEvent {
   if (api.trigger_typ) {
     ev.triggerTyp = api.trigger_typ as import('../core/types').DynamicEventTriggerTyp;
   }
-  if (api.trigger_params) ev.triggerParams = api.trigger_params;
+  if (api.trigger_params) {
+    ev.triggerParams = api.trigger_params as import('../core/types').DynamicEventTriggerParams;
+  }
   if (api.einmalig != null) ev.einmalig = api.einmalig;
   return ev;
 }
@@ -393,7 +396,7 @@ function transformMilieu(api: MilieuApi): Milieu {
     min_complexity: api.min_complexity,
     gewicht: api.gewicht ?? def?.gewicht ?? 14,
     basisbeteiligung: api.basisbeteiligung ?? def?.basisbeteiligung ?? 70,
-    kurz: api.kurz ?? api.kurzcharakter ?? def?.kurz ?? api.id,
+    kurz: api.kurzcharakter ?? def?.kurz ?? api.id,
     beschreibung: api.beschreibung,
   };
 }
@@ -475,7 +478,7 @@ function transformBundesland(api: BundeslandApi): BundeslandContent {
   return {
     id: api.id,
     name: api.name,
-    partei: api.partei,
+    partei: api.partei ?? null,
     koalition: api.koalition ?? [],
     bundesrat_fraktion: api.bundesrat_fraktion as BundeslandContent['bundesrat_fraktion'],
     wirtschaft_typ: api.wirtschaft_typ as BundeslandContent['wirtschaft_typ'],

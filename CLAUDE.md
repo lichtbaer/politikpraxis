@@ -18,6 +18,8 @@ npm run lint         # ESLint
 npm run test         # Vitest (single run)
 npm run test:watch   # Vitest watch mode
 npm run test:coverage # Vitest with v8 coverage
+npm run gen:api-types # Regenerate src/types/api-generated.ts from the backend OpenAPI schema
+npm run check:api-types # Fail if the generated API types drift from the backend schema (CI)
 ```
 
 ### Backend (run from `backend/`)
@@ -160,6 +162,7 @@ mkdocs build          # Static build to site/
 - **Game design reference**: Always check `bundesrepublik_gdd.md` and `docs/game-design/` before implementing new features
 - **State changes**: Only through gameStore actions — no direct mutations
 - **API sync**: Keep backend routes and frontend services in sync when changing API contracts
+- **API types (content)**: The frontend content-API types (`frontend/src/types/content.ts`) are generated from the backend OpenAPI schema (Pydantic schemas in `backend/app/schemas/content.py` are the single source of truth). When you change a content schema, regenerate with `npm run gen:api-types` and commit `frontend/src/types/api-generated.ts` + `backend/openapi.json`. The `api-types-drift` CI job (`npm run check:api-types`) fails on drift. Do not hand-edit `api-generated.ts`.
 - **Documentation**: Update `docs/` for significant changes
 - **Testing**: Frontend game logic in `core/` should have unit tests (Vitest). Backend uses pytest with async fixtures and `AsyncClient`
 - **Python style**: Ruff formatting (line length 88), type hints required, MyPy checked

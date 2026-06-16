@@ -11,7 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "balance:report": "tsx scripts/balanceReport.ts"
+    "balance:report": "tsx scripts/balanceReport.ts",
+    "gen:api-types": "python3 ../backend/scripts/export_openapi.py && openapi-typescript ../backend/openapi.json -o src/types/api-generated.ts",
+    "check:api-types": "npm run gen:api-types && git diff --exit-code -- ../backend/openapi.json src/types/api-generated.ts"
   },
   "dependencies": {
     "@fontsource/dm-mono": "^5.2.7",
@@ -45,6 +47,7 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
     "jsdom": "^29.1.1",
+    "openapi-typescript": "7.13.0",
     "tsx": "^4.20.6",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.56.1",
