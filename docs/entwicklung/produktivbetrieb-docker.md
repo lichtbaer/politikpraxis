@@ -252,3 +252,5 @@ Weitere Hinweise: [Deployment — Troubleshooting](../deployment.md).
 - `.env` auf dem Server **niemals** ins Repo committen; Rechte restriktiv (`chmod 600`).
 - `SECRET_KEY`, `POSTGRES_PASSWORD`, `ADMIN_PASSWORD`, SMTP-Passwörter nur aus sicherer Quelle.
 - Admin-API nur intern oder durch zusätzliche Schutzmaßnahmen absichern (siehe [Sicherheits-Review](../security-review.md)).
+- **Rate-Limits (Auth/Admin/slowapi):** Schlüssel ist die Client-IP aus `X-Real-IP` (setzt nginx aus `$remote_addr`, siehe `nginx/nginx.conf`) — nicht die IP des nginx-Containers. So greifen Limits pro echtem Client hinter dem Reverse-Proxy.
+- **Per-Worker-Limits:** Das Backend startet in Produktion mit `--workers 2` ([`Dockerfile.prod`](https://github.com/lichtbaer/politikpraxis/blob/main/backend/Dockerfile.prod)). In-Memory-Buckets (slowapi, Admin-Sliding-Window, Kontakt-Limiter) gelten **pro Worker**; die effektiven Limits können sich dadurch annähernd verdoppeln. Geteilter Storage (z. B. Redis) ist Issue #231.
