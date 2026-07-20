@@ -33,7 +33,9 @@ jobs:
         run: cd backend && mypy app
 
       - name: pip-audit (dependency security check)
-        run: pip install pip-audit && pip-audit -r backend/requirements.txt
+        # PYSEC-2026-1325 (ecdsa/Minerva): no upstream fix; transitive via python-jose.
+        # Removal tracked in #253 (migrate to PyJWT).
+        run: pip install pip-audit && pip-audit -r backend/requirements.txt --ignore-vuln PYSEC-2026-1325
 
       - name: Bandit (Python security linter — HIGH severity blockiert)
         run: pip install bandit[toml] && cd backend && bandit -r app -c pyproject.toml -ll
