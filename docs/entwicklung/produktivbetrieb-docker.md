@@ -207,30 +207,118 @@ docker compose -f docker-compose.prod.yml exec nginx nginx -s reload
 docker compose -f docker-compose.prod.yml restart backend
 ```
 
-**Updates (Images neu bauen):** wie in [Deployment — Manuelles Deployment](../deployment.md): `git pull`, `build`, `up -d --remove-orphans`. Datenbank-Migrationen laufen beim Backend-Start mit Alembic — vor größeren Releases ggf. Backup einplanen.
+**Updates (Images neu bauen):** wie in [Deployment — Manuelles Deployment](../deployment.md): `git pull`, `build`, `up -d --remove-orphans`. Datenbank-Migrationen laufen beim Backend-Start mit Alembic — vor größeren Releases `scripts/backup/backup-db.sh` ausführen (siehe unten).
 
 ---
 
-## Datenbank: Backup und Wiederherstellung (Kurz)
+## Datenbank: Backup und Wiederherstellung
 
-**Backup** (Beispiel Dump in Datei auf dem Host):
+Ziel: bei Volume-Verlust (`pgdata`) oder Fehlbedienung einen **definierten Wiederherstellungsweg** haben. Geschützt werden u. a. User-Accounts, Cloud-Saves, Analytics/Stats und der in PostgreSQL gepflegte Content.
+
+| Ebene | Ort | Aufbewahrung |
+|-------|-----|--------------|
+| Lokal (Host, **nicht** Docker-Volume) | `/var/backups/politikpraxis/` | **14 Tage** |
+| Offsite (S3-kompatibel via rclone) | Remote `politikpraxis-backup:politikpraxis-db` | **30 Tage** |
+
+Skripte liegen im Repo unter [`scripts/backup/`](https://github.com/lichtbaer/politikpraxis/tree/main/scripts/backup):
+
+| Skript | Zweck |
+|--------|--------|
+| `backup-db.sh` | `pg_dump` → gzip, lokale Retention |
+| `offsite-sync.sh` | rclone-Copy + Löschen älterer Remote-Dumps |
+| `restore-db.sh` | Notfall-Restore in die Compose-DB |
+| `verify-restore.sh` | Restore-Drill in einen **temporären** Postgres-Container |
+
+### Erstsetup (einmalig auf dem Server)
+
+```bash
+# 1) Backup-Verzeichnis (außerhalb von Docker-Volumes)
+sudo mkdir -p /var/backups/politikpraxis
+sudo chown "$USER":"$USER" /var/backups/politikpraxis
+chmod 750 /var/backups/politikpraxis
+
+# 2) Skripte ausführbar (nach git pull)
+chmod +x /opt/politikpraxis/scripts/backup/*.sh
+
+# 3) Manueller Probelauf
+PP_ROOT=/opt/politikpraxis /opt/politikpraxis/scripts/backup/backup-db.sh
+```
+
+**Offsite (rclone):** auf dem Host `rclone` installieren und ein S3-kompatibles Remote anlegen (Hetzner Object Storage, MinIO, AWS S3, …):
+
+```bash
+rclone config   # Remote-Name z. B. politikpraxis-backup, Typ s3 / Other
+# Optional: Bucket-Lifecycle-Regel im Anbieter-UI auf 30 Tage setzen (zusätzlich zum Skript)
+```
+
+Umgebungsvariablen (optional, Defaults in Klammern):
+
+| Variable | Default | Bedeutung |
+|----------|---------|-----------|
+| `PP_ROOT` | `/opt/politikpraxis` | Projektverzeichnis mit `docker-compose.prod.yml` und `.env` |
+| `BACKUP_DIR` | `/var/backups/politikpraxis` | Lokales Dump-Verzeichnis |
+| `RETENTION_DAYS` | `14` | Lokale Aufbewahrung |
+| `RCLONE_REMOTE` | `politikpraxis-backup:politikpraxis-db` | Zielpfad für Offsite |
+| `OFFSITE_MAX_AGE` | `30d` | Remote-Dateien älter als dieser Wert werden gelöscht |
+
+rclone-Credentials gehören in `~/.config/rclone/rclone.conf` auf dem Server — **nicht** ins Git-Repo.
+
+### Cron (täglich)
+
+Als User, der Docker und das Projektverzeichnis nutzen darf (z. B. `deploy`):
+
+```cron
+15 3 * * * PP_ROOT=/opt/politikpraxis /opt/politikpraxis/scripts/backup/backup-db.sh >> /var/log/politikpraxis-backup.log 2>&1
+30 3 * * * PP_ROOT=/opt/politikpraxis /opt/politikpraxis/scripts/backup/offsite-sync.sh >> /var/log/politikpraxis-backup.log 2>&1
+```
+
+Log-Datei anlegen und Rechte setzen, z. B. `sudo touch /var/log/politikpraxis-backup.log && sudo chown deploy:deploy /var/log/politikpraxis-backup.log`. Cron-Ausgabe regelmäßig prüfen.
+
+### Notfall-Restore (Produktion)
+
+1. Stack läuft (`db` healthy).
+2. Dump wählen (lokal oder per `rclone copy` vom Offsite-Remote holen).
+3. Restore nur bewusst:
+
+```bash
+# überschreibt die Produktions-DB — vorher RESTORE_CONFIRM setzen
+PP_ROOT=/opt/politikpraxis RESTORE_CONFIRM=yes \
+  /opt/politikpraxis/scripts/backup/restore-db.sh \
+  /var/backups/politikpraxis/politikpraxis-YYYY-MM-DDTHHMM.sql.gz
+```
+
+Das Skript legt standardmäßig zuerst ein Safety-Dump an (`SKIP_SAFETY_DUMP=1` zum Überspringen). Danach Backend neu starten und Alembic-Stand prüfen:
+
+```bash
+cd /opt/politikpraxis
+docker compose -f docker-compose.prod.yml restart backend
+docker compose -f docker-compose.prod.yml exec backend alembic current
+```
+
+### Quartals-Verifikation (ohne Prod anzufassen)
+
+```bash
+PP_ROOT=/opt/politikpraxis /opt/politikpraxis/scripts/backup/verify-restore.sh
+# oder explizit:
+PP_ROOT=/opt/politikpraxis /opt/politikpraxis/scripts/backup/verify-restore.sh \
+  /var/backups/politikpraxis/politikpraxis-….sql.gz
+```
+
+Erwartung: temporärer Container lädt den Dump; Smoke-Checks auf `alembic_version` (und ggf. `users`/`saves`) sind grün. Ergebnis im Betriebs-Log / Ticket vermerken.
+
+### Vor größeren Releases
+
+Vor riskanten Migrationen oder Content-Importen einmal manuell `backup-db.sh` (und idealerweise `offsite-sync.sh`) ausführen.
+
+### Manuell (Einzeiler, ohne Skripte)
+
+Nur falls die Skripte nicht verfügbar sind — Credentials aus der Server-`.env`:
 
 ```bash
 docker compose -f docker-compose.prod.yml exec -T db \
-  pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner \
-  | gzip > "backup-$(date +%F-%H%M).sql.gz"
+  pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --clean --if-exists \
+  | gzip > "/var/backups/politikpraxis/backup-$(date -u +%Y-%m-%dT%H%M).sql.gz"
 ```
-
-(`POSTGRES_USER` / `POSTGRES_DB` aus der Server-`.env` setzen oder Werte einsetzen.)
-
-**Restore** (nur mit Verstand, überschreibt Ziel-DB — vorher Snapshot/Backup der aktuellen DB):
-
-```bash
-gunzip -c backup-….sql.gz | docker compose -f docker-compose.prod.yml exec -T db \
-  psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
-```
-
-Produktions-Tipps: regelmäßige, getestete Backups; Aufbewahrung außerhalb des Servers.
 
 ---
 

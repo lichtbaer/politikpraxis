@@ -4,6 +4,8 @@ Dieses Dokument beschreibt das Produktions-Deployment mit **Docker Compose**, **
 
 **Laufender Betrieb** (Zertifikate, Volumes, Logs, Backups): [Produktivbetrieb mit Docker](entwicklung/produktivbetrieb-docker.md).
 
+**DB-Backups:** Nach dem Erst-Deploy Cron + rclone gemäß [Datenbank: Backup und Wiederherstellung](entwicklung/produktivbetrieb-docker.md#datenbank-backup-und-wiederherstellung) einrichten (Skripte unter `scripts/backup/`). Ohne Offsite-Sync gilt ein Serververlust weiterhin als Datenverlust.
+
 ## Architektur (Kurz)
 
 - **nginx** (Ports 80/443): TLS-Terminierung, HTTP und Apex-HTTPS → **kanonisch https://www.politikpraxis.de**, Proxy für `/api/` → Backend, sonst Frontend-SPA.
@@ -20,6 +22,7 @@ Zero-Downtime-Updates: `docker compose ... up -d --remove-orphans` (kein harter 
 - Git-Repository unter z. B. `/opt/politikpraxis` (wie im Workflow)
 - DNS: `politikpraxis.de` und `www.politikpraxis.de` zeigen auf die Server-IP
 - Port 80/443 erreichbar (für ACME HTTP-01 und HTTPS)
+- Für Backups: Verzeichnis `/var/backups/politikpraxis`, Host-Cron, optional `rclone` + S3-Remote (siehe [Produktivbetrieb — Backup](entwicklung/produktivbetrieb-docker.md#datenbank-backup-und-wiederherstellung))
 
 ## Server-seitige `.env`
 
