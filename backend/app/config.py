@@ -57,6 +57,21 @@ class Settings(BaseSettings):
     admin_user: str = "admin"
     admin_password: str = ""
 
+    # Error-Tracking (Sentry) — leer = deaktiviert
+    sentry_dsn: str = ""
+    sentry_environment: str = "development"
+    sentry_traces_sample_rate: float = 0.0
+
+    # Strukturierte (JSON-)Logs — Standard: an in Produktion, aus im Debug-Modus
+    log_json: bool | None = None
+
+    @property
+    def effective_log_json(self) -> bool:
+        """JSON-Logs: explizit gesetzt oder automatisch basierend auf Debug."""
+        if self.log_json is not None:
+            return self.log_json
+        return not self.debug
+
 
 @lru_cache
 def get_settings() -> Settings:

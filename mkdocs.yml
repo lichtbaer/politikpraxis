@@ -48,3 +48,4 @@ nav:
     - CI/CD: ci-cd.md
     - Deployment (Produktion): deployment.md
     - Produktivbetrieb (Docker): entwicklung/produktivbetrieb-docker.md
+    - Observability (Error-Tracking, Logs): entwicklung/observability.md
