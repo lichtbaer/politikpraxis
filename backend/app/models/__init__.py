@@ -1,3 +1,4 @@
+from app.models.admin_rate_limit import AdminRateLimitBucket
 from app.models.analytics import AnalyticsEvent
 from app.models.content import (  # noqa: F401
     BundesratFraktion,
@@ -30,4 +31,5 @@ __all__ = [
     "RefreshToken",
     "PasswordResetToken",
     "GameStat",
+    "AdminRateLimitBucket",
 ]

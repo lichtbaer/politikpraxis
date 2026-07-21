@@ -1,187 +1,214 @@
 """
-Tests für Admin-Rate-Limiting und Audit-Logging.
-Keine DB erforderlich — reine Unit-Tests der Logik in routes/admin.py.
+Tests für Admin-Rate-Limiting (#231) und Audit-Logging.
+
+Die Rate-Limit-Logik liegt jetzt in Postgres (app.services.admin_rate_limit)
+statt im Prozess-Speicher — die Tests dafür brauchen eine echte DB-Verbindung
+(@requires_db). Das Audit-Logging bleibt reine In-Process-Logik.
 """
 
-import time
+import logging
 from unittest.mock import MagicMock
 
 import pytest
-from fastapi import HTTPException
+import sqlalchemy as sa
+from app.db.database import async_session
+from app.services.admin_rate_limit import (
+    ADMIN_RATE_LIMIT,
+    ADMIN_WINDOW_SECONDS,
+    check_admin_rate_limit,
+)
+from httpx import ASGITransport, AsyncClient
+from tests.conftest import requires_db
 
-# ---------------------------------------------------------------------------
-# admin_rate_limit: Sliding-Window-Logik
-# ---------------------------------------------------------------------------
 
+@pytest.fixture(autouse=True)
+async def _fresh_engine_pool():
+    """Verwirft gepoolte Connections vor jedem Test.
 
-def _make_mock_request(
-    ip: str = "1.2.3.4",
-    *,
-    real_ip: str | None = None,
-    client_host: str | None = None,
-) -> MagicMock:
-    """Erstellt einen minimalen Mock-Request mit IP.
-
-    Wenn real_ip gesetzt ist, liefert headers.get('x-real-ip') diesen Wert
-    (wie nginx hinter dem Proxy). client_host steuert request.client.host.
+    pytest-asyncio öffnet pro Testfunktion eine neue Event-Loop; asyncpg-
+    Connections sind an die Loop gebunden, in der sie erzeugt wurden. Ohne
+    Dispose würde der nächste Test versuchen, eine Connection der vorherigen
+    (inzwischen geschlossenen) Loop wiederzuverwenden.
     """
-    req = MagicMock()
-    host = (
-        client_host
-        if client_host is not None
-        else (ip if real_ip is None else "10.0.0.254")
-    )
-    req.client = MagicMock()
-    req.client.host = host
+    from app.db.database import engine
 
-    headers: dict[str, str] = {}
-    if real_ip is not None:
-        headers["x-real-ip"] = real_ip
-    elif client_host is None:
-        # Legacy-Pfad: ohne X-Real-IP fällt client_ip auf request.client.host zurück
-        pass
-
-    def _header_get(name: str, default: str | None = None) -> str | None:
-        return headers.get(name.lower(), default)
-
-    req.headers.get = _header_get
-    if real_ip is None and client_host is None:
-        # Einfacher Fall: client.host = ip, kein X-Real-IP
-        req.client.host = ip
-    return req
+    await engine.dispose()
+    yield
 
 
+# ---------------------------------------------------------------------------
+# Hilfsfunktionen
+# ---------------------------------------------------------------------------
+
+
+async def _clear_bucket(*ips: str) -> None:
+    async with async_session() as db:
+        if ips:
+            await db.execute(
+                sa.text("DELETE FROM admin_rate_limit_bucket WHERE ip = ANY(:ips)"),
+                {"ips": list(ips)},
+            )
+        else:
+            await db.execute(sa.text("DELETE FROM admin_rate_limit_bucket"))
+        await db.commit()
+
+
+# ---------------------------------------------------------------------------
+# check_admin_rate_limit: Fixed-Window-Logik (DB-gestützt)
+# ---------------------------------------------------------------------------
+
+
+@requires_db
 @pytest.mark.asyncio
 async def test_rate_limit_allows_first_request():
     """Erste Anfrage von einer IP wird durchgelassen."""
-    from app.routes.admin import _admin_request_times, admin_rate_limit
+    ip = "10.0.0.1"
+    await _clear_bucket(ip)
+    async with async_session() as db:
+        allowed, count = await check_admin_rate_limit(db, ip)
+    assert allowed
+    assert count == 1
 
-    _admin_request_times.clear()
-    req = _make_mock_request("10.0.0.1")
-    # Darf keinen Fehler werfen
-    await admin_rate_limit(req)
 
-
+@requires_db
 @pytest.mark.asyncio
 async def test_rate_limit_blocks_after_limit():
-    """Anfragen über dem Limit (30/min) werden mit 429 blockiert."""
-    from app.routes.admin import (
-        _ADMIN_RATE_LIMIT,
-        _admin_request_times,
-        admin_rate_limit,
-    )
-
-    _admin_request_times.clear()
+    """Anfragen über dem Limit (30/Fenster) werden blockiert."""
     ip = "10.0.0.99"
-    now = time.monotonic()
-    # Simuliere _ADMIN_RATE_LIMIT Anfragen innerhalb der letzten Minute
-    _admin_request_times[ip] = [now - 30] * _ADMIN_RATE_LIMIT
+    await _clear_bucket(ip)
+    now = 1_700_000_000.0
+    async with async_session() as db:
+        for _ in range(ADMIN_RATE_LIMIT):
+            allowed, _ = await check_admin_rate_limit(db, ip, now=now)
+            assert allowed
+        allowed, count = await check_admin_rate_limit(db, ip, now=now)
+    assert not allowed
+    assert count == ADMIN_RATE_LIMIT + 1
 
-    req = _make_mock_request(ip)
-    with pytest.raises(HTTPException) as exc_info:
-        await admin_rate_limit(req)
-    assert exc_info.value.status_code == 429
-    assert "Retry-After" in exc_info.value.headers
 
-
+@requires_db
 @pytest.mark.asyncio
 async def test_rate_limit_expires_old_requests():
-    """Anfragen älter als 60 Sekunden werden nicht gezählt."""
-    from app.routes.admin import (
-        _ADMIN_RATE_LIMIT,
-        _admin_request_times,
-        admin_rate_limit,
-    )
-
-    _admin_request_times.clear()
+    """Ein neues Fenster setzt den Zähler zurück, statt weiter zu akkumulieren."""
     ip = "10.0.0.77"
-    now = time.monotonic()
-    # Befülle mit _ADMIN_RATE_LIMIT abgelaufenen Einträgen (> 60s alt)
-    _admin_request_times[ip] = [now - 120] * _ADMIN_RATE_LIMIT
+    await _clear_bucket(ip)
+    now = 1_700_000_000.0
+    async with async_session() as db:
+        for _ in range(ADMIN_RATE_LIMIT):
+            await check_admin_rate_limit(db, ip, now=now)
+        # Deutlich im nächsten Fenster
+        allowed, count = await check_admin_rate_limit(
+            db, ip, now=now + ADMIN_WINDOW_SECONDS * 2
+        )
+    assert allowed
+    assert count == 1
 
-    req = _make_mock_request(ip)
-    # Sollte KEIN 429 werfen, weil alle alten Einträge verfallen sind
-    await admin_rate_limit(req)
 
-
+@requires_db
 @pytest.mark.asyncio
 async def test_rate_limit_isolates_by_ip():
     """Rate-Limit ist IP-spezifisch — verschiedene IPs sind unabhängig."""
-    from app.routes.admin import (
-        _ADMIN_RATE_LIMIT,
-        _admin_request_times,
-        admin_rate_limit,
-    )
-
-    _admin_request_times.clear()
-    ip_a = "10.0.0.1"
-    ip_b = "10.0.0.2"
-    now = time.monotonic()
-    # IP A ist am Limit
-    _admin_request_times[ip_a] = [now - 10] * _ADMIN_RATE_LIMIT
-
-    req_b = _make_mock_request(ip_b)
-    # IP B hat keine Rate-Limit-Probleme
-    await admin_rate_limit(req_b)
+    ip_a, ip_b = "10.0.0.1", "10.0.0.2"
+    await _clear_bucket(ip_a, ip_b)
+    now = 1_700_000_000.0
+    async with async_session() as db:
+        for _ in range(ADMIN_RATE_LIMIT):
+            await check_admin_rate_limit(db, ip_a, now=now)
+        allowed, count = await check_admin_rate_limit(db, ip_b, now=now)
+    assert allowed
+    assert count == 1
 
 
+@requires_db
 @pytest.mark.asyncio
-async def test_rate_limit_uses_x_real_ip_not_socket():
-    """Limit-Key kommt von X-Real-IP, nicht von request.client.host (nginx-Proxy)."""
-    from app.routes.admin import (
-        _ADMIN_RATE_LIMIT,
-        _admin_request_times,
-        admin_rate_limit,
-    )
+async def test_rate_limit_shared_across_sessions():
+    """Zwei unabhängige DB-Sessions (Stand-in für zwei Worker-Prozesse) teilen
+    sich denselben Zähler — genau das In-Memory-Verhalten nicht garantierte."""
+    ip = "10.0.0.42"
+    await _clear_bucket(ip)
+    now = 1_700_000_000.0
 
-    _admin_request_times.clear()
-    real_a = "203.0.113.10"
-    real_b = "203.0.113.20"
-    nginx_ip = "172.18.0.5"
-    now = time.monotonic()
-    _admin_request_times[real_a] = [now - 5] * _ADMIN_RATE_LIMIT
+    async with async_session() as db_worker_1:
+        for _ in range(ADMIN_RATE_LIMIT):
+            await check_admin_rate_limit(db_worker_1, ip, now=now)
 
-    # Gleicher Socket (nginx), anderer X-Real-IP → eigener Bucket
-    req_b = _make_mock_request(real_ip=real_b, client_host=nginx_ip)
-    await admin_rate_limit(req_b)
-    assert real_b in _admin_request_times
-    assert len(_admin_request_times[real_b]) == 1
-
-    # Gleicher X-Real-IP wie der volle Bucket → 429
-    req_a = _make_mock_request(real_ip=real_a, client_host=nginx_ip)
-    with pytest.raises(HTTPException) as exc_info:
-        await admin_rate_limit(req_a)
-    assert exc_info.value.status_code == 429
+    # Ein "zweiter Worker" mit eigener Session sieht denselben Zählerstand.
+    async with async_session() as db_worker_2:
+        allowed, count = await check_admin_rate_limit(db_worker_2, ip, now=now)
+    assert not allowed
+    assert count == ADMIN_RATE_LIMIT + 1
 
 
+@requires_db
 @pytest.mark.asyncio
-async def test_rate_limit_cleanup_removes_stale_ips():
-    """Stale IP-Keys ohne aktuelle Einträge werden periodisch entfernt."""
-    from app.routes import admin as admin_mod
+async def test_rate_limit_cleanup_removes_stale_buckets():
+    """Buckets ohne Anfragen seit vielen Fenstern werden aufgeräumt."""
+    from app.services.admin_rate_limit import _cleanup_stale_buckets
 
-    admin_mod._admin_request_times.clear()
-    admin_mod._last_cleanup = 0.0  # Cleanup erzwingen
-    now = time.monotonic()
     stale_ip = "198.51.100.1"
-    admin_mod._admin_request_times[stale_ip] = [now - 120]
+    fresh_ip = "198.51.100.2"
+    await _clear_bucket(stale_ip, fresh_ip)
+    old_window = 1_000_000
+    current_window = old_window + 100 * ADMIN_WINDOW_SECONDS
 
-    req = _make_mock_request("198.51.100.2")
-    await admin_mod.admin_rate_limit(req)
+    async with async_session() as db:
+        await check_admin_rate_limit(db, stale_ip, now=float(old_window))
+        await check_admin_rate_limit(db, fresh_ip, now=float(current_window))
+        await _cleanup_stale_buckets(db, current_window)
 
-    assert stale_ip not in admin_mod._admin_request_times
-    assert "198.51.100.2" in admin_mod._admin_request_times
+        result = await db.execute(
+            sa.text("SELECT ip FROM admin_rate_limit_bucket WHERE ip = ANY(:ips)"),
+            {"ips": [stale_ip, fresh_ip]},
+        )
+        remaining = {row[0] for row in result.all()}
+
+    assert stale_ip not in remaining
+    assert fresh_ip in remaining
 
 
 # ---------------------------------------------------------------------------
-# admin_audit_log: Logging für Schreib-Operationen
+# admin_rate_limit (FastAPI-Dependency): HTTP-Ebene über den Admin-Router
+# ---------------------------------------------------------------------------
+
+
+@requires_db
+@pytest.mark.asyncio
+async def test_admin_rate_limit_dependency_blocks_after_limit(monkeypatch):
+    """Über den echten Admin-Router: Anfrage Nr. 31 in derselben Minute → 429."""
+    from app.config import get_settings
+    from app.main import app
+
+    monkeypatch.setenv("ADMIN_USER", "admin")
+    monkeypatch.setenv("ADMIN_PASSWORD", "test")
+    get_settings.cache_clear()
+
+    ip = "203.0.113.55"
+    await _clear_bucket(ip)
+    headers = {"x-real-ip": ip}
+    auth = ("admin", "test")
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        last_status = None
+        for _ in range(ADMIN_RATE_LIMIT + 1):
+            resp = await client.get("/api/admin/chars", headers=headers, auth=auth)
+            last_status = resp.status_code
+        assert last_status == 429
+        assert "Retry-After" in resp.headers
+
+    get_settings.cache_clear()
+    await _clear_bucket(ip)
+
+
+# ---------------------------------------------------------------------------
+# admin_audit_log: Logging für Schreib-Operationen (unverändert, In-Process)
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.asyncio
 async def test_audit_log_logs_post(caplog):
     """POST-Anfragen werden im Audit-Log protokolliert."""
-    import logging
-
     from app.routes.admin import admin_audit_log
 
     req = MagicMock()
@@ -198,8 +225,6 @@ async def test_audit_log_logs_post(caplog):
 @pytest.mark.asyncio
 async def test_audit_log_does_not_log_get(caplog):
     """GET-Anfragen werden NICHT im Audit-Log protokolliert."""
-    import logging
-
     from app.routes.admin import admin_audit_log
 
     req = MagicMock()
@@ -215,8 +240,6 @@ async def test_audit_log_does_not_log_get(caplog):
 @pytest.mark.asyncio
 async def test_audit_log_logs_put(caplog):
     """PUT-Anfragen werden protokolliert."""
-    import logging
-
     from app.routes.admin import admin_audit_log
 
     req = MagicMock()
@@ -232,8 +255,6 @@ async def test_audit_log_logs_put(caplog):
 @pytest.mark.asyncio
 async def test_audit_log_logs_delete(caplog):
     """DELETE-Anfragen werden protokolliert."""
-    import logging
-
     from app.routes.admin import admin_audit_log
 
     req = MagicMock()
