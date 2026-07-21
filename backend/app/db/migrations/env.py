@@ -98,11 +98,20 @@ def _ensure_alembic_version_column_length(connection) -> None:
                     "ALTER COLUMN version_num TYPE VARCHAR(128)"
                 )
             )
-            # DDL läuft in einer impliziten Transaktion -> explizit committen,
-            # bevor Alembic seine eigene Migrations-Transaktion startet.
-            connection.commit()
+        # Die obigen SELECTs (und ggf. das ALTER) starten implizit eine
+        # Transaktion auf der Connection. Bleibt sie offen, übernimmt Alembics
+        # eigenes context.begin_transaction() diese bestehende Transaktion
+        # als bereits laufend — der finale COMMIT beim Migrations-Ende wirkt
+        # dann nur auf Alembics Sicht, nicht auf die tatsächliche DBAPI-Ebene.
+        # Ergebnis: alle folgenden Migrationen werden beim Schließen der
+        # Connection stillschweigend zurückgerollt, obwohl Alembic Erfolg
+        # meldet. Deshalb hier immer explizit committen, damit Alembic
+        # garantiert mit einer sauberen, transaktionslosen Connection startet.
+        connection.commit()
     except Exception:
-        # Best effort: wenn das fehlschlägt, soll Alembic normal weiterlaufen
+        # Best effort: wenn das fehlschlägt, soll Alembic normal weiterlaufen —
+        # aber auch hier keine offene Transaktion hinterlassen.
+        connection.rollback()
         return
 
 
