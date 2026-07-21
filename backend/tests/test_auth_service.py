@@ -96,6 +96,23 @@ def test_validate_password_strength_long_ok():
     validate_password_strength("ein-sehr-langes-passwort-123")  # kein Exception
 
 
+def test_validate_password_strength_exactly_72_bytes_ok():
+    validate_password_strength("a" * 72)  # kein Exception
+
+
+def test_validate_password_strength_73_bytes_raises():
+    with pytest.raises(HTTPException) as exc_info:
+        validate_password_strength("a" * 73)
+    assert exc_info.value.status_code == 400
+
+
+def test_validate_password_strength_73_bytes_multibyte_raises():
+    """Multibyte-Zeichen zählen nach UTF-8-Byte, nicht nach Zeichenanzahl."""
+    with pytest.raises(HTTPException) as exc_info:
+        validate_password_strength("ü" * 37)  # 37 * 2 Byte = 74 Byte, 37 Zeichen
+    assert exc_info.value.status_code == 400
+
+
 # ---------------------------------------------------------------------------
 # _parse_refresh_cookie
 # ---------------------------------------------------------------------------
