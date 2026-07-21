@@ -113,6 +113,16 @@ async def test_me_invalid_token(client: AsyncClient):
     assert r.status_code == 401
 
 
+@pytest.mark.asyncio
+async def test_me_non_uuid_token_sub(client: AsyncClient):
+    """Gültig signiertes Token, aber `sub` ist keine UUID → 401 statt 500."""
+    from app.services.auth_service import create_access_token
+
+    token = create_access_token("not-a-uuid")
+    r = await client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert r.status_code == 401
+
+
 # ---------------------------------------------------------------------------
 # DELETE /api/auth/account
 # ---------------------------------------------------------------------------

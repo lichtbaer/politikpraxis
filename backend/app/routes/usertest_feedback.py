@@ -2,13 +2,20 @@
 
 from __future__ import annotations
 
-import asyncio
 import csv
 import io
 import logging
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    status,
+)
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,6 +43,7 @@ router = APIRouter()
 async def submit_feedback(
     req: UserTestFeedbackCreate,
     request: Request,
+    background_tasks: BackgroundTasks,
     user: User | None = Depends(get_optional_user),
     db: AsyncSession = Depends(get_db),
 ) -> UserTestFeedbackResponse:
@@ -67,21 +75,20 @@ async def submit_feedback(
     await db.flush()
     await db.refresh(entry)
 
-    asyncio.create_task(
-        send_feedback_notification_email(
-            {
-                "id": str(entry.id),
-                "kontext": entry.kontext,
-                "bewertung_gesamt": entry.bewertung_gesamt,
-                "verstaendlichkeit": entry.verstaendlichkeit,
-                "fehler_gemeldet": entry.fehler_gemeldet,
-                "fehler_beschreibung": entry.fehler_beschreibung,
-                "positives": entry.positives,
-                "verbesserungen": entry.verbesserungen,
-                "sonstiges": entry.sonstiges,
-                "created_at": entry.created_at.isoformat(),
-            }
-        )
+    background_tasks.add_task(
+        send_feedback_notification_email,
+        {
+            "id": str(entry.id),
+            "kontext": entry.kontext,
+            "bewertung_gesamt": entry.bewertung_gesamt,
+            "verstaendlichkeit": entry.verstaendlichkeit,
+            "fehler_gemeldet": entry.fehler_gemeldet,
+            "fehler_beschreibung": entry.fehler_beschreibung,
+            "positives": entry.positives,
+            "verbesserungen": entry.verbesserungen,
+            "sonstiges": entry.sonstiges,
+            "created_at": entry.created_at.isoformat(),
+        },
     )
 
     return UserTestFeedbackResponse(

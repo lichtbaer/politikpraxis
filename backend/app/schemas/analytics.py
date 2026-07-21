@@ -1,6 +1,7 @@
 from typing import Any
+from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class AnalyticsEventRequest(BaseModel):
@@ -8,6 +9,17 @@ class AnalyticsEventRequest(BaseModel):
     payload: dict[str, Any] = {}
     game_month: int = Field(ge=0, le=48)
     save_id: str | None = None
+
+    @field_validator("save_id")
+    @classmethod
+    def validate_save_id(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        try:
+            UUID(v)
+        except ValueError as exc:
+            raise ValueError("Ungültige save_id (muss UUID sein)") from exc
+        return v
 
 
 class AnalyticsBatchRequest(BaseModel):
@@ -17,6 +29,3 @@ class AnalyticsBatchRequest(BaseModel):
 class AnalyticsSummaryResponse(BaseModel):
     total_games: int
     avg_approval: float
-    win_rate: float
-    popular_laws: list[dict[str, Any]]
-    avg_game_duration_months: float

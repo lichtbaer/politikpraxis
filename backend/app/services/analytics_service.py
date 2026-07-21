@@ -46,7 +46,4 @@ async def get_summary(db: AsyncSession) -> dict:
     return {
         "total_games": total_games,
         "avg_approval": round(float(avg_approval), 1),
-        "win_rate": 0,
-        "popular_laws": [],
-        "avg_game_duration_months": 0,
     }

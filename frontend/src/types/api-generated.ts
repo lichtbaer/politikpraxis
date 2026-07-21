@@ -1250,16 +1250,8 @@ export interface components {
         AnalyticsSummaryResponse: {
             /** Avg Approval */
             avg_approval: number;
-            /** Avg Game Duration Months */
-            avg_game_duration_months: number;
-            /** Popular Laws */
-            popular_laws: {
-                [key: string]: unknown;
-            }[];
             /** Total Games */
             total_games: number;
-            /** Win Rate */
-            win_rate: number;
         };
         /** BundeslandResponse */
         BundeslandResponse: {
