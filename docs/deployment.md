@@ -113,18 +113,18 @@ Der Service **certbot** im Compose-Stack führt regelmäßig `certbot renew` aus
 ## Manuelles Deployment
 
 ```bash
-cd /opt/politikpraxis
-git pull origin main
-docker compose -f docker-compose.prod.yml build
-docker compose -f docker-compose.prod.yml up -d --remove-orphans
-docker system prune -f
+PP_ROOT=/opt/politikpraxis /opt/politikpraxis/scripts/deploy.sh
 ```
+
+Das Skript (`scripts/deploy.sh`) übernimmt `git pull`, `docker compose config`-Validierung, Build, `up -d --remove-orphans`, einen Post-Deploy-Healthcheck gegen `/api/health` (mit Retries) sowie automatischen Rollback auf den vorherigen Commit, falls der Healthcheck fehlschlägt. Bei Rollback endet das Skript trotzdem mit Exit-Code `1`, damit ein fehlgeschlagener Deploy sichtbar bleibt (kein stiller Fallback).
+
+Relevante Umgebungsvariablen (alle optional, mit sinnvollen Defaults): `PP_ROOT` (Projektverzeichnis), `COMPOSE_FILE` (Default `docker-compose.prod.yml`), `HEALTH_RETRIES` (Default `10`), `HEALTH_DELAY` in Sekunden zwischen Versuchen (Default `3`).
 
 ## GitHub Actions CI/CD
 
 Workflow: `.github/workflows/deploy.yml`
 
-- Bei Push auf **main**: Backend-Tests (`pytest`), Frontend-Build (`npm run build`), danach SSH-Deploy auf den Server.
+- Bei Push auf **main**: Backend-Tests (`pytest`), Frontend-Build (`npm run build`), danach SSH-Deploy auf den Server via `scripts/deploy.sh` (siehe oben).
 
 ---
 
@@ -166,20 +166,10 @@ Der `DEPLOY_SSH_KEY` sollte **minimale Rechte** haben:
 
 3. **Öffentlichen Key mit Forced Command in `~deploy/.ssh/authorized_keys` eintragen:**
    ```
-   command="/opt/politikpraxis/deploy.sh",no-pty,no-port-forwarding,no-agent-forwarding,no-X11-forwarding ssh-ed25519 AAAA...
+   command="/opt/politikpraxis/scripts/deploy.sh",no-pty,no-port-forwarding,no-agent-forwarding,no-X11-forwarding ssh-ed25519 AAAA...
    ```
 
-4. **Deploy-Script `/opt/politikpraxis/deploy.sh` anlegen** (nur die nötigen Befehle):
-   ```bash
-   #!/bin/bash
-   set -e
-   cd /opt/politikpraxis
-   git pull origin main
-   docker compose -f docker-compose.prod.yml build
-   docker compose -f docker-compose.prod.yml up -d --remove-orphans
-   docker system prune -f
-   ```
-   Rechte setzen: `chmod 750 /opt/politikpraxis/deploy.sh`
+4. **Deploy-Script:** Das Skript `scripts/deploy.sh` ist im Repo versioniert (Pull, Compose-Validierung, Build, Healthcheck-Gate, Rollback — siehe [Manuelles Deployment](#manuelles-deployment)) und muss nicht mehr manuell auf dem Server angelegt werden. Rechte setzen: `chmod 750 /opt/politikpraxis/scripts/deploy.sh`.
 
 5. **Key-Rotation:** Den Deploy-Key mindestens jährlich und bei Teamveränderungen rotieren.
 

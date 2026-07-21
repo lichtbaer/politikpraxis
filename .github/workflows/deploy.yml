@@ -44,7 +44,7 @@ jobs:
     # SECURITY: DEPLOY_SSH_KEY muss ein Ed25519-Key für einen dedizierten
     # deploy-User ohne sudo-Rechte sein.
     # Auf dem Server in authorized_keys mit forced command absichern:
-    #   command="/opt/politikpraxis/deploy.sh",no-pty,no-port-forwarding,
+    #   command="/opt/politikpraxis/scripts/deploy.sh",no-pty,no-port-forwarding,
     #   no-agent-forwarding,no-X11-forwarding ssh-ed25519 AAAA...
     # Siehe docs/deployment.md für vollständige Anleitung.
     steps:
@@ -57,8 +57,11 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
+            set -e
             cd /opt/politikpraxis
-            git pull origin main
-            docker compose -f docker-compose.prod.yml build
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            docker system prune -f
+            # Bootstrap: first run after this script was introduced won't have it yet.
+            if [ ! -f scripts/deploy.sh ]; then
+              git pull origin main
+            fi
+            chmod +x scripts/deploy.sh
+            ./scripts/deploy.sh
