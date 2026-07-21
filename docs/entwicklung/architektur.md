@@ -149,6 +149,12 @@ Wichtige Abgrenzung: **Das Backend führt zu keinem Zeitpunkt die Spielsimulatio
 
 Für die Spiellogik selbst ist das Backend also reiner Datenspeicher/-lieferant, keine "Autorität" — Balance und Spielregeln werden vollständig clientseitig in `core/` bestimmt und getestet (siehe Balance-Simulation oben).
 
+### Content-Cache (In-Memory, pro Worker)
+
+Alle `fetch_*`-Funktionen sowie `get_game_content_from_db` in `content_db_service.py` cachen ihr Ergebnis für `CACHE_TTL` (1 Stunde) in einem Prozess-lokalen Dict (`_content_cache`, Key `(entity, locale)`). Admin-Writes (`admin_*.py`) rufen `content_cache_clear()` auf, um den Cache nach Änderungen sofort zu leeren.
+
+**Bekannter Trade-off:** Der Cache liegt in Prozess-Memory. Bei mehreren Uvicorn-Workern (`backend/Dockerfile.prod`, `--workers 2`) hat jeder Worker seinen eigenen Cache — `content_cache_clear()` nach einem Admin-Write leert nur den Cache des Workers, der den Request bearbeitet hat. Die übrigen Worker liefern bis zu `CACHE_TTL` (1h) veralteten Content aus, bis ihr eigener Cache regulär abläuft. Für Admin-Content-Änderungen (seltene, manuelle Aktion) wird dies bewusst in Kauf genommen statt eine geteilte Cache-Infrastruktur (Redis o. ä.) einzuführen; sollte die TTL-Verzögerung zum Problem werden, ist ein geteilter Cache mit Pub/Sub-Invalidierung der nächste Schritt (siehe auch #231 zu geteiltem Storage für Rate-Limits — eine gemeinsame Redis-Instanz könnte beide Themen lösen).
+
 ---
 
 ## CI/CD

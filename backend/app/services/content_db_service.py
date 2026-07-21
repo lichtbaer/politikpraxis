@@ -979,6 +979,11 @@ async def get_game_content_from_db(
     if locale not in ("de", "en"):
         locale = "de"
 
+    cache_key = ("game", locale)
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return cached
+
     result: dict[str, Any] = {
         "chars": {},
         "laws": {},
@@ -1148,6 +1153,7 @@ async def get_game_content_from_db(
             }
 
     result["contentVersion"] = _hash_content(result)
+    _set_cached(cache_key, result)
     return result
 
 
