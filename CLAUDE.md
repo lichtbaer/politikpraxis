@@ -136,7 +136,7 @@ mkdocs build          # Static build to site/
 
 | Workflow | Trigger | What it does |
 |----------|---------|--------------|
-| `lint.yml` | Push to main, PRs | Ruff check/format + MyPy (backend), ESLint (frontend) |
+| `lint.yml` | Push to main, PRs | Ruff check/format + MyPy + pip-audit + Bandit (backend), ESLint + npm audit (frontend), API-types-drift, gitleaks secret scan, Trivy container image scan |
 | `deploy.yml` | Push to main | pytest + npm build, then SSH deploy to server |
 | `balance-check.yml` | Changes to content/core/scripts/workflow | Monte Carlo simulation (500 iterations) + balance report artifact |
 | `docs.yml` | Push to main | MkDocs build and deploy |
