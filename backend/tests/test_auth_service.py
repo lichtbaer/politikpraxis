@@ -5,6 +5,7 @@ Unit-Tests für auth_service.py — nur reine/sync Funktionen, kein DB erforderl
 import time
 from uuid import UUID
 
+import jwt
 import pytest
 from app.config import get_settings
 from app.services.auth_service import (
@@ -15,7 +16,6 @@ from app.services.auth_service import (
     validate_password_strength,
 )
 from fastapi import HTTPException
-from jose import jwt
 
 settings = get_settings()
 
