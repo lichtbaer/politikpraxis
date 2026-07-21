@@ -84,9 +84,12 @@ async def request_logging(request: Request, call_next: Callable) -> Response:
 async def security_headers(request: Request, call_next: Callable) -> Response:
     response = await call_next(request)
     if request.url.path.startswith("/api"):
-        response.headers["Strict-Transport-Security"] = (
-            "max-age=31536000; includeSubDomains"
-        )
+        if settings.effective_cookie_secure:
+            # HSTS macht nur unter TLS Sinn; im Dev-/HTTP-Betrieb (effective_cookie_secure
+            # False) würde der Header Browser zu HTTPS zwingen, obwohl keins angeboten wird.
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains"
+            )
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["X-Frame-Options"] = "DENY"
