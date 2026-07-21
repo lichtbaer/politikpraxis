@@ -1,7 +1,7 @@
-import type { GameState } from '../types';
-import { addLog } from '../engine';
-import { nextRandom } from '../rng';
-import { addZustOffset } from './economy';
+import type { GameState } from '../../types';
+import { addLog } from '../../engine';
+import { nextRandom } from '../../rng';
+import { addZustOffset } from '../economy';
 
 export type MilieuKey = 'arbeit' | 'mitte' | 'prog';
 

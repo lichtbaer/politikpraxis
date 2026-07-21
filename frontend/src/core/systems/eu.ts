@@ -6,7 +6,7 @@ import { addLog } from '../log';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { scheduleEffects } from './economy';
-import { applyGesetzMedienAkteureNachBeschluss } from './medienklima';
+import { applyGesetzMedienAkteureNachBeschluss } from './medien/medienklima';
 import { nextRandom } from '../rng';
 
 /** Default EU-Klima-Startwerte (Fallback wenn API nicht liefert) */

@@ -1,6 +1,6 @@
 import { useGameStore } from '../../store/gameStore';
 import type { GameEvent, EventChoice, RouteType } from '../../core/types';
-import type { MilieuKey } from '../../core/systems/media';
+import type { MilieuKey } from '../../core/systems/medien/media';
 
 export function useGameActions() {
   const store = useGameStore();

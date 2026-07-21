@@ -1,6 +1,6 @@
-import type { GameState, ContentBundle } from '../types';
-import { featureActive } from './features';
-import { MILIEU_TO_ZUST } from '../constants';
+import type { GameState, ContentBundle } from '../../types';
+import { featureActive } from '../features';
+import { MILIEU_TO_ZUST } from '../../constants';
 
 /**
  * Berechnet Wahlprognose (zust.g) aus gewichteter Milieu-Zustimmung.

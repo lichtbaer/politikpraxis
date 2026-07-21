@@ -33,7 +33,7 @@ import {
   initMedienAkteureFromContent,
   kalibriereMedienAkteureZuIndex,
   roundMedienKlimaIndex,
-} from './systems/medienklima';
+} from './systems/medien/medienklima';
 import { DEFAULT_MEDIEN_AKTEURE } from '../data/defaults/medienAkteure';
 import { bildeKabinett, waehleMinisterAusPool } from './kabinett';
 import { MINISTER_AGENDEN_CONFIG } from '../data/defaults/ministerAgenden';

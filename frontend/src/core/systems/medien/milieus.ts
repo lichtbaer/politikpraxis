@@ -1,9 +1,9 @@
-import type { GameState, GesetzRelation } from '../types';
-import { milieuGesetzKongruenz } from '../ideologie';
-import { featureActive } from './features';
+import type { GameState, GesetzRelation } from '../../types';
+import { milieuGesetzKongruenz } from '../../ideologie';
+import { featureActive } from '../features';
 import { getMedienMultiplikator } from './medienklima';
-import { berechneGesetzEffektMitSynergien } from '../gesetz';
-import { clamp, MILIEU_SCORE_SCHWELLEN, MILIEU_DELTAS, MILIEU_TO_ZUST } from '../constants';
+import { berechneGesetzEffektMitSynergien } from '../../gesetz';
+import { clamp, MILIEU_SCORE_SCHWELLEN, MILIEU_DELTAS, MILIEU_TO_ZUST } from '../../constants';
 
 /**
  * Wendet Milieu-Effekte nach einem Gesetzesbeschluss an.

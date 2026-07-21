@@ -4,8 +4,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { tick } from './engine';
 import { einbringen } from './systems/parliament';
-import { applyMilieuEffekte } from './systems/milieus';
-import { berechneWahlprognose } from './systems/wahlprognose';
+import { applyMilieuEffekte } from './systems/medien/milieus';
+import { berechneWahlprognose } from './systems/medien/wahlprognose';
 import { triggerHaushaltsdebatte } from './systems/haushalt';
 import type { GameState, ContentBundle, Law } from './types';
 

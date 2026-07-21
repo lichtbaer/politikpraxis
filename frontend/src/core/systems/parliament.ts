@@ -5,7 +5,7 @@ import { scheduleEffects } from './economy';
 import { addLog } from '../engine';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from './kongruenz';
 import { applyMoodChange } from './characters';
-import { applyMilieuEffekte } from './milieus';
+import { applyMilieuEffekte } from './medien/milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { applyGesetzKosten } from './haushalt';
 import { checkProaktiveErfuellung } from './ministerAgenden';
@@ -17,7 +17,7 @@ import {
   getMedienPkZusatzkosten,
   adjustMedienKlimaGlobal,
   applyGesetzMedienAkteureNachBeschluss,
-} from './medienklima';
+} from './medien/medienklima';
 import { berechneKongruenz } from '../ideologie';
 import { getGesetzIdeologie, getKoalitionspartner } from './koalition';
 import { kannGesetzEingebracht } from '../gesetz';

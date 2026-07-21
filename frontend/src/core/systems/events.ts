@@ -10,7 +10,7 @@ import { startKommunalPilot } from './gesetzLebenszyklus';
 import { applyVorbildBonus } from './gesetzLebenszyklus';
 import { resolveTVDuell, applyWahlkampfThema, applyWahlkampfZwischenbilanz } from './wahlkampf';
 import { setNormenkontrollReaktion } from './verfassungsgericht';
-import { applyMedienChoiceDelta, adjustMedienKlimaGlobal } from './medienklima';
+import { applyMedienChoiceDelta, adjustMedienKlimaGlobal } from './medien/medienklima';
 import { applyMilieuDelta } from './dynamischeEvents';
 import { resolveDynamicEvent } from './dynamischeEvents';
 import { featureActive } from './features';

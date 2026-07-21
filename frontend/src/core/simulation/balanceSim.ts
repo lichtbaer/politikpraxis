@@ -11,8 +11,8 @@ import {
   partnerWiderstandTrotzdemCommand,
   partnerWiderstandKoalitionsverhandlungCommand,
 } from '../commands/einbringen';
-import { pressemitteilung } from '../systems/medienklima';
-import { medienkampagne } from '../systems/media';
+import { pressemitteilung } from '../systems/medien/medienklima';
+import { medienkampagne } from '../systems/medien/media';
 import { kabinettsgespraech } from '../systems/characters';
 import { regierungserklaerung } from '../systems/regierung';
 import { verbandGespraech } from '../systems/verbaende';

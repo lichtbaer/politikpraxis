@@ -6,7 +6,7 @@ import { featureActive } from '../../../core/systems/features';
 import { getVorstufenBoni } from '../../../core/systems/gesetzLebenszyklus';
 import { isVerfassungsgerichtBlockiert } from '../../../core/systems/parliament';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from '../../../core/systems/kongruenz';
-import { getMedienPkZusatzkosten } from '../../../core/systems/medienklima';
+import { getMedienPkZusatzkosten } from '../../../core/systems/medien/medienklima';
 import {
   kannGesetzEingebracht,
   getFehlendeRequires,

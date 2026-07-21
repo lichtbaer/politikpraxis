@@ -8,7 +8,7 @@ import { addLog } from '../engine';
 import { withPause } from '../eventPause';
 import { MINISTER_AGENDEN_CONFIG } from '../../data/defaults/ministerAgenden';
 import { featureActive } from './features';
-import { adjustMedienKlimaGlobal } from './medienklima';
+import { adjustMedienKlimaGlobal } from './medien/medienklima';
 
 /** Agenda-Event-ID Präfix für Erkennung */
 export const AGENDA_EVENT_PREFIX = 'agenda_';

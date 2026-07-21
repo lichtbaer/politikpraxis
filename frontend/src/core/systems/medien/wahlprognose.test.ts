@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { berechneWahlprognose } from './wahlprognose';
-import type { GameState, ContentBundle } from '../types';
+import type { GameState, ContentBundle } from '../../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   return {

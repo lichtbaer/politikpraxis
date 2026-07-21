@@ -16,7 +16,7 @@ import type { GameState } from '../types';
 import { addLog } from '../engine';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
-import { adjustMedienKlimaGlobal } from './medienklima';
+import { adjustMedienKlimaGlobal } from './medien/medienklima';
 import { applyMoodChange } from './characters';
 import { recalcApproval } from './economy';
 

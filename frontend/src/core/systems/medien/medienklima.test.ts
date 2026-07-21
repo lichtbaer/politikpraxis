@@ -8,7 +8,7 @@ import {
   getAktiveMilieusFuerTalkshow,
   doMedienAktion,
 } from './medienklima';
-import type { GameState, Law, ContentBundle, Milieu } from '../types';
+import type { GameState, Law, ContentBundle, Milieu } from '../../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   const gesetz: Law = {
@@ -156,7 +156,7 @@ const singleAkteurContent = {
   medienAkteureContent: [
     { id: 'oeffentlich', name: 'Test', typ: 'oeffentlich' as const, reichweite: 100, stimmung_start: 10, min_complexity: 2 },
   ],
-} as import('../types').ContentBundle;
+} as import('../../types').ContentBundle;
 
 describe('applyFraming', () => {
   beforeEach(() => {
@@ -224,9 +224,9 @@ describe('tickMedienKlima Drift', () => {
     charEvents: {},
     laws: [],
     bundesrat: [],
-    medienEvents: [] as import('../types').MedienEventContent[],
+    medienEvents: [] as import('../../types').MedienEventContent[],
     scenario: { id: 's', name: 's', startMonth: 1, startPK: 100, startKPI: { al: 5, hh: 0, gi: 50, zf: 50 }, startCoalition: 70 },
-  } as import('../types').ContentBundle;
+  } as import('../../types').ContentBundle;
 
   /** Stufe 1: globale Drift (ohne plural Akteure) */
   it('Drift Richtung 50: medienKlima > 50 sinkt um 1', () => {

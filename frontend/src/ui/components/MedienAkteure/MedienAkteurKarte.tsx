@@ -3,7 +3,7 @@ import type { MedienAkteurContent } from '../../../data/defaults/medienAkteure';
 import {
   getMedienAkteurIcon,
 } from '../../../data/defaults/medienAkteure';
-import { effektiveMedienAkteurStimmung } from '../../../core/systems/medienklima';
+import { effektiveMedienAkteurStimmung } from '../../../core/systems/medien/medienklima';
 import type { GameState } from '../../../core/types';
 import { formatStimmung } from '../../lib/medienDisplay';
 import styles from './MedienAkteurKarte.module.css';

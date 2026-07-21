@@ -9,7 +9,7 @@ import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { featureActive } from './features';
 import { getKoalitionspartner } from './koalition';
-import { berechneWahlprognose } from './wahlprognose';
+import { berechneWahlprognose } from './medien/wahlprognose';
 import { berechneKongruenz } from '../ideologie';
 import { verbrauchePK } from '../pk';
 import { nextRandom } from '../rng';

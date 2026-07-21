@@ -10,7 +10,7 @@ import { featureActive } from './features';
 import { addLog } from '../log';
 import { getEventNamespace } from '../eventNamespaces';
 import { applyMoodChange } from './characters';
-import { adjustMedienKlimaGlobal } from './medienklima';
+import { adjustMedienKlimaGlobal } from './medien/medienklima';
 import i18n from '../../i18n';
 import { nextRandom } from '../rng';
 

@@ -13,11 +13,11 @@ import { featureActive } from './features';
 import { addLog } from '../engine';
 import { scheduleEffects } from './economy';
 import { applyMoodChange } from './characters';
-import { applyMilieuEffekte } from './milieus';
+import { applyMilieuEffekte } from './medien/milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { applyGesetzKosten } from './haushalt';
 import { checkProaktiveErfuellung } from './ministerAgenden';
-import { applyGesetzMedienAkteureNachBeschluss } from './medienklima';
+import { applyGesetzMedienAkteureNachBeschluss } from './medien/medienklima';
 import { nextRandom } from '../rng';
 
 const PK_SCHICHT_1 = 15;

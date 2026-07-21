@@ -10,7 +10,7 @@ import { berechneEinnahmen, berechnePflichtausgaben } from './haushaltBerechnung
 import { featureActive } from './features';
 import { scheduleSektorEffekteFromGesetz } from './wirtschaft';
 import { withPause, getAutoPauseLevel } from '../eventPause';
-import { applyMedienHaushaltKrise } from './medienklima';
+import { applyMedienHaushaltKrise } from './medien/medienklima';
 import { nextRandom } from '../rng';
 
 /** Erstellt initiales Haushalt-Objekt */

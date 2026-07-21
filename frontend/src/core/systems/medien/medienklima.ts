@@ -10,27 +10,27 @@ import type {
   EventChoice,
   Law,
   MedienAkteurBuffState,
-} from '../types';
-import { DEFAULT_MEDIEN_AKTEURE, type MedienAkteurContent } from '../../data/defaults/medienAkteure';
-import { addLog } from '../engine';
-import { withPause, getAutoPauseLevel } from '../eventPause';
-import { featureActive } from './features';
-import { verbrauchePK } from '../pk';
-import { isEventAvailable, recordEventFired } from './eventUtils';
+} from '../../types';
+import { DEFAULT_MEDIEN_AKTEURE, type MedienAkteurContent } from '../../../data/defaults/medienAkteure';
+import { addLog } from '../../engine';
+import { withPause, getAutoPauseLevel } from '../../eventPause';
+import { featureActive } from '../features';
+import { verbrauchePK } from '../../pk';
+import { isEventAvailable, recordEventFired } from '../eventUtils';
 import {
   clamp,
   SKANDAL_CHANCE,
   POSITIV_MEDIEN_CHANCE,
   INNEN_SKANDAL_SCHUTZ_FAKTOR,
   CHAR_BONUS_MOOD_MIN,
-} from '../constants';
+} from '../../constants';
 
 /** SMA-409: Index 0–100 ganzzahlig für State, Historie und Anzeige (keine Float-Artefakte). */
 export function roundMedienKlimaIndex(v: number): number {
   return Math.round(clamp(v, 0, 100));
 }
-import { getGesetzIdeologie } from './koalition';
-import { nextRandom } from '../rng';
+import { getGesetzIdeologie } from '../koalition';
+import { nextRandom } from '../../rng';
 
 /** Reaktionsdeltas je Akteur (Stimmung, Skandal: alternativ +3 Reichweite zusätzlich) */
 const REAKTIONEN = {
