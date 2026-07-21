@@ -66,7 +66,7 @@ async def create_mod(
     content_size = len(req.model_dump_json(include={"content"}))
     if content_size > MOD_CONTENT_MAX_SIZE:
         raise HTTPException(
-            status_code=400,
+            status_code=413,
             detail=f"Mod content too large ({content_size} bytes, max {MOD_CONTENT_MAX_SIZE})",
         )
 

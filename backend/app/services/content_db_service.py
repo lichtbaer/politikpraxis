@@ -1016,7 +1016,7 @@ async def get_game_content_from_db(
     for row in (
         await db.execute(
             text(
-                "SELECT gesetz_id, titel, kurz, desc FROM gesetze_i18n WHERE locale = :locale"
+                'SELECT gesetz_id, titel, kurz, "desc" FROM gesetze_i18n WHERE locale = :locale'
             ),
             {"locale": locale},
         )
@@ -1051,7 +1051,7 @@ async def get_game_content_from_db(
     for row in (
         await db.execute(
             text(
-                "SELECT choice_id, label, desc, log_msg FROM event_choices_i18n WHERE locale = :locale"
+                'SELECT choice_id, label, "desc", log_msg FROM event_choices_i18n WHERE locale = :locale'
             ),
             {"locale": locale},
         )
@@ -1138,7 +1138,7 @@ async def get_game_content_from_db(
     for row in (
         await db.execute(
             text(
-                "SELECT tradeoff_id, label, desc FROM bundesrat_tradeoffs_i18n WHERE locale = :locale"
+                'SELECT tradeoff_id, label, "desc" FROM bundesrat_tradeoffs_i18n WHERE locale = :locale'
             ),
             {"locale": locale},
         )
