@@ -4,6 +4,7 @@ Route-Tests für /api/auth/* — die meisten Tests benötigen keine Datenbank
 """
 
 import pytest
+from app.services.auth_service import create_access_token
 from httpx import AsyncClient
 from tests.conftest import requires_db
 
@@ -110,6 +111,14 @@ async def test_me_invalid_token(client: AsyncClient):
     r = await client.get(
         "/api/auth/me", headers={"Authorization": "Bearer invalid.token.here"}
     )
+    assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_me_non_uuid_sub_returns_401_not_500(client: AsyncClient):
+    """Signaturgültiges Token mit nicht-UUID `sub` → 401, kein 500 (SMA-250)."""
+    token = create_access_token("not-a-valid-uuid")
+    r = await client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
     assert r.status_code == 401
 
 
