@@ -7,14 +7,17 @@ from uuid import UUID
 
 import pytest
 from app.config import get_settings
+from app.dependencies import get_optional_user
 from app.services.auth_service import (
     _parse_refresh_cookie,
     _refresh_cookie_value,
     create_access_token,
     decode_token,
+    get_current_user,
     validate_password_strength,
 )
 from fastapi import HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 from jose import jwt
 
 settings = get_settings()
@@ -86,6 +89,32 @@ def test_validate_password_strength_too_short_raises():
 def test_validate_password_strength_exactly_7_raises():
     with pytest.raises(HTTPException):
         validate_password_strength("1234567")
+
+
+# ---------------------------------------------------------------------------
+# get_current_user / get_optional_user — nicht-UUID "sub"-Claim
+#
+# Ein syntaktisch gültiges (signiertes) JWT mit einem "sub", der keine UUID
+# ist, darf keinen 500er (ValueError aus UUID(...)) auslösen. Beide Pfade
+# schlagen fehl, bevor die DB kontaktiert wird — db=None ist daher sicher.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_get_current_user_non_uuid_sub_raises_401():
+    token = create_access_token("not-a-uuid")
+    creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+    with pytest.raises(HTTPException) as exc_info:
+        await get_current_user(credentials=creds, db=None)
+    assert exc_info.value.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_get_optional_user_non_uuid_sub_returns_none():
+    token = create_access_token("not-a-uuid")
+    creds = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+    result = await get_optional_user(credentials=creds, db=None)
+    assert result is None
 
 
 def test_validate_password_strength_exactly_8_ok():

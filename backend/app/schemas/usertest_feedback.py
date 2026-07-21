@@ -7,7 +7,7 @@ KONTEXT_OPTIONEN = ("header", "spielende")
 
 class UserTestFeedbackCreate(BaseModel):
     session_id: str = Field(min_length=8, max_length=128)
-    game_stat_id: str | None = None
+    game_stat_id: UUID | None = None
     kontext: str = Field(default="header")
 
     bewertung_gesamt: int | None = Field(default=None, ge=1, le=5)
@@ -25,17 +25,6 @@ class UserTestFeedbackCreate(BaseModel):
             raise ValueError(
                 f"Ungültiger Kontext. Erlaubt: {', '.join(KONTEXT_OPTIONEN)}"
             )
-        return v
-
-    @field_validator("game_stat_id")
-    @classmethod
-    def validate_game_stat_id(cls, v: str | None) -> str | None:
-        if v is None:
-            return None
-        try:
-            UUID(v)
-        except ValueError as exc:
-            raise ValueError("Ungültige game_stat_id (muss UUID sein)") from exc
         return v
 
 
