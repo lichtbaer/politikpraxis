@@ -112,7 +112,7 @@ async def test_login_password_73_bytes_returns_401_not_500(client: AsyncClient):
     email = f"{uuid.uuid4()}@example.com"
     register = await client.post(
         "/api/auth/register",
-        json={"email": email, "password": "korrektes-passwort-123"},
+        json={"email": email, "password": "passwort123"},
     )
     assert register.status_code == 200
 
