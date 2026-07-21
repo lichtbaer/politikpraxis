@@ -1,5 +1,7 @@
 """DB-basierter Content-Service für /api/content/chars, gesetze, events, bundesrat, game."""
 
+import hashlib
+import json
 import time
 from collections.abc import Awaitable, Callable, Sequence
 from typing import Any
@@ -1145,7 +1147,19 @@ async def get_game_content_from_db(
                 "desc": row["desc"],
             }
 
+    result["contentVersion"] = _hash_content(result)
     return result
+
+
+def _hash_content(content: dict[str, Any]) -> str:
+    """Stabiler Hash über den Content-Bundle-Inhalt (sort_keys macht ihn
+    unabhängig von der DB-Zeilenreihenfolge). Dient dem Frontend als
+    contentVersion, um Kompatibilität/Drift gegenüber der Engine-Logik zu
+    erkennen (#244)."""
+    digest = hashlib.sha256(
+        json.dumps(content, sort_keys=True, default=str).encode("utf-8")
+    ).hexdigest()
+    return digest[:16]
 
 
 async def _get_choice_event_mapping(db: AsyncSession) -> dict[int, str]:

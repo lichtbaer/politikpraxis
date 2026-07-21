@@ -342,3 +342,52 @@ async def test_get_gesetze_includes_ideologie_and_politikfeld(client: AsyncClien
         assert isinstance(g["ideologie_wert"], int)
         assert "sektor_effekte" in g
         assert isinstance(g["sektor_effekte"], list)
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_game_content_structure(client: AsyncClient):
+    """GET /api/content/game liefert die erwarteten Top-Level-Keys (#244)."""
+    r = await client.get("/api/content/game", params={"locale": "de"})
+    assert r.status_code == 200
+    data = r.json()
+    for key in (
+        "chars",
+        "laws",
+        "events",
+        "charEvents",
+        "bundesratEvents",
+        "bundesratFraktionen",
+        "contentVersion",
+    ):
+        assert key in data
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_game_content_locale_en(client: AsyncClient):
+    """GET /api/content/game unterstützt locale=en."""
+    r = await client.get("/api/content/game", params={"locale": "en"})
+    assert r.status_code == 200
+    assert "chars" in r.json()
+
+
+@pytest.mark.asyncio
+async def test_get_game_content_invalid_locale(client: AsyncClient):
+    """Ungültige locale liefert 400 (via validate_locale-Dependency)."""
+    r = await client.get("/api/content/game", params={"locale": "fr"})
+    assert r.status_code == 400
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_game_content_version_is_stable(client: AsyncClient):
+    """#244: contentVersion ist ein nicht-leerer String und über zwei
+    aufeinanderfolgende Requests hinweg stabil (kein neuer Hash ohne Content-Änderung)."""
+    r1 = await client.get("/api/content/game", params={"locale": "de"})
+    r2 = await client.get("/api/content/game", params={"locale": "de"})
+    assert r1.status_code == 200 and r2.status_code == 200
+    v1 = r1.json()["contentVersion"]
+    v2 = r2.json()["contentVersion"]
+    assert isinstance(v1, str) and len(v1) > 0
+    assert v1 == v2
