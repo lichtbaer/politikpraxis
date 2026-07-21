@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { applyMilieuEffekte } from './milieus';
-import type { GameState, Law } from '../types';
+import type { GameState, Law } from '../../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   const gesetz: Law = {

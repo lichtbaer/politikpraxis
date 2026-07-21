@@ -27,7 +27,7 @@ import {
   setRatsvorsitzPrioritaeten,
 } from '../core/systems/eu';
 import { resolveEvent } from '../core/systems/events';
-import { medienkampagne, type MilieuKey } from '../core/systems/media';
+import { medienkampagne, type MilieuKey } from '../core/systems/medien/media';
 import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch, bundeslandGespraech } from '../core/systems/bundesrat';
 import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
@@ -67,7 +67,7 @@ import {
   doMedienAktion,
   medienAktionCooldownVerbleibend,
   type MedienSpielerAktionKey,
-} from '../core/systems/medienklima';
+} from '../core/systems/medien/medienklima';
 import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
 import { vermittlungsausschuss } from '../core/systems/vermittlung';

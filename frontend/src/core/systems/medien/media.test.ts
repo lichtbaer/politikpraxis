@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
-import * as rng from '../rng';
+import * as rng from '../../rng';
 import { medienkampagne } from './media';
-import { createInitialState } from '../state';
-import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
-import type { GameState } from '../types';
+import { createInitialState } from '../../state';
+import { DEFAULT_CONTENT } from '../../../data/defaults/scenarios';
+import type { GameState } from '../../types';
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   const base = createInitialState(DEFAULT_CONTENT, 4);

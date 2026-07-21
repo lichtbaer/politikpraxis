@@ -8,7 +8,7 @@ import {
   getAktiveMilieusFuerTalkshow,
   doMedienAktion,
 } from './medienklima';
-import type { GameState, Law, ContentBundle, Milieu } from '../types';
+import type { GameState, Law, ContentBundle, Milieu } from '../../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   const gesetz: Law = {

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
-import { activeMedienAkteurIds } from '../../../core/systems/medienklima';
+import { activeMedienAkteurIds } from '../../../core/systems/medien/medienklima';
 import { DEFAULT_MEDIEN_AKTEURE } from '../../../data/defaults/medienAkteure';
 import { MedienAkteurKarte } from './MedienAkteurKarte';
 import styles from './MedienAkteureGrid.module.css';

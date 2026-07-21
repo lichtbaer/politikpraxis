@@ -10,11 +10,11 @@ import { addLog } from '../engine';
 import { verbrauchePK } from '../pk';
 import { scheduleEffects } from './economy';
 import { applyGesetzKosten } from './haushalt';
-import { applyMilieuEffekte } from './milieus';
+import { applyMilieuEffekte } from './medien/milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { checkProaktiveErfuellung } from './ministerAgenden';
 import { featureActive } from './features';
-import { applyGesetzMedienAkteureNachBeschluss } from './medienklima';
+import { applyGesetzMedienAkteureNachBeschluss } from './medien/medienklima';
 
 const PK_VERMITTLUNG = 20;
 const VERMITTLUNG_DELAY_MONATE = 2;

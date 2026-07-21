@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { featureActive } from '../../../core/systems/features';
-import { activeMedienAkteurIds, medienAktionCooldownVerbleibend } from '../../../core/systems/medienklima';
+import { activeMedienAkteurIds, medienAktionCooldownVerbleibend } from '../../../core/systems/medien/medienklima';
 import { DEFAULT_MEDIEN_AKTEURE } from '../../../data/defaults/medienAkteure';
-import type { MedienSpielerAktionKey } from '../../../core/systems/medienklima';
+import type { MedienSpielerAktionKey } from '../../../core/systems/medien/medienklima';
 import styles from './MedienAktionen.module.css';
 
 export function MedienAktionen() {

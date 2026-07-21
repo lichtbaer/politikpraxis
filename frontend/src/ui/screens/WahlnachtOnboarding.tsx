@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
-import { berechneWahlprognose } from '../../core/systems/wahlprognose';
+import { berechneWahlprognose } from '../../core/systems/medien/wahlprognose';
 import type { AgendaZielContent, Character, ContentBundle } from '../../core/types';
 import type { Ausrichtung } from '../../core/systems/ausrichtung';
 import {

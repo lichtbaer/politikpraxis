@@ -7,7 +7,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('../../store/gameStore', () => ({ useGameStore: vi.fn() }));
 vi.mock('../../store/authStore', () => ({ useAuthStore: vi.fn() }));
 vi.mock('../../core/systems/features', () => ({ featureActive: vi.fn(() => false) }));
-vi.mock('../../core/systems/wahlprognose', () => ({ berechneWahlprognose: vi.fn(() => 42.5) }));
+vi.mock('../../core/systems/medien/wahlprognose', () => ({ berechneWahlprognose: vi.fn(() => 42.5) }));
 vi.mock('../../core/systems/koalition', () => ({
   berechneKoalitionspartner: vi.fn(() => null),
   getKoalitionspartner: vi.fn(() => null),

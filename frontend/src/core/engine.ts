@@ -6,7 +6,7 @@ import {
   MISSTRAUENSVOTUM_MONATE, trimHistory, MEDIEN_KLIMA_DEFAULT,
 } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval, decayZustOffsets, roundKpi } from './systems/economy';
-import { berechneWahlprognose } from './systems/wahlprognose';
+import { berechneWahlprognose } from './systems/medien/wahlprognose';
 import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
@@ -46,10 +46,10 @@ import {
   tickWahlkampfPrognose,
   triggerWahlnacht,
 } from './systems/wahlkampf';
-import { tickMedienKlima, berechneMedianklima, roundMedienKlimaIndex } from './systems/medienklima';
+import { tickMedienKlima, berechneMedianklima, roundMedienKlimaIndex } from './systems/medien/medienklima';
 import { tickVermittlungsausschuss } from './systems/vermittlung';
 import { featureActive } from './systems/features';
-import { applyMilieuDrift } from './systems/milieus';
+import { applyMilieuDrift } from './systems/medien/milieus';
 import { tickExtremismusDruck } from './ideologie';
 import { checkSachverstaendigenrat } from './systems/sachverstaendigenrat';
 import { tickNormenkontrolle } from './systems/verfassungsgericht';

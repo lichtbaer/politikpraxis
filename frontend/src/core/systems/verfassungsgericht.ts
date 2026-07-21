@@ -4,7 +4,7 @@ import { addLog } from '../engine';
 import { featureActive } from './features';
 import { clamp } from '../constants';
 import { getGesetzIdeologie } from './koalition';
-import { adjustMedienKlimaGlobal } from './medienklima';
+import { adjustMedienKlimaGlobal } from './medien/medienklima';
 import { nextRandom } from '../rng';
 
 /**
