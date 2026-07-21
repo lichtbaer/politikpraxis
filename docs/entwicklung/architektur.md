@@ -155,6 +155,19 @@ Alle `fetch_*`-Funktionen sowie `get_game_content_from_db` in `content_db_servic
 
 **Bekannter Trade-off:** Der Cache liegt in Prozess-Memory. Bei mehreren Uvicorn-Workern (`backend/Dockerfile.prod`, `--workers 2`) hat jeder Worker seinen eigenen Cache — `content_cache_clear()` nach einem Admin-Write leert nur den Cache des Workers, der den Request bearbeitet hat. Die übrigen Worker liefern bis zu `CACHE_TTL` (1h) veralteten Content aus, bis ihr eigener Cache regulär abläuft. Für Admin-Content-Änderungen (seltene, manuelle Aktion) wird dies bewusst in Kauf genommen statt eine geteilte Cache-Infrastruktur (Redis o. ä.) einzuführen; sollte die TTL-Verzögerung zum Problem werden, ist ein geteilter Cache mit Pub/Sub-Invalidierung der nächste Schritt (siehe auch #231 zu geteiltem Storage für Rate-Limits — eine gemeinsame Redis-Instanz könnte beide Themen lösen).
 
+### DB-Indizes & Connection-Pool
+
+Die Community-Stats-/Highscore-Queries (`services/stats_service.py`) filtern durchgängig über
+`GameStat.opt_in_community` und gruppieren/sortieren zusätzlich nach `partei` bzw. `wahlprognose`.
+Dafür tragen zwei Composite-Indizes (Migration `061_game_stat_indexes`):
+`ix_game_stats_optin_partei (opt_in_community, partei)` und
+`ix_game_stats_optin_wahlprognose (opt_in_community, wahlprognose DESC)`.
+
+Die DB-Engine (`db/database.py`) wird mit expliziten Pool-Parametern erstellt
+(`db_pool_size`, `db_max_overflow`, `db_pool_recycle_seconds` in `config.py`) sowie
+`pool_pre_ping=True`, damit stale Connections nach DB-Neustarts/Idle-Timeouts erkannt statt
+mit einem Fehler an den Request durchgereicht werden.
+
 ---
 
 ## CI/CD
