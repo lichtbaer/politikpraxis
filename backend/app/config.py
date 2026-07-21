@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     database_url: str = (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/bundesrepublik"
     )
+    # Connection-Pool (siehe docs/entwicklung/architektur.md)
+    db_pool_size: int = 10
+    db_max_overflow: int = 10
+    db_pool_recycle_seconds: int = 1800
     secret_key: str = "dev-secret-change-in-production"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
