@@ -13,6 +13,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.security import (
+    MAX_BCRYPT_SECRET_BYTES,
     generate_secure_token,
     hash_password,
     hash_secret,
@@ -79,11 +80,16 @@ async def get_current_user(
 
 
 def validate_password_strength(password: str) -> None:
-    """Mindestlänge 8 — weitere Regeln absichtlich nicht."""
+    """Mindestlänge 8, maximal 72 Byte (bcrypt-Obergrenze) — weitere Regeln absichtlich nicht."""
     if len(password) < 8:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Passwort muss mindestens 8 Zeichen haben",
+        )
+    if len(password.encode("utf-8")) > MAX_BCRYPT_SECRET_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Passwort darf höchstens 72 Byte (UTF-8) lang sein",
         )
 
 
@@ -152,6 +158,7 @@ async def consume_password_reset_token(
 
 
 async def register_user(db: AsyncSession, email: str, password: str) -> User:
+    validate_password_strength(password)
     email = email.lower().strip()
     result = await db.execute(select(User).where(User.email == email))
     if result.scalar_one_or_none():

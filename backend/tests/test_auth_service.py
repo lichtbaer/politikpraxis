@@ -96,6 +96,49 @@ def test_validate_password_strength_long_ok():
     validate_password_strength("ein-sehr-langes-passwort-123")  # kein Exception
 
 
+def test_validate_password_strength_exactly_72_bytes_ok():
+    validate_password_strength("a" * 72)  # kein Exception
+
+
+def test_validate_password_strength_73_bytes_raises():
+    with pytest.raises(HTTPException) as exc_info:
+        validate_password_strength("a" * 73)
+    assert exc_info.value.status_code == 400
+
+
+def test_validate_password_strength_multibyte_over_72_bytes_raises():
+    """37 Umlaute (2 Byte je Zeichen UTF-8) = 74 Byte, aber nur 37 Zeichen."""
+    with pytest.raises(HTTPException) as exc_info:
+        validate_password_strength("ü" * 37)
+    assert exc_info.value.status_code == 400
+
+
+def test_validate_password_strength_multibyte_under_72_bytes_ok():
+    """35 Umlaute = 70 Byte — bleibt unter der bcrypt-Grenze."""
+    validate_password_strength("ü" * 35)  # kein Exception
+
+
+# ---------------------------------------------------------------------------
+# app.auth.security — verify_secret / hash_secret Grenzfälle
+# ---------------------------------------------------------------------------
+
+
+def test_verify_secret_over_72_bytes_returns_false_not_raise():
+    """bcrypt wirft ValueError für >72 Byte — verify_secret fängt das ab."""
+    from app.auth.security import hash_secret, verify_secret
+
+    hashed = hash_secret("normales-passwort")
+    assert verify_secret("a" * 100, hashed) is False
+
+
+def test_verify_secret_correct_password_still_matches():
+    from app.auth.security import hash_secret, verify_secret
+
+    hashed = hash_secret("korrektes-passwort-123")
+    assert verify_secret("korrektes-passwort-123", hashed) is True
+    assert verify_secret("falsches-passwort", hashed) is False
+
+
 # ---------------------------------------------------------------------------
 # _parse_refresh_cookie
 # ---------------------------------------------------------------------------

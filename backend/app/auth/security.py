@@ -5,6 +5,7 @@ import secrets
 import bcrypt
 
 BCRYPT_WORK_FACTOR = 12
+MAX_BCRYPT_SECRET_BYTES = 72  # bcrypt lehnt/kürzt Eingaben jenseits dieser Grenze
 
 
 def hash_secret(value: str) -> str:
@@ -14,8 +15,16 @@ def hash_secret(value: str) -> str:
 
 
 def verify_secret(plain: str, hashed: str) -> bool:
-    """bcrypt-Verify für Passwort oder Refresh-Token."""
-    return bcrypt.checkpw(plain.encode(), hashed.encode())
+    """bcrypt-Verify für Passwort oder Refresh-Token.
+
+    bcrypt wirft für Eingaben über 72 Byte ein ValueError statt False zu
+    liefern — ohne Abfangen würde ein zu langes Login-Passwort zu einem
+    500 statt "falsche Zugangsdaten" führen.
+    """
+    try:
+        return bcrypt.checkpw(plain.encode(), hashed.encode())
+    except ValueError:
+        return False
 
 
 def hash_password(password: str) -> str:
