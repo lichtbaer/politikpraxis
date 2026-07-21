@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { GameState, Law } from '../types';
+import type { GameState, Law } from '../../types';
 import { createInitialWirtschaft, tickWirtschaft, scheduleSektorEffekteFromGesetz, bipZuKonjunkturIndex } from './wirtschaft';
 
 function baseState(overrides: Partial<GameState> = {}): GameState {

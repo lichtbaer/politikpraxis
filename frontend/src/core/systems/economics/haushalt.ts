@@ -1,17 +1,17 @@
-import type { GameState, ContentBundle, Haushalt, SchuldenbremsenStatus } from '../types';
+import type { GameState, ContentBundle, Haushalt, SchuldenbremsenStatus } from '../../types';
 import {
   EINNAHMEN_BASIS,
   SCHULDENBREMSE_SPIELRAUM_BASIS,
   SCHULDENBREMSE_VERBRAUCH_GRENZWERTIG_BIS,
   KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX,
   clamp,
-} from '../constants';
+} from '../../constants';
 import { berechneEinnahmen, berechnePflichtausgaben } from './haushaltBerechnung';
-import { featureActive } from './features';
+import { featureActive } from '../features';
 import { scheduleSektorEffekteFromGesetz } from './wirtschaft';
-import { withPause, getAutoPauseLevel } from '../eventPause';
-import { applyMedienHaushaltKrise } from './medien/medienklima';
-import { nextRandom } from '../rng';
+import { withPause, getAutoPauseLevel } from '../../eventPause';
+import { applyMedienHaushaltKrise } from '../medien/medienklima';
+import { nextRandom } from '../../rng';
 
 /** Erstellt initiales Haushalt-Objekt */
 export function createInitialHaushalt(state: GameState): Haushalt {
@@ -289,7 +289,7 @@ export function checkLehmannSparvorschlag(state: GameState, complexity: number):
 /** SMA-310: Lehmann-Defizit-Startmemo in Monat 1 (auto_pause) */
 export function checkLehmannDefizitStart(
   state: GameState,
-  content: { charEvents?: Record<string, import('../types').GameEvent> },
+  content: { charEvents?: Record<string, import('../../types').GameEvent> },
   complexity: number,
 ): GameState {
   if (state.activeEvent) return state;

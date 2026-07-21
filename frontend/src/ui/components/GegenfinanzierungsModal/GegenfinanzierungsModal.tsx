@@ -5,7 +5,7 @@
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { GegenfinanzierungsOption } from '../../../core/systems/gegenfinanzierung';
+import type { GegenfinanzierungsOption } from '../../../core/systems/economics/gegenfinanzierung';
 import { Building2, Coins, BarChart3, Landmark, AlertTriangle } from '../../icons';
 import styles from './GegenfinanzierungsModal.module.css';
 

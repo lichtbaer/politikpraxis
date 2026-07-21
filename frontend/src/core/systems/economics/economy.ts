@@ -1,4 +1,4 @@
-import type { GameState, KPI, Approval, ZustOffsets } from '../types';
+import type { GameState, KPI, Approval, ZustOffsets } from '../../types';
 import {
   clamp,
   APPROVAL_BASE, APPROVAL_AL_FAKTOR, APPROVAL_HH_FAKTOR, APPROVAL_GI_FAKTOR, APPROVAL_ZF_FAKTOR,
@@ -13,8 +13,8 @@ import {
   KPI_GI_DRIFT_CHANCE, KPI_GI_DRIFT_BIAS, KPI_GI_DRIFT_MAGNITUDE,
   KPI_ZF_DRIFT_CHANCE, KPI_ZF_DRIFT_BIAS, KPI_ZF_DRIFT_MAGNITUDE,
   KPI_ZF_VERFALL, KPI_ZF_ERHOLUNG_SCHWELLE, KPI_ZF_ERHOLUNG,
-} from '../constants';
-import { nextRandom } from '../rng';
+} from '../../constants';
+import { nextRandom } from '../../rng';
 
 /**
  * Berechnet Zustimmungswerte aus KPI-Werten.

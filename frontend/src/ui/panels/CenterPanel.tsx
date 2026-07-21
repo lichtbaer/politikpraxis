@@ -8,7 +8,7 @@ import { getViewMinLevel } from '../components/EbenenTabBar/tabs';
 import { EventCard } from '../components/EventCard/EventCard';
 import { GegenfinanzierungsModal } from '../components/GegenfinanzierungsModal/GegenfinanzierungsModal';
 import { PartnerWiderstandModal } from '../components/PartnerWiderstandModal/PartnerWiderstandModal';
-import type { GegenfinanzierungsOption } from '../../core/systems/gegenfinanzierung';
+import type { GegenfinanzierungsOption } from '../../core/systems/economics/gegenfinanzierung';
 import { GesetzAgendaView } from '../views/GesetzAgendaView';
 import { BundestagView } from '../views/BundestagView';
 import { KabinettView } from '../views/KabinettView';

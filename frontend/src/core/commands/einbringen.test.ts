@@ -7,7 +7,7 @@ import {
   partnerWiderstandKoalitionsverhandlungCommand,
 } from './einbringen';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
-import type { GegenfinanzierungsOption } from '../systems/gegenfinanzierung';
+import type { GegenfinanzierungsOption } from '../systems/economics/gegenfinanzierung';
 
 const AUSRICHTUNG = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 

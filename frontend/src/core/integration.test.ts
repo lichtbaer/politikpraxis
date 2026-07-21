@@ -6,7 +6,7 @@ import { tick } from './engine';
 import { einbringen } from './systems/parliament';
 import { applyMilieuEffekte } from './systems/medien/milieus';
 import { berechneWahlprognose } from './systems/medien/wahlprognose';
-import { triggerHaushaltsdebatte } from './systems/haushalt';
+import { triggerHaushaltsdebatte } from './systems/economics/haushalt';
 import type { GameState, ContentBundle, Law } from './types';
 
 function createInitialState(): GameState {

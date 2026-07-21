@@ -4,7 +4,7 @@ import { withPause, getAutoPauseLevel } from '../eventPause';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { applyMoodChange } from './characters';
-import { scheduleEffects } from './economy';
+import { scheduleEffects } from './economics/economy';
 import { berechneKongruenz } from '../ideologie';
 import { MILIEU_TO_ZUST } from '../constants';
 import {

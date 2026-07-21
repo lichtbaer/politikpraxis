@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { recalcApproval, applyPendingEffects, applyKPIDrift, scheduleEffects, decayZustOffsets, addZustOffset } from './economy';
-import { makeState } from '../test-helpers';
-import { ZUST_OFFSET_MAX, ZUST_OFFSET_DECAY } from '../constants';
-import type { KPI, Approval } from '../types';
+import { makeState } from '../../test-helpers';
+import { ZUST_OFFSET_MAX, ZUST_OFFSET_DECAY } from '../../constants';
+import type { KPI, Approval } from '../../types';
 
 function makeKpi(overrides: Partial<KPI> = {}): KPI {
   return { al: 5, hh: 1, gi: 30, zf: 55, ...overrides };
