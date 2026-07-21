@@ -12,6 +12,7 @@ from starlette.responses import Response
 
 from app.config import get_settings
 from app.limiter import limiter
+from app.observability import configure_logging, configure_sentry
 from app.routes import (
     admin,
     analytics,
@@ -25,13 +26,10 @@ from app.routes import (
     usertest_feedback,
 )
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s %(message)s",
-)
-logger = logging.getLogger("bundesrepublik")
-
 settings = get_settings()
+configure_logging(settings)
+configure_sentry(settings)
+logger = logging.getLogger("bundesrepublik")
 
 
 @asynccontextmanager

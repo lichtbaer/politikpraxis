@@ -151,9 +151,12 @@ mkdocs build          # Static build to site/
 - `SMTP_*` — Email configuration for magic links
 - `DEBUG` — Enable debug mode
 - `CONTENT_DIR` — Game content directory
+- `SENTRY_DSN` / `SENTRY_ENVIRONMENT` / `SENTRY_TRACES_SAMPLE_RATE` — Optional error tracking (no-op if `SENTRY_DSN` unset), see `docs/entwicklung/observability.md`
+- `LOG_JSON` — Force structured JSON logs on/off (default: on unless `DEBUG`)
 
 ### Frontend (`frontend/.env`, see `.env.example`)
 - `VITE_API_URL` — Backend API base URL (e.g., `http://localhost:8000/api`)
+- `VITE_SENTRY_DSN` / `VITE_SENTRY_ENVIRONMENT` — Optional error tracking (no-op if `VITE_SENTRY_DSN` unset)
 
 ## Code Conventions
 
