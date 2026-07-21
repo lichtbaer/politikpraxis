@@ -84,9 +84,10 @@ async def request_logging(request: Request, call_next: Callable) -> Response:
 async def security_headers(request: Request, call_next: Callable) -> Response:
     response = await call_next(request)
     if request.url.path.startswith("/api"):
-        response.headers["Strict-Transport-Security"] = (
-            "max-age=31536000; includeSubDomains"
-        )
+        if get_settings().effective_cookie_secure:
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains"
+            )
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["X-Frame-Options"] = "DENY"

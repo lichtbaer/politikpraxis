@@ -3,6 +3,8 @@ Route-Tests für /api/auth/* — die meisten Tests benötigen keine Datenbank
 (400/422-Validierungsfehler, 401-Auth-Fehler).
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
 from httpx import AsyncClient
 from tests.conftest import requires_db
@@ -42,6 +44,26 @@ async def test_register_invalid_email_format(client: AsyncClient):
     assert r.status_code == 422
 
 
+@pytest.mark.asyncio
+async def test_register_password_over_72_bytes_422(client: AsyncClient):
+    """Passwort >72 Byte (bcrypt-Grenze) → 422 statt 500."""
+    r = await client.post(
+        "/api/auth/register",
+        json={"email": "test@example.com", "password": "a" * 100},
+    )
+    assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_register_password_over_72_bytes_multibyte_422(client: AsyncClient):
+    """73 Multi-Byte-Zeichen (ä = 2 Byte UTF-8) → >72 Byte, aber ≤72 Zeichen → 422."""
+    r = await client.post(
+        "/api/auth/register",
+        json={"email": "test@example.com", "password": "ä" * 73},
+    )
+    assert r.status_code == 422
+
+
 # ---------------------------------------------------------------------------
 # POST /api/auth/login
 # ---------------------------------------------------------------------------
@@ -65,6 +87,16 @@ async def test_login_missing_email(client: AsyncClient):
 async def test_login_missing_password(client: AsyncClient):
     """Kein Passwort → 422."""
     r = await client.post("/api/auth/login", json={"email": "test@example.com"})
+    assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_login_password_over_72_bytes_422(client: AsyncClient):
+    """Passwort >72 Byte → 422 statt 500 (bcrypt.checkpw würde sonst ValueError werfen)."""
+    r = await client.post(
+        "/api/auth/login",
+        json={"email": "test@example.com", "password": "a" * 100},
+    )
     assert r.status_code == 422
 
 
@@ -189,6 +221,40 @@ async def test_password_reset_confirm_missing_fields(client: AsyncClient):
     """Fehlende Pflichtfelder → 422."""
     r = await client.post("/api/auth/password-reset/confirm", json={"token": "abc"})
     assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_password_reset_confirm_password_over_72_bytes_422(client: AsyncClient):
+    """Neues Passwort >72 Byte → 422."""
+    r = await client.post(
+        "/api/auth/password-reset/confirm",
+        json={"token": "abc", "new_password": "a" * 100},
+    )
+    assert r.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# GET /api/auth/magic-link/verify — Rate-Limit
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_magic_link_verify_rate_limit_429(client: AsyncClient):
+    """Über dem Limit (20/Minute) → 429.
+
+    `consume_magic_link_token` wird gemockt, damit der Test unabhängig von
+    einer echten DB-Verbindung läuft — es geht hier nur um den Rate-Limit,
+    nicht um die Token-Validierung selbst.
+    """
+    with patch(
+        "app.routes.auth.consume_magic_link_token",
+        new=AsyncMock(return_value=None),
+    ):
+        last_status = None
+        for _ in range(21):
+            r = await client.get("/api/auth/magic-link/verify", params={"token": "x"})
+            last_status = r.status_code
+        assert last_status == 429
 
 
 # ---------------------------------------------------------------------------
