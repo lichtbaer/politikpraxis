@@ -137,3 +137,51 @@ jobs:
 
       - name: Check API types are in sync with backend schema
         run: cd frontend && npm run check:api-types
+
+  alembic-migrations:
+    # Issue #255: verhindert erneute parallele Alembic-Heads und stellt sicher,
+    # dass die komplette Migrationshistorie gegen eine leere DB durchläuft.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: bundesrepublik_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DEBUG: "1"
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/bundesrepublik_ci
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install backend
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install -r backend/requirements.txt
+
+      - name: Check for a single Alembic head
+        run: |
+          cd backend
+          heads="$(alembic heads)"
+          echo "$heads"
+          head_count="$(echo "$heads" | grep -c .)"
+          if [ "$head_count" -ne 1 ]; then
+            echo "::error::Erwartet genau einen Alembic-Head, gefunden: $head_count. Siehe docs/entwicklung/db-migrationen.md"
+            exit 1
+          fi
+
+      - name: Upgrade empty DB to head
+        run: cd backend && alembic upgrade head
