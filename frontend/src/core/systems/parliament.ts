@@ -1,13 +1,13 @@
 import type { GameState, Ideologie, Law, ContentBundle } from '../types';
 import type { GesetzRelation } from '../types';
 import { withPause } from '../eventPause';
-import { scheduleEffects } from './economy';
+import { scheduleEffects } from './economics/economy';
 import { addLog } from '../engine';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from './kongruenz';
 import { applyMoodChange } from './characters';
 import { applyMilieuEffekte } from './medien/milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
-import { applyGesetzKosten } from './haushalt';
+import { applyGesetzKosten } from './economics/haushalt';
 import { checkProaktiveErfuellung } from './ministerAgenden';
 import { getVorstufenBoni } from './gesetzLebenszyklus';
 import { featureActive } from './features';

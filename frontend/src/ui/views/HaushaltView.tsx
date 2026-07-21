@@ -8,7 +8,7 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
-import { berechneSchuldenbremseVerbrauchtMrd, checkSchuldenbremse } from '../../core/systems/haushalt';
+import { berechneSchuldenbremseVerbrauchtMrd, checkSchuldenbremse } from '../../core/systems/economics/haushalt';
 import { SCHULDENBREMSE_SPIELRAUM_BASIS } from '../../core/constants';
 import { formatMrdSaldo, normalizeZero } from '../../utils/format';
 import type { SchuldenbremsenStatus, Verband, Haushalt, SteuerContent } from '../../core/types';

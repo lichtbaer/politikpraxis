@@ -13,7 +13,7 @@ import {
   WIRTSCHAFT_SEKTOR_NAME_DE,
   WIRTSCHAFT_SEKTOR_VERBAND_IDS,
   WIRTSCHAFT_INDIKATOREN_START_SNAPSHOT,
-} from '../../../core/systems/wirtschaft';
+} from '../../../core/systems/economics/wirtschaft';
 import styles from './WirtschaftsDashboard.module.css';
 
 type IndikatorKey = 'bip' | 'inflation' | 'arbeitslosigkeit' | 'investitionsklima';

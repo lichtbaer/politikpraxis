@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
-import { checkSchuldenbremse } from '../../../core/systems/haushalt';
+import { checkSchuldenbremse } from '../../../core/systems/economics/haushalt';
 import { formatMrdSaldo, normalizeZero } from '../../../utils/format';
 import type { SchuldenbremsenStatus } from '../../../core/types';
 import { Check, AlertTriangle } from '../../icons';

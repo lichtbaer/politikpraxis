@@ -8,8 +8,8 @@
 import type { GameState, LawEffects, ContentBundle } from '../types';
 import { addLog } from '../engine';
 import { verbrauchePK } from '../pk';
-import { scheduleEffects } from './economy';
-import { applyGesetzKosten } from './haushalt';
+import { scheduleEffects } from './economics/economy';
+import { applyGesetzKosten } from './economics/haushalt';
 import { applyMilieuEffekte } from './medien/milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { checkProaktiveErfuellung } from './ministerAgenden';

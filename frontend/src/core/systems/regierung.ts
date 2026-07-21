@@ -18,7 +18,7 @@ import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
 import { adjustMedienKlimaGlobal } from './medien/medienklima';
 import { applyMoodChange } from './characters';
-import { recalcApproval } from './economy';
+import { recalcApproval } from './economics/economy';
 
 const PK_REGIERUNGSERKLAERUNG = 30;
 const PK_VERTRAUENSFRAGE = 40;

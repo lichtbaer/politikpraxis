@@ -1,14 +1,14 @@
 /**
  * Reine Haushaltsberechnungen (ohne Seiteneffekte) — SMA-404: von wirtschaft.ts nutzbar ohne Zyklus zu haushalt.ts.
  */
-import type { GameState } from '../types';
+import type { GameState } from '../../types';
 import {
   EINNAHMEN_BASIS,
   PFLICHTAUSGABEN_BASIS,
   EINNAHMEN_AL_REFERENZ,
   EINNAHMEN_AL_KOEFFIZIENT,
   EINNAHMEN_KONJUNKTUR_KOEFFIZIENT,
-} from '../constants';
+} from '../../constants';
 
 export function berechneEinnahmen(state: GameState): number {
   const haushalt = state.haushalt;

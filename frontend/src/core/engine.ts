@@ -5,7 +5,7 @@ import {
   HISTORY_MAX_MONTHS, KPI_HISTORY_MAX_MONTHS, MAX_LOG_ENTRIES,
   MISSTRAUENSVOTUM_MONATE, trimHistory, MEDIEN_KLIMA_DEFAULT,
 } from './constants';
-import { applyPendingEffects, applyKPIDrift, recalcApproval, decayZustOffsets, roundKpi } from './systems/economy';
+import { applyPendingEffects, applyKPIDrift, recalcApproval, decayZustOffsets, roundKpi } from './systems/economics/economy';
 import { berechneWahlprognose } from './systems/medien/wahlprognose';
 import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
 import { updateCoalitionStability } from './systems/coalition';
@@ -33,8 +33,8 @@ import {
   checkLehmannDefizitStart,
   checkHaushaltskrise,
   triggerHaushaltsdebatte,
-} from './systems/haushalt';
-import { tickWirtschaft } from './systems/wirtschaft';
+} from './systems/economics/haushalt';
+import { tickWirtschaft } from './systems/economics/wirtschaft';
 import { tickGesetzVorstufen } from './systems/gesetzLebenszyklus';
 import {
   checkWahlkampfBeginn,
