@@ -32,6 +32,12 @@ jobs:
       - name: Mypy
         run: cd backend && mypy app
 
+      - name: Content validation (YAML-Kreuzvalidierung, dateibasiert)
+        run: cd backend && python scripts/validate_content.py
+
+      - name: Frontend content drift check (testContent.ts vs. DB/YAML, #244)
+        run: cd backend && python scripts/check_frontend_content_drift.py
+
       - name: pip-audit (dependency security check)
         # PYSEC-2026-1325 (ecdsa/Minerva): no upstream fix; transitive via python-jose.
         # Removal tracked in #253 (migrate to PyJWT).
