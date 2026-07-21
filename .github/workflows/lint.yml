@@ -64,6 +64,50 @@ jobs:
       - name: npm audit (dependency security check)
         run: cd frontend && npm audit --audit-level=critical
 
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks (secret scanning)
+        run: |
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest \
+            detect --source /repo --no-git -v --redact
+
+  container-scan:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: backend
+            context: backend
+            dockerfile: backend/Dockerfile.prod
+          - name: frontend
+            context: frontend
+            dockerfile: frontend/Dockerfile.prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.name }} image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: false
+          load: true
+          tags: politikpraxis-${{ matrix.name }}:scan
+
+      - name: Trivy scan (${{ matrix.name }})
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: politikpraxis-${{ matrix.name }}:scan
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+          ignore-unfixed: true
+
   api-types-drift:
     # Stellt sicher, dass die generierten FE-API-Typen zum Backend-OpenAPI-Schema
     # passen (Issue #227, Typ-Contract). Drift lässt den Build fehlschlagen.
