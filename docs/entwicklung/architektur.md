@@ -155,6 +155,15 @@ Alle `fetch_*`-Funktionen sowie `get_game_content_from_db` in `content_db_servic
 
 **Bekannter Trade-off:** Der Cache liegt in Prozess-Memory. Bei mehreren Uvicorn-Workern (`backend/Dockerfile.prod`, `--workers 2`) hat jeder Worker seinen eigenen Cache — `content_cache_clear()` nach einem Admin-Write leert nur den Cache des Workers, der den Request bearbeitet hat. Die übrigen Worker liefern bis zu `CACHE_TTL` (1h) veralteten Content aus, bis ihr eigener Cache regulär abläuft. Für Admin-Content-Änderungen (seltene, manuelle Aktion) wird dies bewusst in Kauf genommen statt eine geteilte Cache-Infrastruktur (Redis o. ä.) einzuführen; sollte die TTL-Verzögerung zum Problem werden, ist ein geteilter Cache mit Pub/Sub-Invalidierung der nächste Schritt (siehe auch #231 zu geteiltem Storage für Rate-Limits — eine gemeinsame Redis-Instanz könnte beide Themen lösen).
 
+### DB-Connection-Pool & Stats-Indizes
+
+Die async Engine (`app/db/database.py`) wird mit explizitem Pooling betrieben (`DB_POOL_SIZE`, `DB_MAX_OVERFLOW`, `DB_POOL_RECYCLE_SECONDS`, `DB_POOL_PRE_PING` in `config.py`/`.env`) statt SQLAlchemy-Defaults — wichtig bei mehreren Uvicorn-Workern und um nach DB-Neustarts/Idle-Timeouts keine toten Connections auszuliefern (`pool_pre_ping`).
+
+`game_stats` (`models/game_stat.py`) trägt partielle Indizes (`WHERE opt_in_community`), da `stats_service.get_community_stats()`/`get_highscores()` ausschließlich mit `opt_in_community=true` filtern:
+
+- `ix_game_stats_community` auf `(partei, gewonnen, complexity)` (bereits seit SMA-343) — trägt die Gruppierung nach Partei in `get_community_stats()`.
+- `ix_game_stats_optin_wahlprognose` auf `(opt_in_community, wahlprognose, created_at)` — trägt die Sortierung nach Wahlprognose/Datum in `get_highscores()`.
+
 ---
 
 ## CI/CD
