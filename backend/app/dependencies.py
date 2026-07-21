@@ -57,7 +57,11 @@ async def get_optional_user(
     user_id = decode_token(credentials.credentials)
     if not user_id:
         return None
-    result = await db.execute(select(User).where(User.id == UUID(user_id)))
+    try:
+        user_uuid = UUID(user_id)
+    except ValueError:
+        return None
+    result = await db.execute(select(User).where(User.id == user_uuid))
     user = result.scalar_one_or_none()
     if not user or not user.is_active:
         return None

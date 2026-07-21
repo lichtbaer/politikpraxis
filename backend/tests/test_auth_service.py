@@ -12,9 +12,11 @@ from app.services.auth_service import (
     _refresh_cookie_value,
     create_access_token,
     decode_token,
+    get_current_user,
     validate_password_strength,
 )
 from fastapi import HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 from jose import jwt
 
 settings = get_settings()
@@ -70,6 +72,21 @@ def test_decode_token_wrong_secret_returns_none():
     )
     result = decode_token(token_with_wrong_secret)
     assert result is None
+
+
+# ---------------------------------------------------------------------------
+# get_current_user
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_get_current_user_invalid_uuid_sub_raises_401():
+    """sub ist gültig signiert, aber kein UUID-Format → 401 statt 500."""
+    token = create_access_token("not-a-uuid")
+    credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+    with pytest.raises(HTTPException) as exc_info:
+        await get_current_user(credentials=credentials, db=None)
+    assert exc_info.value.status_code == 401
 
 
 # ---------------------------------------------------------------------------
