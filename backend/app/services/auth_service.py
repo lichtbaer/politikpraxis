@@ -6,9 +6,9 @@ import time
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
+import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -55,7 +55,7 @@ def decode_token(token: str) -> str | None:
             token, settings.secret_key, algorithms=[settings.algorithm]
         )
         return payload.get("sub")
-    except JWTError:
+    except jwt.PyJWTError:
         return None
 
 
