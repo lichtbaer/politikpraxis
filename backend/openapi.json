@@ -182,6 +182,7 @@
           "save_id": {
             "anyOf": [
               {
+                "format": "uuid",
                 "type": "string"
               },
               {
@@ -204,33 +205,14 @@
             "title": "Avg Approval",
             "type": "number"
           },
-          "avg_game_duration_months": {
-            "title": "Avg Game Duration Months",
-            "type": "number"
-          },
-          "popular_laws": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Popular Laws",
-            "type": "array"
-          },
           "total_games": {
             "title": "Total Games",
             "type": "integer"
-          },
-          "win_rate": {
-            "title": "Win Rate",
-            "type": "number"
           }
         },
         "required": [
           "total_games",
-          "avg_approval",
-          "win_rate",
-          "popular_laws",
-          "avg_game_duration_months"
+          "avg_approval"
         ],
         "title": "AnalyticsSummaryResponse",
         "type": "object"
@@ -4487,6 +4469,7 @@
           "game_stat_id": {
             "anyOf": [
               {
+                "format": "uuid",
                 "type": "string"
               },
               {

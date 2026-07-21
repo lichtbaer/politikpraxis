@@ -15,7 +15,7 @@ async def record_events(
         db.add(
             AnalyticsEvent(
                 user_id=user_id,
-                save_id=UUID(ev["save_id"]) if ev.get("save_id") else None,
+                save_id=ev.get("save_id"),
                 event_type=ev["event_type"],
                 payload=ev.get("payload", {}),
                 game_month=ev.get("game_month", 0),
@@ -46,7 +46,4 @@ async def get_summary(db: AsyncSession) -> dict:
     return {
         "total_games": total_games,
         "avg_approval": round(float(avg_approval), 1),
-        "win_rate": 0,
-        "popular_laws": [],
-        "avg_game_duration_months": 0,
     }
