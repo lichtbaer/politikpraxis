@@ -64,7 +64,7 @@ async def submit_feedback(
         sonstiges=req.sonstiges or None,
     )
     db.add(entry)
-    await db.commit()
+    await db.flush()
     await db.refresh(entry)
 
     asyncio.create_task(

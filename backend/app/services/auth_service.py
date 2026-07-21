@@ -281,7 +281,18 @@ async def purge_expired_magic_links(db: AsyncSession) -> None:
     await db.execute(delete(MagicLink).where(MagicLink.expires_at < datetime.now(UTC)))
 
 
+_last_refresh_token_purge: float = 0.0
+_REFRESH_TOKEN_PURGE_INTERVAL_SECONDS = 600  # alle 10 Minuten statt bei jedem /refresh
+
+
 async def purge_expired_refresh_tokens(db: AsyncSession) -> None:
+    """Lazy/intervallbasiert statt bei jedem /refresh: löscht abgelaufene
+    Refresh-Tokens höchstens alle _REFRESH_TOKEN_PURGE_INTERVAL_SECONDS."""
+    global _last_refresh_token_purge
+    now = time.time()
+    if now - _last_refresh_token_purge < _REFRESH_TOKEN_PURGE_INTERVAL_SECONDS:
+        return
+    _last_refresh_token_purge = now
     await db.execute(
         delete(RefreshToken).where(RefreshToken.expires_at < datetime.now(UTC))
     )
