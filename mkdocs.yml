@@ -43,6 +43,7 @@ nav:
     - Lokales Setup: entwicklung/setup.md
     - Projektstruktur: entwicklung/projektstruktur.md
     - Architektur: entwicklung/architektur.md
+    - DB-Migrationen (Alembic): entwicklung/db-migrationen.md
     - Balance-Simulation: entwicklung/balance-simulation.md
     - Verbesserungsplan: entwicklung/verbesserungsplan.md
     - CI/CD: ci-cd.md
