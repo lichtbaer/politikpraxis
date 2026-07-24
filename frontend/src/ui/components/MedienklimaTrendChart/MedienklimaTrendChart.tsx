@@ -5,8 +5,9 @@
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
+import { echarts } from '../../lib/echarts';
 import { formatMedienklima } from '../../lib/medienDisplay';
 import styles from './MedienklimaTrendChart.module.css';
 
@@ -181,7 +182,8 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
           </span>
         </div>
       </div>
-      <ReactECharts
+      <ReactEChartsCore
+        echarts={echarts}
         option={option}
         theme="politikpraxis"
         style={{ width: '100%', height: 130 }}

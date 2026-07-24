@@ -4,8 +4,9 @@
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
+import { echarts } from '../lib/echarts';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { berechneSchuldenbremseVerbrauchtMrd, checkSchuldenbremse } from '../../core/systems/haushalt';
@@ -374,7 +375,8 @@ export function HaushaltView() {
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>{t('haushalt.saldoVerlauf', 'Saldo-Verlauf (letzte 12 Monate)')}</h2>
-        <ReactECharts
+        <ReactEChartsCore
+          echarts={echarts}
           option={chartOption}
           theme="politikpraxis"
           style={{ width: '100%', height: 160 }}

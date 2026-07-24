@@ -4,8 +4,9 @@
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
+import { echarts } from '../../lib/echarts';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { AlertTriangle } from '../../icons';
@@ -102,7 +103,8 @@ export function MedienklimaSektion() {
         </div>
         {showChart && (
           <div className={styles.chartWrap}>
-            <ReactECharts
+            <ReactEChartsCore
+              echarts={echarts}
               option={chartOption}
               theme="politikpraxis"
               style={{ width: '100%', height: 80 }}
