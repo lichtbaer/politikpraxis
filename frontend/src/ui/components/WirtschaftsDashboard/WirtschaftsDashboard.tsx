@@ -3,8 +3,9 @@
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
+import { echarts } from '../../lib/echarts';
 import { featureActive } from '../../../core/systems/features';
 import type { GameState, Verband } from '../../../core/types';
 import type { WirtschaftIndikatorenSnapshot } from '../../../core/types/wirtschaft';
@@ -162,7 +163,13 @@ function IndikatorVerlaufChart({
   return (
     <div className={styles.chartWrap}>
       <p className={styles.chartLabel}>{label}</p>
-      <ReactECharts option={option} theme="politikpraxis" style={{ width: '100%', height: 100 }} opts={{ renderer: 'canvas' }} />
+      <ReactEChartsCore
+        echarts={echarts}
+        option={option}
+        theme="politikpraxis"
+        style={{ width: '100%', height: 100 }}
+        opts={{ renderer: 'canvas' }}
+      />
     </div>
   );
 }

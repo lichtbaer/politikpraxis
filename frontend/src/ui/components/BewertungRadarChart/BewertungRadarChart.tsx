@@ -4,8 +4,9 @@
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
+import { echarts } from '../../lib/echarts';
 import styles from './BewertungRadarChart.module.css';
 
 interface Dimensionen {
@@ -127,7 +128,8 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
       <p className={styles.hint}>
         {t('bewertungRadar.hint')}
       </p>
-      <ReactECharts
+      <ReactEChartsCore
+        echarts={echarts}
         option={option}
         theme="politikpraxis"
         style={{ width: '100%', height: 260 }}

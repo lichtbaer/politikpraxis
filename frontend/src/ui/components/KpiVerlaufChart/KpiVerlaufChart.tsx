@@ -4,9 +4,10 @@
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import type { TFunction } from 'i18next';
+import { echarts } from '../../lib/echarts';
 import styles from './KpiVerlaufChart.module.css';
 
 interface KpiHistory {
@@ -243,7 +244,8 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
         )}
       </div>
       {data.length > 1 ? (
-        <ReactECharts
+        <ReactEChartsCore
+          echarts={echarts}
           option={option}
           theme="politikpraxis"
           style={{ width: '100%', height: 90 }}

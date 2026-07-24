@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import { useTranslation } from 'react-i18next';
+import { echarts } from '../../lib/echarts';
 import styles from './ApprovalChart.module.css';
 
 interface ApprovalChartProps {
@@ -170,7 +171,8 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
         </div>
       )}
       <h4 className={styles.chartTitle}>{t('approvalChart.title')}</h4>
-      <ReactECharts
+      <ReactEChartsCore
+        echarts={echarts}
         option={option}
         theme="politikpraxis"
         style={{ width: '100%', height: 120 }}
