@@ -2739,7 +2739,8 @@
   "haushaltView": {
     "mrdUnit": "Mrd.",
     "verbraucht": "{{used}} / {{allowed}} Mrd. verbraucht",
-    "monatTooltip": "Monat {{month}}: <b>{{value}}</b>"
+    "monatTooltip": "Monat {{month}}: <b>{{value}}</b>",
+    "saldoVerlaufAriaLabel": "Haushaltssaldo-Verlauf, letzte {{count}} Monate: von {{first}} auf {{last}}. Trend: {{trend}}."
   },
   "eventCard": {
     "nichtGenugPk": "Nicht genug PK ({{current}}/{{cost}})",

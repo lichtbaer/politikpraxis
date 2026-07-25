@@ -303,6 +303,20 @@ export function HaushaltView() {
     }],
   }), [chartSaldoData, chartMonatLabels, haushaltSaldo, t]);
 
+  const saldoChartAriaLabel = useMemo(() => {
+    const first = chartSaldoData[0];
+    const last = chartSaldoData[chartSaldoData.length - 1];
+    const diff = last - first;
+    const trend =
+      Math.abs(diff) < 0.05 ? t('a11y.trendFlat') : diff > 0 ? t('a11y.trendUp') : t('a11y.trendDown');
+    return t('haushaltView.saldoVerlaufAriaLabel', {
+      count: chartSaldoData.length,
+      first: formatMrdSaldo(first),
+      last: formatMrdSaldo(last),
+      trend,
+    });
+  }, [chartSaldoData, t]);
+
   if (!haushalt || complexity < 2) {
     return (
       <div className={styles.root}>
@@ -375,13 +389,15 @@ export function HaushaltView() {
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>{t('haushalt.saldoVerlauf', 'Saldo-Verlauf (letzte 12 Monate)')}</h2>
-        <ReactEChartsCore
-          echarts={echarts}
-          option={chartOption}
-          theme="politikpraxis"
-          style={{ width: '100%', height: 160 }}
-          opts={{ renderer: 'canvas' }}
-        />
+        <div role="img" aria-label={saldoChartAriaLabel} style={{ width: '100%' }}>
+          <ReactEChartsCore
+            echarts={echarts}
+            option={chartOption}
+            theme="politikpraxis"
+            style={{ width: '100%', height: 160 }}
+            opts={{ renderer: 'canvas' }}
+          />
+        </div>
       </section>
 
       {featureActive(complexity, 'wirtschaftssektoren') && state.wirtschaft && (

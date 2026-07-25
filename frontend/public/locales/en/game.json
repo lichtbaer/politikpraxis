@@ -2741,7 +2741,8 @@
   "haushaltView": {
     "mrdUnit": "bn",
     "verbraucht": "{{used}} / {{allowed}} bn used",
-    "monatTooltip": "Month {{month}}: <b>{{value}}</b>"
+    "monatTooltip": "Month {{month}}: <b>{{value}}</b>",
+    "saldoVerlaufAriaLabel": "Budget balance trend, last {{count}} months: from {{first}} to {{last}}. Trend: {{trend}}."
   },
   "eventCard": {
     "nichtGenugPk": "Not enough PK ({{current}}/{{cost}})",
