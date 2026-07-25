@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { LegalPageShell } from './LegalPageShell';
-import { fetchHighscores, type HighscoreItem } from '../../services/stats';
+import { fetchHighscores } from '../../services/stats';
 import { toBcp47 } from '../lib/locale';
 
 const PARTEIEN = ['sdp', 'cdp', 'gp', 'ldp', 'lp'] as const;
@@ -10,30 +11,13 @@ export function HighscoresPage() {
   const { t, i18n } = useTranslation('common');
   const [partei, setPartei] = useState<string>('sdp');
   const [complexity, setComplexity] = useState<number | ''>('');
-  const [items, setItems] = useState<HighscoreItem[]>([]);
-  const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    let c = false;
-    void (async () => {
-      try {
-        const res = await fetchHighscores(
-          partei,
-          complexity === '' ? undefined : complexity,
-          25,
-        );
-        if (!c) {
-          setItems(res.items);
-          setErr(null);
-        }
-      } catch (e) {
-        if (!c) setErr(e instanceof Error ? e.message : String(e));
-      }
-    })();
-    return () => {
-      c = true;
-    };
-  }, [partei, complexity]);
+  const { data, error } = useQuery({
+    queryKey: ['highscores', partei, complexity],
+    queryFn: () => fetchHighscores(partei, complexity === '' ? undefined : complexity, 25),
+  });
+  const items = data?.items ?? [];
+  const err = error ? (error instanceof Error ? error.message : String(error)) : null;
 
   return (
     <LegalPageShell title={t('highscores.pageTitle')}>

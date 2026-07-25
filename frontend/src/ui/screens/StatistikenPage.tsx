@@ -1,27 +1,15 @@
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
 import { LegalPageShell } from './LegalPageShell';
-import { fetchCommunityStats, type CommunityStats } from '../../services/stats';
+import { fetchCommunityStats } from '../../services/stats';
 
 export function StatistikenPage() {
   const { t } = useTranslation('common');
-  const [data, setData] = useState<CommunityStats | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-
-  useEffect(() => {
-    let c = false;
-    void (async () => {
-      try {
-        const s = await fetchCommunityStats();
-        if (!c) setData(s);
-      } catch (e) {
-        if (!c) setErr(e instanceof Error ? e.message : String(e));
-      }
-    })();
-    return () => {
-      c = true;
-    };
-  }, []);
+  const { data, error } = useQuery({
+    queryKey: ['communityStats'],
+    queryFn: fetchCommunityStats,
+  });
+  const err = error ? (error instanceof Error ? error.message : String(error)) : null;
 
   return (
     <LegalPageShell title={t('stats.pageTitle')}>
