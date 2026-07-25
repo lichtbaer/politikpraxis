@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { featureActive } from '../../../core/systems/features';
-import { getVorstufenBoni } from '../../../core/systems/gesetzLebenszyklus';
+import { getVorstufenBoni } from '../../../core/systems/legislation/gesetzLebenszyklus';
 import { bewerteEURoute } from '../../../core/systems/eu';
 import type { Law } from '../../../core/types';
 import { X as XIcon, AlertTriangle } from '../../icons';

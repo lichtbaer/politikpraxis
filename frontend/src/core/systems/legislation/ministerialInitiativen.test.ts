@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { checkMinisterialInitiativen } from './ministerialInitiativen';
-import type { GameState, Character, MinisterialInitiative } from '../types';
+import type { GameState, Character, MinisterialInitiative } from '../../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   const char: Character = {

@@ -50,7 +50,7 @@ import {
   startLaenderPilot,
   startEUInitiativeAlsVorstufe,
   abbrechenVorstufe,
-} from '../core/systems/gesetzLebenszyklus';
+} from '../core/systems/legislation/gesetzLebenszyklus';
 import {
   staedtebuendnis,
   kommunalKonferenz,
@@ -70,7 +70,7 @@ import {
 } from '../core/systems/medien/medienklima';
 import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
-import { vermittlungsausschuss } from '../core/systems/vermittlung';
+import { vermittlungsausschuss } from '../core/systems/legislation/vermittlung';
 import { regierungserklaerung, vertrauensfrage } from '../core/systems/regierung';
 import { useUIStore } from './uiStore';
 

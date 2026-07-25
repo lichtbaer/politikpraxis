@@ -9,7 +9,7 @@ import { applyMilieuEffekte } from './medien/milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { applyGesetzKosten } from './economics/haushalt';
 import { checkProaktiveErfuellung } from './ministerAgenden';
-import { getVorstufenBoni } from './gesetzLebenszyklus';
+import { getVorstufenBoni } from './legislation/gesetzLebenszyklus';
 import { featureActive } from './features';
 import { applyEUKofinanzierung } from './eu';
 import {
