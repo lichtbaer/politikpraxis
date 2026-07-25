@@ -2,6 +2,7 @@
 
 import pytest
 from app.services.content_db_service import (
+    CACHE_TTL,
     _hash_content,
     content_cache_clear,
     get_game_content_from_db,
@@ -86,6 +87,13 @@ async def test_get_game_content_from_db_cache_invalidated_by_content_cache_clear
         assert session.execute_calls > calls_after_first
     finally:
         content_cache_clear()
+
+
+def test_cache_ttl_is_short_worker_staleness_trade_off():
+    """#249: Statt eines geteilten Caches (Redis/Pub-Sub) begrenzt eine kurze TTL
+    das worker-übergreifende Staleness-Fenster nach einem Admin-Write auf einem
+    anderen Worker bewusst auf wenige Sekunden statt bis zu 1h."""
+    assert CACHE_TTL <= 120
 
 
 @pytest.mark.asyncio

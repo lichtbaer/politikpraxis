@@ -46,12 +46,23 @@ from app.models.medien_akteur import MedienAkteur, MedienAkteurI18n
 # Erweiterung: neue Sprache hier ergänzen + PgEnum-Migration + Frontend-Locale-Dateien
 VALID_LOCALES = frozenset({"de", "en"})
 LOCALE_FALLBACK = {"en": "de", "de": "en"}
-CACHE_TTL = 3600  # 1 Stunde
+# #249: Der Cache lebt in Prozess-Memory. `content_cache_clear()` (nach Admin-Writes)
+# invalidiert deshalb nur den Worker, der den Write bearbeitet hat — bei
+# `--workers 2` (backend/Dockerfile.prod) sehen andere Worker weiterhin den alten
+# Eintrag, bis er von selbst abläuft. Statt eines geteilten Caches (Redis/Pub-Sub,
+# eigene Infra-Abhängigkeit) wird das als bewusster Trade-off über eine kurze TTL
+# begrenzt: veralteter Content ist worker-übergreifend maximal CACHE_TTL Sekunden
+# sichtbar. Sollte dieses Zeitfenster zu grob werden, ist ein geteilter Cache
+# (siehe #231, gemeinsamer Storage für Rate-Limits) der nächste Schritt.
+CACHE_TTL = 60  # Sekunden — bewusst kurz, siehe Kommentar oben (#249)
 _content_cache: dict[tuple[str, str], tuple[Any, float]] = {}
 
 
 def content_cache_clear() -> None:
-    """Leert den Content-Cache (z.B. nach Admin-Schreiboperationen)."""
+    """Leert den Content-Cache (z.B. nach Admin-Schreiboperationen).
+
+    Wirkt nur im aktuellen Worker-Prozess — siehe CACHE_TTL-Kommentar.
+    """
     _content_cache.clear()
 
 
