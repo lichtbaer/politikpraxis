@@ -245,3 +245,54 @@
   font-size: 0.75rem;
   opacity: 0.8;
 }
+
+.parteienList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.parteiRow {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr 6.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.parteiRowUnterHuerde {
+  opacity: 0.55;
+}
+
+.parteiBarTrack {
+  height: 10px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--border) 60%, transparent);
+  overflow: hidden;
+}
+
+.parteiBarFill {
+  display: block;
+  height: 100%;
+  background: color-mix(in srgb, var(--gold) 70%, #666);
+  border-radius: 5px;
+}
+
+.koalitionOptionen {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.koalitionOption {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.koalitionOptionMehrheit {
+  border-color: var(--gold);
+}

@@ -12,6 +12,11 @@ import {
   berechneTopPolitikfeld,
 } from '../../core/auswertung';
 import { getKoalitionspartner } from '../../core/systems/koalition';
+import {
+  berechneWahlnachtParteienErgebnis,
+  berechneWahlnachtKoalitionsoptionen,
+  WAHLNACHT_SPERRKLAUSEL_PROZENT,
+} from '../../core/systems/election/wahlnachtParteien';
 import { checkAchievements, getAllAchievements } from '../../core/systems/achievements';
 import { useGameStore } from '../../store/gameStore';
 import { useAuthStore } from '../../store/authStore';
@@ -60,6 +65,16 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
   const wahlUeberHuerde = state.wahlUeberHuerde ?? (wahlergebnis >= threshold);
   const top3 = berechneTop3Gesetze(state);
   const topPf = berechneTopPolitikfeld(state);
+
+  // Issue #266: Leichtes Verhältniswahl-Modell — nur ab Stufe 3, reine Auswertung/Präsentation.
+  const parteienErgebnis = useMemo(
+    () => (complexity >= 3 ? berechneWahlnachtParteienErgebnis(state, wahlergebnis) : []),
+    [complexity, state, wahlergebnis],
+  );
+  const koalitionsoptionen = useMemo(
+    () => berechneWahlnachtKoalitionsoptionen(parteienErgebnis),
+    [parteienErgebnis],
+  );
 
   const milieuLabel = useCallback(
     (id: string) => {
@@ -294,6 +309,68 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
           {t('game:auswertung.koalition', 'Koalition: {{partner}}', { partner: partnerName })}
         </p>
       </div>
+
+      {parteienErgebnis.length > 0 && (
+        <div className={styles.block}>
+          <h3>{t('game:auswertung.blockParteien', 'Wahlnacht: Parteien-Ergebnis')}</h3>
+          <p className={styles.muted}>
+            {t(
+              'game:auswertung.parteienHuerdeHinweis',
+              'Parteien unter {{schwelle}} % Stimmenanteil scheitern an der Sperrklausel und erhalten keine Sitze.',
+              { schwelle: WAHLNACHT_SPERRKLAUSEL_PROZENT },
+            )}
+          </p>
+          <div className={styles.parteienList}>
+            {parteienErgebnis.map((p) => (
+              <div
+                key={p.id}
+                className={`${styles.parteiRow} ${!p.ueberHuerde ? styles.parteiRowUnterHuerde : ''}`}
+              >
+                <span>{p.kuerzel}</span>
+                <span className={styles.parteiBarTrack}>
+                  <span
+                    className={styles.parteiBarFill}
+                    style={{ width: `${Math.min(100, p.stimmenanteil)}%` }}
+                  />
+                </span>
+                <span>
+                  {p.stimmenanteil.toFixed(1)}%
+                  {!p.ueberHuerde && ` (${t('game:auswertung.unterHuerde', 'unter Hürde')})`}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {koalitionsoptionen.length > 0 && (
+            <>
+              <p className={styles.muted}>
+                {t('game:auswertung.koalitionsoptionenHinweis', 'Mögliche Koalitionen nach der Wahl:')}
+              </p>
+              <div className={styles.koalitionOptionen}>
+                {koalitionsoptionen.map((option) => (
+                  <div
+                    key={option.partnerIds.join('-')}
+                    className={`${styles.koalitionOption} ${option.mehrheitsfaehig ? styles.koalitionOptionMehrheit : ''}`}
+                  >
+                    {t(
+                      'game:auswertung.koalitionsoptionZeile',
+                      '{{partei}} + {{partner}} — {{sitze}} % ({{status}})',
+                      {
+                        partei: spielerPartei?.kuerzel ?? '—',
+                        partner: option.partnerNamen.join(' + '),
+                        sitze: option.sitzanteilSumme.toFixed(1),
+                        status: option.mehrheitsfaehig
+                          ? t('game:auswertung.mehrheitsfaehig', 'mehrheitsfähig')
+                          : t('game:auswertung.keineMehrheit', 'keine Mehrheit'),
+                      },
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <div className={styles.block}>
         <h3>{t('game:auswertung.blockBilanz', 'Regierungsbilanz')}</h3>
