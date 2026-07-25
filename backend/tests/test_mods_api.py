@@ -21,15 +21,23 @@ async def client():
 async def auth_token():
     """Registriert einen einzelnen Test-User für alle Mod-Tests dieses Moduls
     (nur eine Registrierung, um das 3/Minute-Rate-Limit von /api/auth/register
-    nicht zu strapazieren)."""
+    nicht zu strapazieren). Zusätzlich mit eigener X-Real-IP, damit das
+    prozessweit geteilte Limit nicht schon von Tests anderer Module (z. B.
+    test_auth_api.py) aufgebraucht ist — sonst schlägt diese Fixture je nach
+    Testreihenfolge mit 429 fehl."""
     async with AsyncClient(
         transport=ASGITransport(app=app),
         base_url="http://test",
     ) as ac:
         email = f"mods-test-{uuid.uuid4().hex[:16]}@example.com"
+        real_ip = (
+            f"10.{uuid.uuid4().int % 250}.{uuid.uuid4().int % 250}"
+            f".{uuid.uuid4().int % 250}"
+        )
         r = await ac.post(
             "/api/auth/register",
             json={"email": email, "password": "supersecret123"},
+            headers={"X-Real-IP": real_ip},
         )
         assert r.status_code == 200, r.text
         return r.json()["access_token"]

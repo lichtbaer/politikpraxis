@@ -6,9 +6,9 @@ import time
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
+import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -55,7 +55,7 @@ def decode_token(token: str) -> str | None:
             token, settings.secret_key, algorithms=[settings.algorithm]
         )
         return payload.get("sub")
-    except JWTError:
+    except jwt.PyJWTError:
         return None
 
 
@@ -69,7 +69,14 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
-    result = await db.execute(select(User).where(User.id == UUID(user_id)))
+    try:
+        user_uuid = UUID(user_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        ) from exc
+
+    result = await db.execute(select(User).where(User.id == user_uuid))
     user = result.scalar_one_or_none()
     if not user or not user.is_active:
         raise HTTPException(
@@ -78,13 +85,26 @@ async def get_current_user(
     return user
 
 
+BCRYPT_MAX_PASSWORD_BYTES = 72
+
+
+def _validate_bcrypt_byte_length(password: str) -> None:
+    """bcrypt schneidet nach 72 Byte ab; neuere Versionen werfen darüber ValueError."""
+    if len(password.encode("utf-8")) > BCRYPT_MAX_PASSWORD_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Passwort darf höchstens {BCRYPT_MAX_PASSWORD_BYTES} Byte lang sein",
+        )
+
+
 def validate_password_strength(password: str) -> None:
-    """Mindestlänge 8 — weitere Regeln absichtlich nicht."""
+    """Mindestlänge 8, max. 72 Byte (bcrypt-Grenze) — weitere Regeln absichtlich nicht."""
     if len(password) < 8:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Passwort muss mindestens 8 Zeichen haben",
         )
+    _validate_bcrypt_byte_length(password)
 
 
 async def purge_expired_password_reset_tokens(db: AsyncSession) -> None:
@@ -157,6 +177,7 @@ async def register_user(db: AsyncSession, email: str, password: str) -> User:
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
 
+    validate_password_strength(password)
     user = User(email=email, password_hash=hash_password(password))
     db.add(user)
     await db.flush()
@@ -185,7 +206,9 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
             detail=f"Account gesperrt. Bitte warte noch {remaining} Minute(n).",
         )
 
-    if not verify_password(password, user.password_hash):
+    if len(password.encode("utf-8")) > BCRYPT_MAX_PASSWORD_BYTES or not verify_password(
+        password, user.password_hash
+    ):
         user.failed_login_attempts += 1
         if user.failed_login_attempts >= _LOGIN_LOCKOUT_THRESHOLD:
             user.locked_until = now + timedelta(minutes=_LOGIN_LOCKOUT_MINUTES)

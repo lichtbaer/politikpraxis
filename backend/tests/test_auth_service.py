@@ -5,6 +5,7 @@ Unit-Tests für auth_service.py — nur reine/sync Funktionen, kein DB erforderl
 import time
 from uuid import UUID
 
+import jwt
 import pytest
 from app.config import get_settings
 from app.services.auth_service import (
@@ -15,7 +16,6 @@ from app.services.auth_service import (
     validate_password_strength,
 )
 from fastapi import HTTPException
-from jose import jwt
 
 settings = get_settings()
 
@@ -94,6 +94,23 @@ def test_validate_password_strength_exactly_8_ok():
 
 def test_validate_password_strength_long_ok():
     validate_password_strength("ein-sehr-langes-passwort-123")  # kein Exception
+
+
+def test_validate_password_strength_exactly_72_bytes_ok():
+    validate_password_strength("a" * 72)  # kein Exception
+
+
+def test_validate_password_strength_73_bytes_raises():
+    with pytest.raises(HTTPException) as exc_info:
+        validate_password_strength("a" * 73)
+    assert exc_info.value.status_code == 400
+
+
+def test_validate_password_strength_73_bytes_multibyte_raises():
+    """Multibyte-Zeichen zählen nach UTF-8-Byte, nicht nach Zeichenanzahl."""
+    with pytest.raises(HTTPException) as exc_info:
+        validate_password_strength("ü" * 37)  # 37 * 2 Byte = 74 Byte, 37 Zeichen
+    assert exc_info.value.status_code == 400
 
 
 # ---------------------------------------------------------------------------

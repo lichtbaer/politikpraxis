@@ -86,7 +86,9 @@ async def request_magic_link(
 
 
 @router.get("/magic-link/verify")
+@limiter.limit("20 per minute")
 async def verify_magic_link(
+    request: Request,
     token: str,
     db: AsyncSession = Depends(get_db),
 ):
