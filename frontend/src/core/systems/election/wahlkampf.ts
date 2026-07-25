@@ -175,6 +175,17 @@ function noteFromPunkte(punkte: number): LegislaturBilanzNote {
   return 'F';
 }
 
+/**
+ * SMA-267: Deckel für die Bilanz-Punkte, wenn in der gesamten Legislatur kein einziges
+ * Gesetz beschlossen wurde. Ohne diesen Deckel kann eine komplett untätige Regierung allein
+ * durch "nichts kaputt gemacht" (stabile Koalition, ausgeglichener Haushalt, geringe
+ * Milieu-Spreizung) fast die volle Bilanz-Punktzahl erreichen — vor allem auf Stufe 1, wo
+ * kaum ein System aktiv genug ist, um Passivität von sich aus zu bestrafen. Eine Regierung
+ * ohne eine einzige Reform hat historisch nichts vorzuweisen, unabhängig davon, wie ruhig es
+ * sonst zuging (analog zu URTEIL_OHNE_GESETZE beim historischen Urteil).
+ */
+export const BILANZ_OHNE_GESETZE_MAX = 15;
+
 export interface BilanzNoteErgebnis {
   bilanzPunkte: number;
   bilanzNote: LegislaturBilanzNote;
@@ -198,7 +209,7 @@ export function berechneBilanzNote(
   const zusammenhalt = scoreMilieuZusammenhalt(state);
   const reformTiefe = scoreReformTiefe(bilanz.reformTiefe ?? 'mittel');
 
-  const bilanzPunkte = Math.min(
+  const bilanzPunkteRoh = Math.min(
     100,
     gesetze +
       politikfelder +
@@ -208,6 +219,11 @@ export function berechneBilanzNote(
       zusammenhalt +
       reformTiefe,
   );
+  // SMA-267: Ohne einen einzigen Beschluss deckeln — siehe BILANZ_OHNE_GESETZE_MAX.
+  const bilanzPunkte =
+    bilanz.gesetzeBeschlossen === 0
+      ? Math.min(bilanzPunkteRoh, BILANZ_OHNE_GESETZE_MAX)
+      : bilanzPunkteRoh;
   return {
     bilanzPunkte,
     bilanzNote: noteFromPunkte(bilanzPunkte),

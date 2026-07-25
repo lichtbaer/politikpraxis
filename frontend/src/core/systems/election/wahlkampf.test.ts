@@ -12,6 +12,7 @@ import {
   berechneWahlergebnis,
   resolveTVDuell,
   triggerWahlnacht,
+  BILANZ_OHNE_GESETZE_MAX,
 } from './wahlkampf';
 
 describe('wahlkampf', () => {
@@ -54,12 +55,29 @@ describe('wahlkampf', () => {
       d.koalition +
       d.zusammenhalt +
       d.reformTiefe;
-    expect(sum).toBe(scored.bilanzPunkte);
+    // SMA-267: bilanzPunkteDetail zeigt die rohen Teilscores; ohne einen einzigen
+    // Beschluss wird die Summe zusätzlich auf BILANZ_OHNE_GESETZE_MAX gedeckelt
+    // (Reformverweigerungs-Malus — eine untätige Regierung bekommt keine gute Bilanz
+    // allein dafür, "nichts kaputt gemacht" zu haben).
+    if (bilanz.gesetzeBeschlossen === 0) {
+      expect(scored.bilanzPunkte).toBe(Math.min(sum, BILANZ_OHNE_GESETZE_MAX));
+    } else {
+      expect(sum).toBe(scored.bilanzPunkte);
+    }
     if (scored.bilanzPunkte >= 80) expect(scored.bilanzNote).toBe('A');
     else if (scored.bilanzPunkte >= 60) expect(scored.bilanzNote).toBe('B');
     else if (scored.bilanzPunkte >= 40) expect(scored.bilanzNote).toBe('C');
     else if (scored.bilanzPunkte >= 20) expect(scored.bilanzNote).toBe('D');
     else expect(scored.bilanzNote).toBe('F');
+  });
+
+  it('berechneBilanzNote: Reformverweigerungs-Malus deckelt Bilanz ohne jeden Beschluss (SMA-267)', () => {
+    const state = createInitialState(content, complexity);
+    const bilanz = berechneLegislaturBilanz(state, content);
+    expect(bilanz.gesetzeBeschlossen).toBe(0);
+    const scored = berechneBilanzNote(bilanz, state);
+    expect(scored.bilanzPunkte).toBeLessThanOrEqual(BILANZ_OHNE_GESETZE_MAX);
+    expect(scored.bilanzNote).toBe('F');
   });
 
   it('finalisiereLegislaturBilanzAmSpielende setzt bilanzPunkte und bilanzNote', () => {
