@@ -1,7 +1,17 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Numeric, Text, func
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    Text,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -10,6 +20,19 @@ from app.db.database import Base
 
 class GameStat(Base):
     __tablename__ = "game_stats"
+    __table_args__ = (
+        # ix_game_stats_community (partei, gewonnen, complexity) WHERE
+        # opt_in_community trägt bereits die Gruppierung nach partei in
+        # get_community_stats(). Für get_highscores() fehlte bislang ein
+        # Index für ORDER BY wahlprognose DESC, created_at DESC.
+        Index(
+            "ix_game_stats_optin_wahlprognose",
+            "opt_in_community",
+            "wahlprognose",
+            "created_at",
+            postgresql_where=text("opt_in_community"),
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
