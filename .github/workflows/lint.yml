@@ -21,13 +21,13 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: backend/requirements.txt
+          cache-dependency-path: backend/requirements-dev.txt
 
       - name: Install backend dependencies
         run: |
           cd backend
           pip install --upgrade pip setuptools wheel
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Pytest
         # No Postgres service here yet (tracked separately in #343) — DB-dependent
@@ -121,7 +121,7 @@ jobs:
         include:
           - name: backend
             context: backend
-            dockerfile: backend/Dockerfile.prod
+            dockerfile: backend/Dockerfile
           - name: frontend
             context: frontend
             dockerfile: frontend/Dockerfile.prod
@@ -215,7 +215,7 @@ jobs:
       - name: Install backend
         run: |
           pip install --upgrade pip setuptools wheel
-          pip install -r backend/requirements.txt
+          pip install -r backend/requirements-dev.txt
 
       - name: Check for a single Alembic head
         run: |

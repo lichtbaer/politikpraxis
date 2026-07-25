@@ -48,7 +48,7 @@ VALID_LOCALES = frozenset({"de", "en"})
 LOCALE_FALLBACK = {"en": "de", "de": "en"}
 # #249: Der Cache lebt in Prozess-Memory. `content_cache_clear()` (nach Admin-Writes)
 # invalidiert deshalb nur den Worker, der den Write bearbeitet hat — bei
-# `--workers 2` (backend/Dockerfile.prod) sehen andere Worker weiterhin den alten
+# `--workers 2` (docker-compose.prod.yml) sehen andere Worker weiterhin den alten
 # Eintrag, bis er von selbst abläuft. Statt eines geteilten Caches (Redis/Pub-Sub,
 # eigene Infra-Abhängigkeit) wird das als bewusster Trade-off über eine kurze TTL
 # begrenzt: veralteter Content ist worker-übergreifend maximal CACHE_TTL Sekunden
