@@ -11,6 +11,7 @@ import { useGameStore } from './gameStore';
 import { makeState, makeLaw } from '../core/test-helpers';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { seedRng } from '../core/rng';
+import type { SpielerParteiState } from '../core/types';
 
 const DEFAULT_AUSRICHTUNG = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 
@@ -151,7 +152,7 @@ describe('gameStore — Save/Load/Reset', () => {
   });
 
   it('resetGame({ keepPartei: true }) behält die gewählte Partei', () => {
-    const partei = { id: 'sdp', kuerzel: 'SDP', farbe: '#000', name: 'Sozialdemokratische Partei' };
+    const partei: SpielerParteiState = { id: 'sdp', kuerzel: 'SDP', farbe: '#000', name: 'Sozialdemokratische Partei' };
     useGameStore.setState({ spielerPartei: partei });
 
     useGameStore.getState().resetGame({ keepPartei: true });
