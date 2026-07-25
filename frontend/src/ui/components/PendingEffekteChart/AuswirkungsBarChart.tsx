@@ -8,6 +8,7 @@ import {
   type AuswirkungsChartDaten,
   tintBarSegmentColor,
 } from '../../lib/pendingAuswirkungsChartDaten';
+import { ChartFigure } from '../ChartFigure/ChartFigure';
 import styles from './AuswirkungsBarChart.module.css';
 
 export interface AuswirkungsBarChartProps {
@@ -214,17 +215,27 @@ export function AuswirkungsBarChart({
     };
   }, [daten, effektTyp, einheit, t, xLabels, currentMonth]);
 
+  const ariaLabel = useMemo(() => {
+    const totalEffekt = daten.gesamteffekt[effektTyp][daten.gesamteffekt[effektTyp].length - 1] ?? 0;
+    return t('pendingEffekte.chartAriaLabel', {
+      label: effektLabel,
+      total: formatValue(totalEffekt, einheit),
+    });
+  }, [t, daten, effektTyp, effektLabel, einheit]);
+
   return (
     <div className={styles.wrap}>
       <div className={styles.chartTitle}>{effektLabel}</div>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 168 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge
-      />
+      <ChartFigure ariaLabel={ariaLabel}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 168 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge
+        />
+      </ChartFigure>
     </div>
   );
 }

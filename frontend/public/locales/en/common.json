@@ -235,5 +235,10 @@
   "offline": {
     "banner": "Offline mode: server unreachable — simplified game content, saves are stored locally only.",
     "retry": "Reconnect"
+  },
+  "a11y": {
+    "trendUp": "rising",
+    "trendDown": "falling",
+    "trendStable": "stable"
   }
 }

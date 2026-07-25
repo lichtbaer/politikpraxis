@@ -11,6 +11,7 @@ import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { AlertTriangle } from '../../icons';
 import { formatMedienklima } from '../../lib/medienDisplay';
+import { ChartFigure } from '../ChartFigure/ChartFigure';
 import styles from './MedienklimaSektion.module.css';
 
 // Matches --gold token (#c8a84a) — ECharts can't consume CSS variables directly
@@ -103,14 +104,16 @@ export function MedienklimaSektion() {
         </div>
         {showChart && (
           <div className={styles.chartWrap}>
-            <ReactEChartsCore
-              echarts={echarts}
-              option={chartOption}
-              theme="politikpraxis"
-              style={{ width: '100%', height: 80 }}
-              opts={{ renderer: 'canvas' }}
-              notMerge={false}
-            />
+            <ChartFigure ariaLabel={t('game:medienklima.sektionAriaLabel', { value: mkRounded })}>
+              <ReactEChartsCore
+                echarts={echarts}
+                option={chartOption}
+                theme="politikpraxis"
+                style={{ width: '100%', height: 80 }}
+                opts={{ renderer: 'canvas' }}
+                notMerge={false}
+              />
+            </ChartFigure>
           </div>
         )}
         {featureActive(complexity, 'opposition') && (

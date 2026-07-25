@@ -9,6 +9,7 @@ import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
 import { formatMedienklima } from '../../lib/medienDisplay';
+import { ChartFigure } from '../ChartFigure/ChartFigure';
 import styles from './MedienklimaTrendChart.module.css';
 
 interface MedienklimaTrendChartProps {
@@ -29,7 +30,7 @@ function getMKStatusKey(value: number): string {
 }
 
 export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChartProps) {
-  const { t } = useTranslation('game');
+  const { t } = useTranslation(['game', 'common']);
   const historyRounded = useMemo(() => history.map((v) => Math.round(v)), [history]);
   const currentRounded = Math.round(current);
   const statusColor = getMKStatusColor(currentRounded);
@@ -150,13 +151,23 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
   // Trend
   let trendSymbol = '→';
   let trendClass = styles.trendFlat;
+  let trendKey: 'trendUp' | 'trendDown' | 'trendStable' = 'trendStable';
   if (historyRounded.length >= 2) {
     const lookback = Math.min(3, historyRounded.length - 1);
     const prev = historyRounded[historyRounded.length - 1 - lookback];
     const diff = currentRounded - prev;
-    if (diff > 2) { trendSymbol = '↑'; trendClass = styles.trendUp; }
-    else if (diff < -2) { trendSymbol = '↓'; trendClass = styles.trendDown; }
+    if (diff > 2) { trendSymbol = '↑'; trendClass = styles.trendUp; trendKey = 'trendUp'; }
+    else if (diff < -2) { trendSymbol = '↓'; trendClass = styles.trendDown; trendKey = 'trendDown'; }
   }
+
+  const ariaLabel = useMemo(
+    () => t('medienklima.verlaufAriaLabel', {
+      value: currentRounded,
+      status: statusLabel,
+      trend: t(`common:a11y.${trendKey}`),
+    }),
+    [t, currentRounded, statusLabel, trendKey],
+  );
 
   if (historyRounded.length === 0) {
     return (
@@ -182,14 +193,16 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
           </span>
         </div>
       </div>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 130 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      <ChartFigure ariaLabel={ariaLabel}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 130 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </ChartFigure>
       <p className={styles.caption}>
         {t('medienklima.caption')}
       </p>

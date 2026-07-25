@@ -1479,7 +1479,8 @@
     "steuerquoteErhoehen": "+2 bn/year revenue",
     "steuerquoteSenken": "-3 bn/year revenue",
     "steuerquotePk": "15 PK required",
-    "verbandsForderungen": "Association budget demands"
+    "verbandsForderungen": "Association budget demands",
+    "saldoVerlaufAriaLabel": "Budget balance trend over the last 12 months, currently {{value}}"
   },
   "eu": {
     "klimaTitle": "EU climate scores",
@@ -2249,7 +2250,9 @@
     "markKritisch": "Critical 40",
     "oppositionStark": "Strong",
     "oppositionAktiv": "Active",
-    "oppositionSchwach": "Weak"
+    "oppositionSchwach": "Weak",
+    "verlaufAriaLabel": "Media climate trend: currently {{value}} out of 100, {{status}}, {{trend}}",
+    "sektionAriaLabel": "Media climate trend over recent months, currently {{value}} out of 100"
   },
   "koalition": {
     "partner": "Coalition partner",
@@ -2678,7 +2681,8 @@
     "title": "Election forecast trend",
     "monatTooltip": "Month {{month}}: {{value}}%",
     "targetLineLabel": "Election target {{percent}}%",
-    "current": "Current:"
+    "current": "Current:",
+    "ariaLabel": "Approval rating trend: currently {{value}}%, {{trend}}, election target {{threshold}}%"
   },
   "vorstufeBadge": {
     "restMonate": "({{count}} mo left)"
@@ -2727,7 +2731,8 @@
     "ref": {
       "nullwachstum": "Zero growth",
       "ezb2": "ECB target 2%"
-    }
+    },
+    "chartAriaLabel": "{{label}} trend over the last 12 months, currently {{value}}"
   },
   "haushaltView": {
     "mrdUnit": "bn",
@@ -2817,7 +2822,8 @@
       "desc": "General population satisfaction with the government.",
       "impact": "Low satisfaction lowers the election forecast directly and reduces PK regeneration.",
       "target": "Target 50%"
-    }
+    },
+    "sparkAriaLabel": "{{label}} trend: currently {{value}}{{unit}}, {{trend}}"
   },
   "pendingEffekte": {
     "noData": "No pending law effects.",
@@ -2854,7 +2860,8 @@
     "zf": {
       "label": "Satisfaction",
       "desc": "Population satisfaction — higher is better"
-    }
+    },
+    "chartAriaLabel": "{{label}} trend of planned law effects over the coming months, total effect {{total}}"
   },
   "bewertungRadar": {
     "hint": "Hover for details on each dimension",
@@ -2878,7 +2885,8 @@
     "effizienz": {
       "label": "Efficiency",
       "desc": "Laws passed relative to political capital spent"
-    }
+    },
+    "ariaLabel": "Term evaluation: Democracy {{demokratie}}, Economy {{wirtschaft}}, Society {{gesellschaft}}, Communication {{kommunikation}}, Efficiency {{effizienz}}, each out of 100"
   },
   "shortcuts": {
     "title": "Keyboard shortcuts",
@@ -2903,7 +2911,8 @@
     "tensions": "Tensions emerging",
     "crisis": "Coalition crisis looming",
     "atLimit": "Coalition at the limit",
-    "collapseWarning": "Coalition collapse imminent!"
+    "collapseWarning": "Coalition collapse imminent!",
+    "meterAriaLabel": "Coalition stability: {{value}}%, {{status}}"
   },
   "endScreen.milestones": {
     "lawsPassed": "{{count}} laws passed",
@@ -2920,7 +2929,8 @@
     "koalition": "Coalition",
     "neutral": "Neutral",
     "opposition": "Opposition",
-    "votes": "{{count}} votes"
+    "votes": "{{count}} votes",
+    "ariaLabel": "Bundesrat vote distribution: {{koalition}} coalition votes, {{neutral}} neutral, {{opposition}} opposition votes"
   },
   "begriffe": {
     "gini_index": {

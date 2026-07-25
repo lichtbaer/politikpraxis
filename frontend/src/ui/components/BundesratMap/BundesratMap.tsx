@@ -4,6 +4,7 @@ import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
 import type { BundesratLand } from '../../../core/types';
+import { ChartFigure } from '../ChartFigure/ChartFigure';
 import styles from './BundesratMap.module.css';
 
 const MAP_NAME = 'germany-bundeslaender';
@@ -115,18 +116,29 @@ export function BundesratMap({ laender }: BundesratMapProps) {
     return totals;
   }, [laender]);
 
+  const ariaLabel = useMemo(
+    () => t('bundesratMap.ariaLabel', {
+      koalition: voteTotals.koalition,
+      neutral: voteTotals.neutral,
+      opposition: voteTotals.opposition,
+    }),
+    [t, voteTotals],
+  );
+
   if (!mapReady) return <div className={styles.placeholder} />;
 
   return (
     <div className={styles.mapWrap}>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: '100%' }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      <ChartFigure ariaLabel={ariaLabel}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: '100%' }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </ChartFigure>
       <div className={styles.legend}>
         <span className={styles.legendItem} style={{ color: ALIGN_COLORS.koalition }}>
           ● {t('bundesratMap.koalition')} {voteTotals.koalition > 0 && <span className={styles.legendVotes}>{voteTotals.koalition}</span>}

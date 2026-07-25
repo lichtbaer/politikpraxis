@@ -1956,7 +1956,8 @@
     "steuerquoteErhoehen": "+2 Mrd./Jahr Einnahmen",
     "steuerquoteSenken": "-3 Mrd./Jahr Einnahmen",
     "steuerquotePk": "15 PK benötigt",
-    "verbandsForderungen": "Verbands-Haushaltsforderungen"
+    "verbandsForderungen": "Verbands-Haushaltsforderungen",
+    "saldoVerlaufAriaLabel": "Haushaltssaldo-Verlauf der letzten 12 Monate, aktuell {{value}}"
   },
   "politikfeldTooltip": {
     "druck": "Politikfeld-Druck: {{value}}/100",
@@ -2275,7 +2276,9 @@
     "markKritisch": "Kritisch 40",
     "oppositionStark": "Stark",
     "oppositionAktiv": "Aktiv",
-    "oppositionSchwach": "Schwach"
+    "oppositionSchwach": "Schwach",
+    "verlaufAriaLabel": "Medienklima-Verlauf: aktuell {{value}} von 100, {{status}}, {{trend}}",
+    "sektionAriaLabel": "Medienklima-Verlauf der letzten Monate, aktuell {{value}} von 100"
   },
   "glossar": {
     "title": "Glossar",
@@ -2676,7 +2679,8 @@
     "title": "Wahlprognose-Verlauf",
     "monatTooltip": "Monat {{month}}: {{value}}%",
     "targetLineLabel": "Wahlziel {{percent}}%",
-    "current": "Aktuell:"
+    "current": "Aktuell:",
+    "ariaLabel": "Wahlprognose-Verlauf: aktuell {{value}}%, {{trend}}, Wahlziel {{threshold}}%"
   },
   "vorstufeBadge": {
     "restMonate": "(noch {{count}} Mo)"
@@ -2725,7 +2729,8 @@
     "ref": {
       "nullwachstum": "Nullwachstum",
       "ezb2": "EZB-Ziel 2 %"
-    }
+    },
+    "chartAriaLabel": "{{label}}-Verlauf der letzten 12 Monate, aktuell {{value}}"
   },
   "haushaltView": {
     "mrdUnit": "Mrd.",
@@ -2815,7 +2820,8 @@
       "desc": "Allgemeine Bevölkerungszufriedenheit mit der Regierungsarbeit.",
       "impact": "Niedrige Zufriedenheit senkt die Wahlprognose direkt und reduziert die PK-Regeneration.",
       "target": "Ziel 50%"
-    }
+    },
+    "sparkAriaLabel": "{{label}}-Verlauf: aktuell {{value}}{{unit}}, {{trend}}"
   },
   "pendingEffekte": {
     "noData": "Keine ausstehenden Gesetz-Auswirkungen.",
@@ -2852,7 +2858,8 @@
     "zf": {
       "label": "Zufriedenheit",
       "desc": "Bevölkerungszufriedenheit — hoch ist besser"
-    }
+    },
+    "chartAriaLabel": "{{label}}-Verlauf der geplanten Gesetzesauswirkungen über die kommenden Monate, Gesamteffekt {{total}}"
   },
   "bewertungRadar": {
     "hint": "Hover für Details zu jeder Dimension",
@@ -2876,7 +2883,8 @@
     "effizienz": {
       "label": "Effizienz",
       "desc": "Beschlossene Gesetze im Verhältnis zum verbrauchten Politischen Kapital"
-    }
+    },
+    "ariaLabel": "Legislatur-Bewertung: Demokratie {{demokratie}}, Wirtschaft {{wirtschaft}}, Gesellschaft {{gesellschaft}}, Kommunikation {{kommunikation}}, Effizienz {{effizienz}} von je 100"
   },
   "shortcuts": {
     "title": "Tastaturkürzel",
@@ -2901,7 +2909,8 @@
     "tensions": "Spannungen erkennbar",
     "crisis": "Koalitionskrise droht",
     "atLimit": "Koalition am Limit",
-    "collapseWarning": "Koalitionsbruch droht!"
+    "collapseWarning": "Koalitionsbruch droht!",
+    "meterAriaLabel": "Koalitionsstabilität: {{value}}%, {{status}}"
   },
   "endScreen.milestones": {
     "lawsPassed": "{{count}} Gesetze beschlossen",
@@ -2918,7 +2927,8 @@
     "koalition": "Koalition",
     "neutral": "Neutral",
     "opposition": "Opposition",
-    "votes": "{{count}} Stimmen"
+    "votes": "{{count}} Stimmen",
+    "ariaLabel": "Bundesrat-Sitzverteilung: {{koalition}} Stimmen Koalition, {{neutral}} neutral, {{opposition}} Stimmen Opposition"
   },
   "begriffe": {
     "gini_index": {

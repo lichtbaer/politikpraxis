@@ -17,6 +17,7 @@ import { Check, AlertTriangle } from '../icons';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import { KpiVerlaufChart } from '../components/KpiVerlaufChart/KpiVerlaufChart';
 import { WirtschaftsDashboard } from '../components/WirtschaftsDashboard/WirtschaftsDashboard';
+import { ChartFigure } from '../components/ChartFigure/ChartFigure';
 import styles from './HaushaltView.module.css';
 
 /** Stabile Fallback-Referenz — vermeidet neues `[]` pro Render (exhaustive-deps / useMemo). */
@@ -375,13 +376,17 @@ export function HaushaltView() {
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>{t('haushalt.saldoVerlauf', 'Saldo-Verlauf (letzte 12 Monate)')}</h2>
-        <ReactEChartsCore
-          echarts={echarts}
-          option={chartOption}
-          theme="politikpraxis"
-          style={{ width: '100%', height: 160 }}
-          opts={{ renderer: 'canvas' }}
-        />
+        <ChartFigure
+          ariaLabel={t('haushalt.saldoVerlaufAriaLabel', { value: formatMrdSaldo(haushalt.saldo) })}
+        >
+          <ReactEChartsCore
+            echarts={echarts}
+            option={chartOption}
+            theme="politikpraxis"
+            style={{ width: '100%', height: 160 }}
+            opts={{ renderer: 'canvas' }}
+          />
+        </ChartFigure>
       </section>
 
       {featureActive(complexity, 'wirtschaftssektoren') && state.wirtschaft && (

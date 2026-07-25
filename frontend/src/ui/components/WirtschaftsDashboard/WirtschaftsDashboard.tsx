@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { ChartFigure } from '../ChartFigure/ChartFigure';
 import { featureActive } from '../../../core/systems/features';
 import type { GameState, Verband } from '../../../core/types';
 import type { WirtschaftIndikatorenSnapshot } from '../../../core/types/wirtschaft';
@@ -156,20 +157,29 @@ function buildIndikatorChartOption(
 function IndikatorVerlaufChart({
   option,
   label,
+  value,
 }: {
   option: EChartsOption;
   label: string;
+  value: string;
 }) {
+  const { t } = useTranslation('game');
+  const ariaLabel = useMemo(
+    () => t('wirtschaft.chartAriaLabel', { label, value }),
+    [t, label, value],
+  );
   return (
     <div className={styles.chartWrap}>
       <p className={styles.chartLabel}>{label}</p>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 100 }}
-        opts={{ renderer: 'canvas' }}
-      />
+      <ChartFigure ariaLabel={ariaLabel}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 100 }}
+          opts={{ renderer: 'canvas' }}
+        />
+      </ChartFigure>
     </div>
   );
 }
@@ -363,10 +373,26 @@ export function WirtschaftsDashboard({
         <section className={styles.panel}>
           <h3 className={styles.panelTitle}>{t('wirtschaft.verlaufTitle', 'Indikatoren-Verlauf (12 Monate)')}</h3>
           <div className={styles.chartsGrid}>
-            <IndikatorVerlaufChart option={chartOptBip} label={t('wirtschaft.indikator.bip')} />
-            <IndikatorVerlaufChart option={chartOptInf} label={t('wirtschaft.indikator.inflation')} />
-            <IndikatorVerlaufChart option={chartOptAl} label={t('wirtschaft.indikator.arbeitslosigkeit')} />
-            <IndikatorVerlaufChart option={chartOptInv} label={t('wirtschaft.indikator.investitionsklima')} />
+            <IndikatorVerlaufChart
+              option={chartOptBip}
+              label={t('wirtschaft.indikator.bip')}
+              value={`${w.bip_wachstum >= 0 ? '+' : ''}${w.bip_wachstum.toFixed(1)}%`}
+            />
+            <IndikatorVerlaufChart
+              option={chartOptInf}
+              label={t('wirtschaft.indikator.inflation')}
+              value={`${w.inflation.toFixed(1)}%`}
+            />
+            <IndikatorVerlaufChart
+              option={chartOptAl}
+              label={t('wirtschaft.indikator.arbeitslosigkeit')}
+              value={`${w.arbeitslosigkeit.toFixed(1)}%`}
+            />
+            <IndikatorVerlaufChart
+              option={chartOptInv}
+              label={t('wirtschaft.indikator.investitionsklima')}
+              value={`${Math.round(w.investitionsklima)}/100`}
+            />
           </div>
         </section>
       )}

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { ChartFigure } from '../ChartFigure/ChartFigure';
 import styles from './BewertungRadarChart.module.css';
 
 interface Dimensionen {
@@ -38,6 +39,17 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
   const values = useMemo(
     () => dimMeta.map((d) => dimensionen[d.key]),
     [dimensionen, dimMeta],
+  );
+
+  const ariaLabel = useMemo(
+    () => t('bewertungRadar.ariaLabel', {
+      demokratie: dimensionen.demokratie,
+      wirtschaft: dimensionen.wirtschaft,
+      gesellschaft: dimensionen.gesellschaft,
+      kommunikation: dimensionen.kommunikation,
+      effizienz: dimensionen.effizienz,
+    }),
+    [t, dimensionen],
   );
 
   const option: EChartsOption = useMemo(
@@ -128,14 +140,16 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
       <p className={styles.hint}>
         {t('bewertungRadar.hint')}
       </p>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 260 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      <ChartFigure ariaLabel={ariaLabel}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 260 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </ChartFigure>
       <div className={styles.dimLegend}>
         {dimMeta.map((d, i) => (
           <div key={d.key} className={styles.dimLegendItem}>

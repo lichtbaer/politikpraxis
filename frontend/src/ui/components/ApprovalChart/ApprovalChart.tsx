@@ -3,6 +3,7 @@ import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import { useTranslation } from 'react-i18next';
 import { echarts } from '../../lib/echarts';
+import { ChartFigure } from '../ChartFigure/ChartFigure';
 import styles from './ApprovalChart.module.css';
 
 interface ApprovalChartProps {
@@ -13,7 +14,7 @@ interface ApprovalChartProps {
 }
 
 export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChartProps) {
-  const { t } = useTranslation('game');
+  const { t } = useTranslation(['game', 'common']);
   const option: EChartsOption = useMemo(() => {
     const anchorMonth = currentMonth ?? (history.length > 0 ? history.length : 1);
     const startMonth = history.length > 0 ? Math.max(1, anchorMonth - history.length + 1) : 1;
@@ -144,13 +145,23 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
   // Trend: compare last value with value 3 positions back
   let trendSymbol = '→';
   let trendClass = styles.trendFlat;
+  let trendKey: 'trendUp' | 'trendDown' | 'trendStable' = 'trendStable';
   if (latestVal !== null && history.length >= 2) {
     const lookback = Math.min(3, history.length - 1);
     const prev = history[history.length - 1 - lookback];
     const diff = latestVal - prev;
-    if (diff > 1.5) { trendSymbol = '↑'; trendClass = styles.trendUp; }
-    else if (diff < -1.5) { trendSymbol = '↓'; trendClass = styles.trendDown; }
+    if (diff > 1.5) { trendSymbol = '↑'; trendClass = styles.trendUp; trendKey = 'trendUp'; }
+    else if (diff < -1.5) { trendSymbol = '↓'; trendClass = styles.trendDown; trendKey = 'trendDown'; }
   }
+
+  const ariaLabel = useMemo(
+    () => t('approvalChart.ariaLabel', {
+      value: latestVal !== null ? latestVal.toFixed(1) : '—',
+      trend: t(`common:a11y.${trendKey}`),
+      threshold,
+    }),
+    [t, latestVal, trendKey, threshold],
+  );
 
   return (
     <div className={styles.container}>
@@ -171,14 +182,16 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
         </div>
       )}
       <h4 className={styles.chartTitle}>{t('approvalChart.title')}</h4>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 120 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      <ChartFigure ariaLabel={ariaLabel}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 120 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </ChartFigure>
     </div>
   );
 }

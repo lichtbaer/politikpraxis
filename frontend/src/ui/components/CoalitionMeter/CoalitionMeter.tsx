@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { ChartFigure } from '../ChartFigure/ChartFigure';
 import styles from './CoalitionMeter.module.css';
 
 interface CoalitionMeterProps {
@@ -76,17 +77,26 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
   }), [clamped, color]);
 
   const isCritical = clamped < 25;
+  const ariaLabel = useMemo(
+    () => t('coalition.meterAriaLabel', {
+      value: Math.round(clamped),
+      status: t(getLabelKey(clamped)),
+    }),
+    [t, clamped],
+  );
 
   return (
     <div className={`${styles.root} ${isCritical ? styles.critical : ''}`}>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 100 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      <ChartFigure ariaLabel={ariaLabel}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 100 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </ChartFigure>
       <div className={styles.statusLabel} style={{ color }}>
         {isCritical && <span className={styles.warningIcon}>&#9888;</span>}
         {t(getLabelKey(clamped))}

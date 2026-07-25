@@ -8,6 +8,7 @@ import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import type { TFunction } from 'i18next';
 import { echarts } from '../../lib/echarts';
+import { ChartFigure } from '../ChartFigure/ChartFigure';
 import styles from './KpiVerlaufChart.module.css';
 
 interface KpiHistory {
@@ -202,7 +203,7 @@ interface KpiSparkProps {
 }
 
 function KpiSpark({ cfg, data }: KpiSparkProps) {
-  const { t } = useTranslation('game');
+  const { t } = useTranslation(['game', 'common']);
   const option = useMemo(() => buildSparkOption(cfg, data, t), [cfg, data, t]);
   const currentVal = data.length > 0 ? data[data.length - 1] : null;
   const good = currentVal !== null && isGood(cfg, currentVal);
@@ -211,6 +212,7 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
   // Trend
   let trendSymbol = '→';
   let trendGood = true;
+  let trendKey: 'trendUp' | 'trendDown' | 'trendStable' = 'trendStable';
   if (data.length >= 2) {
     const lookback = Math.min(3, data.length - 1);
     const prev = data[data.length - 1 - lookback];
@@ -218,8 +220,19 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
     if (Math.abs(diff) > 0.3) {
       trendSymbol = diff > 0 ? '↑' : '↓';
       trendGood = cfg.lowerBetter ? diff < 0 : diff > 0;
+      trendKey = diff > 0 ? 'trendUp' : 'trendDown';
     }
   }
+
+  const ariaLabel = useMemo(
+    () => t('kpiVerlauf.sparkAriaLabel', {
+      label,
+      value: currentVal !== null ? currentVal.toFixed(1) : '—',
+      unit: cfg.unit,
+      trend: t(`common:a11y.${trendKey}`),
+    }),
+    [t, label, currentVal, cfg.unit, trendKey],
+  );
 
   return (
     <div className={styles.sparkCard}>
@@ -244,14 +257,16 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
         )}
       </div>
       {data.length > 1 ? (
-        <ReactEChartsCore
-          echarts={echarts}
-          option={option}
-          theme="politikpraxis"
-          style={{ width: '100%', height: 90 }}
-          opts={{ renderer: 'canvas' }}
-          notMerge={false}
-        />
+        <ChartFigure ariaLabel={ariaLabel}>
+          <ReactEChartsCore
+            echarts={echarts}
+            option={option}
+            theme="politikpraxis"
+            style={{ width: '100%', height: 90 }}
+            opts={{ renderer: 'canvas' }}
+            notMerge={false}
+          />
+        </ChartFigure>
       ) : (
         <div className={styles.noData}>{t('kpiVerlauf.noData')}</div>
       )}
