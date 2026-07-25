@@ -14,7 +14,7 @@ Dieses Dokument richtet sich an AI-Coding-Agents (Cursor, GitHub Copilot, etc.) 
 
 | Bereich | Technologien |
 |---------|--------------|
-| **Frontend** | React 19, TypeScript, Vite, Phaser, Zustand, TanStack Query, i18next/react-i18next, react-router-dom |
+| **Frontend** | React 19, TypeScript, Vite, Zustand, TanStack Query, i18next/react-i18next, react-router-dom |
 | **Backend** | FastAPI, SQLAlchemy 2, asyncpg, Alembic, Pydantic |
 | **Infrastruktur** | Docker, PostgreSQL 16, nginx |
 
@@ -24,7 +24,7 @@ Dieses Dokument richtet sich an AI-Coding-Agents (Cursor, GitHub Copilot, etc.) 
 
 ```
 /
-├── frontend/          # React/TypeScript-Frontend (Vite, Phaser)
+├── frontend/          # React/TypeScript-Frontend (Vite)
 │   └── src/
 │       ├── core/      # Spiel-Logik (engine, state, types, systems)
 │       ├── store/     # Zustand-Stores (gameStore, uiStore, authStore)
@@ -33,8 +33,7 @@ Dieses Dokument richtet sich an AI-Coding-Agents (Cursor, GitHub Copilot, etc.) 
 │       ├── ui/        # React-Komponenten (layout, panels, views, screens, components, hooks)
 │       ├── data/      # Szenarien, Gesetze, Events, Charaktere
 │       ├── services/  # API, Auth, Content, Saves, Analytics, Mods
-│       ├── styles/    # global.css, tokens.css
-│       └── phaser/    # Phaser-Szenen
+│       └── styles/    # global.css, tokens.css
 ├── backend/           # FastAPI-Backend
 │   └── app/           # main, config, dependencies, routes, models, schemas, services, db, content
 ├── docs/              # MkDocs-Dokumentation

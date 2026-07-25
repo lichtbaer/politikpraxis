@@ -4,7 +4,7 @@
 
 ## 6.1 Aktuell
 
-- **Frontend:** React 19, TypeScript (strict), Vite, Zustand, Phaser (wo genutzt), i18next/react-i18next, TanStack Query, react-router-dom, CSS Modules
+- **Frontend:** React 19, TypeScript (strict), Vite, Zustand, i18next/react-i18next, TanStack Query, react-router-dom, CSS Modules
 - **Backend:** FastAPI, SQLAlchemy 2 (async, asyncpg), Alembic, Pydantic
 - **Infrastruktur:** Docker, PostgreSQL 16, nginx
 
