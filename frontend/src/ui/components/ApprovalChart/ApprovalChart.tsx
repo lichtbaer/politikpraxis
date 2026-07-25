@@ -144,13 +144,21 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
   // Trend: compare last value with value 3 positions back
   let trendSymbol = '→';
   let trendClass = styles.trendFlat;
+  let trendWord = t('a11y.trendFlat');
   if (latestVal !== null && history.length >= 2) {
     const lookback = Math.min(3, history.length - 1);
     const prev = history[history.length - 1 - lookback];
     const diff = latestVal - prev;
-    if (diff > 1.5) { trendSymbol = '↑'; trendClass = styles.trendUp; }
-    else if (diff < -1.5) { trendSymbol = '↓'; trendClass = styles.trendDown; }
+    if (diff > 1.5) { trendSymbol = '↑'; trendClass = styles.trendUp; trendWord = t('a11y.trendUp'); }
+    else if (diff < -1.5) { trendSymbol = '↓'; trendClass = styles.trendDown; trendWord = t('a11y.trendDown'); }
   }
+
+  const chartAriaLabel = t('approvalChart.ariaLabel', {
+    count: history.length,
+    value: latestVal !== null ? latestVal.toFixed(1) : '—',
+    threshold,
+    trend: trendWord,
+  });
 
   return (
     <div className={styles.container}>
@@ -171,14 +179,16 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
         </div>
       )}
       <h4 className={styles.chartTitle}>{t('approvalChart.title')}</h4>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 120 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      <div role="img" aria-label={chartAriaLabel} style={{ width: '100%' }}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 120 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </div>
     </div>
   );
 }

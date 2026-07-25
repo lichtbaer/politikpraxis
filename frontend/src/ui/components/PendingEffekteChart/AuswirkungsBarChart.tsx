@@ -214,17 +214,28 @@ export function AuswirkungsBarChart({
     };
   }, [daten, effektTyp, einheit, t, xLabels, currentMonth]);
 
+  const chartAriaLabel = useMemo(() => {
+    const total = daten.gesamteffekt[effektTyp].reduce((sum, v) => sum + v, 0);
+    return t('pendingEffekte.chartAriaLabel', {
+      label: effektLabel,
+      count: daten.monate.length,
+      total: formatValue(total, einheit),
+    });
+  }, [daten, effektTyp, effektLabel, einheit, t]);
+
   return (
     <div className={styles.wrap}>
       <div className={styles.chartTitle}>{effektLabel}</div>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 168 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge
-      />
+      <div role="img" aria-label={chartAriaLabel} style={{ width: '100%' }}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 168 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge
+        />
+      </div>
     </div>
   );
 }

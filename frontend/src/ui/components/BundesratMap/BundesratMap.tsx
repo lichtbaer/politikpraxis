@@ -115,18 +115,40 @@ export function BundesratMap({ laender }: BundesratMapProps) {
     return totals;
   }, [laender]);
 
+  const mapAriaLabel = t('bundesratMap.ariaLabel', {
+    koalition: voteTotals.koalition,
+    neutral: voteTotals.neutral,
+    opposition: voteTotals.opposition,
+    total: laender.length,
+  });
+
   if (!mapReady) return <div className={styles.placeholder} />;
 
   return (
     <div className={styles.mapWrap}>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: '100%' }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      <div role="img" aria-label={mapAriaLabel} style={{ width: '100%', height: '100%' }}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: '100%' }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </div>
+      <ul className="visually-hidden" aria-label={t('bundesratMap.detailsLabel')}>
+        {laender.map((land) => (
+          <li key={land.id}>
+            {t('bundesratMap.landItem', {
+              name: land.name,
+              votes: land.votes,
+              mp: land.mp,
+              party: land.party,
+              alignment: t(`bundesratMap.${land.alignment}`),
+            })}
+          </li>
+        ))}
+      </ul>
       <div className={styles.legend}>
         <span className={styles.legendItem} style={{ color: ALIGN_COLORS.koalition }}>
           ● {t('bundesratMap.koalition')} {voteTotals.koalition > 0 && <span className={styles.legendVotes}>{voteTotals.koalition}</span>}

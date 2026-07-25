@@ -106,14 +106,16 @@ export function MilieuBar({
           />
         </div>
         {showSparkline && sparklineOpt && (
-          <ReactEChartsCore
-            echarts={echarts}
-            option={sparklineOpt}
-            theme="politikpraxis"
-            style={{ width: 48, height: 18, flexShrink: 0 }}
-            opts={{ renderer: 'canvas' }}
-            notMerge={false}
-          />
+          <div aria-hidden="true">
+            <ReactEChartsCore
+              echarts={echarts}
+              option={sparklineOpt}
+              theme="politikpraxis"
+              style={{ width: 48, height: 18, flexShrink: 0 }}
+              opts={{ renderer: 'canvas' }}
+              notMerge={false}
+            />
+          </div>
         )}
       </div>
       {showFooter && (

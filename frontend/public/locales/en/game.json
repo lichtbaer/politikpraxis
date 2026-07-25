@@ -2249,7 +2249,9 @@
     "markKritisch": "Critical 40",
     "oppositionStark": "Strong",
     "oppositionAktiv": "Active",
-    "oppositionSchwach": "Weak"
+    "oppositionSchwach": "Weak",
+    "verlaufAriaLabel": "Media climate trend, last {{count}} months. Currently {{value}} out of 100 ({{status}}). Trend: {{trend}}.",
+    "sektionChartAriaLabel": "Media climate trend, last {{count}} months. Currently {{value}} out of 100."
   },
   "koalition": {
     "partner": "Coalition partner",
@@ -2674,11 +2676,17 @@
     "falling": "Falling",
     "changes": "Changes:"
   },
+  "a11y": {
+    "trendUp": "rising",
+    "trendDown": "falling",
+    "trendFlat": "stable"
+  },
   "approvalChart": {
     "title": "Election forecast trend",
     "monatTooltip": "Month {{month}}: {{value}}%",
     "targetLineLabel": "Election target {{percent}}%",
-    "current": "Current:"
+    "current": "Current:",
+    "ariaLabel": "Election forecast trend, last {{count}} months. Currently {{value}}%, target threshold {{threshold}}%. Trend: {{trend}}."
   },
   "vorstufeBadge": {
     "restMonate": "({{count}} mo left)"
@@ -2727,7 +2735,8 @@
     "ref": {
       "nullwachstum": "Zero growth",
       "ezb2": "ECB target 2%"
-    }
+    },
+    "chartAriaLabel": "{{label}} trend over {{count}} months: from {{first}} to {{last}}. Trend: {{trend}}."
   },
   "haushaltView": {
     "mrdUnit": "bn",
@@ -2795,6 +2804,7 @@
     "tooltipWert": "Value",
     "lowerBetter": "Lower is better",
     "higherBetter": "Higher is better",
+    "ariaLabel": "{{label}} trend, last {{count}} months. Currently {{value}}{{unit}}. Trend: {{trend}}.",
     "al": {
       "label": "Unemployment",
       "desc": "Share of unemployed in the labour force.",
@@ -2833,6 +2843,7 @@
     "gesetzLegendeAria": "Law colours for all charts",
     "summaryTitle": "Cumulative total effects (all months)",
     "summaryLine": "{{label}}: {{value}}",
+    "chartAriaLabel": "{{label}}: planned total effect over {{count}} months: {{total}}.",
     "unit": {
       "al": "%",
       "hh": " bn €",
@@ -2903,7 +2914,8 @@
     "tensions": "Tensions emerging",
     "crisis": "Coalition crisis looming",
     "atLimit": "Coalition at the limit",
-    "collapseWarning": "Coalition collapse imminent!"
+    "collapseWarning": "Coalition collapse imminent!",
+    "ariaLabel": "Coalition stability: {{value}}%, {{status}}."
   },
   "endScreen.milestones": {
     "lawsPassed": "{{count}} laws passed",
@@ -2920,7 +2932,10 @@
     "koalition": "Coalition",
     "neutral": "Neutral",
     "opposition": "Opposition",
-    "votes": "{{count}} votes"
+    "votes": "{{count}} votes",
+    "ariaLabel": "Bundesrat composition: {{koalition}} coalition votes, {{neutral}} neutral votes, {{opposition}} opposition votes, {{total}} states in total.",
+    "detailsLabel": "Vote distribution by state",
+    "landItem": "{{name}}: {{votes}} votes, {{mp}} ({{party}}), {{alignment}}"
   },
   "begriffe": {
     "gini_index": {

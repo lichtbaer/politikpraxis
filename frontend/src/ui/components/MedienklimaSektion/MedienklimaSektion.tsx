@@ -102,7 +102,11 @@ export function MedienklimaSektion() {
           <span className={styles.wert}>{formatMedienklima(medienKlimaRaw)}/100</span>
         </div>
         {showChart && (
-          <div className={styles.chartWrap}>
+          <div
+            className={styles.chartWrap}
+            role="img"
+            aria-label={t('game:medienklima.sektionChartAriaLabel', { count: verlauf.length, value: mkRounded })}
+          >
             <ReactEChartsCore
               echarts={echarts}
               option={chartOption}

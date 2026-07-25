@@ -153,23 +153,49 @@ function buildIndikatorChartOption(
   };
 }
 
+function buildIndikatorAriaLabel(
+  daten: WirtschaftIndikatorenSnapshot[],
+  indikator: IndikatorKey,
+  label: string,
+  yFormatter: (v: number) => string,
+  t: (k: string, opts?: Record<string, unknown>) => string,
+): string {
+  const ys = daten.map((s) => s[indikator]);
+  const first = ys[0];
+  const last = ys[ys.length - 1];
+  const diff = last - first;
+  const trend =
+    Math.abs(diff) < 0.05 ? t('a11y.trendFlat') : diff > 0 ? t('a11y.trendUp') : t('a11y.trendDown');
+  return t('wirtschaft.chartAriaLabel', {
+    label,
+    count: daten.length,
+    first: yFormatter(first),
+    last: yFormatter(last),
+    trend,
+  });
+}
+
 function IndikatorVerlaufChart({
   option,
   label,
+  ariaLabel,
 }: {
   option: EChartsOption;
   label: string;
+  ariaLabel: string;
 }) {
   return (
     <div className={styles.chartWrap}>
       <p className={styles.chartLabel}>{label}</p>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 100 }}
-        opts={{ renderer: 'canvas' }}
-      />
+      <div role="img" aria-label={ariaLabel} style={{ width: '100%' }}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 100 }}
+          opts={{ renderer: 'canvas' }}
+        />
+      </div>
     </div>
   );
 }
@@ -247,6 +273,53 @@ export function WirtschaftsDashboard({
             t,
           )
         : null,
+    [showCharts, chartDaten, t],
+  );
+
+  const chartAriaBip = useMemo(
+    () =>
+      showCharts
+        ? buildIndikatorAriaLabel(chartDaten, 'bip', t('wirtschaft.indikator.bip'), (v) => `${v.toFixed(1)}%`, t)
+        : '',
+    [showCharts, chartDaten, t],
+  );
+  const chartAriaInf = useMemo(
+    () =>
+      showCharts
+        ? buildIndikatorAriaLabel(
+            chartDaten,
+            'inflation',
+            t('wirtschaft.indikator.inflation'),
+            (v) => `${v.toFixed(1)}%`,
+            t,
+          )
+        : '',
+    [showCharts, chartDaten, t],
+  );
+  const chartAriaAl = useMemo(
+    () =>
+      showCharts
+        ? buildIndikatorAriaLabel(
+            chartDaten,
+            'arbeitslosigkeit',
+            t('wirtschaft.indikator.arbeitslosigkeit'),
+            (v) => `${v.toFixed(1)}%`,
+            t,
+          )
+        : '',
+    [showCharts, chartDaten, t],
+  );
+  const chartAriaInv = useMemo(
+    () =>
+      showCharts
+        ? buildIndikatorAriaLabel(
+            chartDaten,
+            'investitionsklima',
+            t('wirtschaft.indikator.investitionsklima'),
+            (v) => String(Math.round(v)),
+            t,
+          )
+        : '',
     [showCharts, chartDaten, t],
   );
 
@@ -363,10 +436,10 @@ export function WirtschaftsDashboard({
         <section className={styles.panel}>
           <h3 className={styles.panelTitle}>{t('wirtschaft.verlaufTitle', 'Indikatoren-Verlauf (12 Monate)')}</h3>
           <div className={styles.chartsGrid}>
-            <IndikatorVerlaufChart option={chartOptBip} label={t('wirtschaft.indikator.bip')} />
-            <IndikatorVerlaufChart option={chartOptInf} label={t('wirtschaft.indikator.inflation')} />
-            <IndikatorVerlaufChart option={chartOptAl} label={t('wirtschaft.indikator.arbeitslosigkeit')} />
-            <IndikatorVerlaufChart option={chartOptInv} label={t('wirtschaft.indikator.investitionsklima')} />
+            <IndikatorVerlaufChart option={chartOptBip} label={t('wirtschaft.indikator.bip')} ariaLabel={chartAriaBip} />
+            <IndikatorVerlaufChart option={chartOptInf} label={t('wirtschaft.indikator.inflation')} ariaLabel={chartAriaInf} />
+            <IndikatorVerlaufChart option={chartOptAl} label={t('wirtschaft.indikator.arbeitslosigkeit')} ariaLabel={chartAriaAl} />
+            <IndikatorVerlaufChart option={chartOptInv} label={t('wirtschaft.indikator.investitionsklima')} ariaLabel={chartAriaInv} />
           </div>
         </section>
       )}

@@ -2275,7 +2275,9 @@
     "markKritisch": "Kritisch 40",
     "oppositionStark": "Stark",
     "oppositionAktiv": "Aktiv",
-    "oppositionSchwach": "Schwach"
+    "oppositionSchwach": "Schwach",
+    "verlaufAriaLabel": "Medienklima-Verlauf, letzte {{count}} Monate. Aktuell {{value}} von 100 ({{status}}). Trend: {{trend}}.",
+    "sektionChartAriaLabel": "Medienklima-Verlauf, letzte {{count}} Monate. Aktuell {{value}} von 100."
   },
   "glossar": {
     "title": "Glossar",
@@ -2672,11 +2674,17 @@
     "falling": "Fallend",
     "changes": "Änderungen:"
   },
+  "a11y": {
+    "trendUp": "steigend",
+    "trendDown": "fallend",
+    "trendFlat": "stabil"
+  },
   "approvalChart": {
     "title": "Wahlprognose-Verlauf",
     "monatTooltip": "Monat {{month}}: {{value}}%",
     "targetLineLabel": "Wahlziel {{percent}}%",
-    "current": "Aktuell:"
+    "current": "Aktuell:",
+    "ariaLabel": "Wahlprognose-Verlauf, letzte {{count}} Monate. Aktuell {{value}}%, Zielschwelle {{threshold}}%. Trend: {{trend}}."
   },
   "vorstufeBadge": {
     "restMonate": "(noch {{count}} Mo)"
@@ -2725,7 +2733,8 @@
     "ref": {
       "nullwachstum": "Nullwachstum",
       "ezb2": "EZB-Ziel 2 %"
-    }
+    },
+    "chartAriaLabel": "{{label}}-Verlauf über {{count}} Monate: von {{first}} auf {{last}}. Trend: {{trend}}."
   },
   "haushaltView": {
     "mrdUnit": "Mrd.",
@@ -2793,6 +2802,7 @@
     "tooltipWert": "Wert",
     "lowerBetter": "Niedriger ist besser",
     "higherBetter": "Höher ist besser",
+    "ariaLabel": "{{label}}-Verlauf, letzte {{count}} Monate. Aktuell {{value}}{{unit}}. Trend: {{trend}}.",
     "al": {
       "label": "Arbeitslosigkeit",
       "desc": "Anteil der Erwerbslosen an der Erwerbsbevölkerung.",
@@ -2831,6 +2841,7 @@
     "gesetzLegendeAria": "Farben der Gesetze für alle Diagramme",
     "summaryTitle": "Kumulierte Gesamteffekte (alle Monate)",
     "summaryLine": "{{label}}: {{value}}",
+    "chartAriaLabel": "{{label}}: geplante Gesamtwirkung über {{count}} Monate: {{total}}.",
     "unit": {
       "al": "%",
       "hh": " Mrd. €",
@@ -2901,7 +2912,8 @@
     "tensions": "Spannungen erkennbar",
     "crisis": "Koalitionskrise droht",
     "atLimit": "Koalition am Limit",
-    "collapseWarning": "Koalitionsbruch droht!"
+    "collapseWarning": "Koalitionsbruch droht!",
+    "ariaLabel": "Koalitionsstabilität: {{value}}%, {{status}}."
   },
   "endScreen.milestones": {
     "lawsPassed": "{{count}} Gesetze beschlossen",
@@ -2918,7 +2930,10 @@
     "koalition": "Koalition",
     "neutral": "Neutral",
     "opposition": "Opposition",
-    "votes": "{{count}} Stimmen"
+    "votes": "{{count}} Stimmen",
+    "ariaLabel": "Bundesrat-Zusammensetzung: {{koalition}} Stimmen Koalition, {{neutral}} Stimmen neutral, {{opposition}} Stimmen Opposition, insgesamt {{total}} Länder.",
+    "detailsLabel": "Stimmenverteilung nach Bundesland",
+    "landItem": "{{name}}: {{votes}} Stimmen, {{mp}} ({{party}}), {{alignment}}"
   },
   "begriffe": {
     "gini_index": {
