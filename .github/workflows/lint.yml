@@ -144,9 +144,12 @@ jobs:
       - name: Check API types are in sync with backend schema
         run: cd frontend && npm run check:api-types
 
-  alembic-migrations:
+  backend-pytest-db:
     # Issue #255: verhindert erneute parallele Alembic-Heads und stellt sicher,
     # dass die komplette Migrationshistorie gegen eine leere DB durchläuft.
+    # Issue #343: führt zusätzlich die komplette pytest-Suite gegen echtes
+    # Postgres aus — vorher liefen @requires_db-Tests in keinem CI-Workflow
+    # und wurden stillschweigend übersprungen.
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -191,3 +194,6 @@ jobs:
 
       - name: Upgrade empty DB to head
         run: cd backend && alembic upgrade head
+
+      - name: pytest (against real Postgres, incl. @requires_db tests)
+        run: cd backend && python -m pytest --tb=short

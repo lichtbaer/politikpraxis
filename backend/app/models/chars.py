@@ -94,7 +94,7 @@ class CharI18n(Base):
     __tablename__ = "chars_i18n"
 
     char_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("chars(id)"), primary_key=True
+        Text(), ForeignKey("chars.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)

@@ -15,7 +15,7 @@ class Verband(Base):
 
     id: Mapped[str] = mapped_column(Text(), primary_key=True)
     politikfeld_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("politikfelder(id)"), nullable=False
+        Text(), ForeignKey("politikfelder.id"), nullable=False
     )
     ideologie_wirtschaft: Mapped[int | None] = mapped_column(
         Integer(), nullable=True, server_default="0"
@@ -51,7 +51,7 @@ class VerbandI18n(Base):
     __tablename__ = "verbaende_i18n"
 
     verband_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("verbaende(id)"), primary_key=True
+        Text(), ForeignKey("verbaende.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -64,7 +64,7 @@ class VerbandsTradeoff(Base):
 
     id: Mapped[int] = mapped_column(Integer(), primary_key=True, autoincrement=True)
     verband_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("verbaende(id)"), nullable=False
+        Text(), ForeignKey("verbaende.id"), nullable=False
     )
     tradeoff_key: Mapped[str] = mapped_column(Text(), nullable=False)
     cost_pk: Mapped[int | None] = mapped_column(
@@ -95,7 +95,7 @@ class VerbandsTradeoffI18n(Base):
     __tablename__ = "verbands_tradeoffs_i18n"
 
     tradeoff_id: Mapped[int] = mapped_column(
-        Integer(), ForeignKey("verbands_tradeoffs(id)"), primary_key=True
+        Integer(), ForeignKey("verbands_tradeoffs.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     label: Mapped[str] = mapped_column(Text(), nullable=False)

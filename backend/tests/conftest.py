@@ -16,14 +16,20 @@ def anyio_backend():
 
 
 def _db_available() -> bool:
-    """Prüft ob PostgreSQL erreichbar ist (sync mit psycopg2)."""
+    """Prüft ob PostgreSQL erreichbar ist (sync mit psycopg2).
+
+    Nutzt DATABASE_URL falls gesetzt (z. B. in CI, wo die DB nicht
+    zwangsläufig "bundesrepublik" heißt), sonst den lokalen Dev-Default.
+    """
+    dsn = os.environ.get(
+        "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/bundesrepublik"
+    )
+    # psycopg2 kennt kein "+asyncpg"-Treiber-Suffix.
+    dsn = dsn.replace("postgresql+asyncpg://", "postgresql://")
     try:
         import psycopg2
 
-        conn = psycopg2.connect(
-            "postgresql://postgres:postgres@localhost:5432/bundesrepublik",
-            connect_timeout=2,
-        )
+        conn = psycopg2.connect(dsn, connect_timeout=2)
         conn.close()
         return True
     except Exception:

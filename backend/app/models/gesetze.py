@@ -125,7 +125,7 @@ class GesetzI18n(Base):
     __tablename__ = "gesetze_i18n"
 
     gesetz_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("gesetze(id)"), primary_key=True
+        Text(), ForeignKey("gesetze.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     titel: Mapped[str] = mapped_column(Text(), nullable=False)

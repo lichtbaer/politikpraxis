@@ -5,8 +5,13 @@ Schema-Tests laufen ohne Datenbank.
 Route-Tests (requires_db) benötigen PostgreSQL.
 """
 
+import uuid
+
 import pytest
+from app.db.database import async_session
+from app.models.user import User
 from app.schemas.save import SaveUpsertRequest
+from app.services.auth_service import create_access_token
 from pydantic import ValidationError
 from tests.conftest import requires_db
 
@@ -162,9 +167,30 @@ async def test_get_saves_unauthenticated(client):
 @pytest.mark.asyncio
 @requires_db
 async def test_save_slot_invalid_state(client):
-    """POST /api/saves/1 mit ungültigem game_state (pk zu hoch) liefert 422."""
+    """POST /api/saves/1 mit ungültigem game_state (pk zu hoch) liefert 422.
+
+    Auth (get_current_user) greift vor der Body-Validierung — ohne Token
+    würde ein ungültiger game_state trotzdem 401 statt 422 liefern (siehe
+    test_save_slot_out_of_range). Der Request muss also authentifiziert sein,
+    damit tatsächlich die Body-Validierung getestet wird. Der User wird
+    direkt in der DB angelegt statt über /api/auth/register, um dessen
+    3/Minute-Rate-Limit nicht zu strapazieren (das bei vollem Suite-Lauf
+    durch test_auth_api.py/test_mods_api.py bereits ausgeschöpft sein kann).
+    """
+    email = f"save-invalid-state-{uuid.uuid4().hex[:16]}@example.com"
+    async with async_session() as db:
+        user = User(email=email, password_hash=None)
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+    token = create_access_token(str(user.id))
+
     bad_state = {**VALID_STATE, "pk": 999}
-    r = await client.post("/api/saves/1", json={"game_state": bad_state})
+    r = await client.post(
+        "/api/saves/1",
+        json={"game_state": bad_state},
+        headers={"Authorization": f"Bearer {token}"},
+    )
     assert r.status_code == 422
 
 

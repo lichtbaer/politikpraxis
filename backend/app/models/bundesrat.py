@@ -30,7 +30,7 @@ class BundesratFraktionI18n(Base):
     __tablename__ = "bundesrat_fraktionen_i18n"
 
     fraktion_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("bundesrat_fraktionen(id)"), primary_key=True
+        Text(), ForeignKey("bundesrat_fraktionen.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -45,7 +45,7 @@ class BundesratTradeoff(Base):
 
     id: Mapped[int] = mapped_column(Integer(), primary_key=True, autoincrement=True)
     fraktion_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("bundesrat_fraktionen(id)"), nullable=False
+        Text(), ForeignKey("bundesrat_fraktionen.id"), nullable=False
     )
     tradeoff_key: Mapped[str] = mapped_column(Text(), nullable=False)
     effekt_al: Mapped[Decimal | None] = mapped_column(
@@ -69,7 +69,7 @@ class BundesratTradeoffI18n(Base):
     __tablename__ = "bundesrat_tradeoffs_i18n"
 
     tradeoff_id: Mapped[int] = mapped_column(
-        Integer(), ForeignKey("bundesrat_tradeoffs(id)"), primary_key=True
+        Integer(), ForeignKey("bundesrat_tradeoffs.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     label: Mapped[str] = mapped_column(Text(), nullable=False)
