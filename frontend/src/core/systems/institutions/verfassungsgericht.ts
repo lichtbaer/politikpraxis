@@ -1,11 +1,11 @@
-import type { GameState, GameEvent, Law, KPI, ContentBundle } from '../types';
-import { withPause } from '../eventPause';
-import { addLog } from '../engine';
-import { featureActive } from './features';
-import { clamp } from '../constants';
-import { getGesetzIdeologie } from './koalition';
-import { adjustMedienKlimaGlobal } from './medien/medienklima';
-import { nextRandom } from '../rng';
+import type { GameState, GameEvent, Law, KPI, ContentBundle } from '../../types';
+import { withPause } from '../../eventPause';
+import { addLog } from '../../engine';
+import { featureActive } from '../features';
+import { clamp } from '../../constants';
+import { getGesetzIdeologie } from '../koalition';
+import { adjustMedienKlimaGlobal } from '../medien/medienklima';
+import { nextRandom } from '../../rng';
 
 /**
  * Normenkontrolle beim Bundesverfassungsgericht (Art. 93 GG).

@@ -28,7 +28,7 @@ import {
 } from '../core/systems/eu';
 import { resolveEvent } from '../core/systems/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/medien/media';
-import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch, bundeslandGespraech } from '../core/systems/bundesrat';
+import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch, bundeslandGespraech } from '../core/systems/institutions/bundesrat';
 import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
@@ -50,7 +50,7 @@ import {
   startLaenderPilot,
   startEUInitiativeAlsVorstufe,
   abbrechenVorstufe,
-} from '../core/systems/gesetzLebenszyklus';
+} from '../core/systems/legislation/gesetzLebenszyklus';
 import {
   staedtebuendnis,
   kommunalKonferenz,
@@ -70,8 +70,8 @@ import {
 } from '../core/systems/medien/medienklima';
 import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
-import { vermittlungsausschuss } from '../core/systems/vermittlung';
-import { regierungserklaerung, vertrauensfrage } from '../core/systems/regierung';
+import { vermittlungsausschuss } from '../core/systems/legislation/vermittlung';
+import { regierungserklaerung, vertrauensfrage } from '../core/systems/institutions/regierung';
 import { useUIStore } from './uiStore';
 
 export type GamePhase = 'onboarding' | 'playing';

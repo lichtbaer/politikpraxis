@@ -3,7 +3,7 @@ import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { gesetzKongruenz } from '../../../core/ideologie';
 import { featureActive } from '../../../core/systems/features';
-import { getVorstufenBoni } from '../../../core/systems/gesetzLebenszyklus';
+import { getVorstufenBoni } from '../../../core/systems/legislation/gesetzLebenszyklus';
 import { isVerfassungsgerichtBlockiert } from '../../../core/systems/parliament';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from '../../../core/systems/kongruenz';
 import { getMedienPkZusatzkosten } from '../../../core/systems/medien/medienklima';

@@ -6,7 +6,7 @@ import {
   tickGesetzVorstufen,
   getVorstufenBoni,
 } from './gesetzLebenszyklus';
-import type { GameState, Law, BundesratFraktion, ContentBundle } from '../types';
+import type { GameState, Law, BundesratFraktion, ContentBundle } from '../../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   const gesetz: Law = {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import type { GameState, Law } from '../types';
-import * as rng from '../rng';
+import type { GameState, Law } from '../../types';
+import * as rng from '../../rng';
 import {
   berechneKlageWahrscheinlichkeit,
   checkNormenkontrollKlage,

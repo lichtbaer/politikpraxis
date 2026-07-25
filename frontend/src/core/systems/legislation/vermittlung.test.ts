@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { kannVermitteln, vermittlungsausschuss, tickVermittlungsausschuss } from './vermittlung';
-import type { GameState, Law } from '../types';
+import type { GameState, Law } from '../../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   return {

@@ -9,7 +9,7 @@ import { applyMilieuEffekte } from './medien/milieus';
 import { setPolitikfeldBeschluss } from './politikfeldDruck';
 import { applyGesetzKosten } from './economics/haushalt';
 import { checkProaktiveErfuellung } from './ministerAgenden';
-import { getVorstufenBoni } from './gesetzLebenszyklus';
+import { getVorstufenBoni } from './legislation/gesetzLebenszyklus';
 import { featureActive } from './features';
 import { applyEUKofinanzierung } from './eu';
 import {
@@ -24,7 +24,7 @@ import { kannGesetzEingebracht } from '../gesetz';
 import { getKoalitionsStanz } from '../gesetzAgenda';
 import { getNfBundestagBtModifikator, getNfBundestagMedienDelta } from './bundestagNf';
 import { nextRandom } from '../rng';
-import { checkNormenkontrollKlage } from './verfassungsgericht';
+import { checkNormenkontrollKlage } from './institutions/verfassungsgericht';
 import { getIdeologieMalusFuerBt, pruefePartnerWiderstand } from './ideologiePartner';
 
 /**

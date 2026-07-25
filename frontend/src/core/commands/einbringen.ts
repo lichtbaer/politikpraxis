@@ -17,7 +17,7 @@ import {
 } from '../systems/economics/gegenfinanzierung';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from '../systems/kongruenz';
 import { getMedienPkZusatzkosten } from '../systems/medien/medienklima';
-import { getVorstufenBoni } from '../systems/gesetzLebenszyklus';
+import { getVorstufenBoni } from '../systems/legislation/gesetzLebenszyklus';
 import { featureActive } from '../systems/features';
 import { koalitionsrunde } from '../systems/koalition';
 
