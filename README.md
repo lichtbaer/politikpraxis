@@ -136,4 +136,11 @@ Details (inkl. Umgebungsvariablen, DB-URL) stehen in [docs/entwicklung/setup.md]
 
 ## Lizenz & Beitragen
 
-*(Platzhalter: Lizenz und Hinweise zu Contributions können hier ergänzt werden.)*
+**Lizenz:** Noch nicht final festgelegt (Entscheidung liegt beim Maintainer, siehe
+[#265](https://github.com/lichtbaer/politikpraxis/issues/265)). Bis zur Festlegung gilt der
+gesetzliche Standard „alle Rechte vorbehalten"; dieser Abschnitt wird aktualisiert, sobald eine
+Lizenz gewählt und als `LICENSE`-Datei im Repo-Root hinterlegt wurde.
+
+**Beitragen:** Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Entwicklungsumgebung, Konventionen
+(Branches, Commits, Tests) und den PR-Ablauf. Bugs und Feature-/Balance-Vorschläge bitte über die
+[Issue-Templates](.github/ISSUE_TEMPLATE/) einreichen.
