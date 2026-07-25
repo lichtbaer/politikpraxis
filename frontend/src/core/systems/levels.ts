@@ -1,6 +1,6 @@
 import type { GameState, RouteType, ContentBundle } from '../types';
 import { addLog } from '../engine';
-import { scheduleEffects } from './economy';
+import { scheduleEffects } from './economics/economy';
 import { applyGesetzMedienAkteureNachBeschluss } from './medien/medienklima';
 
 const ROUTE_COSTS: Record<RouteType, number> = { eu: 28, land: 18, kommune: 10 };

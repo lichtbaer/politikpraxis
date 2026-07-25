@@ -1,5 +1,5 @@
 import type { GameState } from '../types';
-import { addZustOffset } from './economy';
+import { addZustOffset } from './economics/economy';
 
 export interface Ausrichtung {
   wirtschaft: number;   // -100 Umverteilung … +100 Wachstum

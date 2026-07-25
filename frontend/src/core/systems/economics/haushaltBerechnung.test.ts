@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { berechneEinnahmen, berechnePflichtausgaben } from './haushaltBerechnung';
-import { makeState, makeLaw } from '../test-helpers';
-import { EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS } from '../constants';
+import { makeState, makeLaw } from '../../test-helpers';
+import { EINNAHMEN_BASIS, PFLICHTAUSGABEN_BASIS } from '../../constants';
 
 describe('berechneEinnahmen', () => {
   it('gibt EINNAHMEN_BASIS zurück wenn kein haushalt vorhanden', () => {

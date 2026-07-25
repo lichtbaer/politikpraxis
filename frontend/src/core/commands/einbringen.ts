@@ -8,13 +8,13 @@
  */
 
 import type { GameState, ContentBundle, Ideologie } from '../types';
-import type { GegenfinanzierungsOption } from '../systems/gegenfinanzierung';
+import type { GegenfinanzierungsOption } from '../systems/economics/gegenfinanzierung';
 import { einbringen, type EinbringenContext } from '../systems/parliament';
 import {
   brauchtGegenfinanzierung,
   berechneOptionen,
   wendeGegenfinanzierungAn,
-} from '../systems/gegenfinanzierung';
+} from '../systems/economics/gegenfinanzierung';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from '../systems/kongruenz';
 import { getMedienPkZusatzkosten } from '../systems/medien/medienklima';
 import { getVorstufenBoni } from '../systems/gesetzLebenszyklus';

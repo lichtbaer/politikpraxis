@@ -5,7 +5,7 @@ import type { GameState, Verband, ContentBundle } from '../types';
 import { addLog } from '../log';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
-import { scheduleEffects } from './economy';
+import { scheduleEffects } from './economics/economy';
 import { applyGesetzMedienAkteureNachBeschluss } from './medien/medienklima';
 import { nextRandom } from '../rng';
 

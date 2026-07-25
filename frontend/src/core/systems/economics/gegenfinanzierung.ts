@@ -6,12 +6,12 @@
  * Optionen: A) Ministerium kürzen, B) Schulden, C) Steuergesetz verknüpfen, D) Überschuss
  */
 
-import type { GameState, Law, ContentBundle } from '../types';
-import { addLog } from '../engine';
-import { featureActive } from './features';
-import { applyMoodChange } from './characters';
-import { adjustMedienKlimaGlobal } from './medien/medienklima';
-import { SCHULDENBREMSE_SPIELRAUM_BASIS } from '../constants';
+import type { GameState, Law, ContentBundle } from '../../types';
+import { addLog } from '../../engine';
+import { featureActive } from '../features';
+import { applyMoodChange } from '../characters';
+import { adjustMedienKlimaGlobal } from '../medien/medienklima';
+import { SCHULDENBREMSE_SPIELRAUM_BASIS } from '../../constants';
 
 /** Ressort-Kürzungen: Einsparung in Mrd. + Effekte */
 export interface RessortKuerzung {

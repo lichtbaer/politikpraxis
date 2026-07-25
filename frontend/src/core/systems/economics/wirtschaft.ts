@@ -1,13 +1,13 @@
 /**
  * SMA-404: Wirtschaftssektoren, Makroindikatoren, Verzögerung, Verbände, Konjunkturzyklus.
  */
-import type { GameState } from '../types';
-import { clamp, trimHistory, KPI_HISTORY_MAX_MONTHS } from '../constants';
-import { nextRandom } from '../rng';
-import { featureActive } from './features';
+import type { GameState } from '../../types';
+import { clamp, trimHistory, KPI_HISTORY_MAX_MONTHS } from '../../constants';
+import { nextRandom } from '../../rng';
+import { featureActive } from '../features';
 import { berechneEinnahmen, berechnePflichtausgaben } from './haushaltBerechnung';
-import { addLog } from '../log';
-import type { WirtschaftsState } from '../types/wirtschaft';
+import { addLog } from '../../log';
+import type { WirtschaftsState } from '../../types/wirtschaft';
 
 export const WIRTSCHAFT_SEKTOR_IDS = [
   'industrie',

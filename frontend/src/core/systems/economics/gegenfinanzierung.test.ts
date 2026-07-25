@@ -5,7 +5,7 @@ import {
   wendeGegenfinanzierungAn,
   istGegenfinanzierungErfuellt,
 } from './gegenfinanzierung';
-import type { GameState, Law, ContentBundle } from '../types';
+import type { GameState, Law, ContentBundle } from '../../types';
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   return {

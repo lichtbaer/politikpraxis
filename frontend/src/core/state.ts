@@ -5,10 +5,10 @@ import { featureActive } from './systems/features';
 import { berechneKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
 import { buildKoalitionspartnerContent } from '../data/defaults/koalitionspartner';
 import { initEUKlima } from './systems/eu';
-import { createInitialHaushalt } from './systems/haushalt';
-import { createInitialWirtschaft } from './systems/wirtschaft';
+import { createInitialHaushalt } from './systems/economics/haushalt';
+import { createInitialWirtschaft } from './systems/economics/wirtschaft';
 import type { Ausrichtung } from './systems/ausrichtung';
-import { recalcApproval } from './systems/economy';
+import { recalcApproval } from './systems/economics/economy';
 import { berechneKongruenz } from './ideologie';
 import { berechneEffektiveBTStimmen } from './systems/parliament';
 import {

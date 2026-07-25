@@ -8,7 +8,7 @@ import {
   tickKonjunktur,
   checkLehmannSparvorschlag,
 } from './haushalt';
-import type { GameState, Haushalt, Law } from '../types';
+import type { GameState, Haushalt, Law } from '../../types';
 
 type MockStateOverrides = Omit<Partial<GameState>, 'haushalt'> & { haushalt?: Partial<Haushalt> };
 

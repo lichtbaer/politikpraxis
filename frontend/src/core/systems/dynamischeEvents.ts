@@ -5,7 +5,7 @@
 import type { ContentBundle, EventChoice, GameEvent, GameState } from '../types';
 import { clamp, KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX } from '../constants';
 import { withPause, getAutoPauseLevel } from '../eventPause';
-import { scheduleEffects } from './economy';
+import { scheduleEffects } from './economics/economy';
 import { featureActive } from './features';
 import { addLog } from '../log';
 import { getEventNamespace } from '../eventNamespaces';
