@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { Law, FramingOption } from '../../../core/types';
 import { Users, Newspaper } from '../../icons';
+import { Modal } from '../Modal/Modal';
 import styles from './FramingModal.module.css';
 
 interface FramingModalProps {
@@ -33,9 +34,13 @@ export function FramingModal({ law, onConfirm, onClose }: FramingModalProps) {
   };
 
   return createPortal(
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h3 className={styles.title}>{t('game:framing.title')}</h3>
+    <Modal
+      onClose={onClose}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.modal}
+      ariaLabelledBy="framing-modal-title"
+    >
+        <h3 id="framing-modal-title" className={styles.title}>{t('game:framing.title')}</h3>
         <div className={styles.options}>
           {options.map((option: FramingOption) => (
             <button
@@ -92,8 +97,7 @@ export function FramingModal({ law, onConfirm, onClose }: FramingModalProps) {
             {t('game:agenda.einbringen')}
           </button>
         </div>
-      </div>
-    </div>,
+    </Modal>,
     document.body,
   );
 }

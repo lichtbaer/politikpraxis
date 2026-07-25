@@ -1,10 +1,10 @@
-import { useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useUIStore } from '../../../store/uiStore';
 import { featureActive } from '../../../core/systems/features';
 import { MOOD_ICONS } from '../../icons';
 import { DotRating } from '../DotRating/DotRating';
+import { Modal } from '../Modal/Modal';
 import styles from './CharacterDetail.module.css';
 
 export function CharacterDetail() {
@@ -14,14 +14,6 @@ export function CharacterDetail() {
   const { state, complexity, doEntlasseMinister } = useGameStore();
   const character = state.chars.find((c) => c.id === charDetailId);
 
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (charDetailId && character) {
-      cardRef.current?.focus();
-    }
-  }, [charDetailId, character]);
-
   if (!charDetailId || !character) return null;
 
   const moodIdx = Math.min(4, Math.max(0, character.mood));
@@ -30,21 +22,12 @@ export function CharacterDetail() {
   const nearUltimatum = character.mood <= character.ultimatum.moodThresh + 1;
 
   return (
-    <div
-      className={styles.overlay}
-      onClick={closeCharDetail}
-      role="presentation"
+    <Modal
+      onClose={closeCharDetail}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.card}
+      ariaLabelledBy="char-detail-name"
     >
-      <div
-        ref={cardRef}
-        className={styles.card}
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.key === 'Escape' && closeCharDetail()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="char-detail-name"
-        tabIndex={-1}
-      >
         <button
           type="button"
           className={styles.close}
@@ -117,7 +100,6 @@ export function CharacterDetail() {
             </span>
           ))}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

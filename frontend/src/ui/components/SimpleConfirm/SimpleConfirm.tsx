@@ -1,3 +1,4 @@
+import { Modal } from '../Modal/Modal';
 import styles from './SimpleConfirm.module.css';
 
 interface SimpleConfirmProps {
@@ -20,19 +21,22 @@ export function SimpleConfirm({
   onCancel,
 }: SimpleConfirmProps) {
   return (
-    <div className={styles.overlay} onClick={onCancel} role="presentation">
-      <div className={styles.dialog} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="simple-confirm-title">
-        <h3 id="simple-confirm-title" className={styles.title}>{title}</h3>
-        <p className={styles.message}>{message}</p>
-        <div className={styles.buttons}>
-          <button type="button" className={styles.btnCancel} onClick={onCancel}>
-            {cancelLabel}
-          </button>
-          <button type="button" className={styles.btnConfirm} onClick={onConfirm} disabled={confirmDisabled}>
-            {confirmLabel}
-          </button>
-        </div>
+    <Modal
+      onClose={onCancel}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.dialog}
+      ariaLabelledBy="simple-confirm-title"
+    >
+      <h3 id="simple-confirm-title" className={styles.title}>{title}</h3>
+      <p className={styles.message}>{message}</p>
+      <div className={styles.buttons}>
+        <button type="button" className={styles.btnCancel} onClick={onCancel}>
+          {cancelLabel}
+        </button>
+        <button type="button" className={styles.btnConfirm} onClick={onConfirm} disabled={confirmDisabled}>
+          {confirmLabel}
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }

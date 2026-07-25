@@ -275,7 +275,14 @@ export function GesetzAgendaView() {
           <header
             className={`${styles.pendingHeader} ${styles.clickable}`}
             onClick={() => setPendingCollapsed((v) => !v)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setPendingCollapsed((v) => !v);
+              }
+            }}
             role="button"
+            tabIndex={0}
             aria-expanded={!pendingCollapsed}
           >
             <span className={styles.pendingIcon}><Hourglass size={14} /></span>
@@ -382,7 +389,14 @@ export function GesetzAgendaView() {
                 <header
                   className={`${styles.politikfeldHeader} ${showCollapsible ? styles.clickable : ''}`}
                   onClick={() => toggleFeld(feldId)}
+                  onKeyDown={(e) => {
+                    if (showCollapsible && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      toggleFeld(feldId);
+                    }
+                  }}
                   role={showCollapsible ? 'button' : undefined}
+                  tabIndex={showCollapsible ? 0 : undefined}
                   aria-expanded={!isCollapsed}
                 >
                   <span className={styles.politikfeldIcon}><PolitikfeldIcon feldId={icon} size={16} /></span>

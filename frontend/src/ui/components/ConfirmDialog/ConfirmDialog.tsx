@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Modal } from '../Modal/Modal';
 import styles from './ConfirmDialog.module.css';
 
 interface ConfirmDialogProps {
@@ -15,31 +16,34 @@ export function ConfirmDialog({ title, message, cost, currentPk, onConfirm, onCa
   const remaining = currentPk - cost;
 
   return (
-    <div className={styles.overlay} onClick={onCancel}>
-      <div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
-        <h3 className={styles.title}>{title}</h3>
-        <p className={styles.message}>{message}</p>
-        <div className={styles.costInfo}>
-          <div className={styles.costLine}>
-            <span>{t('ui.cost')}</span>
-            <span className={styles.costValue}>{cost} PK</span>
-          </div>
-          <div className={styles.costLine}>
-            <span>{t('ui.remaining')}</span>
-            <span className={remaining < 10 ? styles.remainWarning : styles.remainValue}>
-              {remaining} PK
-            </span>
-          </div>
+    <Modal
+      onClose={onCancel}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.dialog}
+      ariaLabelledBy="confirm-dialog-title"
+    >
+      <h3 id="confirm-dialog-title" className={styles.title}>{title}</h3>
+      <p className={styles.message}>{message}</p>
+      <div className={styles.costInfo}>
+        <div className={styles.costLine}>
+          <span>{t('ui.cost')}</span>
+          <span className={styles.costValue}>{cost} PK</span>
         </div>
-        <div className={styles.buttons}>
-          <button type="button" className={styles.btnCancel} onClick={onCancel}>
-            {t('ui.cancel')}
-          </button>
-          <button type="button" className={styles.btnConfirm} onClick={onConfirm}>
-            {t('ui.confirm')}
-          </button>
+        <div className={styles.costLine}>
+          <span>{t('ui.remaining')}</span>
+          <span className={remaining < 10 ? styles.remainWarning : styles.remainValue}>
+            {remaining} PK
+          </span>
         </div>
       </div>
-    </div>
+      <div className={styles.buttons}>
+        <button type="button" className={styles.btnCancel} onClick={onCancel}>
+          {t('ui.cancel')}
+        </button>
+        <button type="button" className={styles.btnConfirm} onClick={onConfirm}>
+          {t('ui.confirm')}
+        </button>
+      </div>
+    </Modal>
   );
 }

@@ -5,6 +5,7 @@ import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import type { Law, MonatsDiff, MonatsUrsache } from '../../../core/types';
 import { useUIStore } from '../../../store/uiStore';
+import { Modal } from '../Modal/Modal';
 import styles from './MonatszusammenfassungModal.module.css';
 
 interface MonatszusammenfassungModalProps {
@@ -107,8 +108,13 @@ export function MonatszusammenfassungModal({
     : '';
 
   return (
-    <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="monatszusammenfassung-title">
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+    <Modal
+      onClose={onWeiter}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.modal}
+      ariaLabelledBy="monatszusammenfassung-title"
+      closeOnBackdropClick={false}
+    >
         <div className={styles.header}>
           <h2 id="monatszusammenfassung-title" className={styles.title}>
             {t('monatszusammenfassung.title', { monat: diff.monat })}
@@ -301,7 +307,6 @@ export function MonatszusammenfassungModal({
             </button>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

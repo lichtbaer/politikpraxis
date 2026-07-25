@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { isLobbyingActive } from '../../../core/systems/bundesrat';
 import type { BundesratFraktion, Law } from '../../../core/types';
+import { Modal } from '../Modal/Modal';
 import styles from './LobbyingOverlay.module.css';
 
 const PK_SCHICHT_1 = 15;
@@ -77,8 +78,12 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
+    <Modal
+      onClose={onClose}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.sheet}
+      ariaLabel={t('game:bundesrat.lobbyingRunde')}
+    >
         <button type="button" className={styles.closeBtn} onClick={onClose} aria-label={t('game:bundesrat.close')}>
           ×
         </button>
@@ -157,7 +162,6 @@ export function LobbyingOverlay({ fraktion, law, onClose }: LobbyingOverlayProps
             </div>
           </>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }

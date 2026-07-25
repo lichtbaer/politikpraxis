@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { GegenfinanzierungsOption } from '../../../core/systems/economics/gegenfinanzierung';
 import { Building2, Coins, BarChart3, Landmark, AlertTriangle } from '../../icons';
+import { Modal } from '../Modal/Modal';
 import styles from './GegenfinanzierungsModal.module.css';
 
 interface GegenfinanzierungsModalProps {
@@ -91,9 +92,13 @@ export function GegenfinanzierungsModal({
       : !needsSubOption || (needsSubOption && selectedSubOption));
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h3 className={styles.title}>{t('game:gegenfinanzierung.title')} — {gesetzTitel}</h3>
+    <Modal
+      onClose={onClose}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.modal}
+      ariaLabelledBy="gegenfinanzierung-title"
+    >
+        <h3 id="gegenfinanzierung-title" className={styles.title}>{t('game:gegenfinanzierung.title')} — {gesetzTitel}</h3>
         <p className={styles.kostenHinweis}>
           {t('game:gegenfinanzierung.kostenHinweis', {
             kosten: formatMrdShort(kosten, mrdUnit),
@@ -240,7 +245,6 @@ export function GegenfinanzierungsModal({
             {t('game:gegenfinanzierung.bestaetigenEinbringen', { pk: pkKosten, defaultValue: `Bestätigen & Einbringen (${pkKosten} PK)` })}
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

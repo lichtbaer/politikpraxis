@@ -10,6 +10,7 @@ import { getVorstufenBoni } from '../../../core/systems/gesetzLebenszyklus';
 import { bewerteEURoute } from '../../../core/systems/eu';
 import type { Law } from '../../../core/types';
 import { X as XIcon, AlertTriangle } from '../../icons';
+import { Modal } from '../Modal/Modal';
 import styles from './VorbereitungModal.module.css';
 
 const STADTTYP_KEYS: ('progressiv' | 'konservativ' | 'industrie')[] = ['progressiv', 'konservativ', 'industrie'];
@@ -92,8 +93,12 @@ export function VorbereitungModal({ law, onClose, filter }: VorbereitungModalPro
   const useKonkreteStaedte = complexity >= 3;
 
   return (
-    <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="vorbereitung-title">
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+    <Modal
+      onClose={onClose}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.modal}
+      ariaLabelledBy="vorbereitung-title"
+    >
         <header className={styles.header}>
           <h2 id="vorbereitung-title">{t('game:vorbereitung.title', { gesetz: law.kurz })}</h2>
           <button type="button" className={styles.close} onClick={onClose} aria-label={t('game:bundesrat.close')}>
@@ -217,7 +222,6 @@ export function VorbereitungModal({ law, onClose, filter }: VorbereitungModalPro
             <strong>{t('vorbereitungModal.akkumulierteBoni', { bt: boni.btStimmenBonus, pk: boni.pkKostenRabatt })}</strong>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -19,6 +19,7 @@ import { useUIStore } from '../../store/uiStore';
 import type { ViewName } from '../../core/types';
 import { Users } from '../icons';
 import { MonatszusammenfassungModal } from '../components/MonatszusammenfassungModal/MonatszusammenfassungModal';
+import { Modal } from '../components/Modal/Modal';
 import styles from './Shell.module.css';
 
 /** Alt+number/letter → view tab mapping */
@@ -139,6 +140,8 @@ export function Shell() {
       </div>
 
       {(leftOpen || rightOpen) && (
+        // ESC ist bereits über den globalen keydown-Handler oben abgedeckt (schließt Drawers).
+        // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
         <div className={styles.drawerOverlay} onClick={closeDrawers} />
       )}
 
@@ -183,27 +186,30 @@ export function Shell() {
 
       {/* Keyboard Shortcuts Help */}
       {showShortcuts && (
-        <div className={styles.shortcutOverlay} onClick={() => setShowShortcuts(false)}>
-          <div className={styles.shortcutModal} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.shortcutTitle}>{t('shortcuts.title')}</h3>
-            <div className={styles.shortcutGrid}>
-              <kbd>{t('shortcuts.space')}</kbd><span>{t('shortcuts.pauseResume')}</span>
-              <kbd>1</kbd><span>{t('shortcuts.slowSpeed')}</span>
-              <kbd>Esc</kbd><span>{t('shortcuts.closeDrawer')}</span>
-              <kbd>1-3</kbd><span>{t('shortcuts.eventChoice')}</span>
-              <kbd>Enter</kbd><span>{t('shortcuts.confirmOnly')}</span>
-              <kbd>Alt+1–0</kbd><span>{t('shortcuts.switchTab')}</span>
-              <kbd>?</kbd><span>{t('shortcuts.showHelp')}</span>
-            </div>
-            <button
-              type="button"
-              className={styles.shortcutClose}
-              onClick={() => setShowShortcuts(false)}
-            >
-              {t('shortcuts.close')}
-            </button>
+        <Modal
+          onClose={() => setShowShortcuts(false)}
+          overlayClassName={styles.shortcutOverlay}
+          dialogClassName={styles.shortcutModal}
+          ariaLabelledBy="shortcut-help-title"
+        >
+          <h3 id="shortcut-help-title" className={styles.shortcutTitle}>{t('shortcuts.title')}</h3>
+          <div className={styles.shortcutGrid}>
+            <kbd>{t('shortcuts.space')}</kbd><span>{t('shortcuts.pauseResume')}</span>
+            <kbd>1</kbd><span>{t('shortcuts.slowSpeed')}</span>
+            <kbd>Esc</kbd><span>{t('shortcuts.closeDrawer')}</span>
+            <kbd>1-3</kbd><span>{t('shortcuts.eventChoice')}</span>
+            <kbd>Enter</kbd><span>{t('shortcuts.confirmOnly')}</span>
+            <kbd>Alt+1–0</kbd><span>{t('shortcuts.switchTab')}</span>
+            <kbd>?</kbd><span>{t('shortcuts.showHelp')}</span>
           </div>
-        </div>
+          <button
+            type="button"
+            className={styles.shortcutClose}
+            onClick={() => setShowShortcuts(false)}
+          >
+            {t('shortcuts.close')}
+          </button>
+        </Modal>
       )}
     </>
   );

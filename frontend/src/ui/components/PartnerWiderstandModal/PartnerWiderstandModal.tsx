@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { KoalitionspartnerParteiId } from '../../../core/types';
+import { Modal } from '../Modal/Modal';
 import styles from './PartnerWiderstandModal.module.css';
 
 export interface PartnerWiderstandModalProps {
@@ -38,9 +39,13 @@ export function PartnerWiderstandModal({
         : 'game:partnerWiderstand.messageHinweis';
 
   return (
-    <div className={styles.overlay} onClick={onAbbrechen} role="presentation">
-      <div className={styles.dialog} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-        <h3 className={styles.title}>
+    <Modal
+      onClose={onAbbrechen}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.dialog}
+      ariaLabelledBy="partner-widerstand-title"
+    >
+        <h3 id="partner-widerstand-title" className={styles.title}>
           {intensitaet === 'veto'
             ? t('game:partnerWiderstand.titleVeto', { partner: partnerName })
             : intensitaet === 'widerstand'
@@ -88,7 +93,6 @@ export function PartnerWiderstandModal({
             </button>
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
