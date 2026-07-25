@@ -9,3 +9,7 @@ htmlcov
 *.egg-info
 .git
 .gitignore
+tests
+scripts
+openapi.json
+*.md

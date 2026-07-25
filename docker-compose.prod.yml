@@ -5,8 +5,12 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     restart: always
+    command: >
+      sh -c "alembic upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000
+      --workers 2 --proxy-headers"
     environment:
       DATABASE_URL: ${DATABASE_URL}
       SECRET_KEY: ${SECRET_KEY}
@@ -68,8 +72,10 @@ services:
       - certbot_www:/var/www/certbot
       - certbot_conf:/etc/letsencrypt
     depends_on:
-      - backend
-      - frontend
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
     networks:
       - internal
 

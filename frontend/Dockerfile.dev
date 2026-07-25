@@ -2,9 +2,10 @@ FROM node:26-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci
-
+# Kein `npm ci` zur Build-Zeit: das Compose-Volume `frontend_node_modules`
+# überdeckt /app/node_modules ohnehin, und `scripts/dev-start.sh` (via
+# docker-compose.dev.yml als Container-Command) installiert die Dependencies
+# zur Laufzeit gegen den gemounteten Code neu.
 COPY . .
 
 EXPOSE 5173
