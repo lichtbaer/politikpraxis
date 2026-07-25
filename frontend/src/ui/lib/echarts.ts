@@ -3,7 +3,7 @@
  * Import this file once (e.g. in main.tsx or App.tsx) before using any ReactECharts component.
  */
 import * as echarts from 'echarts/core';
-import { LineChart, BarChart, GaugeChart, MapChart } from 'echarts/charts';
+import { LineChart, BarChart, GaugeChart, MapChart, RadarChart } from 'echarts/charts';
 import {
   GridComponent,
   TooltipComponent,
@@ -12,6 +12,7 @@ import {
   VisualMapComponent,
   GeoComponent,
   LegendComponent,
+  RadarComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 
@@ -20,6 +21,7 @@ echarts.use([
   BarChart,
   GaugeChart,
   MapChart,
+  RadarChart,
   GridComponent,
   TooltipComponent,
   MarkLineComponent,
@@ -27,6 +29,7 @@ echarts.use([
   VisualMapComponent,
   GeoComponent,
   LegendComponent,
+  RadarComponent,
   CanvasRenderer,
 ]);
 

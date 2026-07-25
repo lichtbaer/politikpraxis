@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
 import type { BundesratLand } from '../../../core/types';
@@ -119,7 +119,8 @@ export function BundesratMap({ laender }: BundesratMapProps) {
 
   return (
     <div className={styles.mapWrap}>
-      <ReactECharts
+      <ReactEChartsCore
+        echarts={echarts}
         option={option}
         theme="politikpraxis"
         style={{ width: '100%', height: '100%' }}

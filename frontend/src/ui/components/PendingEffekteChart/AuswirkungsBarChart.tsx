@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
 import type { KPI } from '../../../core/types';
+import { echarts } from '../../lib/echarts';
 import {
   type AuswirkungsChartDaten,
   tintBarSegmentColor,
@@ -216,7 +217,8 @@ export function AuswirkungsBarChart({
   return (
     <div className={styles.wrap}>
       <div className={styles.chartTitle}>{effektLabel}</div>
-      <ReactECharts
+      <ReactEChartsCore
+        echarts={echarts}
         option={option}
         theme="politikpraxis"
         style={{ width: '100%', height: 168 }}

@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactECharts from 'echarts-for-react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
+import { echarts } from '../../lib/echarts';
 import styles from './CoalitionMeter.module.css';
 
 interface CoalitionMeterProps {
@@ -78,7 +79,8 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
 
   return (
     <div className={`${styles.root} ${isCritical ? styles.critical : ''}`}>
-      <ReactECharts
+      <ReactEChartsCore
+        echarts={echarts}
         option={option}
         theme="politikpraxis"
         style={{ width: '100%', height: 100 }}

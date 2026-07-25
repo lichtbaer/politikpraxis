@@ -1,5 +1,7 @@
-import ReactECharts from 'echarts-for-react';
+import { useMemo } from 'react';
+import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsOption } from 'echarts';
+import { echarts } from '../../lib/echarts';
 import styles from './MilieuBar.module.css';
 
 interface MilieuBarProps {
@@ -76,6 +78,11 @@ export function MilieuBar({
   const hasHeader =
     Boolean(name) || showHeaderValue || showTrendInHeader;
 
+  const sparklineOpt = useMemo(
+    () => (showSparkline ? sparklineOption(history!, color) : null),
+    [showSparkline, history, color],
+  );
+
   return (
     <div className={styles.root}>
       {hasHeader && (
@@ -98,9 +105,10 @@ export function MilieuBar({
             style={{ width: `${clamped}%`, backgroundColor: color }}
           />
         </div>
-        {showSparkline && (
-          <ReactECharts
-            option={sparklineOption(history!, color)}
+        {showSparkline && sparklineOpt && (
+          <ReactEChartsCore
+            echarts={echarts}
+            option={sparklineOpt}
             theme="politikpraxis"
             style={{ width: 48, height: 18, flexShrink: 0 }}
             opts={{ renderer: 'canvas' }}
