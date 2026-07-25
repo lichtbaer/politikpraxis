@@ -5,16 +5,16 @@
  * Vermittlungsausschuss einberufen. Ergebnis: abgeschwächtes Gesetz
  * (50% Effekte) mit 2 Monaten Verzögerung und 20 PK Kosten.
  */
-import type { GameState, LawEffects, ContentBundle } from '../types';
-import { addLog } from '../engine';
-import { verbrauchePK } from '../pk';
-import { scheduleEffects } from './economics/economy';
-import { applyGesetzKosten } from './economics/haushalt';
-import { applyMilieuEffekte } from './medien/milieus';
-import { setPolitikfeldBeschluss } from './politikfeldDruck';
-import { checkProaktiveErfuellung } from './ministerAgenden';
-import { featureActive } from './features';
-import { applyGesetzMedienAkteureNachBeschluss } from './medien/medienklima';
+import type { GameState, LawEffects, ContentBundle } from '../../types';
+import { addLog } from '../../engine';
+import { verbrauchePK } from '../../pk';
+import { scheduleEffects } from '../economics/economy';
+import { applyGesetzKosten } from '../economics/haushalt';
+import { applyMilieuEffekte } from '../medien/milieus';
+import { setPolitikfeldBeschluss } from '../politikfeldDruck';
+import { checkProaktiveErfuellung } from '../ministerAgenden';
+import { featureActive } from '../features';
+import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienklima';
 
 const PK_VERMITTLUNG = 20;
 const VERMITTLUNG_DELAY_MONATE = 2;

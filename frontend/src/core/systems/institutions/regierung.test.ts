@@ -5,7 +5,7 @@ import {
   kannVertrauensfrage,
   vertrauensfrage,
 } from './regierung';
-import type { GameState } from '../types';
+import type { GameState } from '../../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   return {

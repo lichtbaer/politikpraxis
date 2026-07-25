@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
-import { isLobbyingActive } from '../../../core/systems/bundesrat';
+import { isLobbyingActive } from '../../../core/systems/institutions/bundesrat';
 import type { BundesratFraktion, Law } from '../../../core/types';
 import styles from './LobbyingOverlay.module.css';
 

@@ -24,7 +24,7 @@ import { kannGesetzEingebracht } from '../gesetz';
 import { getKoalitionsStanz } from '../gesetzAgenda';
 import { getNfBundestagBtModifikator, getNfBundestagMedienDelta } from './bundestagNf';
 import { nextRandom } from '../rng';
-import { checkNormenkontrollKlage } from './verfassungsgericht';
+import { checkNormenkontrollKlage } from './institutions/verfassungsgericht';
 import { getIdeologieMalusFuerBt, pruefePartnerWiderstand } from './ideologiePartner';
 
 /**

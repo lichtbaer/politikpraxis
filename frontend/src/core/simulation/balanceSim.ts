@@ -14,13 +14,13 @@ import {
 import { pressemitteilung } from '../systems/medien/medienklima';
 import { medienkampagne } from '../systems/medien/media';
 import { kabinettsgespraech } from '../systems/characters';
-import { regierungserklaerung } from '../systems/regierung';
+import { regierungserklaerung } from '../systems/institutions/regierung';
 import { verbandGespraech } from '../systems/verbaende';
 import { wahlkampfRede, wahlkampfKoalition, wahlkampfMedienoffensive } from '../systems/wahlkampf';
-import { lobbyFraktion } from '../systems/bundesrat';
+import { lobbyFraktion } from '../systems/institutions/bundesrat';
 import { startKommunalPilot } from '../systems/gesetzLebenszyklus';
 import { laenderGipfel } from '../systems/ebeneActions';
-import { vermittlungsausschuss } from '../systems/vermittlung';
+import { vermittlungsausschuss } from '../systems/institutions/vermittlung';
 import { resolveEvent } from '../systems/events';
 import type { GameState, ContentBundle } from '../types';
 import type { StrategyAction, Strategy } from './strategien';

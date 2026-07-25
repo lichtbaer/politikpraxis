@@ -5,20 +5,20 @@ import type {
   LobbyTradeoffOptions,
   KpiDelta,
   ContentBundle,
-} from '../types';
-import { SPIELER_PARTEI_TO_PROFIL } from '../../constants/bundeslaenderProfil';
-import { withPause } from '../eventPause';
-import { PK_REPARATUR, BEREITSCHAFT_TRADEOFF_BONUS, EINSPRUCH_UEBERSTIMMUNG_PK, EINSPRUCH_UEBERSTIMMUNG_SCHWELLE } from '../constants';
-import { featureActive } from './features';
-import { addLog } from '../engine';
-import { scheduleEffects } from './economics/economy';
-import { applyMoodChange } from './characters';
-import { applyMilieuEffekte } from './medien/milieus';
-import { setPolitikfeldBeschluss } from './politikfeldDruck';
-import { applyGesetzKosten } from './economics/haushalt';
-import { checkProaktiveErfuellung } from './ministerAgenden';
-import { applyGesetzMedienAkteureNachBeschluss } from './medien/medienklima';
-import { nextRandom } from '../rng';
+} from '../../types';
+import { SPIELER_PARTEI_TO_PROFIL } from '../../../constants/bundeslaenderProfil';
+import { withPause } from '../../eventPause';
+import { PK_REPARATUR, BEREITSCHAFT_TRADEOFF_BONUS, EINSPRUCH_UEBERSTIMMUNG_PK, EINSPRUCH_UEBERSTIMMUNG_SCHWELLE } from '../../constants';
+import { featureActive } from '../features';
+import { addLog } from '../../engine';
+import { scheduleEffects } from '../economics/economy';
+import { applyMoodChange } from '../characters';
+import { applyMilieuEffekte } from '../medien/milieus';
+import { setPolitikfeldBeschluss } from '../politikfeldDruck';
+import { applyGesetzKosten } from '../economics/haushalt';
+import { checkProaktiveErfuellung } from '../ministerAgenden';
+import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienklima';
+import { nextRandom } from '../../rng';
 
 const PK_SCHICHT_1 = 15;
 const PK_SCHICHT_1_REDUZIERT = 10; // bei Beziehung 60-79

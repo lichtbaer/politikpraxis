@@ -14,11 +14,11 @@ import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKomm
 import { checkDynamischeEvents } from './systems/dynamischeEvents';
 import { pruneExpiredCooldowns } from './systems/eventUtils';
 import { checkGameEnd } from './systems/election';
-import { executeBundesratVote } from './systems/bundesrat';
+import { executeBundesratVote } from './systems/institutions/bundesrat';
 import {
   checkBundesratLaenderEvents,
   flushPendingBundesratLandEvent,
-} from './systems/bundesratLaenderEvents';
+} from './systems/institutions/bundesratLaenderEvents';
 import { resolveEingebrachteAbstimmung } from './systems/parliament';
 import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragScore } from './systems/koalition';
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
@@ -47,12 +47,12 @@ import {
   triggerWahlnacht,
 } from './systems/wahlkampf';
 import { tickMedienKlima, berechneMedianklima, roundMedienKlimaIndex } from './systems/medien/medienklima';
-import { tickVermittlungsausschuss } from './systems/vermittlung';
+import { tickVermittlungsausschuss } from './systems/institutions/vermittlung';
 import { featureActive } from './systems/features';
 import { applyMilieuDrift } from './systems/medien/milieus';
 import { tickExtremismusDruck } from './ideologie';
 import { checkSachverstaendigenrat } from './systems/sachverstaendigenrat';
-import { tickNormenkontrolle } from './systems/verfassungsgericht';
+import { tickNormenkontrolle } from './systems/institutions/verfassungsgericht';
 import { SPRECHER_ERSATZ, LANDTAGSWAHL_TRANSITIONS } from '../data/defaults/bundesratEvents';
 import { berechneMonatsDiff } from './monatszusammenfassung';
 import { logger } from '../utils/logger';
