@@ -61,7 +61,7 @@ import {
   wahlkampfRede,
   wahlkampfKoalition,
   wahlkampfMedienoffensive,
-} from '../core/systems/wahlkampf';
+} from '../core/systems/election/wahlkampf';
 import {
   pressemitteilung,
   doMedienAktion,

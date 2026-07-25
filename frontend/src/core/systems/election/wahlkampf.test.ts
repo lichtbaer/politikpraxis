@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { createInitialState } from '../state';
-import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
-import { TV_DUELL_EVENT, KOALITIONSPARTNER_ALLEINGANG_EVENT } from '../../data/defaults/wahlkampfEvents';
+import { createInitialState } from '../../state';
+import { DEFAULT_CONTENT } from '../../../data/defaults/scenarios';
+import { TV_DUELL_EVENT, KOALITIONSPARTNER_ALLEINGANG_EVENT } from '../../../data/defaults/wahlkampfEvents';
 import {
   checkWahlkampfBeginn,
   checkTVDuell,

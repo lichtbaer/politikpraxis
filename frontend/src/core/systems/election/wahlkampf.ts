@@ -4,22 +4,22 @@ import type {
   LegislaturBilanz,
   LegislaturBilanzNote,
   Ideologie,
-} from '../types';
-import { addLog } from '../engine';
-import { withPause, getAutoPauseLevel } from '../eventPause';
-import { featureActive } from './features';
-import { getKoalitionspartner } from './koalition';
-import { berechneWahlprognose } from './medien/wahlprognose';
-import { berechneKongruenz } from '../ideologie';
-import { verbrauchePK } from '../pk';
-import { nextRandom } from '../rng';
+} from '../../types';
+import { addLog } from '../../engine';
+import { withPause, getAutoPauseLevel } from '../../eventPause';
+import { featureActive } from '../features';
+import { getKoalitionspartner } from '../koalition';
+import { berechneWahlprognose } from '../medien/wahlprognose';
+import { berechneKongruenz } from '../../ideologie';
+import { verbrauchePK } from '../../pk';
+import { nextRandom } from '../../rng';
 import {
   DEFAULT_ELECTION_THRESHOLD,
   PK_WAHLKAMPF_REDE,
   PK_WAHLKAMPF_KOALITION,
   PK_WAHLKAMPF_MEDIENOFFENSIVE,
-} from '../constants';
-import { berechneSpielzielErgebnis, berechneWahlbonus, istLegislaturErfolg } from '../spielziel';
+} from '../../constants';
+import { berechneSpielzielErgebnis, berechneWahlbonus, istLegislaturErfolg } from '../../spielziel';
 
 /** Opposition-Stärke aus Bundesrat (Anteil Opposition-Stimmen in %) */
 function berechneOppositionStaerke(state: GameState): number {
