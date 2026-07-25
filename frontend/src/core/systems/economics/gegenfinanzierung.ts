@@ -10,7 +10,7 @@ import type { GameState, Law, ContentBundle } from '../../types';
 import { addLog } from '../../engine';
 import { featureActive } from '../features';
 import { applyMoodChange } from '../characters';
-import { adjustMedienKlimaGlobal } from '../medien/medienklima';
+import { adjustMedienKlimaGlobal } from '../medien/medienAkteure';
 import { SCHULDENBREMSE_SPIELRAUM_BASIS } from '../../constants';
 
 /** Ressort-Kürzungen: Einsparung in Mrd. + Effekte */

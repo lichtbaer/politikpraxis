@@ -46,7 +46,8 @@ import {
   tickWahlkampfPrognose,
   triggerWahlnacht,
 } from './systems/election/wahlkampf';
-import { tickMedienKlima, berechneMedianklima, roundMedienKlimaIndex } from './systems/medien/medienklima';
+import { tickMedienKlima } from './systems/medien/medienEvents';
+import { berechneMedianklima, roundMedienKlimaIndex } from './systems/medien/medienAkteure';
 import { tickVermittlungsausschuss } from './systems/legislation/vermittlung';
 import { featureActive } from './systems/features';
 import { applyMilieuDrift } from './systems/medien/milieus';

@@ -12,12 +12,9 @@ import { checkProaktiveErfuellung } from './ministerAgenden';
 import { getVorstufenBoni } from './legislation/gesetzLebenszyklus';
 import { featureActive } from './features';
 import { applyEUKofinanzierung } from './eu';
-import {
-  applyFraming,
-  getMedienPkZusatzkosten,
-  adjustMedienKlimaGlobal,
-  applyGesetzMedienAkteureNachBeschluss,
-} from './medien/medienklima';
+import { applyFraming } from './medien/framing';
+import { getMedienPkZusatzkosten, adjustMedienKlimaGlobal } from './medien/medienAkteure';
+import { applyGesetzMedienAkteureNachBeschluss } from './medien/medienEvents';
 import { berechneKongruenz } from '../ideologie';
 import { getGesetzIdeologie, getKoalitionspartner } from './koalition';
 import { kannGesetzEingebracht } from '../gesetz';
