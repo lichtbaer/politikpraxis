@@ -349,6 +349,8 @@ function transformEvent(api: EventApi): GameEvent {
     ev.triggerParams = api.trigger_params as import('../core/types').DynamicEventTriggerParams;
   }
   if (api.einmalig != null) ev.einmalig = api.einmalig;
+  if (api.repeatable) ev.repeatable = api.repeatable;
+  if (api.cooldown_months != null) ev.cooldownMonths = api.cooldown_months;
   return ev;
 }
 
