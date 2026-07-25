@@ -8,6 +8,7 @@ import { noteFromHundred } from '../../core/spielziel';
 import { buildAgendaSidebarRows } from '../../core/agendaTracking';
 import { berechneTitel } from '../../core/auswertung';
 import type { ContentBundle, GameState, LegislaturBilanzNote, Law } from '../../core/types';
+import { Modal } from '../components/Modal/Modal';
 import styles from './KanzlerbilanzBeat.module.css';
 
 type DetailTab = 'bilanz' | 'agenda' | 'urteil' | null;
@@ -99,14 +100,12 @@ export function KanzlerbilanzBeat({ state, content, showDetails, showArchetype, 
     detailTab &&
     showDetails &&
     createPortal(
-      <div
-        className={styles.modalOverlay}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="kb-detail-title"
-        onClick={closeDetail}
+      <Modal
+        onClose={closeDetail}
+        overlayClassName={styles.modalOverlay}
+        dialogClassName={styles.modal}
+        ariaLabelledBy="kb-detail-title"
       >
-        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
           <div className={styles.modalHeader}>
             <h2 id="kb-detail-title" className={styles.modalTitle}>
               {detailTab === 'bilanz' && t('game:kanzlerbilanz.detailBilanz', 'Bilanz — KPI-Aufschlüsselung')}
@@ -241,8 +240,7 @@ export function KanzlerbilanzBeat({ state, content, showDetails, showArchetype, 
               </>
             )}
           </div>
-        </div>
-      </div>,
+      </Modal>,
       document.body,
     );
 
@@ -250,14 +248,12 @@ export function KanzlerbilanzBeat({ state, content, showDetails, showArchetype, 
     historischOpen &&
     showDetails &&
     createPortal(
-      <div
-        className={`${styles.modalOverlay} ${styles.modalOverlayHighZ}`}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="kb-hist-title"
-        onClick={() => setHistorischOpen(false)}
+      <Modal
+        onClose={() => setHistorischOpen(false)}
+        overlayClassName={`${styles.modalOverlay} ${styles.modalOverlayHighZ}`}
+        dialogClassName={`${styles.modal} ${styles.historischModal}`}
+        ariaLabelledBy="kb-hist-title"
       >
-        <div className={`${styles.modal} ${styles.historischModal}`} onClick={(e) => e.stopPropagation()}>
           <div className={styles.modalHeader}>
             <h2 id="kb-hist-title" className={styles.modalTitle}>
               {t('game:kanzlerbilanz.historischTitle', 'Fünf Jahre später')}
@@ -313,8 +309,7 @@ export function KanzlerbilanzBeat({ state, content, showDetails, showArchetype, 
               </p>
             )}
           </div>
-        </div>
-      </div>,
+      </Modal>,
       document.body,
     );
 

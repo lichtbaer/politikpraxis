@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getMe, login, register, requestMagicLink, requestPasswordReset } from '../../../services/auth';
 import { useAuthStore } from '../../../store/authStore';
+import { Modal } from '../Modal/Modal';
 import styles from './LoginModal.module.css';
 
 interface LoginModalProps {
@@ -84,8 +85,13 @@ export function LoginModal({ onClose, onAuthenticated }: LoginModalProps) {
 
   if (passwordResetView) {
     return (
-      <div className={styles.backdrop} role="dialog" aria-modal="true" aria-labelledby="login-title">
-        <div className={styles.dialog}>
+      <Modal
+        onClose={onClose}
+        overlayClassName={styles.backdrop}
+        dialogClassName={styles.dialog}
+        ariaLabelledBy="login-title"
+        closeOnBackdropClick={false}
+      >
           <button type="button" className={styles.close} onClick={onClose} aria-label={t('auth.close')}>
             ×
           </button>
@@ -141,14 +147,18 @@ export function LoginModal({ onClose, onAuthenticated }: LoginModalProps) {
               {t('auth.passwordResetModalBack')}
             </button>
           </div>
-        </div>
-      </div>
+      </Modal>
     );
   }
 
   return (
-    <div className={styles.backdrop} role="dialog" aria-modal="true" aria-labelledby="login-title">
-      <div className={styles.dialog}>
+    <Modal
+      onClose={onClose}
+      overlayClassName={styles.backdrop}
+      dialogClassName={styles.dialog}
+      ariaLabelledBy="login-title"
+      closeOnBackdropClick={false}
+    >
         <button type="button" className={styles.close} onClick={onClose} aria-label={t('auth.close')}>
           ×
         </button>
@@ -243,7 +253,6 @@ export function LoginModal({ onClose, onAuthenticated }: LoginModalProps) {
             </>
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -106,9 +106,18 @@ export function KPITile({
       className={styles.root}
       ref={rootRef}
       onClick={() => hasPopoverContent && setShowPopover(!showPopover)}
+      onKeyDown={(e) => {
+        if (hasPopoverContent && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          setShowPopover(!showPopover);
+        }
+      }}
       onMouseEnter={() => hasPopoverContent && setShowPopover(true)}
       onMouseLeave={() => setShowPopover(false)}
       style={hasPopoverContent ? { cursor: 'pointer' } : undefined}
+      role={hasPopoverContent ? 'button' : undefined}
+      tabIndex={hasPopoverContent ? 0 : undefined}
+      aria-expanded={hasPopoverContent ? showPopover : undefined}
     >
       <span className={styles.label}>
         {kpiKey && KPI_TO_BEGRIFF[kpiKey] ? (

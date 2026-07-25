@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X as XIcon } from '../../icons';
+import { Modal } from '../Modal/Modal';
 import styles from './Glossar.module.css';
 
 type GlossarCategory = 'grundlagen' | 'haushalt' | 'koalition' | 'medien';
@@ -55,50 +56,58 @@ export function Glossar({ onClose }: GlossarProps) {
   });
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={e => e.stopPropagation()}>
-        <header className={styles.header}>
-          <h2 className={styles.title}>{t('glossar.title')}</h2>
-          <button type="button" className={styles.closeBtn} onClick={onClose}><XIcon size={16} /></button>
-        </header>
-        <div className={styles.searchRow}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder={t('glossar.searchPlaceholder')}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            autoFocus
-          />
-        </div>
-        <div className={styles.filters}>
-          <button
-            type="button"
-            className={`${styles.filterBtn} ${filter === 'alle' ? styles.filterActive : ''}`}
-            onClick={() => setFilter('alle')}
-          >
-            {t('glossar.all')}
-          </button>
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              type="button"
-              className={`${styles.filterBtn} ${filter === cat ? styles.filterActive : ''}`}
-              onClick={() => setFilter(cat)}
-            >
-              {t(`glossar.categories.${cat}`)}
-            </button>
-          ))}
-        </div>
-        <div className={styles.entries}>
-          {filtered.map(entry => (
-            <div key={entry.key} className={styles.entry}>
-              <dt className={styles.term}>{entry.term}</dt>
-              <dd className={styles.explanation}>{entry.explanation}</dd>
-            </div>
-          ))}
-        </div>
+    <Modal
+      onClose={onClose}
+      overlayClassName={styles.overlay}
+      dialogClassName={styles.modal}
+      ariaLabelledBy="glossar-title"
+    >
+      <header className={styles.header}>
+        <h2 id="glossar-title" className={styles.title}>{t('glossar.title')}</h2>
+        <button type="button" className={styles.closeBtn} onClick={onClose} aria-label={t('ui.cancel')}>
+          <XIcon size={16} />
+        </button>
+      </header>
+      <div className={styles.searchRow}>
+        {/* Suchfeld ist die primäre Interaktion dieses Dialogs — initialer Fokus statt
+            des generischen Modal-Fokus (Schließen-Button) ist hier bewusst gewünscht. */}
+        <input
+          type="text"
+          className={styles.searchInput}
+          placeholder={t('glossar.searchPlaceholder')}
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
+        />
       </div>
-    </div>
+      <div className={styles.filters}>
+        <button
+          type="button"
+          className={`${styles.filterBtn} ${filter === 'alle' ? styles.filterActive : ''}`}
+          onClick={() => setFilter('alle')}
+        >
+          {t('glossar.all')}
+        </button>
+        {CATEGORIES.map(cat => (
+          <button
+            key={cat}
+            type="button"
+            className={`${styles.filterBtn} ${filter === cat ? styles.filterActive : ''}`}
+            onClick={() => setFilter(cat)}
+          >
+            {t(`glossar.categories.${cat}`)}
+          </button>
+        ))}
+      </div>
+      <div className={styles.entries}>
+        {filtered.map(entry => (
+          <div key={entry.key} className={styles.entry}>
+            <dt className={styles.term}>{entry.term}</dt>
+            <dd className={styles.explanation}>{entry.explanation}</dd>
+          </div>
+        ))}
+      </div>
+    </Modal>
   );
 }

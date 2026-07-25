@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../../store/authStore';
 import { getOrCreateStatsSessionId } from '../../../services/stats';
 import { submitUserTestFeedback } from '../../../services/userTestFeedback';
+import { Modal } from '../Modal/Modal';
 import styles from './UserTestFeedbackModal.module.css';
 
 type Props = {
@@ -84,12 +85,16 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
   };
 
   return (
-    <div className={styles.backdrop} onClick={onClose}>
-      <div className={styles.dialog} onClick={(e) => e.stopPropagation()}>
+    <Modal
+      onClose={onClose}
+      overlayClassName={styles.backdrop}
+      dialogClassName={styles.dialog}
+      ariaLabelledBy="user-test-feedback-title"
+    >
         <button type="button" className={styles.close} onClick={onClose} aria-label={t('userTestFeedback.close')}>
           ×
         </button>
-        <h2 className={styles.title}>{t('userTestFeedback.titel')}</h2>
+        <h2 id="user-test-feedback-title" className={styles.title}>{t('userTestFeedback.titel')}</h2>
         <p className={styles.subtitle}>
           {t('userTestFeedback.untertitel')}
         </p>
@@ -219,7 +224,6 @@ export function UserTestFeedbackModal({ kontext, gameStatId, onClose }: Props) {
             </div>
           </form>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 }

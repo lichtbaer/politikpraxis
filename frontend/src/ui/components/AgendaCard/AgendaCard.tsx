@@ -125,7 +125,19 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
       className={`${styles.card} ${isLocked || isExcluded ? styles.gesetzLocked : ''} ${hasSynergy ? styles.gesetzSynergy : ''}`}
       title={isLocked && fehlendeRequires ? getGesetzTitel(fehlendeRequires.targetId) : isExcluded && ausschliessendeExcludes ? getGesetzTitel(ausschliessendeExcludes.targetId) : undefined}
     >
-      <header className={styles.header} onClick={handleHeaderClick}>
+      <header
+        className={styles.header}
+        onClick={handleHeaderClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleHeaderClick();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
+      >
         <span className={`${styles.badge} ${STATUS_CLASS[law.status] ?? ''}`}>
           {t(STATUS_KEYS[law.status] ?? law.status, { ns: 'common' })}
         </span>
