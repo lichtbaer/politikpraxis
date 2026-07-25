@@ -39,9 +39,10 @@ jobs:
         run: cd backend && python scripts/check_frontend_content_drift.py
 
       - name: pip-audit (dependency security check)
-        # PYSEC-2026-1325 (ecdsa/Minerva): no upstream fix; transitive via python-jose.
-        # Removal tracked in #253 (migrate to PyJWT).
-        run: pip install pip-audit && pip-audit -r backend/requirements.txt --ignore-vuln PYSEC-2026-1325
+        # Keine Ausnahmen mehr: PYSEC-2026-1325 (ecdsa/Minerva) kam ausschließlich
+        # transitiv über python-jose, das mit der PyJWT-Migration (#253) entfernt
+        # wurde. Damit ist auch ecdsa aus requirements.txt verschwunden.
+        run: pip install pip-audit && pip-audit -r backend/requirements.txt
 
       - name: Bandit (Python security linter — HIGH severity blockiert)
         run: pip install bandit[toml] && cd backend && bandit -r app -c pyproject.toml -ll
