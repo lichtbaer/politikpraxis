@@ -70,7 +70,7 @@ async def test_highscores_default(client: AsyncClient):
     r = await client.get("/api/stats/highscores")
     assert r.status_code == 200
     data = r.json()
-    assert "entries" in data
+    assert "items" in data
 
 
 @pytest.mark.asyncio

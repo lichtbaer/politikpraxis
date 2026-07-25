@@ -17,7 +17,7 @@ class Event(Base):
     id: Mapped[str] = mapped_column(Text(), primary_key=True)
     event_type: Mapped[str] = mapped_column(Text(), nullable=False)
     char_id: Mapped[str | None] = mapped_column(
-        Text(), ForeignKey("chars(id)"), nullable=True
+        Text(), ForeignKey("chars.id"), nullable=True
     )
     trigger_type: Mapped[str | None] = mapped_column(Text(), nullable=True)
     trigger_month: Mapped[int | None] = mapped_column(Integer(), nullable=True)
@@ -49,7 +49,7 @@ class EventI18n(Base):
     __tablename__ = "events_i18n"
 
     event_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("events(id)"), primary_key=True
+        Text(), ForeignKey("events.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     type_label: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -64,7 +64,7 @@ class EventChoice(Base):
 
     id: Mapped[int] = mapped_column(Integer(), primary_key=True, autoincrement=True)
     event_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("events(id)"), nullable=False
+        Text(), ForeignKey("events.id"), nullable=False
     )
     choice_key: Mapped[str] = mapped_column(Text(), nullable=False)
     choice_type: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -90,7 +90,7 @@ class EventChoice(Base):
         JSONB(), nullable=True, server_default="{}"
     )
     followup_event_id: Mapped[str | None] = mapped_column(
-        Text(), ForeignKey("events(id)"), nullable=True
+        Text(), ForeignKey("events.id"), nullable=True
     )
     koalitionspartner_beziehung_delta: Mapped[int | None] = mapped_column(
         Integer(), nullable=True
@@ -122,7 +122,7 @@ class EventChoiceI18n(Base):
     __tablename__ = "event_choices_i18n"
 
     choice_id: Mapped[int] = mapped_column(
-        Integer(), ForeignKey("event_choices(id)"), primary_key=True
+        Integer(), ForeignKey("event_choices.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     label: Mapped[str] = mapped_column(Text(), nullable=False)

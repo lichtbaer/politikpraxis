@@ -302,7 +302,7 @@ async def test_get_medien_akteure_happy_path(client: AsyncClient):
     if data:
         row = data[0]
         assert "id" in row
-        assert "name_de" in row
+        assert "name" in row
         assert "typ" in row
         assert "reichweite" in row
         assert "stimmung_start" in row

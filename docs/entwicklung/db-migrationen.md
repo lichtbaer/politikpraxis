@@ -16,10 +16,11 @@ Die Historie enthielt über weite Strecken mehrere Migrationsdateien mit derselb
 
 ## CI-Check: nur ein Head erlaubt
 
-Der `alembic-migrations`-Job in [`.github/workflows/lint.yml`](https://github.com/lichtbaer/politikpraxis/blob/main/.github/workflows/lint.yml) prüft bei jedem Push/PR:
+Der `backend-pytest-db`-Job in [`.github/workflows/lint.yml`](https://github.com/lichtbaer/politikpraxis/blob/main/.github/workflows/lint.yml) prüft bei jedem Push/PR:
 
 - `alembic heads` liefert **genau einen** Head. Zeigt der Befehl mehr als eine Zeile, schlägt der Job fehl — ein PR mit divergierenden Heads kann so nicht nach `main` gemergt werden, ohne dass vorher rebased oder eine bewusste Merge-Migration ergänzt wird.
 - `alembic upgrade head` läuft gegen eine leere Postgres-Testdatenbank vollständig und ohne Fehler durch — das stellt sicher, dass die komplette Historie (von Revision `001` bis zum aktuellen Head) weiterhin anwendbar ist.
+- Im selben Job läuft anschließend die komplette `pytest`-Suite gegen diese Datenbank, sodass auch `@requires_db`-Tests (die zuvor in keinem CI-Workflow ausgeführt wurden, siehe #343) als PR-Gate zählen.
 
 ## Lokal prüfen
 

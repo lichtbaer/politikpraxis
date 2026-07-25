@@ -16,7 +16,7 @@ class Politikfeld(Base):
         Integer(), nullable=True, server_default="0"
     )
     druck_event_id: Mapped[str | None] = mapped_column(
-        Text(), ForeignKey("events(id)"), nullable=True
+        Text(), ForeignKey("events.id"), nullable=True
     )
     eu_relevanz: Mapped[int | None] = mapped_column(
         Integer(), nullable=True, server_default="1"
@@ -33,7 +33,7 @@ class PolitikfeldI18n(Base):
     __tablename__ = "politikfelder_i18n"
 
     feld_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("politikfelder(id)"), primary_key=True
+        Text(), ForeignKey("politikfelder.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
@@ -65,7 +65,7 @@ class MilieuI18n(Base):
     __tablename__ = "milieus_i18n"
 
     milieu_id: Mapped[str] = mapped_column(
-        Text(), ForeignKey("milieus(id)"), primary_key=True
+        Text(), ForeignKey("milieus.id"), primary_key=True
     )
     locale: Mapped[str] = mapped_column(locale_type, primary_key=True)
     name: Mapped[str] = mapped_column(Text(), nullable=False)
