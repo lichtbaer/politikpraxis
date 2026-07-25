@@ -21,12 +21,25 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(pkg.version ?? '0.0.0'),
   },
   build: {
-    chunkSizeWarningLimit: 1500,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks: (id: string) => {
           if (id.includes('node_modules/echarts') || id.includes('node_modules/echarts-for-react') || id.includes('node_modules/zrender')) {
             return 'echarts-vendor';
+          }
+          if (id.includes('node_modules/react-router-dom') || id.includes('node_modules/react-router')) {
+            return 'react-router-vendor';
+          }
+          if (
+            id.includes('node_modules/i18next') ||
+            id.includes('node_modules/react-i18next') ||
+            id.includes('node_modules/i18next-http-backend')
+          ) {
+            return 'i18next-vendor';
+          }
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+            return 'react-vendor';
           }
         },
       },
