@@ -52,12 +52,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'text-summary', 'html'],
-      include: [
-        'src/core/**/*.ts',
-        'src/ui/screens/**/*.tsx',
-        'src/ui/layout/**/*.tsx',
-        'src/ui/components/**/*.tsx',
-      ],
+      include: ['src/core/**/*.ts', 'src/ui/**/*.tsx', 'src/store/**/*.ts'],
       exclude: ['src/core/**/*.test.ts', 'src/core/**/*.spec.ts', '**/types.ts'],
     },
   },
