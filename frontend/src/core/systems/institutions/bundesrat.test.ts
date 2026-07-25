@@ -12,9 +12,9 @@ import {
   bundesratNutztLandgewichte,
   bundeslandGespraech,
 } from './bundesrat';
-import type { GameState, BundesratFraktion, Law } from '../types';
-import { createInitialState } from '../state';
-import { DEFAULT_CONTENT, DEFAULT_BUNDESRAT } from '../../data/defaults/scenarios';
+import type { GameState, BundesratFraktion, Law } from '../../types';
+import { createInitialState } from '../../state';
+import { DEFAULT_CONTENT, DEFAULT_BUNDESRAT } from '../../../data/defaults/scenarios';
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   const base = createInitialState(DEFAULT_CONTENT, 4);

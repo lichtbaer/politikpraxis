@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { checkBundesratLaenderEvents, flushPendingBundesratLandEvent } from './bundesratLaenderEvents';
-import { makeState, makeEvent } from '../test-helpers';
-import type { ContentBundle, GameEvent } from '../types';
+import { makeState, makeEvent } from '../../test-helpers';
+import type { ContentBundle, GameEvent } from '../../types';
 
 function makeContentWithBrEvents(events: GameEvent[]): ContentBundle {
   return { bundesratEvents: events } as unknown as ContentBundle;

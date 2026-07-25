@@ -9,7 +9,7 @@ import {
   getBundesratAbstimmungsFelder,
   getAggregierteZustimmung,
   bundesratNutztLandgewichte,
-} from '../../core/systems/bundesrat';
+} from '../../core/systems/institutions/bundesrat';
 import type { BundesratFraktion, Law } from '../../core/types';
 import { useUIStore } from '../../store/uiStore';
 import { LobbyingOverlay } from '../components/LobbyingOverlay/LobbyingOverlay';

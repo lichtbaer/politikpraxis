@@ -14,10 +14,10 @@ import {
 import { pressemitteilung } from '../systems/medien/medienklima';
 import { medienkampagne } from '../systems/medien/media';
 import { kabinettsgespraech } from '../systems/characters';
-import { regierungserklaerung } from '../systems/regierung';
+import { regierungserklaerung } from '../systems/institutions/regierung';
 import { verbandGespraech } from '../systems/verbaende';
 import { wahlkampfRede, wahlkampfKoalition, wahlkampfMedienoffensive } from '../systems/election/wahlkampf';
-import { lobbyFraktion } from '../systems/bundesrat';
+import { lobbyFraktion } from '../systems/institutions/bundesrat';
 import { startKommunalPilot } from '../systems/legislation/gesetzLebenszyklus';
 import { laenderGipfel } from '../systems/ebeneActions';
 import { vermittlungsausschuss } from '../systems/legislation/vermittlung';

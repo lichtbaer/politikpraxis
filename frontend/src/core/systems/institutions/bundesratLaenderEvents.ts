@@ -1,9 +1,9 @@
 /**
  * SMA-395: Länderspezifische Bundesrat-Events (Bayern, NRW, Ostländer).
  */
-import type { ContentBundle, GameEvent, GameState } from '../types';
-import { withPause, getAutoPauseLevel } from '../eventPause';
-import { featureActive } from './features';
+import type { ContentBundle, GameEvent, GameState } from '../../types';
+import { withPause, getAutoPauseLevel } from '../../eventPause';
+import { featureActive } from '../features';
 
 function findBrEvent(events: GameEvent[] | undefined, id: string): GameEvent | undefined {
   return events?.find((e) => e.id === id);

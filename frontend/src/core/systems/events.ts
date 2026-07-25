@@ -9,7 +9,7 @@ import { resolveMisstrauensvotum } from './election/election';
 import { startKommunalPilot } from './legislation/gesetzLebenszyklus';
 import { applyVorbildBonus } from './legislation/gesetzLebenszyklus';
 import { resolveTVDuell, applyWahlkampfThema, applyWahlkampfZwischenbilanz } from './election/wahlkampf';
-import { setNormenkontrollReaktion } from './verfassungsgericht';
+import { setNormenkontrollReaktion } from './institutions/verfassungsgericht';
 import { applyMedienChoiceDelta, adjustMedienKlimaGlobal } from './medien/medienklima';
 import { applyMilieuDelta } from './dynamischeEvents';
 import { resolveDynamicEvent } from './dynamischeEvents';
