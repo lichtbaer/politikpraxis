@@ -54,6 +54,18 @@ export default defineConfig({
       reporter: ['text', 'text-summary', 'html'],
       include: ['src/core/**/*.ts', 'src/ui/**/*.tsx', 'src/store/**/*.ts'],
       exclude: ['src/core/**/*.test.ts', 'src/core/**/*.spec.ts', '**/types.ts'],
+      /**
+       * SMA-260: Mindestschwellen unterhalb des aktuellen Ist-Stands (Puffer für
+       * Test-zu-Test-Schwankungen), damit Regressionen auffallen statt dass die
+       * Schwelle sofort rot ist. `ui/**` startet bewusst niedrig — die UI-Schicht
+       * hat noch wenig Abdeckung (siehe #260) und die Schwelle wird mit weiteren
+       * Tests schrittweise angehoben.
+       */
+      thresholds: {
+        'src/core/**': { statements: 65, branches: 50, functions: 70, lines: 70 },
+        'src/store/**': { statements: 15, branches: 10, functions: 12, lines: 18 },
+        'src/ui/**': { statements: 8, branches: 5, functions: 8, lines: 8 },
+      },
     },
   },
 })
