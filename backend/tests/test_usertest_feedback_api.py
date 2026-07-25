@@ -1,10 +1,15 @@
-"""Route-Tests für /api/usertest-feedback und /api/admin/usertest-feedback (#254)."""
+"""Route-Tests für /api/usertest-feedback und /api/admin/usertest-feedback (#254)
+sowie Schema-Validierung von UserTestFeedbackCreate (#250).
+"""
 
 import uuid
 
 import pytest
 from app.main import app
+from app.schemas.usertest_feedback import UserTestFeedbackCreate
+from app.services.auth_service import create_access_token
 from httpx import ASGITransport, AsyncClient
+from pydantic import ValidationError
 from tests.conftest import requires_db
 
 
@@ -196,3 +201,49 @@ async def test_export_feedback_csv_with_admin(client: AsyncClient, monkeypatch):
     assert "attachment" in r.headers.get("content-disposition", "")
     body = r.text
     assert "kontext" in body.splitlines()[0]
+
+
+# ---------------------------------------------------------------------------
+# Schema-Validierung UserTestFeedbackCreate (#250) — kein DB-Zugriff
+#
+# Ergänzt die Route-Tests oben um die Schema-Ebene: game_stat_id ist als
+# `UUID | None` typisiert, ungültige Werte werden dadurch bereits von pydantic
+# abgelehnt statt erst bei einer manuellen UUID()-Konvertierung im Service
+# (die vorher einen 500 statt 422 erzeugt hätte).
+# ---------------------------------------------------------------------------
+
+
+def test_schema_valid_payload_without_game_stat_id_passes():
+    req = UserTestFeedbackCreate(**VALID_PAYLOAD)
+    assert req.game_stat_id is None
+
+
+def test_schema_valid_game_stat_id_parsed_as_uuid():
+    req = UserTestFeedbackCreate(
+        **VALID_PAYLOAD, game_stat_id="12345678-1234-5678-1234-567812345678"
+    )
+    assert str(req.game_stat_id) == "12345678-1234-5678-1234-567812345678"
+
+
+def test_schema_invalid_game_stat_id_raises_validation_error():
+    """Ungültige UUID → ValidationError (422 auf Route-Ebene), kein 500."""
+    with pytest.raises(ValidationError, match="game_stat_id"):
+        UserTestFeedbackCreate(**VALID_PAYLOAD, game_stat_id="not-a-uuid")
+
+
+def test_schema_invalid_kontext_raises_validation_error():
+    with pytest.raises(ValidationError, match="Kontext"):
+        UserTestFeedbackCreate(**{**VALID_PAYLOAD, "kontext": "invalid"})
+
+
+@requires_db
+@pytest.mark.asyncio
+async def test_submit_feedback_non_uuid_sub_token_does_not_500(client: AsyncClient):
+    """Optionaler Auth-Header mit nicht-UUID `sub` → wie anonym behandelt, kein 500."""
+    token = create_access_token("not-a-valid-uuid")
+    r = await client.post(
+        "/api/usertest-feedback",
+        json={**VALID_PAYLOAD, "session_id": f"session-{uuid.uuid4().hex}"},
+        headers={"Authorization": f"Bearer {token}", "X-Real-IP": _unique_ip()},
+    )
+    assert r.status_code == 201
