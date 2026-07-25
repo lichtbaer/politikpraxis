@@ -7,7 +7,7 @@ Dieser Abschnitt beschreibt, wie du die Anwendung lokal (ohne vollständigen Doc
 ## Voraussetzungen
 
 - **Node.js** (LTS, z. B. 20.x) und npm
-- **Python** 3.11 oder 3.13 (für Backend und MkDocs)
+- **Python** 3.13 (für Backend und MkDocs)
 - **PostgreSQL** 16 (lokal installiert oder per Docker nur für die DB)
 
 ---

@@ -9,7 +9,7 @@
 ### Voraussetzungen
 
 - [Docker](https://docs.docker.com/get-docker/) und Docker Compose
-- Für lokale Entwicklung zusätzlich: Node.js (LTS), Python 3.11+, PostgreSQL 16 (oder nur DB per Docker)
+- Für lokale Entwicklung zusätzlich: Node.js (LTS), Python 3.13, PostgreSQL 16 (oder nur DB per Docker)
 
 ### Mit Docker starten
 
@@ -49,7 +49,7 @@ docker compose -f docker-compose.dev.yml down
 
 | Ordner / Datei | Beschreibung |
 |----------------|--------------|
-| `frontend/` | React/TypeScript-Frontend (Vite, Phaser), Spiel-UI und -Logik |
+| `frontend/` | React/TypeScript-Frontend (Vite), Spiel-UI und -Logik |
 | `backend/` | FastAPI-Backend, Datenbank (PostgreSQL), Alembic-Migrationen (019+) |
 | `docs/` | MkDocs-Dokumentation (Game Design + Entwicklung) |
 | `bundesrepublik_gdd.md` | Game Design Document (Single-Source für Spieldesign) |
@@ -59,7 +59,7 @@ docker compose -f docker-compose.dev.yml down
 
 ## Tech-Stack
 
-- **Frontend:** React 19, TypeScript, Vite, Phaser, Zustand, TanStack Query, i18next, react-router-dom
+- **Frontend:** React 19, TypeScript, Vite, Zustand, TanStack Query, i18next, react-router-dom
 - **Backend:** FastAPI, SQLAlchemy 2, asyncpg, Alembic, Pydantic
 - **Infrastruktur:** Docker, PostgreSQL 16, nginx
 

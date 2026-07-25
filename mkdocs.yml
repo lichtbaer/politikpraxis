@@ -50,3 +50,6 @@ nav:
     - Deployment (Produktion): deployment.md
     - Produktivbetrieb (Docker): entwicklung/produktivbetrieb-docker.md
     - Observability (Error-Tracking, Logs): entwicklung/observability.md
+    - Balance-Report: entwicklung/balance-report.md
+    - Kontodaten (Auth): entwicklung/datenschutz-auth.md
+  - Sicherheits-Review: security-review.md
