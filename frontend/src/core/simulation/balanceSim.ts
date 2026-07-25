@@ -21,7 +21,7 @@ import { lobbyFraktion } from '../systems/institutions/bundesrat';
 import { startKommunalPilot } from '../systems/legislation/gesetzLebenszyklus';
 import { laenderGipfel } from '../systems/ebeneActions';
 import { vermittlungsausschuss } from '../systems/legislation/vermittlung';
-import { resolveEvent } from '../systems/events';
+import { resolveEvent } from '../systems/events/events';
 import type { GameState, ContentBundle } from '../types';
 import type { StrategyAction, Strategy } from './strategien';
 import {

@@ -5,7 +5,7 @@ import {
   recordEventFired,
   pruneExpiredCooldowns,
 } from './eventUtils';
-import { makeState, makeEvent } from '../test-helpers';
+import { makeState, makeEvent } from '../../test-helpers';
 
 describe('isOnCooldown', () => {
   it('gibt false zurück für nicht-repeatable Events', () => {

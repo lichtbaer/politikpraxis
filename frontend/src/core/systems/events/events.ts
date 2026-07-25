@@ -1,24 +1,24 @@
-import type { GameState, GameEvent, EventChoice, ContentBundle } from '../types';
-import { getEventNamespace } from '../eventNamespaces';
-import { addLog } from '../engine';
-import { withPause, getAutoPauseLevel } from '../eventPause';
-import { applyMoodChange } from './characters';
-import { resolveMinisterialInitiative } from './legislation/ministerialInitiativen';
-import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from './ministerAgenden';
-import { resolveMisstrauensvotum } from './election/election';
-import { startKommunalPilot } from './legislation/gesetzLebenszyklus';
-import { applyVorbildBonus } from './legislation/gesetzLebenszyklus';
-import { resolveTVDuell, applyWahlkampfThema, applyWahlkampfZwischenbilanz } from './election/wahlkampf';
-import { setNormenkontrollReaktion } from './institutions/verfassungsgericht';
-import { applyMedienChoiceDelta, adjustMedienKlimaGlobal } from './medien/medienklima';
+import type { GameState, GameEvent, EventChoice, ContentBundle } from '../../types';
+import { getEventNamespace } from '../../eventNamespaces';
+import { addLog } from '../../engine';
+import { withPause, getAutoPauseLevel } from '../../eventPause';
+import { applyMoodChange } from '../characters';
+import { resolveMinisterialInitiative } from '../legislation/ministerialInitiativen';
+import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from '../ministerAgenden';
+import { resolveMisstrauensvotum } from '../election/election';
+import { startKommunalPilot } from '../legislation/gesetzLebenszyklus';
+import { applyVorbildBonus } from '../legislation/gesetzLebenszyklus';
+import { resolveTVDuell, applyWahlkampfThema, applyWahlkampfZwischenbilanz } from '../election/wahlkampf';
+import { setNormenkontrollReaktion } from '../institutions/verfassungsgericht';
+import { applyMedienChoiceDelta, adjustMedienKlimaGlobal } from '../medien/medienklima';
 import { applyMilieuDelta } from './dynamischeEvents';
 import { resolveDynamicEvent } from './dynamischeEvents';
-import { featureActive } from './features';
+import { featureActive } from '../features';
 import {
   clamp,
   BR_LANDTAGSWAHL_CHANCE, BR_SPRECHER_WECHSEL_CHANCE, BR_INITIATIVE_CHANCE,
-} from '../constants';
-import i18n from '../../i18n';
+} from '../../constants';
+import i18n from '../../../i18n';
 
 /** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
 function applyLandtagswahlEffect(state: GameState, event: GameEvent): GameState {
@@ -67,7 +67,7 @@ const WAHLKAMPF_EVENT_IDS = new Set([
 
 export { isOnCooldown, isEventAvailable, recordEventFired } from './eventUtils';
 import { isEventAvailable, recordEventFired } from './eventUtils';
-import { nextRandom } from '../rng';
+import { nextRandom } from '../../rng';
 
 export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): GameState {
   if (state.activeEvent) return state;
@@ -397,7 +397,7 @@ export function checkKommunalEvents(
 export interface ResolveEventOptions {
   complexity?: number;
   /** Content für resolveMinisterAgenda (charEvents) */
-  content?: { charEvents?: Record<string, import('../types').GameEvent> };
+  content?: { charEvents?: Record<string, import('../../types').GameEvent> };
   /** SMA-390: volles Bundle für Medienakteur-Verteilung bei medienklima_delta */
   contentBundle?: ContentBundle;
 }
