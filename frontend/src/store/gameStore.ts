@@ -26,7 +26,7 @@ import {
   euKompromissAnbieten,
   setRatsvorsitzPrioritaeten,
 } from '../core/systems/eu';
-import { resolveEvent } from '../core/systems/events';
+import { resolveEvent } from '../core/systems/events/events';
 import { medienkampagne, type MilieuKey } from '../core/systems/medien/media';
 import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch, bundeslandGespraech } from '../core/systems/institutions/bundesrat';
 import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';

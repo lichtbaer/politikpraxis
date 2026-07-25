@@ -16,7 +16,7 @@ import { addLog } from '../../engine';
 import { withPause, getAutoPauseLevel } from '../../eventPause';
 import { featureActive } from '../features';
 import { verbrauchePK } from '../../pk';
-import { isEventAvailable, recordEventFired } from '../eventUtils';
+import { isEventAvailable, recordEventFired } from '../events/eventUtils';
 import {
   clamp,
   SKANDAL_CHANCE,

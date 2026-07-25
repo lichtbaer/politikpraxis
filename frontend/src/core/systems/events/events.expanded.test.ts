@@ -7,10 +7,10 @@ import {
   isEventAvailable,
   recordEventFired,
 } from './events';
-import * as rng from '../rng';
-import { createInitialState } from '../state';
-import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
-import type { GameState, GameEvent, EventChoice } from '../types';
+import * as rng from '../../rng';
+import { createInitialState } from '../../state';
+import { DEFAULT_CONTENT } from '../../../data/defaults/scenarios';
+import type { GameState, GameEvent, EventChoice } from '../../types';
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   const base = createInitialState(DEFAULT_CONTENT, 4);

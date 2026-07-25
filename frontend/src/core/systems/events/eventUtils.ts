@@ -2,7 +2,7 @@
  * Utility helpers for the repeatable-event system.
  * Extracted to avoid circular dependencies between events.ts and other systems.
  */
-import type { GameState, GameEvent } from '../types';
+import type { GameState, GameEvent } from '../../types';
 
 /** Check if a repeatable event is currently on cooldown */
 export function isOnCooldown(state: GameState, event: GameEvent): boolean {

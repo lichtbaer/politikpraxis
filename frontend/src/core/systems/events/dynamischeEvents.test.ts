@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import type { ContentBundle, GameEvent, GameState } from '../types';
-import * as rng from '../rng';
+import type { ContentBundle, GameEvent, GameState } from '../../types';
+import * as rng from '../../rng';
 import { checkDynamischeEvents } from './dynamischeEvents';
 
 function baseState(over: Partial<GameState> = {}): GameState {

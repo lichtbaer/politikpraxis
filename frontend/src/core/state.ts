@@ -27,7 +27,7 @@ import {
   DEFAULT_ELECTION_THRESHOLD,
   ZUST_OFFSET_MAX,
 } from './constants';
-import { selectEventPool } from './systems/eventPoolSelection';
+import { selectEventPool } from './systems/events/eventPoolSelection';
 import {
   berechneMedianklima,
   initMedienAkteureFromContent,

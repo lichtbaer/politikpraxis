@@ -1,5 +1,5 @@
-import type { GameEvent } from '../types';
-import { nextRandom } from '../rng';
+import type { GameEvent } from '../../types';
+import { nextRandom } from '../../rng';
 
 /** Anteil der Events die pro Durchlauf ausgewählt werden */
 const POOL_RATIO = 0.65;

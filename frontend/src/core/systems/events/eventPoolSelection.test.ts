@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { selectEventPool } from './eventPoolSelection';
-import { makeEvent } from '../test-helpers';
-import type { GameEvent } from '../types';
+import { makeEvent } from '../../test-helpers';
+import type { GameEvent } from '../../types';
 
 afterEach(() => {
   vi.restoreAllMocks();

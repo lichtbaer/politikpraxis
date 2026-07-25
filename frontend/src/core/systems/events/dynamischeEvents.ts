@@ -2,17 +2,17 @@
  * SMA-394: Zustandsabhängige dynamische Events (Trigger pro Monat).
  * Daten kommen aus ContentBundle.dynamicEvents (event_type dynamic in DB).
  */
-import type { ContentBundle, EventChoice, GameEvent, GameState } from '../types';
-import { clamp, KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX } from '../constants';
-import { withPause, getAutoPauseLevel } from '../eventPause';
-import { scheduleEffects } from './economics/economy';
-import { featureActive } from './features';
-import { addLog } from '../log';
-import { getEventNamespace } from '../eventNamespaces';
-import { applyMoodChange } from './characters';
-import { adjustMedienKlimaGlobal } from './medien/medienklima';
-import i18n from '../../i18n';
-import { nextRandom } from '../rng';
+import type { ContentBundle, EventChoice, GameEvent, GameState } from '../../types';
+import { clamp, KONJUNKTUR_INDEX_MIN, KONJUNKTUR_INDEX_MAX } from '../../constants';
+import { withPause, getAutoPauseLevel } from '../../eventPause';
+import { scheduleEffects } from '../economics/economy';
+import { featureActive } from '../features';
+import { addLog } from '../../log';
+import { getEventNamespace } from '../../eventNamespaces';
+import { applyMoodChange } from '../characters';
+import { adjustMedienKlimaGlobal } from '../medien/medienklima';
+import i18n from '../../../i18n';
+import { nextRandom } from '../../rng';
 
 export interface DynamicResolveOptions {
   complexity?: number;
@@ -243,10 +243,10 @@ function evaluateTrigger(ev: GameEvent, state: GameState, complexity: number): b
   }
 }
 
-function findPartnerMinisterForRuecktritt(state: GameState): import('../types').Character | undefined {
+function findPartnerMinisterForRuecktritt(state: GameState): import('../../types').Character | undefined {
   const pp = partnerParteiId(state);
   if (!pp) return undefined;
-  let best: import('../types').Character | undefined;
+  let best: import('../../types').Character | undefined;
   let bestCnt = -1;
   for (const c of state.chars) {
     if (!c.ist_partner_minister) continue;
