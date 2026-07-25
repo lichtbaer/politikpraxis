@@ -5,8 +5,11 @@ Schema-Tests laufen ohne Datenbank.
 Route-Tests (requires_db) benötigen PostgreSQL.
 """
 
+import uuid
+
 import pytest
 from app.schemas.save import SaveUpsertRequest
+from httpx import AsyncClient
 from pydantic import ValidationError
 from tests.conftest import requires_db
 
@@ -161,10 +164,31 @@ async def test_get_saves_unauthenticated(client):
 
 @pytest.mark.asyncio
 @requires_db
-async def test_save_slot_invalid_state(client):
-    """POST /api/saves/1 mit ungültigem game_state (pk zu hoch) liefert 422."""
+async def test_save_slot_invalid_state(client: AsyncClient):
+    """POST /api/saves/1 mit ungültigem game_state (pk zu hoch) liefert 422.
+
+    Erfordert einen authentifizierten Request — sonst greift get_current_user
+    (401) vor der Body-Validierung (siehe test_save_slot_out_of_range).
+    """
+    # Eigene X-Real-IP, damit dieser Registrierungs-Call nicht das globale
+    # "3 per minute"-Limit von /auth/register mit anderen Testdateien teilt
+    # (key_func nutzt X-Real-IP bevorzugt, siehe app/dependencies.py).
+    fake_ip = f"10.{uuid.uuid4().int % 256}.{uuid.uuid4().int % 256}.1"
+    email = f"invalid-state-{uuid.uuid4().hex[:16]}@example.com"
+    register = await client.post(
+        "/api/auth/register",
+        json={"email": email, "password": "supersecret123"},
+        headers={"X-Real-IP": fake_ip},
+    )
+    assert register.status_code == 200, register.text
+    token = register.json()["access_token"]
+
     bad_state = {**VALID_STATE, "pk": 999}
-    r = await client.post("/api/saves/1", json={"game_state": bad_state})
+    r = await client.post(
+        "/api/saves/1",
+        json={"game_state": bad_state},
+        headers={"Authorization": f"Bearer {token}", "X-Real-IP": fake_ip},
+    )
     assert r.status_code == 422
 
 

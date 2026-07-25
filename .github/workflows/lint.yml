@@ -144,6 +144,49 @@ jobs:
       - name: Check API types are in sync with backend schema
         run: cd frontend && npm run check:api-types
 
+  backend-tests:
+    # #343: kein CI-Workflow stellte bisher einen Postgres-Service für
+    # `python -m pytest` bereit — alle @requires_db-markierten Tests (der
+    # Großteil der Route-Tests) wurden daher in CI stillschweigend übersprungen
+    # und liefen nie gegen eine echte Datenbank.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          # conftest.py::_db_available() prüft fest gegen diesen DB-Namen.
+          POSTGRES_DB: bundesrepublik
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DEBUG: "1"
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/bundesrepublik
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install backend
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install -r backend/requirements.txt
+
+      - name: Upgrade DB to head
+        run: cd backend && alembic upgrade head
+
+      - name: Backend Tests (gegen echtes Postgres)
+        run: cd backend && python -m pytest --tb=short
+
   alembic-migrations:
     # Issue #255: verhindert erneute parallele Alembic-Heads und stellt sicher,
     # dass die komplette Migrationshistorie gegen eine leere DB durchläuft.
