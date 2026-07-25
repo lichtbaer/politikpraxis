@@ -16,7 +16,7 @@ import { medienkampagne } from '../systems/medien/media';
 import { kabinettsgespraech } from '../systems/characters';
 import { regierungserklaerung } from '../systems/regierung';
 import { verbandGespraech } from '../systems/verbaende';
-import { wahlkampfRede, wahlkampfKoalition, wahlkampfMedienoffensive } from '../systems/wahlkampf';
+import { wahlkampfRede, wahlkampfKoalition, wahlkampfMedienoffensive } from '../systems/election/wahlkampf';
 import { lobbyFraktion } from '../systems/bundesrat';
 import { startKommunalPilot } from '../systems/gesetzLebenszyklus';
 import { laenderGipfel } from '../systems/ebeneActions';

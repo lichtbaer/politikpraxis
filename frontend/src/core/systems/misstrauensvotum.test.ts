@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { checkGameEnd, buildMisstrauensvotumEvent, resolveMisstrauensvotum } from './election';
+import { checkGameEnd, buildMisstrauensvotumEvent, resolveMisstrauensvotum } from './election/election';
 import { createInitialState } from '../state';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
 import type { GameState } from '../types';

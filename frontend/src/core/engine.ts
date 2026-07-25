@@ -13,7 +13,7 @@ import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKommunalLaenderEvents, checkSteuerEvents, checkFollowupEvents } from './systems/events';
 import { checkDynamischeEvents } from './systems/dynamischeEvents';
 import { pruneExpiredCooldowns } from './systems/eventUtils';
-import { checkGameEnd } from './systems/election';
+import { checkGameEnd } from './systems/election/election';
 import { executeBundesratVote } from './systems/bundesrat';
 import {
   checkBundesratLaenderEvents,
@@ -45,7 +45,7 @@ import {
   checkWahlkampfZwischenbilanz,
   tickWahlkampfPrognose,
   triggerWahlnacht,
-} from './systems/wahlkampf';
+} from './systems/election/wahlkampf';
 import { tickMedienKlima, berechneMedianklima, roundMedienKlimaIndex } from './systems/medien/medienklima';
 import { tickVermittlungsausschuss } from './systems/vermittlung';
 import { featureActive } from './systems/features';

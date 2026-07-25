@@ -1,5 +1,5 @@
-import type { GameState, GameEvent, ContentBundle } from '../types';
-import { withPause } from '../eventPause';
+import type { GameState, GameEvent, ContentBundle } from '../../types';
+import { withPause } from '../../eventPause';
 import {
   DEFAULT_ELECTION_THRESHOLD,
   LEGISLATUR_MONATE,
@@ -8,10 +8,10 @@ import {
   MISSTRAUENSVOTUM_EVENT_MONATE,
   MISSTRAUENSVOTUM_VERTRAUENSFRAGE_PK,
   MISSTRAUENSVOTUM_KOALITIONSRUNDE_PK,
-} from '../constants';
-import { featureActive } from './features';
-import { nextRandom } from '../rng';
-import { berechneSpielzielErgebnis, berechneWahlbonus, istLegislaturErfolg } from '../spielziel';
+} from '../../constants';
+import { featureActive } from '../features';
+import { nextRandom } from '../../rng';
+import { berechneSpielzielErgebnis, berechneWahlbonus, istLegislaturErfolg } from '../../spielziel';
 import { finalisiereLegislaturBilanzAmSpielende } from './wahlkampf';
 
 /** Schwelle für Misstrauensvotum: Zustimmung unter diesem Wert zählt als "kritisch niedrig" */

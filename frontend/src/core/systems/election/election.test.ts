@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { checkGameEnd } from './election';
-import { createInitialState } from '../state';
-import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
-import type { GameState } from '../types';
+import { createInitialState } from '../../state';
+import { DEFAULT_CONTENT } from '../../../data/defaults/scenarios';
+import type { GameState } from '../../types';
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   const base = createInitialState(DEFAULT_CONTENT, 4);
