@@ -28,6 +28,16 @@ function getMKStatusKey(value: number): string {
   return 'statusKritisch';
 }
 
+/** Standalone trend calc (mirrors the visual trend indicator) for the chart's aria-label. */
+function getMKTrendKey(history: number[], current: number): 'trendUp' | 'trendDown' | 'trendFlat' {
+  if (history.length < 2) return 'trendFlat';
+  const lookback = Math.min(3, history.length - 1);
+  const diff = Math.round(current) - Math.round(history[history.length - 1 - lookback]);
+  if (diff > 2) return 'trendUp';
+  if (diff < -2) return 'trendDown';
+  return 'trendFlat';
+}
+
 export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChartProps) {
   const { t } = useTranslation('game');
   const historyRounded = useMemo(() => history.map((v) => Math.round(v)), [history]);
@@ -182,14 +192,25 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
           </span>
         </div>
       </div>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 130 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      <div
+        role="img"
+        aria-label={t('medienklima.verlaufAriaLabel', {
+          value: Math.round(current),
+          count: history.length,
+          status: t(`medienklima.${getMKStatusKey(Math.round(current))}`),
+          trend: t(`a11y.${getMKTrendKey(history, current)}`),
+        })}
+        style={{ width: '100%' }}
+      >
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 130 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </div>
       <p className={styles.caption}>
         {t('medienklima.caption')}
       </p>

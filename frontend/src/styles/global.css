@@ -56,6 +56,21 @@ select:focus-visible {
   border-color: var(--gold);
 }
 
+/* Screen-reader-only content: visually hidden but announced by assistive tech.
+   Used for chart/graphic text alternatives (aria-label counterparts, data-table
+   equivalents for canvas-rendered charts). */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ─── Shared Keyframes ────────────────────────────────────────────────────── */
 
 @keyframes fadeIn {

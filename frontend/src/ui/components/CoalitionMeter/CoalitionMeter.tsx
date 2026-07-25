@@ -76,17 +76,23 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
   }), [clamped, color]);
 
   const isCritical = clamped < 25;
+  const chartAriaLabel = t('coalition.ariaLabel', {
+    value: Math.round(clamped),
+    status: t(getLabelKey(clamped)),
+  });
 
   return (
     <div className={`${styles.root} ${isCritical ? styles.critical : ''}`}>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 100 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      <div role="img" aria-label={chartAriaLabel} style={{ width: '100%' }}>
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 100 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </div>
       <div className={styles.statusLabel} style={{ color }}>
         {isCritical && <span className={styles.warningIcon}>&#9888;</span>}
         {t(getLabelKey(clamped))}

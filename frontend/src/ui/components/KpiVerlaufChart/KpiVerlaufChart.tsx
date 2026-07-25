@@ -211,6 +211,7 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
   // Trend
   let trendSymbol = '→';
   let trendGood = true;
+  let trendWord = t('a11y.trendFlat');
   if (data.length >= 2) {
     const lookback = Math.min(3, data.length - 1);
     const prev = data[data.length - 1 - lookback];
@@ -218,8 +219,17 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
     if (Math.abs(diff) > 0.3) {
       trendSymbol = diff > 0 ? '↑' : '↓';
       trendGood = cfg.lowerBetter ? diff < 0 : diff > 0;
+      trendWord = diff > 0 ? t('a11y.trendUp') : t('a11y.trendDown');
     }
   }
+
+  const chartAriaLabel = t('kpiVerlauf.ariaLabel', {
+    label,
+    count: data.length,
+    value: currentVal !== null ? currentVal.toFixed(1) : '—',
+    unit: cfg.unit,
+    trend: trendWord,
+  });
 
   return (
     <div className={styles.sparkCard}>
@@ -244,14 +254,16 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
         )}
       </div>
       {data.length > 1 ? (
-        <ReactEChartsCore
-          echarts={echarts}
-          option={option}
-          theme="politikpraxis"
-          style={{ width: '100%', height: 90 }}
-          opts={{ renderer: 'canvas' }}
-          notMerge={false}
-        />
+        <div role="img" aria-label={chartAriaLabel} style={{ width: '100%' }}>
+          <ReactEChartsCore
+            echarts={echarts}
+            option={option}
+            theme="politikpraxis"
+            style={{ width: '100%', height: 90 }}
+            opts={{ renderer: 'canvas' }}
+            notMerge={false}
+          />
+        </div>
       ) : (
         <div className={styles.noData}>{t('kpiVerlauf.noData')}</div>
       )}

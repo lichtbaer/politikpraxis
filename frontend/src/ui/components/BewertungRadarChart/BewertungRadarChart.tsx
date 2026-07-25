@@ -128,14 +128,17 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
       <p className={styles.hint}>
         {t('bewertungRadar.hint')}
       </p>
-      <ReactEChartsCore
-        echarts={echarts}
-        option={option}
-        theme="politikpraxis"
-        style={{ width: '100%', height: 260 }}
-        opts={{ renderer: 'canvas' }}
-        notMerge={false}
-      />
+      {/* Decorative: the dimLegend list below provides the equivalent data as text for screen readers. */}
+      <div aria-hidden="true">
+        <ReactEChartsCore
+          echarts={echarts}
+          option={option}
+          theme="politikpraxis"
+          style={{ width: '100%', height: 260 }}
+          opts={{ renderer: 'canvas' }}
+          notMerge={false}
+        />
+      </div>
       <div className={styles.dimLegend}>
         {dimMeta.map((d, i) => (
           <div key={d.key} className={styles.dimLegendItem}>
