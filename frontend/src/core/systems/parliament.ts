@@ -23,6 +23,7 @@ import { getNfBundestagBtModifikator, getNfBundestagMedienDelta } from './bundes
 import { nextRandom } from '../rng';
 import { checkNormenkontrollKlage } from './institutions/verfassungsgericht';
 import { getIdeologieMalusFuerBt, pruefePartnerWiderstand } from './ideologiePartner';
+import { registerGesetzEinbringung } from './gesetzesstau';
 
 /**
  * Berechnet das Abweichler-Risiko (0–30%) für ein Gesetz.
@@ -302,6 +303,9 @@ export function einbringen(
 
   // SMA-330: Proaktive Erfüllung — Gesetz passt zu Minister-Agenda
   newState = checkProaktiveErfuellung(newState, lawId);
+
+  // SMA-268: Gesetzesstau — Kosten für Einbringen ohne Koalitions-/Kabinettspflege
+  newState = registerGesetzEinbringung(newState);
 
   const logMsg =
     isEinbringenContext(options) &&

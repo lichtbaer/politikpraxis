@@ -4,6 +4,7 @@
 import type { GameState } from '../types';
 import { addLog } from '../engine';
 import { featureActive } from './features';
+import { resetGesetzesstau } from './gesetzesstau';
 
 /** Städtebündnis aufbauen (10 PK) — erhöht bottom-up Initiative Chance bis Jahresende */
 export function staedtebuendnis(state: GameState, complexity: number): GameState {
@@ -69,11 +70,11 @@ export function laenderGipfel(state: GameState, complexity: number): GameState {
   }));
 
   return addLog(
-    {
+    resetGesetzesstau({
       ...state,
       pk: state.pk - 12,
       bundesratFraktionen: fraktionen,
-    },
+    }),
     'Länder-Gipfel einberufen — Bundesrat-Beziehungen verbessert.',
     'g',
   );

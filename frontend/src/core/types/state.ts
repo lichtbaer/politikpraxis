@@ -205,6 +205,13 @@ export interface GameState {
   /** Persistente Segment-Offsets (Medienkampagne, Start-Ausrichtung) — klingen monatlich ab */
   zustOffsets?: ZustOffsets;
   coalition: number;
+  /**
+   * SMA-268: Zähler für Gesetze, die in Folge eingebracht wurden, ohne dass seither eine
+   * Pflege-Aktion (Koalitionsrunde, Kabinettsgespräch, Verbandsgespräch, Prioritätsgespräch,
+   * Ländergipfel) stattfand. Ab GESETZESSTAU_SCHWELLE greift ein Koalitions-/Kabinetts-Malus
+   * beim Einbringen ("Gesetzesstau") — reines Durchpeitschen ohne Systempflege wird so teurer.
+   */
+  gesetzeSeitLetzterPflege?: number;
 
   chars: Character[];
   /** SMA-500: vom Spieler gewählte Agenda-Ziel-IDs (Content-Referenzen) */

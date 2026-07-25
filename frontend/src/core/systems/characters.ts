@@ -1,5 +1,6 @@
 import type { GameState, Character } from '../types';
 import { addLog } from '../log';
+import { resetGesetzesstau } from './gesetzesstau';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { nextRandom } from '../rng';
 import { CHAR_BONUS_MOOD_MIN, CHAR_KPI_BONUS, KPI_ZF_BOUNDS, KPI_AL_BOUNDS } from '../constants';
@@ -237,12 +238,12 @@ export function kabinettsgespraech(state: GameState, charId: string): GameState 
   // Update cooldown and deduct PK
   const newCooldowns = { ...cooldowns, [charId]: state.month + GESPRAECH_COOLDOWN_MONTHS };
 
-  const newState: GameState = {
+  const newState: GameState = resetGesetzesstau({
     ...state,
     pk: state.pk - GESPRAECH_PK_COST,
     chars,
     charGespraechCooldowns: newCooldowns,
-  };
+  });
 
   return addLog(newState, `Kabinettsgespräch mit ${char.name}: Stimmung verbessert`, 'g');
 }

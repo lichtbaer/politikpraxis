@@ -15,6 +15,7 @@ import {
   buildKoalitionspartnerContent,
 } from '../../data/defaults/koalitionspartner';
 import type { SpielerParteiId } from '../../data/defaults/parteien';
+import { resetGesetzesstau } from './gesetzesstau';
 
 /** SMA-299: Berechnet Koalitionspartner aus Ideologie-Distanz (niedrigste Distanz = nächster Partner) */
 export function berechneKoalitionspartner(
@@ -338,6 +339,7 @@ export function koalitionsrunde(
     result = applyMoodChange(result, charMood);
   }
 
+  result = resetGesetzesstau(result);
   return addLog(result, 'Koalitionsrunde — Beziehung +8', 'g');
 }
 
@@ -350,10 +352,10 @@ export function prioritaetsgespraech(state: GameState, gesetzId: string, complex
   if (!next) return state;
 
   return addLog(
-    {
+    resetGesetzesstau({
       ...next,
       partnerPrioGesetz: { gesetzId, bisMonat: next.month + 3 },
-    },
+    }),
     `Prioritätsgespräch: ${gesetzId} für 3 Monate priorisiert`,
     'g',
   );
