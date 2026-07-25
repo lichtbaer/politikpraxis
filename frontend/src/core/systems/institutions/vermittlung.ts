@@ -81,7 +81,7 @@ export function tickVermittlungsausschuss(
   context?: {
     milieus?: { id: string; ideologie: { wirtschaft: number; gesellschaft: number; staat: number }; min_complexity: number }[];
     complexity?: number;
-    gesetzRelationen?: Record<string, import('../types').GesetzRelation[]>;
+    gesetzRelationen?: Record<string, import('../../types').GesetzRelation[]>;
     content?: ContentBundle;
   },
 ): GameState {

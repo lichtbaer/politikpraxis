@@ -619,7 +619,7 @@ export interface BundesratVoteContext {
   milieus: { id: string; ideologie: { wirtschaft: number; gesellschaft: number; staat: number }; min_complexity: number }[];
   complexity: number;
   /** SMA-312: Gesetz-Relationen für Synergie-Berechnung */
-  gesetzRelationen?: Record<string, import('../types').GesetzRelation[]>;
+  gesetzRelationen?: Record<string, import('../../types').GesetzRelation[]>;
   /** SMA-390 */
   content?: ContentBundle;
 }
