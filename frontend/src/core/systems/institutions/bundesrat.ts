@@ -17,7 +17,7 @@ import { applyMilieuEffekte } from '../medien/milieus';
 import { setPolitikfeldBeschluss } from '../politikfeldDruck';
 import { applyGesetzKosten } from '../economics/haushalt';
 import { checkProaktiveErfuellung } from '../ministerAgenden';
-import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienklima';
+import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienEvents';
 import { nextRandom } from '../../rng';
 
 const PK_SCHICHT_1 = 15;

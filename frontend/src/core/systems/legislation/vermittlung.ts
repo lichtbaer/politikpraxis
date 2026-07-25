@@ -14,7 +14,7 @@ import { applyMilieuEffekte } from '../medien/milieus';
 import { setPolitikfeldBeschluss } from '../politikfeldDruck';
 import { checkProaktiveErfuellung } from '../ministerAgenden';
 import { featureActive } from '../features';
-import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienklima';
+import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienEvents';
 
 const PK_VERMITTLUNG = 20;
 const VERMITTLUNG_DELAY_MONATE = 2;

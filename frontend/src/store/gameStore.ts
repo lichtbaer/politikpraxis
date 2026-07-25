@@ -67,7 +67,7 @@ import {
   doMedienAktion,
   medienAktionCooldownVerbleibend,
   type MedienSpielerAktionKey,
-} from '../core/systems/medien/medienklima';
+} from '../core/systems/medien/medienAktionen';
 import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
 import { vermittlungsausschuss } from '../core/systems/legislation/vermittlung';
