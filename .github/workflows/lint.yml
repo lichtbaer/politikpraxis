@@ -6,7 +6,34 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+
+      - name: Pytest
+        # No Postgres service here yet (tracked separately in #343) — DB-dependent
+        # tests self-skip via the requires_db marker, matching prior deploy.yml behavior.
+        run: cd backend && python -m pytest --tb=short
+
   backend-ruff:
     runs-on: ubuntu-latest
     steps:
@@ -72,6 +99,10 @@ jobs:
           fetch-depth: 0
 
       - name: Gitleaks (secret scanning)
+        # TODO(#262): pin to a specific gitleaks release tag instead of `:latest`
+        # once a session with unrestricted network access can verify the current
+        # release — this sandbox's network policy only allows GitHub API access
+        # to this repo, so no tag/digest could be looked up here.
         run: |
           docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest \
             detect --source /repo --no-git -v --redact
@@ -91,6 +122,8 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Build ${{ matrix.name }} image
+        # TODO(#262): pin to a commit SHA (see gitleaks TODO above for why this
+        # couldn't be verified from this sandbox).
         uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.context }}
@@ -100,6 +133,8 @@ jobs:
           tags: politikpraxis-${{ matrix.name }}:scan
 
       - name: Trivy scan (${{ matrix.name }})
+        # TODO(#262): pin to a commit SHA (see gitleaks TODO above for why this
+        # couldn't be verified from this sandbox).
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: politikpraxis-${{ matrix.name }}:scan
