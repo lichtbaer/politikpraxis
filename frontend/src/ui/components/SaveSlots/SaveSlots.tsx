@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import i18n from '../../../i18n';
 import {
   deleteSaveSlot,
@@ -20,49 +21,50 @@ interface SaveSlotsProps {
 
 export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
   const { t } = useTranslation();
-  const [bySlot, setBySlot] = useState<Record<number, SaveListItem | undefined>>({});
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const queryKey = ['saves', token] as const;
+  const [actionErr, setActionErr] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
-    setErr(null);
-    try {
-      const list = await listSaves(token);
-      const map: Record<number, SaveListItem> = {};
-      for (const s of list) {
-        map[s.slot] = s;
-      }
-      setBySlot(map);
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : t('menu.serverError'));
-    } finally {
-      setLoading(false);
-    }
-  }, [token, t]);
+  const {
+    data: list,
+    isLoading,
+    error: listError,
+  } = useQuery({
+    queryKey,
+    queryFn: () => listSaves(token),
+  });
 
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  const deleteMutation = useMutation({
+    mutationFn: (slot: number) => deleteSaveSlot(token, slot),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey });
+      onListChange?.();
+    },
+    onError: (e) => setActionErr(e instanceof Error ? e.message : t('menu.deleteFailed')),
+  });
+
+  const bySlot: Record<number, SaveListItem | undefined> = {};
+  for (const s of list ?? []) {
+    bySlot[s.slot] = s;
+  }
+
+  const err =
+    actionErr ??
+    (listError ? (listError instanceof Error ? listError.message : t('menu.serverError')) : null);
 
   const handleLoad = async (slot: number) => {
-    setErr(null);
+    setActionErr(null);
     try {
       const detail = await getSaveBySlot(token, slot);
       onLoadSave(serverDetailToSaveFile(detail));
     } catch (e) {
-      setErr(e instanceof Error ? e.message : t('menu.loadFailed'));
+      setActionErr(e instanceof Error ? e.message : t('menu.loadFailed'));
     }
   };
 
-  const handleDelete = async (slot: number) => {
-    setErr(null);
-    try {
-      await deleteSaveSlot(token, slot);
-      await refresh();
-      onListChange?.();
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : t('menu.deleteFailed'));
-    }
+  const handleDelete = (slot: number) => {
+    setActionErr(null);
+    deleteMutation.mutate(slot);
   };
 
   const formatDate = (iso: string) => {
@@ -76,7 +78,7 @@ export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <p className={styles.hint}>{t('menu.cloudSavesLoading')}</p>;
   }
 
@@ -113,7 +115,7 @@ export function SaveSlots({ token, onLoadSave, onListChange }: SaveSlotsProps) {
                     <button type="button" className={styles.btnLoad} onClick={() => void handleLoad(slot)}>
                       {t('menu.loadGame')}
                     </button>
-                    <button type="button" className={styles.btnDel} onClick={() => void handleDelete(slot)}>
+                    <button type="button" className={styles.btnDel} onClick={() => handleDelete(slot)}>
                       {t('menu.deleteSave')}
                     </button>
                   </div>

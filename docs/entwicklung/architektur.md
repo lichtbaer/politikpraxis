@@ -119,6 +119,8 @@ Die Spielbalance wird über eine Monte-Carlo-Simulation gegen die **echte** Engi
 
 Das Frontend spricht die API über `frontend/src/services/api.ts` an (`apiFetch`, Basis-URL aus `VITE_API_URL`). JWT-Access-Token aus dem `authStore` werden mitgeschickt, Refresh läuft über ein HttpOnly-Cookie. Content wird beim Start über `GET /api/content/game?locale=` geladen (`contentStore`); schlägt das fehl, greift ein lokaler Offline-Fallback (`frontend/src/data/defaults/`) mit eingeschränktem Content (siehe #244 zur geplanten Reduktion dieses Fallbacks). Die Produktion baut das Frontend und liefert es über nginx aus; API-Anfragen werden per Proxy an den Backend-Container weitergeleitet (`/api` → Backend).
 
+**Server-State-Entscheidung (siehe #259):** Server-State, der von UI-Komponenten gerendert wird — Cloud-Spielstände (`SaveSlots`), Community-Statistiken (`StatistikenPage`) und Highscores (`HighscoresPage`) — läuft über **React Query** (`useQuery`/`useMutation`, `QueryClientProvider` in `main.tsx`). Das ersetzt manuelles `useEffect`+`useState`-Fetching inkl. Race-Condition-Guards durch Caching/Retry/Dedup aus der Library. Die Session-Bootstrap-Logik (`authStore.bootstrap`/`getMe`, Token-Refresh) bleibt bewusst in Zustand: Sie läuft teilweise außerhalb des React-Baums (`setTokenRefresher` in `services/api.ts` wird von einem 401-Interceptor aufgerufen, nicht von einer Komponente) und gated den App-weiten Auth-Zustand, nicht das Rendering einer einzelnen View — kein klassischer Query-Fall. Der eigentliche Spielzustand (`gameStore`) bleibt selbstverständlich Zustand-basiert, da er kein Server-State ist.
+
 ---
 
 ## Backend (Struktur)
