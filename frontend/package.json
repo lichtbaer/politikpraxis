@@ -16,7 +16,7 @@
     "check:api-types": "npm run gen:api-types && git diff --exit-code -- ../backend/openapi.json src/types/api-generated.ts"
   },
   "dependencies": {
-    "@fontsource/dm-mono": "^5.2.7",
+    "@fontsource/dm-mono": "^5.3.0",
     "@fontsource/dm-sans": "^5.2.8",
     "@fontsource/playfair-display": "^5.3.0",
     "@sentry/react": "^10.67.0",
