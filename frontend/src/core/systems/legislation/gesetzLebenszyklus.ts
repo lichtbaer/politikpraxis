@@ -1,19 +1,19 @@
 /**
  * SMA-273: Gesetz-Lebenszyklus — Vorstufen (Kommunal, Länder, EU), Bonus-Akkumulation.
  */
-import type { GameState, GesetzProjekt, AktiveVorstufe, VorstufenBoni } from '../types';
+import type { GameState, GesetzProjekt, AktiveVorstufe, VorstufenBoni } from '../../types';
 import {
   MAX_BT_STIMMEN_BONUS,
   MAX_PK_KOSTEN_RABATT,
   MAX_KOFINANZIERUNG,
   MAX_BUNDESRAT_BONUS,
-} from '../constants';
-import { addLog } from '../log';
-import { verbrauchePK } from '../pk';
-import { featureActive } from './features';
-import { bewerteEURoute } from './eu';
-import { nextRandom } from '../rng';
-import type { ContentBundle } from '../types';
+} from '../../constants';
+import { addLog } from '../../log';
+import { verbrauchePK } from '../../pk';
+import { featureActive } from '../features';
+import { bewerteEURoute } from '../eu';
+import { nextRandom } from '../../rng';
+import type { ContentBundle } from '../../types';
 
 /** Boni pro Vorstufen-Typ bei Erfolg */
 const VORSTUFEN_BONI: Record<'kommunal' | 'laender' | 'eu', VorstufenBoni> = {
