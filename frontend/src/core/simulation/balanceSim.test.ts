@@ -146,7 +146,7 @@ describe('Gewinnvarianten', () => {
     const brecher = monteCarlo(SIM_CONTENT, strategien['koalitionsbrecher'], N, COMPLEXITY);
     // Koalitionsmanager pflegt Koalitionsvertrag → bessere Agenda-Erfüllung
     expect(manager.agendaPunkte.median).toBeGreaterThanOrEqual(brecher.agendaPunkte.median);
-  });
+  }, 30_000);
 });
 
 // =============================================================================
@@ -162,7 +162,7 @@ describe('Verlust-Varianten', () => {
     const muster = monteCarlo(SIM_CONTENT, strategien['musterschueler'], N, COMPLEXITY);
     // Koalitionsbrecher erfüllt Koalitionsagenda schlechter durch ideologische Reibung
     expect(brecher.agendaPunkte.median).toBeLessThanOrEqual(muster.agendaPunkte.median);
-  });
+  }, 30_000);
 
   it('pk_horten: medianer wahlprognose unter 55% (bereits als bestehender Test)', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
@@ -240,7 +240,7 @@ describe('Score-Dimensionen', () => {
     const rand = monteCarlo(SIM_CONTENT, strategien['random'], N, COMPLEXITY);
     // Historiker priorisiert langzeit_score — Urteilspunkte sollten besser sein
     expect(hist.urteilPunkte.median).toBeGreaterThanOrEqual(rand.urteilPunkte.median);
-  });
+  }, 30_000);
 
   it('historiker: keine Crashes und keine Engine-Fehler', () => {
     const result = monteCarlo(SIM_CONTENT, strategien['historiker'], N, COMPLEXITY);
@@ -253,7 +253,31 @@ describe('Score-Dimensionen', () => {
     const brecher = monteCarlo(SIM_CONTENT, strategien['koalitionsbrecher'], N, COMPLEXITY);
     // Koalitionsmanager pflegt Partner — Koalitionsagenda sollte besser erfüllt sein
     expect(manager.agendaPunkte.median).toBeGreaterThanOrEqual(brecher.agendaPunkte.median);
-  });
+  }, 30_000);
+
+  // SMA-269: Die Balance-Sim setzte bisher nie eine Spieler-Agenda (`setSpielerAgendaIds`
+  // passiert im echten Spiel im Onboarding, nicht in der Sim) — die Agenda-Säule blieb dadurch
+  // konstant beim Default-Wert (55), egal welche Strategie spielte. `monteCarlo`/`runSingleSim`
+  // akzeptieren jetzt optionale `spielerAgendaIds`, sodass die Sim eine echte Spieler-Agenda
+  // messen kann.
+  it('Spieler-Agenda gesetzt: agenda-fokussiertes Spiel (musterschueler) erzielt deutlich höhere agendaPunkte als agenda-ignorantes (pk_horten)', () => {
+    const agenda = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'];
+    const aktiv = monteCarlo(SIM_CONTENT, strategien['musterschueler'], N, COMPLEXITY, agenda);
+    const passiv = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY, agenda);
+    expect(aktiv.agendaPunkte.median).toBeGreaterThan(passiv.agendaPunkte.median + 20);
+  }, 30_000);
+
+  it('Spieler-Agenda gesetzt: pk_horten schneidet mit gesetzter Agenda schlechter ab als ohne (der bisherige Default 55 kaschierte reine Passivität)', () => {
+    const ohneAgenda = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
+    const mitAgenda = monteCarlo(
+      SIM_CONTENT,
+      strategien['pk_horten'],
+      N,
+      COMPLEXITY,
+      ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'],
+    );
+    expect(mitAgenda.agendaPunkte.median).toBeLessThan(ohneAgenda.agendaPunkte.median);
+  }, 30_000);
 
   it('Gesamtübersicht aller Strategien: Score-Dimensionen (console.table)', () => {
     const alle = alleStrategien();

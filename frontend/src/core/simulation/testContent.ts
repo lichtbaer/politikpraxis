@@ -21,6 +21,7 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     ideologie: { wirtschaft: -30, gesellschaft: -60, staat: -20 },
     ideologie_wert: -37,
+    politikfeldId: 'umwelt_energie',
   },
   {
     id: 'wb', titel: 'Bundeswohnungsbauoffensive', kurz: 'BWO',
@@ -30,6 +31,7 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     ideologie: { wirtschaft: -20, gesellschaft: -40, staat: -30 },
     ideologie_wert: -30,
+    politikfeldId: 'arbeit_soziales',
   },
   {
     id: 'sr', titel: 'Unternehmenssteuerreform', kurz: 'USR',
@@ -39,6 +41,7 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     ideologie: { wirtschaft: 40, gesellschaft: 20, staat: 10 },
     ideologie_wert: 23,
+    politikfeldId: 'wirtschaft_finanzen',
   },
   {
     id: 'bp', titel: 'Nationales Bildungspaket', kurz: 'NBP',
@@ -48,6 +51,7 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     ideologie: { wirtschaft: -10, gesellschaft: -30, staat: -40 },
     ideologie_wert: -27,
+    politikfeldId: 'bildung_forschung',
   },
 
   // === Event-locked Gesetze ===
@@ -58,6 +62,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: -0.2, zf: 4, gi: -0.3 }, lag: 10,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'verfassungsgericht',
+    politikfeldId: 'innere_sicherheit',
   },
   {
     id: 'katastrophenschutz', titel: 'Katastrophenschutz-Modernisierung', kurz: 'KatSchG',
@@ -66,6 +71,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: -0.4, zf: 3, al: -0.1 }, lag: 6,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'naturkatastrophe',
+    politikfeldId: 'innere_sicherheit',
   },
   {
     id: 'cybersicherheit', titel: 'Cybersicherheitsstärkungsgesetz', kurz: 'CySiG',
@@ -74,6 +80,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: -0.3, zf: 2 }, lag: 5,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'cyberangriff',
+    politikfeldId: 'digital_infrastruktur',
   },
   {
     id: 'whistleblowerschutz', titel: 'Hinweisgeberschutzgesetz', kurz: 'HinSchG',
@@ -82,6 +89,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: -0.1, zf: 3, gi: -0.2 }, lag: 4,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'whistleblower',
+    politikfeldId: 'innere_sicherheit',
   },
   {
     id: 'tarifbindung', titel: 'Tarifbindungsstärkungsgesetz', kurz: 'TarifG',
@@ -90,6 +98,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: -0.1, zf: 3, gi: -0.6, al: -0.2 }, lag: 5,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'streikwelle',
+    politikfeldId: 'arbeit_soziales',
   },
   {
     id: 'mietrecht', titel: 'Mietrechtsreform', kurz: 'MietR',
@@ -98,6 +107,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: -0.2, zf: 5, gi: -0.8 }, lag: 5,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'wohnungsnot',
+    politikfeldId: 'arbeit_soziales',
   },
   {
     id: 'demokratiefoerderung', titel: 'Demokratiefördergesetz', kurz: 'DemFG',
@@ -106,6 +116,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: -0.3, zf: 4 }, lag: 4,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'rechtsextremismus',
+    politikfeldId: 'innere_sicherheit',
   },
   {
     id: 'fachkraefte', titel: 'Fachkräfteeinwanderungsgesetz', kurz: 'FEG',
@@ -114,6 +125,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: 0.1, zf: 2, al: -0.6 }, lag: 6,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'fachkraeftemangel',
+    politikfeldId: 'arbeit_soziales',
   },
   {
     id: 'rentenreform', titel: 'Generationengerechte Rentenreform', kurz: 'RenRef',
@@ -122,6 +134,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: -0.3, zf: 4, gi: -0.4 }, lag: 10,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'rentendebatte',
+    politikfeldId: 'arbeit_soziales',
   },
   {
     id: 'pandemieschutz', titel: 'Pandemieschutzgesetz', kurz: 'PanSchG',
@@ -130,6 +143,7 @@ const SIM_LAWS: Law[] = [
     effekte: { hh: -0.4, zf: 3 }, lag: 5,
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'pandemie_vorbereitung',
+    politikfeldId: 'gesundheit_pflege',
   },
 
   // === Spargesetze (analog headless_runner.py) ===
@@ -142,6 +156,7 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     ideologie: { wirtschaft: 40, gesellschaft: 30, staat: 30 },
     ideologie_wert: 33,
+    politikfeldId: 'arbeit_soziales',
   },
   {
     id: 'beamtenbesoldung_einfrieren', titel: 'Beamtenbesoldung einfrieren', kurz: 'BesEinfr',
@@ -152,6 +167,7 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     ideologie: { wirtschaft: 20, gesellschaft: 10, staat: 20 },
     ideologie_wert: 17,
+    politikfeldId: 'wirtschaft_finanzen',
   },
   {
     id: 'subventionen_abbau', titel: 'Subventionen abbauen', kurz: 'SubAbbau',
@@ -162,6 +178,7 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     ideologie: { wirtschaft: -10, gesellschaft: -30, staat: -10 },
     ideologie_wert: -17,
+    politikfeldId: 'wirtschaft_finanzen',
   },
   {
     id: 'rente_stabilisierung', titel: 'Rentenstabilisierung', kurz: 'RentStab',
@@ -172,6 +189,7 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     ideologie: { wirtschaft: 30, gesellschaft: 20, staat: 10 },
     ideologie_wert: 20,
+    politikfeldId: 'arbeit_soziales',
   },
   {
     id: 'effizienzprogramm_bund', titel: 'Effizienzprogramm Bund', kurz: 'EffProg',
@@ -183,6 +201,7 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     ideologie: { wirtschaft: 10, gesellschaft: 0, staat: 20 },
     ideologie_wert: 10,
+    politikfeldId: 'wirtschaft_finanzen',
   },
 ];
 

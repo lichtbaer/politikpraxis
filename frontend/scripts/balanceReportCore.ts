@@ -11,6 +11,14 @@ import { SIM_CONTENT_WITH_UNLOCK_EVENTS } from '../src/core/simulation/testConte
 import { ELECTION_THRESHOLDS_BY_COMPLEXITY } from '../src/core/constants';
 import type { ContentBundle } from '../src/core/types';
 
+/**
+ * SMA-269: Spieler-Agenda, die im Report standardmäßig für alle Strategien gesetzt wird —
+ * spiegelt, dass ein echter Spieler im Onboarding immer eine Agenda wählt (unabhängig vom
+ * Spielstil). Ohne dies bleibt die Agenda-Säule des Spielziels konstant beim Default-Wert,
+ * egal welche Strategie spielt (siehe Issue #269).
+ */
+export const DEFAULT_REPORT_SPIELER_AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'];
+
 export interface ReportOptions {
   /** Anzahl Monte-Carlo-Läufe pro Strategie und Komplexität */
   n: number;
@@ -22,6 +30,8 @@ export interface ReportOptions {
   strategies?: string[];
   /** Content-Bundle (Default: SIM_CONTENT_WITH_UNLOCK_EVENTS) */
   content?: ContentBundle;
+  /** Spieler-Agenda-IDs, die für jeden Lauf gesetzt werden (Default: DEFAULT_REPORT_SPIELER_AGENDA) */
+  spielerAgendaIds?: string[];
 }
 
 interface StrategyRow {
@@ -42,6 +52,8 @@ export interface ReportData {
   complexities: number[];
   strategienAnzahl: number;
   contentVariante: string;
+  /** SMA-269: Spieler-Agenda-IDs, die für alle Läufe gesetzt wurden */
+  spielerAgendaIds: string[];
   bloecke: ComplexityBlock[];
 }
 
@@ -55,13 +67,14 @@ export function collectReportData(opts: ReportOptions): ReportData {
   const namen = opts.strategies && opts.strategies.length > 0
     ? opts.strategies.filter(name => name in alle)
     : Object.keys(alle);
+  const spielerAgendaIds = opts.spielerAgendaIds ?? DEFAULT_REPORT_SPIELER_AGENDA;
 
   const bloecke: ComplexityBlock[] = opts.complexities.map(complexity => ({
     complexity,
     wahlhuerde: ELECTION_THRESHOLDS_BY_COMPLEXITY[complexity] ?? 0,
     rows: namen.map(strategie => ({
       strategie,
-      ergebnis: monteCarlo(content, alle[strategie], opts.n, complexity),
+      ergebnis: monteCarlo(content, alle[strategie], opts.n, complexity, spielerAgendaIds),
     })),
   }));
 
@@ -72,6 +85,7 @@ export function collectReportData(opts: ReportOptions): ReportData {
     complexities: opts.complexities,
     strategienAnzahl: namen.length,
     contentVariante: opts.content ? 'custom' : 'SIM_CONTENT_WITH_UNLOCK_EVENTS',
+    spielerAgendaIds,
     bloecke,
   };
 }
@@ -143,6 +157,7 @@ export function renderMarkdown(data: ReportData): string {
   lines.push(`| Komplexitätsstufen | ${data.complexities.join(', ')} |`);
   lines.push(`| Strategien | ${data.strategienAnzahl} |`);
   lines.push(`| Content | ${data.contentVariante} |`);
+  lines.push(`| Spieler-Agenda | ${data.spielerAgendaIds.length > 0 ? data.spielerAgendaIds.join(', ') : '(keine)'} |`);
   lines.push('');
 
   for (const block of data.bloecke) {
@@ -169,6 +184,7 @@ export function generateBalanceReport(
     seed: opts.seed ?? 42,
     strategies: opts.strategies,
     content: opts.content,
+    spielerAgendaIds: opts.spielerAgendaIds,
   };
   const data = collectReportData(resolved);
   return { markdown: renderMarkdown(data), json: data };
