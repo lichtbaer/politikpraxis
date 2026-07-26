@@ -4,7 +4,7 @@ import { useGameActions } from '../../hooks/useGameActions';
 import { gesetzKongruenz } from '../../../core/ideologie';
 import { featureActive } from '../../../core/systems/features';
 import { getVorstufenBoni } from '../../../core/systems/legislation/gesetzLebenszyklus';
-import { isVerfassungsgerichtBlockiert } from '../../../core/systems/parliament';
+import { isVerfassungsgerichtBlockiert, berechneJaQuoteBreakdown } from '../../../core/systems/parliament';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from '../../../core/systems/kongruenz';
 import { getMedienPkZusatzkosten } from '../../../core/systems/medien/medienAkteure';
 import {
@@ -84,6 +84,9 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
       : 0;
 
   const handleHeaderClick = () => actions.toggleAgenda(law.id);
+
+  const jaQuoteBreakdown =
+    law.status === 'aktiv' ? berechneJaQuoteBreakdown(state, law, complexity, content) : null;
 
   const verfassungsgerichtBlockiert = isVerfassungsgerichtBlockiert(state, law);
   const canEinbringenRelationen = kannGesetzEingebracht(state, law.id, gesetzRelationen);
@@ -266,6 +269,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
             lobbyingTooltip={lobbyingTooltip}
             geschaetztePkKosten={geschaetztePkKosten}
             hasFraming={hasFraming}
+            jaQuoteBreakdown={jaQuoteBreakdown}
             actions={actions}
           />
         </div>

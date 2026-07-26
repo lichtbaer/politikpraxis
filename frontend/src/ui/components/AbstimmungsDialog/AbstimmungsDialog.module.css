@@ -1,0 +1,131 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.dialog {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  max-width: 420px;
+  width: 90%;
+  padding: 20px;
+  animation: scaleIn 0.2s ease-out;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-family: var(--serif);
+  color: var(--text);
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  color: var(--text2);
+}
+
+.rowLabel {
+  color: var(--text2);
+}
+
+.rowValue {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.gesamtRow {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.gesamtRow .rowLabel {
+  color: var(--text);
+}
+
+.positiv {
+  color: #1b7a3a;
+}
+
+.negativ {
+  color: #b42318;
+}
+
+.neutral {
+  color: var(--text2);
+}
+
+.prognosePositiv {
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: #1b7a3a;
+}
+
+.prognoseNegativ {
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: #b42318;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btnCancel {
+  padding: 8px 16px;
+  font-size: 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color var(--transition-base), background var(--transition-base), transform var(--transition-fast);
+}
+
+.btnCancel:hover {
+  background: var(--bg4);
+  border-color: var(--text2);
+  transform: translateY(-1px);
+}
+
+.btnConfirm {
+  padding: 8px 16px;
+  font-size: 12px;
+  background: var(--gold2);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  color: var(--gold);
+  cursor: pointer;
+  transition: background var(--transition-base), color var(--transition-base), transform var(--transition-fast);
+}
+
+.btnConfirm:hover {
+  background: var(--gold);
+  color: var(--bg2);
+  transform: translateY(-1px);
+}

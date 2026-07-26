@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { berechneEffektiveBTStimmen, resolveEingebrachteAbstimmung } from './parliament';
+import { berechneEffektiveBTStimmen, berechneJaQuoteBreakdown, resolveEingebrachteAbstimmung } from './parliament';
 import { makeState } from '../test-helpers';
 import type { Law } from '../types';
 
@@ -142,5 +142,69 @@ describe('resolveEingebrachteAbstimmung — Ideologie-Malus-Transparenz', () => 
     };
     const result = resolveEingebrachteAbstimmung(state, { gesetzId: 'passendes_gesetz' }, { complexity: 2, milieus: [] });
     expect(result.log.some((l) => l.msg.includes('Koalitionsfraktionen murren'))).toBe(false);
+  });
+});
+
+describe('berechneJaQuoteBreakdown (#270)', () => {
+  function neutralesGesetz(): Law {
+    // Ideologisch neutral, damit der Overton-Modifikator (meinungsklima) inaktiv bleibt (0).
+    return { ...eeGesetz(), id: 'neutrales_gesetz', ideologie: { wirtschaft: 0, gesellschaft: 0, staat: 0 } };
+  }
+
+  it('ohne aktive Modifikatoren: nur Basis, leere Modifikatorliste, gesamt = basis', () => {
+    const law = { ...neutralesGesetz(), status: 'aktiv' as const, ja: 55 };
+    const state = makeState({ gesetze: [law] });
+    const breakdown = berechneJaQuoteBreakdown(state, law, 4);
+    expect(breakdown.basis).toBe(55);
+    expect(breakdown.modifikatoren).toEqual([]);
+    expect(breakdown.gesamt).toBe(55);
+  });
+
+  it('Koalitionspartner-Priorität erscheint als eigene Zeile und erhöht die Gesamtsumme', () => {
+    const law = { ...neutralesGesetz(), id: 'prio_gesetz', status: 'aktiv' as const, ja: 55 };
+    const state = makeState({
+      gesetze: [law],
+      month: 3,
+      koalitionspartner: { id: 'gp' as const, beziehung: 60, koalitionsvertragScore: 50, schluesselthemenErfuellt: [] },
+      partnerPrioGesetz: { gesetzId: 'prio_gesetz', bisMonat: 6 },
+    });
+    // Stufe 1: 'ideologie_bt_malus' (minLevel 2) inaktiv, damit nur der Partner-Bonus isoliert getestet wird.
+    const breakdown = berechneJaQuoteBreakdown(state, law, 1);
+    expect(breakdown.modifikatoren).toEqual([{ key: 'partnerPrioritaet', wert: 5 }]);
+    expect(breakdown.gesamt).toBe(60);
+  });
+
+  it('ideologischer Abstand zur Koalition erscheint als negative Zeile; gesamt = Basis + Summe aller Modifikatoren', () => {
+    const law: Law = {
+      ...eeGesetz(),
+      id: 'hartes_gesetz',
+      status: 'aktiv',
+      ja: 80,
+      ideologie: { wirtschaft: 85, gesellschaft: 85, staat: 85 },
+      ideologie_wert: 85,
+    };
+    const state = {
+      ...makeState({ gesetze: [law], month: 5 }),
+      spielerPartei: { id: 'sdp' as const, kuerzel: 'SDP', farbe: '#c00', name: 'SDP' },
+      koalitionspartner: { id: 'gp' as const, beziehung: 60, koalitionsvertragScore: 50, schluesselthemenErfuellt: [] },
+    };
+    const breakdown = berechneJaQuoteBreakdown(state, law, 2);
+    const ideologieZeile = breakdown.modifikatoren.find((m) => m.key === 'ideologieAbstand');
+    expect(ideologieZeile).toBeDefined();
+    expect(ideologieZeile!.wert).toBeLessThan(0);
+    const summe = breakdown.modifikatoren.reduce((sum, m) => sum + m.wert, 0);
+    expect(breakdown.gesamt).toBe(80 + summe);
+  });
+
+  it('Gesamtsumme wird bei 95% gekappt', () => {
+    const law = { ...neutralesGesetz(), id: 'prio_gesetz', status: 'aktiv' as const, ja: 92 };
+    const state = makeState({
+      gesetze: [law],
+      month: 3,
+      koalitionspartner: { id: 'gp' as const, beziehung: 60, koalitionsvertragScore: 50, schluesselthemenErfuellt: [] },
+      partnerPrioGesetz: { gesetzId: 'prio_gesetz', bisMonat: 6 },
+    });
+    const breakdown = berechneJaQuoteBreakdown(state, law, 1);
+    expect(breakdown.gesamt).toBe(95);
   });
 });
