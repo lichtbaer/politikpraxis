@@ -19,6 +19,30 @@ Die zentrale Ressource. Jede Aktion kostet PK. Regeneration: +1–6 PK/Monat abh
 
 PK-Maximum: 150. Spieler beginnen mit 100.
 
+### Aktionsökonomie — Design-Entscheidung (Issue #271)
+
+Alle `do…`-Aktionen sind ausschließlich durch PK begrenzt; es gibt **keinen** expliziten
+Aktionszähler pro Monat. Im pausierten Monat kann der Spieler beliebig viele Aktionen
+stapeln (mehrere Gesetze, Lobbying, Medienaktionen …), solange PK reicht — das ist
+**bewusstes Feature** (Variante B aus Issue #271), kein Bug: Der PK-Pool selbst ist die
+Aktionsökonomie, und einzelne Aktionen mit eingebauten Monats-Cooldowns (z. B.
+Pressemitteilung: 1× pro Monat) verhindern bereits die offensichtlichsten Exploits.
+
+Damit die Balance-Simulation (`core/simulation/balanceSim.ts`) dieses reale
+UI-Verhalten misst statt nur Ein-Aktion-pro-Monat-Spielweisen zu testen, kann eine
+`Strategy` seit #271 pro Monat entweder eine einzelne Aktion **oder ein Array** von
+Aktionen zurückgeben, die im selben Monat sequenziell angewendet werden
+(`core/simulation/strategien.ts`). Zwei Multi-Aktion-Strategien decken das ab:
+
+| Strategie | Verhalten |
+|-----------|-----------|
+| `stapler` | Stapelt jeden Monat so viele Aktionen wie möglich (Einbringen + Lobbying + Fraktionssitzung + Pressemitteilung + ggf. Koalitionsrunde) |
+| `burst_spieler` | Hortet PK wie `pk_horten`, entlädt aber alle 4 Monate einen Schwall von Aktionen |
+
+Sollte künftige Balance-Daten zeigen, dass Stacking eine dominante, den Spielspaß
+beeinträchtigende Strategie ist, bleibt ein explizites Aktionsbudget (Variante A) als
+Option offen — aktuell ist dafür kein Bedarf belegt.
+
 ---
 
 ## 3.2 Kabinett & Charaktersystem

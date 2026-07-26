@@ -234,11 +234,15 @@ export function runSingleSim(
         state = autoResolveEvent(state, complexity, content);
       }
 
-      // Strategie wählt Aktion
+      // Strategie wählt Aktion(en) — Arrays bilden PK-Stacking ab (mehrere
+      // Aktionen im selben pausierten Monat, siehe Issue #271)
       const action = strategy(state, content, complexity);
+      const actions = Array.isArray(action) ? action : [action];
 
-      // Aktion anwenden
-      state = applyAction(state, action, content, complexity);
+      // Aktionen sequenziell anwenden (jede prüft ihre eigene PK-Affordability)
+      for (const a of actions) {
+        state = applyAction(state, a, content, complexity);
+      }
 
       // Ressourcen-Metrik: zustimmungsabhängiger Regen dieses Monats (gleiche Formel wie tick)
       pkRegenSumme += berechnePkRegen(state.zust.g, complexity);
