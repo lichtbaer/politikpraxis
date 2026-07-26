@@ -629,6 +629,7 @@ export function validateGameState(raw: unknown): GameState {
     'wahlUeberHuerde',
     'spielziel',
     'media',
+    'gesetzeSeitLetzterPflege',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);

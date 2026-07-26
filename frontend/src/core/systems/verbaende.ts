@@ -2,6 +2,7 @@ import type { GameState, Verband, VerbandTradeoff, KpiDelta, KPI, ContentBundle 
 import { addLog } from '../engine';
 import { featureActive } from './features';
 import { adjustMedienKlimaGlobal } from './medien/medienAkteure';
+import { resetGesetzesstau } from './gesetzesstau';
 
 /** Verbandskonflikte: verbandId → Konflikt-Partner mit Malus */
 const KONFLIKTE: Record<string, { partner: string; malus: number }[]> = {
@@ -52,7 +53,7 @@ export function verbandGespraech(
   const newBeziehungen = { ...(state.verbandsBeziehungen ?? {}), [verbandId]: newBez };
 
   return addLog(
-    { ...state, pk: state.pk - 10, verbandsBeziehungen: newBeziehungen },
+    resetGesetzesstau({ ...state, pk: state.pk - 10, verbandsBeziehungen: newBeziehungen }),
     `Gespräch mit ${verband.kurz} — Beziehung +5`,
     'g',
   );
