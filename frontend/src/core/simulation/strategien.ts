@@ -26,7 +26,17 @@ export type StrategyAction =
   | { typ: 'prioritaetsgespraech'; gesetzId: string }
   | { typ: 'vermittlungsausschuss'; gesetzId: string };
 
-export type Strategy = (state: GameState, content: ContentBundle, complexity: number) => StrategyAction;
+/**
+ * Eine Strategie liefert pro Monat entweder eine einzelne Aktion oder — um das
+ * reale UI-Verhalten (PK-Stacking: beliebig viele `do…`-Aktionen pro pausiertem
+ * Monat, nur durch PK begrenzt) abzubilden — ein Array mehrerer Aktionen, die
+ * sequenziell im selben Monat angewendet werden (siehe Issue #271).
+ */
+export type Strategy = (
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+) => StrategyAction | StrategyAction[];
 
 /** Verfügbare Gesetze: Entwurf-Status, nicht event-locked */
 function verfuegbareGesetze(state: GameState): Law[] {
@@ -504,6 +514,77 @@ export function strategieHistoriker(state: GameState): StrategyAction {
   return { typ: 'einbringen', gesetzId: best[0].id };
 }
 
+// =============================================================================
+// Multi-Aktion-Strategien (SMA-271): bilden PK-Stacking ab — die UI erlaubt
+// beliebig viele Aktionen pro pausiertem Monat, begrenzt nur durch PK. Bisher
+// testete die Sim ausschließlich Ein-Aktion-pro-Monat-Spielweisen.
+// =============================================================================
+
+/**
+ * Stapler: stapelt in jedem Monat so viele Aktionen wie möglich —
+ * Gesetz einbringen, Lobbying auf ein eingebrachtes Gesetz und Pressemitteilung
+ * im selben Monat, sofern PK/Cooldowns es zulassen (die Aktionen selbst prüfen
+ * ihre Affordability und sind No-Ops bei fehlendem PK/Cooldown).
+ */
+export function strategieStapler(state: GameState): StrategyAction[] {
+  const actions: StrategyAction[] = [];
+
+  const gesetze = verfuegbareGesetze(state);
+  if (gesetze.length > 0) {
+    const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
+    actions.push({ typ: 'einbringen', gesetzId: passend[0].id });
+  }
+
+  const eingebrachte = state.gesetze.filter(g => g.status === 'eingebracht');
+  if (eingebrachte.length > 0) {
+    actions.push({ typ: 'lobbying', gesetzId: eingebrachte[0].id });
+    actions.push({ typ: 'fraktionssitzung', gesetzId: eingebrachte[0].id });
+  }
+
+  actions.push({ typ: 'pressemitteilung' });
+
+  if (state.coalition < 70) {
+    actions.push({ typ: 'koalitionsrunde' });
+  }
+
+  return actions.length > 0 ? actions : [{ typ: 'nichts' }];
+}
+
+/**
+ * Burst-Spieler: hortet PK wie `pk_horten` über mehrere Monate und entlädt dann
+ * einen Schwall Aktionen in einem einzigen Monat — testet, ob Banking + Burst
+ * die Balance anders trifft als gleichmäßiges Einzel-Aktions-Spiel.
+ */
+export function strategieBurstSpieler(state: GameState): StrategyAction[] {
+  const BURST_INTERVALL = 4;
+  if (state.month % BURST_INTERVALL !== 0) {
+    return [{ typ: 'nichts' }];
+  }
+
+  const actions: StrategyAction[] = [];
+  const gesetze = verfuegbareGesetze(state);
+  if (gesetze.length > 0) {
+    const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
+    actions.push({ typ: 'einbringen', gesetzId: passend[0].id });
+  }
+
+  const eingebrachte = state.gesetze.filter(g => g.status === 'eingebracht');
+  if (eingebrachte.length > 0) {
+    actions.push({ typ: 'lobbying', gesetzId: eingebrachte[0].id });
+    actions.push({ typ: 'fraktionssitzung', gesetzId: eingebrachte[0].id });
+  }
+
+  actions.push({ typ: 'pressemitteilung' });
+  actions.push({ typ: 'koalitionsrunde' });
+
+  const unzufrieden = [...state.chars].filter(c => !c.ist_kanzler).sort((a, b) => a.mood - b.mood);
+  if (unzufrieden.length > 0) {
+    actions.push({ typ: 'kabinettsgespraech', charId: unzufrieden[0].id });
+  }
+
+  return actions;
+}
+
 /** Alle Strategien */
 export function alleStrategien(): Record<string, Strategy> {
   return {
@@ -531,5 +612,8 @@ export function alleStrategien(): Record<string, Strategy> {
     vermittlungsprofi: strategieVermittlungsprofi,
     schuldenmacher: strategieSchuldenmacher,
     historiker: strategieHistoriker,
+    // Multi-Aktion-Strategien (SMA-271): PK-Stacking-Verhalten
+    stapler: strategieStapler,
+    burst_spieler: strategieBurstSpieler,
   };
 }
