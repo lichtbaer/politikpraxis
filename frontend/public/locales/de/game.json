@@ -2426,7 +2426,8 @@
       "koalition": "Koalitionsstabilität",
       "pk": "Politisches Kapital",
       "saldo": "Haushaltssaldo",
-      "event": "Ereignis"
+      "event": "Ereignis",
+      "arcFortsetzung": "Fortsetzung: {{titel}}"
     },
     "ursacheKpi": {
       "al": "Arbeitslosigkeit",

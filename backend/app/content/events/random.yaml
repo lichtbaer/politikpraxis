@@ -1289,3 +1289,165 @@
       charMood:
         im: -1
       log: 'EU-Koordination angefragt. Bis zur Antwort bleibt das Risiko bestehen.'
+
+# === Story-Arcs (#272) ===
+# Mehrstufige Arcs: arc_id/arc_stage gruppieren zusammengehörige Events;
+# Stage 1 ist regulär zufällig auslösbar, Stufen >= 2 werden ausschließlich
+# über den followup_event_id/followup_delay der jeweiligen Vorstufe erreicht
+# (siehe checkRandomEvents-Filter auf arcStage in core/systems/events/events.ts).
+# Arc "Der Beraterskandal": eine Enthüllung, zwei Reaktionswege mit
+# unterschiedlichen Folgen, die im Untersuchungsausschuss zusammenlaufen.
+
+- id: beraterskandal_enthuellung
+  type: danger
+  icon: "\U0001F4B0"
+  typeLabel: Berater-Affäre
+  title: 'Enthüllung: Millionenverträge ohne Ausschreibung'
+  arc_id: beraterskandal
+  arc_stage: 1
+  min_complexity: 1
+  quote: >-
+    Investigativjournalisten decken auf: Ihr Haus hat Beraterverträge im
+    zweistelligen Millionenbereich ohne Ausschreibung vergeben.
+  context: >-
+    Die Opposition wittert Morgenluft, Braun fordert Aufklärung. Wie Sie jetzt
+    reagieren, entscheidet, ob die Affäre abklingt oder eskaliert.
+  ticker: 'Berater-Affäre: Millionenverträge ohne Ausschreibung entdeckt'
+  choices:
+    - label: Rückhaltlose Aufklärung
+      desc: 'Alle Verträge offenlegen, unabhängige Prüfung einsetzen'
+      cost: 10
+      type: safe
+      effect:
+        zf: -3
+      charMood:
+        jm: 1
+      log: 'Alle Verträge offengelegt. Kurzfristiger Image-Schaden, aber Transparenz überzeugt.'
+      followup_event_id: beraterskandal_pruefbericht
+      followup_delay: 1
+    - label: Verträge verteidigen
+      desc: 'Vergabe als branchenüblich darstellen, keine Details veröffentlichen'
+      cost: 5
+      type: danger
+      effect:
+        zf: -1
+      charMood:
+        im: 1
+      log: 'Verträge verteidigt, keine Details veröffentlicht. Reporter graben weiter.'
+      followup_event_id: beraterskandal_leak
+      followup_delay: 1
+
+- id: beraterskandal_pruefbericht
+  type: danger
+  icon: "\U0001F4B0"
+  typeLabel: Berater-Affäre
+  title: Prüfbericht bestätigt Versäumnisse — würdigt aber Kooperation
+  arc_id: beraterskandal
+  arc_stage: 2
+  min_complexity: 1
+  quote: >-
+    Der unabhängige Prüfbericht liegt vor: Versäumnisse werden bestätigt, die
+    Kooperation der Regierung aber ausdrücklich gelobt.
+  context: >-
+    Die Medien würdigen die Offenheit. Die Opposition sucht dennoch nach einem
+    neuen Angriffspunkt für einen Untersuchungsausschuss.
+  ticker: 'Prüfbericht zur Berater-Affäre: Versäumnisse bestätigt'
+  choices:
+    - label: Konsequenzen ziehen
+      desc: 'Verantwortliche Abteilungsleitung austauschen'
+      cost: 8
+      type: primary
+      effect:
+        zf: 1
+      charMood:
+        fm: -1
+      log: 'Personelle Konsequenzen gezogen. Glaubwürdigkeit gestärkt.'
+      followup_event_id: beraterskandal_ausschuss
+      followup_delay: 1
+    - label: Vergabereform ankündigen
+      desc: 'Neue Ausschreibungsregeln für Beraterverträge'
+      cost: 5
+      type: safe
+      effect:
+        hh: 0.1
+      charMood:
+        wm: 1
+      log: 'Vergabereform angekündigt. Wirtschaftsverbände zurückhaltend positiv.'
+      followup_event_id: beraterskandal_ausschuss
+      followup_delay: 1
+
+- id: beraterskandal_leak
+  type: danger
+  icon: "\U0001F4B0"
+  typeLabel: Berater-Affäre
+  title: Interne E-Mails geleakt — Vertuschungsvorwurf im Raum
+  arc_id: beraterskandal
+  arc_stage: 2
+  min_complexity: 1
+  quote: >-
+    Ein Whistleblower leakt interne E-Mails: Kritik am Vergabeverfahren wurde
+    demnach bewusst unterdrückt.
+  context: >-
+    Der Vertuschungsvorwurf wiegt schwerer als die ursprüngliche Affäre. Braun
+    fordert einen Untersuchungsausschuss.
+  ticker: 'Berater-Affäre: Leak nährt Vertuschungsvorwurf'
+  choices:
+    - label: Jetzt doch aufklären
+      desc: 'Nachträglich alle Unterlagen offenlegen'
+      cost: 12
+      type: safe
+      effect:
+        zf: -5
+      charMood:
+        jm: 1
+        im: -1
+      log: 'Nachträgliche Offenlegung. Vertrauen beschädigt, aber Schadensbegrenzung gelungen.'
+      followup_event_id: beraterskandal_ausschuss
+      followup_delay: 1
+    - label: Aussitzen
+      desc: 'Keine weiteren Stellungnahmen, auf Rückgang der Aufmerksamkeit hoffen'
+      cost: 0
+      type: danger
+      effect:
+        zf: -7
+      charMood:
+        im: -1
+        jm: -2
+      log: 'Vorwürfe ausgesessen. Vertrauensverlust hält an.'
+      followup_event_id: beraterskandal_ausschuss
+      followup_delay: 1
+
+- id: beraterskandal_ausschuss
+  type: danger
+  icon: "\U0001F4B0"
+  typeLabel: Berater-Affäre
+  title: Untersuchungsausschuss nimmt Arbeit auf
+  arc_id: beraterskandal
+  arc_stage: 3
+  min_complexity: 1
+  quote: >-
+    Der Bundestag hat einen Untersuchungsausschuss zur Berater-Affäre eingesetzt.
+  context: >-
+    Nach Wochen der Berichterstattung entscheidet sich jetzt, ob die Affäre
+    politisch abgehakt werden kann.
+  ticker: 'Untersuchungsausschuss zur Berater-Affäre nimmt Arbeit auf'
+  choices:
+    - label: Uneingeschränkt kooperieren
+      desc: 'Alle Akten zur Verfügung stellen, persönlich aussagen'
+      cost: 15
+      type: primary
+      effect:
+        zf: 2
+      charMood:
+        jm: 1
+      log: 'Uneingeschränkte Kooperation. Ausschuss würdigt Transparenz, Affäre verliert an Sprengkraft.'
+    - label: Auf Anwälte verlassen
+      desc: 'Rechtlich absichern, Aussagen minimieren'
+      cost: 5
+      type: danger
+      effect:
+        zf: -2
+      charMood:
+        im: 1
+        jm: -1
+      log: 'Anwälte übernehmen. Ausschuss wirkt blockiert, öffentlicher Unmut wächst.'

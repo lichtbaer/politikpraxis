@@ -264,6 +264,9 @@ function transformEventChoice(api: {
   verband_delta?: Record<string, number>;
   sektor_delta?: Record<string, number>;
   haushalt_saldo_delta_mrd?: number;
+  followup_event_id?: string;
+  followup_delay?: number;
+  unlocks_laws?: string[];
 }): EventChoice {
   const choiceKey = guardString(api.key, 'EventChoice.key', '_choice_');
   const type = (['primary', 'danger', 'safe'].includes(api.type)
@@ -316,6 +319,15 @@ function transformEventChoice(api: {
   if (api.haushalt_saldo_delta_mrd != null) {
     choice.haushaltSaldoDeltaMrd = api.haushalt_saldo_delta_mrd;
   }
+  if (api.followup_event_id) {
+    choice.followup_event_id = api.followup_event_id;
+  }
+  if (api.followup_delay != null) {
+    choice.followup_delay = api.followup_delay;
+  }
+  if (api.unlocks_laws?.length) {
+    choice.unlocks_laws = api.unlocks_laws;
+  }
   return choice;
 }
 
@@ -351,6 +363,8 @@ function transformEvent(api: EventApi): GameEvent {
   if (api.einmalig != null) ev.einmalig = api.einmalig;
   if (api.repeatable) ev.repeatable = api.repeatable;
   if (api.cooldown_months != null) ev.cooldownMonths = api.cooldown_months;
+  if (api.arc_id) ev.arcId = api.arc_id;
+  if (api.arc_stage != null) ev.arcStage = api.arc_stage;
   return ev;
 }
 

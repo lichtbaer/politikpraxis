@@ -41,6 +41,8 @@ export interface MonatsUrsache {
   refId?: string;
   /** aufgelöster Klartext-Titel (z. B. Event-Titel); sonst i18n im UI */
   label?: string;
+  /** #272: Event ist Stufe >= 2 eines Story-Arcs (Fortsetzung einer Vorstufe) */
+  istArcFortsetzung?: boolean;
 }
 
 export interface MonatsDiff {

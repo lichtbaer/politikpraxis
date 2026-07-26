@@ -1755,6 +1755,10 @@ export interface components {
             /** Desc */
             desc: string;
             effekte: components["schemas"]["EffekteSchema"];
+            /** Followup Delay */
+            followup_delay?: number | null;
+            /** Followup Event Id */
+            followup_event_id?: string | null;
             /** Haushalt Saldo Delta Mrd */
             haushalt_saldo_delta_mrd?: number | null;
             /** Key */
@@ -1787,6 +1791,8 @@ export interface components {
             steuerpolitik_modifikator_delta?: number | null;
             /** Type */
             type: string;
+            /** Unlocks Laws */
+            unlocks_laws?: string[] | null;
             /** Verband Delta */
             verband_delta?: {
                 [key: string]: number;
@@ -1846,6 +1852,10 @@ export interface components {
         };
         /** EventResponse */
         EventResponse: {
+            /** Arc Id */
+            arc_id?: string | null;
+            /** Arc Stage */
+            arc_stage?: number | null;
             /** Choices */
             choices: components["schemas"]["EventChoiceResponse"][];
             /** Context */

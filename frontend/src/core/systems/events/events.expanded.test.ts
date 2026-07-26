@@ -120,6 +120,24 @@ describe('checkRandomEvents (extended)', () => {
     vi.restoreAllMocks();
   });
 
+  it('#272: filtert Arc-Fortsetzungen (arcStage >= 2) aus dem Zufallspool — nur über Follow-up erreichbar', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
+    const fortsetzung = makeEvent({ id: 'arc_stage2', arcId: 'testarc', arcStage: 2 });
+    const state = makeState();
+    const result = checkRandomEvents(state, [fortsetzung]);
+    expect(result.activeEvent).toBeNull();
+    vi.restoreAllMocks();
+  });
+
+  it('#272: Arc-Einstieg (arcStage 1 oder ohne arcStage) bleibt regulär zufällig auslösbar', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
+    const einstieg = makeEvent({ id: 'arc_stage1', arcId: 'testarc', arcStage: 1 });
+    const state = makeState();
+    const result = checkRandomEvents(state, [einstieg]);
+    expect(result.activeEvent!.id).toBe('arc_stage1');
+    vi.restoreAllMocks();
+  });
+
   it('bietet im Spätspiel (Monat 36+) weiterhin Events, wenn nicht-wiederholbare Events erschöpft sind (SMA-273)', () => {
     vi.spyOn(rng, 'nextRandom').mockReturnValue(0); // immer auslösen, immer erstes verfügbares Event wählen
     const einmaligA = makeEvent({ id: 'einmalig_a' });

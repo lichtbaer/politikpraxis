@@ -2355,7 +2355,8 @@
       "koalition": "Coalition stability",
       "pk": "Political capital",
       "saldo": "Budget balance",
-      "event": "Event"
+      "event": "Event",
+      "arcFortsetzung": "Continued: {{titel}}"
     },
     "ursacheKpi": {
       "al": "Unemployment",
