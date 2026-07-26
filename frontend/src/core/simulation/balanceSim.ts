@@ -207,6 +207,7 @@ export function runSingleSim(
   content: ContentBundle,
   strategy: Strategy,
   complexity: number = 4,
+  spielerAgendaIds?: string[],
 ): SimResult {
   try {
     let state = createInitialState(content, complexity, DEFAULT_AUSRICHTUNG);
@@ -215,6 +216,12 @@ export function runSingleSim(
       ...state,
       electionThreshold: ELECTION_THRESHOLDS_BY_COMPLEXITY[complexity] ?? DEFAULT_ELECTION_THRESHOLD,
     };
+    // SMA-269: Spieler-Agenda setzen (die UI tut dies im Onboarding via setSpielerAgendaIds;
+    // die Sim ruft den Store nicht auf, daher hier direkt am State — sonst bleibt die
+    // Agenda-Säule des Spielziels konstant beim Default-Wert, egal welche Strategie spielt).
+    if (spielerAgendaIds && spielerAgendaIds.length > 0) {
+      state = { ...state, spielerAgenda: [...spielerAgendaIds] };
+    }
 
     let pkKnappeMonate = 0;
     let pkRegenSumme = 0;
@@ -415,10 +422,11 @@ export function monteCarlo(
   strategy: Strategy,
   n: number = 200,
   complexity: number = 4,
+  spielerAgendaIds?: string[],
 ): AggregatedResult {
   const ergebnisse: SimResult[] = [];
   for (let i = 0; i < n; i++) {
-    ergebnisse.push(runSingleSim(content, strategy, complexity));
+    ergebnisse.push(runSingleSim(content, strategy, complexity, spielerAgendaIds));
   }
   return aggregiere(ergebnisse);
 }
