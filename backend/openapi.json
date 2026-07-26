@@ -2150,6 +2150,17 @@
             "title": "Context",
             "type": "string"
           },
+          "cooldown_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cooldown Months"
+          },
           "einmalig": {
             "anyOf": [
               {
@@ -2209,6 +2220,18 @@
           "quote": {
             "title": "Quote",
             "type": "string"
+          },
+          "repeatable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": false,
+            "title": "Repeatable"
           },
           "ticker": {
             "title": "Ticker",

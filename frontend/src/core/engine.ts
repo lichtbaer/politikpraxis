@@ -488,7 +488,7 @@ const ENGINE_PIPELINE: EnginePhase[] = [
       {
         id: 'checkRandomEvents',
         safe: true,
-        run(ctx) { ctx.s = checkRandomEvents(ctx.s, ctx.content.events); },
+        run(ctx) { ctx.s = checkRandomEvents(ctx.s, ctx.content.events, ctx.complexity); },
       },
       {
         id: 'syncMediaStatePublic',

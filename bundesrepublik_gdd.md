@@ -195,7 +195,7 @@ Events sind das spielerische Herz. Sie erscheinen zufällig (~22% Chance/Monat),
 
 **Zwei Event-Typen:**
 
-*Random Events* (Pool; pro Durchlauf wird eine **Teilmenge** per Zufall ausgewählt, komplexere Events haben eigene `min_complexity` im Content):
+*Random Events* (Pool von 29 Events, `backend/app/content/events/random.yaml`; pro Durchlauf wird eine **Teilmenge** per Zufall ausgewählt). Jedes Event trägt ein kuratiertes `min_complexity` (1: 14 Events wie Haushaltsloch/Konjunkturabschwung/Koalitionskrise; 2: 9 Events wie EU-Vertragsverletzungsverfahren/Naturkatastrophe/Rechtsextremismus-Krise; 3: 6 Events wie Verfassungsgerichtsurteil/Cyberangriff/G7-Gipfel/Whistleblower-Affäre). Acht wiederkehrende Basiskrisen (Haushaltsloch, Konjunkturabschwung, Streikwelle, Ministeriumsskandal, Großdemonstration, Energiekrise, Fachkräftemangel, Infrastruktur-Kollaps) sind `repeatable` mit `cooldownMonths` von 10–14, damit der Pool auch in Monat 36–48 nicht erschöpft:
 - Haushaltsloch
 - Ministeriumsskandal
 - EU-Vertragsverletzungsverfahren
@@ -203,14 +203,14 @@ Events sind das spielerische Herz. Sie erscheinen zufällig (~22% Chance/Monat),
 - Koalitionskrise
 - Großdemonstration
 - EU-Strukturfonds-Freigabe
-- Verfassungsgerichtsurteil (geplant)
-- Naturkatastrophe (geplant)
-- Cyberangriff auf Behörden (geplant)
-- G7-Gipfel / internationale Krise (geplant)
-- Whistleblower-Affäre (geplant)
-- Streikwelle (geplant)
-- Wohnungsnot-Proteste (geplant)
-- Rechtsextremismus-Krise (geplant)
+- Verfassungsgerichtsurteil
+- Naturkatastrophe
+- Cyberangriff auf Behörden
+- G7-Gipfel / internationale Krise
+- Whistleblower-Affäre
+- Streikwelle
+- Wohnungsnot-Proteste
+- Rechtsextremismus-Krise
 
 *Char-Ultimatums* (ausgelöst bei Mood-Schwelle):
 - Lehmann: Haushalt-Ultimatum

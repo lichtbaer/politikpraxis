@@ -92,6 +92,56 @@ describe('checkRandomEvents (extended)', () => {
     expect(result.activeEvent).toBeNull();
     vi.restoreAllMocks();
   });
+
+  it('filtert Events deren min_complexity über der aktuellen Komplexitätsstufe liegt', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
+    const event = makeEvent({ id: 'stufe3_event', min_complexity: 3 });
+    const state = makeState();
+    const result = checkRandomEvents(state, [event], 1);
+    expect(result.activeEvent).toBeNull();
+    vi.restoreAllMocks();
+  });
+
+  it('erlaubt Events deren min_complexity auf oder unter der aktuellen Komplexitätsstufe liegt', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
+    const event = makeEvent({ id: 'stufe3_event', min_complexity: 3 });
+    const state = makeState();
+    const result = checkRandomEvents(state, [event], 3);
+    expect(result.activeEvent!.id).toBe('stufe3_event');
+    vi.restoreAllMocks();
+  });
+
+  it('behandelt fehlendes min_complexity als Stufe 1 (immer verfügbar)', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
+    const event = makeEvent({ id: 'ohne_min_complexity' });
+    const state = makeState();
+    const result = checkRandomEvents(state, [event], 1);
+    expect(result.activeEvent!.id).toBe('ohne_min_complexity');
+    vi.restoreAllMocks();
+  });
+
+  it('bietet im Spätspiel (Monat 36+) weiterhin Events, wenn nicht-wiederholbare Events erschöpft sind (SMA-273)', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0); // immer auslösen, immer erstes verfügbares Event wählen
+    const einmaligA = makeEvent({ id: 'einmalig_a' });
+    const einmaligB = makeEvent({ id: 'einmalig_b' });
+    const basiskrise = makeEvent({ id: 'basiskrise_c', repeatable: true, cooldownMonths: 10 });
+    const pool = [einmaligA, einmaligB, basiskrise];
+
+    let state = makeState({ month: 1, firedEvents: [], eventCooldowns: {} });
+    for (let i = 0; i < 3; i++) {
+      const result = checkRandomEvents(state, pool);
+      expect(result.activeEvent).toBeTruthy();
+      state = { ...result, activeEvent: null, month: state.month + 1 };
+    }
+    expect(state.firedEvents).toEqual(expect.arrayContaining(['einmalig_a', 'einmalig_b']));
+
+    // Weit ins Spätspiel vorspulen — der Cooldown der Basiskrise ist längst abgelaufen
+    state = { ...state, month: 40 };
+    const result = checkRandomEvents(state, pool);
+    expect(result.activeEvent).toBeTruthy();
+    expect(result.activeEvent!.id).toBe('basiskrise_c');
+    vi.restoreAllMocks();
+  });
 });
 
 describe('checkBundesratEvents', () => {

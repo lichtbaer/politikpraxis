@@ -584,6 +584,11 @@ async def fetch_events(
                 row["trigger_params"] = dict(tp) if hasattr(tp, "keys") else tp
             if hasattr(e, "einmalig"):
                 row["einmalig"] = bool(e.einmalig)
+            if hasattr(e, "repeatable"):
+                row["repeatable"] = bool(e.repeatable)
+            cd = getattr(e, "cooldown_months", None)
+            if cd is not None:
+                row["cooldown_months"] = cd
             rows.append(row)
         return rows
 

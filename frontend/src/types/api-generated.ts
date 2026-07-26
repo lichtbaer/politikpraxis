@@ -1850,6 +1850,8 @@ export interface components {
             choices: components["schemas"]["EventChoiceResponse"][];
             /** Context */
             context: string;
+            /** Cooldown Months */
+            cooldown_months?: number | null;
             /**
              * Einmalig
              * @default true
@@ -1867,6 +1869,11 @@ export interface components {
             politikfeld_id?: string | null;
             /** Quote */
             quote: string;
+            /**
+             * Repeatable
+             * @default false
+             */
+            repeatable: boolean | null;
             /** Ticker */
             ticker: string;
             /** Title */

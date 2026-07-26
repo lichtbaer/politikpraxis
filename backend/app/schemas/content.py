@@ -133,6 +133,8 @@ class EventResponse(BaseModel):
     trigger_typ: str | None = None
     trigger_params: dict[str, Any] | None = None
     einmalig: bool | None = True
+    repeatable: bool | None = False
+    cooldown_months: int | None = None
     min_complexity: int | None
     type_label: str
     title: str

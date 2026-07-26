@@ -4,6 +4,9 @@
   typeLabel: Haushaltskrise
   title: Milliardenloch im Bundeshaushalt
   always_include: true
+  min_complexity: 1
+  repeatable: true
+  cooldownMonths: 12
   quote: >-
     Überraschende Steuermindereinnahmen reißen ein Loch von 14 Milliarden Euro.
   context: >-
@@ -51,6 +54,9 @@
   icon: "\U0001F4F0"
   typeLabel: Politischer Skandal
   title: Medienberichte über Ministeriumsverschwendung
+  min_complexity: 1
+  repeatable: true
+  cooldownMonths: 10
   quote: >-
     Der Spiegel berichtet über fragwürdige Beraterverträge im Bundesministerium.
   context: >-
@@ -90,6 +96,7 @@
   icon: "\U0001F1EA\U0001F1FA"
   typeLabel: EU-Vertragsverletzung
   title: Brüssel leitet Verfahren gegen Deutschland ein
+  min_complexity: 2
   quote: >-
     Die Europäische Kommission kritisiert die schleppende Umsetzung von EU-Richtlinien.
   context: >-
@@ -129,6 +136,9 @@
   typeLabel: Wirtschaftsabschwung
   title: EZB-Zinserhöhung trifft deutsche Wirtschaft
   always_include: true
+  min_complexity: 1
+  repeatable: true
+  cooldownMonths: 12
   quote: >-
     Investitionen brechen ein, Kurzarbeit steigt — Rezessionsrisiko wächst.
   context: >-
@@ -173,6 +183,7 @@
   icon: "\U0001F91D"
   typeLabel: Koalitionskrise
   title: Koalitionspartner droht mit Austritt
+  min_complexity: 1
   quote: >-
     Wir können dieser Politik nicht mehr zustimmen, warnt der Koalitionspartner.
   context: >-
@@ -211,6 +222,9 @@
   icon: "\U0001F4E2"
   typeLabel: Gesellschaft
   title: Großdemonstration erschüttert Berlin
+  min_complexity: 1
+  repeatable: true
+  cooldownMonths: 11
   quote: >-
     500.000 Menschen auf den Straßen — die größte Demo seit Jahren.
   context: >-
@@ -256,6 +270,7 @@
   icon: "\U0001F1EA\U0001F1FA"
   typeLabel: EU-Förderung
   title: EU gibt Milliarden-Strukturfonds frei
+  min_complexity: 2
   quote: >-
     Brüssel stellt 4,8 Milliarden Euro für deutsche Klimainvestitionen bereit.
   context: >-
@@ -303,6 +318,7 @@
   icon: "\u2696\uFE0F"
   typeLabel: Verfassungsgericht
   title: Bundesverfassungsgericht kippt zentrale Regelung
+  min_complexity: 3
   quote: >-
     Das Bundesverfassungsgericht erklärt ein Kerngesetz der Regierung für verfassungswidrig.
   context: >-
@@ -344,6 +360,7 @@
   icon: "\U0001F30A"
   typeLabel: Naturkatastrophe
   title: Jahrhunderthochwasser verwüstet Süddeutschland
+  min_complexity: 2
   quote: >-
     Die schlimmste Flutkatastrophe seit Jahrzehnten fordert Dutzende Opfer und Milliardenschäden.
   context: >-
@@ -388,6 +405,7 @@
   icon: "\U0001F4BB"
   typeLabel: Cyberangriff
   title: Massive Cyberattacke legt Bundesministerien lahm
+  min_complexity: 3
   quote: >-
     Ein koordinierter Hackerangriff hat zentrale IT-Systeme der Bundesverwaltung kompromittiert.
   context: >-
@@ -431,6 +449,7 @@
   icon: "\U0001F30D"
   typeLabel: Internationale Krise
   title: G7-Gipfel unter dem Schatten globaler Spannungen
+  min_complexity: 3
   quote: >-
     Internationale Konflikte überschatten den G7-Gipfel unter deutscher Präsidentschaft.
   context: >-
@@ -470,6 +489,7 @@
   icon: "\U0001F50D"
   typeLabel: Whistleblower-Affäre
   title: Beamter enthüllt systematische Überwachung
+  min_complexity: 3
   quote: >-
     Ein hochrangiger Beamter veröffentlicht brisante Dokumente über illegale Überwachungsprogramme.
   context: >-
@@ -514,6 +534,9 @@
   icon: "\u270A"
   typeLabel: Streikwelle
   title: Gewerkschaften rufen zum Generalstreik
+  min_complexity: 1
+  repeatable: true
+  cooldownMonths: 14
   quote: >-
     Nahverkehr, Kitas, Krankenhäuser — eine Streikwelle lähmt das öffentliche Leben.
   context: >-
@@ -558,6 +581,7 @@
   icon: "\U0001F3E0"
   typeLabel: Wohnungskrise
   title: Zehntausende protestieren gegen explodierende Mieten
+  min_complexity: 1
   quote: >-
     In 50 Städten gehen Menschen auf die Straße — bezahlbarer Wohnraum ist die zentrale Forderung.
   context: >-
@@ -601,6 +625,7 @@
   icon: "\U0001F6A8"
   typeLabel: Rechtsextremismus
   title: Rechtsextremer Anschlag erschüttert das Land
+  min_complexity: 2
   quote: >-
     Ein rechtsmotivierter Anschlag fordert Opfer und löst eine Welle der Solidarität und Angst aus.
   context: >-
@@ -647,6 +672,9 @@
   icon: "\U0001F477"
   typeLabel: Fachkräftemangel
   title: Fachkräftemangel bedroht Wirtschaftsstandort
+  min_complexity: 1
+  repeatable: true
+  cooldownMonths: 14
   quote: >-
     800.000 offene Stellen können nicht besetzt werden — Unternehmen warnen vor Abwanderung.
   context: >-
@@ -692,6 +720,9 @@
   icon: "\u26A1"
   typeLabel: Energiekrise
   title: Energiepreisschock trifft Industrie und Verbraucher
+  min_complexity: 1
+  repeatable: true
+  cooldownMonths: 13
   quote: >-
     Gaspreise verdreifachen sich über Nacht — Industrie fährt Produktion herunter.
   context: >-
@@ -738,6 +769,7 @@
   icon: "\U0001F474"
   typeLabel: Rentenkrise
   title: Rentenversicherung meldet Milliardendefizit
+  min_complexity: 2
   quote: >-
     Die Babyboomer gehen in Rente — das System steht vor dem Kollaps.
   context: >-
@@ -783,6 +815,7 @@
   icon: "\U0001F9A0"
   typeLabel: Pandemie-Warnung
   title: WHO warnt vor neuem Virus mit Pandemiepotenzial
+  min_complexity: 2
   quote: >-
     Eine neue Virusvariante breitet sich in Asien rasant aus — die WHO ruft zur Vorbereitung auf.
   context: >-
@@ -822,6 +855,9 @@
   icon: "\U0001F309"
   typeLabel: Infrastruktur
   title: Brückensperrungen legen Verkehr lahm
+  min_complexity: 1
+  repeatable: true
+  cooldownMonths: 12
   quote: >-
     Dutzende marode Autobahnbrücken müssen gesperrt werden — der Verkehr bricht zusammen.
   context: >-
@@ -864,6 +900,7 @@
   icon: "\U0001F6A2"
   typeLabel: Migrationskrise
   title: Flüchtlingszahlen steigen sprunghaft an
+  min_complexity: 2
   quote: >-
     Kommunen melden Überlastung — die Aufnahmekapazitäten sind erschöpft.
   context: >-
@@ -908,6 +945,7 @@
   icon: "\u2696\uFE0F"
   typeLabel: Verfassungsklage
   title: Opposition klagt gegen Schuldenaufnahme
+  min_complexity: 1
   quote: >-
     Die Opposition hat Klage beim Bundesverfassungsgericht eingereicht — Verstoß gegen die Schuldenbremse.
   context: >-
@@ -948,6 +986,7 @@
   icon: "\U0001F3D7\uFE0F"
   typeLabel: Wiederaufbau
   title: Streit über Wiederaufbaukosten nach Flutkatastrophe
+  min_complexity: 2
   quote: >-
     Wer zahlt die 30 Milliarden Euro Wiederaufbau? Bund und Länder streiten.
   context: >-
@@ -987,6 +1026,7 @@
   icon: "\U0001F30D"
   typeLabel: Diplomatische Krise
   title: Beschuldigter Staat reagiert mit Gegenmaßnahmen
+  min_complexity: 3
   quote: >-
     Als Reaktion auf die öffentlichen Schuldzuweisungen verhängt der beschuldigte Staat Wirtschaftssanktionen.
   context: >-
@@ -1027,6 +1067,7 @@
   icon: "\U0001F4E2"
   typeLabel: Opposition
   title: Opposition wirft Regierung Untätigkeit vor
+  min_complexity: 2
   quote: >-
     Nach dem rechtsextremen Anschlag wirft die Opposition der Regierung fahrlässige Untätigkeit vor.
   context: >-
@@ -1067,6 +1108,7 @@
   icon: "\u270A"
   typeLabel: Streik-Eskalation
   title: Gewerkschaften weiten Streik aus
+  min_complexity: 1
   quote: >-
     Nach dem Scheitern der Schlichtung rufen die Gewerkschaften zu unbefristeten Streiks auf.
   context: >-
@@ -1111,6 +1153,7 @@
   typeLabel: Agrarkrise
   title: Bauern blockieren Autobahnen und Ministerien
   always_include: false
+  min_complexity: 1
   quote: >-
     Tausende Traktoren rollen auf Berlin zu — die Stimmung auf dem Land ist am Siedepunkt.
   context: >-
@@ -1158,6 +1201,7 @@
   typeLabel: Gesundheitskrise
   title: Kliniken schlagen Alarm — Pflegenotstand offiziell
   always_include: false
+  min_complexity: 1
   quote: >-
     „Wir können die Versorgung nicht mehr garantieren", warnt die Deutsche Krankenhausgesellschaft.
   context: >-
@@ -1205,6 +1249,7 @@
   typeLabel: Digitaler Angriff
   title: KI-Deepfake-Angriff auf Bundesbehörde aufgedeckt
   always_include: false
+  min_complexity: 3
   quote: >-
     „Ein KI-generiertes Video des Bundesinnenministers verbreitete sich unkontrolliert in sozialen Netzwerken."
   context: >-

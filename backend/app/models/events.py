@@ -43,6 +43,10 @@ class Event(Base):
     einmalig: Mapped[bool] = mapped_column(
         Boolean(), nullable=False, server_default=text("true")
     )
+    repeatable: Mapped[bool] = mapped_column(
+        Boolean(), nullable=False, server_default=text("false")
+    )
+    cooldown_months: Mapped[int | None] = mapped_column(Integer(), nullable=True)
 
 
 class EventI18n(Base):

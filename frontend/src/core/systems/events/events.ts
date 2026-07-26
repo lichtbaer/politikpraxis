@@ -70,7 +70,7 @@ export { isOnCooldown, isEventAvailable, recordEventFired } from './eventUtils';
 import { isEventAvailable, recordEventFired } from './eventUtils';
 import { nextRandom } from '../../rng';
 
-export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): GameState {
+export function checkRandomEvents(state: GameState, eventPool: GameEvent[], complexity: number = 4): GameState {
   if (state.activeEvent) return state;
 
   // Dynamische Event-Wahrscheinlichkeit statt flacher 22%
@@ -93,6 +93,7 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[]): Gam
   const firedSet = new Set(state.firedEvents);
   const available = eventPool
     .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
+    .filter(e => (e.min_complexity ?? 1) <= complexity)
     .filter(e => isEventAvailable(state, e, firedSet));
   if (!available.length) return state;
 
