@@ -1645,7 +1645,19 @@
     "ersterTabHinweis": "Der Bundestag spiegelt die politische Realität wider. Die Nationale Front (NF) ist im Parlament präsent, steht aber außerhalb jeder demokratischen Zusammenarbeit.",
     "hinweisVerstanden": "Verstanden",
     "logNfMedienkritik": "Kritik: Gesetz kommt NF-Positionen entgegen — Medienklima belastet.",
-    "abstimmungCountdown": "Abstimmung in {{count}} Mo. ({{month}})"
+    "abstimmungCountdown": "Abstimmung in {{count}} Mo. ({{month}})",
+    "jaBreakdown": {
+      "title": "Woher kommt die Ja-Quote?",
+      "basis": "Basis (Gesetzestext, Lobbying)",
+      "effektiv": "Effektive Ja-Quote",
+      "koalitionsPrioritaet": "Koalitions-Priorität",
+      "btStimmenBonus": "Sonderbonus",
+      "vorstufenBoni": "Vorstufen-Bonus",
+      "nfEffekt": "Reaktion der Nationalen Front",
+      "ideologieAbstand": "Ideologischer Abstand zur Koalition",
+      "koalitionsvertragStanz": "Koalitionsvertrag",
+      "abweichlerRisiko": "Abweichler-Risiko: bis zu {{risiko}}% zusätzlicher Stimmenverlust möglich"
+    }
   },
   "media": {
     "title": "Medien",

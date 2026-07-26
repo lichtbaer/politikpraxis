@@ -348,16 +348,47 @@ export function lobbying(state: GameState, lawId: string): GameState {
   return addLog(newState, `Lobbying ${gesetze[idx].kurz}: Zustimmung steigt +${gain}%`, '');
 }
 
-export function abstimmen(
-  state: GameState,
-  lawId: string,
-  beschlussContext?: GesetzBeschlussContext,
-): GameState {
-  const idx = state.gesetze.findIndex((g) => g.id === lawId);
-  if (idx === -1) return state;
-  const law = state.gesetze[idx];
-  if (law.status !== 'aktiv') return state;
+/**
+ * SMA-270: Ein einzelner, benannter Beitrag zur Bundestags-Ja-Quote — Basis für die
+ * Ja-%-Herkunfts-Aufschlüsselung im UI (Issue #270). `key` ist stabil und dient als
+ * i18n-Label-Schlüssel (`game:bundestag.jaBreakdown.<key>`).
+ */
+export interface JaModifikator {
+  key:
+    | 'koalitionsPrioritaet'
+    | 'btStimmenBonus'
+    | 'vorstufenBoni'
+    | 'nfEffekt'
+    | 'ideologieAbstand'
+    | 'koalitionsvertragStanz';
+  delta: number;
+}
 
+interface JaModifikatorenErgebnis {
+  /** Basis-Ja-Wert des Gesetzes (`law.ja`), inkl. bereits eingepreistem Lobbying. */
+  basis: number;
+  /** Nur die aktiven (von 0 verschiedenen) Modifikatoren, für die UI-Anzeige. */
+  modifikatoren: JaModifikator[];
+  /** Basis + Summe aller Modifikatoren, UNGEKLAMMERT (Aufrufer klammern auf max. 95). */
+  rohSumme: number;
+  /** Ideologie-Abstand-Malus als Rohwert (auch wenn 0) — für den bestehenden Murren-Log. */
+  ideologieMalus: number;
+}
+
+/**
+ * Gemeinsame Berechnung der deterministischen Ja-%-Modifikatoren (Koalitions-Priorität,
+ * BT-Stimmen-Bonus, Vorstufen-Boni, NF-Effekt, Ideologie-Abstand, Koalitionsvertrag-Stanz).
+ * Das Fraktionsdisziplin-Abweichlerrisiko ist bewusst NICHT enthalten, da es einen
+ * Würfelwurf beinhaltet und je Aufrufer unterschiedlich gehandhabt wird (siehe
+ * `resolveEingebrachteAbstimmung` und `berechneJaBreakdown`).
+ */
+function berechneJaModifikatoren(
+  state: GameState,
+  law: Law,
+  lawId: string,
+  complexity: number,
+  beschlussContext?: GesetzBeschlussContext,
+): JaModifikatorenErgebnis {
   const partnerBonus =
     state.koalitionspartner &&
     state.partnerPrioGesetz?.gesetzId === lawId &&
@@ -365,19 +396,17 @@ export function abstimmen(
       ? 5
       : 0;
   const btBonus =
-    state.btStimmenBonus &&
-    state.month <= state.btStimmenBonus.bisMonat
+    state.btStimmenBonus && state.month <= state.btStimmenBonus.bisMonat
       ? state.btStimmenBonus.pct
       : 0;
   const vorstufenBtBonus = state.gesetzProjekte?.[lawId]?.boni?.btStimmenBonus ?? 0;
   const nfBtMod = getNfBundestagBtModifikator(law);
-  const complexityBt = beschlussContext?.complexity ?? 4;
   const ideologieMalus =
-    featureActive(complexityBt, 'ideologie_bt_malus')
+    featureActive(complexity, 'ideologie_bt_malus')
       ? getIdeologieMalusFuerBt(law, state.spielerPartei?.id, state.koalitionspartner?.id)
       : 0;
   let koalitionStanzMalus = 0;
-  if (featureActive(complexityBt, 'ideologie_bt_malus') && state.koalitionsvertragProfil && state.koalitionspartner) {
+  if (featureActive(complexity, 'ideologie_bt_malus') && state.koalitionsvertragProfil && state.koalitionspartner) {
     const bundle = beschlussContext?.content;
     const partner = getKoalitionspartner(bundle, state);
     const schluesselthemen = partner.schluesselthemen ?? [];
@@ -390,10 +419,63 @@ export function abstimmen(
       koalitionStanzMalus = kongruenz < 40 ? -25 : -15;
     }
   }
-  const effectiveJa = Math.min(
-    95,
-    law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod + ideologieMalus + koalitionStanzMalus,
-  );
+
+  const modifikatoren: JaModifikator[] = [];
+  if (partnerBonus !== 0) modifikatoren.push({ key: 'koalitionsPrioritaet', delta: partnerBonus });
+  if (btBonus !== 0) modifikatoren.push({ key: 'btStimmenBonus', delta: btBonus });
+  if (vorstufenBtBonus !== 0) modifikatoren.push({ key: 'vorstufenBoni', delta: vorstufenBtBonus });
+  if (nfBtMod !== 0) modifikatoren.push({ key: 'nfEffekt', delta: nfBtMod });
+  if (ideologieMalus !== 0) modifikatoren.push({ key: 'ideologieAbstand', delta: ideologieMalus });
+  if (koalitionStanzMalus !== 0) modifikatoren.push({ key: 'koalitionsvertragStanz', delta: koalitionStanzMalus });
+
+  const rohSumme =
+    law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod + ideologieMalus + koalitionStanzMalus;
+
+  return { basis: law.ja, modifikatoren, rohSumme, ideologieMalus };
+}
+
+/**
+ * SMA-270 (Issue #270): Ja-%-Herkunfts-Aufschlüsselung für die UI — Basis + jeder aktive
+ * Modifikator als eigene Zeile, plus das Fraktionsdisziplin-Abweichlerrisiko (0–30%, siehe
+ * `berechneAbweichlerRisiko`). Der Würfelwurf selbst passiert erst beim tatsächlichen
+ * Beschluss (`resolveEingebrachteAbstimmung`) — hier wird nur das Risiko angezeigt, kein
+ * garantierter Abzug.
+ */
+export function berechneJaBreakdown(
+  state: GameState,
+  law: Law,
+  lawId: string,
+  complexity: number,
+  beschlussContext?: GesetzBeschlussContext,
+): { basis: number; modifikatoren: JaModifikator[]; effectiveJa: number; abweichlerRisiko: number } {
+  const { basis, modifikatoren, rohSumme } = berechneJaModifikatoren(state, law, lawId, complexity, beschlussContext);
+
+  let abweichlerRisiko = 0;
+  if (featureActive(complexity, 'fraktionsdisziplin')) {
+    const spielerIdeologie = state.koalitionsvertragProfil ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
+    const partnerIdeologie = state.koalitionspartner ? (state.koalitionsvertragProfil ?? null) : null;
+    let risiko = berechneAbweichlerRisiko(law, spielerIdeologie, partnerIdeologie);
+    const egEntry = (state.eingebrachteGesetze ?? []).find((e) => e.gesetzId === lawId);
+    if (egEntry?.fraktionssitzungGehalten) risiko = Math.round(risiko / 2);
+    abweichlerRisiko = risiko;
+  }
+
+  return { basis, modifikatoren, effectiveJa: Math.min(95, rohSumme), abweichlerRisiko };
+}
+
+export function abstimmen(
+  state: GameState,
+  lawId: string,
+  beschlussContext?: GesetzBeschlussContext,
+): GameState {
+  const idx = state.gesetze.findIndex((g) => g.id === lawId);
+  if (idx === -1) return state;
+  const law = state.gesetze[idx];
+  if (law.status !== 'aktiv') return state;
+
+  const complexityBt = beschlussContext?.complexity ?? 4;
+  const { rohSumme } = berechneJaModifikatoren(state, law, lawId, complexityBt, beschlussContext);
+  const effectiveJa = Math.min(95, rohSumme);
 
   if (effectiveJa > 50) {
     const complexity = complexityBt;
@@ -480,39 +562,15 @@ export function resolveEingebrachteAbstimmung(
   const law = state.gesetze[idx];
   if (law.status !== 'eingebracht') return state;
 
-  const partnerBonus =
-    state.koalitionspartner &&
-    state.partnerPrioGesetz?.gesetzId === eg.gesetzId &&
-    state.month <= state.partnerPrioGesetz.bisMonat
-      ? 5
-      : 0;
-  const btBonus =
-    state.btStimmenBonus && state.month <= state.btStimmenBonus.bisMonat
-      ? state.btStimmenBonus.pct
-      : 0;
-  const vorstufenBtBonus = state.gesetzProjekte?.[eg.gesetzId]?.boni?.btStimmenBonus ?? 0;
-  const nfBtMod = getNfBundestagBtModifikator(law);
-
   const complexity = beschlussContext?.complexity ?? 4;
-  const ideologieMalusResolve =
-    featureActive(complexity, 'ideologie_bt_malus')
-      ? getIdeologieMalusFuerBt(law, state.spielerPartei?.id, state.koalitionspartner?.id)
-      : 0;
   const bundle = beschlussContext?.content;
-
-  let koalitionStanzMalusResolve = 0;
-  if (featureActive(complexity, 'ideologie_bt_malus') && state.koalitionsvertragProfil && state.koalitionspartner) {
-    const partner = getKoalitionspartner(bundle, state);
-    const schluesselthemen = partner.schluesselthemen ?? [];
-    const stanz = getKoalitionsStanz(law, state.koalitionsvertragProfil, schluesselthemen);
-    if (stanz === 'abgelehnt') {
-      const kongruenz = berechneKongruenz(
-        state.koalitionsvertragProfil,
-        law.ideologie ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
-      );
-      koalitionStanzMalusResolve = kongruenz < 40 ? -25 : -15;
-    }
-  }
+  const { rohSumme, ideologieMalus: ideologieMalusResolve } = berechneJaModifikatoren(
+    state,
+    law,
+    eg.gesetzId,
+    complexity,
+    beschlussContext,
+  );
 
   // Fraktionsdisziplin: Abweichler-Risiko (Art. 38 GG)
   let abweichlerMalus = 0;
@@ -531,17 +589,7 @@ export function resolveEingebrachteAbstimmung(
     }
   }
 
-  const effectiveJa = Math.min(
-    95,
-    law.ja +
-      partnerBonus +
-      btBonus +
-      vorstufenBtBonus +
-      nfBtMod +
-      ideologieMalusResolve +
-      koalitionStanzMalusResolve -
-      abweichlerMalus,
-  );
+  const effectiveJa = Math.min(95, rohSumme - abweichlerMalus);
   const bundesratAktiv = featureActive(complexity, 'bundesrat_sichtbar');
   const needsBundesrat = law.tags.includes('land') && bundesratAktiv;
 

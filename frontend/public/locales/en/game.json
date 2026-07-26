@@ -1639,7 +1639,19 @@
     "ersterTabHinweis": "The Bundestag reflects political reality. The National Front (NF) is present in parliament but outside any democratic cooperation.",
     "hinweisVerstanden": "Got it",
     "logNfMedienkritik": "Criticism: law aligns with NF positions — media climate strained.",
-    "abstimmungCountdown": "Vote in {{count}} mo. ({{month}})"
+    "abstimmungCountdown": "Vote in {{count}} mo. ({{month}})",
+    "jaBreakdown": {
+      "title": "Where does the yes-share come from?",
+      "basis": "Base (bill text, lobbying)",
+      "effektiv": "Effective yes-share",
+      "koalitionsPrioritaet": "Coalition priority",
+      "btStimmenBonus": "Special bonus",
+      "vorstufenBoni": "Pre-stage bonus",
+      "nfEffekt": "National Front reaction",
+      "ideologieAbstand": "Ideological distance from the coalition",
+      "koalitionsvertragStanz": "Coalition agreement",
+      "abweichlerRisiko": "Defector risk: up to {{risiko}}% additional vote loss possible"
+    }
   },
   "media": {
     "title": "Media",

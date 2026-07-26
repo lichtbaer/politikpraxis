@@ -377,6 +377,51 @@
   color: var(--green);
 }
 
+.jaBreakdown {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--bg4);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.jaBreakdownTitle {
+  display: block;
+  color: var(--text2);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.jaBreakdownRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 1px 0;
+  color: var(--text2);
+}
+
+.jaBreakdownPositiv {
+  color: var(--green);
+}
+
+.jaBreakdownNegativ {
+  color: var(--red);
+}
+
+.jaBreakdownEffektiv {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.jaBreakdownRisiko {
+  margin-top: 4px;
+  color: var(--red);
+  font-size: 10px;
+}
+
 .euPhaseTag {
   font-size: 10px;
   padding: 1px 5px;

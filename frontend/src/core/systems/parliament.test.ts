@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { berechneEffektiveBTStimmen, resolveEingebrachteAbstimmung } from './parliament';
+import { berechneEffektiveBTStimmen, berechneJaBreakdown, resolveEingebrachteAbstimmung } from './parliament';
 import { makeState } from '../test-helpers';
 import type { Law } from '../types';
 
@@ -142,5 +142,73 @@ describe('resolveEingebrachteAbstimmung — Ideologie-Malus-Transparenz', () => 
     };
     const result = resolveEingebrachteAbstimmung(state, { gesetzId: 'passendes_gesetz' }, { complexity: 2, milieus: [] });
     expect(result.log.some((l) => l.msg.includes('Koalitionsfraktionen murren'))).toBe(false);
+  });
+});
+
+/** Ideologisch neutrales Gesetz — löst weder den NF-Overton-Effekt noch Ideologie-Malus aus. */
+function neutralesGesetz(): Law {
+  return { ...eeGesetz(), id: 'neutral', kurz: 'NG', ideologie: { wirtschaft: 0, gesellschaft: 0, staat: 0 } };
+}
+
+describe('berechneJaBreakdown (Issue #270)', () => {
+  it('liefert nur die Basis, wenn kein Modifikator aktiv ist', () => {
+    const law = neutralesGesetz();
+    const state = makeState({ gesetze: [law] });
+    const breakdown = berechneJaBreakdown(state, law, law.id, 1, { complexity: 1, milieus: [] });
+    expect(breakdown.basis).toBe(law.ja);
+    expect(breakdown.modifikatoren).toEqual([]);
+    expect(breakdown.effectiveJa).toBe(law.ja);
+    expect(breakdown.abweichlerRisiko).toBe(0);
+  });
+
+  it('führt Koalitions-Priorität und Vorstufen-Bonus als eigene Zeilen auf und summiert korrekt', () => {
+    const law = neutralesGesetz();
+    const state = makeState({
+      gesetze: [law],
+      koalitionspartner: { id: 'gp' as const, beziehung: 60, koalitionsvertragScore: 50, schluesselthemenErfuellt: [] },
+      partnerPrioGesetz: { gesetzId: law.id, bisMonat: 10 },
+      gesetzProjekte: { [law.id]: { gesetzId: law.id, status: 'bundesebene', aktiveVorstufen: [], boni: { pkKostenRabatt: 0, btStimmenBonus: 8, bundesratBonus: 0, kofinanzierung: 0, medienRueckhalt: 0 } } },
+      month: 1,
+    });
+    const breakdown = berechneJaBreakdown(state, law, law.id, 1, { complexity: 1, milieus: [] });
+    expect(breakdown.modifikatoren).toEqual(
+      expect.arrayContaining([
+        { key: 'koalitionsPrioritaet', delta: 5 },
+        { key: 'vorstufenBoni', delta: 8 },
+      ]),
+    );
+    expect(breakdown.effectiveJa).toBe(Math.min(95, law.ja + 5 + 8));
+  });
+
+  it('zeigt ein Abweichler-Risiko > 0 bei ideologisch fernem Gesetz ab Stufe 2, halbiert nach Fraktionssitzung', () => {
+    const law: Law = {
+      ...eeGesetz(),
+      id: 'entferntes_gesetz',
+      ideologie: { wirtschaft: 90, gesellschaft: 90, staat: 90 },
+    };
+    const state = makeState({
+      gesetze: [law],
+      koalitionsvertragProfil: { wirtschaft: -50, gesellschaft: -50, staat: -50 },
+    });
+    const ohneSitzung = berechneJaBreakdown(state, law, law.id, 2, { complexity: 2, milieus: [] });
+    expect(ohneSitzung.abweichlerRisiko).toBeGreaterThan(0);
+
+    const stateMitSitzung = makeState({
+      gesetze: [law],
+      koalitionsvertragProfil: { wirtschaft: -50, gesellschaft: -50, staat: -50 },
+      eingebrachteGesetze: [{ gesetzId: law.id, abstimmungMonat: 5, eingebrachtMonat: 3, lagMonths: 2, fraktionssitzungGehalten: true }],
+    });
+    const mitSitzung = berechneJaBreakdown(stateMitSitzung, law, law.id, 2, { complexity: 2, milieus: [] });
+    expect(mitSitzung.abweichlerRisiko).toBe(Math.round(ohneSitzung.abweichlerRisiko / 2));
+  });
+
+  it('zeigt kein Abweichler-Risiko auf Stufe 1 (Feature erst ab Stufe 2 aktiv)', () => {
+    const law: Law = {
+      ...eeGesetz(),
+      ideologie: { wirtschaft: 90, gesellschaft: 90, staat: 90 },
+    };
+    const state = makeState({ gesetze: [law], koalitionsvertragProfil: { wirtschaft: -50, gesellschaft: -50, staat: -50 } });
+    const breakdown = berechneJaBreakdown(state, law, law.id, 1, { complexity: 1, milieus: [] });
+    expect(breakdown.abweichlerRisiko).toBe(0);
   });
 });
