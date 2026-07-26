@@ -348,6 +348,84 @@ export function lobbying(state: GameState, lawId: string): GameState {
   return addLog(newState, `Lobbying ${gesetze[idx].kurz}: Zustimmung steigt +${gain}%`, '');
 }
 
+/** SMA-419: Ein einzelner Modifikator der Ja-Quoten-Herkunfts-Aufschlüsselung. */
+export interface JaQuoteModifikator {
+  /** i18n-Key-Suffix, siehe game:abstimmung.modifikator.<key> */
+  key:
+    | 'partnerPrioritaet'
+    | 'sonderbonus'
+    | 'vorstufenBonus'
+    | 'meinungsklima'
+    | 'ideologieAbstand'
+    | 'koalitionsvertrag';
+  wert: number;
+}
+
+export interface JaQuoteBreakdown {
+  basis: number;
+  modifikatoren: JaQuoteModifikator[];
+  gesamt: number;
+}
+
+/**
+ * SMA-419 (#270): Zerlegt die effektive Bundestags-Ja-Quote in Basis + Einzelmodifikatoren,
+ * damit der Abstimmungsdialog die Herkunft transparent machen kann. Gleiche Formel wie in
+ * `abstimmen()`, dort per `berechneJaQuoteBreakdown(...).gesamt` genutzt (single source of truth).
+ */
+export function berechneJaQuoteBreakdown(
+  state: GameState,
+  law: Law,
+  complexity: number,
+  content?: ContentBundle,
+): JaQuoteBreakdown {
+  const partnerBonus =
+    state.koalitionspartner &&
+    state.partnerPrioGesetz?.gesetzId === law.id &&
+    state.month <= state.partnerPrioGesetz.bisMonat
+      ? 5
+      : 0;
+  const sonderbonus =
+    state.btStimmenBonus && state.month <= state.btStimmenBonus.bisMonat
+      ? state.btStimmenBonus.pct
+      : 0;
+  const vorstufenBonus = state.gesetzProjekte?.[law.id]?.boni?.btStimmenBonus ?? 0;
+  const meinungsklima = getNfBundestagBtModifikator(law);
+  const ideologieAbstand = featureActive(complexity, 'ideologie_bt_malus')
+    ? getIdeologieMalusFuerBt(law, state.spielerPartei?.id, state.koalitionspartner?.id)
+    : 0;
+
+  let koalitionsvertrag = 0;
+  if (featureActive(complexity, 'ideologie_bt_malus') && state.koalitionsvertragProfil && state.koalitionspartner) {
+    const partner = getKoalitionspartner(content, state);
+    const schluesselthemen = partner.schluesselthemen ?? [];
+    const stanz = getKoalitionsStanz(law, state.koalitionsvertragProfil, schluesselthemen);
+    if (stanz === 'abgelehnt') {
+      const kongruenz = berechneKongruenz(
+        state.koalitionsvertragProfil,
+        law.ideologie ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
+      );
+      koalitionsvertrag = kongruenz < 40 ? -25 : -15;
+    }
+  }
+
+  const alleModifikatoren: JaQuoteModifikator[] = [
+    { key: 'partnerPrioritaet', wert: partnerBonus },
+    { key: 'sonderbonus', wert: sonderbonus },
+    { key: 'vorstufenBonus', wert: vorstufenBonus },
+    { key: 'meinungsklima', wert: meinungsklima },
+    { key: 'ideologieAbstand', wert: ideologieAbstand },
+    { key: 'koalitionsvertrag', wert: koalitionsvertrag },
+  ];
+  const modifikatoren = alleModifikatoren.filter((m) => m.wert !== 0);
+
+  const gesamt = Math.min(
+    95,
+    law.ja + modifikatoren.reduce((sum, m) => sum + m.wert, 0),
+  );
+
+  return { basis: law.ja, modifikatoren, gesamt };
+}
+
 export function abstimmen(
   state: GameState,
   lawId: string,
@@ -358,41 +436,12 @@ export function abstimmen(
   const law = state.gesetze[idx];
   if (law.status !== 'aktiv') return state;
 
-  const partnerBonus =
-    state.koalitionspartner &&
-    state.partnerPrioGesetz?.gesetzId === lawId &&
-    state.month <= state.partnerPrioGesetz.bisMonat
-      ? 5
-      : 0;
-  const btBonus =
-    state.btStimmenBonus &&
-    state.month <= state.btStimmenBonus.bisMonat
-      ? state.btStimmenBonus.pct
-      : 0;
-  const vorstufenBtBonus = state.gesetzProjekte?.[lawId]?.boni?.btStimmenBonus ?? 0;
-  const nfBtMod = getNfBundestagBtModifikator(law);
   const complexityBt = beschlussContext?.complexity ?? 4;
-  const ideologieMalus =
-    featureActive(complexityBt, 'ideologie_bt_malus')
-      ? getIdeologieMalusFuerBt(law, state.spielerPartei?.id, state.koalitionspartner?.id)
-      : 0;
-  let koalitionStanzMalus = 0;
-  if (featureActive(complexityBt, 'ideologie_bt_malus') && state.koalitionsvertragProfil && state.koalitionspartner) {
-    const bundle = beschlussContext?.content;
-    const partner = getKoalitionspartner(bundle, state);
-    const schluesselthemen = partner.schluesselthemen ?? [];
-    const stanz = getKoalitionsStanz(law, state.koalitionsvertragProfil, schluesselthemen);
-    if (stanz === 'abgelehnt') {
-      const kongruenz = berechneKongruenz(
-        state.koalitionsvertragProfil,
-        law.ideologie ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 },
-      );
-      koalitionStanzMalus = kongruenz < 40 ? -25 : -15;
-    }
-  }
-  const effectiveJa = Math.min(
-    95,
-    law.ja + partnerBonus + btBonus + vorstufenBtBonus + nfBtMod + ideologieMalus + koalitionStanzMalus,
+  const { gesamt: effectiveJa } = berechneJaQuoteBreakdown(
+    state,
+    law,
+    complexityBt,
+    beschlussContext?.content,
   );
 
   if (effectiveJa > 50) {

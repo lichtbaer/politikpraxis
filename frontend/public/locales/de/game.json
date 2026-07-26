@@ -2069,6 +2069,22 @@
     "routeDauer": "Dauer (Mo)",
     "routeStarten": "Starten"
   },
+  "abstimmung": {
+    "title": "Abstimmung: {{name}}",
+    "basis": "Basis-Ja-Quote",
+    "gesamt": "Erwartete Ja-Quote",
+    "prognoseMehrheit": "Mehrheit wird derzeit erreicht (> 50 %).",
+    "prognoseKeineMehrheit": "Mehrheit wird derzeit verfehlt (≤ 50 %).",
+    "abbrechen": "Abbrechen",
+    "modifikator": {
+      "partnerPrioritaet": "Koalitionspartner-Priorität",
+      "sonderbonus": "Sonderbonus (Medien/Framing)",
+      "vorstufenBonus": "Vorstufen-Bonus (Kommunal/Länder-Pilot)",
+      "meinungsklima": "Gesellschaftliches Meinungsklima",
+      "ideologieAbstand": "Ideologie-Abstand zur Koalition",
+      "koalitionsvertrag": "Koalitionsvertrags-Widerspruch"
+    }
+  },
   "partnerWiderstand": {
     "titleHinweis": "{{partner}} sieht dieses Gesetz kritisch",
     "titleWiderstand": "{{partner}} lehnt ab",

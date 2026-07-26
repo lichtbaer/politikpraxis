@@ -2043,6 +2043,22 @@
     "routeDauer": "Duration (mo)",
     "routeStarten": "Start"
   },
+  "abstimmung": {
+    "title": "Vote: {{name}}",
+    "basis": "Base yes-share",
+    "gesamt": "Expected yes-share",
+    "prognoseMehrheit": "Majority is currently reached (> 50%).",
+    "prognoseKeineMehrheit": "Majority is currently missed (≤ 50%).",
+    "abbrechen": "Cancel",
+    "modifikator": {
+      "partnerPrioritaet": "Coalition partner priority",
+      "sonderbonus": "Special bonus (media/framing)",
+      "vorstufenBonus": "Preliminary-stage bonus (municipal/state pilot)",
+      "meinungsklima": "Public opinion climate",
+      "ideologieAbstand": "Ideological distance from the coalition",
+      "koalitionsvertrag": "Coalition-agreement conflict"
+    }
+  },
   "partnerWiderstand": {
     "titleHinweis": "{{partner}} is critical of this bill",
     "titleWiderstand": "{{partner}} rejects it",

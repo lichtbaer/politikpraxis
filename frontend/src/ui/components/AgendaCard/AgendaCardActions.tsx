@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { featureActive } from '../../../core/systems/features';
 import { ROUTE_INFO } from '../../../core/systems/levels';
+import type { JaQuoteBreakdown } from '../../../core/systems/parliament';
 import { VorbereitungModal } from '../VorbereitungModal/VorbereitungModal';
 import { FramingModal } from '../FramingModal/FramingModal';
 import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
+import { AbstimmungsDialog } from '../AbstimmungsDialog/AbstimmungsDialog';
 import type { Law, RouteType, ViewName } from '../../../core/types';
 import styles from './AgendaCard.module.css';
 
@@ -18,6 +20,7 @@ interface AgendaCardActionsProps {
   lobbyingTooltip: string;
   geschaetztePkKosten: number;
   hasFraming: boolean;
+  jaQuoteBreakdown: JaQuoteBreakdown | null;
   actions: {
     einbringen: (lawId: string) => void;
     einbringenMitFraming: (lawId: string, framingKey: string | null) => void;
@@ -33,11 +36,12 @@ interface AgendaCardActionsProps {
 export function AgendaCardActions({
   law, pk, complexity, canEinbringen, canLobbying,
   einbringenTooltip, lobbyingTooltip, geschaetztePkKosten,
-  hasFraming, actions,
+  hasFraming, jaQuoteBreakdown, actions,
 }: AgendaCardActionsProps) {
   const { t } = useTranslation(['common', 'game']);
   const [showVorbereitungModal, setShowVorbereitungModal] = useState(false);
   const [showFramingModal, setShowFramingModal] = useState(false);
+  const [showAbstimmungsDialog, setShowAbstimmungsDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ title: string; message: string; cost: number; action: () => void } | null>(null);
 
   return (
@@ -105,7 +109,7 @@ export function AgendaCardActions({
           <button
             type="button"
             className={styles.btn}
-            onClick={() => actions.abstimmen(law.id)}
+            onClick={() => setShowAbstimmungsDialog(true)}
           >
             {t('game:agenda.abstimmen')}
           </button>
@@ -194,6 +198,17 @@ export function AgendaCardActions({
             setPendingAction(null);
           }}
           onCancel={() => setPendingAction(null)}
+        />
+      )}
+      {showAbstimmungsDialog && jaQuoteBreakdown && (
+        <AbstimmungsDialog
+          law={law}
+          breakdown={jaQuoteBreakdown}
+          onConfirm={() => {
+            actions.abstimmen(law.id);
+            setShowAbstimmungsDialog(false);
+          }}
+          onCancel={() => setShowAbstimmungsDialog(false)}
         />
       )}
       {showVorbereitungModal && (
