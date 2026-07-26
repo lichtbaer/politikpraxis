@@ -21,6 +21,7 @@ Revises: 064_events_pool_staffelung_sma273
 
 from __future__ import annotations
 
+import json
 from typing import Any, Sequence, Union
 
 import sqlalchemy as sa
@@ -427,6 +428,7 @@ def upgrade() -> None:
         eid,
         choice_key,
         choice_type,
+        cost_pk,
         al,
         hh,
         gi,
@@ -439,14 +441,14 @@ def upgrade() -> None:
             sa.text(
                 """
                 INSERT INTO event_choices (
-                    event_id, choice_key, choice_type,
+                    event_id, choice_key, choice_type, cost_pk,
                     effekt_al, effekt_hh, effekt_gi, effekt_zf,
                     char_mood, followup_event_id, followup_delay
                 )
                 VALUES (
-                    :eid, :key, :type,
+                    :eid, :key, :type, :cost_pk,
                     :al, :hh, :gi, :zf,
-                    :char_mood, :followup_event_id, :followup_delay
+                    CAST(:char_mood AS jsonb), :followup_event_id, :followup_delay
                 )
                 RETURNING id
                 """
@@ -455,11 +457,12 @@ def upgrade() -> None:
                 "eid": eid,
                 "key": choice_key,
                 "type": choice_type,
+                "cost_pk": cost_pk,
                 "al": al,
                 "hh": hh,
                 "gi": gi,
                 "zf": zf,
-                "char_mood": char_mood,
+                "char_mood": json.dumps(char_mood),
                 "followup_event_id": followup_event_id,
                 "followup_delay": followup_delay,
             },
