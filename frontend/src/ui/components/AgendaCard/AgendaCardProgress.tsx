@@ -1,19 +1,18 @@
 import { useTranslation } from 'react-i18next';
 import { featureActive } from '../../../core/systems/features';
+import { berechneJaBreakdown } from '../../../core/systems/parliament';
 import { Hourglass } from '../../icons';
 import { Erklaerung } from '../Erklaerung/Erklaerung';
 import { KPI_TO_BEGRIFF } from '../../../constants/begriffe';
 import { VorstufeBadge } from '../VorstufeBadge/VorstufeBadge';
-import type { Law, GesetzProjekt } from '../../../core/types';
+import type { GameState, Law, GesetzProjekt, ContentBundle } from '../../../core/types';
 import type { PendingEffect } from '../../../core/types';
 import styles from './AgendaCard.module.css';
 
 interface AgendaCardProgressProps {
   law: Law;
-  state: {
-    month: number;
+  state: GameState & {
     pending: PendingEffect[];
-    eingebrachteGesetze?: Array<{ gesetzId: string; abstimmungMonat: number; eingebrachtMonat: number; lagMonths: number }>;
     gekoppelteGesetze?: Record<string, string[]>;
     eu?: { aktiveRoute?: { gesetzId: string; phase: 1 | 2 | 3; dauer: number; startMonat: number } | null };
   };
@@ -24,9 +23,21 @@ interface AgendaCardProgressProps {
     abbrechenVorstufe: (lawId: string, typ: 'kommunal' | 'laender' | 'eu') => void;
   };
   getGesetzTitel: (id: string) => string;
+  /** SMA-270: für die Ja-%-Herkunfts-Aufschlüsselung (Issue #270) */
+  gesetzRelationen?: ContentBundle['gesetzRelationen'];
+  content?: ContentBundle;
 }
 
-export function AgendaCardProgress({ law, state, complexity, projekt, boni, actions, getGesetzTitel }: AgendaCardProgressProps) {
+const JA_MODIFIKATOR_LABEL_KEYS: Record<string, string> = {
+  koalitionsPrioritaet: 'game:bundestag.jaBreakdown.koalitionsPrioritaet',
+  btStimmenBonus: 'game:bundestag.jaBreakdown.btStimmenBonus',
+  vorstufenBoni: 'game:bundestag.jaBreakdown.vorstufenBoni',
+  nfEffekt: 'game:bundestag.jaBreakdown.nfEffekt',
+  ideologieAbstand: 'game:bundestag.jaBreakdown.ideologieAbstand',
+  koalitionsvertragStanz: 'game:bundestag.jaBreakdown.koalitionsvertragStanz',
+};
+
+export function AgendaCardProgress({ law, state, complexity, projekt, boni, actions, getGesetzTitel, gesetzRelationen, content }: AgendaCardProgressProps) {
   const { t } = useTranslation(['common', 'game']);
   const hasVorstufen = featureActive(complexity, 'kommunal_pilot') || featureActive(complexity, 'laender_pilot') || featureActive(complexity, 'eu_route');
 
@@ -39,6 +50,14 @@ export function AgendaCardProgress({ law, state, complexity, projekt, boni, acti
   const total = law.ja + law.nein;
   const pct = total > 0 ? Math.round((law.ja / total) * 100) : 0;
   const effectivePct = Math.min(95, pct + boni.btStimmenBonus);
+
+  const jaBreakdown = berechneJaBreakdown(state, law, law.id, complexity, {
+    milieus: [],
+    complexity,
+    gesetzRelationen,
+    content,
+  });
+  const hatBreakdown = jaBreakdown.modifikatoren.length > 0 || jaBreakdown.abweichlerRisiko > 0;
 
   return (
     <>
@@ -56,6 +75,32 @@ export function AgendaCardProgress({ law, state, complexity, projekt, boni, acti
               <span className={styles.bonusTag}>
                 {t('game:vorstufen.bonusTag', { bonus: boni.btStimmenBonus })}
               </span>
+            </div>
+          )}
+          {hatBreakdown && (
+            <div className={styles.jaBreakdown}>
+              <span className={styles.jaBreakdownTitle}>{t('game:bundestag.jaBreakdown.title')}</span>
+              <div className={styles.jaBreakdownRow}>
+                <span>{t('game:bundestag.jaBreakdown.basis')}</span>
+                <span>{jaBreakdown.basis}%</span>
+              </div>
+              {jaBreakdown.modifikatoren.map((mod) => (
+                <div key={mod.key} className={styles.jaBreakdownRow}>
+                  <span>{t(JA_MODIFIKATOR_LABEL_KEYS[mod.key] ?? mod.key)}</span>
+                  <span className={mod.delta > 0 ? styles.jaBreakdownPositiv : styles.jaBreakdownNegativ}>
+                    {mod.delta > 0 ? '+' : ''}{mod.delta}%
+                  </span>
+                </div>
+              ))}
+              <div className={`${styles.jaBreakdownRow} ${styles.jaBreakdownEffektiv}`}>
+                <span>{t('game:bundestag.jaBreakdown.effektiv')}</span>
+                <span>{jaBreakdown.effectiveJa}%</span>
+              </div>
+              {jaBreakdown.abweichlerRisiko > 0 && (
+                <div className={styles.jaBreakdownRisiko}>
+                  {t('game:bundestag.jaBreakdown.abweichlerRisiko', { risiko: jaBreakdown.abweichlerRisiko })}
+                </div>
+              )}
             </div>
           )}
         </div>

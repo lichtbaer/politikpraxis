@@ -254,6 +254,8 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
             boni={boni}
             actions={actions}
             getGesetzTitel={getGesetzTitel}
+            gesetzRelationen={gesetzRelationen}
+            content={content}
           />
 
           <AgendaCardActions
