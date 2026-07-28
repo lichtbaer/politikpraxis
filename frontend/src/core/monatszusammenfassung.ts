@@ -71,6 +71,12 @@ function isArcFortsetzung(content: ContentBundle | undefined, id: string): boole
   return (event?.arcStage ?? 1) > 1;
 }
 
+/** #274: Ist dieses Event ein fest getakteter Dramaturgie-Anker? */
+function isDramaturgieAnker(content: ContentBundle | undefined, id: string): boolean {
+  const event = content?.events?.find((e) => e.id === id);
+  return event?.dramaturgieAnker ?? false;
+}
+
 /**
  * Issue #209: Aggregiert tickLog-KPI-Änderungen, High-Level-Metrik-Deltas und
  * narrative Events zu einer nach Relevanz (|delta|) sortierten Ursachenliste.
@@ -122,6 +128,7 @@ export function berechneTopUrsachen(
       refId: eventId,
       label: findEventTitle(content, eventId),
       istArcFortsetzung: isArcFortsetzung(content, eventId),
+      istDramaturgieAnker: isDramaturgieAnker(content, eventId),
     });
   }
 

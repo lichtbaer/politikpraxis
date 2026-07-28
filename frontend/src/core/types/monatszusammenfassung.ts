@@ -43,6 +43,8 @@ export interface MonatsUrsache {
   label?: string;
   /** #272: Event ist Stufe >= 2 eines Story-Arcs (Fortsetzung einer Vorstufe) */
   istArcFortsetzung?: boolean;
+  /** #274: Event ist ein fester Dramaturgie-Anker (100-Tage-Bilanz, Sommerloch, Halbzeitbilanz) */
+  istDramaturgieAnker?: boolean;
 }
 
 export interface MonatsDiff {
