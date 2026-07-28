@@ -2166,7 +2166,11 @@
     "tradeoffAkzeptiert": "Demand accepted",
     "gesperrt": "Locked",
     "bilateraleDesc": "Strengthen the relationship with individual federal states (10 PK, +10 relation).",
-    "bilateraleBtn": "Talk: {{name}}"
+    "bilateraleBtn": "Talk: {{name}}",
+    "einspruchsgesetz": "Objection law",
+    "einspruchsgesetzTooltip": "Art. 77 GG: The Bundesrat can raise an objection, which the Bundestag can override with an absolute majority — a blockade is not final.",
+    "zustimmungsgesetz": "Consent law",
+    "zustimmungsgesetzTooltip": "Art. 77 GG: Without the Bundesrat's consent, the law is permanently blocked — only a change of level helps."
   },
   "endScreen": {
     "won": "Re-elected",
@@ -2580,6 +2584,10 @@
       "bundesrat": {
         "term": "Bundesrat (Federal Council)",
         "explanation": "4 factions represent 16 federal states. Laws with a state tag require Bundesrat majority. Relationship building and lobbying influence the vote."
+      },
+      "einspruchsgesetz": {
+        "term": "Objection vs. consent law",
+        "explanation": "Art. 77 GG: For an objection law, the Bundestag can override a Bundesrat objection with an absolute majority — most federal laws fall into this category. For a consent law (e.g. affecting state finances or administration), a Bundesrat rejection is final; only a change of level helps."
       }
     }
   },

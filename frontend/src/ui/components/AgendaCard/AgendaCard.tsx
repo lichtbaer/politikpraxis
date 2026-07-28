@@ -7,6 +7,7 @@ import { getVorstufenBoni } from '../../../core/systems/legislation/gesetzLebens
 import { isVerfassungsgerichtBlockiert } from '../../../core/systems/parliament';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from '../../../core/systems/kongruenz';
 import { getMedienPkZusatzkosten } from '../../../core/systems/medien/medienAkteure';
+import { isEinspruchsgesetz } from '../../../core/systems/institutions/bundesrat';
 import {
   kannGesetzEingebracht,
   getFehlendeRequires,
@@ -244,6 +245,18 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
                 {t(`game.tags.${tag}`, { ns: 'common' }) ?? tag}
               </span>
             ))}
+            {law.tags.includes('land') && featureActive(complexity, 'einspruch_vs_zustimmung') && (
+              <span
+                className={styles.tag}
+                title={t(
+                  isEinspruchsgesetz(law)
+                    ? 'game:bundesrat.einspruchsgesetzTooltip'
+                    : 'game:bundesrat.zustimmungsgesetzTooltip',
+                )}
+              >
+                {t(isEinspruchsgesetz(law) ? 'game:bundesrat.einspruchsgesetz' : 'game:bundesrat.zustimmungsgesetz')}
+              </span>
+            )}
           </div>
 
           <AgendaCardProgress
