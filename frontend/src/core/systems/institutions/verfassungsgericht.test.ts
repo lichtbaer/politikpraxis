@@ -174,6 +174,33 @@ describe('checkNormenkontrollKlage', () => {
       urteilMonat: 16, // 10 + 6
     });
   });
+
+  it('returns unchanged state when opposition below 25% quorum and no Land-Klägerin', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.01); // würde Klage auslösen, falls klageberechtigt
+    const state = makeState({
+      activeEvent: null,
+      opposition: { staerke: 10, aktivesThema: null, letzterAngriff: 0 },
+      bundesratFraktionen: [],
+    });
+    const result = checkNormenkontrollKlage(state, makeLaw(), 3);
+    expect(result).toBe(state);
+  });
+
+  it('creates event when opposition below quorum but a Landesregierung als Klägerin auftritt', () => {
+    vi.spyOn(rng, 'nextRandom')
+      .mockReturnValueOnce(0.01) // roll: Klage
+      .mockReturnValueOnce(0.5); // duration
+    const state = makeState({
+      activeEvent: null,
+      opposition: { staerke: 10, aktivesThema: null, letzterAngriff: 0 },
+      bundesratFraktionen: [
+        { name: 'Bayern', beziehung: 10 } as unknown as GameState['bundesratFraktionen'][number],
+      ],
+    });
+    const result = checkNormenkontrollKlage(state, makeLaw({ id: 'klage_law', kurz: 'KL' }), 3);
+    expect(result.activeEvent).toBeDefined();
+    expect(result.activeEvent!.context).toContain('Bayern');
+  });
 });
 
 // ── setNormenkontrollReaktion ────────────────────────────────────────

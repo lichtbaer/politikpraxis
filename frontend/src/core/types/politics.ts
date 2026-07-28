@@ -166,6 +166,7 @@ export interface SpielerParteiState {
 
 /** Opposition als abstrakter Akteur (SMA-277) */
 export interface OppositionState {
+  /** Sitzanteil der Opposition im Bundestag, 0–100%. Steuert u. a. die Antragsberechtigung zur Normenkontrolle (Art. 93 Abs. 1 Nr. 2 GG). */
   staerke: number;
   aktivesThema: string | null;
   letzterAngriff: number;
