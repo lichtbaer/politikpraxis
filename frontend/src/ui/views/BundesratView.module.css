@@ -263,6 +263,17 @@
   opacity: 0.6;
 }
 
+.feldEnthaltung {
+  opacity: 0.6;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.12),
+    rgba(0, 0, 0, 0.12) 3px,
+    transparent 3px,
+    transparent 6px
+  );
+}
+
 .mehrheitsLinie {
   position: absolute;
   left: 56.25%; /* Fallback — wird per inline style überschrieben */

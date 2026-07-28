@@ -496,3 +496,94 @@ describe('SMA-395: Länder-gewichteter Bundesrat', () => {
     expect(s.pk).toBe(10);
   });
 });
+
+describe('#275: Koalitionsklausel — Enthaltung bei uneiniger Landeskoalition', () => {
+  const FRAKTION_ID = 'testfraktion';
+
+  function makeGemischtesLandState(overrides: {
+    koalition: string[];
+    landBeziehung: number;
+    lobby?: { pkInvestiert: boolean; tradeoffAblehnen?: boolean };
+  }): GameState {
+    const land = {
+      id: 'XX',
+      name: 'Testland',
+      mp: 'Test-MP',
+      party: 'SPD',
+      alignment: 'koalition' as const,
+      mood: 3,
+      interests: [],
+      votes: 5,
+      regierungPartei: 'SPD',
+      koalition: overrides.koalition,
+      // Themen ungleich dem Politikfeld des Gesetzes, damit themenBonus = 0 bleibt
+      themen: ['sonstiges_thema'],
+      stimmgewicht: 5,
+    };
+    const fraktion = makeFraktion({
+      id: FRAKTION_ID,
+      laender: ['XX'],
+      basisBereitschaft: 50,
+      beziehung: 50,
+    });
+    const law = makeLaw({
+      politikfeldId: 'umwelt_energie',
+      lobbyFraktionen: overrides.lobby ? { [FRAKTION_ID]: overrides.lobby } : undefined,
+    });
+    return makeState({
+      bundesrat: [land],
+      bundesratFraktionen: [fraktion],
+      landBeziehungen: { XX: overrides.landBeziehung },
+      gesetze: [law],
+    });
+  }
+
+  it('gemischte Koalition + ambivalente Ja-Wahrscheinlichkeit → Enthaltung', () => {
+    const state = makeGemischtesLandState({ koalition: ['SPD', 'Grüne'], landBeziehung: 50 });
+    const r = calcBundesratMehrheit(state, 'test_law');
+    expect(r.ja).toBe(0);
+    expect(r.nein).toBe(0);
+    expect(r.enthaltung).toBe(5);
+    expect(r.mehrheit).toBe(false);
+  });
+
+  it('gemischte Koalition + klare Zustimmung → Ja, keine Enthaltung', () => {
+    const state = makeGemischtesLandState({ koalition: ['SPD', 'Grüne'], landBeziehung: 90 });
+    const r = calcBundesratMehrheit(state, 'test_law');
+    expect(r.ja).toBe(5);
+    expect(r.enthaltung).toBe(0);
+  });
+
+  it('gemischte Koalition + klare Ablehnung → Nein, keine Enthaltung', () => {
+    const state = makeGemischtesLandState({ koalition: ['SPD', 'Grüne'], landBeziehung: 10 });
+    const r = calcBundesratMehrheit(state, 'test_law');
+    expect(r.nein).toBe(5);
+    expect(r.enthaltung).toBe(0);
+  });
+
+  it('Ein-Partei-Regierung enthält sich nie, auch bei ambivalenter Wahrscheinlichkeit', () => {
+    const state = makeGemischtesLandState({ koalition: ['SPD'], landBeziehung: 50 });
+    const r = calcBundesratMehrheit(state, 'test_law');
+    expect(r.enthaltung).toBe(0);
+    expect(r.ja + r.nein).toBe(5);
+  });
+
+  it('abgelehnter Trade-off erzwingt Enthaltung bei gemischter Koalition, auch bei klarer Ja-Tendenz', () => {
+    const state = makeGemischtesLandState({
+      koalition: ['SPD', 'Grüne'],
+      landBeziehung: 90,
+      lobby: { pkInvestiert: false, tradeoffAblehnen: true },
+    });
+    const r = calcBundesratMehrheit(state, 'test_law');
+    expect(r.ja).toBe(0);
+    expect(r.enthaltung).toBe(5);
+  });
+
+  it('getBundesratAbstimmungsFelder markiert das Land als Enthaltung, nicht als Nein', () => {
+    const state = makeGemischtesLandState({ koalition: ['SPD', 'Grüne'], landBeziehung: 50 });
+    const felder = getBundesratAbstimmungsFelder(state, 'test_law');
+    expect(felder).toHaveLength(1);
+    expect(felder[0].votum).toBe('enthaltung');
+    expect(felder[0].stimmtJa).toBe(false);
+  });
+});
