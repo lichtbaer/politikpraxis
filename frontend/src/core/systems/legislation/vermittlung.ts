@@ -1,9 +1,13 @@
 /**
- * Vermittlungsausschuss-Mechanik.
+ * Vermittlungsausschuss-Mechanik (Art. 77 GG).
  *
  * Wenn ein Gesetz im Bundesrat blockiert wird, kann der Spieler den
- * Vermittlungsausschuss einberufen. Ergebnis: abgeschwächtes Gesetz
- * (50% Effekte) mit 2 Monaten Verzögerung und 20 PK Kosten.
+ * Vermittlungsausschuss einberufen (20 PK). Der Ausgang ist offen und wird
+ * bei Einberufung ausgewürfelt, gekoppelt an die durchschnittliche Beziehung
+ * zu den Bundesrats-Fraktionen und abgelehnte Trade-off-Angebote:
+ * voller Erfolg (Originaleffekte), Kompromiss (50% Effekte, wie bisher) oder
+ * Scheitern (Gesetz fällt zurück in die Bundesrat-Blockade, PK verloren).
+ * Nach 2 Monaten wird der vorab bestimmte Ausgang im Tick aufgelöst.
  */
 import type { GameState, LawEffects, ContentBundle } from '../../types';
 import { addLog } from '../../engine';
@@ -15,10 +19,65 @@ import { setPolitikfeldBeschluss } from '../politikfeldDruck';
 import { checkProaktiveErfuellung } from '../ministerAgenden';
 import { featureActive } from '../features';
 import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienEvents';
+import { nextRandom } from '../../rng';
 
 const PK_VERMITTLUNG = 20;
 const VERMITTLUNG_DELAY_MONATE = 2;
 const EFFEKT_FAKTOR = 0.5;
+
+/** Ausgang des Vermittlungsausschusses */
+export type VermittlungAusgang = 'erfolg' | 'kompromiss' | 'scheitern';
+
+/** Basis-Wahrscheinlichkeit für Erfolg/Scheitern bei völlig neutraler Beziehung (score 0.5) */
+const VERMITTLUNG_PROB_BASIS = 0.15;
+/** Spannweite, um die Erfolgs-/Scheitern-Chance je nach Beziehungs-Score verschoben wird */
+const VERMITTLUNG_PROB_SPREAD = 0.6;
+/** Abzug auf den Beziehungs-Score je abgelehntem Trade-off-Angebot einer BR-Fraktion */
+const VERMITTLUNG_TRADEOFF_MALUS = 0.15;
+
+/**
+ * Beziehungs-Score (0–1) als Basis für die Ausgangs-Chancen: Durchschnitt der
+ * Fraktions-Beziehungen, abzüglich eines Malus je abgelehntem Trade-off-Angebot
+ * für dieses Gesetz.
+ */
+function berechneVermittlungsScore(state: GameState, lawId: string): number {
+  const fraktionen = state.bundesratFraktionen ?? [];
+  if (fraktionen.length === 0) return 0.5;
+  const law = state.gesetze.find(g => g.id === lawId);
+  let summe = 0;
+  let ablehnungen = 0;
+  for (const f of fraktionen) {
+    summe += f.beziehung;
+    if (law?.lobbyFraktionen?.[f.id]?.tradeoffAblehnen) ablehnungen++;
+  }
+  const avg = summe / fraktionen.length / 100;
+  return Math.max(0, Math.min(1, avg - ablehnungen * VERMITTLUNG_TRADEOFF_MALUS));
+}
+
+/**
+ * Wahrscheinlichkeiten für die drei möglichen Ausgänge, gekoppelt an die
+ * BR-Fraktions-Beziehungen (SMA-276). Bei neutraler Beziehung (score 0.5)
+ * ergibt sich ein offener Ausgang (~45/45/10); je besser/schlechter die
+ * Beziehung, desto mehr verschiebt sich die Chance Richtung Erfolg/Scheitern.
+ */
+export function berechneVermittlungsChancen(
+  state: GameState,
+  lawId: string,
+): Record<VermittlungAusgang, number> {
+  const score = berechneVermittlungsScore(state, lawId);
+  const erfolg = VERMITTLUNG_PROB_BASIS + VERMITTLUNG_PROB_SPREAD * score;
+  const scheitern = VERMITTLUNG_PROB_BASIS + VERMITTLUNG_PROB_SPREAD * (1 - score);
+  const kompromiss = Math.max(0, 1 - erfolg - scheitern);
+  return { erfolg, kompromiss, scheitern };
+}
+
+/** Würfelt den Ausgang anhand der Chancen aus (kumulative Verteilung) */
+function wuerfleVermittlungsAusgang(chancen: Record<VermittlungAusgang, number>): VermittlungAusgang {
+  const r = nextRandom();
+  if (r < chancen.erfolg) return 'erfolg';
+  if (r < chancen.erfolg + chancen.kompromiss) return 'kompromiss';
+  return 'scheitern';
+}
 
 /** Prüft ob Vermittlungsausschuss für ein Gesetz möglich ist */
 export function kannVermitteln(state: GameState, lawId: string, complexity: number): boolean {
@@ -34,7 +93,11 @@ export function kannVermitteln(state: GameState, lawId: string, complexity: numb
   return true;
 }
 
-/** Startet den Vermittlungsausschuss — Gesetz wird nach 2 Monaten mit halben Effekten beschlossen */
+/**
+ * Startet den Vermittlungsausschuss — der Ausgang (Erfolg/Kompromiss/Scheitern) wird
+ * hier bereits ausgewürfelt (gekoppelt an BR-Fraktions-Beziehungen) und erst nach
+ * 2 Monaten im Tick aufgelöst; der Spieler erfährt das Ergebnis erst dann.
+ */
 export function vermittlungsausschuss(state: GameState, lawId: string, complexity: number): GameState {
   if (!kannVermitteln(state, lawId, complexity)) return state;
 
@@ -52,11 +115,16 @@ export function vermittlungsausschuss(state: GameState, lawId: string, complexit
     ...(next.vermittlungAktiv ?? {}),
     [lawId]: next.month + VERMITTLUNG_DELAY_MONATE,
   };
+  const ausgang = wuerfleVermittlungsAusgang(berechneVermittlungsChancen(next, lawId));
+  const vermittlungAusgang = {
+    ...(next.vermittlungAusgang ?? {}),
+    [lawId]: ausgang,
+  };
 
   const law = state.gesetze.find(g => g.id === lawId);
   return addLog(
-    { ...next, gesetze, vermittlungAktiv },
-    `Vermittlungsausschuss für ${law?.kurz ?? lawId}: Kompromiss in ${VERMITTLUNG_DELAY_MONATE} Monaten`,
+    { ...next, gesetze, vermittlungAktiv, vermittlungAusgang },
+    `Vermittlungsausschuss für ${law?.kurz ?? lawId} einberufen: Ausgang offen, Ergebnis in ${VERMITTLUNG_DELAY_MONATE} Monaten`,
     'info',
   );
 }
@@ -91,22 +159,43 @@ export function tickVermittlungsausschuss(
   let s = state;
   const verbleibend: Record<string, number> = {};
 
+  const ausgangVerbleibend: Record<string, VermittlungAusgang> = {};
+
   for (const [lawId, fristMonat] of Object.entries(aktiv)) {
     if (s.month < fristMonat) {
       verbleibend[lawId] = fristMonat;
+      const bestehenderAusgang = s.vermittlungAusgang?.[lawId];
+      if (bestehenderAusgang) ausgangVerbleibend[lawId] = bestehenderAusgang;
       continue;
     }
 
-    // Vermittlung abgeschlossen: Gesetz beschließen mit halben Effekten
     const lawIdx = s.gesetze.findIndex(g => g.id === lawId);
     if (lawIdx === -1) continue;
 
     const law = s.gesetze[lawIdx];
-    const vermittelteEffekte = reduziereEffekte(law.effekte);
+    // Fehlender Eintrag (z.B. Spielstand vor SMA-276) -> 'kompromiss' als bisheriges Standardverhalten
+    const ausgang: VermittlungAusgang = s.vermittlungAusgang?.[lawId] ?? 'kompromiss';
+
+    if (ausgang === 'scheitern') {
+      // Vermittlung gescheitert: Gesetz fällt zurück in die Bundesrat-Blockade, keine Effekte/Kosten.
+      const gesetze = s.gesetze.map((g, i) =>
+        i === lawIdx ? { ...g, status: 'blockiert' as const, blockiert: 'bundesrat' as const } : g,
+      );
+      s = { ...s, gesetze };
+      s = addLog(
+        s,
+        `Vermittlungsausschuss: ${law.kurz} gescheitert — der Bundesrat bleibt bei seiner Ablehnung`,
+        'r',
+      );
+      continue;
+    }
+
+    const wirkungFaktor = ausgang === 'erfolg' ? 1 : EFFEKT_FAKTOR;
+    const vermittelteEffekte = ausgang === 'erfolg' ? law.effekte : reduziereEffekte(law.effekte);
 
     const gesetze = s.gesetze.map((g, i) =>
       i === lawIdx
-        ? { ...g, status: 'beschlossen' as const, effekte: vermittelteEffekte, wirkungFaktor: EFFEKT_FAKTOR }
+        ? { ...g, status: 'beschlossen' as const, effekte: vermittelteEffekte, wirkungFaktor }
         : g,
     );
     s = { ...s, gesetze };
@@ -134,11 +223,17 @@ export function tickVermittlungsausschuss(
 
     s = addLog(
       s,
-      `Vermittlungsausschuss: ${law.kurz} als Kompromiss beschlossen (Wirkung −50%)`,
+      ausgang === 'erfolg'
+        ? `Vermittlungsausschuss: ${law.kurz} mit vollem Erfolg beschlossen (Wirkung 100%)`
+        : `Vermittlungsausschuss: ${law.kurz} als Kompromiss beschlossen (Wirkung −50%)`,
       'g',
     );
   }
 
-  s = { ...s, vermittlungAktiv: Object.keys(verbleibend).length > 0 ? verbleibend : undefined };
+  s = {
+    ...s,
+    vermittlungAktiv: Object.keys(verbleibend).length > 0 ? verbleibend : undefined,
+    vermittlungAusgang: Object.keys(ausgangVerbleibend).length > 0 ? ausgangVerbleibend : undefined,
+  };
   return s;
 }
