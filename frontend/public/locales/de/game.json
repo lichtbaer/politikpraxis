@@ -2192,7 +2192,11 @@
     "tradeoffAkzeptiert": "Forderung akzeptiert",
     "gesperrt": "Gesperrt",
     "bilateraleDesc": "Pflege die Beziehung zu einzelnen Bundesländern (10 PK, +10 Beziehung).",
-    "bilateraleBtn": "Gespräch: {{name}}"
+    "bilateraleBtn": "Gespräch: {{name}}",
+    "einspruchsgesetz": "Einspruchsgesetz",
+    "einspruchsgesetzTooltip": "Art. 77 GG: Der Bundesrat kann Einspruch einlegen, den der Bundestag mit absoluter Mehrheit überstimmen kann — eine Blockade ist nicht endgültig.",
+    "zustimmungsgesetz": "Zustimmungsgesetz",
+    "zustimmungsgesetzTooltip": "Art. 77 GG: Ohne Zustimmung des Bundesrats ist das Gesetz endgültig blockiert — nur ein Ebenenwechsel hilft."
   },
   "endScreen": {
     "won": "Wiedergewählt",
@@ -2373,6 +2377,10 @@
       "bundesrat": {
         "term": "Bundesrat",
         "explanation": "4 Fraktionen vertreten 16 Bundesländer. Gesetze mit Land-Tag benötigen Bundesrats-Mehrheit. Beziehungspflege und Lobbying beeinflussen die Abstimmung."
+      },
+      "einspruchsgesetz": {
+        "term": "Einspruchs- vs. Zustimmungsgesetz",
+        "explanation": "Art. 77 GG: Bei einem Einspruchsgesetz kann der Bundestag einen Bundesrats-Einspruch mit absoluter Mehrheit überstimmen — die meisten Bundesgesetze fallen darunter. Bei einem Zustimmungsgesetz (z. B. bei Eingriffen in Länderfinanzen oder -verwaltung) ist eine Ablehnung des Bundesrats endgültig; nur ein Ebenenwechsel hilft."
       }
     }
   },

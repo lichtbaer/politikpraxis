@@ -27,6 +27,7 @@ const GLOSSAR_KEYS: GlossarEntry[] = [
   { key: 'kvScore', category: 'koalition' },
   { key: 'vorstufen', category: 'grundlagen' },
   { key: 'bundesrat', category: 'grundlagen' },
+  { key: 'einspruchsgesetz', category: 'grundlagen' },
 ];
 
 const CATEGORIES: GlossarCategory[] = ['grundlagen', 'haushalt', 'koalition', 'medien'];

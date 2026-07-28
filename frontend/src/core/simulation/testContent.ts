@@ -32,6 +32,9 @@ const SIM_LAWS: Law[] = [
     ideologie: { wirtschaft: -20, gesellschaft: -40, staat: -30 },
     ideologie_wert: -30,
     politikfeldId: 'arbeit_soziales',
+    // Art. 84 Abs. 1 GG: Bund-Länder-Förderprogramm mit bundesrechtlich
+    // vorgegebenem Länder-Verwaltungsverfahren → Zustimmungsgesetz.
+    zustimmungspflichtig: true,
   },
   {
     id: 'sr', titel: 'Unternehmenssteuerreform', kurz: 'USR',
@@ -52,6 +55,9 @@ const SIM_LAWS: Law[] = [
     ideologie: { wirtschaft: -10, gesellschaft: -30, staat: -40 },
     ideologie_wert: -27,
     politikfeldId: 'bildung_forschung',
+    // Greift in die Bildungshoheit der Länder ein, Länderfinanzierung an
+    // bundesrechtliche Verfahrensvorgaben gebunden → Zustimmungsgesetz.
+    zustimmungspflichtig: true,
   },
 
   // === Event-locked Gesetze ===
@@ -72,6 +78,10 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'naturkatastrophe',
     politikfeldId: 'innere_sicherheit',
+    // Ziviler Katastrophenschutz ist originär Länderaufgabe; der Bund
+    // koordiniert/finanziert ohne eigenes Länder-Verwaltungsverfahren
+    // vorzuschreiben → Einspruchsgesetz.
+    zustimmungspflichtig: false,
   },
   {
     id: 'cybersicherheit', titel: 'Cybersicherheitsstärkungsgesetz', kurz: 'CySiG',
@@ -108,6 +118,9 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'wohnungsnot',
     politikfeldId: 'arbeit_soziales',
+    // Miet-/Vertragsrecht ist Teil des BGB, Vollzug über Zivilgerichte ohne
+    // bundesrechtlich vorgegebenes Länder-Verwaltungsverfahren → Einspruchsgesetz.
+    zustimmungspflichtig: false,
   },
   {
     id: 'demokratiefoerderung', titel: 'Demokratiefördergesetz', kurz: 'DemFG',

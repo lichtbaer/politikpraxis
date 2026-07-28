@@ -9,6 +9,7 @@ import {
   getBundesratAbstimmungsFelder,
   getAggregierteZustimmung,
   bundesratNutztLandgewichte,
+  isEinspruchsgesetz,
 } from '../../core/systems/institutions/bundesrat';
 import type { BundesratFraktion, Law } from '../../core/types';
 import { useUIStore } from '../../store/uiStore';
@@ -135,9 +136,10 @@ interface AbstimmungsbalkenProps {
   enthaltung: number;
   mehrheit: boolean;
   mehrheitLiniePct: number;
+  complexity: number;
 }
 
-function Abstimmungsbalken({ law, felder, ja, nein, enthaltung, mehrheit, mehrheitLiniePct }: AbstimmungsbalkenProps) {
+function Abstimmungsbalken({ law, felder, ja, nein, enthaltung, mehrheit, mehrheitLiniePct, complexity }: AbstimmungsbalkenProps) {
   const { t } = useTranslation('game');
   const fraktionen = useGameStore((s) => s.state.bundesratFraktionen);
   const showToast = useUIStore((s) => s.showToast);
@@ -156,7 +158,21 @@ function Abstimmungsbalken({ law, felder, ja, nein, enthaltung, mehrheit, mehrhe
   return (
     <div className={styles.abstimmungsBalken}>
       <div className={styles.abstimmungsHeader}>
-        <span className={styles.abstimmungsLaw}>{law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}</span>
+        <span className={styles.abstimmungsLawGroup}>
+          <span className={styles.abstimmungsLaw}>{law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}</span>
+          {featureActive(complexity, 'einspruch_vs_zustimmung') && (
+            <span
+              className={styles.gesetzestypBadge}
+              title={t(
+                isEinspruchsgesetz(law)
+                  ? 'game:bundesrat.einspruchsgesetzTooltip'
+                  : 'game:bundesrat.zustimmungsgesetzTooltip',
+              )}
+            >
+              {t(isEinspruchsgesetz(law) ? 'game:bundesrat.einspruchsgesetz' : 'game:bundesrat.zustimmungsgesetz')}
+            </span>
+          )}
+        </span>
         <span className={styles.abstimmungsErgebnis}>
           {enthaltung > 0
             ? t('game:bundesrat.jaNeinEnthaltung', { ja, nein, enthaltung, mehrheit: mehrheit ? t('game:bundesrat.mehrheitJa') : t('game:bundesrat.mehrheitNein') })
@@ -386,6 +402,7 @@ export function BundesratView() {
               enthaltung={enthaltung}
               mehrheit={mehrheit}
               mehrheitLiniePct={mehrheitLiniePct}
+              complexity={complexity}
             />
           </section>
         );
