@@ -2356,7 +2356,8 @@
       "pk": "Political capital",
       "saldo": "Budget balance",
       "event": "Event",
-      "arcFortsetzung": "Continued: {{titel}}"
+      "arcFortsetzung": "Continued: {{titel}}",
+      "dramaturgieAnker": "Milestone: {{titel}}"
     },
     "ursacheKpi": {
       "al": "Unemployment",

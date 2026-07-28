@@ -93,6 +93,9 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[], comp
   const firedSet = new Set(state.firedEvents);
   const available = eventPool
     .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
+    // #274: Dramaturgie-Anker (100-Tage-Bilanz, Sommerloch, Halbzeitbilanz)
+    // sind fest getaktet, nie eigenständig zufällig auslösbar.
+    .filter(e => !e.dramaturgieAnker)
     // #272: Arc-Fortsetzungen (Stage >= 2) sind keine eigenständigen
     // Zufallsereignisse — sie werden ausschließlich über den geplanten
     // Follow-up der Vorstufe erreicht (siehe applyUnlocksAndFollowups).
@@ -512,8 +515,14 @@ export function resolveEvent(
     });
   }
 
-  // Wahlkampf-Beginn, Koalitionspartner-Alleingang: einfaches Bestätigen
-  if (event.id === 'wahlkampf_beginn' || event.id === 'koalitionspartner_alleingang') {
+  // Wahlkampf-Beginn, Koalitionspartner-Alleingang, 100-Tage-Bilanz: einfaches
+  // Bestätigen — Effekte (falls vorhanden) sind bereits in der jeweiligen
+  // Check-Funktion angewendet worden.
+  if (
+    event.id === 'wahlkampf_beginn'
+    || event.id === 'koalitionspartner_alleingang'
+    || event.id === 'hundert_tage_bilanz'
+  ) {
     return { ...state, activeEvent: null };
   }
 

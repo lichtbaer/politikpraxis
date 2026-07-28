@@ -2427,7 +2427,8 @@
       "pk": "Politisches Kapital",
       "saldo": "Haushaltssaldo",
       "event": "Ereignis",
-      "arcFortsetzung": "Fortsetzung: {{titel}}"
+      "arcFortsetzung": "Fortsetzung: {{titel}}",
+      "dramaturgieAnker": "Meilenstein: {{titel}}"
     },
     "ursacheKpi": {
       "al": "Arbeitslosigkeit",
