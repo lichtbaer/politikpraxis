@@ -93,6 +93,10 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[], comp
   const firedSet = new Set(state.firedEvents);
   const available = eventPool
     .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
+    // #272: Arc-Fortsetzungen (Stage >= 2) sind keine eigenständigen
+    // Zufallsereignisse — sie werden ausschließlich über den geplanten
+    // Follow-up der Vorstufe erreicht (siehe applyUnlocksAndFollowups).
+    .filter(e => (e.arcStage ?? 1) <= 1)
     .filter(e => (e.min_complexity ?? 1) <= complexity)
     .filter(e => isEventAvailable(state, e, firedSet));
   if (!available.length) return state;

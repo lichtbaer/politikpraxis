@@ -65,6 +65,12 @@ function findEventTitle(content: ContentBundle | undefined, id: string): string 
   return alle.find((e) => e.id === id)?.title;
 }
 
+/** #272: Ist dieses Event Stufe >= 2 eines Story-Arcs (also eine Fortsetzung)? */
+function isArcFortsetzung(content: ContentBundle | undefined, id: string): boolean {
+  const event = content?.events?.find((e) => e.id === id);
+  return (event?.arcStage ?? 1) > 1;
+}
+
 /**
  * Issue #209: Aggregiert tickLog-KPI-Änderungen, High-Level-Metrik-Deltas und
  * narrative Events zu einer nach Relevanz (|delta|) sortierten Ursachenliste.
@@ -115,6 +121,7 @@ export function berechneTopUrsachen(
       gewicht: EVENT_GEWICHT,
       refId: eventId,
       label: findEventTitle(content, eventId),
+      istArcFortsetzung: isArcFortsetzung(content, eventId),
     });
   }
 

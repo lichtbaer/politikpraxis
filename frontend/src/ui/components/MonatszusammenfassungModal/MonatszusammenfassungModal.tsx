@@ -40,7 +40,10 @@ function formatUrsacheDelta(delta: number): string {
 /** Issue #209: „{Kategorie}: {KPI}" bzw. nur Kategorie / Event-Titel. */
 function ursacheLabel(t: TFunction, u: MonatsUrsache): string {
   if (u.kategorie === 'event') {
-    return u.label ?? t('monatszusammenfassung.ursache.event');
+    const titel = u.label ?? t('monatszusammenfassung.ursache.event');
+    return u.istArcFortsetzung
+      ? t('monatszusammenfassung.ursache.arcFortsetzung', { titel })
+      : titel;
   }
   const kat = t(`monatszusammenfassung.ursache.${u.kategorie}`);
   if (u.kpi) {

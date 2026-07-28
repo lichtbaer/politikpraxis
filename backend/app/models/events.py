@@ -47,6 +47,11 @@ class Event(Base):
         Boolean(), nullable=False, server_default=text("false")
     )
     cooldown_months: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    # #272: Story-Arc-Zugehörigkeit — arc_stage 1 ist der reguläre Einstieg
+    # (zufällig auslösbar), Stufen >= 2 werden ausschließlich über
+    # followup_event_id/followup_delay der Vorstufe erreicht.
+    arc_id: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    arc_stage: Mapped[int | None] = mapped_column(Integer(), nullable=True)
 
 
 class EventI18n(Base):
@@ -96,6 +101,12 @@ class EventChoice(Base):
     followup_event_id: Mapped[str | None] = mapped_column(
         Text(), ForeignKey("events.id"), nullable=True
     )
+    # #272: Verzögerung (in Monaten) bis der Follow-up feuert, sowie optionale
+    # Gesetzesfreischaltungen dieser Wahlmöglichkeit. Beide Felder existierten
+    # bisher nur im YAML-Content/Frontend-Typ, nie in der DB — dadurch griffen
+    # sie über den echten `/content/events`-Pfad nie (siehe PR-Beschreibung).
+    followup_delay: Mapped[int | None] = mapped_column(Integer(), nullable=True)
+    unlocks_laws: Mapped[list[str] | None] = mapped_column(ARRAY(Text()), nullable=True)
     koalitionspartner_beziehung_delta: Mapped[int | None] = mapped_column(
         Integer(), nullable=True
     )

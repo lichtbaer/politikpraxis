@@ -1759,6 +1759,28 @@
           "effekte": {
             "$ref": "#/components/schemas/EffekteSchema"
           },
+          "followup_delay": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup Delay"
+          },
+          "followup_event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup Event Id"
+          },
           "haushalt_saldo_delta_mrd": {
             "anyOf": [
               {
@@ -1882,6 +1904,20 @@
           "type": {
             "title": "Type",
             "type": "string"
+          },
+          "unlocks_laws": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unlocks Laws"
           },
           "verband_delta": {
             "anyOf": [
@@ -2139,6 +2175,28 @@
       },
       "EventResponse": {
         "properties": {
+          "arc_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arc Id"
+          },
+          "arc_stage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arc Stage"
+          },
           "choices": {
             "items": {
               "$ref": "#/components/schemas/EventChoiceResponse"

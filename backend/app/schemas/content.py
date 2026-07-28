@@ -122,6 +122,11 @@ class EventChoiceResponse(BaseModel):
     verband_delta: dict[str, int] | None = None
     sektor_delta: dict[str, int] | None = None
     haushalt_saldo_delta_mrd: float | None = None
+    # #272: Follow-up-Verkettung + Gesetzesfreischaltung (bisher nur im
+    # YAML-Content vorhanden, siehe Kommentar auf EventChoice.followup_delay)
+    followup_event_id: str | None = None
+    followup_delay: int | None = None
+    unlocks_laws: list[str] | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -149,6 +154,9 @@ class EventResponse(BaseModel):
     trigger_milieu_op: str | None = None
     trigger_milieu_val: int | None = None
     gesetz_ref: list[str] | None = None
+    # #272: Story-Arc-Zugehörigkeit (arc_stage 1 = Einstieg, >= 2 nur per Follow-up erreichbar)
+    arc_id: str | None = None
+    arc_stage: int | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

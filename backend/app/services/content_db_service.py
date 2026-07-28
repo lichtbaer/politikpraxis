@@ -549,6 +549,13 @@ async def fetch_events(
                 brj = getattr(ch, "br_relation_json", None)
                 if brj is not None:
                     c["br_relation_json"] = dict(brj) if hasattr(brj, "keys") else brj
+                if getattr(ch, "followup_event_id", None) is not None:
+                    c["followup_event_id"] = ch.followup_event_id
+                if getattr(ch, "followup_delay", None) is not None:
+                    c["followup_delay"] = ch.followup_delay
+                ul = getattr(ch, "unlocks_laws", None)
+                if ul:
+                    c["unlocks_laws"] = list(ul)
                 choices.append(c)
 
             row: dict[str, Any] = {
@@ -589,6 +596,12 @@ async def fetch_events(
             cd = getattr(e, "cooldown_months", None)
             if cd is not None:
                 row["cooldown_months"] = cd
+            arc_id = getattr(e, "arc_id", None)
+            if arc_id is not None:
+                row["arc_id"] = arc_id
+            arc_stage = getattr(e, "arc_stage", None)
+            if arc_stage is not None:
+                row["arc_stage"] = arc_stage
             rows.append(row)
         return rows
 
