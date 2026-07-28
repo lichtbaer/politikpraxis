@@ -13,6 +13,13 @@ export interface CharacterUltimatum {
   event: string;
 }
 
+/** SMA-279: gerichtete Beziehung zu einem anderen Kabinettsmitglied */
+export interface CharacterRelationship {
+  target: string;
+  type: 'verbuendet' | 'verfeindet';
+  staerke: number;
+}
+
 export interface Character {
   id: string;
   name: string;
@@ -53,6 +60,8 @@ export interface Character {
   agenda_stufe_aktuell?: number;
   /** SMA-329: Anzahl Ablehnungen in aktueller Stufe */
   agenda_ablehnungen?: number;
+  /** SMA-279: Beziehungen zu anderen Kabinettsmitgliedern */
+  relationships?: CharacterRelationship[];
 }
 
 /** SMA-330: Minister-Agenda Status — kontinuierliche Erzählung */

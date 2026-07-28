@@ -891,6 +891,30 @@
         "title": "CharI18nUpdate",
         "type": "object"
       },
+      "CharRelationshipSchema": {
+        "description": "SMA-279: Gerichtete Beziehung zu einem anderen Kabinettsmitglied.",
+        "properties": {
+          "staerke": {
+            "title": "Staerke",
+            "type": "integer"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target",
+          "type",
+          "staerke"
+        ],
+        "title": "CharRelationshipSchema",
+        "type": "object"
+      },
       "CharResponse": {
         "properties": {
           "agenda": {
@@ -1078,6 +1102,20 @@
               }
             ],
             "title": "Pool Partei"
+          },
+          "relationships": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/CharRelationshipSchema"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relationships"
           },
           "ressort": {
             "anyOf": [

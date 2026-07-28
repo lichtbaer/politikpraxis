@@ -37,6 +37,27 @@ describe('contentStore Offline-Fallback', () => {
     expect(s.bundesratFraktionen.length).toBeGreaterThan(0);
   });
 
+  it('SMA-279: Fallback-Kabinett trägt eine symmetrische Beziehungsmatrix', async () => {
+    apiFetchMock.mockRejectedValue(new Error('network down'));
+
+    await useContentStore.getState().load('de');
+    const s = useContentStore.getState();
+
+    const kanzler = s.chars.find((c) => c.id === 'kanzler');
+    expect(kanzler?.relationships).toEqual(
+      expect.arrayContaining([{ target: 'im', type: 'verfeindet', staerke: 2 }]),
+    );
+
+    const byId = new Map(s.chars.map((c) => [c.id, c]));
+    for (const char of s.chars) {
+      for (const rel of char.relationships ?? []) {
+        const mirror = byId.get(rel.target)?.relationships?.find((r) => r.target === char.id);
+        expect(mirror).toBeDefined();
+        expect(mirror?.type).toBe(rel.type);
+      }
+    }
+  });
+
   it('Fallback-Content überlebt createInitialState (Smoke-Test, alle Stufen)', async () => {
     apiFetchMock.mockRejectedValue(new Error('network down'));
 

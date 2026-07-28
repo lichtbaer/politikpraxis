@@ -149,6 +149,7 @@ function transformChar(api: CharApi): Character {
   if (api.ist_partner_minister) char.ist_partner_minister = api.ist_partner_minister;
   if (api.agenda_stufe_aktuell != null) char.agenda_stufe_aktuell = api.agenda_stufe_aktuell;
   if (api.agenda_ablehnungen != null) char.agenda_ablehnungen = api.agenda_ablehnungen;
+  if (api.relationships) char.relationships = api.relationships as Character['relationships'];
   return char;
 }
 

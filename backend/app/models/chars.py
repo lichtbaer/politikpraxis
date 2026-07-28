@@ -88,6 +88,9 @@ class Char(Base):
     agenda_ablehnungen: Mapped[int] = mapped_column(
         Integer(), nullable=False, server_default="0"
     )
+    # SMA-279: Char-zu-Char-Beziehungsmatrix, z.B.
+    # [{"target": "wm", "type": "verfeindet", "staerke": 2}]
+    relationships: Mapped[list[dict] | None] = mapped_column(JSONB(), nullable=True)
 
 
 class CharI18n(Base):

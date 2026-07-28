@@ -9,6 +9,14 @@
   interests:
     - Koalitionsstabilität
     - Wiederwahl
+  # SMA-279: Char-zu-Char-Beziehungsmatrix (Startwerte, gespiegelt in Migration 067)
+  relationships:
+    - target: im
+      type: verfeindet
+      staerke: 2
+    - target: jm
+      type: verbuendet
+      staerke: 2
   bonus:
     trigger: "mood>=3"
     desc: "Gibt +5 BT-Stimmen für alle Gesetze"
@@ -28,6 +36,22 @@
   interests:
     - Haushaltsdisziplin
     - Schuldenbremse
+  relationships:
+    - target: wm
+      type: verfeindet
+      staerke: 2
+    - target: um
+      type: verfeindet
+      staerke: 2
+    - target: am
+      type: verfeindet
+      staerke: 1
+    - target: gm
+      type: verfeindet
+      staerke: 1
+    - target: bm
+      type: verfeindet
+      staerke: 1
   bonus:
     trigger: "mood>=4"
     desc: "Beschleunigt Gesetze ohne Haushaltskosten"
@@ -47,6 +71,16 @@
   interests:
     - Standortpolitik
     - Industrietransformation
+  relationships:
+    - target: fm
+      type: verfeindet
+      staerke: 2
+    - target: um
+      type: verbuendet
+      staerke: 2
+    - target: am
+      type: verfeindet
+      staerke: 1
   bonus:
     trigger: "mood>=3"
     desc: "+3% BT-Stimmen für Wirtschaftsgesetze"
@@ -66,6 +100,13 @@
   interests:
     - Innere Sicherheit
     - Migrationsbegrenzung
+  relationships:
+    - target: jm
+      type: verfeindet
+      staerke: 2
+    - target: kanzler
+      type: verfeindet
+      staerke: 2
   bonus:
     trigger: "mood>=4"
     desc: "Stabilisiert Bundesrat-Stimmen in 3 Ländern"
@@ -85,6 +126,16 @@
   interests:
     - Rechtsstaat
     - Grundrechte
+  relationships:
+    - target: im
+      type: verfeindet
+      staerke: 2
+    - target: kanzler
+      type: verbuendet
+      staerke: 2
+    - target: am
+      type: verbuendet
+      staerke: 1
   bonus:
     trigger: "mood>=3"
     desc: "Verhindert Verfassungsklagen gegen Gesetze"
@@ -109,6 +160,16 @@
     - Mindestlohn
     - Tarifbindung
     - Sozialleistungen
+  relationships:
+    - target: fm
+      type: verfeindet
+      staerke: 1
+    - target: wm
+      type: verfeindet
+      staerke: 1
+    - target: jm
+      type: verbuendet
+      staerke: 1
   bonus:
     trigger: "mood>=3"
     desc: "GBD-Beziehung regeneriert passiv wenn Mood ≥ 3"
@@ -130,6 +191,10 @@
     - Pflegefinanzierung
     - Krankenversicherung
     - Prävention
+  relationships:
+    - target: fm
+      type: verfeindet
+      staerke: 1
   bonus:
     trigger: "mood>=3"
     desc: "Gesundheitsfeld-Druck steigt langsamer wenn Mood ≥ 3"
@@ -151,6 +216,13 @@
     - Bildungsföderalismus
     - Kitaausbau
     - Forschungsförderung
+  relationships:
+    - target: fm
+      type: verfeindet
+      staerke: 1
+    - target: um
+      type: verbuendet
+      staerke: 1
   bonus:
     trigger: "mood>=3"
     desc: "Bundesrat-Blockade bei Bildungsgesetzen -15% wenn Mood ≥ 3"
@@ -170,6 +242,16 @@
   interests:
     - Klimaschutz
     - Energiewende
+  relationships:
+    - target: fm
+      type: verfeindet
+      staerke: 2
+    - target: wm
+      type: verbuendet
+      staerke: 2
+    - target: bm
+      type: verbuendet
+      staerke: 1
   bonus:
     trigger: "mood>=4"
     desc: "+4% Zustimmung im progressiven Milieu"

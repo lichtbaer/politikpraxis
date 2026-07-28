@@ -1453,6 +1453,18 @@ export interface components {
             /** Role */
             role?: string | null;
         };
+        /**
+         * CharRelationshipSchema
+         * @description SMA-279: Gerichtete Beziehung zu einem anderen Kabinettsmitglied.
+         */
+        CharRelationshipSchema: {
+            /** Staerke */
+            staerke: number;
+            /** Target */
+            target: string;
+            /** Type */
+            type: string;
+        };
         /** CharResponse */
         CharResponse: {
             /** Agenda */
@@ -1513,6 +1525,8 @@ export interface components {
             partei_kuerzel?: string | null;
             /** Pool Partei */
             pool_partei?: string | null;
+            /** Relationships */
+            relationships?: components["schemas"]["CharRelationshipSchema"][] | null;
             /** Ressort */
             ressort?: string | null;
             /** Ressort Partner */
