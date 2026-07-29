@@ -1,8 +1,8 @@
-import type { GameState, ContentBundle, SpielerParteiState, BundeslandContent, SpeedLevel } from './types';
+import type { GameState, ContentBundle, SpielerParteiState, BundeslandContent, SpeedLevel, KoalitionspartnerParteiId } from './types';
 import type { MilieuHistoryStats, MediaState } from './types/state';
 import type { Approval } from './types';
 import { featureActive } from './systems/features';
-import { berechneKoalitionspartner, berechneKoalitionsvertragProfil } from './systems/koalition';
+import { berechneKoalitionspartnerKandidaten, berechneKoalitionsvertragProfil } from './systems/koalition';
 import { buildKoalitionspartnerContent } from '../data/defaults/koalitionspartner';
 import { initEUKlima } from './systems/eu';
 import { createInitialHaushalt } from './systems/economics/haushalt';
@@ -111,6 +111,9 @@ function mergeBundeslaenderProfile(
  * @param spielerPartei SMA-289: Gewählte Partei (Stufe 1: SDP default)
  * @param kanzlerName SMA-327: Spieler-Name für Kanzler (überschreibt Content)
  * @param kanzlerGeschlecht SMA-327: Geschlecht für Pronomen/Anrede (sie/er/they)
+ * @param koalitionspartnerOverride #283: Vom Spieler gewählte Koalitionskonstellation (Stufe 3+);
+ *   nur wirksam wenn es ein gültiger Kandidat für die Ideologie-Distanz-Berechnung ist, sonst
+ *   Fallback auf den automatisch nächsten Partner.
  */
 export function createInitialState(
   content: ContentBundle,
@@ -119,6 +122,7 @@ export function createInitialState(
   spielerPartei?: SpielerParteiState,
   kanzlerName?: string,
   kanzlerGeschlecht: 'sie' | 'er' | 'they' = 'sie',
+  koalitionspartnerOverride?: KoalitionspartnerParteiId,
 ): GameState {
   const fraktionen = content.bundesratFraktionen ?? [];
   const allChars = content.characters.filter(
@@ -127,9 +131,13 @@ export function createInitialState(
 
   const parteiId: SpielerParteiId = spielerPartei?.id ?? 'sdp';
   const ideologie = ausrichtung ?? { wirtschaft: 0, gesellschaft: 0, staat: 0 };
-  const partnerParteiId = featureActive(complexity, 'koalitionspartner')
-    ? berechneKoalitionspartner(parteiId, ideologie)
-    : null;
+  const koalitionsKandidaten = featureActive(complexity, 'koalitionspartner')
+    ? berechneKoalitionspartnerKandidaten(parteiId, ideologie)
+    : [];
+  const partnerParteiId =
+    koalitionspartnerOverride && koalitionsKandidaten.some((k) => k.parteiId === koalitionspartnerOverride)
+      ? koalitionspartnerOverride
+      : (koalitionsKandidaten[0]?.parteiId ?? null);
   const partner = partnerParteiId
     ? buildKoalitionspartnerContent(partnerParteiId, parteiId)
     : null;
