@@ -10,9 +10,35 @@ import { featureActive } from '../../core/systems/features';
 import { DEFAULT_ELECTION_THRESHOLD } from '../../core/constants';
 import { SpielauswertungScreen } from './SpielauswertungScreen';
 import { KanzlerbilanzBeat } from './KanzlerbilanzBeat';
+import { generateConfettiPieces, type ConfettiPiece } from './wahlnachtConfetti';
 import styles from './WahlnachtScreen.module.css';
 
 const HOCHRECHNUNG_DURATION_MS = 2500;
+
+/** Rein CSS-getriebenes Konfetti (keine neue Abhängigkeit) — feiert einen Wahlsieg auf Beat 2. */
+function Confetti() {
+  // Lazy-Initializer: Math.random() läuft nachweislich nur einmal beim Mount, nicht bei jedem Render.
+  const [pieces] = useState<ConfettiPiece[]>(() => generateConfettiPieces());
+
+  return (
+    <div className={styles.confetti} aria-hidden="true">
+      {pieces.map((p, i) => (
+        <span
+          key={i}
+          className={styles.confettiPiece}
+          style={{
+            left: `${p.left}%`,
+            backgroundColor: p.color,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+            ['--confetti-rotate-from' as string]: `${p.rotateFrom}deg`,
+            ['--confetti-rotate-to' as string]: `${p.rotateTo}deg`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export function WahlnachtScreen() {
   const { t } = useTranslation('game');
@@ -81,6 +107,8 @@ export function WahlnachtScreen() {
           </p>
         </div>
       )}
+
+      {beat === 2 && legislaturErfolg && <Confetti />}
 
       {beat === 2 && (
         <div className={styles.content}>
