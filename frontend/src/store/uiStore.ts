@@ -23,6 +23,10 @@ interface UIStore {
   showShortcutHelp: boolean;
   /** #282: „Weiter bis zum nächsten Ereignis" — beschleunigter Vorlauf mit Auto-Stopp */
   fastForwardActive: boolean;
+  /** #281: Glossar-Schlüssel, zu dem gerade eine Öffnung angefordert wurde (z. B. aus einem GameTip) */
+  openGlossarKey: string | null;
+  /** #281: Zähler, der bei jeder Öffnungsanfrage erhöht wird (auch bei gleichem Key erneut auslösbar) */
+  openGlossarRequestId: number;
 
   showCharDetail: (id: string) => void;
   closeCharDetail: () => void;
@@ -34,6 +38,7 @@ interface UIStore {
   requestFocusEreignisprotokoll: () => void;
   setShowShortcutHelp: (show: boolean) => void;
   setFastForwardActive: (active: boolean) => void;
+  requestOpenGlossar: (key: string) => void;
 }
 
 let toastCounter = 0;
@@ -49,6 +54,8 @@ export const useUIStore = create<UIStore>((set, get) => ({
   focusEreignisprotokollRequestId: 0,
   showShortcutHelp: false,
   fastForwardActive: false,
+  openGlossarKey: null,
+  openGlossarRequestId: 0,
 
   showCharDetail: (id) => set({ charDetailId: id }),
   closeCharDetail: () => set({ charDetailId: null }),
@@ -82,4 +89,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
   setShowShortcutHelp: (show) => set({ showShortcutHelp: show }),
 
   setFastForwardActive: (active) => set({ fastForwardActive: active }),
+
+  requestOpenGlossar: (key) =>
+    set((s) => ({ openGlossarKey: key, openGlossarRequestId: s.openGlossarRequestId + 1 })),
 }));

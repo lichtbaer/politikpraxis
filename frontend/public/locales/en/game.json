@@ -2685,6 +2685,12 @@
       "title": "Laws take time",
       "text": "Passed laws don't take effect immediately — effects kick in after a few months. Plan ahead and introduce laws early!"
     },
+    "erstesUltimatum": {
+      "title": "An ultimatum!",
+      "text": "“Keep this up and I'm resigning.” Your chief of staff warns: ultimatums appear when a minister stays unhappy for too long. Respond, or you'll lose the minister — and the rest of the cabinet's trust."
+    },
+    "openGlossar": "→ Look up in glossary",
+    "settingHintsEnabled": "Show in-game hints",
     "haushaltErklaerung": {
       "title": "The budget",
       "text": "Every law has running costs. Watch the budget balance — excessive deficit triggers the debt brake and limits your room to act."

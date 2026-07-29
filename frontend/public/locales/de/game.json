@@ -2683,6 +2683,12 @@
       "title": "Gesetze brauchen Zeit",
       "text": "Beschlossene Gesetze wirken nicht sofort — die Effekte treten erst nach einigen Monaten ein. Plane voraus und bring Gesetze frühzeitig ein!"
     },
+    "erstesUltimatum": {
+      "title": "Ein Ultimatum!",
+      "text": "„Wenn das so weitergeht, trete ich zurück.“ Ihr Büroleiter warnt: Ultimaten entstehen, wenn ein Minister lange unzufrieden bleibt. Reagieren Sie darauf, sonst verlieren Sie den Minister — und das Vertrauen des restlichen Kabinetts."
+    },
+    "openGlossar": "→ Im Glossar nachschlagen",
+    "settingHintsEnabled": "Spielhinweise anzeigen",
     "haushaltErklaerung": {
       "title": "Der Haushalt",
       "text": "Jedes Gesetz hat laufende Kosten. Achte auf den Haushaltssaldo — bei zu hohem Defizit greift die Schuldenbremse und schränkt deinen Spielraum ein."
