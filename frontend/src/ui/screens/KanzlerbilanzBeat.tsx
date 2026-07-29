@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { noteFromHundred } from '../../core/spielziel';
 import { buildAgendaSidebarRows } from '../../core/agendaTracking';
-import { berechneTitel } from '../../core/auswertung';
+import { berechneHistorischesUrteilKontext, berechneTitel } from '../../core/auswertung';
 import type { ContentBundle, GameState, LegislaturBilanzNote, Law } from '../../core/types';
 import { Modal } from '../components/Modal/Modal';
 import styles from './KanzlerbilanzBeat.module.css';
@@ -86,6 +86,32 @@ export function KanzlerbilanzBeat({ state, content, showDetails, showArchetype, 
     const max = Math.max(...scores);
     return { avg, min, max, n: scores.length };
   }, [urteilData]);
+
+  const urteilKontext = useMemo(() => berechneHistorischesUrteilKontext(state), [state]);
+
+  const historischerFliesstext = useMemo(() => {
+    const satz: string[] = [];
+    if (urteilKontext.anzahlGesetze === 0) {
+      satz.push(t('game:kanzlerbilanz.historischText.introKeineGesetze'));
+      return satz;
+    }
+    satz.push(t(`game:kanzlerbilanz.historischText.intro.${noteUrteil}`));
+    if (urteilKontext.topLaw) {
+      satz.push(t('game:kanzlerbilanz.historischText.topLaw', { titel: urteilKontext.topLaw.titel }));
+    }
+    if (urteilKontext.bottomLaw) {
+      satz.push(t('game:kanzlerbilanz.historischText.bottomLaw', { titel: urteilKontext.bottomLaw.titel }));
+    }
+    if (urteilKontext.reformTiefe && urteilKontext.stabilitaet) {
+      satz.push(
+        t('game:kanzlerbilanz.historischText.closing', {
+          reform: t(`game:kanzlerbilanz.historischText.reformTiefe.${urteilKontext.reformTiefe}`),
+          stab: t(`game:kanzlerbilanz.historischText.stabilitaet.${urteilKontext.stabilitaet}`),
+        }),
+      );
+    }
+    return satz;
+  }, [urteilKontext, noteUrteil, t]);
 
   const detailBilanz = bilanz?.bilanzPunkteDetail;
 
@@ -273,6 +299,9 @@ export function KanzlerbilanzBeat({ state, content, showDetails, showArchetype, 
                 'game:kanzlerbilanz.historischIntro',
                 'Rückblick: Wie wirken deine beschlossenen Gesetze langfristig?',
               )}
+            </p>
+            <p className={styles.historischerFliesstext}>
+              {historischerFliesstext.join(' ')}
             </p>
             {nachhaltigkeit && (
               <ul className={styles.detailList}>

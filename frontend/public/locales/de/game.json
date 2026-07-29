@@ -2581,6 +2581,29 @@
       "C": "Historisches Urteil ausgewogen.",
       "D": "Historisches Urteil kritisch — negative Langzeitfolgen überwiegen.",
       "F": "Historisches Urteil sehr schlecht."
+    },
+    "historischText": {
+      "intro": {
+        "A": "Fünf Jahre nach dem Ende der Legislatur fällt das Urteil der Geschichtsschreibung eindeutig positiv aus.",
+        "B": "Im Rückblick gilt die Legislatur überwiegend als Erfolg — mit einigen offenen Fragen.",
+        "C": "Die Geschichtsschreibung zeichnet ein gemischtes Bild dieser Legislatur.",
+        "D": "Historiker urteilen kritisch über diese Legislatur — zu viel blieb ungelöst.",
+        "F": "Die Legislatur gilt heute als gescheitert — die Bilanz fällt vernichtend aus."
+      },
+      "introKeineGesetze": "Ohne ein einziges beschlossenes Gesetz bleibt von dieser Regierung historisch wenig übrig.",
+      "topLaw": "Die {{titel}} gilt heute als Wendepunkt dieser Regierungszeit.",
+      "bottomLaw": "Die {{titel}} bleibt dagegen umstritten — Kritiker nennen sie bis heute ein teures Symbol.",
+      "closing": "Die Reformtiefe war {{reform}}, das Regierungsbündnis blieb über weite Strecken {{stab}}.",
+      "reformTiefe": {
+        "tief": "tiefgreifend",
+        "mittel": "solide",
+        "flach": "vorsichtig"
+      },
+      "stabilitaet": {
+        "stabil": "stabil",
+        "turbulent": "von Spannungen geprägt",
+        "krise": "von offenen Krisen erschüttert"
+      }
     }
   },
   "opposition": {
