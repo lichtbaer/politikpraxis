@@ -8,6 +8,8 @@ interface ToastItem {
   id: number;
   msg: string;
   type: ToastType;
+  /** #284: größeres, länger sichtbares Feedback für Momente wie Gesetzesbeschluss oder Achievement-Freischaltung */
+  major?: boolean;
 }
 
 interface UIStore {
@@ -30,7 +32,7 @@ interface UIStore {
 
   showCharDetail: (id: string) => void;
   closeCharDetail: () => void;
-  showToast: (msg: string, type?: ToastType) => void;
+  showToast: (msg: string, type?: ToastType, options?: { major?: boolean }) => void;
   dismissToast: (id: number) => void;
   setTheme: (theme: Theme) => void;
   setPlayerSettings: (partial: Partial<PlayerSettings>) => void;
@@ -44,6 +46,8 @@ interface UIStore {
 let toastCounter = 0;
 const MAX_TOASTS = 4;
 const TOAST_DURATION = 2800;
+/** #284: große Momente (Gesetzesbeschluss, Achievement) bleiben länger sichtbar als Routine-Toasts */
+const TOAST_DURATION_MAJOR = 5200;
 
 export const useUIStore = create<UIStore>((set, get) => ({
   charDetailId: null,
@@ -60,12 +64,13 @@ export const useUIStore = create<UIStore>((set, get) => ({
   showCharDetail: (id) => set({ charDetailId: id }),
   closeCharDetail: () => set({ charDetailId: null }),
 
-  showToast: (msg, type = 'info') => {
+  showToast: (msg, type = 'info', options) => {
+    const major = options?.major ?? false;
     const id = ++toastCounter;
     set((state) => ({
-      toastQueue: [...state.toastQueue.slice(-(MAX_TOASTS - 1)), { id, msg, type }],
+      toastQueue: [...state.toastQueue.slice(-(MAX_TOASTS - 1)), { id, msg, type, major }],
     }));
-    setTimeout(() => get().dismissToast(id), TOAST_DURATION);
+    setTimeout(() => get().dismissToast(id), major ? TOAST_DURATION_MAJOR : TOAST_DURATION);
   },
 
   dismissToast: (id) => {

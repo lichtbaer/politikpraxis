@@ -19,8 +19,8 @@ export function Toast() {
       {toastQueue.map((toast, index) => (
         <div
           key={toast.id}
-          className={`${styles.root} ${TYPE_CLASS[toast.type] ?? ''}`}
-          style={{ bottom: `${24 + index * 48}px` }}
+          className={`${styles.root} ${TYPE_CLASS[toast.type] ?? ''} ${toast.major ? styles.major : ''}`}
+          style={{ bottom: `${24 + index * (toast.major ? 60 : 48)}px` }}
         >
           {toast.msg}
         </div>
