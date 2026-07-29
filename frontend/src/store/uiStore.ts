@@ -21,6 +21,8 @@ interface UIStore {
   focusEreignisprotokollRequestId: number;
   /** Tastatur-Shortcut-Hilfe (Shell) — auch per Header-Button erreichbar */
   showShortcutHelp: boolean;
+  /** #282: „Weiter bis zum nächsten Ereignis" — beschleunigter Vorlauf mit Auto-Stopp */
+  fastForwardActive: boolean;
 
   showCharDetail: (id: string) => void;
   closeCharDetail: () => void;
@@ -31,6 +33,7 @@ interface UIStore {
   setOpenMonatszusammenfassung: (open: boolean) => void;
   requestFocusEreignisprotokoll: () => void;
   setShowShortcutHelp: (show: boolean) => void;
+  setFastForwardActive: (active: boolean) => void;
 }
 
 let toastCounter = 0;
@@ -45,6 +48,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
   openMonatszusammenfassung: false,
   focusEreignisprotokollRequestId: 0,
   showShortcutHelp: false,
+  fastForwardActive: false,
 
   showCharDetail: (id) => set({ charDetailId: id }),
   closeCharDetail: () => set({ charDetailId: null }),
@@ -76,4 +80,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
     set((s) => ({ focusEreignisprotokollRequestId: s.focusEreignisprotokollRequestId + 1 })),
 
   setShowShortcutHelp: (show) => set({ showShortcutHelp: show }),
+
+  setFastForwardActive: (active) => set({ fastForwardActive: active }),
 }));

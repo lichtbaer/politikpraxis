@@ -2935,6 +2935,8 @@
     "space": "Leertaste",
     "pauseResume": "Pause / Fortsetzen",
     "slowSpeed": "Spielgeschwindigkeit",
+    "fastSpeed": "Schnelle Geschwindigkeit (2×)",
+    "fastForward": "Weiter bis zum nächsten Ereignis",
     "closeDrawer": "Drawer schließen",
     "eventChoice": "Event-Auswahl (bei Event)",
     "confirmOnly": "Einzige Option bestätigen",
@@ -2943,6 +2945,13 @@
     "close": "Schließen",
     "showAgenda": "Agenda anzeigen",
     "showKabinett": "Kabinett anzeigen"
+  },
+  "fastForward": {
+    "stopped": {
+      "warnung": "Automatischer Vorlauf angehalten: Misstrauensvotum droht.",
+      "abstimmung": "Automatischer Vorlauf angehalten: Bundesratsabstimmung abgeschlossen.",
+      "monatszusammenfassung": "Automatischer Vorlauf angehalten: Monatszusammenfassung verfügbar."
+    }
   },
   "europaKarte": {
     "deutschland": "Deutschland"

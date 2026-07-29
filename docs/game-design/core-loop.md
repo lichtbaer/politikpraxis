@@ -25,7 +25,9 @@ Monat 48: Wahl → Spielziel-Auswertung (Dreipfeiler ≥ 40 Punkte; Wahlhürde g
 
 ## Zeitstruktur
 
-Echtzeit mit Pause. 1 Spieltick = 1 Monat. Geschwindigkeiten: Pause / 1× (1,8 Sek/Monat). Events pausieren automatisch.
+Echtzeit mit Pause. 1 Spieltick = 1 Monat. Geschwindigkeiten: Pause / 1× (2 Sek/Monat) / 2× (1 Sek/Monat). Events pausieren automatisch.
+
+„Weiter bis zum nächsten Ereignis" (Taste F) lässt die Zeit beschleunigt laufen und hält automatisch an, sobald ein Event, eine anstehende Bundesratsabstimmung, eine Misstrauensvotum-Warnung oder (falls aktiviert) die Monatszusammenfassung ansteht.
 
 ---
 

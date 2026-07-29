@@ -1,4 +1,4 @@
-import type { GameState, ContentBundle, SpielerParteiState, BundeslandContent } from './types';
+import type { GameState, ContentBundle, SpielerParteiState, BundeslandContent, SpeedLevel } from './types';
 import type { MilieuHistoryStats, MediaState } from './types/state';
 import type { Approval } from './types';
 import { featureActive } from './systems/features';
@@ -448,7 +448,7 @@ const MAX_LOG_ENTRIES = MAX_LOG_ENTRIES_VALIDATION;
 const VALID_VIEWS = new Set<string>([
   'agenda', 'bundestag', 'kabinett', 'haushalt', 'medien', 'verbaende', 'bundesrat', 'laender', 'kommunen', 'eu', 'wahlkampf',
 ]);
-const VALID_SPEEDS = new Set<number>([0, 1]);
+const VALID_SPEEDS = new Set<number>([0, 1, 2]);
 
 /** Clampt Zahl auf Bereich [min, max] */
 function clamp(n: number, min: number, max: number): number {
@@ -490,10 +490,10 @@ export function validateGameState(raw: unknown): GameState {
 
   const month = clamp(Number(get('month', 1)), 1, 60);
   const speedVal = Number(get('speed', 0));
-  const speed = VALID_SPEEDS.has(speedVal) ? (speedVal as 0 | 1) : 0;
+  const speed = VALID_SPEEDS.has(speedVal) ? (speedVal as SpeedLevel) : 0;
   const speedBeforePauseRaw = get('speedBeforePause', undefined);
   const speedBeforePauseVal = speedBeforePauseRaw !== undefined ? Number(speedBeforePauseRaw) : NaN;
-  const speedBeforePause = VALID_SPEEDS.has(speedBeforePauseVal) ? (speedBeforePauseVal as 0 | 1) : undefined;
+  const speedBeforePause = VALID_SPEEDS.has(speedBeforePauseVal) ? (speedBeforePauseVal as SpeedLevel) : undefined;
   const pk = clamp(Number(get('pk', 100)), 0, 999);
   const viewVal = String(get('view', 'agenda'));
   const view = VALID_VIEWS.has(viewVal) ? (viewVal as GameState['view']) : 'agenda';
