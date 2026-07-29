@@ -37,6 +37,36 @@
   border-left-color: var(--red);
 }
 
+/* #284: großer Moment (Gesetzesbeschluss, Achievement) — auffälliger und länger sichtbar,
+   Dauer muss zu TOAST_DURATION_MAJOR in uiStore.ts passen */
+.major {
+  font-size: 14px;
+  padding: 14px 22px;
+  border-left-width: 5px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  animation-name: toastLifeMajor;
+  animation-duration: 5.2s;
+}
+
+@keyframes toastLifeMajor {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) scale(0.96);
+  }
+  6% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  92% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px) scale(1);
+  }
+}
+
 @keyframes toastLife {
   0% {
     opacity: 0;

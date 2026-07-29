@@ -78,9 +78,9 @@ import { useUIStore } from './uiStore';
 
 export type GamePhase = 'onboarding' | 'playing';
 
-/** Convenience: fire-and-forget toast from game actions */
-const toast = (msg: string, type?: 'info' | 'success' | 'warning' | 'danger') =>
-  useUIStore.getState().showToast(msg, type);
+/** Convenience: fire-and-forget toast from game actions. `major`: #284 — größeres, längeres Feedback für große Momente. */
+const toast = (msg: string, type?: 'info' | 'success' | 'warning' | 'danger', major?: boolean) =>
+  useUIStore.getState().showToast(msg, type, { major });
 
 const DEFAULT_AUSRICHTUNG: Ausrichtung = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 
@@ -306,7 +306,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // statt nur retrospektiv in der Legislatur-Auswertung.
     if (phase === 'playing') {
       for (const achievement of checkAchievements(nextState)) {
-        toast(i18n.t('game:auswertung.achievementUnlockedToast', { title: achievement.title }), 'success');
+        toast(i18n.t('game:auswertung.achievementUnlockedToast', { title: achievement.title }), 'success', true);
       }
     }
     const diff = nextState.letzterMonatsDiff;
@@ -459,9 +459,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const newLaw = state.gesetze.find(g => g.id === lawId);
       if (newLaw?.status === 'beschlossen') {
         state = updateKoalitionsvertragScore(state, lawId, prev.content, prev.complexity);
-        toast(`${newLaw.kurz} beschlossen! Wirkung in ${newLaw.lag} Monaten`, 'success');
+        toast(`${newLaw.kurz} beschlossen! Wirkung in ${newLaw.lag} Monaten`, 'success', true);
       } else if (newLaw?.status === 'blockiert') {
-        toast(`${newLaw.kurz}: Mehrheit verfehlt (${newLaw.ja}%)`, 'danger');
+        toast(`${newLaw.kurz}: Mehrheit verfehlt (${newLaw.ja}%)`, 'danger', true);
       } else if (newLaw?.status === 'bt_passed') {
         toast(`${newLaw.kurz} passiert Bundestag — weiter zum Bundesrat`, 'info');
       }
