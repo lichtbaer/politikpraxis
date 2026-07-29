@@ -1,6 +1,32 @@
 import { describe, expect, it } from 'vitest';
-import { berechneLegislaturBewertung, berechneTitel, berechneTopPolitikfeld } from './auswertung';
-import type { GameState } from './types';
+import {
+  berechneHistorischesUrteilKontext,
+  berechneLegislaturBewertung,
+  berechneTitel,
+  berechneTopPolitikfeld,
+} from './auswertung';
+import type { GameState, Law } from './types';
+
+function baseLaw(over: Partial<Law> = {}): Law {
+  return {
+    id: 'g1',
+    titel: 'Testgesetz',
+    kurz: 'k',
+    desc: '',
+    tags: ['bund'],
+    status: 'beschlossen',
+    ja: 50,
+    nein: 50,
+    effekte: {},
+    lag: 0,
+    expanded: false,
+    route: null,
+    rprog: 0,
+    rdur: 0,
+    blockiert: null,
+    ...over,
+  } as Law;
+}
 
 function baseState(over: Partial<GameState> = {}): GameState {
   return {
@@ -83,5 +109,70 @@ describe('auswertung', () => {
 
   it('berechneTopPolitikfeld null ohne Gesetze', () => {
     expect(berechneTopPolitikfeld(baseState())).toBeNull();
+  });
+
+  it('berechneHistorischesUrteilKontext: keine Gesetze → alles leer', () => {
+    const k = berechneHistorischesUrteilKontext(baseState({ gesetze: [] }));
+    expect(k.anzahlGesetze).toBe(0);
+    expect(k.topLaw).toBeNull();
+    expect(k.bottomLaw).toBeNull();
+  });
+
+  it('berechneHistorischesUrteilKontext: ein Gesetz → topLaw gesetzt, kein Kontrapunkt', () => {
+    const k = berechneHistorischesUrteilKontext(
+      baseState({ gesetze: [baseLaw({ id: 'g1', titel: 'Klimawende', langzeit_score: 9 })] }),
+    );
+    expect(k.anzahlGesetze).toBe(1);
+    expect(k.topLaw).toEqual({ id: 'g1', titel: 'Klimawende', score: 9 });
+    expect(k.bottomLaw).toBeNull();
+  });
+
+  it('berechneHistorischesUrteilKontext: großer Score-Abstand → bottomLaw als Kontrapunkt', () => {
+    const k = berechneHistorischesUrteilKontext(
+      baseState({
+        gesetze: [
+          baseLaw({ id: 'g1', titel: 'Klimawende', langzeit_score: 9 }),
+          baseLaw({ id: 'g2', titel: 'Sparpaket', langzeit_score: 2 }),
+        ],
+      }),
+    );
+    expect(k.topLaw?.id).toBe('g1');
+    expect(k.bottomLaw?.id).toBe('g2');
+  });
+
+  it('berechneHistorischesUrteilKontext: knapper Score-Abstand → kein Kontrapunkt', () => {
+    const k = berechneHistorischesUrteilKontext(
+      baseState({
+        gesetze: [
+          baseLaw({ id: 'g1', titel: 'Klimawende', langzeit_score: 8 }),
+          baseLaw({ id: 'g2', titel: 'Sparpaket', langzeit_score: 7 }),
+        ],
+      }),
+    );
+    expect(k.bottomLaw).toBeNull();
+  });
+
+  it('berechneHistorischesUrteilKontext: reformTiefe/stabilitaet aus Legislatur-Bilanz', () => {
+    const k = berechneHistorischesUrteilKontext(
+      baseState({
+        gesetze: [baseLaw({ langzeit_score: 6 })],
+        legislaturBilanz: {
+          gesetzeBeschlossen: 1,
+          politikfelderAbgedeckt: 1,
+          haushaltsaldo: 0,
+          koalitionsvertragErfuellt: 0.5,
+          reformStaerke: 'moderat',
+          stabilitaet: 'turbulent',
+          wirtschaftsBilanz: 'neutral',
+          medienbilanz: 'gemischt',
+          kernthemen: [],
+          schwachstellen: [],
+          glaubwuerdigkeitsBonus: 0,
+          reformTiefe: 'tief',
+        },
+      }),
+    );
+    expect(k.reformTiefe).toBe('tief');
+    expect(k.stabilitaet).toBe('turbulent');
   });
 });

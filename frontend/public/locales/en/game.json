@@ -2506,6 +2506,29 @@
       "C": "Long-term verdict balanced.",
       "D": "Long-term verdict critical — negative lasting effects dominate.",
       "F": "Long-term verdict very poor."
+    },
+    "historischText": {
+      "intro": {
+        "A": "Five years on, historians judge this term clearly positive.",
+        "B": "In hindsight, the term is seen as mostly successful — with a few open questions.",
+        "C": "Historians paint a mixed picture of this term.",
+        "D": "Historians judge this term critically — too much was left unresolved.",
+        "F": "This term is now seen as a failure — the verdict is damning."
+      },
+      "introKeineGesetze": "With not a single law passed, little of this government remains in the history books.",
+      "topLaw": "The {{titel}} is now seen as the turning point of this government.",
+      "bottomLaw": "The {{titel}}, by contrast, remains contested — critics still call it an expensive symbol.",
+      "closing": "Reform depth was {{reform}}, and the coalition stayed {{stab}} for most of the term.",
+      "reformTiefe": {
+        "tief": "far-reaching",
+        "mittel": "solid",
+        "flach": "cautious"
+      },
+      "stabilitaet": {
+        "stabil": "stable",
+        "turbulent": "marked by tension",
+        "krise": "shaken by open crises"
+      }
     }
   },
   "opposition": {
