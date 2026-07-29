@@ -171,6 +171,8 @@ Alle Routen laufen als Fortschrittsbalken sichtbar auf den Ebenen-Panels. Mehrer
 | Gini-Index | 31,2 | 20–45 | niedriger = besser | Progressiv-Milieu mittel |
 | Zufriedenheitsindex | 62% | 0–100% | höher = besser | alle Milieus |
 
+> **Begriffsklärung `ZF`:** Das Kürzel `zf` (Code: `KPI.zf`) bezeichnet ausschließlich den **Zufriedenheitsindex** — einen der vier KPIs und einen von mehreren Eingabewerten der Zustimmungsformel unten. Die **Zustimmung** (Wahlprognose/Regierungsapprobation, `Gesamt` in der Formel) ist ein eigener, daraus abgeleiteter Wert und wird nirgends mit `zf` abgekürzt.
+
 **Zustimmungsformel:**
 ```
 Gesamt = 30 + (10 - AL) × 1.3 + HH × 2.5 + (50 - Gini) × 0.25 + (ZF - 50) × 0.4

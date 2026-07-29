@@ -11,6 +11,7 @@ export interface KPI {
   al: number;
   hh: number;
   gi: number;
+  /** Zufriedenheitsindex — nicht zu verwechseln mit der abgeleiteten "Zustimmung" (Wahlprognose). */
   zf: number;
 }
 
