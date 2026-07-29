@@ -2,7 +2,7 @@
  * #284: Wahlnacht Feier-Inszenierung — reines CSS-Konfetti bei Wahlsieg, keine neue Abhängigkeit.
  */
 import { describe, it, expect } from 'vitest';
-import { generateConfettiPieces } from './WahlnachtScreen';
+import { generateConfettiPieces } from './wahlnachtConfetti';
 
 describe('generateConfettiPieces', () => {
   it('erzeugt 18 Konfetti-Teile', () => {
