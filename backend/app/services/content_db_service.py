@@ -260,6 +260,7 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
                 "ist_partner_minister": c.ist_partner_minister or False,
                 "agenda_stufe_aktuell": c.agenda_stufe_aktuell,
                 "agenda_ablehnungen": c.agenda_ablehnungen or 0,
+                "relationships": c.relationships,
             }
             if partei:
                 row["partei_id"] = c.partei_id

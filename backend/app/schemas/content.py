@@ -20,6 +20,14 @@ class EffekteSchema(BaseModel):
     zf: float = 0
 
 
+class CharRelationshipSchema(BaseModel):
+    """SMA-279: Gerichtete Beziehung zu einem anderen Kabinettsmitglied."""
+
+    target: str
+    type: str
+    staerke: int
+
+
 class CharResponse(BaseModel):
     id: str
     initials: str
@@ -52,6 +60,8 @@ class CharResponse(BaseModel):
     ist_partner_minister: bool = False
     agenda_stufe_aktuell: int | None = None
     agenda_ablehnungen: int = 0
+    # SMA-279: Char-zu-Char-Beziehungsmatrix
+    relationships: list[CharRelationshipSchema] | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

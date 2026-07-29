@@ -1611,7 +1611,12 @@
     "gespraechTooltip": "Have conversation ({{pk}} PK)",
     "gespraechCooldown": "Cooldown: {{months}} months remaining",
     "gespraechKeinPK": "Not enough PK ({{pk}})",
-    "stimmungTooltip": "Mood: {{value}}/{{max}}"
+    "stimmungTooltip": "Mood: {{value}}/{{max}}",
+    "beziehungen": {
+      "title": "Cabinet relationships",
+      "verbuendet": "Allied with {{name}}",
+      "verfeindet": "At odds with {{name}}"
+    }
   },
   "bundestag": {
     "title": "Bundestag",
