@@ -17,18 +17,26 @@ import {
 import type { SpielerParteiId } from '../../data/defaults/parteien';
 import { resetGesetzesstau } from './gesetzesstau';
 
+/** #283: Alle möglichen Koalitionspartner sortiert nach Ideologie-Distanz (nächster zuerst) */
+export function berechneKoalitionspartnerKandidaten(
+  spielerParteiId: SpielerParteiId,
+  spielerIdeologie: Ideologie,
+): { parteiId: KoalitionspartnerParteiId; distanz: number }[] {
+  const kandidaten = ALLE_PARTEIEN.filter((p) => p.id !== spielerParteiId);
+  const mitDistanz = kandidaten.map((p) => ({
+    parteiId: p.id,
+    distanz: 100 - berechneKongruenz(spielerIdeologie, p.ideologie),
+  }));
+  mitDistanz.sort((a, b) => a.distanz - b.distanz);
+  return mitDistanz;
+}
+
 /** SMA-299: Berechnet Koalitionspartner aus Ideologie-Distanz (niedrigste Distanz = nächster Partner) */
 export function berechneKoalitionspartner(
   spielerParteiId: SpielerParteiId,
   spielerIdeologie: Ideologie,
 ): KoalitionspartnerParteiId {
-  const kandidaten = ALLE_PARTEIEN.filter((p) => p.id !== spielerParteiId);
-  const mitDistanz = kandidaten.map((p) => ({
-    partei: p,
-    distanz: 100 - berechneKongruenz(spielerIdeologie, p.ideologie),
-  }));
-  mitDistanz.sort((a, b) => a.distanz - b.distanz);
-  return mitDistanz[0].partei.id;
+  return berechneKoalitionspartnerKandidaten(spielerParteiId, spielerIdeologie)[0].parteiId;
 }
 
 

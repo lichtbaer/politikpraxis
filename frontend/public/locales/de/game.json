@@ -1785,6 +1785,12 @@
       }
     },
     "koalitionspartnerVorschau": "Voraussichtlicher Koalitionspartner: {{kuerzel}}",
+    "konstellationTitle": "Mit wem regierst du?",
+    "konstellationSubtitle": "Zwei Koalitionen stehen zur Wahl — jede mit eigenen Schwerpunkten.",
+    "konstellationOption": "{{a}} + {{b}}",
+    "konstellationEmpfehlung": "Ideologisch am nächsten",
+    "konstellationAlternative": "Alternative Koalition",
+    "konstellationSchluesselthemen": "Schlüsselthemen: {{themen}}",
     "headline1": "BUNDESTAGSWAHL 2025",
     "headline2": "{{name}} GEWINNT —\nNEUE REGIERUNG MÖGLICH",
     "headlineMeta": "{{approval}} · {{coalitionLine}}\nWahlbeteiligung: {{turnout}} · {{tagline}}",

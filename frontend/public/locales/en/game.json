@@ -1905,6 +1905,12 @@
       }
     },
     "koalitionspartnerVorschau": "Expected coalition partner: {{kuerzel}}",
+    "konstellationTitle": "Who will you govern with?",
+    "konstellationSubtitle": "Two coalitions are on the table — each with its own priorities.",
+    "konstellationOption": "{{a}} + {{b}}",
+    "konstellationEmpfehlung": "Ideologically closest",
+    "konstellationAlternative": "Alternative coalition",
+    "konstellationSchluesselthemen": "Key topics: {{themen}}",
     "headline1": "FEDERAL ELECTION 2025",
     "headline2": "{{name}} WINS —\nNEW GOVERNMENT POSSIBLE",
     "headlineMeta": "{{approval}} · {{coalitionLine}}\nTurnout: {{turnout}} · {{tagline}}",

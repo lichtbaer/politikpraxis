@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { logger } from '../utils/logger';
 import i18n from '../i18n';
-import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName, SpielerParteiState } from '../core/types';
+import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName, SpielerParteiState, KoalitionspartnerParteiId } from '../core/types';
 import { createInitialState } from '../core/state';
 import { ELECTION_THRESHOLDS_BY_COMPLEXITY, DEFAULT_ELECTION_THRESHOLD } from '../core/constants';
 import { tick, addLog } from '../core/engine';
@@ -95,6 +95,8 @@ interface GameStore {
   ausrichtungApplied: boolean;
   /** SMA-289: Gewählte Partei (Stufe 1: SDP default) */
   spielerPartei: SpielerParteiState | null;
+  /** #283: Vom Spieler gewählte Koalitionskonstellation im Onboarding (Stufe 3+), sonst automatisch */
+  koalitionspartnerOverride: KoalitionspartnerParteiId | null;
   /** Cloud-Spielstand-UUID (game_saves.id), z. B. für POST /api/game/{id}/agenda */
   cloudSaveId: string | null;
   setCloudSaveId: (id: string | null) => void;
@@ -106,6 +108,7 @@ interface GameStore {
   setComplexity: (c: number) => void;
   setAusrichtung: (a: Ausrichtung) => void;
   setSpielerPartei: (partei: SpielerParteiState | null) => void;
+  setKoalitionspartnerOverride: (parteiId: KoalitionspartnerParteiId | null) => void;
   /** SMA-503: Spieler-Agenda nach Onboarding (Ziel-IDs) */
   setSpielerAgendaIds: (ids: string[]) => void;
   gameTick: () => void;
@@ -193,10 +196,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ausrichtung: DEFAULT_AUSRICHTUNG,
   ausrichtungApplied: false,
   spielerPartei: null,
+  koalitionspartnerOverride: null,
   cloudSaveId: null,
 
   init: (content?: ContentBundle) => {
-    const { ausrichtung, ausrichtungApplied, complexity, spielerPartei, playerName, kanzlerGeschlecht } = get();
+    const { ausrichtung, ausrichtungApplied, complexity, spielerPartei, playerName, kanzlerGeschlecht, koalitionspartnerOverride } = get();
     const c = content ?? getContentBundle();
     const spielerParteiState =
       spielerPartei ??
@@ -205,7 +209,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return p ? { id: p.id, kuerzel: p.kuerzel, farbe: p.farbe, name: p.name } : undefined;
       })();
     const kanzlerName = playerName.trim() || undefined;
-    let initial = createInitialState(c, complexity, ausrichtung, spielerParteiState ?? undefined, kanzlerName, kanzlerGeschlecht);
+    let initial = createInitialState(
+      c,
+      complexity,
+      ausrichtung,
+      spielerParteiState ?? undefined,
+      kanzlerName,
+      kanzlerGeschlecht,
+      koalitionspartnerOverride ?? undefined,
+    );
     if (!ausrichtungApplied && (ausrichtung.wirtschaft !== 0 || ausrichtung.gesellschaft !== 0 || ausrichtung.staat !== 0)) {
       initial = applyAusrichtung(initial, ausrichtung);
       set({ ausrichtungApplied: true });
@@ -241,7 +253,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       content,
       ausrichtungApplied: false,
       cloudSaveId: null,
-      ...(options?.keepPartei ? {} : { spielerPartei: null }),
+      ...(options?.keepPartei ? {} : { spielerPartei: null, koalitionspartnerOverride: null }),
     });
   },
 
@@ -255,6 +267,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setAusrichtung: (ausrichtung) => set({ ausrichtung, ausrichtungApplied: false }),
   setSpielerPartei: (spielerPartei) => set({ spielerPartei }),
+  setKoalitionspartnerOverride: (koalitionspartnerOverride) => set({ koalitionspartnerOverride }),
 
   setSpielerAgendaIds: (ids) =>
     set((prev) => ({
