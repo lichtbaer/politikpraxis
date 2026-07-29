@@ -73,6 +73,7 @@ import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
 import { vermittlungsausschuss } from '../core/systems/legislation/vermittlung';
 import { regierungserklaerung, vertrauensfrage } from '../core/systems/institutions/regierung';
+import { checkAchievements } from '../core/systems/achievements';
 import { useUIStore } from './uiStore';
 
 export type GamePhase = 'onboarding' | 'playing';
@@ -300,6 +301,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const engineFehler = (nextState.engineDiagnostics ?? []).filter(d => d.month === nextState.month);
     if (engineFehler.length > 0) {
       toast(`Spielfehler in ${engineFehler.length} System(en) — Fortschritt gesichert`, 'warning');
+    }
+    // #284: Achievements schalten sich im Moment der Erfüllung frei (Toast + Persistenz),
+    // statt nur retrospektiv in der Legislatur-Auswertung.
+    if (phase === 'playing') {
+      for (const achievement of checkAchievements(nextState)) {
+        toast(i18n.t('game:auswertung.achievementUnlockedToast', { title: achievement.title }), 'success');
+      }
     }
     const diff = nextState.letzterMonatsDiff;
     if (

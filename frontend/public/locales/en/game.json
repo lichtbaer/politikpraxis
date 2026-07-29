@@ -2206,6 +2206,7 @@
     "zumHauptmenue": "Back to main menu"
   },
   "auswertung": {
+    "achievementUnlockedToast": "🏆 Achievement unlocked: {{title}}",
     "noteHint": "Overall grade from five dimensions (democracy, economy, society, communication, efficiency).",
     "spielzielHint": "Overall grade combines legislative balance (30%), agenda (35%), and the long-term impact of passed laws (35%). Clearing the election threshold adds a small bonus.",
     "spielzielPunkte": "{{pts}} out of 100 points",

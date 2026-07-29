@@ -58,7 +58,13 @@ describe('gameStore.gameTick — #282 Weiter bis zum nächsten Ereignis', () => 
   });
 
   it('läuft weiter, wenn kein Stopp-Kriterium erfüllt ist', () => {
-    const prevState = makeState({ month: 5, speed: 2 });
+    // milieuZustimmung explizit unter 40 halten, damit das "volksnahe"-Achievement
+    // (das die DEFAULT_CONTENT-Startwerte sonst trivial erfüllt) hier nicht zusätzlich toastet.
+    const prevState = makeState({
+      month: 5,
+      speed: 2,
+      milieuZustimmung: { arbeit: 35, mitte: 35, prog: 35, other: 35 },
+    });
     setupStore(prevState);
     useUIStore.getState().setFastForwardActive(true);
     tickMock.mockReturnValue({ ...prevState, month: 6 });
@@ -71,7 +77,11 @@ describe('gameStore.gameTick — #282 Weiter bis zum nächsten Ereignis', () => 
   });
 
   it('lässt normales Ticken ohne aktiven Vorlauf unangetastet', () => {
-    const prevState = makeState({ month: 5, speed: 1 });
+    const prevState = makeState({
+      month: 5,
+      speed: 1,
+      milieuZustimmung: { arbeit: 35, mitte: 35, prog: 35, other: 35 },
+    });
     setupStore(prevState);
     tickMock.mockReturnValue({ ...prevState, month: 6, speed: 1 });
 
