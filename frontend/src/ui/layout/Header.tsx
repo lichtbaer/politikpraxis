@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
@@ -26,6 +26,7 @@ export function Header() {
   const [manualSlot, setManualSlot] = useState(2);
   const [showPressemitteilungModal, setShowPressemitteilungModal] = useState(false);
   const [showGlossar, setShowGlossar] = useState(false);
+  const [glossarInitialSearch, setGlossarInitialSearch] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
@@ -45,6 +46,8 @@ export function Header() {
   const setOpenMonatszusammenfassung = useUIStore((s) => s.setOpenMonatszusammenfassung);
   const fastForwardActive = useUIStore((s) => s.fastForwardActive);
   const setFastForwardActive = useUIStore((s) => s.setFastForwardActive);
+  const openGlossarKey = useUIStore((s) => s.openGlossarKey);
+  const openGlossarRequestId = useUIStore((s) => s.openGlossarRequestId);
   const complexity = useGameStore((s) => s.complexity);
   const playerName = useGameStore((s) => s.playerName);
   const ausrichtung = useGameStore((s) => s.ausrichtung);
@@ -109,6 +112,14 @@ export function Header() {
     if (speed === 0) setSpeed(1);
     setFastForwardActive(true);
   };
+
+  /** #281: Glossar auf Anfrage (z. B. aus einem GameTip) mit vorausgefüllter Suche öffnen */
+  useEffect(() => {
+    if (openGlossarRequestId === 0 || !openGlossarKey) return;
+    setGlossarInitialSearch(tGame(`glossar.entries.${openGlossarKey}.term`));
+    setShowGlossar(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openGlossarRequestId]);
 
   return (
     <header className={styles.header}>
@@ -255,7 +266,15 @@ export function Header() {
           onClose={() => setShowPressemitteilungModal(false)}
         />
       )}
-      {showGlossar && <Glossar onClose={() => setShowGlossar(false)} />}
+      {showGlossar && (
+        <Glossar
+          initialSearch={glossarInitialSearch}
+          onClose={() => {
+            setShowGlossar(false);
+            setGlossarInitialSearch('');
+          }}
+        />
+      )}
       {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
       {showFeedbackModal && (
         <UserTestFeedbackModal kontext="header" onClose={() => setShowFeedbackModal(false)} />

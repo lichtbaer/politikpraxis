@@ -94,6 +94,7 @@ export function MonatszusammenfassungModal({
 }: MonatszusammenfassungModalProps) {
   const { t } = useTranslation('game');
   const monatszusammenfassung = useUIStore((s) => s.playerSettings.monatszusammenfassung);
+  const hintsEnabled = useUIStore((s) => s.playerSettings.hintsEnabled);
   const setPlayerSettings = useUIStore((s) => s.setPlayerSettings);
 
   const hatGesetze =
@@ -300,6 +301,14 @@ export function MonatszusammenfassungModal({
               onChange={(e) => setPlayerSettings({ monatszusammenfassung: e.target.checked })}
             />
             <span>{t('monatszusammenfassung.settingAutoShow')}</span>
+          </label>
+          <label className={styles.settingRow}>
+            <input
+              type="checkbox"
+              checked={hintsEnabled}
+              onChange={(e) => setPlayerSettings({ hintsEnabled: e.target.checked })}
+            />
+            <span>{t('tips.settingHintsEnabled')}</span>
           </label>
           <div className={styles.actions}>
             <button type="button" className={styles.btn} onClick={onDetails}>

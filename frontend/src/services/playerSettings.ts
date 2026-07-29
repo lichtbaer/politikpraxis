@@ -6,10 +6,13 @@ const STORAGE_KEY = 'politikpraxis_player_settings';
 export interface PlayerSettings {
   /** Monatszusammenfassungs-Modal nach jedem Tick (Standard: an) */
   monatszusammenfassung: boolean;
+  /** #281: Narrative Just-in-Time-Hinweise (GameTips) anzeigen (Standard: an) */
+  hintsEnabled: boolean;
 }
 
 const DEFAULTS: PlayerSettings = {
   monatszusammenfassung: true,
+  hintsEnabled: true,
 };
 
 function readRaw(): Partial<PlayerSettings> {
@@ -33,6 +36,8 @@ export function loadPlayerSettings(): PlayerSettings {
       typeof raw.monatszusammenfassung === 'boolean'
         ? raw.monatszusammenfassung
         : DEFAULTS.monatszusammenfassung,
+    hintsEnabled:
+      typeof raw.hintsEnabled === 'boolean' ? raw.hintsEnabled : DEFAULTS.hintsEnabled,
   };
 }
 

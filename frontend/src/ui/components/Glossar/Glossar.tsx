@@ -34,12 +34,14 @@ const CATEGORIES: GlossarCategory[] = ['grundlagen', 'haushalt', 'koalition', 'm
 
 interface GlossarProps {
   onClose: () => void;
+  /** #281: Vorausgefüllte Suche, wenn das Glossar mit einem konkreten Begriff (z. B. aus einem GameTip) geöffnet wird */
+  initialSearch?: string;
 }
 
-export function Glossar({ onClose }: GlossarProps) {
+export function Glossar({ onClose, initialSearch = '' }: GlossarProps) {
   const { t } = useTranslation('game');
   const [filter, setFilter] = useState<GlossarCategory | 'alle'>('alle');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
 
   const entries = GLOSSAR_KEYS.map((e) => ({
     ...e,
