@@ -2937,6 +2937,8 @@
     "space": "Space",
     "pauseResume": "Pause / Resume",
     "slowSpeed": "Game speed",
+    "fastSpeed": "Fast speed (2×)",
+    "fastForward": "Fast-forward to next event",
     "closeDrawer": "Close drawer",
     "eventChoice": "Event choice (during event)",
     "confirmOnly": "Confirm single option",
@@ -2945,6 +2947,13 @@
     "close": "Close",
     "showAgenda": "Show agenda",
     "showKabinett": "Show cabinet"
+  },
+  "fastForward": {
+    "stopped": {
+      "warnung": "Fast-forward stopped: a no-confidence vote is looming.",
+      "abstimmung": "Fast-forward stopped: Bundesrat vote concluded.",
+      "monatszusammenfassung": "Fast-forward stopped: monthly summary available."
+    }
   },
   "europaKarte": {
     "deutschland": "Germany"

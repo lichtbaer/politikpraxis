@@ -43,6 +43,8 @@ export function Header() {
     })),
   );
   const setOpenMonatszusammenfassung = useUIStore((s) => s.setOpenMonatszusammenfassung);
+  const fastForwardActive = useUIStore((s) => s.fastForwardActive);
+  const setFastForwardActive = useUIStore((s) => s.setFastForwardActive);
   const complexity = useGameStore((s) => s.complexity);
   const playerName = useGameStore((s) => s.playerName);
   const ausrichtung = useGameStore((s) => s.ausrichtung);
@@ -96,7 +98,17 @@ export function Header() {
   const speeds: { level: SpeedLevel; label: string; title: string; shortcut: string }[] = [
     { level: 0, label: '⏸', title: pauseTooltip, shortcut: '␣' },
     { level: 1, label: t('game.speed.slow'), title: t('game.speed.slowTitle'), shortcut: '1' },
+    { level: 2, label: t('game.speed.fast'), title: t('game.speed.fastTitle'), shortcut: '2' },
   ];
+  /** #282: „Weiter bis zum nächsten Ereignis" umschalten */
+  const toggleFastForward = () => {
+    if (fastForwardActive) {
+      setFastForwardActive(false);
+      return;
+    }
+    if (speed === 0) setSpeed(1);
+    setFastForwardActive(true);
+  };
 
   return (
     <header className={styles.header}>
@@ -144,6 +156,15 @@ export function Header() {
               <kbd className={styles.kbd}>{s.shortcut}</kbd>
             </button>
           ))}
+          <button
+            type="button"
+            className={`${styles.spd} ${fastForwardActive ? styles.on : ''}`}
+            onClick={toggleFastForward}
+            title={fastForwardActive ? t('game.speed.forwardTitleActive') : t('game.speed.forwardTitle')}
+          >
+            {t('game.speed.forward')}
+            <kbd className={styles.kbd}>F</kbd>
+          </button>
         </div>
         <div className={styles.pk} title={pkRegenTooltip}>
           <Erklaerung begriff="pk" kinder="PK" inline /> <span>{pk}</span>

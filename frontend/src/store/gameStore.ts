@@ -5,6 +5,7 @@ import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, Rout
 import { createInitialState } from '../core/state';
 import { ELECTION_THRESHOLDS_BY_COMPLEXITY, DEFAULT_ELECTION_THRESHOLD } from '../core/constants';
 import { tick, addLog } from '../core/engine';
+import { getFastForwardStopReason } from '../core/fastForward';
 import { lobbying, abstimmen, fraktionssitzung, type GesetzBeschlussContext } from '../core/systems/parliament';
 import type { GegenfinanzierungsOption } from '../core/systems/economics/gegenfinanzierung';
 import {
@@ -264,7 +265,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { state: s, content, phase, playerName, complexity, ausrichtung, spielerPartei, kanzlerGeschlecht } = get();
     if (s.gameOver || s.speed === 0) return;
     const prevMonth = s.month;
-    const nextState = tick(s, content, complexity, ausrichtung);
+    let nextState = tick(s, content, complexity, ausrichtung);
+    // #282: „Weiter bis zum nächsten Ereignis" — bei aktivem Vorlauf nach jedem Tick
+    // prüfen, ob ein Stopp-Kriterium erreicht wurde, und ggf. anhalten.
+    if (useUIStore.getState().fastForwardActive) {
+      const stopReason = getFastForwardStopReason(s, nextState, {
+        monatszusammenfassungEnabled: useUIStore.getState().playerSettings.monatszusammenfassung,
+      });
+      if (stopReason) {
+        useUIStore.getState().setFastForwardActive(false);
+        if (nextState.speed !== 0) {
+          nextState = { ...nextState, speed: 0, speedBeforePause: nextState.speed };
+        }
+        if (stopReason !== 'event') {
+          toast(i18n.t(`game:fastForward.stopped.${stopReason}`), 'info');
+        }
+      }
+    }
     set({ state: nextState });
     // Notify player when an engine system crashed during tick
     const engineFehler = (nextState.engineDiagnostics ?? []).filter(d => d.month === nextState.month);

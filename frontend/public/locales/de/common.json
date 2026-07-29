@@ -101,8 +101,13 @@
     "speed": {
       "pause": "Pause",
       "slow": "1×",
+      "fast": "2×",
       "pauseTitle": "Spiel pausieren / fortsetzen (Leertaste)",
-      "slowTitle": "Normal (Leertaste / 1)"
+      "slowTitle": "Normal (Leertaste / 1)",
+      "fastTitle": "Schnell (2)",
+      "forward": "⏭",
+      "forwardTitle": "Weiter bis zum nächsten Ereignis (F)",
+      "forwardTitleActive": "Automatischer Vorlauf läuft — anhalten (F)"
     },
     "actions": {
       "introduce": "Einbringen",

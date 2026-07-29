@@ -87,4 +87,4 @@ export type ViewName =
   | 'kommunen'
   | 'eu'
   | 'wahlkampf';
-export type SpeedLevel = 0 | 1;
+export type SpeedLevel = 0 | 1 | 2;

@@ -90,6 +90,62 @@ describe('validateGameState', () => {
     expect(validated.zust.g).toBe(100);
   });
 
+  it('akzeptiert speed 2 (2×, #282)', () => {
+    const raw = {
+      month: 1,
+      speed: 2,
+      pk: 100,
+      view: 'agenda',
+      kpi: { al: 50, hh: 50, gi: 50, zf: 50 },
+      zust: { g: 52, arbeit: 58, mitte: 54, prog: 44 },
+      coalition: 50,
+      chars: [],
+      gesetze: [],
+      bundesrat: [],
+      bundesratFraktionen: [],
+      activeEvent: null,
+      firedEvents: [],
+      firedCharEvents: [],
+      firedBundesratEvents: [],
+      firedKommunalEvents: [],
+      pending: [],
+      log: [],
+      ticker: '',
+      gameOver: false,
+      won: false,
+    };
+    const validated = validateGameState(raw);
+    expect(validated.speed).toBe(2);
+  });
+
+  it('fällt bei ungültigem speed-Wert auf 0 zurück', () => {
+    const raw = {
+      month: 1,
+      speed: 99,
+      pk: 100,
+      view: 'agenda',
+      kpi: { al: 50, hh: 50, gi: 50, zf: 50 },
+      zust: { g: 52, arbeit: 58, mitte: 54, prog: 44 },
+      coalition: 50,
+      chars: [],
+      gesetze: [],
+      bundesrat: [],
+      bundesratFraktionen: [],
+      activeEvent: null,
+      firedEvents: [],
+      firedCharEvents: [],
+      firedBundesratEvents: [],
+      firedKommunalEvents: [],
+      pending: [],
+      log: [],
+      ticker: '',
+      gameOver: false,
+      won: false,
+    };
+    const validated = validateGameState(raw);
+    expect(validated.speed).toBe(0);
+  });
+
   it('wirft bei ungültigem Input', () => {
     expect(() => validateGameState(null)).toThrow('Invalid GameState');
     expect(() => validateGameState('string')).toThrow('Invalid GameState');
