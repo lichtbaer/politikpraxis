@@ -51,7 +51,7 @@ Zusätzlich filtern **Content-Felder** wie `min_complexity` (Gesetze, Events, Mi
 
 **Neu gegenüber Stufe 2 (Auszug):**
 
-- Bundesrat **im Detail:** vier Fraktionen, Lobbying, Trade-offs, BR-Events, Länderliste, bilaterale Landesgespräche
+- Bundesrat **im Detail:** vier Fraktionen, Lobbying, Trade-offs, BR-Events, Länderliste, bilaterale Landesgespräche; ab hier ist das länder-gewichtete 35/69-Stimmenmodell (Art. 51 Abs. 2 GG) Standard — Stufe 1–2 nutzen den vereinfachten 9/16-Pfad
 - Kabinett bis zu **7** Personen; erweiterte Minister-Pools (`kabinett_erweiterung`)
 - Alle **7 Milieus** im Medien-Screen, Politikfeld-Druck, Verbands-Lobbying, Partner-Widerstand vor Einbringen, Normenkontrolle, erweiterte EU-Mechaniken (`eu_klima`, `eu_reaktiv`, …)
 

@@ -31,9 +31,15 @@ const BEREITSCHAFT_PK_BONUS = 20;
 const BR_MEHRHEIT_STIMMEN = 35;
 const BR_TOTAL_STIMMEN = 69;
 
-/** SMA-395: Länder-Profile geladen (Themen) — Stimmgewicht-Summe 69, Mehrheit ≥35 */
+/**
+ * SMA-395 / #275: Länder-Profile geladen (Themen) — Stimmgewicht-Summe 69, Mehrheit ≥35.
+ * Das 35/69-Gewichtsmodell ist ab Stufe 3 Standard; Stufe 1-2 bleiben beim vereinfachten
+ * 9/16-Pfad, auch wenn Content bereits Länder-Themen liefert (Art. 51 GG erfordert die
+ * Detailansicht, die erst ab Stufe 3 sichtbar ist).
+ */
 export function bundesratNutztLandgewichte(state: GameState): boolean {
-  return state.bundesrat.some(l => (l.themen?.length ?? 0) > 0);
+  const complexity = state.complexity ?? 4;
+  return complexity >= 3 && state.bundesrat.some(l => (l.themen?.length ?? 0) > 0);
 }
 
 function getLandBeziehung(state: GameState, landId: string): number {
