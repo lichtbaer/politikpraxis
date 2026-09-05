@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { featureActive } from '../../../core/systems/features';
-import { berechneJaBreakdown } from '../../../core/systems/parliament';
+import { berechneJaBreakdown } from '../../../core/systems/parliament/parliament';
 import { Hourglass } from '../../icons';
 import { Erklaerung } from '../Erklaerung/Erklaerung';
 import { KPI_TO_BEGRIFF } from '../../../constants/begriffe';

@@ -1,6 +1,6 @@
-import type { GameState, Ideologie } from '../types';
-import { berechneKongruenz, gesetzKongruenz } from '../ideologie';
-import { featureActive } from './features';
+import type { GameState, Ideologie } from '../../types';
+import { berechneKongruenz, gesetzKongruenz } from '../../ideologie';
+import { featureActive } from '../features';
 
 export interface KongruenzEffekt {
   pkModifikator: number;

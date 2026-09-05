@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { getNfBundestagBtModifikator, getNfBundestagMedienDelta } from './bundestagNf';
-import type { Law } from '../types';
-import { NF_IDEOLOGIE_REF } from '../../constants/bundestag';
-import { berechneKongruenz } from '../ideologie';
+import type { Law } from '../../types';
+import { NF_IDEOLOGIE_REF } from '../../../constants/bundestag';
+import { berechneKongruenz } from '../../ideologie';
 
 function baseLaw(ideologie: Law['ideologie']): Law {
   return {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from './kongruenz';
-import type { GameState, Law, Character } from '../types';
+import type { GameState, Law, Character } from '../../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   const gesetz: Law = {

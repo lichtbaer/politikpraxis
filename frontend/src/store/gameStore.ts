@@ -6,7 +6,7 @@ import { createInitialState } from '../core/state';
 import { ELECTION_THRESHOLDS_BY_COMPLEXITY, DEFAULT_ELECTION_THRESHOLD } from '../core/constants';
 import { tick, addLog } from '../core/engine';
 import { getFastForwardStopReason } from '../core/fastForward';
-import { lobbying, abstimmen, fraktionssitzung, type GesetzBeschlussContext } from '../core/systems/parliament';
+import { lobbying, abstimmen, fraktionssitzung, type GesetzBeschlussContext } from '../core/systems/parliament/parliament';
 import type { GegenfinanzierungsOption } from '../core/systems/economics/gegenfinanzierung';
 import {
   einbringenCommand,
