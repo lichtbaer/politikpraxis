@@ -10,7 +10,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Abhängigkeiten
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# setuptools aktualisieren, bevor requirements installiert werden — das
+# Base-Image bringt sonst ein veraltetes, gebündeltes setuptools mit
+# (CVE-2025-47273, von Trivy im Image-Scan gemeldet, unabhängig von den
+# Paketen in requirements.txt).
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Anwendung (tests/, scripts/, openapi.json, *.md via .dockerignore ausgeschlossen)
 COPY . .
