@@ -6,8 +6,8 @@ import {
   GESETZESSTAU_BEZIEHUNG_MALUS,
   GESETZESSTAU_HAUSHALT_MALUS,
 } from './gesetzesstau';
-import { makeState, makeChar } from '../test-helpers';
-import { createInitialHaushalt } from './economics/haushalt';
+import { makeState, makeChar } from '../../test-helpers';
+import { createInitialHaushalt } from '../economics/haushalt';
 
 describe('registerGesetzEinbringung', () => {
   it('erhöht den Streak, ohne unterhalb der Schwelle einen Malus anzuwenden', () => {

@@ -2,7 +2,7 @@ import type { GameState, Verband, VerbandTradeoff, KpiDelta, KPI, ContentBundle 
 import { addLog } from '../engine';
 import { featureActive } from './features';
 import { adjustMedienKlimaGlobal } from './medien/medienAkteure';
-import { resetGesetzesstau } from './gesetzesstau';
+import { resetGesetzesstau } from './parliament/gesetzesstau';
 
 /** Verbandskonflikte: verbandId → Konflikt-Partner mit Malus */
 const KONFLIKTE: Record<string, { partner: string; malus: number }[]> = {

@@ -4,7 +4,7 @@
 import type { GameState } from '../types';
 import { addLog } from '../engine';
 import { featureActive } from './features';
-import { resetGesetzesstau } from './gesetzesstau';
+import { resetGesetzesstau } from './parliament/gesetzesstau';
 
 /** Städtebündnis aufbauen (10 PK) — erhöht bottom-up Initiative Chance bis Jahresende */
 export function staedtebuendnis(state: GameState, complexity: number): GameState {

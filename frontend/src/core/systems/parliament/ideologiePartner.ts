@@ -2,9 +2,9 @@
  * SMA-403: Eindimensionale Ideologie-Skala für BT-Malus und Partner-Widerstand.
  * Koalitions-Ideologie = Mittelwert der Skalarwerte von Regierungs- und Juniorpartei.
  */
-import type { Law } from '../types';
-import type { KoalitionspartnerParteiId } from '../types/politics';
-import type { SpielerParteiId } from '../../data/defaults/parteien';
+import type { Law } from '../../types';
+import type { KoalitionspartnerParteiId } from '../../types/politics';
+import type { SpielerParteiId } from '../../../data/defaults/parteien';
 
 /** Links (−100) bis rechts (+100), wie im GDD / Issue SMA-403 */
 export const PARTEI_IDEOLOGIE_SKALAR: Record<SpielerParteiId | KoalitionspartnerParteiId, number> = {

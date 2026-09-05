@@ -15,7 +15,7 @@ import {
   buildKoalitionspartnerContent,
 } from '../../data/defaults/koalitionspartner';
 import type { SpielerParteiId } from '../../data/defaults/parteien';
-import { resetGesetzesstau } from './gesetzesstau';
+import { resetGesetzesstau } from './parliament/gesetzesstau';
 
 /** #283: Alle möglichen Koalitionspartner sortiert nach Ideologie-Distanz (nächster zuerst) */
 export function berechneKoalitionspartnerKandidaten(
