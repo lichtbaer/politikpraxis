@@ -8,6 +8,8 @@ import {
   MISSTRAUENSVOTUM_EVENT_MONATE,
   MISSTRAUENSVOTUM_VERTRAUENSFRAGE_PK,
   MISSTRAUENSVOTUM_KOALITIONSRUNDE_PK,
+  MISSTRAUENSVOTUM_OPPOSITION_SCHWELLE,
+  MISSTRAUENSVOTUM_KOALITION_SCHWELLE,
 } from '../../constants';
 import { featureActive } from '../features';
 import { nextRandom } from '../../rng';
@@ -18,14 +20,35 @@ import { finalisiereLegislaturBilanzAmSpielende } from './wahlkampf';
 const MISSTRAUENSVOTUM_APPROVAL_THRESHOLD = 20;
 
 /**
+ * Art. 67 GG: Ein konstruktives Misstrauensvotum braucht real eine eigene
+ * Kanzlermehrheit im Bundestag — primärer Faktor ist daher der
+ * Oppositions-Sitzanteil kombiniert mit einer instabilen Koalition (aus der
+ * genug Abgeordnete abweichen könnten). Kritisch niedrige Zustimmungswerte
+ * allein reichen nicht aus; sie zählen nur als sekundärer, verstärkender
+ * Faktor, wenn zumindest einer der beiden primären Faktoren bereits vorliegt
+ * (SMA-277).
+ */
+export function hatMisstrauensvotumMehrheitsbasis(state: GameState): boolean {
+  const oppositionStaerke = state.opposition?.staerke ?? 40;
+  const koalitionInstabil = state.coalition < MISSTRAUENSVOTUM_KOALITION_SCHWELLE;
+  const oppositionStark = oppositionStaerke >= MISSTRAUENSVOTUM_OPPOSITION_SCHWELLE;
+
+  if (oppositionStark && koalitionInstabil) return true;
+
+  const approvalKritisch = state.zust.g < MISSTRAUENSVOTUM_APPROVAL_THRESHOLD;
+  return approvalKritisch && (oppositionStark || koalitionInstabil);
+}
+
+/**
  * Art. 67 GG: Konstruktives Misstrauensvotum.
  * Generiert ein interaktives Event das dem Spieler Verteidigungsoptionen bietet.
  * Wird ausgelöst nach MISSTRAUENSVOTUM_EVENT_MONATE aufeinanderfolgenden Monaten
- * unter 20% Zustimmung.
+ * mit einer realen Mehrheitsbasis für die Opposition (siehe hatMisstrauensvotumMehrheitsbasis).
  */
 export function buildMisstrauensvotumEvent(state: GameState): GameEvent {
   const approvalPct = Math.round(state.zust.g);
   const coalitionPct = state.coalition;
+  const oppositionPct = state.opposition?.staerke ?? 40;
 
   return {
     id: 'konstruktives_misstrauensvotum',
@@ -34,7 +57,7 @@ export function buildMisstrauensvotumEvent(state: GameState): GameEvent {
     typeLabel: 'Verfassungskrise',
     title: 'Konstruktives Misstrauensvotum (Art. 67 GG)',
     quote: '„Die Opposition hat einen Nachfolger benannt. Der Bundestag stimmt morgen über Ihre Ablösung ab."',
-    context: `Ihre Zustimmungswerte liegen seit Monaten unter ${MISSTRAUENSVOTUM_APPROVAL_THRESHOLD}% (aktuell: ${approvalPct}%). Die Opposition hat die nötige Mehrheit organisiert und stellt einen Gegenkandidaten auf. Sie haben drei Möglichkeiten.`,
+    context: `Nach Art. 67 GG braucht die Opposition eine eigene Mehrheit im Bundestag: Ihr Sitzanteil liegt bei ${oppositionPct}%, Ihre Koalition zeigt Risse (Stabilität: ${coalitionPct}%) — genug Abgeordnete könnten abweichen. Ihre Zustimmungswerte liegen zudem seit Monaten unter ${MISSTRAUENSVOTUM_APPROVAL_THRESHOLD}% (aktuell: ${approvalPct}%). Die Opposition hat einen Gegenkandidaten aufgestellt. Sie haben drei Möglichkeiten.`,
     ticker: 'Misstrauensvotum im Bundestag — Kanzlerschaft in Gefahr',
     auto_pause: 'always',
     choices: [
@@ -151,10 +174,11 @@ export function checkGameEnd(state: GameState, content?: ContentBundle): GameSta
     return { ...state, gameOver: true, won: false, speed: 0 };
   }
 
-  // Misstrauensvotum: aufeinanderfolgende Monate unter 20% Zustimmung (ab Monat 7)
+  // Misstrauensvotum: aufeinanderfolgende Monate mit realer Mehrheitsbasis für die
+  // Opposition (Sitzanteil + Koalitionsinstabilität; Zustimmung nur sekundär) (ab Monat 7)
   if (state.month > 6) {
     const lowMonths = state.lowApprovalMonths ?? 0;
-    if (state.zust.g < MISSTRAUENSVOTUM_APPROVAL_THRESHOLD) {
+    if (hatMisstrauensvotumMehrheitsbasis(state)) {
       const newLowMonths = lowMonths + 1;
       const complexity = state.complexity ?? 4;
       const misstrauensvotumAktiv = featureActive(complexity, 'konstruktives_misstrauensvotum');
@@ -182,7 +206,7 @@ export function checkGameEnd(state: GameState, content?: ContentBundle): GameSta
       }
       return { ...state, lowApprovalMonths: newLowMonths };
     }
-    // Reset counter if approval recovered
+    // Reset counter wenn die Opposition keine reale Mehrheitsbasis mehr hat
     if (lowMonths > 0) {
       return { ...state, lowApprovalMonths: 0, misstrauensvotumAbgewendet: undefined };
     }
