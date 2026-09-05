@@ -1,3 +1,20 @@
+# Gruppierung (September 2026): Ungruppiert erzeugte Dependabot pro Paket einen
+# eigenen PR — zuletzt 18 gleichzeitig offene. Das ist nicht nur Rauschen, es
+# erzeugt zwei konkrete Fehlerklassen:
+#
+#   1. Pakete, die nur zusammen konsistent sind, werden getrennt gebumpt.
+#      Beispiele aus dem 18er-Schwung: pydantic/pydantic_core (pip pinnt beide
+#      exakt, pydantic 2.13.4 verlangt pydantic-core==2.46.4 — die beiden
+#      Einzel-PRs waren einzeln wie zusammen nicht installierbar) und
+#      react/react-dom (React 19 erzwingt zur Laufzeit exakt gleiche Versionen,
+#      der react-only-Bump ließ 10 Testdateien nicht mehr laden).
+#   2. Benachbarte Zeilen in requirements.txt / package.json und überlappende
+#      Lockfile-Einträge kollidieren, sobald einer der PRs gemergt ist — jeder
+#      weitere braucht dann einen Rebase.
+#
+# Minor+Patch laufen deshalb je Ecosystem als ein PR. Majors bleiben bewusst
+# einzeln: die brauchen ohnehin eine Einzelfallprüfung (eslint 10 scheitert
+# z. B. aktuell an eslint-plugin-jsx-a11y, das noch kein eslint 10 unterstützt).
 version: 2
 updates:
   - package-ecosystem: "pip"
@@ -8,6 +25,17 @@ updates:
     labels:
       - "dependencies"
       - "backend"
+    groups:
+      backend-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      backend-security:
+        applies-to: security-updates
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "npm"
     directory: "/frontend"
@@ -17,6 +45,17 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
+    groups:
+      frontend-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      frontend-security:
+        applies-to: security-updates
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -26,6 +65,12 @@ updates:
     labels:
       - "dependencies"
       - "ci"
+    groups:
+      github-actions:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "docker"
     directory: "/backend"
