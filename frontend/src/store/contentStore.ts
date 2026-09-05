@@ -56,7 +56,7 @@ import {
   WAHLKAMPF_VERSPRECHEN_EVENT,
   WAHLKAMPF_ZWISCHENBILANZ_EVENT,
 } from '../data/defaults/wahlkampfEvents';
-import { HUNDERT_TAGE_BILANZ_EVENT } from '../data/defaults/dramaturgieEvents';
+import { HUNDERT_TAGE_BILANZ_EVENT, SOMMERLOCH_EVENTS, HALBZEITBILANZ_EVENT } from '../data/defaults/dramaturgieEvents';
 import { getMedienEventsForLocale } from '../data/defaults/medienEvents';
 import { DEFAULT_MEDIEN_AKTEURE, type MedienAkteurContent, type MedienAkteurTyp } from '../data/defaults/medienAkteure';
 
@@ -742,8 +742,8 @@ export function getContentBundle(): ContentBundle {
     WAHLKAMPF_VERSPRECHEN_EVENT,
     WAHLKAMPF_ZWISCHENBILANZ_EVENT,
   ];
-  /** #274: Feste Dramaturgie-Anker (nur 100-Tage-Bilanz bisher; Sommerloch/Halbzeitbilanz folgen) */
-  const dramaturgieEvents = [HUNDERT_TAGE_BILANZ_EVENT];
+  /** #274: Feste Dramaturgie-Anker (100-Tage-Bilanz, Sommerloch, Halbzeitbilanz) */
+  const dramaturgieEvents = [HUNDERT_TAGE_BILANZ_EVENT, ...SOMMERLOCH_EVENTS, HALBZEITBILANZ_EVENT];
   return {
     characters: s.chars,
     laws: s.gesetze,
