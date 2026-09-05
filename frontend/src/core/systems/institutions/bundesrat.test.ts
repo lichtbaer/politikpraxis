@@ -447,6 +447,15 @@ describe('SMA-395: Länder-gewichteter Bundesrat', () => {
     expect(bundesratNutztLandgewichte(state)).toBe(true);
   });
 
+  it('#275: 35/69-Gewichtsmodell ist ab Stufe 3 Standard, Stufe 2 bleibt beim 9/16-Pfad', () => {
+    const bundesrat = DEFAULT_BUNDESRAT.map((l) => ({ ...l, themen: ['umwelt_energie'] }));
+    const stufe2 = makeState({ bundesrat, complexity: 2 });
+    expect(bundesratNutztLandgewichte(stufe2)).toBe(false);
+
+    const stufe3 = makeState({ bundesrat, complexity: 3 });
+    expect(bundesratNutztLandgewichte(stufe3)).toBe(true);
+  });
+
   it('Ja+Nein summiert zu 69 Stimmgewichten', () => {
     const bundesrat = DEFAULT_BUNDESRAT.map((l) => ({ ...l, themen: ['umwelt_energie'] }));
     const state = makeState({
