@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { validateGameState, migrateGameState, createInitialState, syncMediaState } from './state';
+import { berechneKoalitionspartnerKandidaten } from './systems/koalition';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
-import type { GameState } from './types';
+import type { GameState, SpielerParteiState } from './types';
 
 describe('validateGameState', () => {
   it('clampt wahlprognose auf 0–100', () => {
@@ -90,6 +91,62 @@ describe('validateGameState', () => {
     expect(validated.zust.g).toBe(100);
   });
 
+  it('akzeptiert speed 2 (2×, #282)', () => {
+    const raw = {
+      month: 1,
+      speed: 2,
+      pk: 100,
+      view: 'agenda',
+      kpi: { al: 50, hh: 50, gi: 50, zf: 50 },
+      zust: { g: 52, arbeit: 58, mitte: 54, prog: 44 },
+      coalition: 50,
+      chars: [],
+      gesetze: [],
+      bundesrat: [],
+      bundesratFraktionen: [],
+      activeEvent: null,
+      firedEvents: [],
+      firedCharEvents: [],
+      firedBundesratEvents: [],
+      firedKommunalEvents: [],
+      pending: [],
+      log: [],
+      ticker: '',
+      gameOver: false,
+      won: false,
+    };
+    const validated = validateGameState(raw);
+    expect(validated.speed).toBe(2);
+  });
+
+  it('fällt bei ungültigem speed-Wert auf 0 zurück', () => {
+    const raw = {
+      month: 1,
+      speed: 99,
+      pk: 100,
+      view: 'agenda',
+      kpi: { al: 50, hh: 50, gi: 50, zf: 50 },
+      zust: { g: 52, arbeit: 58, mitte: 54, prog: 44 },
+      coalition: 50,
+      chars: [],
+      gesetze: [],
+      bundesrat: [],
+      bundesratFraktionen: [],
+      activeEvent: null,
+      firedEvents: [],
+      firedCharEvents: [],
+      firedBundesratEvents: [],
+      firedKommunalEvents: [],
+      pending: [],
+      log: [],
+      ticker: '',
+      gameOver: false,
+      won: false,
+    };
+    const validated = validateGameState(raw);
+    expect(validated.speed).toBe(0);
+  });
+
   it('wirft bei ungültigem Input', () => {
     expect(() => validateGameState(null)).toThrow('Invalid GameState');
     expect(() => validateGameState('string')).toThrow('Invalid GameState');
@@ -123,6 +180,32 @@ describe('createInitialState', () => {
   it('media.klimaHistory ist synchron mit medienKlimaHistory', () => {
     const state = createInitialState(DEFAULT_CONTENT, 4);
     expect(state.media?.klimaHistory).toEqual(state.medienKlimaHistory);
+  });
+
+  describe('koalitionspartnerOverride (#283)', () => {
+    const spielerPartei: SpielerParteiState = { id: 'sdp', kuerzel: 'SDP', farbe: '#e3000f', name: 'Sozialdemokratische Partei' };
+    const ausrichtung = { wirtschaft: -60, gesellschaft: -20, staat: -40 };
+
+    it('nutzt einen gültigen Override statt des automatisch nächsten Partners', () => {
+      const kandidaten = berechneKoalitionspartnerKandidaten('sdp', ausrichtung);
+      const alternative = kandidaten[1].parteiId;
+      expect(alternative).not.toBe(kandidaten[0].parteiId);
+
+      const state = createInitialState(DEFAULT_CONTENT, 4, ausrichtung, spielerPartei, undefined, 'sie', alternative);
+      expect(state.koalitionspartner?.id).toBe(alternative);
+    });
+
+    it('ignoriert einen ungültigen Override und fällt auf den automatischen Partner zurück', () => {
+      const kandidaten = berechneKoalitionspartnerKandidaten('sdp', ausrichtung);
+      const state = createInitialState(DEFAULT_CONTENT, 4, ausrichtung, spielerPartei, undefined, 'sie', 'sdp');
+      expect(state.koalitionspartner?.id).toBe(kandidaten[0].parteiId);
+    });
+
+    it('ohne Override bleibt das Verhalten unverändert (automatisch nächster Partner)', () => {
+      const kandidaten = berechneKoalitionspartnerKandidaten('sdp', ausrichtung);
+      const state = createInitialState(DEFAULT_CONTENT, 4, ausrichtung, spielerPartei);
+      expect(state.koalitionspartner?.id).toBe(kandidaten[0].parteiId);
+    });
   });
 });
 

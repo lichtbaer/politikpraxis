@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { logger } from '../utils/logger';
 import i18n from '../i18n';
-import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName, SpielerParteiState } from '../core/types';
+import type { GameState, ContentBundle, GameEvent, EventChoice, SpeedLevel, RouteType, ViewName, SpielerParteiState, KoalitionspartnerParteiId } from '../core/types';
 import { createInitialState } from '../core/state';
 import { ELECTION_THRESHOLDS_BY_COMPLEXITY, DEFAULT_ELECTION_THRESHOLD } from '../core/constants';
 import { tick, addLog } from '../core/engine';
+import { getFastForwardStopReason } from '../core/fastForward';
 import { lobbying, abstimmen, fraktionssitzung, type GesetzBeschlussContext } from '../core/systems/parliament';
 import type { GegenfinanzierungsOption } from '../core/systems/economics/gegenfinanzierung';
 import {
@@ -72,13 +73,14 @@ import { kabinettsgespraech } from '../core/systems/characters';
 import { entlasseMinister } from '../core/systems/kabinett';
 import { vermittlungsausschuss } from '../core/systems/legislation/vermittlung';
 import { regierungserklaerung, vertrauensfrage } from '../core/systems/institutions/regierung';
+import { checkAchievements } from '../core/systems/achievements';
 import { useUIStore } from './uiStore';
 
 export type GamePhase = 'onboarding' | 'playing';
 
-/** Convenience: fire-and-forget toast from game actions */
-const toast = (msg: string, type?: 'info' | 'success' | 'warning' | 'danger') =>
-  useUIStore.getState().showToast(msg, type);
+/** Convenience: fire-and-forget toast from game actions. `major`: #284 — größeres, längeres Feedback für große Momente. */
+const toast = (msg: string, type?: 'info' | 'success' | 'warning' | 'danger', major?: boolean) =>
+  useUIStore.getState().showToast(msg, type, { major });
 
 const DEFAULT_AUSRICHTUNG: Ausrichtung = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 
@@ -94,6 +96,8 @@ interface GameStore {
   ausrichtungApplied: boolean;
   /** SMA-289: Gewählte Partei (Stufe 1: SDP default) */
   spielerPartei: SpielerParteiState | null;
+  /** #283: Vom Spieler gewählte Koalitionskonstellation im Onboarding (Stufe 3+), sonst automatisch */
+  koalitionspartnerOverride: KoalitionspartnerParteiId | null;
   /** Cloud-Spielstand-UUID (game_saves.id), z. B. für POST /api/game/{id}/agenda */
   cloudSaveId: string | null;
   setCloudSaveId: (id: string | null) => void;
@@ -105,6 +109,7 @@ interface GameStore {
   setComplexity: (c: number) => void;
   setAusrichtung: (a: Ausrichtung) => void;
   setSpielerPartei: (partei: SpielerParteiState | null) => void;
+  setKoalitionspartnerOverride: (parteiId: KoalitionspartnerParteiId | null) => void;
   /** SMA-503: Spieler-Agenda nach Onboarding (Ziel-IDs) */
   setSpielerAgendaIds: (ids: string[]) => void;
   gameTick: () => void;
@@ -192,10 +197,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ausrichtung: DEFAULT_AUSRICHTUNG,
   ausrichtungApplied: false,
   spielerPartei: null,
+  koalitionspartnerOverride: null,
   cloudSaveId: null,
 
   init: (content?: ContentBundle) => {
-    const { ausrichtung, ausrichtungApplied, complexity, spielerPartei, playerName, kanzlerGeschlecht } = get();
+    const { ausrichtung, ausrichtungApplied, complexity, spielerPartei, playerName, kanzlerGeschlecht, koalitionspartnerOverride } = get();
     const c = content ?? getContentBundle();
     const spielerParteiState =
       spielerPartei ??
@@ -204,7 +210,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return p ? { id: p.id, kuerzel: p.kuerzel, farbe: p.farbe, name: p.name } : undefined;
       })();
     const kanzlerName = playerName.trim() || undefined;
-    let initial = createInitialState(c, complexity, ausrichtung, spielerParteiState ?? undefined, kanzlerName, kanzlerGeschlecht);
+    let initial = createInitialState(
+      c,
+      complexity,
+      ausrichtung,
+      spielerParteiState ?? undefined,
+      kanzlerName,
+      kanzlerGeschlecht,
+      koalitionspartnerOverride ?? undefined,
+    );
     if (!ausrichtungApplied && (ausrichtung.wirtschaft !== 0 || ausrichtung.gesellschaft !== 0 || ausrichtung.staat !== 0)) {
       initial = applyAusrichtung(initial, ausrichtung);
       set({ ausrichtungApplied: true });
@@ -240,7 +254,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       content,
       ausrichtungApplied: false,
       cloudSaveId: null,
-      ...(options?.keepPartei ? {} : { spielerPartei: null }),
+      ...(options?.keepPartei ? {} : { spielerPartei: null, koalitionspartnerOverride: null }),
     });
   },
 
@@ -254,6 +268,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setAusrichtung: (ausrichtung) => set({ ausrichtung, ausrichtungApplied: false }),
   setSpielerPartei: (spielerPartei) => set({ spielerPartei }),
+  setKoalitionspartnerOverride: (koalitionspartnerOverride) => set({ koalitionspartnerOverride }),
 
   setSpielerAgendaIds: (ids) =>
     set((prev) => ({
@@ -264,12 +279,35 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { state: s, content, phase, playerName, complexity, ausrichtung, spielerPartei, kanzlerGeschlecht } = get();
     if (s.gameOver || s.speed === 0) return;
     const prevMonth = s.month;
-    const nextState = tick(s, content, complexity, ausrichtung);
+    let nextState = tick(s, content, complexity, ausrichtung);
+    // #282: „Weiter bis zum nächsten Ereignis" — bei aktivem Vorlauf nach jedem Tick
+    // prüfen, ob ein Stopp-Kriterium erreicht wurde, und ggf. anhalten.
+    if (useUIStore.getState().fastForwardActive) {
+      const stopReason = getFastForwardStopReason(s, nextState, {
+        monatszusammenfassungEnabled: useUIStore.getState().playerSettings.monatszusammenfassung,
+      });
+      if (stopReason) {
+        useUIStore.getState().setFastForwardActive(false);
+        if (nextState.speed !== 0) {
+          nextState = { ...nextState, speed: 0, speedBeforePause: nextState.speed };
+        }
+        if (stopReason !== 'event') {
+          toast(i18n.t(`game:fastForward.stopped.${stopReason}`), 'info');
+        }
+      }
+    }
     set({ state: nextState });
     // Notify player when an engine system crashed during tick
     const engineFehler = (nextState.engineDiagnostics ?? []).filter(d => d.month === nextState.month);
     if (engineFehler.length > 0) {
       toast(`Spielfehler in ${engineFehler.length} System(en) — Fortschritt gesichert`, 'warning');
+    }
+    // #284: Achievements schalten sich im Moment der Erfüllung frei (Toast + Persistenz),
+    // statt nur retrospektiv in der Legislatur-Auswertung.
+    if (phase === 'playing') {
+      for (const achievement of checkAchievements(nextState)) {
+        toast(i18n.t('game:auswertung.achievementUnlockedToast', { title: achievement.title }), 'success', true);
+      }
     }
     const diff = nextState.letzterMonatsDiff;
     if (
@@ -421,9 +459,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const newLaw = state.gesetze.find(g => g.id === lawId);
       if (newLaw?.status === 'beschlossen') {
         state = updateKoalitionsvertragScore(state, lawId, prev.content, prev.complexity);
-        toast(`${newLaw.kurz} beschlossen! Wirkung in ${newLaw.lag} Monaten`, 'success');
+        toast(`${newLaw.kurz} beschlossen! Wirkung in ${newLaw.lag} Monaten`, 'success', true);
       } else if (newLaw?.status === 'blockiert') {
-        toast(`${newLaw.kurz}: Mehrheit verfehlt (${newLaw.ja}%)`, 'danger');
+        toast(`${newLaw.kurz}: Mehrheit verfehlt (${newLaw.ja}%)`, 'danger', true);
       } else if (newLaw?.status === 'bt_passed') {
         toast(`${newLaw.kurz} passiert Bundestag — weiter zum Bundesrat`, 'info');
       }

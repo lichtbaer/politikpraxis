@@ -96,6 +96,15 @@ export interface GameEvent {
   triggerParams?: DynamicEventTriggerParams;
   /** Einmalig auslösbar pro Spielstand (Default true für dynamic) */
   einmalig?: boolean;
+  /** #272: Story-Arc-Zugehörigkeit. Stage 1 = regulärer Einstieg (zufällig
+   * auslösbar); Stufen >= 2 werden ausschließlich über einen geplanten
+   * Follow-up der Vorstufe erreicht (siehe `checkRandomEvents`). */
+  arcId?: string;
+  arcStage?: number;
+  /** #274: Fest getakteter Dramaturgie-Anker (100-Tage-Bilanz, Sommerloch,
+   * Halbzeitbilanz) statt Zufalls-Event — nie über `checkRandomEvents`
+   * auslösbar, eigenes Framing in Monatszusammenfassung/Ticker. */
+  dramaturgieAnker?: boolean;
 }
 
 /** Medien-Event (Skandal, positiv) — SMA-277 */

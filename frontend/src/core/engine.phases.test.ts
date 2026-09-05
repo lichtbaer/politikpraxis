@@ -121,19 +121,25 @@ describe('Engine-Phasen — safeSystem trägt Systemname und Phase', () => {
  * Golden-Regressionstest: festgehaltene Werte eines 24-Monats-Laufs mit festem
  * Seed, aufgenommen vom monolithischen Engine VOR dem Phasen-Refactor (Issue
  * #207). Beweist, dass die fachliche Reihenfolge der Systeme unverändert ist.
+ *
+ * Werte ab Monat 3 am 2026-07-28 neu aufgenommen (Issue #274): die 100-Tage-
+ * Bilanz greift ab Monat 3 deterministisch in medienKlima/zustOffsets ein
+ * (hier: negativer Impuls, da `makeState` ohne eingebrachte Gesetze/PK-Verbrauch
+ * startet) — die Reihenfolge der Systeme ist weiterhin unverändert, nur ein
+ * neues System wurde in `phasePublicAndMedia` ergänzt.
  */
 const GOLDEN_24 = [
   { month: 2, kpi: { al: 5.8, hh: 0, gi: 32, zf: 57.75 }, zustG: 48, pk: 94, medienKlima: 54 },
-  { month: 3, kpi: { al: 5.8, hh: -0.01, gi: 32, zf: 57.41 }, zustG: 47, pk: 97, medienKlima: 54 },
-  { month: 4, kpi: { al: 5.8, hh: -0.06, gi: 32, zf: 57.16 }, zustG: 47, pk: 100, medienKlima: 54 },
-  { month: 5, kpi: { al: 5.8, hh: -0.06, gi: 32, zf: 56.91 }, zustG: 47, pk: 103, medienKlima: 53 },
-  { month: 6, kpi: { al: 5.8, hh: -0.06, gi: 32, zf: 56.66 }, zustG: 47, pk: 106, medienKlima: 53 },
-  { month: 7, kpi: { al: 5.8, hh: -0.06, gi: 32, zf: 56.41 }, zustG: 47, pk: 109, medienKlima: 47 },
-  { month: 8, kpi: { al: 5.73, hh: -0.05, gi: 32, zf: 56.05 }, zustG: 47, pk: 112, medienKlima: 47 },
-  { month: 9, kpi: { al: 5.73, hh: -0.05, gi: 32, zf: 55.8 }, zustG: 47, pk: 115, medienKlima: 47 },
-  { month: 10, kpi: { al: 5.8, hh: -0.08, gi: 32, zf: 55.55 }, zustG: 47, pk: 118, medienKlima: 46 },
-  { month: 11, kpi: { al: 5.8, hh: -0.14, gi: 32, zf: 55.3 }, zustG: 47, pk: 121, medienKlima: 46 },
-  { month: 12, kpi: { al: 5.8, hh: -0.14, gi: 32.05, zf: 55.05 }, zustG: 47, pk: 124, medienKlima: 46 },
+  { month: 3, kpi: { al: 5.8, hh: -0.01, gi: 32, zf: 57.41 }, zustG: 47, pk: 97, medienKlima: 49 },
+  { month: 4, kpi: { al: 5.8, hh: -0.06, gi: 32, zf: 57.16 }, zustG: 46, pk: 100, medienKlima: 54 },
+  { month: 5, kpi: { al: 5.8, hh: -0.06, gi: 32, zf: 56.91 }, zustG: 46, pk: 103, medienKlima: 53 },
+  { month: 6, kpi: { al: 5.8, hh: -0.06, gi: 32, zf: 56.66 }, zustG: 46, pk: 106, medienKlima: 53 },
+  { month: 7, kpi: { al: 5.8, hh: -0.06, gi: 32, zf: 56.41 }, zustG: 46, pk: 109, medienKlima: 47 },
+  { month: 8, kpi: { al: 5.73, hh: -0.05, gi: 32, zf: 56.05 }, zustG: 46, pk: 112, medienKlima: 47 },
+  { month: 9, kpi: { al: 5.73, hh: -0.05, gi: 32, zf: 55.8 }, zustG: 46, pk: 115, medienKlima: 47 },
+  { month: 10, kpi: { al: 5.8, hh: -0.08, gi: 32, zf: 55.55 }, zustG: 46, pk: 118, medienKlima: 46 },
+  { month: 11, kpi: { al: 5.8, hh: -0.14, gi: 32, zf: 55.3 }, zustG: 46, pk: 121, medienKlima: 46 },
+  { month: 12, kpi: { al: 5.8, hh: -0.14, gi: 32.05, zf: 55.05 }, zustG: 46, pk: 124, medienKlima: 46 },
   { month: 13, kpi: { al: 5.8, hh: -0.1, gi: 32.05, zf: 54.81 }, zustG: 46, pk: 127, medienKlima: 46 },
   { month: 14, kpi: { al: 5.73, hh: -0.1, gi: 32.05, zf: 54.56 }, zustG: 46, pk: 130, medienKlima: 45 },
   { month: 15, kpi: { al: 5.73, hh: -0.1, gi: 32.05, zf: 54.31 }, zustG: 46, pk: 133, medienKlima: 45 },

@@ -248,6 +248,38 @@ describe('berechneTopUrsachen (Issue #209)', () => {
     expect(ev!.label).toBe('Bürgerprotest');
   });
 
+  it('#272: markiert Arc-Fortsetzungen (arcStage >= 2) als istArcFortsetzung', () => {
+    const content = {
+      ...minimalContent(),
+      events: [
+        { id: 'arc_stage2', title: 'Prüfbericht', arcId: 'testarc', arcStage: 2 },
+      ] as ContentBundle['events'],
+    };
+    const vor = baseState({ firedEvents: [] });
+    const nach = { ...vor, month: 6, firedEvents: ['arc_stage2'] };
+    const diff = berechneMonatsDiff(vor, nach, content);
+    const ev = diff.topUrsachen.find((u) => u.kategorie === 'event' && u.refId === 'arc_stage2');
+    expect(ev).toBeDefined();
+    expect(ev!.istArcFortsetzung).toBe(true);
+  });
+
+  it('#272: Arc-Einstieg (arcStage 1) und gewöhnliche Events sind keine Fortsetzung', () => {
+    const content = {
+      ...minimalContent(),
+      events: [
+        { id: 'arc_stage1', title: 'Enthüllung', arcId: 'testarc', arcStage: 1 },
+        { id: 'ev_streik', title: 'Streik' },
+      ] as ContentBundle['events'],
+    };
+    const vor = baseState({ firedEvents: [] });
+    const nach = { ...vor, month: 6, firedEvents: ['arc_stage1', 'ev_streik'] };
+    const diff = berechneMonatsDiff(vor, nach, content);
+    for (const id of ['arc_stage1', 'ev_streik']) {
+      const ev = diff.topUrsachen.find((u) => u.kategorie === 'event' && u.refId === id);
+      expect(ev!.istArcFortsetzung).toBe(false);
+    }
+  });
+
   it('engineDiagnostics-Einträge landen nicht in topUrsachen (keine tickLog-Einträge mehr)', () => {
     // Engine-Fehler werden seit #219 über engineDiagnostics kommuniziert, nicht als Null-Delta im tickLog.
     // Defensiver Schutz: alte Save-Daten mit Engine-Fehler-Einträgen im tickLog werden trotzdem ignoriert.

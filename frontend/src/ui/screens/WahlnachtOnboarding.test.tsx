@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (k: string) => k, i18n: { language: 'de' } }),
+  useTranslation: () => ({ t: (k: string) => k, i18n: { language: 'de', exists: () => false } }),
 }));
 vi.mock('../../store/gameStore', () => ({ useGameStore: vi.fn() }));
 vi.mock('../../store/authStore', () => ({ useAuthStore: vi.fn() }));
@@ -10,6 +10,10 @@ vi.mock('../../core/systems/features', () => ({ featureActive: vi.fn(() => false
 vi.mock('../../core/systems/medien/wahlprognose', () => ({ berechneWahlprognose: vi.fn(() => 42.5) }));
 vi.mock('../../core/systems/koalition', () => ({
   berechneKoalitionspartner: vi.fn(() => null),
+  berechneKoalitionspartnerKandidaten: vi.fn(() => [
+    { parteiId: 'gp', distanz: 10 },
+    { parteiId: 'lp', distanz: 20 },
+  ]),
   getKoalitionspartner: vi.fn(() => null),
 }));
 vi.mock('../../core/gesetzAgenda', () => ({
@@ -27,6 +31,7 @@ const mockStartGame = vi.fn();
 const mockInit = vi.fn();
 const mockSetSpielerPartei = vi.fn();
 const mockSetAusrichtung = vi.fn();
+const mockSetKoalitionspartnerOverride = vi.fn();
 const mockSetSpielerAgendaIds = vi.fn();
 
 const baseState = {
@@ -60,6 +65,7 @@ function setupGameStore(overrides: { complexity?: number; state?: Record<string,
     startGame: mockStartGame,
     setSpielerPartei: mockSetSpielerPartei,
     setAusrichtung: mockSetAusrichtung,
+    setKoalitionspartnerOverride: mockSetKoalitionspartnerOverride,
     setSpielerAgendaIds: mockSetSpielerAgendaIds,
     cloudSaveId: null,
   };
@@ -129,6 +135,40 @@ describe('WahlnachtOnboarding — Partei-Auswahl (Komplexität 2)', () => {
 
     // Beat 1: Partei-Bestätigung — Weiter-Button sichtbar
     expect(screen.getByText('game:onboarding.weiter')).toBeInTheDocument();
+  });
+});
+
+describe('WahlnachtOnboarding — Koalitionskonstellation (Komplexität 3, #283)', () => {
+  function advanceToKonstellationBeat() {
+    render(<WahlnachtOnboarding />);
+    fireEvent.click(screen.getByText('Sozialdemokratische Partei')); // Beat 0 -> 1
+    fireEvent.click(screen.getByText('game:onboarding.weiter')); // Beat 1 -> 2 (Ideologie)
+    fireEvent.click(screen.getByText('game:onboarding.weiter')); // Beat 2 -> 3 (Konstellation)
+  }
+
+  it('zeigt zwei Koalitionskandidaten zur Auswahl', () => {
+    setupGameStore({ complexity: 3 });
+    advanceToKonstellationBeat();
+    expect(screen.getByText('GP')).toBeInTheDocument();
+    expect(screen.getByText('LP')).toBeInTheDocument();
+  });
+
+  it('Klick auf einen Kandidaten ruft setKoalitionspartnerOverride und init auf', () => {
+    setupGameStore({ complexity: 3 });
+    advanceToKonstellationBeat();
+
+    fireEvent.click(screen.getByText('GP'));
+
+    expect(mockSetKoalitionspartnerOverride).toHaveBeenCalledWith('gp');
+    expect(mockInit).toHaveBeenCalled();
+  });
+
+  it('zeigt die Konstellationswahl nicht bei Komplexität 2', () => {
+    setupGameStore({ complexity: 2 });
+    render(<WahlnachtOnboarding />);
+    fireEvent.click(screen.getByText('Sozialdemokratische Partei')); // Beat 0 -> 1
+    fireEvent.click(screen.getByText('game:onboarding.weiter')); // Beat 1 -> Schlagzeile (kein Ideologie/Konstellation)
+    expect(screen.queryByText('game:onboarding.konstellationTitle')).not.toBeInTheDocument();
   });
 });
 

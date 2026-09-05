@@ -50,6 +50,8 @@ const FEATURES: Record<string, { minLevel: number }> = {
   verbands_lobbying: { minLevel: 3 },
   /** Koalitionspartner als eigenständiger Akteur ab Stufe 2 */
   koalitionspartner: { minLevel: 2 },
+  /** #283: Wahl zwischen alternativen Koalitionskonstellationen im Onboarding ab Stufe 3 */
+  koalitions_konstellation_wahl: { minLevel: 3 },
   /** Koalitionsvertrag-Score (Kongruenz-Tracking) ab Stufe 4 */
   koalitionsvertrag_score: { minLevel: 4 },
   /** Koalitionsvertrag-Tracker: Schlüsselthemen-Erfüllung sichtbar ab Stufe 2 */
@@ -97,6 +99,8 @@ const FEATURES: Record<string, { minLevel: number }> = {
   parallele_vorstufen: { minLevel: 3 },
   /** SMA-278: Wahlkampf ab Monat 43 */
   wahlkampf: { minLevel: 1 },
+  /** #274: Feste Dramaturgie-Anker (100-Tage-Bilanz, Sommerloch, Halbzeitbilanz) */
+  dramaturgie_anker: { minLevel: 1 },
   /** Legislatur-Bilanz-Berechnung */
   legislatur_bilanz: { minLevel: 2 },
   /** Bilanz-Kommunikation im Wahlkampf */

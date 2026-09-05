@@ -156,6 +156,41 @@
   background: rgba(192, 88, 72, 0.25);
 }
 
+.relationships {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.relationshipsTitle {
+  width: 100%;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text3);
+  margin-bottom: 2px;
+}
+
+.relationshipAlly {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: rgba(90, 152, 112, 0.15);
+  border: 1px solid var(--green);
+  border-radius: 12px;
+  color: var(--text);
+}
+
+.relationshipRival {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: rgba(192, 88, 72, 0.15);
+  border: 1px solid var(--red);
+  border-radius: 12px;
+  color: var(--text);
+}
+
 .interests {
   display: flex;
   flex-wrap: wrap;

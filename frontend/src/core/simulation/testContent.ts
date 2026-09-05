@@ -32,6 +32,9 @@ const SIM_LAWS: Law[] = [
     ideologie: { wirtschaft: -20, gesellschaft: -40, staat: -30 },
     ideologie_wert: -30,
     politikfeldId: 'arbeit_soziales',
+    // Art. 84 Abs. 1 GG: Bund-Länder-Förderprogramm mit bundesrechtlich
+    // vorgegebenem Länder-Verwaltungsverfahren → Zustimmungsgesetz.
+    zustimmungspflichtig: true,
   },
   {
     id: 'sr', titel: 'Unternehmenssteuerreform', kurz: 'USR',
@@ -52,6 +55,9 @@ const SIM_LAWS: Law[] = [
     ideologie: { wirtschaft: -10, gesellschaft: -30, staat: -40 },
     ideologie_wert: -27,
     politikfeldId: 'bildung_forschung',
+    // Greift in die Bildungshoheit der Länder ein, Länderfinanzierung an
+    // bundesrechtliche Verfahrensvorgaben gebunden → Zustimmungsgesetz.
+    zustimmungspflichtig: true,
   },
 
   // === Event-locked Gesetze ===
@@ -72,6 +78,10 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'naturkatastrophe',
     politikfeldId: 'innere_sicherheit',
+    // Ziviler Katastrophenschutz ist originär Länderaufgabe; der Bund
+    // koordiniert/finanziert ohne eigenes Länder-Verwaltungsverfahren
+    // vorzuschreiben → Einspruchsgesetz.
+    zustimmungspflichtig: false,
   },
   {
     id: 'cybersicherheit', titel: 'Cybersicherheitsstärkungsgesetz', kurz: 'CySiG',
@@ -108,6 +118,9 @@ const SIM_LAWS: Law[] = [
     expanded: false, route: null, rprog: 0, rdur: 0, blockiert: null,
     locked_until_event: 'wohnungsnot',
     politikfeldId: 'arbeit_soziales',
+    // Miet-/Vertragsrecht ist Teil des BGB, Vollzug über Zivilgerichte ohne
+    // bundesrechtlich vorgegebenes Länder-Verwaltungsverfahren → Einspruchsgesetz.
+    zustimmungspflichtig: false,
   },
   {
     id: 'demokratiefoerderung', titel: 'Demokratiefördergesetz', kurz: 'DemFG',
@@ -212,6 +225,10 @@ const SIM_CHARACTERS: Character[] = [
     color: '#8a7030', mood: 3, loyalty: 5,
     bio: 'Führt die Koalition mit pragmatischem Kurs.',
     interests: ['Koalitionsstabilität', 'Wiederwahl'],
+    relationships: [
+      { target: 'im', type: 'verfeindet', staerke: 2 },
+      { target: 'jm', type: 'verbuendet', staerke: 2 },
+    ],
     bonus: { trigger: 'mood>=3', desc: '+5 BT-Stimmen', applies: 'bt_bonus' },
     ultimatum: { moodThresh: 1, event: 'kanzler_ultimatum' },
     ist_kanzler: true,
@@ -221,6 +238,10 @@ const SIM_CHARACTERS: Character[] = [
     color: '#5888b8', mood: 2, loyalty: 3,
     bio: 'Strenger Haushälter.',
     interests: ['Haushaltsdisziplin', 'Schuldenbremse'],
+    relationships: [
+      { target: 'wm', type: 'verfeindet', staerke: 2 },
+      { target: 'um', type: 'verfeindet', staerke: 2 },
+    ],
     bonus: { trigger: 'mood>=4', desc: 'Beschleunigt Gesetze', applies: 'hh_boost' },
     ultimatum: { moodThresh: 0, event: 'fm_ultimatum' },
   },
@@ -229,6 +250,10 @@ const SIM_CHARACTERS: Character[] = [
     color: '#5a9870', mood: 4, loyalty: 4,
     bio: 'Pragmatisch und lösungsorientiert.',
     interests: ['Standortpolitik', 'Industrietransformation'],
+    relationships: [
+      { target: 'fm', type: 'verfeindet', staerke: 2 },
+      { target: 'um', type: 'verbuendet', staerke: 2 },
+    ],
     bonus: { trigger: 'mood>=3', desc: '+3% BT-Stimmen', applies: 'wirt_bonus' },
     ultimatum: { moodThresh: 0, event: 'wm_ultimatum' },
   },
@@ -237,6 +262,10 @@ const SIM_CHARACTERS: Character[] = [
     color: '#c05848', mood: 1, loyalty: 2,
     bio: 'Konservativer Querdenker.',
     interests: ['Innere Sicherheit', 'Migrationsbegrenzung'],
+    relationships: [
+      { target: 'jm', type: 'verfeindet', staerke: 2 },
+      { target: 'kanzler', type: 'verfeindet', staerke: 2 },
+    ],
     bonus: { trigger: 'mood>=4', desc: 'Stabilisiert Bundesrat', applies: 'br_bonus' },
     ultimatum: { moodThresh: 0, event: 'braun_ultimatum' },
   },
@@ -245,6 +274,10 @@ const SIM_CHARACTERS: Character[] = [
     color: '#9a8848', mood: 4, loyalty: 4,
     bio: 'Juristin mit unbedingten Prinzipien.',
     interests: ['Rechtsstaat', 'Grundrechte'],
+    relationships: [
+      { target: 'im', type: 'verfeindet', staerke: 2 },
+      { target: 'kanzler', type: 'verbuendet', staerke: 2 },
+    ],
     bonus: { trigger: 'mood>=3', desc: 'Verhindert Verfassungsklagen', applies: 'jm_shield' },
     ultimatum: { moodThresh: 1, event: 'kern_ultimatum' },
   },
@@ -253,6 +286,10 @@ const SIM_CHARACTERS: Character[] = [
     color: '#6880b8', mood: 3, loyalty: 3,
     bio: 'Treibt Klimapolitik voran.',
     interests: ['Klimaschutz', 'Energiewende'],
+    relationships: [
+      { target: 'fm', type: 'verfeindet', staerke: 2 },
+      { target: 'wm', type: 'verbuendet', staerke: 2 },
+    ],
     bonus: { trigger: 'mood>=4', desc: '+4% prog. Milieu', applies: 'prog_boost' },
     ultimatum: { moodThresh: 1, event: 'wolf_ultimatum' },
   },

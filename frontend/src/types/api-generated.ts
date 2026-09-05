@@ -1453,6 +1453,18 @@ export interface components {
             /** Role */
             role?: string | null;
         };
+        /**
+         * CharRelationshipSchema
+         * @description SMA-279: Gerichtete Beziehung zu einem anderen Kabinettsmitglied.
+         */
+        CharRelationshipSchema: {
+            /** Staerke */
+            staerke: number;
+            /** Target */
+            target: string;
+            /** Type */
+            type: string;
+        };
         /** CharResponse */
         CharResponse: {
             /** Agenda */
@@ -1513,6 +1525,8 @@ export interface components {
             partei_kuerzel?: string | null;
             /** Pool Partei */
             pool_partei?: string | null;
+            /** Relationships */
+            relationships?: components["schemas"]["CharRelationshipSchema"][] | null;
             /** Ressort */
             ressort?: string | null;
             /** Ressort Partner */
@@ -1755,6 +1769,10 @@ export interface components {
             /** Desc */
             desc: string;
             effekte: components["schemas"]["EffekteSchema"];
+            /** Followup Delay */
+            followup_delay?: number | null;
+            /** Followup Event Id */
+            followup_event_id?: string | null;
             /** Haushalt Saldo Delta Mrd */
             haushalt_saldo_delta_mrd?: number | null;
             /** Key */
@@ -1787,6 +1805,8 @@ export interface components {
             steuerpolitik_modifikator_delta?: number | null;
             /** Type */
             type: string;
+            /** Unlocks Laws */
+            unlocks_laws?: string[] | null;
             /** Verband Delta */
             verband_delta?: {
                 [key: string]: number;
@@ -1846,6 +1866,10 @@ export interface components {
         };
         /** EventResponse */
         EventResponse: {
+            /** Arc Id */
+            arc_id?: string | null;
+            /** Arc Stage */
+            arc_stage?: number | null;
             /** Choices */
             choices: components["schemas"]["EventChoiceResponse"][];
             /** Context */

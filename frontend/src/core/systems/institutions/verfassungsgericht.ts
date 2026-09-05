@@ -1,4 +1,4 @@
-import type { GameState, GameEvent, Law, KPI, ContentBundle } from '../../types';
+import type { GameState, GameEvent, Law, KPI, ContentBundle, BundesratFraktion } from '../../types';
 import { withPause } from '../../eventPause';
 import { addLog } from '../../engine';
 import { featureActive } from '../features';
@@ -13,6 +13,25 @@ import { nextRandom } from '../../rng';
  * Nach Beschluss eines Gesetzes kann die Opposition oder eine
  * Bundesrat-Fraktion Klage einreichen. Das Verfahren dauert 4-8 Monate.
  */
+
+/**
+ * Antragsberechtigung für die abstrakte Normenkontrolle (Art. 93 Abs. 1 Nr. 2 GG):
+ * Bundesregierung, Landesregierung oder ein Viertel der Bundestagsmitglieder.
+ * Die Opposition (als Sitzanteil, 0–100%) muss dieses Quorum erreichen; alternativ
+ * kann eine zerstrittene Landesregierung als Klägerin auftreten.
+ */
+const NORMENKONTROLLE_OPPOSITION_QUORUM = 25;
+
+/** Beziehungswert, unterhalb dessen ein Bundesland als potenzielle Klägerin gilt. */
+const NORMENKONTROLLE_LAND_BEZIEHUNG_SCHWELLE = 25;
+
+/** Ermittelt die zerstrittenste Landesregierung als mögliche Klägerin (falls vorhanden). */
+function findLandKlaeger(fraktionen: BundesratFraktion[]): BundesratFraktion | null {
+  const kandidaten = fraktionen
+    .filter(f => f.beziehung < NORMENKONTROLLE_LAND_BEZIEHUNG_SCHWELLE)
+    .sort((a, b) => a.beziehung - b.beziehung);
+  return kandidaten[0] ?? null;
+}
 
 /** Berechnet die Klage-Wahrscheinlichkeit (0–40%) für ein beschlossenes Gesetz. */
 export function berechneKlageWahrscheinlichkeit(
@@ -40,7 +59,10 @@ export function berechneKlageWahrscheinlichkeit(
 }
 
 /** Baut das Normenkontroll-Event mit 3 Reaktionen */
-function buildNormenkontrollEvent(law: Law): GameEvent {
+function buildNormenkontrollEvent(law: Law, landKlaeger: BundesratFraktion | null): GameEvent {
+  const klaegerText = landKlaeger
+    ? `Die Landesregierung ${landKlaeger.name} hat als Klägerin`
+    : 'Die Opposition hat mit einem Viertel der Bundestagsmitglieder';
   return {
     id: `normenkontrolle_${law.id}`,
     type: 'warn',
@@ -48,7 +70,7 @@ function buildNormenkontrollEvent(law: Law): GameEvent {
     typeLabel: 'Bundesverfassungsgericht',
     title: `Normenkontrollklage: ${law.kurz}`,
     quote: '„Das Gericht wird die Verfassungsmäßigkeit des Gesetzes prüfen." — Präsidentin des BVerfG',
-    context: `Die Opposition hat eine abstrakte Normenkontrolle gegen das ${law.kurz} beim Bundesverfassungsgericht eingereicht. Das Verfahren wird mehrere Monate dauern. Das Gesetz bleibt vorerst in Kraft.`,
+    context: `${klaegerText} eine abstrakte Normenkontrolle (Art. 93 Abs. 1 Nr. 2 GG) gegen das ${law.kurz} beim Bundesverfassungsgericht eingereicht. Das Verfahren wird mehrere Monate dauern. Das Gesetz bleibt vorerst in Kraft.`,
     ticker: `BVerfG: Normenkontrollklage gegen ${law.kurz}`,
     choices: [
       {
@@ -98,6 +120,13 @@ export function checkNormenkontrollKlage(
   if (state.activeEvent) return state;
 
   const oppStaerke = state.opposition?.staerke ?? 40;
+  const landKlaeger = findLandKlaeger(state.bundesratFraktionen);
+
+  // Antragsberechtigung (Art. 93 Abs. 1 Nr. 2 GG): Opposition braucht ¼ der
+  // Bundestagssitze, sonst kann nur eine zerstrittene Landesregierung klagen.
+  const klageberechtigt = oppStaerke >= NORMENKONTROLLE_OPPOSITION_QUORUM || landKlaeger != null;
+  if (!klageberechtigt) return state;
+
   const prob = berechneKlageWahrscheinlichkeit(law, oppStaerke, state.bundesratFraktionen);
 
   // Würfelwurf
@@ -105,7 +134,7 @@ export function checkNormenkontrollKlage(
 
   // Verfahrensdauer: 4-8 Monate
   const dauer = 4 + Math.floor(nextRandom() * 5);
-  const event = buildNormenkontrollEvent(law);
+  const event = buildNormenkontrollEvent(law, landKlaeger);
 
   const verfahren = [...(state.normenkontrollVerfahren ?? []), {
     gesetzId: law.id,

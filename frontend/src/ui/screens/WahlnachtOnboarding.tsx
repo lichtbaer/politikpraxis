@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { berechneWahlprognose } from '../../core/systems/medien/wahlprognose';
-import type { AgendaZielContent, Character, ContentBundle } from '../../core/types';
+import type { AgendaZielContent, Character, ContentBundle, KoalitionspartnerParteiId } from '../../core/types';
 import type { Ausrichtung } from '../../core/systems/ausrichtung';
 import {
   PARTEI_STARTPUNKTE,
@@ -15,16 +15,21 @@ import {
   SPIELBARE_PARTEIEN,
   type SpielerParteiId,
 } from '../../data/defaults/parteien';
-import { berechneKoalitionspartner, getKoalitionspartner } from '../../core/systems/koalition';
+import {
+  berechneKoalitionspartner,
+  berechneKoalitionspartnerKandidaten,
+  getKoalitionspartner,
+} from '../../core/systems/koalition';
 import { getKoalitionsStanz, gruppiereNachKoalitionsStanz } from '../../core/gesetzAgenda';
 import { IdeologieSlider } from '../components/IdeologieSlider/IdeologieSlider';
-import { ALLE_PARTEIEN } from '../../data/defaults/koalitionspartner';
+import { ALLE_PARTEIEN, buildKoalitionspartnerContent } from '../../data/defaults/koalitionspartner';
 import { toBcp47 } from '../lib/locale';
 import styles from './WahlnachtOnboarding.module.css';
 import { useAuthStore } from '../../store/authStore';
 import { postGameAgenda } from '../../services/saves';
 
-/** Onboarding-Beats: Partei (0), Bestätigung (1), Ideologie (2, Stufe 3+), Schlagzeile (3), Kabinett (4), Agenda (5, Stufe 2+), Memo, KV, CTA */
+/** Onboarding-Beats: Partei (0), Bestätigung (1), Ideologie (2, Stufe 3+), Koalitionskonstellation (3, Stufe 3+),
+ * Schlagzeile (4), Kabinett (5), Agenda (6, Stufe 2+), Memo, KV, CTA */
 const AGENDA_KATEGORIE_ORDER = [
   'gesetzgebung',
   'milieu',
@@ -78,6 +83,7 @@ export function WahlnachtOnboarding() {
     startGame,
     setSpielerPartei,
     setAusrichtung,
+    setKoalitionspartnerOverride,
     setSpielerAgendaIds,
     cloudSaveId,
   } = useGameStore();
@@ -87,7 +93,7 @@ export function WahlnachtOnboarding() {
   const showIdeologieScreen = complexity >= 3;
   const showAgendaScreen = complexity >= 2;
 
-  const [beat, setBeat] = useState(showParteiScreen ? 0 : 3);
+  const [beat, setBeat] = useState(showParteiScreen ? 0 : 4);
   const [selectedPartei, setSelectedPartei] = useState<SpielerParteiId | null>(null);
   const [ausrichtung, setLocalAusrichtung] = useState<Ausrichtung>({
     wirtschaft: 0,
@@ -98,7 +104,7 @@ export function WahlnachtOnboarding() {
   const [agendaSubmitting, setAgendaSubmitting] = useState(false);
 
   // maxBeat = letzter Beat mit Inhalt (ctaBeat), damit advance() dort startGame() aufruft
-  const maxBeat = showAgendaScreen ? 8 : 7;
+  const maxBeat = showAgendaScreen ? 9 : 8;
 
   const advance = useCallback(() => {
     if (beat < maxBeat) setBeat((b) => b + 1);
@@ -123,15 +129,23 @@ export function WahlnachtOnboarding() {
       setBeat(2);
     } else {
       init();
-      setBeat(3); // Schlagzeile → Kabinett → weiter per advance()
+      setBeat(4); // Schlagzeile → Kabinett → weiter per advance()
     }
   }, [showIdeologieScreen, init]);
 
   const handleIdeologieWeiter = useCallback(() => {
     setAusrichtung(ausrichtung);
-    init();
-    setBeat(3); // Schlagzeile → Kabinett → weiter per advance()
-  }, [ausrichtung, setAusrichtung, init]);
+    setBeat(3); // Koalitionskonstellation wählen (Stufe 3+)
+  }, [ausrichtung, setAusrichtung]);
+
+  const handleKonstellationSelect = useCallback(
+    (parteiId: KoalitionspartnerParteiId) => {
+      setKoalitionspartnerOverride(parteiId);
+      init();
+      setBeat(4); // Schlagzeile → Kabinett → weiter per advance()
+    },
+    [setKoalitionspartnerOverride, init]
+  );
 
   const handleAusrichtungChange = useCallback(
     (axis: keyof Ausrichtung, value: number) => {
@@ -144,10 +158,18 @@ export function WahlnachtOnboarding() {
     [selectedPartei]
   );
 
-  const agendaBeat = showAgendaScreen ? 5 : -1;
-  const memoBeat = showAgendaScreen ? 6 : 5;
-  const kvBeat = showAgendaScreen ? 7 : 6;
-  const ctaBeat = showAgendaScreen ? 8 : 7;
+  const agendaBeat = showAgendaScreen ? 6 : -1;
+  const memoBeat = showAgendaScreen ? 7 : 6;
+  const kvBeat = showAgendaScreen ? 8 : 7;
+  const ctaBeat = showAgendaScreen ? 9 : 8;
+
+  // #283: Top-2 Koalitionskandidaten (nächster + zweitnächster nach Ideologie-Distanz) für die Konstellationswahl
+  const konstellationKandidaten = useMemo(() => {
+    if (!selectedPartei) return [];
+    return berechneKoalitionspartnerKandidaten(selectedPartei, ausrichtung)
+      .slice(0, 2)
+      .map((k) => buildKoalitionspartnerContent(k.parteiId, selectedPartei));
+  }, [selectedPartei, ausrichtung]);
 
   const spielerZielAnzahl = complexity === 2 ? 2 : complexity >= 3 ? 3 : 0;
 
@@ -217,9 +239,9 @@ export function WahlnachtOnboarding() {
     cloudSaveId,
   ]);
 
-  // Beat 3 (Headline): Auto-Weiter nach 4s
+  // Beat 4 (Headline): Auto-Weiter nach 4s
   useEffect(() => {
-    if (beat !== 3) return;
+    if (beat !== 4) return;
     const id = setTimeout(advance, 4000);
     return () => clearTimeout(id);
   }, [beat, advance]);
@@ -229,7 +251,7 @@ export function WahlnachtOnboarding() {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        if (beat === 0 || beat === 1 || beat === 2 || beat === agendaBeat) return;
+        if (beat === 0 || beat === 1 || beat === 2 || beat === 3 || beat === agendaBeat) return;
         advance();
       }
     };
@@ -291,15 +313,15 @@ export function WahlnachtOnboarding() {
   /* SMA-302 / SMA-503: Fortschritts-Dots — Schritte je nach Komplexität */
   const steps = showIdeologieScreen
     ? showAgendaScreen
-      ? [0, 1, 2, 3, 4, 5, 6, 7, 8]
-      : [0, 1, 2, 3, 4, 5, 6, 7]
+      ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      : [0, 1, 2, 3, 4, 5, 6, 7, 8]
     : showParteiScreen
       ? showAgendaScreen
-        ? [0, 1, 3, 4, 5, 6, 7, 8]
-        : [0, 1, 3, 4, 5, 6, 7]
+        ? [0, 1, 4, 5, 6, 7, 8, 9]
+        : [0, 1, 4, 5, 6, 7, 8]
       : showAgendaScreen
-        ? [3, 4, 5, 6, 7, 8]
-        : [3, 4, 5, 6, 7];
+        ? [4, 5, 6, 7, 8, 9]
+        : [4, 5, 6, 7, 8];
   const currentStepIndex = steps.indexOf(beat);
 
   return (
@@ -407,8 +429,65 @@ export function WahlnachtOnboarding() {
         </div>
         )}
 
-        {/* Beat 3 — Schlagzeile */}
-        {beat === 3 && (
+        {/* Beat 3 — Koalitionskonstellation wählen (Stufe 3+) — #283 */}
+        {beat === 3 && selectedPartei && (
+          <div className={styles.beatIdeologie}>
+            <h1 className={styles.ideologieTitle}>{t('game:onboarding.konstellationTitle')}</h1>
+            <p className={styles.ideologieSubtitle}>{t('game:onboarding.konstellationSubtitle')}</p>
+            <div className={styles.parteiGrid}>
+              {konstellationKandidaten.map((partner, i) => (
+                <button
+                  key={partner.id}
+                  type="button"
+                  className={styles.parteiCard}
+                  style={{
+                    borderColor: partner.partei_farbe ?? 'var(--border)',
+                    backgroundColor: partner.partei_farbe ? `${partner.partei_farbe}15` : 'var(--bg3)',
+                  }}
+                  onClick={() => handleKonstellationSelect(partner.id)}
+                >
+                  <span
+                    className={styles.parteiKuerzel}
+                    style={{ backgroundColor: partner.partei_farbe ?? '#8a7030', color: '#fff' }}
+                  >
+                    {partner.partei_kuerzel}
+                  </span>
+                  <span className={styles.parteiName}>
+                    {t('game:onboarding.konstellationOption', {
+                      a: SPIELBARE_PARTEIEN.find((p) => p.id === selectedPartei)?.kuerzel ?? '',
+                      b: partner.partei_kuerzel ?? '',
+                    })}
+                  </span>
+                  <span className={styles.parteiBeschreibung}>
+                    {t(
+                      i === 0
+                        ? 'game:onboarding.konstellationEmpfehlung'
+                        : 'game:onboarding.konstellationAlternative'
+                    )}
+                  </span>
+                  {partner.schluesselthemen?.length ? (
+                    <span className={styles.parteiBeschreibung}>
+                      {t('game:onboarding.konstellationSchluesselthemen', {
+                        themen: partner.schluesselthemen
+                          .map((thema) =>
+                            i18n.exists(`game:politikfeld.${thema}`)
+                              ? t(`game:politikfeld.${thema}`)
+                              : i18n.exists(`game:laws.${thema}.titel`)
+                                ? t(`game:laws.${thema}.titel`)
+                                : thema
+                          )
+                          .join(', '),
+                      })}
+                    </span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Beat 4 — Schlagzeile */}
+        {beat === 4 && (
           <div className={styles.beat1}>
           <div className={styles.headline}>
             <h1 className={styles.h1}>{t('game:onboarding.headline1')}</h1>
@@ -430,8 +509,8 @@ export function WahlnachtOnboarding() {
           </div>
         )}
 
-        {/* Beat 4 — Kabinett-Vorstellung */}
-        {beat === 4 && (
+        {/* Beat 5 — Kabinett-Vorstellung */}
+        {beat === 5 && (
           <div className={styles.beat2}>
           <div className={styles.chars}>
             {chars.map((c, i) => (

@@ -9,6 +9,7 @@ import {
   getBundesratAbstimmungsFelder,
   getAggregierteZustimmung,
   bundesratNutztLandgewichte,
+  isEinspruchsgesetz,
 } from '../../core/systems/institutions/bundesrat';
 import type { BundesratFraktion, Law } from '../../core/types';
 import { useUIStore } from '../../store/uiStore';
@@ -129,14 +130,16 @@ function Fraktionskarte({ fraktion, law, voteDetail, onGespraechSuchen, complexi
 
 interface AbstimmungsbalkenProps {
   law: Law;
-  felder: { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[];
+  felder: { landId: string; fraktionId: string; color: string; stimmtJa: boolean; votum: 'ja' | 'nein' | 'enthaltung' }[];
   ja: number;
   nein: number;
+  enthaltung: number;
   mehrheit: boolean;
   mehrheitLiniePct: number;
+  complexity: number;
 }
 
-function Abstimmungsbalken({ law, felder, ja, nein, mehrheit, mehrheitLiniePct }: AbstimmungsbalkenProps) {
+function Abstimmungsbalken({ law, felder, ja, nein, enthaltung, mehrheit, mehrheitLiniePct, complexity }: AbstimmungsbalkenProps) {
   const { t } = useTranslation('game');
   const fraktionen = useGameStore((s) => s.state.bundesratFraktionen);
   const showToast = useUIStore((s) => s.showToast);
@@ -146,12 +149,34 @@ function Abstimmungsbalken({ law, felder, ja, nein, mehrheit, mehrheitLiniePct }
     if (f) showToast(`${t(`game:bundesratFraktionen.${f.id}.name`)}: ${f.sprecher.name} (${f.sprecher.partei})`);
   };
 
+  const votumLabel: Record<'ja' | 'nein' | 'enthaltung', string> = {
+    ja: t('game:bundesrat.votumJa'),
+    nein: t('game:bundesrat.votumNein'),
+    enthaltung: t('game:bundesrat.votumEnthaltung'),
+  };
+
   return (
     <div className={styles.abstimmungsBalken}>
       <div className={styles.abstimmungsHeader}>
-        <span className={styles.abstimmungsLaw}>{law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}</span>
+        <span className={styles.abstimmungsLawGroup}>
+          <span className={styles.abstimmungsLaw}>{law.kurz || law.titel || t(`game:laws.${law.id}.kurz`)}</span>
+          {featureActive(complexity, 'einspruch_vs_zustimmung') && (
+            <span
+              className={styles.gesetzestypBadge}
+              title={t(
+                isEinspruchsgesetz(law)
+                  ? 'game:bundesrat.einspruchsgesetzTooltip'
+                  : 'game:bundesrat.zustimmungsgesetzTooltip',
+              )}
+            >
+              {t(isEinspruchsgesetz(law) ? 'game:bundesrat.einspruchsgesetz' : 'game:bundesrat.zustimmungsgesetz')}
+            </span>
+          )}
+        </span>
         <span className={styles.abstimmungsErgebnis}>
-          {t('game:bundesrat.jaNein', { ja, nein, mehrheit: mehrheit ? t('game:bundesrat.mehrheitJa') : t('game:bundesrat.mehrheitNein') })}
+          {enthaltung > 0
+            ? t('game:bundesrat.jaNeinEnthaltung', { ja, nein, enthaltung, mehrheit: mehrheit ? t('game:bundesrat.mehrheitJa') : t('game:bundesrat.mehrheitNein') })
+            : t('game:bundesrat.jaNein', { ja, nein, mehrheit: mehrheit ? t('game:bundesrat.mehrheitJa') : t('game:bundesrat.mehrheitNein') })}
         </span>
       </div>
       <div className={styles.felderContainer}>
@@ -159,13 +184,17 @@ function Abstimmungsbalken({ law, felder, ja, nein, mehrheit, mehrheitLiniePct }
           <button
             key={`${f.landId}-${i}`}
             type="button"
-            className={`${styles.feld} ${f.stimmtJa ? styles.feldJa : styles.feldNein}`}
+            className={`${styles.feld} ${f.votum === 'ja' ? styles.feldJa : f.votum === 'enthaltung' ? styles.feldEnthaltung : styles.feldNein}`}
             style={{
-              backgroundColor: f.stimmtJa ? f.color : `${f.color}44`,
+              backgroundColor: f.votum === 'ja' ? f.color : `${f.color}44`,
               borderColor: f.color,
             }}
             onClick={() => handleFeldClick(f.fraktionId)}
-            title={`${f.landId}: ${f.stimmtJa ? 'Ja' : 'Nein'}`}
+            title={
+              f.votum === 'enthaltung'
+                ? `${f.landId}: ${votumLabel.enthaltung} — ${t('game:bundesrat.koalitionsklausel')}`
+                : `${f.landId}: ${votumLabel[f.votum]}`
+            }
           />
         ))}
         <div
@@ -362,7 +391,7 @@ export function BundesratView() {
       </section>
 
       {displayLaw && (() => {
-        const { ja, nein, mehrheit } = calcBundesratMehrheit(state, displayLaw.id);
+        const { ja, nein, enthaltung, mehrheit } = calcBundesratMehrheit(state, displayLaw.id);
         return (
           <section className={styles.abstimmung}>
             <Abstimmungsbalken
@@ -370,8 +399,10 @@ export function BundesratView() {
               felder={felder}
               ja={ja}
               nein={nein}
+              enthaltung={enthaltung}
               mehrheit={mehrheit}
               mehrheitLiniePct={mehrheitLiniePct}
+              complexity={complexity}
             />
           </section>
         );

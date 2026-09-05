@@ -101,8 +101,13 @@
     "speed": {
       "pause": "Pause",
       "slow": "1×",
+      "fast": "2×",
       "pauseTitle": "Pause / resume game (Space)",
-      "slowTitle": "Normal (Space / 1)"
+      "slowTitle": "Normal (Space / 1)",
+      "fastTitle": "Fast (2)",
+      "forward": "⏭",
+      "forwardTitle": "Fast-forward to next event (F)",
+      "forwardTitleActive": "Fast-forward running — stop (F)"
     },
     "actions": {
       "introduce": "Introduce",

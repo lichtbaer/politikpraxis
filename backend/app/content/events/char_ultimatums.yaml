@@ -207,7 +207,7 @@
         kanzler: 1
       log: 'Koalitionsgipfel schafft neue Einigkeit.'
     - label: Vertrauensfrage riskieren
-      desc: 'Gamble — gewinnen oder Neuwahl'
+      desc: 'Va-Banque — gewinnen oder Neuwahl'
       cost: 0
       type: danger
       effect:

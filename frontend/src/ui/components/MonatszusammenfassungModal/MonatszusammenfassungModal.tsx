@@ -40,7 +40,10 @@ function formatUrsacheDelta(delta: number): string {
 /** Issue #209: „{Kategorie}: {KPI}" bzw. nur Kategorie / Event-Titel. */
 function ursacheLabel(t: TFunction, u: MonatsUrsache): string {
   if (u.kategorie === 'event') {
-    return u.label ?? t('monatszusammenfassung.ursache.event');
+    const titel = u.label ?? t('monatszusammenfassung.ursache.event');
+    if (u.istArcFortsetzung) return t('monatszusammenfassung.ursache.arcFortsetzung', { titel });
+    if (u.istDramaturgieAnker) return t('monatszusammenfassung.ursache.dramaturgieAnker', { titel });
+    return titel;
   }
   const kat = t(`monatszusammenfassung.ursache.${u.kategorie}`);
   if (u.kpi) {
@@ -91,6 +94,7 @@ export function MonatszusammenfassungModal({
 }: MonatszusammenfassungModalProps) {
   const { t } = useTranslation('game');
   const monatszusammenfassung = useUIStore((s) => s.playerSettings.monatszusammenfassung);
+  const hintsEnabled = useUIStore((s) => s.playerSettings.hintsEnabled);
   const setPlayerSettings = useUIStore((s) => s.setPlayerSettings);
 
   const hatGesetze =
@@ -297,6 +301,14 @@ export function MonatszusammenfassungModal({
               onChange={(e) => setPlayerSettings({ monatszusammenfassung: e.target.checked })}
             />
             <span>{t('monatszusammenfassung.settingAutoShow')}</span>
+          </label>
+          <label className={styles.settingRow}>
+            <input
+              type="checkbox"
+              checked={hintsEnabled}
+              onChange={(e) => setPlayerSettings({ hintsEnabled: e.target.checked })}
+            />
+            <span>{t('tips.settingHintsEnabled')}</span>
           </label>
           <div className={styles.actions}>
             <button type="button" className={styles.btn} onClick={onDetails}>

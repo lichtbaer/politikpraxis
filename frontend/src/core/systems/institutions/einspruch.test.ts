@@ -7,6 +7,7 @@ import {
 import type { GameState, BundesratFraktion, Law } from '../../types';
 import { createInitialState } from '../../state';
 import { DEFAULT_CONTENT } from '../../../data/defaults/scenarios';
+import { SIM_CONTENT } from '../../simulation/testContent';
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   const base = createInitialState(DEFAULT_CONTENT, 4);
@@ -167,5 +168,41 @@ describe('ueberstimmeBReinspruch', () => {
     });
     const result = ueberstimmeBReinspruch(state, 'test_law');
     expect(result).toBe(state); // unchanged
+  });
+});
+
+describe('#278: Einspruchsgesetze im echten Content-Katalog erreichbar', () => {
+  const findLaw = (id: string) => {
+    const law = SIM_CONTENT.laws.find((l) => l.id === id);
+    if (!law) throw new Error(`Testfixture-Gesetz "${id}" nicht gefunden`);
+    return law;
+  };
+
+  it('mietrecht und katastrophenschutz sind Einspruchsgesetze (land-Tag, zustimmungspflichtig: false)', () => {
+    expect(findLaw('mietrecht').tags).toContain('land');
+    expect(isEinspruchsgesetz(findLaw('mietrecht'))).toBe(true);
+    expect(findLaw('katastrophenschutz').tags).toContain('land');
+    expect(isEinspruchsgesetz(findLaw('katastrophenschutz'))).toBe(true);
+  });
+
+  it('wb und bp bleiben Zustimmungsgesetze (echte Blockade, kein Überstimmungspfad)', () => {
+    expect(findLaw('wb').tags).toContain('land');
+    expect(isEinspruchsgesetz(findLaw('wb'))).toBe(false);
+    expect(findLaw('bp').tags).toContain('land');
+    expect(isEinspruchsgesetz(findLaw('bp'))).toBe(false);
+  });
+
+  it('Blockade eines Einspruchsgesetzes aus dem echten Katalog führt zu br_einspruch statt endgültiger Blockade', () => {
+    const law = { ...findLaw('mietrecht'), status: 'bt_passed' as const, ja: 55, nein: 45 };
+    const lowFraktionen: BundesratFraktion[] = [
+      makeFraktion({ id: 'koalitionstreue', basisBereitschaft: 5, laender: ['NW', 'NI', 'HH', 'HB', 'SH'] }),
+      makeFraktion({ id: 'pragmatische_mitte', basisBereitschaft: 5, laender: ['RP', 'SL', 'BE', 'HE', 'TH', 'SN'] }),
+      makeFraktion({ id: 'konservativer_block', basisBereitschaft: 5, laender: ['BY', 'BW', 'ST'] }),
+      makeFraktion({ id: 'ostblock', basisBereitschaft: 5, laender: ['BB', 'MV'] }),
+    ];
+    const state = makeState({ gesetze: [law], bundesratFraktionen: lowFraktionen });
+    const result = executeBundesratVote(state, law.id, { milieus: [], complexity: 4 });
+    const resultLaw = result.gesetze.find((g) => g.id === law.id);
+    expect(resultLaw?.status).toBe('br_einspruch');
   });
 });

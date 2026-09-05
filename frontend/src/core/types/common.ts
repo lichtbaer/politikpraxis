@@ -11,6 +11,7 @@ export interface KPI {
   al: number;
   hh: number;
   gi: number;
+  /** Zufriedenheitsindex — nicht zu verwechseln mit der abgeleiteten "Zustimmung" (Wahlprognose). */
   zf: number;
 }
 
@@ -87,4 +88,4 @@ export type ViewName =
   | 'kommunen'
   | 'eu'
   | 'wahlkampf';
-export type SpeedLevel = 0 | 1;
+export type SpeedLevel = 0 | 1 | 2;

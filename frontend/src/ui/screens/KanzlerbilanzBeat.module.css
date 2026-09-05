@@ -330,3 +330,16 @@
   max-width: min(32rem, 100%);
   max-height: min(80vh, 520px);
 }
+
+.historischerFliesstext {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-left: 2px solid var(--gold);
+  background: var(--bg3);
+  border-radius: 4px;
+  font-family: var(--serif);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  text-align: left;
+  color: var(--text);
+}

@@ -101,23 +101,70 @@ function computeFraktionBereitschaft(
   return Math.min(100, Math.max(0, bereitschaft));
 }
 
-function landStimmtJa(
+function landJaWahrscheinlichkeit(
   state: GameState,
   lawId: string,
   land: GameState['bundesrat'][0],
   fraktionBereitschaft: number,
-): boolean {
+): number {
   const law = state.gesetze.find(g => g.id === lawId);
-  if (!law) return false;
+  if (!law) return 0;
   const felder = lawPolitikfelder(law);
   const basis = getLandBeziehung(state, land.id) / 100;
   const themenBonus = countThemenMatches(land.themen, felder) * 0.1;
   const regPartei = land.regierungPartei ?? land.party;
   const parteiBonus = regPartei && regPartei === spielerProfilPartei(state) ? 0.2 : 0;
   const lobbyTilt = Math.max(-0.12, Math.min(0.12, (fraktionBereitschaft - 50) / 150));
-  const p = Math.min(0.98, Math.max(0.02, basis + themenBonus + parteiBonus + lobbyTilt));
+  return Math.min(0.98, Math.max(0.02, basis + themenBonus + parteiBonus + lobbyTilt));
+}
+
+/** Grenzband um 50%, in dem eine gemischte Landeskoalition als uneinig gilt */
+const KOALITIONSKLAUSEL_BAND = 0.08;
+
+/** Land hat eine Regierungskoalition aus mehr als einer Partei (SMA-Bundesrat-Enthaltung) */
+function hatGemischteKoalition(land: GameState['bundesrat'][0]): boolean {
+  return (land.koalition?.length ?? 0) > 1;
+}
+
+/**
+ * Koalitionsklausel: uneinige Landeskoalitionen enthalten sich, statt eindeutig zu stimmen.
+ * Ausgelöst durch (a) eine abgelehnte Trade-off-Forderung der zuständigen Fraktion — sichtbares
+ * Zeichen von Verhandlungsbruch — oder (b) ideologische Ambivalenz (Ja-Wahrscheinlichkeit nahe 50%).
+ */
+function koalitionIstUneinig(
+  state: GameState,
+  lawId: string,
+  land: GameState['bundesrat'][0],
+  p: number,
+): boolean {
+  if (!hatGemischteKoalition(land)) return false;
+  const law = state.gesetze.find(g => g.id === lawId);
+  const fraktion = findFraktionForLand(state, land.id);
+  const lobby = fraktion ? law?.lobbyFraktionen?.[fraktion.id] : undefined;
+  if (lobby?.tradeoffAblehnen) return true;
+  return Math.abs(p - 0.5) <= KOALITIONSKLAUSEL_BAND;
+}
+
+/** Stimmverhalten eines Landes: Ja, Nein oder Enthaltung (Koalitionsklausel) */
+function landVotum(
+  state: GameState,
+  lawId: string,
+  land: GameState['bundesrat'][0],
+  fraktionBereitschaft: number,
+): 'ja' | 'nein' | 'enthaltung' {
+  const p = landJaWahrscheinlichkeit(state, lawId, land, fraktionBereitschaft);
   // Deterministisch: UI (Felder) und executeBundesratVote müssen übereinstimmen
-  return p >= 0.5;
+  if (koalitionIstUneinig(state, lawId, land, p)) return 'enthaltung';
+  return p >= 0.5 ? 'ja' : 'nein';
+}
+
+function landStimmtJa(
+  state: GameState,
+  lawId: string,
+  land: GameState['bundesrat'][0],
+  fraktionBereitschaft: number,
+): boolean {
+  return landVotum(state, lawId, land, fraktionBereitschaft) === 'ja';
 }
 
 function findFraktionForLand(state: GameState, landId: string): BundesratFraktion | undefined {
@@ -172,13 +219,14 @@ function isIdeologisch(gesetzeId: string, fraktionId: string): boolean {
 export function calcBundesratMehrheit(
   state: GameState,
   gesetzeId: string,
-): { ja: number; nein: number; mehrheit: boolean; details: string[] } {
+): { ja: number; nein: number; enthaltung: number; mehrheit: boolean; details: string[] } {
   const law = state.gesetze.find(g => g.id === gesetzeId);
   const details: string[] = [];
-  if (!law) return { ja: 0, nein: 0, mehrheit: false, details };
+  if (!law) return { ja: 0, nein: 0, enthaltung: 0, mehrheit: false, details };
 
   let ja = 0;
   let nein = 0;
+  let enthaltung = 0;
 
   const vorstufenBonus = state.gesetzProjekte?.[gesetzeId]?.boni?.bundesratBonus ?? 0;
 
@@ -188,18 +236,21 @@ export function calcBundesratMehrheit(
       const f = findFraktionForLand(state, land.id);
       if (!f) continue;
       const fb = computeFraktionBereitschaft(state, gesetzeId, f, vorstufenBonus);
-      const stimmt = landStimmtJa(state, gesetzeId, land, fb);
+      const votum = landVotum(state, gesetzeId, land, fb);
       const w = gewicht(land);
-      if (stimmt) ja += w;
-      else nein += w;
+      if (votum === 'ja') ja += w;
+      else if (votum === 'nein') nein += w;
+      else enthaltung += w;
       const b = getLandBeziehung(state, land.id);
-      details.push(
-        `${land.name}: ${stimmt ? 'Ja' : 'Nein'} (${w} St.) — Land-Bez. ${b}, Frakt.-Bereitschaft ${fb}%`,
-      );
+      const votumLabel = votum === 'ja' ? 'Ja' : votum === 'nein' ? 'Nein' : 'Enthaltung';
+      let line = `${land.name}: ${votumLabel} (${w} St.) — Land-Bez. ${b}, Frakt.-Bereitschaft ${fb}%`;
+      if (votum === 'enthaltung') line += ' — Koalitionsklausel: Landesregierung uneinig';
+      details.push(line);
     }
     return {
       ja,
       nein,
+      enthaltung,
       mehrheit: ja >= BR_MEHRHEIT_STIMMEN,
       details,
     };
@@ -255,6 +306,7 @@ export function calcBundesratMehrheit(
   return {
     ja,
     nein,
+    enthaltung,
     mehrheit: ja >= 9, // 9 von 16 Ländern
     details,
   };
@@ -319,33 +371,34 @@ export function getBundesratVoteDetails(
   });
 }
 
-/** 16 Felder für Abstimmungsbalken: { landId, fraktionId, color, stimmtJa } */
+/** 16 Felder für Abstimmungsbalken: { landId, fraktionId, color, stimmtJa, votum } */
 export function getBundesratAbstimmungsFelder(
   state: GameState,
   gesetzeId: string,
-): { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[] {
+): { landId: string; fraktionId: string; color: string; stimmtJa: boolean; votum: 'ja' | 'nein' | 'enthaltung' }[] {
   const fraktionen = state.bundesratFraktionen;
   const vorstufenBonus = state.gesetzProjekte?.[gesetzeId]?.boni?.bundesratBonus ?? 0;
 
   if (bundesratNutztLandgewichte(state)) {
-    const result: { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[] = [];
+    const result: { landId: string; fraktionId: string; color: string; stimmtJa: boolean; votum: 'ja' | 'nein' | 'enthaltung' }[] = [];
     for (const land of state.bundesrat) {
       const f = findFraktionForLand(state, land.id);
       if (!f) continue;
       const fb = computeFraktionBereitschaft(state, gesetzeId, f, vorstufenBonus);
-      const stimmtJa = landStimmtJa(state, gesetzeId, land, fb);
+      const votum = landVotum(state, gesetzeId, land, fb);
       result.push({
         landId: land.id,
         fraktionId: f.id,
         color: f.sprecher.color,
-        stimmtJa,
+        stimmtJa: votum === 'ja',
+        votum,
       });
     }
     return result;
   }
 
   const details = getBundesratVoteDetails(state, gesetzeId);
-  const result: { landId: string; fraktionId: string; color: string; stimmtJa: boolean }[] = [];
+  const result: { landId: string; fraktionId: string; color: string; stimmtJa: boolean; votum: 'ja' | 'nein' | 'enthaltung' }[] = [];
 
   for (const d of details) {
     const f = fraktionen.find(x => x.id === d.fraktionId);
@@ -356,6 +409,7 @@ export function getBundesratAbstimmungsFelder(
         fraktionId: f.id,
         color: f.sprecher.color,
         stimmtJa: d.stimmtJa,
+        votum: d.stimmtJa ? 'ja' : 'nein',
       });
     }
   }

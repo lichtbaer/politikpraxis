@@ -1,7 +1,7 @@
 /**
  * SMA-343: Legislatur-Bewertung, Spieler-Titel, Top-Gesetze nach Milieu-Impact
  */
-import type { GameState, Law } from './types';
+import type { GameState, Law, LegislaturBilanz } from './types';
 
 export type Gesamtnote = 'A' | 'B' | 'C' | 'D' | 'F';
 
@@ -199,4 +199,57 @@ export function berechneMilieuBilanz(
   const gewinner = sorted.filter((r) => r.delta > 0).slice(0, 3);
   const verlierer = [...rows].sort((a, b) => a.delta - b.delta).filter((r) => r.delta < 0).slice(0, 3);
   return { gewinner, verlierer };
+}
+
+export interface HistorischesUrteilLawRef {
+  id: string;
+  titel: string;
+  score: number;
+}
+
+export interface HistorischesUrteilKontext {
+  anzahlGesetze: number;
+  /** Gesetz mit dem höchsten langzeit_score unter den beschlossenen Gesetzen. */
+  topLaw: HistorischesUrteilLawRef | null;
+  /** Deutlich schwächeres Gesetz als Kontrapunkt — nur gesetzt, wenn es sich vom Top-Gesetz abhebt. */
+  bottomLaw: HistorischesUrteilLawRef | null;
+  reformTiefe: LegislaturBilanz['reformTiefe'] | null;
+  stabilitaet: LegislaturBilanz['stabilitaet'] | null;
+}
+
+/**
+ * SMA-280: Kontext für das generierte "historische Urteil" (Fließtext statt Punktzahl) —
+ * Top-/Kontrapunkt-Gesetz nach langzeit_score sowie Reformtiefe/Stabilität aus der Bilanz.
+ */
+export function berechneHistorischesUrteilKontext(state: GameState): HistorischesUrteilKontext {
+  const bewertet = state.gesetze.filter(
+    (g) => g.status === 'beschlossen' && g.langzeit_score != null && g.langzeit_score > 0,
+  );
+
+  const toRef = (g: Law): HistorischesUrteilLawRef => ({
+    id: g.id,
+    titel: g.titel,
+    score: Math.max(0, Math.min(10, g.langzeit_score as number)),
+  });
+
+  let topLaw: HistorischesUrteilLawRef | null = null;
+  let bottomLaw: HistorischesUrteilLawRef | null = null;
+  for (const g of bewertet) {
+    const ref = toRef(g);
+    if (!topLaw || ref.score > topLaw.score) topLaw = ref;
+    if (!bottomLaw || ref.score < bottomLaw.score) bottomLaw = ref;
+  }
+  // Kontrapunkt nur zeigen, wenn er sich klar vom Top-Gesetz abhebt — sonst wiederholt
+  // sich der generierte Text inhaltlich.
+  if (bottomLaw && topLaw && (bottomLaw.id === topLaw.id || bottomLaw.score > topLaw.score - 2 || bottomLaw.score >= 6)) {
+    bottomLaw = null;
+  }
+
+  return {
+    anzahlGesetze: state.gesetze.filter((g) => g.status === 'beschlossen').length,
+    topLaw,
+    bottomLaw,
+    reformTiefe: state.legislaturBilanz?.reformTiefe ?? null,
+    stabilitaet: state.legislaturBilanz?.stabilitaet ?? null,
+  };
 }

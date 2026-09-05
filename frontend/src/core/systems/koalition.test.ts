@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   berechneKoalitionspartner,
+  berechneKoalitionspartnerKandidaten,
   berechneKoalitionsvertragProfil,
   tickKoalitionspartner,
   checkKoalitionsbruch,
@@ -32,6 +33,24 @@ describe('berechneKoalitionspartner', () => {
   it('LDP-Spieler bekommt CDP als Partner', () => {
     const ideologie = { wirtschaft: 60, gesellschaft: -10, staat: 60 };
     expect(berechneKoalitionspartner('ldp', ideologie)).toBe('cdp');
+  });
+});
+
+describe('berechneKoalitionspartnerKandidaten (#283)', () => {
+  it('liefert alle 4 Nicht-Spieler-Parteien, sortiert nach Distanz aufsteigend', () => {
+    const ideologie = { wirtschaft: -60, gesellschaft: -20, staat: -40 };
+    const kandidaten = berechneKoalitionspartnerKandidaten('sdp', ideologie);
+    expect(kandidaten).toHaveLength(4);
+    expect(kandidaten.map((k) => k.parteiId)).not.toContain('sdp');
+    for (let i = 1; i < kandidaten.length; i++) {
+      expect(kandidaten[i].distanz).toBeGreaterThanOrEqual(kandidaten[i - 1].distanz);
+    }
+  });
+
+  it('erster Kandidat stimmt mit berechneKoalitionspartner überein', () => {
+    const ideologie = { wirtschaft: -45, gesellschaft: -60, staat: -25 };
+    const kandidaten = berechneKoalitionspartnerKandidaten('cdp', ideologie);
+    expect(kandidaten[0].parteiId).toBe(berechneKoalitionspartner('cdp', ideologie));
   });
 });
 

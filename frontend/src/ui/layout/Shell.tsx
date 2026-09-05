@@ -57,6 +57,8 @@ export function Shell() {
   const [rightOpen, setRightOpen] = useState(false);
   const showShortcuts = useUIStore((s) => s.showShortcutHelp);
   const setShowShortcuts = useUIStore((s) => s.setShowShortcutHelp);
+  const fastForwardActive = useUIStore((s) => s.fastForwardActive);
+  const setFastForwardActive = useUIStore((s) => s.setFastForwardActive);
 
   const closeDrawers = () => {
     setLeftOpen(false);
@@ -117,10 +119,20 @@ export function Shell() {
         togglePause();
       }
       if (e.key === '1') setSpeed(1);
+      if (e.key === '2') setSpeed(2);
+      // #282: „Weiter bis zum nächsten Ereignis" umschalten
+      if (e.key === 'f' || e.key === 'F') {
+        if (fastForwardActive) {
+          setFastForwardActive(false);
+        } else {
+          if (useGameStore.getState().state.speed === 0) setSpeed(1);
+          setFastForwardActive(true);
+        }
+      }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [setSpeed, togglePause, doResolveEvent, setView, setShowShortcuts]);
+  }, [setSpeed, togglePause, doResolveEvent, setView, setShowShortcuts, fastForwardActive, setFastForwardActive]);
 
   return (
     <>
@@ -196,6 +208,8 @@ export function Shell() {
           <div className={styles.shortcutGrid}>
             <kbd>{t('shortcuts.space')}</kbd><span>{t('shortcuts.pauseResume')}</span>
             <kbd>1</kbd><span>{t('shortcuts.slowSpeed')}</span>
+            <kbd>2</kbd><span>{t('shortcuts.fastSpeed')}</span>
+            <kbd>F</kbd><span>{t('shortcuts.fastForward')}</span>
             <kbd>Esc</kbd><span>{t('shortcuts.closeDrawer')}</span>
             <kbd>1-3</kbd><span>{t('shortcuts.eventChoice')}</span>
             <kbd>Enter</kbd><span>{t('shortcuts.confirmOnly')}</span>

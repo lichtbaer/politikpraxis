@@ -1611,7 +1611,12 @@
     "gespraechTooltip": "Have conversation ({{pk}} PK)",
     "gespraechCooldown": "Cooldown: {{months}} months remaining",
     "gespraechKeinPK": "Not enough PK ({{pk}})",
-    "stimmungTooltip": "Mood: {{value}}/{{max}}"
+    "stimmungTooltip": "Mood: {{value}}/{{max}}",
+    "beziehungen": {
+      "title": "Cabinet relationships",
+      "verbuendet": "Allied with {{name}}",
+      "verfeindet": "At odds with {{name}}"
+    }
   },
   "bundestag": {
     "title": "Bundestag",
@@ -1900,6 +1905,12 @@
       }
     },
     "koalitionspartnerVorschau": "Expected coalition partner: {{kuerzel}}",
+    "konstellationTitle": "Who will you govern with?",
+    "konstellationSubtitle": "Two coalitions are on the table — each with its own priorities.",
+    "konstellationOption": "{{a}} + {{b}}",
+    "konstellationEmpfehlung": "Ideologically closest",
+    "konstellationAlternative": "Alternative coalition",
+    "konstellationSchluesselthemen": "Key topics: {{themen}}",
     "headline1": "FEDERAL ELECTION 2025",
     "headline2": "{{name}} WINS —\nNEW GOVERNMENT POSSIBLE",
     "headlineMeta": "{{approval}} · {{coalitionLine}}\nTurnout: {{turnout}} · {{tagline}}",
@@ -2136,6 +2147,11 @@
     "abstimmungsbereitschaft": "Voting readiness",
     "gespraechSuchen": "Seek conversation",
     "jaNein": "{{ja}} Yes · {{nein}} No {{mehrheit}}",
+    "jaNeinEnthaltung": "{{ja}} Yes · {{nein}} No · {{enthaltung}} Abstain {{mehrheit}}",
+    "votumJa": "Yes",
+    "votumNein": "No",
+    "votumEnthaltung": "Abstain",
+    "koalitionsklausel": "Coalition clause: state government divided",
     "mehrheitJa": "✓ Majority",
     "mehrheitNein": "✗ No majority",
     "mehrheitBei": "Majority (9)",
@@ -2161,7 +2177,11 @@
     "tradeoffAkzeptiert": "Demand accepted",
     "gesperrt": "Locked",
     "bilateraleDesc": "Strengthen the relationship with individual federal states (10 PK, +10 relation).",
-    "bilateraleBtn": "Talk: {{name}}"
+    "bilateraleBtn": "Talk: {{name}}",
+    "einspruchsgesetz": "Objection law",
+    "einspruchsgesetzTooltip": "Art. 77 GG: The Bundesrat can raise an objection, which the Bundestag can override with an absolute majority — a blockade is not final.",
+    "zustimmungsgesetz": "Consent law",
+    "zustimmungsgesetzTooltip": "Art. 77 GG: Without the Bundesrat's consent, the law is permanently blocked — only a change of level helps."
   },
   "endScreen": {
     "won": "Re-elected",
@@ -2186,6 +2206,7 @@
     "zumHauptmenue": "Back to main menu"
   },
   "auswertung": {
+    "achievementUnlockedToast": "🏆 Achievement unlocked: {{title}}",
     "noteHint": "Overall grade from five dimensions (democracy, economy, society, communication, efficiency).",
     "spielzielHint": "Overall grade combines legislative balance (30%), agenda (35%), and the long-term impact of passed laws (35%). Clearing the election threshold adds a small bonus.",
     "spielzielPunkte": "{{pts}} out of 100 points",
@@ -2355,7 +2376,9 @@
       "koalition": "Coalition stability",
       "pk": "Political capital",
       "saldo": "Budget balance",
-      "event": "Event"
+      "event": "Event",
+      "arcFortsetzung": "Continued: {{titel}}",
+      "dramaturgieAnker": "Milestone: {{titel}}"
     },
     "ursacheKpi": {
       "al": "Unemployment",
@@ -2490,6 +2513,29 @@
       "C": "Long-term verdict balanced.",
       "D": "Long-term verdict critical — negative lasting effects dominate.",
       "F": "Long-term verdict very poor."
+    },
+    "historischText": {
+      "intro": {
+        "A": "Five years on, historians judge this term clearly positive.",
+        "B": "In hindsight, the term is seen as mostly successful — with a few open questions.",
+        "C": "Historians paint a mixed picture of this term.",
+        "D": "Historians judge this term critically — too much was left unresolved.",
+        "F": "This term is now seen as a failure — the verdict is damning."
+      },
+      "introKeineGesetze": "With not a single law passed, little of this government remains in the history books.",
+      "topLaw": "The {{titel}} is now seen as the turning point of this government.",
+      "bottomLaw": "The {{titel}}, by contrast, remains contested — critics still call it an expensive symbol.",
+      "closing": "Reform depth was {{reform}}, and the coalition stayed {{stab}} for most of the term.",
+      "reformTiefe": {
+        "tief": "far-reaching",
+        "mittel": "solid",
+        "flach": "cautious"
+      },
+      "stabilitaet": {
+        "stabil": "stable",
+        "turbulent": "marked by tension",
+        "krise": "shaken by open crises"
+      }
     }
   },
   "opposition": {
@@ -2573,6 +2619,10 @@
       "bundesrat": {
         "term": "Bundesrat (Federal Council)",
         "explanation": "4 factions represent 16 federal states. Laws with a state tag require Bundesrat majority. Relationship building and lobbying influence the vote."
+      },
+      "einspruchsgesetz": {
+        "term": "Objection vs. consent law",
+        "explanation": "Art. 77 GG: For an objection law, the Bundestag can override a Bundesrat objection with an absolute majority — most federal laws fall into this category. For a consent law (e.g. affecting state finances or administration), a Bundesrat rejection is final; only a change of level helps."
       }
     }
   },
@@ -2642,6 +2692,12 @@
       "title": "Laws take time",
       "text": "Passed laws don't take effect immediately — effects kick in after a few months. Plan ahead and introduce laws early!"
     },
+    "erstesUltimatum": {
+      "title": "An ultimatum!",
+      "text": "“Keep this up and I'm resigning.” Your chief of staff warns: ultimatums appear when a minister stays unhappy for too long. Respond, or you'll lose the minister — and the rest of the cabinet's trust."
+    },
+    "openGlossar": "→ Look up in glossary",
+    "settingHintsEnabled": "Show in-game hints",
     "haushaltErklaerung": {
       "title": "The budget",
       "text": "Every law has running costs. Watch the budget balance — excessive deficit triggers the debt brake and limits your room to act."
@@ -2917,6 +2973,8 @@
     "space": "Space",
     "pauseResume": "Pause / Resume",
     "slowSpeed": "Game speed",
+    "fastSpeed": "Fast speed (2×)",
+    "fastForward": "Fast-forward to next event",
     "closeDrawer": "Close drawer",
     "eventChoice": "Event choice (during event)",
     "confirmOnly": "Confirm single option",
@@ -2925,6 +2983,13 @@
     "close": "Close",
     "showAgenda": "Show agenda",
     "showKabinett": "Show cabinet"
+  },
+  "fastForward": {
+    "stopped": {
+      "warnung": "Fast-forward stopped: a no-confidence vote is looming.",
+      "abstimmung": "Fast-forward stopped: Bundesrat vote concluded.",
+      "monatszusammenfassung": "Fast-forward stopped: monthly summary available."
+    }
   },
   "europaKarte": {
     "deutschland": "Germany"

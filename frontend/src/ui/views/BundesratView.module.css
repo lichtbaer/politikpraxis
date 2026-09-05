@@ -224,9 +224,25 @@
   margin-bottom: 12px;
 }
 
+.abstimmungsLawGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .abstimmungsLaw {
   font-weight: 600;
   color: var(--text);
+}
+
+.gesetzestypBadge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text2);
 }
 
 .abstimmungsErgebnis {
@@ -261,6 +277,17 @@
 
 .feldNein {
   opacity: 0.6;
+}
+
+.feldEnthaltung {
+  opacity: 0.6;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.12),
+    rgba(0, 0, 0, 0.12) 3px,
+    transparent 3px,
+    transparent 6px
+  );
 }
 
 .mehrheitsLinie {

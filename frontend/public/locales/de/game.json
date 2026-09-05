@@ -937,7 +937,7 @@
         },
         "1": {
           "label": "Vertrauensfrage riskieren",
-          "desc": "Gamble — gewinnen oder Neuwahl",
+          "desc": "Va-Banque — gewinnen oder Neuwahl",
           "log": "Vertrauensfrage gestellt. Koalition hält knapp."
         }
       }
@@ -1617,7 +1617,12 @@
     "gespraechTooltip": "Gespräch führen ({{pk}} PK)",
     "gespraechCooldown": "Cooldown: noch {{months}} Monate",
     "gespraechKeinPK": "Nicht genug PK ({{pk}})",
-    "stimmungTooltip": "Stimmung: {{value}}/{{max}}"
+    "stimmungTooltip": "Stimmung: {{value}}/{{max}}",
+    "beziehungen": {
+      "title": "Beziehungen im Kabinett",
+      "verbuendet": "Verbündet mit {{name}}",
+      "verfeindet": "Verfeindet mit {{name}}"
+    }
   },
   "bundestag": {
     "title": "Bundestag",
@@ -1780,6 +1785,12 @@
       }
     },
     "koalitionspartnerVorschau": "Voraussichtlicher Koalitionspartner: {{kuerzel}}",
+    "konstellationTitle": "Mit wem regierst du?",
+    "konstellationSubtitle": "Zwei Koalitionen stehen zur Wahl — jede mit eigenen Schwerpunkten.",
+    "konstellationOption": "{{a}} + {{b}}",
+    "konstellationEmpfehlung": "Ideologisch am nächsten",
+    "konstellationAlternative": "Alternative Koalition",
+    "konstellationSchluesselthemen": "Schlüsselthemen: {{themen}}",
     "headline1": "BUNDESTAGSWAHL 2025",
     "headline2": "{{name}} GEWINNT —\nNEUE REGIERUNG MÖGLICH",
     "headlineMeta": "{{approval}} · {{coalitionLine}}\nWahlbeteiligung: {{turnout}} · {{tagline}}",
@@ -2162,6 +2173,11 @@
     "abstimmungsbereitschaft": "Abstimmungsbereitschaft",
     "gespraechSuchen": "Gespräch suchen",
     "jaNein": "{{ja}} Ja · {{nein}} Nein {{mehrheit}}",
+    "jaNeinEnthaltung": "{{ja}} Ja · {{nein}} Nein · {{enthaltung}} Enthaltung {{mehrheit}}",
+    "votumJa": "Ja",
+    "votumNein": "Nein",
+    "votumEnthaltung": "Enthaltung",
+    "koalitionsklausel": "Koalitionsklausel: Landesregierung uneinig",
     "mehrheitJa": "✓ Mehrheit",
     "mehrheitNein": "✗ Keine Mehrheit",
     "mehrheitBei": "Mehrheit (9)",
@@ -2187,7 +2203,11 @@
     "tradeoffAkzeptiert": "Forderung akzeptiert",
     "gesperrt": "Gesperrt",
     "bilateraleDesc": "Pflege die Beziehung zu einzelnen Bundesländern (10 PK, +10 Beziehung).",
-    "bilateraleBtn": "Gespräch: {{name}}"
+    "bilateraleBtn": "Gespräch: {{name}}",
+    "einspruchsgesetz": "Einspruchsgesetz",
+    "einspruchsgesetzTooltip": "Art. 77 GG: Der Bundesrat kann Einspruch einlegen, den der Bundestag mit absoluter Mehrheit überstimmen kann — eine Blockade ist nicht endgültig.",
+    "zustimmungsgesetz": "Zustimmungsgesetz",
+    "zustimmungsgesetzTooltip": "Art. 77 GG: Ohne Zustimmung des Bundesrats ist das Gesetz endgültig blockiert — nur ein Ebenenwechsel hilft."
   },
   "endScreen": {
     "won": "Wiedergewählt",
@@ -2212,6 +2232,7 @@
     "zumHauptmenue": "Zum Hauptmenü"
   },
   "auswertung": {
+    "achievementUnlockedToast": "🏆 Erfolg freigeschaltet: {{title}}",
     "noteHint": "Note aus fünf Dimensionen (Demokratie, Wirtschaft, Gesellschaft, Kommunikation, Effizienz).",
     "spielzielHint": "Gesamtnote aus Legislatur-Bilanz (30 %), Agenda (35 %) und historischem Urteil der Gesetze (35 %). Die Wahlhürde gibt einen kleinen Bonus.",
     "spielzielPunkte": "{{pts}} von 100 Punkten",
@@ -2368,6 +2389,10 @@
       "bundesrat": {
         "term": "Bundesrat",
         "explanation": "4 Fraktionen vertreten 16 Bundesländer. Gesetze mit Land-Tag benötigen Bundesrats-Mehrheit. Beziehungspflege und Lobbying beeinflussen die Abstimmung."
+      },
+      "einspruchsgesetz": {
+        "term": "Einspruchs- vs. Zustimmungsgesetz",
+        "explanation": "Art. 77 GG: Bei einem Einspruchsgesetz kann der Bundestag einen Bundesrats-Einspruch mit absoluter Mehrheit überstimmen — die meisten Bundesgesetze fallen darunter. Bei einem Zustimmungsgesetz (z. B. bei Eingriffen in Länderfinanzen oder -verwaltung) ist eine Ablehnung des Bundesrats endgültig; nur ein Ebenenwechsel hilft."
       }
     }
   },
@@ -2426,7 +2451,9 @@
       "koalition": "Koalitionsstabilität",
       "pk": "Politisches Kapital",
       "saldo": "Haushaltssaldo",
-      "event": "Ereignis"
+      "event": "Ereignis",
+      "arcFortsetzung": "Fortsetzung: {{titel}}",
+      "dramaturgieAnker": "Meilenstein: {{titel}}"
     },
     "ursacheKpi": {
       "al": "Arbeitslosigkeit",
@@ -2561,6 +2588,29 @@
       "C": "Historisches Urteil ausgewogen.",
       "D": "Historisches Urteil kritisch — negative Langzeitfolgen überwiegen.",
       "F": "Historisches Urteil sehr schlecht."
+    },
+    "historischText": {
+      "intro": {
+        "A": "Fünf Jahre nach dem Ende der Legislatur fällt das Urteil der Geschichtsschreibung eindeutig positiv aus.",
+        "B": "Im Rückblick gilt die Legislatur überwiegend als Erfolg — mit einigen offenen Fragen.",
+        "C": "Die Geschichtsschreibung zeichnet ein gemischtes Bild dieser Legislatur.",
+        "D": "Historiker urteilen kritisch über diese Legislatur — zu viel blieb ungelöst.",
+        "F": "Die Legislatur gilt heute als gescheitert — die Bilanz fällt vernichtend aus."
+      },
+      "introKeineGesetze": "Ohne ein einziges beschlossenes Gesetz bleibt von dieser Regierung historisch wenig übrig.",
+      "topLaw": "Die {{titel}} gilt heute als Wendepunkt dieser Regierungszeit.",
+      "bottomLaw": "Die {{titel}} bleibt dagegen umstritten — Kritiker nennen sie bis heute ein teures Symbol.",
+      "closing": "Die Reformtiefe war {{reform}}, das Regierungsbündnis blieb über weite Strecken {{stab}}.",
+      "reformTiefe": {
+        "tief": "tiefgreifend",
+        "mittel": "solide",
+        "flach": "vorsichtig"
+      },
+      "stabilitaet": {
+        "stabil": "stabil",
+        "turbulent": "von Spannungen geprägt",
+        "krise": "von offenen Krisen erschüttert"
+      }
     }
   },
   "opposition": {
@@ -2640,6 +2690,12 @@
       "title": "Gesetze brauchen Zeit",
       "text": "Beschlossene Gesetze wirken nicht sofort — die Effekte treten erst nach einigen Monaten ein. Plane voraus und bring Gesetze frühzeitig ein!"
     },
+    "erstesUltimatum": {
+      "title": "Ein Ultimatum!",
+      "text": "„Wenn das so weitergeht, trete ich zurück.“ Ihr Büroleiter warnt: Ultimaten entstehen, wenn ein Minister lange unzufrieden bleibt. Reagieren Sie darauf, sonst verlieren Sie den Minister — und das Vertrauen des restlichen Kabinetts."
+    },
+    "openGlossar": "→ Im Glossar nachschlagen",
+    "settingHintsEnabled": "Spielhinweise anzeigen",
     "haushaltErklaerung": {
       "title": "Der Haushalt",
       "text": "Jedes Gesetz hat laufende Kosten. Achte auf den Haushaltssaldo — bei zu hohem Defizit greift die Schuldenbremse und schränkt deinen Spielraum ein."
@@ -2915,6 +2971,8 @@
     "space": "Leertaste",
     "pauseResume": "Pause / Fortsetzen",
     "slowSpeed": "Spielgeschwindigkeit",
+    "fastSpeed": "Schnelle Geschwindigkeit (2×)",
+    "fastForward": "Weiter bis zum nächsten Ereignis",
     "closeDrawer": "Drawer schließen",
     "eventChoice": "Event-Auswahl (bei Event)",
     "confirmOnly": "Einzige Option bestätigen",
@@ -2923,6 +2981,13 @@
     "close": "Schließen",
     "showAgenda": "Agenda anzeigen",
     "showKabinett": "Kabinett anzeigen"
+  },
+  "fastForward": {
+    "stopped": {
+      "warnung": "Automatischer Vorlauf angehalten: Misstrauensvotum droht.",
+      "abstimmung": "Automatischer Vorlauf angehalten: Bundesratsabstimmung abgeschlossen.",
+      "monatszusammenfassung": "Automatischer Vorlauf angehalten: Monatszusammenfassung verfügbar."
+    }
   },
   "europaKarte": {
     "deutschland": "Deutschland"

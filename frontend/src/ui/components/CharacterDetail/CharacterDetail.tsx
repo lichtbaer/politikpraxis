@@ -75,6 +75,28 @@ export function CharacterDetail() {
           </div>
         )}
 
+        {character.relationships && character.relationships.length > 0 && (
+          <div className={styles.relationships}>
+            <span className={styles.relationshipsTitle}>
+              {t('game:kabinett.beziehungen.title', 'Beziehungen im Kabinett')}
+            </span>
+            {character.relationships.map((rel) => {
+              const target = state.chars.find((c) => c.id === rel.target);
+              const targetName = target?.name || t(`game:chars.${rel.target}.name`);
+              return (
+                <span
+                  key={rel.target}
+                  className={
+                    rel.type === 'verbuendet' ? styles.relationshipAlly : styles.relationshipRival
+                  }
+                >
+                  {t(`game:kabinett.beziehungen.${rel.type}`, { name: targetName })}
+                </span>
+              );
+            })}
+          </div>
+        )}
+
         {featureActive(complexity, 'ministerial_initiativen') &&
           character.id !== 'kanzler' &&
           !character.ist_kanzler &&

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
+import { useUIStore } from '../../../store/uiStore';
 import type { GameState } from '../../../core/types';
 import { Lightbulb } from '../../icons';
 import styles from './GameTips.module.css';
@@ -19,6 +20,8 @@ interface Tip {
   maxComplexity?: number;
   /** Optionaler Hinweis auf relevanten Tab/View */
   viewHint?: string;
+  /** #281: Verweis auf einen Glossar-Eintrag (Key aus Glossar.tsx GLOSSAR_KEYS) — öffnet das Glossar direkt dort */
+  glossarKey?: string;
 }
 
 const TIPS: Tip[] = [
@@ -45,12 +48,20 @@ const TIPS: Tip[] = [
     i18nKey: 'pkKnapp',
     triggerMonth: 3,
     condition: (s) => s.pk < 30,
+    glossarKey: 'pk',
   },
   {
     id: 'gesetz_wirkung',
     i18nKey: 'gesetzWirkung',
     triggerMonth: 4,
     condition: (s) => s.gesetze.some(g => g.status === 'eingebracht' || g.status === 'aktiv'),
+  },
+  {
+    id: 'erstes_ultimatum',
+    i18nKey: 'erstesUltimatum',
+    triggerMonth: 1,
+    condition: (s) => s.firedCharEvents.length > 0,
+    viewHint: 'kabinett',
   },
   // === Stufe 2: Koalition & Haushalt ===
   {
@@ -59,6 +70,7 @@ const TIPS: Tip[] = [
     triggerMonth: 5,
     minComplexity: 2,
     condition: (s) => s.coalition < 40,
+    glossarKey: 'koalition',
   },
   {
     id: 'haushalt_erklaerung',
@@ -66,6 +78,7 @@ const TIPS: Tip[] = [
     triggerMonth: 4,
     minComplexity: 2,
     viewHint: 'haushalt',
+    glossarKey: 'spielraum',
   },
   {
     id: 'haushalt_defizit',
@@ -73,6 +86,7 @@ const TIPS: Tip[] = [
     triggerMonth: 6,
     minComplexity: 2,
     condition: (s) => (s.haushalt?.saldo ?? 0) < -10,
+    glossarKey: 'schuldenbremse',
   },
   {
     id: 'medienklima_intro',
@@ -80,6 +94,7 @@ const TIPS: Tip[] = [
     triggerMonth: 3,
     minComplexity: 2,
     viewHint: 'medien',
+    glossarKey: 'medienklima',
   },
   {
     id: 'bundesrat_info',
@@ -88,6 +103,7 @@ const TIPS: Tip[] = [
     minComplexity: 2,
     condition: (s) => s.gesetze.some(g => g.status === 'bt_passed'),
     viewHint: 'bundesrat',
+    glossarKey: 'bundesrat',
   },
   {
     id: 'eu_route_info',
@@ -147,9 +163,11 @@ export function GameTips() {
   const state = useGameStore((s) => s.state);
   const phase = useGameStore((s) => s.phase);
   const complexity = useGameStore((s) => s.complexity);
+  const hintsEnabled = useUIStore((s) => s.playerSettings.hintsEnabled);
+  const requestOpenGlossar = useUIStore((s) => s.requestOpenGlossar);
   const [dismissed, setDismissed] = useState<Set<string>>(getDismissedTips);
   const activeTip = useMemo(() => {
-    if (phase !== 'playing' || state.gameOver) {
+    if (!hintsEnabled || phase !== 'playing' || state.gameOver) {
       return null;
     }
 
@@ -162,7 +180,7 @@ export function GameTips() {
       return tip;
     }
     return null;
-  }, [state, phase, dismissed, complexity]);
+  }, [state, phase, dismissed, complexity, hintsEnabled]);
 
   if (!activeTip) return null;
 
@@ -182,6 +200,15 @@ export function GameTips() {
         <p className={styles.tipText}>{tipText}</p>
         {activeTip.viewHint && (
           <span className={styles.tipViewHint}>→ {activeTip.viewHint}</span>
+        )}
+        {activeTip.glossarKey && (
+          <button
+            type="button"
+            className={styles.tipGlossarLink}
+            onClick={() => requestOpenGlossar(activeTip.glossarKey!)}
+          >
+            {t('tips.openGlossar')}
+          </button>
         )}
       </div>
       <button type="button" className={styles.tipDismiss} onClick={handleDismiss}>

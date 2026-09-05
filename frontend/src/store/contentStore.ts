@@ -56,6 +56,7 @@ import {
   WAHLKAMPF_VERSPRECHEN_EVENT,
   WAHLKAMPF_ZWISCHENBILANZ_EVENT,
 } from '../data/defaults/wahlkampfEvents';
+import { HUNDERT_TAGE_BILANZ_EVENT } from '../data/defaults/dramaturgieEvents';
 import { getMedienEventsForLocale } from '../data/defaults/medienEvents';
 import { DEFAULT_MEDIEN_AKTEURE, type MedienAkteurContent, type MedienAkteurTyp } from '../data/defaults/medienAkteure';
 
@@ -148,6 +149,7 @@ function transformChar(api: CharApi): Character {
   if (api.ist_partner_minister) char.ist_partner_minister = api.ist_partner_minister;
   if (api.agenda_stufe_aktuell != null) char.agenda_stufe_aktuell = api.agenda_stufe_aktuell;
   if (api.agenda_ablehnungen != null) char.agenda_ablehnungen = api.agenda_ablehnungen;
+  if (api.relationships) char.relationships = api.relationships as Character['relationships'];
   return char;
 }
 
@@ -264,6 +266,9 @@ function transformEventChoice(api: {
   verband_delta?: Record<string, number>;
   sektor_delta?: Record<string, number>;
   haushalt_saldo_delta_mrd?: number;
+  followup_event_id?: string;
+  followup_delay?: number;
+  unlocks_laws?: string[];
 }): EventChoice {
   const choiceKey = guardString(api.key, 'EventChoice.key', '_choice_');
   const type = (['primary', 'danger', 'safe'].includes(api.type)
@@ -316,6 +321,15 @@ function transformEventChoice(api: {
   if (api.haushalt_saldo_delta_mrd != null) {
     choice.haushaltSaldoDeltaMrd = api.haushalt_saldo_delta_mrd;
   }
+  if (api.followup_event_id) {
+    choice.followup_event_id = api.followup_event_id;
+  }
+  if (api.followup_delay != null) {
+    choice.followup_delay = api.followup_delay;
+  }
+  if (api.unlocks_laws?.length) {
+    choice.unlocks_laws = api.unlocks_laws;
+  }
   return choice;
 }
 
@@ -351,6 +365,8 @@ function transformEvent(api: EventApi): GameEvent {
   if (api.einmalig != null) ev.einmalig = api.einmalig;
   if (api.repeatable) ev.repeatable = api.repeatable;
   if (api.cooldown_months != null) ev.cooldownMonths = api.cooldown_months;
+  if (api.arc_id) ev.arcId = api.arc_id;
+  if (api.arc_stage != null) ev.arcStage = api.arc_stage;
   return ev;
 }
 
@@ -726,12 +742,14 @@ export function getContentBundle(): ContentBundle {
     WAHLKAMPF_VERSPRECHEN_EVENT,
     WAHLKAMPF_ZWISCHENBILANZ_EVENT,
   ];
+  /** #274: Feste Dramaturgie-Anker (nur 100-Tage-Bilanz bisher; Sommerloch/Halbzeitbilanz folgen) */
+  const dramaturgieEvents = [HUNDERT_TAGE_BILANZ_EVENT];
   return {
     characters: s.chars,
     laws: s.gesetze,
     agendaZiele: s.agendaZiele,
     koalitionsZiele: s.koalitionsZiele,
-    events: [...wahlkampfEvents, ...s.events],
+    events: [...wahlkampfEvents, ...dramaturgieEvents, ...s.events],
     charEvents: { ...KOALITION_CHAR_EVENTS, ...s.charEvents },
     bundesratEvents: s.bundesratEvents,
     kommunalEvents: s.kommunalEvents ?? [],

@@ -36,6 +36,7 @@ import {
 } from './systems/economics/haushalt';
 import { tickWirtschaft } from './systems/economics/wirtschaft';
 import { tickGesetzVorstufen } from './systems/legislation/gesetzLebenszyklus';
+import { checkHundertTageBilanz } from './systems/dramaturgie/dramaturgie';
 import {
   checkWahlkampfBeginn,
   checkTVDuell,
@@ -484,6 +485,13 @@ const ENGINE_PIPELINE: EnginePhase[] = [
         id: 'checkFollowupEvents',
         safe: true,
         run(ctx) { ctx.s = checkFollowupEvents(ctx.s, ctx.content.events); },
+      },
+      {
+        id: 'checkHundertTageBilanz',
+        safe: true,
+        run(ctx) {
+          if (!ctx.s.activeEvent) ctx.s = checkHundertTageBilanz(ctx.s, ctx.content, ctx.complexity);
+        },
       },
       {
         id: 'checkRandomEvents',

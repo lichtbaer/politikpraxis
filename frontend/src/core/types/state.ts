@@ -383,6 +383,8 @@ export interface GameState {
   unlockedLaws?: string[];
   pendingFollowups?: Array<{ eventId: string; triggerMonth: number }>;
   vermittlungAktiv?: Record<string, number>;
+  /** Vorab ermittelter Ausgang je Gesetz-ID (SMA-276); fehlt ein Eintrag (z.B. alte Spielstände), gilt 'kompromiss' als Default */
+  vermittlungAusgang?: Record<string, 'erfolg' | 'kompromiss' | 'scheitern'>;
   letzteRegierungserklaerungMonat?: number;
   vertrauensfrageGestellt?: boolean;
   sachverstaendigenrat?: {

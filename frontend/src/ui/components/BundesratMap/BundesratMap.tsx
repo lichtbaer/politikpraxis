@@ -27,7 +27,7 @@ export function BundesratMap({ laender }: BundesratMapProps) {
   useEffect(() => {
     if (loadedRef.current) return;
     loadedRef.current = true;
-    fetch('/germany-states.geo.json')
+    fetch('/geo/germany-bundeslaender.geojson')
       .then((r) => r.json())
       .then((geoJson) => {
         echarts.registerMap(MAP_NAME, geoJson);

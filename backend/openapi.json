@@ -891,6 +891,30 @@
         "title": "CharI18nUpdate",
         "type": "object"
       },
+      "CharRelationshipSchema": {
+        "description": "SMA-279: Gerichtete Beziehung zu einem anderen Kabinettsmitglied.",
+        "properties": {
+          "staerke": {
+            "title": "Staerke",
+            "type": "integer"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target",
+          "type",
+          "staerke"
+        ],
+        "title": "CharRelationshipSchema",
+        "type": "object"
+      },
       "CharResponse": {
         "properties": {
           "agenda": {
@@ -1078,6 +1102,20 @@
               }
             ],
             "title": "Pool Partei"
+          },
+          "relationships": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/CharRelationshipSchema"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relationships"
           },
           "ressort": {
             "anyOf": [
@@ -1759,6 +1797,28 @@
           "effekte": {
             "$ref": "#/components/schemas/EffekteSchema"
           },
+          "followup_delay": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup Delay"
+          },
+          "followup_event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup Event Id"
+          },
           "haushalt_saldo_delta_mrd": {
             "anyOf": [
               {
@@ -1882,6 +1942,20 @@
           "type": {
             "title": "Type",
             "type": "string"
+          },
+          "unlocks_laws": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unlocks Laws"
           },
           "verband_delta": {
             "anyOf": [
@@ -2139,6 +2213,28 @@
       },
       "EventResponse": {
         "properties": {
+          "arc_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arc Id"
+          },
+          "arc_stage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arc Stage"
+          },
           "choices": {
             "items": {
               "$ref": "#/components/schemas/EventChoiceResponse"
