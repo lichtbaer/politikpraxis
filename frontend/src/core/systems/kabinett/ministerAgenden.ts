@@ -3,12 +3,12 @@
  * Minister kehren mit ihren Forderungen zurück — 2 Ablehnungen führen zum Ultimatum, danach Koalitionskrise.
  */
 
-import type { GameState, Character, MinisterAgendaConfig, AgendaStatus, ContentBundle } from '../types';
-import { addLog } from '../engine';
-import { withPause } from '../eventPause';
-import { MINISTER_AGENDEN_CONFIG } from '../../data/defaults/ministerAgenden';
-import { featureActive } from './features';
-import { adjustMedienKlimaGlobal } from './medien/medienAkteure';
+import type { GameState, Character, MinisterAgendaConfig, AgendaStatus, ContentBundle } from '../../types';
+import { addLog } from '../../engine';
+import { withPause } from '../../eventPause';
+import { MINISTER_AGENDEN_CONFIG } from '../../../data/defaults/ministerAgenden';
+import { featureActive } from '../features';
+import { adjustMedienKlimaGlobal } from '../medien/medienAkteure';
 
 /** Agenda-Event-ID Präfix für Erkennung */
 export const AGENDA_EVENT_PREFIX = 'agenda_';
@@ -36,13 +36,13 @@ function createAgendaEvent(
   char: Character,
   status: AgendaStatus,
   config: MinisterAgendaConfig,
-): import('../types').GameEvent {
+): import('../../types').GameEvent {
   const isUltimatum = status === 'ultimatum';
   const label = config.gesetz_ref_id
     ? (isUltimatum ? 'Ultimatum: CO2-Steuer jetzt!' : 'CO2-Steuer fordern')
     : (isUltimatum ? 'Ultimatum: Konsolidierung!' : 'Konsolidierung fordern');
 
-  const choices: import('../types').EventChoice[] = [
+  const choices: import('../../types').EventChoice[] = [
     {
       label: 'Zusagen',
       desc: 'Forderung annehmen und umsetzen.',
@@ -173,7 +173,7 @@ export function checkMinisterAgenden(
 export function resolveMinisterAgenda(
   state: GameState,
   action: 'annehmen' | 'ablehnen',
-  content: { charEvents?: Record<string, import('../types').GameEvent> },
+  content: { charEvents?: Record<string, import('../../types').GameEvent> },
   extras?: { contentBundle?: ContentBundle; complexity?: number },
 ): GameState {
   const active = state.aktiveMinisterAgenda;
@@ -299,7 +299,7 @@ export function checkProaktiveErfuellung(state: GameState, gesetzId: string): Ga
   return state;
 }
 
-function applyProaktiveErfuellung(state: GameState, char: import('../types').Character): GameState {
+function applyProaktiveErfuellung(state: GameState, char: import('../../types').Character): GameState {
   const agenden = state.ministerAgenden ?? {};
   const a = agenden[char.id];
   if (!a) return state;

@@ -1,9 +1,9 @@
-import type { GameState, Character } from '../types';
-import { addLog } from '../log';
-import { resetGesetzesstau } from './gesetzesstau';
-import { withPause, getAutoPauseLevel } from '../eventPause';
-import { nextRandom } from '../rng';
-import { CHAR_BONUS_MOOD_MIN, CHAR_KPI_BONUS, KPI_ZF_BOUNDS, KPI_AL_BOUNDS } from '../constants';
+import type { GameState, Character } from '../../types';
+import { addLog } from '../../log';
+import { resetGesetzesstau } from '../gesetzesstau';
+import { withPause, getAutoPauseLevel } from '../../eventPause';
+import { nextRandom } from '../../rng';
+import { CHAR_BONUS_MOOD_MIN, CHAR_KPI_BONUS, KPI_ZF_BOUNDS, KPI_AL_BOUNDS } from '../../constants';
 
 /**
  * Mapping Legacy-Char-IDs → Ressort.
@@ -83,7 +83,7 @@ export function applyCharBonuses(state: GameState): GameState {
 
 export function checkUltimatums(
   state: GameState,
-  charEvents: Record<string, import('../types').GameEvent>,
+  charEvents: Record<string, import('../../types').GameEvent>,
 ): GameState {
   if (state.activeEvent) return state;
   /** SMA-321: Ultimatum frühestens ab Monat 4 — Regierung hat noch nichts getan */

@@ -16,7 +16,7 @@ import { scheduleEffects } from '../economics/economy';
 import { applyGesetzKosten } from '../economics/haushalt';
 import { applyMilieuEffekte } from '../medien/milieus';
 import { setPolitikfeldBeschluss } from '../politikfeldDruck';
-import { checkProaktiveErfuellung } from '../ministerAgenden';
+import { checkProaktiveErfuellung } from '../kabinett/ministerAgenden';
 import { featureActive } from '../features';
 import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienEvents';
 import { nextRandom } from '../../rng';

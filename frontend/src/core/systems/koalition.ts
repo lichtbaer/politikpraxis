@@ -3,7 +3,7 @@ import { addLog } from '../engine';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
-import { applyMoodChange } from './characters';
+import { applyMoodChange } from './kabinett/characters';
 import { scheduleEffects } from './economics/economy';
 import { berechneKongruenz } from '../ideologie';
 import { MILIEU_TO_ZUST } from '../constants';

@@ -2,9 +2,9 @@ import type { GameState, GameEvent, EventChoice, ContentBundle } from '../../typ
 import { getEventNamespace } from '../../eventNamespaces';
 import { addLog } from '../../engine';
 import { withPause, getAutoPauseLevel } from '../../eventPause';
-import { applyMoodChange } from '../characters';
+import { applyMoodChange } from '../kabinett/characters';
 import { resolveMinisterialInitiative } from '../legislation/ministerialInitiativen';
-import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from '../ministerAgenden';
+import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from '../kabinett/ministerAgenden';
 import { resolveMisstrauensvotum } from '../election/election';
 import { startKommunalPilot } from '../legislation/gesetzLebenszyklus';
 import { applyVorbildBonus } from '../legislation/gesetzLebenszyklus';

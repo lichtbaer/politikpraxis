@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { applyCharBonuses, checkUltimatums, applyMoodChange } from './characters';
-import { createInitialState } from '../state';
-import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
-import type { GameState, Character, GameEvent } from '../types';
+import { createInitialState } from '../../state';
+import { DEFAULT_CONTENT } from '../../../data/defaults/scenarios';
+import type { GameState, Character, GameEvent } from '../../types';
 
 function makeChar(overrides: Partial<Character> = {}): Character {
   return {
