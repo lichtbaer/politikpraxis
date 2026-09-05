@@ -24,7 +24,7 @@ export function EuropeMapChart() {
     if (loadedRef.current) return;
     loadedRef.current = true;
 
-    fetch('/europe.geo.json')
+    fetch('/geo/europe.geojson')
       .then((r) => r.json())
       .then((geoJson) => {
         const euOnly = {
