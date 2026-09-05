@@ -11,7 +11,7 @@ cryptography==49.0.0
 dnspython==2.8.0
 email-validator==2.3.0
 fastapi==0.135.1
-greenlet==3.3.2
+greenlet==3.5.4
 h11==0.16.0
 httptools==0.8.0
 idna==3.15
