@@ -12,11 +12,11 @@ import { PK_REPARATUR, BEREITSCHAFT_TRADEOFF_BONUS, EINSPRUCH_UEBERSTIMMUNG_PK, 
 import { featureActive } from '../features';
 import { addLog } from '../../engine';
 import { scheduleEffects } from '../economics/economy';
-import { applyMoodChange } from '../characters';
+import { applyMoodChange } from '../kabinett/characters';
 import { applyMilieuEffekte } from '../medien/milieus';
 import { setPolitikfeldBeschluss } from '../politikfeldDruck';
 import { applyGesetzKosten } from '../economics/haushalt';
-import { checkProaktiveErfuellung } from '../ministerAgenden';
+import { checkProaktiveErfuellung } from '../kabinett/ministerAgenden';
 import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienEvents';
 import { nextRandom } from '../../rng';
 

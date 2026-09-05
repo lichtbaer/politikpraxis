@@ -69,8 +69,8 @@ import {
   medienAktionCooldownVerbleibend,
   type MedienSpielerAktionKey,
 } from '../core/systems/medien/medienAktionen';
-import { kabinettsgespraech } from '../core/systems/characters';
-import { entlasseMinister } from '../core/systems/kabinett';
+import { kabinettsgespraech } from '../core/systems/kabinett/characters';
+import { entlasseMinister } from '../core/systems/kabinett/kabinett';
 import { vermittlungsausschuss } from '../core/systems/legislation/vermittlung';
 import { regierungserklaerung, vertrauensfrage } from '../core/systems/institutions/regierung';
 import { checkAchievements } from '../core/systems/achievements';

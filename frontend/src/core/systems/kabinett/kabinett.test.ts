@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { entlasseMinister } from './kabinett';
-import { makeState, makeChar } from '../test-helpers';
+import { makeState, makeChar } from '../../test-helpers';
 
 describe('entlasseMinister', () => {
   it('entlässt Minister und zieht 20 PK ab', () => {

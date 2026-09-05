@@ -7,7 +7,7 @@ import {
 } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval, decayZustOffsets, roundKpi } from './systems/economics/economy';
 import { berechneWahlprognose } from './systems/medien/wahlprognose';
-import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
+import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/kabinett/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKommunalLaenderEvents, checkSteuerEvents, checkFollowupEvents } from './systems/events/events';
@@ -24,7 +24,7 @@ import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragSco
 import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/legislation/ministerialInitiativen';
-import { checkMinisterAgenden } from './systems/ministerAgenden';
+import { checkMinisterAgenden } from './systems/kabinett/ministerAgenden';
 import { tickEUKlima, advanceEURoute, checkEUEreignisse } from './systems/eu';
 import {
   tickKonjunktur,

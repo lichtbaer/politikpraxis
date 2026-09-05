@@ -9,7 +9,7 @@ import { scheduleEffects } from '../economics/economy';
 import { featureActive } from '../features';
 import { addLog } from '../../log';
 import { getEventNamespace } from '../../eventNamespaces';
-import { applyMoodChange } from '../characters';
+import { applyMoodChange } from '../kabinett/characters';
 import { adjustMedienKlimaGlobal } from '../medien/medienAkteure';
 import i18n from '../../../i18n';
 import { nextRandom } from '../../rng';
