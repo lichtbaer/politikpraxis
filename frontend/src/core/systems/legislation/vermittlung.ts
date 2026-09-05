@@ -79,6 +79,48 @@ function wuerfleVermittlungsAusgang(chancen: Record<VermittlungAusgang, number>)
   return 'scheitern';
 }
 
+/**
+ * Ermittelt die Fraktionen, die für die narrative Inszenierung des Ausgangs
+ * benannt werden (SMA-276, AC „narrativ inszeniert"): die BR-Fraktion mit der
+ * schlechtesten Beziehung (bzw. eine, die für dieses Gesetz explizit ein
+ * Trade-off-Angebot abgelehnt hat) gilt als Blockiererin; die Fraktion mit der
+ * besten Beziehung als Vermittlerin.
+ */
+function bestimmeVermittlungsAkteure(
+  state: GameState,
+  lawId: string,
+): { blockierend?: string; vermittelnd?: string } {
+  const fraktionen = state.bundesratFraktionen ?? [];
+  if (fraktionen.length === 0) return {};
+  const law = state.gesetze.find(g => g.id === lawId);
+  const sortiert = [...fraktionen].sort((a, b) => a.beziehung - b.beziehung);
+  const explizitAblehnend = fraktionen.find(f => law?.lobbyFraktionen?.[f.id]?.tradeoffAblehnen);
+  const blockierend = (explizitAblehnend ?? sortiert[0]).name;
+  const vermittelnd = sortiert[sortiert.length - 1].name;
+  return { blockierend, vermittelnd };
+}
+
+/** Formuliert die Ausgangs-Log-Meldung inkl. der beteiligten Fraktionen, wo bekannt. */
+function formatiereVermittlungsLog(
+  ausgang: VermittlungAusgang,
+  lawKurz: string,
+  akteure: { blockierend?: string; vermittelnd?: string },
+): string {
+  if (ausgang === 'scheitern') {
+    return akteure.blockierend
+      ? `Vermittlungsausschuss: ${lawKurz} gescheitert — ${akteure.blockierend} blockiert weiterhin`
+      : `Vermittlungsausschuss: ${lawKurz} gescheitert — der Bundesrat bleibt bei seiner Ablehnung`;
+  }
+  if (ausgang === 'erfolg') {
+    return akteure.vermittelnd
+      ? `Vermittlungsausschuss: ${lawKurz} mit vollem Erfolg beschlossen (Wirkung 100%) — ${akteure.vermittelnd} hat vermittelt`
+      : `Vermittlungsausschuss: ${lawKurz} mit vollem Erfolg beschlossen (Wirkung 100%)`;
+  }
+  return akteure.vermittelnd && akteure.blockierend && akteure.vermittelnd !== akteure.blockierend
+    ? `Vermittlungsausschuss: ${lawKurz} als Kompromiss beschlossen (Wirkung −50%) — zwischen ${akteure.vermittelnd} und ${akteure.blockierend}`
+    : `Vermittlungsausschuss: ${lawKurz} als Kompromiss beschlossen (Wirkung −50%)`;
+}
+
 /** Prüft ob Vermittlungsausschuss für ein Gesetz möglich ist */
 export function kannVermitteln(state: GameState, lawId: string, complexity: number): boolean {
   if (!featureActive(complexity, 'vermittlungsausschuss')) return false;
@@ -175,6 +217,7 @@ export function tickVermittlungsausschuss(
     const law = s.gesetze[lawIdx];
     // Fehlender Eintrag (z.B. Spielstand vor SMA-276) -> 'kompromiss' als bisheriges Standardverhalten
     const ausgang: VermittlungAusgang = s.vermittlungAusgang?.[lawId] ?? 'kompromiss';
+    const akteure = bestimmeVermittlungsAkteure(s, lawId);
 
     if (ausgang === 'scheitern') {
       // Vermittlung gescheitert: Gesetz fällt zurück in die Bundesrat-Blockade, keine Effekte/Kosten.
@@ -182,11 +225,7 @@ export function tickVermittlungsausschuss(
         i === lawIdx ? { ...g, status: 'blockiert' as const, blockiert: 'bundesrat' as const } : g,
       );
       s = { ...s, gesetze };
-      s = addLog(
-        s,
-        `Vermittlungsausschuss: ${law.kurz} gescheitert — der Bundesrat bleibt bei seiner Ablehnung`,
-        'r',
-      );
+      s = addLog(s, formatiereVermittlungsLog('scheitern', law.kurz, akteure), 'r');
       continue;
     }
 
@@ -221,13 +260,7 @@ export function tickVermittlungsausschuss(
       s = applyGesetzMedienAkteureNachBeschluss(s, lawNow, context.complexity, context.content);
     }
 
-    s = addLog(
-      s,
-      ausgang === 'erfolg'
-        ? `Vermittlungsausschuss: ${law.kurz} mit vollem Erfolg beschlossen (Wirkung 100%)`
-        : `Vermittlungsausschuss: ${law.kurz} als Kompromiss beschlossen (Wirkung −50%)`,
-      'g',
-    );
+    s = addLog(s, formatiereVermittlungsLog(ausgang, law.kurz, akteure), 'g');
   }
 
   s = {

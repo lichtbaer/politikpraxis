@@ -282,4 +282,88 @@ describe('tickVermittlungsausschuss', () => {
     const state = createMockState();
     expect(tickVermittlungsausschuss(state)).toBe(state);
   });
+
+  it('benennt bei Scheitern die Fraktion mit der schlechtesten Beziehung als Blockiererin', () => {
+    const law = { ...createBlockedLaw(), status: 'eingebracht' as const, blockiert: null as null };
+    const state = createMockState({
+      month: 14,
+      gesetze: [law],
+      vermittlungAktiv: { ee: 14 },
+      vermittlungAusgang: { ee: 'scheitern' },
+      bundesratFraktionen: [createFraktion('gut', 80), createFraktion('schlecht', 10)],
+    });
+
+    const result = tickVermittlungsausschuss(state);
+    const letzterLogEintrag = result.log[result.log.length - 1];
+    expect(letzterLogEintrag.msg).toContain('schlecht');
+    expect(letzterLogEintrag.msg).toContain('blockiert weiterhin');
+  });
+
+  it('benennt bei Scheitern bevorzugt eine Fraktion, die ein Trade-off-Angebot abgelehnt hat', () => {
+    const law = {
+      ...createBlockedLaw(),
+      status: 'eingebracht' as const,
+      blockiert: null as null,
+      lobbyFraktionen: { gut: { pkInvestiert: false, tradeoffAblehnen: true } },
+    };
+    const state = createMockState({
+      month: 14,
+      gesetze: [law],
+      vermittlungAktiv: { ee: 14 },
+      vermittlungAusgang: { ee: 'scheitern' },
+      // 'gut' hat die bessere Beziehung, lehnte aber explizit einen Trade-off für dieses Gesetz ab
+      bundesratFraktionen: [createFraktion('gut', 80), createFraktion('schlecht', 60)],
+    });
+
+    const result = tickVermittlungsausschuss(state);
+    const letzterLogEintrag = result.log[result.log.length - 1];
+    expect(letzterLogEintrag.msg).toContain('gut');
+  });
+
+  it('benennt bei vollem Erfolg die Fraktion mit der besten Beziehung als Vermittlerin', () => {
+    const law = { ...createBlockedLaw(), status: 'eingebracht' as const, blockiert: null as null };
+    const state = createMockState({
+      month: 14,
+      gesetze: [law],
+      vermittlungAktiv: { ee: 14 },
+      vermittlungAusgang: { ee: 'erfolg' },
+      bundesratFraktionen: [createFraktion('gut', 80), createFraktion('schlecht', 10)],
+    });
+
+    const result = tickVermittlungsausschuss(state);
+    const letzterLogEintrag = result.log[result.log.length - 1];
+    expect(letzterLogEintrag.msg).toContain('gut');
+    expect(letzterLogEintrag.msg).toContain('hat vermittelt');
+  });
+
+  it('benennt bei Kompromiss beide beteiligten Fraktionen', () => {
+    const law = { ...createBlockedLaw(), status: 'eingebracht' as const, blockiert: null as null };
+    const state = createMockState({
+      month: 14,
+      gesetze: [law],
+      vermittlungAktiv: { ee: 14 },
+      vermittlungAusgang: { ee: 'kompromiss' },
+      bundesratFraktionen: [createFraktion('gut', 80), createFraktion('schlecht', 10)],
+    });
+
+    const result = tickVermittlungsausschuss(state);
+    const letzterLogEintrag = result.log[result.log.length - 1];
+    expect(letzterLogEintrag.msg).toContain('gut');
+    expect(letzterLogEintrag.msg).toContain('schlecht');
+  });
+
+  it('fällt ohne Fraktionsdaten auf die generische Meldung zurück', () => {
+    const law = { ...createBlockedLaw(), status: 'eingebracht' as const, blockiert: null as null };
+    const state = createMockState({
+      month: 14,
+      gesetze: [law],
+      vermittlungAktiv: { ee: 14 },
+      vermittlungAusgang: { ee: 'scheitern' },
+      bundesratFraktionen: [],
+    });
+
+    const result = tickVermittlungsausschuss(state);
+    const letzterLogEintrag = result.log[result.log.length - 1];
+    expect(letzterLogEintrag.msg).toBe('Vermittlungsausschuss: EE-Beschleunigung gescheitert — der Bundesrat bleibt bei seiner Ablehnung');
+  });
 });
