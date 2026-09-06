@@ -27,6 +27,18 @@ services:
       CONTACT_RECIPIENT: ${CONTACT_RECIPIENT}
       ADMIN_USER: ${ADMIN_USER:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-production}
+      SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-0.0}
+      FEEDBACK_RECIPIENT: ${FEEDBACK_RECIPIENT:-}
+    # Optionale Variablen ohne sinnvollen Leer-Default (LOG_JSON, COOKIE_SECURE,
+    # DB_POOL_*) kommen aus der Server-.env, sofern dort gesetzt. `environment:`
+    # gewinnt bei Überschneidungen; unbekannte Variablen ignoriert das Backend.
+    # Vorher erreichten SENTRY_* & Co. den Container gar nicht — Error-Tracking
+    # war trotz Doku (observability.md) in Produktion faktisch aus.
+    env_file:
+      - path: .env
+        required: false
     depends_on:
       db:
         condition: service_healthy
@@ -40,6 +52,9 @@ services:
       args:
         VITE_API_URL: /api
         VITE_REGISTRATION_NUMBER: ${VITE_REGISTRATION_NUMBER}
+        # Landet im Browser-Bundle (kein Secret); leer = Sentry im Frontend aus.
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_SENTRY_ENVIRONMENT: ${VITE_SENTRY_ENVIRONMENT:-production}
     restart: always
     networks:
       - internal
