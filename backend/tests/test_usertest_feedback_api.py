@@ -247,3 +247,22 @@ async def test_submit_feedback_non_uuid_sub_token_does_not_500(client: AsyncClie
         headers={"Authorization": f"Bearer {token}", "X-Real-IP": _unique_ip()},
     )
     assert r.status_code == 201
+
+
+def test_admin_feedback_routes_carry_admin_rate_limit_and_audit():
+    """Qualitätsplan 2.2: Die Admin-Endpunkte hingen vorher mit nur verify_admin
+    am öffentlichen Router und umgingen Rate-Limit + Audit-Log des Admin-Routers."""
+    from app.main import app
+    from app.routes.admin import admin_audit_log, admin_rate_limit
+
+    paths = {"/api/admin/usertest-feedback", "/api/admin/usertest-feedback/export"}
+    seen = set()
+    for route in app.routes:
+        path = getattr(route, "path", None)
+        if path not in paths:
+            continue
+        seen.add(path)
+        dep_calls = {d.call for d in route.dependant.dependencies}
+        assert admin_rate_limit in dep_calls, path
+        assert admin_audit_log in dep_calls, path
+    assert seen == paths

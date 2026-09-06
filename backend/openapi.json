@@ -6192,7 +6192,7 @@
         ],
         "summary": "List Feedback",
         "tags": [
-          "usertest-feedback"
+          "admin"
         ]
       }
     },
@@ -6216,7 +6216,7 @@
         ],
         "summary": "Export Feedback Csv",
         "tags": [
-          "usertest-feedback"
+          "admin"
         ]
       }
     },
@@ -7018,20 +7018,21 @@
         "operationId": "get_events_api_content_events_get",
         "parameters": [
           {
-            "description": "Filter: random, char_ultimatum, bundesrat",
+            "description": "Filter: random, char_ultimatum, bundesrat, dynamic, …",
             "in": "query",
             "name": "type",
             "required": false,
             "schema": {
               "anyOf": [
                 {
+                  "pattern": "^[a-z][a-z0-9_]{0,31}$",
                   "type": "string"
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Filter: random, char_ultimatum, bundesrat",
+              "description": "Filter: random, char_ultimatum, bundesrat, dynamic, …",
               "title": "Type"
             }
           },

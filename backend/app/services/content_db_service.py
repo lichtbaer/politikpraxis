@@ -55,6 +55,11 @@ LOCALE_FALLBACK = {"en": "de", "de": "en"}
 # sichtbar. Sollte dieses Zeitfenster zu grob werden, ist ein geteilter Cache
 # (siehe #231, gemeinsamer Storage für Rate-Limits) der nächste Schritt.
 CACHE_TTL = 60  # Sekunden — bewusst kurz, siehe Kommentar oben (#249)
+# Obergrenze für Cache-Einträge: Cache-Keys enthalten Request-Parameter (locale,
+# event_type). Ohne Limit könnte ein Client mit beliebig vielen Parameter-Werten
+# den Worker-Speicher füllen. Realer Bedarf: ~15 Fetcher × 2 Locales × wenige
+# Filterwerte, d.h. deutlich unter 128.
+CACHE_MAX_ENTRIES = 128
 _content_cache: dict[tuple[str, str], tuple[Any, float]] = {}
 
 
@@ -77,7 +82,15 @@ def _get_cached(cache_key: tuple[str, str]) -> Any | None:
 
 
 def _set_cached(cache_key: tuple[str, str], data: Any) -> None:
-    _content_cache[cache_key] = (data, time.time() + CACHE_TTL)
+    now = time.time()
+    if cache_key not in _content_cache and len(_content_cache) >= CACHE_MAX_ENTRIES:
+        # Erst abgelaufene Einträge räumen, dann notfalls den ältesten verdrängen
+        # (dict ist insertion-ordered → erster Key = ältester Eintrag).
+        for key in [k for k, (_, exp) in _content_cache.items() if exp <= now]:
+            del _content_cache[key]
+        while len(_content_cache) >= CACHE_MAX_ENTRIES:
+            del _content_cache[next(iter(_content_cache))]
+    _content_cache[cache_key] = (data, now + CACHE_TTL)
 
 
 def _effekte(
@@ -490,6 +503,9 @@ async def fetch_events(
                 (EventChoice.id == ch_i18n_f.choice_id) & (ch_i18n_f.locale == fb),
             )
             .where(EventChoice.event_id.in_(event_ids))
+            # Reihenfolge der Choices ist spielrelevant (Frontend adressiert sie
+            # per Index) — ohne ORDER BY darf Postgres beliebig sortieren.
+            .order_by(EventChoice.id)
         )
         all_choices_result = await db_inner.execute(all_choices_stmt)
         choices_by_event: dict[str, list[tuple[Any, Any, Any]]] = {}
@@ -1076,12 +1092,17 @@ async def get_game_content_from_db(
             "choices": {},
         }
 
-    # event_choices_i18n — need to map choice_id to event_id
+    # event_choices_i18n — need to map choice_id to event_id.
+    # Der Choice-Index ("0", "1", …) ist spielrelevant und muss der Seed-
+    # Reihenfolge (= aufsteigende choice_id) entsprechen. Ohne ORDER BY darf
+    # Postgres die Zeilen beliebig liefern (z.B. nach VACUUM/UPDATE), dann wären
+    # Antwortoptionen vertauscht und der contentVersion-Hash instabil.
     choice_to_event = await _get_choice_event_mapping(db)
     for row in (
         await db.execute(
             text(
-                'SELECT choice_id, label, "desc", log_msg FROM event_choices_i18n WHERE locale = :locale'
+                'SELECT choice_id, label, "desc", log_msg FROM event_choices_i18n '
+                "WHERE locale = :locale ORDER BY choice_id"
             ),
             {"locale": locale},
         )
@@ -1222,7 +1243,9 @@ async def _get_tradeoff_key_mapping(db: AsyncSession) -> dict[int, str]:
 
 async def fetch_gesetz_relationen(db: AsyncSession, locale: str = "de") -> list[dict]:
     """SMA-312: Lädt Gesetz-Relationen (requires, excludes, enhances)."""
-    cache_key = ("gesetz_relationen", "all")
+    # Die Beschreibung ist lokalisiert → der Key muss die Locale enthalten, sonst
+    # liefert der erste Aufruf seine Sprache 60 s lang an alle anderen aus.
+    cache_key = ("gesetz_relationen", locale)
     cached = _get_cached(cache_key)
     if cached is not None:
         return cached
