@@ -34,11 +34,12 @@ services:
     # Optionale Variablen ohne sinnvollen Leer-Default (LOG_JSON, COOKIE_SECURE,
     # DB_POOL_*) kommen aus der Server-.env, sofern dort gesetzt. `environment:`
     # gewinnt bei Überschneidungen; unbekannte Variablen ignoriert das Backend.
+    # (Die Server-.env existiert ohnehin: docker compose liest daraus die ${…}-
+    # Substitutionen dieser Datei.)
     # Vorher erreichten SENTRY_* & Co. den Container gar nicht — Error-Tracking
     # war trotz Doku (observability.md) in Produktion faktisch aus.
     env_file:
-      - path: .env
-        required: false
+      - .env
     depends_on:
       db:
         condition: service_healthy
