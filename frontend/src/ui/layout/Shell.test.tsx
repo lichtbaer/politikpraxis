@@ -20,7 +20,6 @@ vi.mock('../components/MonatszusammenfassungModal/MonatszusammenfassungModal', (
 }));
 vi.mock('../icons', () => ({ Users: () => null }));
 vi.mock('../hooks/useGameTick', () => ({ useGameTick: vi.fn() }));
-vi.mock('../hooks/useAutoSave', () => ({ useAutoSave: vi.fn() }));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k: string) => k }),
 }));
