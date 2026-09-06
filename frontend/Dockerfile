@@ -16,6 +16,10 @@ RUN npm run build
 
 # Frontend – Production-Stage mit Nginx
 FROM nginx:alpine
+# Alpine-Pakete des Base-Images auf den Stand des Stable-Repos heben: nginx:alpine
+# hinkt Alpine-Security-Fixes teils Wochen hinterher (z.B. util-linux/libuuid
+# CVE-2026-53612 ff.), Trivy blockiert den Build sonst mit HIGH-Funden.
+RUN apk upgrade --no-cache
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
