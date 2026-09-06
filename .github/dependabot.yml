@@ -80,6 +80,11 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    ignore:
+      # Python-Minor/Major wird bewusst manuell gezogen: Version muss synchron
+      # mit pyproject.toml (requires-python/ruff/mypy) und lint.yml bleiben.
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
   - package-ecosystem: "docker"
     directory: "/frontend"

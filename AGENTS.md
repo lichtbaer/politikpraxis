@@ -27,8 +27,7 @@ Dieses Dokument richtet sich an AI-Coding-Agents (Cursor, GitHub Copilot, etc.) 
 ├── frontend/          # React/TypeScript-Frontend (Vite)
 │   └── src/
 │       ├── core/      # Spiel-Logik (engine, state, types, systems)
-│       ├── store/     # Zustand-Stores (gameStore, uiStore, authStore)
-│       ├── stores/    # contentStore
+│       ├── store/     # Zustand-Stores (gameStore, uiStore, authStore, contentStore)
 │       ├── types/     # Content-Typen (content.ts)
 │       ├── ui/        # React-Komponenten (layout, panels, views, screens, components, hooks)
 │       ├── data/      # Szenarien, Gesetze, Events, Charaktere
@@ -94,7 +93,9 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 |--------|-----|--------------|
 | `npm run build` | `frontend/` | TypeScript-Check + Vite-Build |
 | `npm run lint` | `frontend/` | ESLint |
-| `npm run test` | `frontend/` | Vitest (Unit-Tests) |
+| `npm run test` | `frontend/` | Vitest (Unit-Tests, ohne Balance-Simulation) |
+| `npm run test:coverage` | `frontend/` | Vitest mit Coverage-Schwellen (CI-Gate) |
+| `npm run test:balance` | `frontend/` | Balance-Simulation (langsam) |
 | `npm run test:watch` | `frontend/` | Vitest im Watch-Modus |
 | `mkdocs build` | Root | Statischer Doku-Build |
 | `mkdocs serve` | Root | Doku lokal (http://127.0.0.1:8000) |
@@ -106,7 +107,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 1. **State-Management:** Zustand (`gameStore`, `uiStore`) — keine Redux.
 2. **Spielzustand:** Nur über Aktionen im `gameStore` ändern (`gameTick`, `doEinbringen`, `doLobbying`, etc.).
 3. **Tick-System:** `engine.tick(state, content)` in `frontend/src/core/engine.ts` ruft nacheinander die Systeme in `core/systems/` auf.
-4. **Typen:** Alle Game-Typen in `frontend/src/core/types.ts` (`GameState`, `Law`, `Character`, etc.).
+4. **Typen:** Alle Game-Typen unter `frontend/src/core/types/` (`GameState`, `Law`, `Character`, etc.).
 5. **API:** `frontend/src/services/api.ts` mit `apiFetch`, Basis-URL aus `VITE_API_URL`.
 
 ---

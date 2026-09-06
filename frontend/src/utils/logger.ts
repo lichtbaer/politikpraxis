@@ -8,6 +8,19 @@ type Level = 'debug' | 'info' | 'warn' | 'error';
 
 const isDev = import.meta.env?.DEV;
 
+export type LogSink = (level: Level, message: string, context?: Record<string, unknown>) => void;
+
+/**
+ * Optionaler Sink für Error-Tracking (Sentry). Wird von services/sentry.ts
+ * registriert; der Logger selbst bleibt frei von SDK-Abhängigkeiten, damit
+ * core/ ihn ohne Browser-/Sentry-Kopplung nutzen kann.
+ */
+let sink: LogSink | null = null;
+
+export function setLogSink(fn: LogSink | null): void {
+  sink = fn;
+}
+
 function log(level: Level, message: string, context?: Record<string, unknown>): void {
   if (!isDev && level === 'debug') return;
 
@@ -17,7 +30,13 @@ function log(level: Level, message: string, context?: Record<string, unknown>): 
   } else {
     console[level === 'debug' ? 'log' : level](prefix);
   }
-  // Future: send to error tracking service (e.g. Sentry) here
+  if (sink && (level === 'warn' || level === 'error')) {
+    try {
+      sink(level, message, context);
+    } catch {
+      // Ein defekter Sink darf das Logging nicht zum Absturz bringen.
+    }
+  }
 }
 
 export const logger = {

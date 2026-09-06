@@ -4239,7 +4239,7 @@ export interface operations {
     get_events_api_content_events_get: {
         parameters: {
             query?: {
-                /** @description Filter: random, char_ultimatum, bundesrat */
+                /** @description Filter: random, char_ultimatum, bundesrat, dynamic, … */
                 type?: string | null;
                 /** @description Filtert Events auf min_complexity <= complexity */
                 complexity?: number | null;

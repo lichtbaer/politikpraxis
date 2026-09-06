@@ -2203,7 +2203,17 @@
     "monatTooltip": "Month {{month}}: <b>{{value}}%</b>",
     "meilensteine": "Milestones",
     "neueErfolge": "New achievements unlocked!",
-    "zumHauptmenue": "Back to main menu"
+    "zumHauptmenue": "Back to main menu",
+    "milestones": {
+      "lawsPassed": "{{count}} laws passed",
+      "lawsBlocked": "{{count}} laws blocked",
+      "eventsHandled": "{{count}} events handled",
+      "coalitionStable": "Coalition held stable",
+      "coalitionCrisis": "Coalition crisis experienced",
+      "budgetPositive": "Budget in surplus",
+      "debtBrakeBreached": "Debt brake breached",
+      "campaignCompleted": "Campaign completed"
+    }
   },
   "auswertung": {
     "achievementUnlockedToast": "🏆 Achievement unlocked: {{title}}",
@@ -2547,7 +2557,8 @@
       "politikfeld": "Policy field",
       "sicherheit": "Security",
       "wirtschaft": "Economy"
-    }
+    },
+    "oncePerMonth": "Only once per month"
   },
   "glossar": {
     "title": "Glossary",
@@ -3002,17 +3013,6 @@
     "collapseWarning": "Coalition collapse imminent!",
     "ariaLabel": "Coalition stability: {{value}}%, {{status}}."
   },
-  "endScreen.milestones": {
-    "lawsPassed": "{{count}} laws passed",
-    "lawsBlocked": "{{count}} laws blocked",
-    "eventsHandled": "{{count}} events handled",
-    "coalitionStable": "Coalition held stable",
-    "coalitionCrisis": "Coalition crisis experienced",
-    "budgetPositive": "Budget in surplus",
-    "debtBrakeBreached": "Debt brake breached",
-    "campaignCompleted": "Campaign completed"
-  },
-  "opposition.oncePerMonth": "Only once per month",
   "bundesratMap": {
     "koalition": "Coalition",
     "neutral": "Neutral",

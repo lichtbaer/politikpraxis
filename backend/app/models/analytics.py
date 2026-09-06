@@ -20,8 +20,13 @@ class AnalyticsEvent(Base):
         nullable=False,
         index=True,
     )
+    # SET NULL: Analytics-Events überleben das Löschen eines Spielstands (sonst
+    # scheiterte DELETE /api/saves/{slot} mit IntegrityError → 500).
     save_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("game_saves.id"), nullable=True
+        UUID(as_uuid=True),
+        ForeignKey("game_saves.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
     event_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     payload: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)

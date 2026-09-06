@@ -21,15 +21,25 @@ export interface SaveFile {
   cloudSaveId?: string;
 }
 
+let storageAvailable: boolean | null = null;
+
+/** Einmalige Probe pro Sitzung — vorher lief der Schreib-/Löschtest bei jedem Tick. */
 function isLocalStorageAvailable(): boolean {
+  if (storageAvailable !== null) return storageAvailable;
   try {
     const key = '__politikpraxis_test__';
     localStorage.setItem(key, '1');
     localStorage.removeItem(key);
-    return true;
+    storageAvailable = true;
   } catch {
-    return false;
+    storageAvailable = false;
   }
+  return storageAvailable;
+}
+
+/** Nur für Tests: Verfügbarkeits-Cache zurücksetzen. */
+export function _resetStorageProbeForTests(): void {
+  storageAvailable = null;
 }
 
 function parseVersion(version: string): [number, number, number] {
@@ -65,6 +75,53 @@ export function saveGame(data: Omit<SaveFile, 'version' | 'savedAt'>): boolean {
     console.warn('[politikpraxis] Autosave fehlgeschlagen:', e);
     return false;
   }
+}
+
+type PendingSave = Omit<SaveFile, 'version' | 'savedAt'>;
+
+/** Wartezeit, bis der jüngste Spielstand geschrieben wird (Tick = Monat; im
+ *  Vorlauf laufen 4 Ticks/s — jeder Tick serialisierte bisher den kompletten State). */
+export const SAVE_DEBOUNCE_MS = 1000;
+
+let pendingSave: PendingSave | null = null;
+let pendingTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingOnResult: ((ok: boolean) => void) | null = null;
+
+/** Schreibt einen ausstehenden Spielstand sofort (z.B. beim Verlassen der Seite). */
+export function flushPendingSave(): void {
+  if (pendingTimer !== null) {
+    clearTimeout(pendingTimer);
+    pendingTimer = null;
+  }
+  if (pendingSave === null) return;
+  const data = pendingSave;
+  const onResult = pendingOnResult;
+  pendingSave = null;
+  pendingOnResult = null;
+  const ok = saveGame(data);
+  onResult?.(ok);
+}
+
+/**
+ * Debounced Variante von saveGame: der letzte Aufruf innerhalb von
+ * SAVE_DEBOUNCE_MS gewinnt. `onResult` wird mit dem Ergebnis des tatsächlichen
+ * Schreibvorgangs aufgerufen.
+ */
+export function saveGameDebounced(data: PendingSave, onResult?: (ok: boolean) => void): void {
+  pendingSave = data;
+  pendingOnResult = onResult ?? null;
+  if (pendingTimer !== null) clearTimeout(pendingTimer);
+  pendingTimer = setTimeout(flushPendingSave, SAVE_DEBOUNCE_MS);
+}
+
+if (typeof window !== 'undefined') {
+  // pagehide feuert zuverlässig beim Schließen/Navigieren (auch mobil, bfcache);
+  // visibilitychange deckt Tab-Wechsel ab, nach denen der Browser den Prozess
+  // ggf. beendet, ohne pagehide zu senden.
+  window.addEventListener('pagehide', flushPendingSave);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushPendingSave();
+  });
 }
 
 export type LoadResult = { ok: true; data: SaveFile } | { ok: false; reason: 'no_save' | 'parse_error' | 'version_mismatch' };
