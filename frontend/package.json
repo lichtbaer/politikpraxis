@@ -8,9 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "vitest run --exclude src/core/simulation/balanceSim.test.ts",
+    "test:watch": "vitest --exclude src/core/simulation/balanceSim.test.ts",
+    "test:coverage": "vitest run --coverage --exclude src/core/simulation/balanceSim.test.ts",
+    "test:balance": "vitest run src/core/simulation/balanceSim.test.ts",
     "balance:report": "tsx scripts/balanceReport.ts",
     "gen:api-types": "python3 ../backend/scripts/export_openapi.py && openapi-typescript ../backend/openapi.json -o src/types/api-generated.ts",
     "check:api-types": "npm run gen:api-types && git diff --exit-code -- ../backend/openapi.json src/types/api-generated.ts"

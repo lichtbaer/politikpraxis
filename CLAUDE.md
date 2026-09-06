@@ -15,9 +15,10 @@ npm install          # Install dependencies
 npm run dev          # Vite dev server (http://localhost:5173)
 npm run build        # TypeScript check + Vite production build
 npm run lint         # ESLint
-npm run test         # Vitest (single run)
+npm run test         # Vitest unit suite (single run, without balance simulation)
 npm run test:watch   # Vitest watch mode
-npm run test:coverage # Vitest with v8 coverage
+npm run test:coverage # Vitest with v8 coverage + per-directory thresholds (CI gate)
+npm run test:balance # Monte Carlo balance simulation (slow, runs in balance-check.yml)
 npm run gen:api-types # Regenerate src/types/api-generated.ts from the backend OpenAPI schema
 npm run check:api-types # Fail if the generated API types drift from the backend schema (CI)
 ```
@@ -59,10 +60,9 @@ mkdocs build          # Static build to site/
 │       ├── core/                # Game logic engine (pure TS, heavily tested)
 │       │   ├── engine.ts        # Main game tick engine
 │       │   ├── state.ts         # Core game state
-│       │   ├── types.ts         # All game types (GameState, Law, Character, etc.)
+│       │   ├── types/           # All game types (GameState, Law, Character, etc.)
 │       │   └── systems/         # Game subsystems (called by engine.tick)
-│       ├── store/               # Zustand stores (gameStore, uiStore, authStore)
-│       ├── stores/              # Additional stores (contentStore)
+│       ├── store/               # Zustand stores (gameStore, uiStore, authStore, contentStore)
 │       ├── services/            # API client (api.ts), auth, content, saves
 │       ├── ui/                  # React components
 │       │   ├── screens/         # Full-page screens
@@ -94,7 +94,7 @@ mkdocs build          # Static build to site/
 │   ├── game-design/             # Concept, core loop, systems, roadmap
 │   └── entwicklung/             # Setup, architecture, project structure
 ├── nginx/                       # Production nginx config (TLS, CSP headers)
-├── .github/workflows/           # CI/CD (lint, deploy, balance-check, scenarios)
+├── .github/workflows/           # CI/CD (lint, deploy, balance-check, docs)
 ├── bundesrepublik_gdd.md        # Game Design Document (single source of truth)
 ├── AGENTS.md                    # AI agent instructions (German)
 └── docker-compose*.yml          # Docker orchestration (dev/prod)
@@ -136,9 +136,10 @@ mkdocs build          # Static build to site/
 
 | Workflow | Trigger | What it does |
 |----------|---------|--------------|
-| `lint.yml` | Push to main, PRs | Ruff check/format + MyPy + pip-audit + Bandit (backend), ESLint + npm audit (frontend), API-types-drift, gitleaks secret scan, Trivy container image scan |
-| `deploy.yml` | Push to main | pytest + npm build, then SSH deploy to server |
-| `balance-check.yml` | Changes to content/core/scripts/workflow | Monte Carlo simulation (500 iterations) + balance report artifact |
+| `lint.yml` | Push to main, PRs | Ruff check/format + MyPy + pip-audit + Bandit + content validation (backend), pytest with coverage gate against Postgres, ESLint + build + Vitest with coverage thresholds + npm audit (frontend), API-types-drift, gitleaks secret scan, Trivy container image scan |
+| `deploy.yml` | After a green `lint.yml` run on main | npm build, then SSH deploy via `scripts/deploy.sh` (health gate + rollback) |
+| `balance-check.yml` | Changes to content/core/scripts/workflow | Monte Carlo simulation (`npm run test:balance`, N=200) + balance report artifact |
+| `docs.yml` | Push to main, PRs | `mkdocs build --strict`, deploy to GitHub Pages on push |
 | `docs.yml` | Push to main | MkDocs build and deploy |
 
 ## Environment Variables
@@ -180,7 +181,7 @@ mkdocs build          # Static build to site/
 | `docs/game-design/` | Detailed game design docs (concept, core loop, systems, roadmap) |
 | `docs/entwicklung/architektur.md` | Architecture documentation |
 | `docs/entwicklung/setup.md` | Development environment setup |
-| `frontend/src/core/types.ts` | All game type definitions |
+| `frontend/src/core/types/` | All game type definitions (state.ts, law.ts, character.ts, …) |
 | `frontend/src/core/engine.ts` | Game tick engine |
 | `backend/app/config.py` | Backend configuration (all env vars) |
 | `backend/app/main.py` | FastAPI app initialization and router setup |
