@@ -7,7 +7,7 @@ Coverage, CI-Logs) verifiziert. Stand: `main` bei Commit `52eed18`.
 
 **Legende:** ✅ erledigt · ⬜ offen · ❎ geprüft, kein Handlungsbedarf
 
-**Umsetzungsstand (6. September 2026):** Phase 0 ist auf dem Branch `claude/project-quality-plan-y9fqgf` umgesetzt, bis auf die drei Punkte, die Repo-Settings bzw. Merge-Entscheidungen brauchen (GitHub Pages aktivieren, PR-Backlog, Dependabot-Majors). Aus Phase 1 sind die CI-Gates (Build, Coverage, Balance-Split, Backend-Coverage) umgesetzt.
+**Umsetzungsstand (6. September 2026):** Phase 0 ist mit PR #438 auf `main`, bis auf die vier Punkte, die Repo-Settings bzw. Merge-Entscheidungen brauchen (Deploy-Secrets, GitHub Pages aktivieren, PR-Backlog, Dependabot-Majors). Aus Phase 1 sind die CI-Gates (Build, Coverage, Balance-Split, Backend-Coverage) umgesetzt.
 
 ---
 
@@ -22,10 +22,12 @@ Coverage, CI-Logs) verifiziert. Stand: `main` bei Commit `52eed18`.
 3. Mehrere Qualitäts-Gates existieren nur auf dem Papier: Coverage-Schwellen laufen nie in
    CI, `npm run build` läuft erst nach dem Merge, Balance-Assertions sind trivial erfüllbar,
    Sentry ist in Produktion nicht verdrahtet.
-4. **`main` ist seit dem 5. September rot** (Trivy findet `msgpack`/`setuptools` im
-   Backend-Image). Da `deploy.yml` auf einen grünen Lint-Lauf wartet, wurden alle 17 Merges
-   dieses Tages, darunter der cryptography-CVE-Fix, **nicht deployt**. Letzter grüner Lauf
-   und damit letztes Deploy: 29. Juli.
+4. **`main` war vom 5. bis 6. September rot** (Trivy: `msgpack`/`setuptools` im
+   Backend-Image, dazu `libuuid` im Frontend-Image). Seit PR #438 ist `lint.yml` wieder grün.
+   **Korrektur nach dem Merge:** Das CI-Deploy hat in den letzten 100 Läufen (seit mindestens
+   21. Juli) **nie** funktioniert. `deploy.yml` scheitert jedes Mal mit „missing server
+   host“, weil die Secrets `DEPLOY_HOST`, `DEPLOY_USER` und `DEPLOY_SSH_KEY` im Workflow leer
+   sind. Produktion wurde also entweder manuell oder gar nicht aktualisiert.
 5. Es gibt eine Handvoll stiller Korrektheits- und Sicherheitsbugs im Backend, die kein
    Test fängt (nichtdeterministische Event-Choices, locale-loser Cache-Key, ungeschützter
    Schreib-Endpunkt, FK ohne `ondelete`).
@@ -72,6 +74,7 @@ Sicherheitslücken schließen. Alles hier ist klein und unabhängig voneinander.
 | Status | Maßnahme | Ort | Aufwand |
 |---|---|---|---|
 | ✅ | **Trivy-Failure beheben**: `pip install --upgrade pip setuptools` im Backend-Image (msgpack kommt als pip-Vendor mit, setuptools 70.3 ist CVE-2025-47273). PR #423 liegt bereits vor und sollte als Erstes gemergt werden. *(Korrektur: die Funde stammen aus `pip/_vendor/vendor.txt` der jeweils aktuellen pip-Version, ein pip-Upgrade allein reicht nicht, #423 bleibt deshalb rot. Umgesetzt: setuptools aktualisieren und pip/wheel nach der Installation aus dem Runtime-Image entfernen.)* | `backend/Dockerfile` | S |
+| ⬜ | **Deploy-Secrets setzen**: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY` sind in `deploy.yml` leer („missing server host“, 100 von 100 Läufen rot). Entweder als Repository-Secrets anlegen oder, falls sie in einem GitHub-Environment liegen, `environment: production` am `deploy`-Job deklarieren. Danach prüfen, ob `scripts/deploy.sh` auf dem Server existiert und der Health-Gate greift. | Repo-Settings, `.github/workflows/deploy.yml` | S |
 | ⬜ | **Docs-Deploy repariert**: `actions/deploy-pages` bekommt 404, weil GitHub Pages im Repo nicht aktiviert ist. Entweder Pages aktivieren (Settings → Pages → Source „GitHub Actions“) oder den `deploy`-Job hinter `vars.DOCS_PAGES_ENABLED == 'true'` stellen. Ein dauerhaft roter Workflow trainiert alle darauf, Rot zu ignorieren. | Repo-Settings, `.github/workflows/docs.yml` | S |
 | ✅ | **Python-Version vereinheitlichen** auf 3.13: alle `setup-python` in `lint.yml` und `docs.yml`, `backend/Dockerfile` auf `python:3.13-slim`, README/setup.md nachziehen. Produktion läuft heute auf einer Version, die nirgends getestet wird. | 4 Dateien | S |
 | ⬜ | **PR-Backlog abbauen**: 10 Feature-PRs vom selben Tag (#415–#426) sind Konfliktkandidaten untereinander (mehrere refactoren `core/systems/`). Reihenfolge festlegen: erst #417/#415 (Struktur), dann Inhalt. Danach WIP-Limit: max. 3 offene Feature-PRs. | GitHub | M |
