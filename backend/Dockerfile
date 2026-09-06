@@ -13,12 +13,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Abhängigkeiten
 COPY requirements.txt .
-# pip/setuptools/wheel zuerst aktualisieren: das Base-Image bringt ein
-# veraltetes, gebündeltes setuptools (CVE-2025-47273) und ein von pip vendored
-# msgpack (GHSA-6v7p-g79w-8964) mit — beides meldet Trivy im Image-Scan,
-# unabhängig von den Paketen in requirements.txt.
+# 1. setuptools/wheel aktualisieren (Base-Image bringt setuptools 70.3.0 mit,
+#    CVE-2025-47273).
+# 2. Requirements installieren.
+# 3. pip und wheel aus dem Runtime-Image entfernen: pip vendort in
+#    pip/_vendor/vendor.txt selbst msgpack 1.1.2 (GHSA-6v7p-g79w-8964) und
+#    setuptools 70.3.0 (pkg_resources) — auch in der neuesten pip-Version.
+#    Trivy meldet beides als HIGH, ein pip-Upgrade allein hilft nicht (siehe
+#    PR #423). Zur Laufzeit braucht das Image keinen Paketmanager; ohne pip
+#    ist es zudem kleiner und schwerer zu manipulieren.
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip uninstall -y pip wheel \
+    && rm -rf /root/.cache
 
 # Anwendung (tests/, scripts/, openapi.json, *.md via .dockerignore ausgeschlossen)
 COPY . .
