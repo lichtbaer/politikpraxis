@@ -1,5 +1,8 @@
 # Backend – FastAPI
-FROM python:3.14-slim
+# Version muss zu backend/pyproject.toml (requires-python, ruff, mypy) und
+# .github/workflows/lint.yml (setup-python) passen — Produktion darf nicht auf
+# einer Runtime laufen, gegen die nicht getestet wird.
+FROM python:3.13-slim
 
 WORKDIR /app
 
@@ -10,7 +13,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Abhängigkeiten
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# pip/setuptools/wheel zuerst aktualisieren: das Base-Image bringt ein
+# veraltetes, gebündeltes setuptools (CVE-2025-47273) und ein von pip vendored
+# msgpack (GHSA-6v7p-g79w-8964) mit — beides meldet Trivy im Image-Scan,
+# unabhängig von den Paketen in requirements.txt.
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Anwendung (tests/, scripts/, openapi.json, *.md via .dockerignore ausgeschlossen)
 COPY . .
