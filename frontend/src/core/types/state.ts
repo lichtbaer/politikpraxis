@@ -314,6 +314,8 @@ export interface GameState {
   wahlkampfAktionenGenutzt?: number;
   lastRandomEventMonth?: number;
   legislaturBilanz?: LegislaturBilanz | null;
+  /** #274: Halbzeitbilanz (Monat 24) — dieselbe Bilanz-Struktur wie am Legislaturende, für die Midterm-Auswertung. */
+  halbzeitBilanz?: LegislaturBilanz | null;
   wahlkampfBotschaften?: string[];
   tvDuellAbgehalten?: boolean;
   tvDuellGewonnen?: boolean | null;

@@ -20,7 +20,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
-from app.dependencies import client_ip, get_optional_user, verify_admin
+from app.dependencies import client_ip, get_optional_user
 from app.models.user import User
 from app.models.usertest_feedback import UserTestFeedback
 from app.schemas.usertest_feedback import (
@@ -32,6 +32,11 @@ from app.services.rate_limit import check_and_record
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+# Admin-Endpunkte hängen am Admin-Router (app.routes.admin), der Basic-Auth,
+# das DB-gestützte Admin-Rate-Limit und das Audit-Log als Dependencies mitbringt.
+# Vorher hingen sie mit nur `verify_admin` am öffentlichen Router und umgingen
+# damit Brute-Force-Bremse und Audit-Log.
+admin_router = APIRouter()
 
 
 @router.post(
@@ -95,7 +100,7 @@ async def submit_feedback(
 # --- Admin-geschützte Endpoints ---
 
 
-@router.get("/admin/usertest-feedback", dependencies=[Depends(verify_admin)])
+@admin_router.get("/usertest-feedback")
 async def list_feedback(
     kontext: str | None = Query(None),
     limit: int = Query(50, ge=1, le=500),
@@ -136,7 +141,7 @@ async def list_feedback(
     }
 
 
-@router.get("/admin/usertest-feedback/export", dependencies=[Depends(verify_admin)])
+@admin_router.get("/usertest-feedback/export")
 async def export_feedback_csv(db: AsyncSession = Depends(get_db)) -> StreamingResponse:
     result = await db.execute(
         select(UserTestFeedback).order_by(UserTestFeedback.created_at.desc())

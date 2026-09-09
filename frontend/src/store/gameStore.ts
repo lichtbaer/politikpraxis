@@ -36,9 +36,9 @@ import type { LobbyTradeoffOptions } from '../core/types';
 import { getContentBundle } from './contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { SPIELBARE_PARTEIEN } from '../data/defaults/parteien';
-import { saveGame, type SaveFile } from '../services/localStorageSave';
+import { type SaveFile, saveGameDebounced } from '../services/localStorageSave';
 import { useAuthStore } from './authStore';
-import { checkAutosave, registerAutosaveCloudSaveHandler } from '../core/autosave';
+import { checkAutosave, registerAutosaveCloudSaveHandler, resetAutosaveFailures } from '../core/autosave';
 import { migrateGameState, validateGameState, syncMediaState } from '../core/state';
 import {
   setHaushaltsdebattePrioritaeten,
@@ -81,6 +81,9 @@ export type GamePhase = 'onboarding' | 'playing';
 /** Convenience: fire-and-forget toast from game actions. `major`: #284 — größeres, längeres Feedback für große Momente. */
 const toast = (msg: string, type?: 'info' | 'success' | 'warning' | 'danger', major?: boolean) =>
   useUIStore.getState().showToast(msg, type, { major });
+
+/** Warnung bei fehlgeschlagenem lokalen Autosave nur einmal pro Sitzung. */
+let localSaveWarned = false;
 
 const DEFAULT_AUSRICHTUNG: Ausrichtung = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 
@@ -248,6 +251,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   resetGame: (options) => {
     const content = getContentBundle();
+    // Fehlerzähler des Cloud-Autosaves gehört zum alten Spiel; sonst bleibt ein
+    // Spieler nach 3 Fehlern für die restliche Sitzung ohne Cloud-Save.
+    resetAutosaveFailures();
     set({
       phase: 'onboarding',
       state: createInitialState(content, get().complexity),
@@ -321,15 +327,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
     if (phase === 'playing' && !nextState.gameOver) {
       const cloudSaveId = get().cloudSaveId;
-      saveGame({
-        gameState: nextState,
-        playerName: nextState.kanzlerName ?? playerName,
-        complexity,
-        ausrichtung,
-        spielerPartei: nextState.spielerPartei,
-        kanzlerGeschlecht: nextState.kanzlerGeschlecht ?? kanzlerGeschlecht ?? 'sie',
-        ...(cloudSaveId ? { cloudSaveId } : {}),
-      });
+      saveGameDebounced(
+        {
+          gameState: nextState,
+          playerName: nextState.kanzlerName ?? playerName,
+          complexity,
+          ausrichtung,
+          spielerPartei: nextState.spielerPartei,
+          kanzlerGeschlecht: nextState.kanzlerGeschlecht ?? kanzlerGeschlecht ?? 'sie',
+          ...(cloudSaveId ? { cloudSaveId } : {}),
+        },
+        (ok) => {
+          // Speicher voll/blockiert: einmal pro Sitzung warnen, statt Fortschritt
+          // still zu verlieren (vorher lag diese Warnung im toten useAutoSave-Pfad).
+          if (!ok && !localSaveWarned) {
+            localSaveWarned = true;
+            toast(i18n.t('common:game.autoSaveFailed'), 'warning');
+          }
+        },
+      );
       checkAutosave(nextState.month, useAuthStore.getState().accessToken, nextState, {
         playerName: nextState.kanzlerName ?? playerName,
         complexity,
@@ -755,6 +771,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   loadSave: (savedState) => {
     try {
+      resetAutosaveFailures();
       const validated = validateGameState(savedState);
       const initial = createInitialState(getContentBundle(), get().complexity);
       const state = migrateGameState({
@@ -771,6 +788,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   loadSaveFromFile: (save) => {
     try {
+      resetAutosaveFailures();
       const validated = validateGameState(save.gameState);
       const complexity = Math.max(1, Math.min(4, Number(save.complexity) || 4));
       const initial = createInitialState(getContentBundle(), complexity);

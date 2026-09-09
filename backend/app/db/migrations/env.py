@@ -5,46 +5,12 @@ from sqlalchemy import create_engine, pool, text
 from alembic import context
 
 from app.db.database import Base
-from app.models import (  # noqa: F401
-    User,
-    GameSave,
-    AnalyticsEvent,
-    Mod,
-    MagicLink,
-    RefreshToken,
-    PasswordResetToken,
-)
-from app.models.content import (  # noqa: F401
-    Partei,
-    ParteiI18n,
-    Char,
-    CharI18n,
-    Gesetz,
-    GesetzI18n,
-    Event,
-    EventI18n,
-    EventChoice,
-    EventChoiceI18n,
-    BundesratFraktion,
-    BundesratFraktionI18n,
-    BundesratTradeoff,
-    BundesratTradeoffI18n,
-    Politikfeld,
-    PolitikfeldI18n,
-    Milieu,
-    MilieuI18n,
-    Verband,
-    VerbandI18n,
-    VerbandsTradeoff,
-    VerbandsTradeoffI18n,
-    MinisterialInitiative,
-    MinisterialInitiativeI18n,
-    EuKlimaStartwert,
-    EuEvent,
-    EuEventI18n,
-    EuEventChoice,
-    EuEventChoiceI18n,
-)
+
+# Alle Modelle registrieren, damit target_metadata vollständig ist (sonst würde
+# `alembic revision --autogenerate` nicht importierte Tabellen als „zu löschen"
+# vorschlagen). Die Vollständigkeit von app.models prüft
+# tests/test_models_registry.py.
+import app.models  # noqa: F401
 
 config = context.config
 

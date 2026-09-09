@@ -36,7 +36,7 @@ import {
 } from './systems/economics/haushalt';
 import { tickWirtschaft } from './systems/economics/wirtschaft';
 import { tickGesetzVorstufen } from './systems/legislation/gesetzLebenszyklus';
-import { checkHundertTageBilanz } from './systems/dramaturgie/dramaturgie';
+import { checkHundertTageBilanz, checkSommerloch, checkHalbzeitbilanz } from './systems/dramaturgie/dramaturgie';
 import {
   checkWahlkampfBeginn,
   checkTVDuell,
@@ -491,6 +491,20 @@ const ENGINE_PIPELINE: EnginePhase[] = [
         safe: true,
         run(ctx) {
           if (!ctx.s.activeEvent) ctx.s = checkHundertTageBilanz(ctx.s, ctx.content, ctx.complexity);
+        },
+      },
+      {
+        id: 'checkHalbzeitbilanz',
+        safe: true,
+        run(ctx) {
+          if (!ctx.s.activeEvent) ctx.s = checkHalbzeitbilanz(ctx.s, ctx.content, ctx.complexity);
+        },
+      },
+      {
+        id: 'checkSommerloch',
+        safe: true,
+        run(ctx) {
+          if (!ctx.s.activeEvent) ctx.s = checkSommerloch(ctx.s, ctx.content, ctx.complexity);
         },
       },
       {
