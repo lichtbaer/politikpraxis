@@ -43,7 +43,7 @@ jobs:
         run: cd frontend && npm ci
 
       - name: Run Balance Simulation
-        run: cd frontend && npx vitest run src/core/simulation/balanceSim.test.ts --reporter=verbose
+        run: cd frontend && npm run test:balance -- --reporter=verbose
         timeout-minutes: 5
 
       - name: Generate Balance Report

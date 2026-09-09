@@ -50,7 +50,7 @@ Monat 48: Wahl → Wiederwahl ≥ Wahlhürde?
 
 **Win-Bedingung:** Das dreistufige Spielziel entscheidet: `spielziel.gesamtpunkte ≥ 40` (Skala 0–100) aus Bilanz 30 % / Agenda 35 % / Historisches Urteil 35 %; bei überschrittener Wahlhürde zusätzlicher Bonus von 0–4 Punkten. Die Wahlhürde je Komplexitätsstufe (35 % / 38 % / 40 % / 42 %, zentral in `ELECTION_THRESHOLDS_BY_COMPLEXITY`, Feld `electionThreshold` im Spielstand) ist kein alleiniges Siegkriterium — man kann trotz überschrittener Hürde verlieren und trotz verfehlter Hürde gewinnen. Ohne ein einziges beschlossenes Gesetz fällt das Historische Urteil auf 25 (statt neutral 50).
 
-**Lose-Bedingungen:** `spielziel.gesamtpunkte < 40` am Legislaturende (Dreipfeiler-Score: Bilanz/Agenda/Urteil), Koalitionsbruch (Stabilitätswert < 15 %), Misstrauensvotum (6 Monate Zustimmung < 20 %), gescheiterte Vertrauensfrage oder Rücktritt. Die Wahlhürde allein ist kein Verlustkriterium — sie beeinflusst nur den Wahlbonus (0–4 Punkte).
+**Lose-Bedingungen:** `spielziel.gesamtpunkte < 40` am Legislaturende (Dreipfeiler-Score: Bilanz/Agenda/Urteil), Koalitionsbruch (Stabilitätswert < 15 %), Misstrauensvotum (6 Monate mit realer Bundestags-Mehrheitsbasis der Opposition: Sitzanteil ≥ 45 % + Koalitionsstabilität < 35 %; kritische Zustimmung < 20 % zählt nur sekundär, wenn einer der beiden primären Faktoren bereits erfüllt ist — Art. 67 GG), gescheiterte Vertrauensfrage oder Rücktritt. Die Wahlhürde allein ist kein Verlustkriterium — sie beeinflusst nur den Wahlbonus (0–4 Punkte).
 
 ---
 

@@ -66,7 +66,7 @@ Wahlhürde je Komplexitätsstufe (gespeichert in `electionThreshold`):
 |-----------|----------|
 | Schlechte Legislaturbilanz | `spielziel.gesamtpunkte < 40` in Monat 48 |
 | Koalitionsbruch | `coalition < 15` (Stabilitätswert) |
-| Misstrauensvotum | 6 Monate Zustimmung < 20 % (ab Monat 7); interaktives Event bei 4 Monaten (Stufe ≥ 2) |
+| Misstrauensvotum (Art. 67 GG) | 6 Monate mit realer Mehrheitsbasis der Opposition (Sitzanteil ≥ 45 % + Koalitionsstabilität < 35 %; Zustimmung < 20 % nur sekundär) (ab Monat 7); interaktives Event bei 4 Monaten (Stufe ≥ 2) |
 | Vertrauensfrage (Art. 68 GG) | Vertrauensfrage gescheitert (Zufallscheck auf Koalitionsstabilität) |
 | Rücktritt | Spieler wählt Rücktritt im Misstrauensvotum-Event |
 

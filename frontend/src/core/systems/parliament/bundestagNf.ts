@@ -1,9 +1,9 @@
 /**
  * SMA-344: Passive NF-Präsenz im Bundestag — Overton-Fenster (BT-Stimmen), Medienkongruenz.
  */
-import type { Law } from '../types';
-import { berechneKongruenz } from '../ideologie';
-import { NF_IDEOLOGIE_REF } from '../../constants/bundestag';
+import type { Law } from '../../types';
+import { berechneKongruenz } from '../../ideologie';
+import { NF_IDEOLOGIE_REF } from '../../../constants/bundestag';
 
 /** Ab dieser Kongruenz mit NF-Profil: Medienklima-Malus bei Beschluss */
 export const NF_KONGRUENZ_MEDIEN_SCHWELLE = 72;

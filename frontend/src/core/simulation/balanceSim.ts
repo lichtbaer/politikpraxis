@@ -4,7 +4,7 @@
  */
 import { tick } from '../engine';
 import { createInitialState } from '../state';
-import { lobbying, fraktionssitzung } from '../systems/parliament';
+import { lobbying, fraktionssitzung } from '../systems/parliament/parliament';
 import { koalitionsrunde, prioritaetsgespraech } from '../systems/koalition';
 import {
   einbringenCommand,

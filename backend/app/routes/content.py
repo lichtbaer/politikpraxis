@@ -122,7 +122,9 @@ async def get_events(
     event_type: str | None = Query(
         default=None,
         alias="type",
-        description="Filter: random, char_ultimatum, bundesrat",
+        description="Filter: random, char_ultimatum, bundesrat, dynamic, …",
+        # Der Wert landet im Cache-Key — Muster + Länge begrenzen den Key-Raum.
+        pattern=r"^[a-z][a-z0-9_]{0,31}$",
     ),
     complexity: int | None = Query(
         default=None,
