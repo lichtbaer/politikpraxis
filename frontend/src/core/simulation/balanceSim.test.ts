@@ -12,13 +12,17 @@
  *   E) Score-Dimensionen: bilanzPunkte, agendaPunkte, urteilPunkte
  *   F) Mechanik-Coverage: Vermittlungsausschuss, event-locked Gesetze
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { monteCarlo } from './balanceSim';
 import { alleStrategien } from './strategien';
 import { SIM_CONTENT, SIM_CONTENT_WITH_UNLOCK_EVENTS } from './testContent';
 
 const N = 200;
 const COMPLEXITY = 4;
+
+// Monte-Carlo über die echte Engine: einzelne Strategien brauchen unter
+// Coverage-Instrumentierung > 5 s (Vitest-Default) — sonst rot aus Zufall.
+vi.setConfig({ testTimeout: 60_000 });
 
 describe('Balance-Simulation (echte Engine)', () => {
   const strategien = alleStrategien();

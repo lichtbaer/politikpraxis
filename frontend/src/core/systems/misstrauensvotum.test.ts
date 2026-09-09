@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { checkGameEnd, buildMisstrauensvotumEvent, resolveMisstrauensvotum } from './election/election';
+import {
+  checkGameEnd,
+  buildMisstrauensvotumEvent,
+  resolveMisstrauensvotum,
+  hatMisstrauensvotumMehrheitsbasis,
+} from './election/election';
+import {
+  MISSTRAUENSVOTUM_OPPOSITION_SCHWELLE,
+  MISSTRAUENSVOTUM_KOALITION_SCHWELLE,
+} from '../constants';
 import { createInitialState } from '../state';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
 import type { GameState } from '../types';
@@ -9,12 +18,75 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
   return { ...base, ...overrides };
 }
 
+/** Opposition mit realer Mehrheitschance: Sitzanteil über der Schwelle. */
+const OPPOSITION_STARK = { staerke: 50, aktivesThema: null, letzterAngriff: 0 };
+/** Koalitionsstabilität deutlich unter der Instabilitäts-Schwelle. */
+const KOALITION_INSTABIL = 20;
+
 describe('Konstruktives Misstrauensvotum (Art. 67 GG)', () => {
+  describe('hatMisstrauensvotumMehrheitsbasis — Quoren-Schwellen (SMA-277)', () => {
+    it('primär: Opposition stark + Koalition instabil → Mehrheitsbasis, unabhängig von Zustimmung', () => {
+      const state = makeState({
+        zust: { g: 50, arbeit: 50, mitte: 50, prog: 50 }, // Zustimmung unkritisch
+        opposition: OPPOSITION_STARK,
+        coalition: KOALITION_INSTABIL,
+      });
+      expect(hatMisstrauensvotumMehrheitsbasis(state)).toBe(true);
+    });
+
+    it('keine Mehrheitsbasis bei kritischer Zustimmung, wenn Opposition schwach UND Koalition stabil', () => {
+      const state = makeState({
+        zust: { g: 5, arbeit: 5, mitte: 5, prog: 5 }, // sehr kritische Zustimmung
+        opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 },
+        coalition: 70,
+      });
+      expect(hatMisstrauensvotumMehrheitsbasis(state)).toBe(false);
+    });
+
+    it('sekundär: kritische Zustimmung + starke Opposition (Koalition stabil) reicht aus', () => {
+      const state = makeState({
+        zust: { g: 5, arbeit: 5, mitte: 5, prog: 5 },
+        opposition: OPPOSITION_STARK,
+        coalition: 70,
+      });
+      expect(hatMisstrauensvotumMehrheitsbasis(state)).toBe(true);
+    });
+
+    it('sekundär: kritische Zustimmung + instabile Koalition (Opposition schwach) reicht aus', () => {
+      const state = makeState({
+        zust: { g: 5, arbeit: 5, mitte: 5, prog: 5 },
+        opposition: { staerke: 40, aktivesThema: null, letzterAngriff: 0 },
+        coalition: KOALITION_INSTABIL,
+      });
+      expect(hatMisstrauensvotumMehrheitsbasis(state)).toBe(true);
+    });
+
+    it('Oppositions-Schwelle: knapp darunter (ohne instabile Koalition, ohne kritische Zustimmung) keine Basis', () => {
+      const state = makeState({
+        zust: { g: 50, arbeit: 50, mitte: 50, prog: 50 },
+        opposition: { staerke: MISSTRAUENSVOTUM_OPPOSITION_SCHWELLE - 1, aktivesThema: null, letzterAngriff: 0 },
+        coalition: 70,
+      });
+      expect(hatMisstrauensvotumMehrheitsbasis(state)).toBe(false);
+    });
+
+    it('Koalitions-Schwelle: genau am Grenzwert gilt noch als stabil (strikt kleiner)', () => {
+      const state = makeState({
+        zust: { g: 50, arbeit: 50, mitte: 50, prog: 50 },
+        opposition: OPPOSITION_STARK,
+        coalition: MISSTRAUENSVOTUM_KOALITION_SCHWELLE,
+      });
+      expect(hatMisstrauensvotumMehrheitsbasis(state)).toBe(false);
+    });
+  });
+
   describe('checkGameEnd — Misstrauensvotum-Event', () => {
-    it('erhöht lowApprovalMonths bei Zustimmung < 20%', () => {
+    it('erhöht lowApprovalMonths bei realer Mehrheitsbasis der Opposition', () => {
       const state = makeState({
         month: 10,
         zust: { g: 15, arbeit: 20, mitte: 20, prog: 20 },
+        opposition: OPPOSITION_STARK,
+        coalition: KOALITION_INSTABIL,
         lowApprovalMonths: 0,
         complexity: 2,
       });
@@ -23,10 +95,25 @@ describe('Konstruktives Misstrauensvotum (Art. 67 GG)', () => {
       expect(result.gameOver).toBe(false);
     });
 
+    it('keine Eskalation bei niedriger Zustimmung ohne Mehrheitsbasis (belohnt Koalitionspflege statt reiner PR)', () => {
+      const state = makeState({
+        month: 10,
+        zust: { g: 5, arbeit: 5, mitte: 5, prog: 5 },
+        lowApprovalMonths: 5, // stand kurz vor Game-Over
+        complexity: 2,
+      });
+      const result = checkGameEnd(state);
+      expect(result.lowApprovalMonths).toBe(0);
+      expect(result.gameOver).toBe(false);
+      expect(result.activeEvent).toBeNull();
+    });
+
     it('triggert Misstrauensvotum-Event nach 4 Monaten (Stufe 2+)', () => {
       const state = makeState({
         month: 15,
         zust: { g: 15, arbeit: 20, mitte: 20, prog: 20 },
+        opposition: OPPOSITION_STARK,
+        coalition: KOALITION_INSTABIL,
         lowApprovalMonths: 3, // wird auf 4 erhöht → Event
         complexity: 2,
       });
@@ -41,6 +128,8 @@ describe('Konstruktives Misstrauensvotum (Art. 67 GG)', () => {
       const state = makeState({
         month: 15,
         zust: { g: 15, arbeit: 20, mitte: 20, prog: 20 },
+        opposition: OPPOSITION_STARK,
+        coalition: KOALITION_INSTABIL,
         lowApprovalMonths: 3,
         complexity: 2,
         misstrauensvotumAbgewendet: true,
@@ -54,6 +143,8 @@ describe('Konstruktives Misstrauensvotum (Art. 67 GG)', () => {
       const state = makeState({
         month: 20,
         zust: { g: 15, arbeit: 20, mitte: 20, prog: 20 },
+        opposition: OPPOSITION_STARK,
+        coalition: KOALITION_INSTABIL,
         lowApprovalMonths: 5, // wird auf 6 erhöht → Game Over
         complexity: 2,
         misstrauensvotumAbgewendet: true, // Event schon abgewendet
@@ -67,6 +158,8 @@ describe('Konstruktives Misstrauensvotum (Art. 67 GG)', () => {
       const state = makeState({
         month: 20,
         zust: { g: 15, arbeit: 20, mitte: 20, prog: 20 },
+        opposition: OPPOSITION_STARK,
+        coalition: KOALITION_INSTABIL,
         lowApprovalMonths: 5,
         complexity: 1,
       });

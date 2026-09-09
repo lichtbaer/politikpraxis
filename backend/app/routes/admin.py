@@ -7,7 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.dependencies import client_ip, verify_admin
-from app.routes import admin_bundesrat, admin_chars, admin_events, admin_gesetze
+from app.routes import (
+    admin_bundesrat,
+    admin_chars,
+    admin_events,
+    admin_gesetze,
+    usertest_feedback,
+)
 from app.services.admin_rate_limit import check_admin_rate_limit
 
 _audit_logger = logging.getLogger("bundesrepublik.admin.audit")
@@ -58,3 +64,4 @@ router.include_router(admin_chars.router)
 router.include_router(admin_gesetze.router)
 router.include_router(admin_events.router)
 router.include_router(admin_bundesrat.router)
+router.include_router(usertest_feedback.admin_router)
