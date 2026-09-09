@@ -19,9 +19,9 @@ import {
   checkBundesratLaenderEvents,
   flushPendingBundesratLandEvent,
 } from './systems/institutions/bundesratLaenderEvents';
-import { resolveEingebrachteAbstimmung } from './systems/parliament';
+import { resolveEingebrachteAbstimmung } from './systems/parliament/parliament';
 import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragScore } from './systems/koalition';
-import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
+import { checkPolitikfeldDruck } from './systems/parliament/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/legislation/ministerialInitiativen';
 import { checkMinisterAgenden } from './systems/ministerAgenden';

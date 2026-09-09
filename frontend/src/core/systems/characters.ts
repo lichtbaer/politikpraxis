@@ -1,6 +1,6 @@
 import type { GameState, Character } from '../types';
 import { addLog } from '../log';
-import { resetGesetzesstau } from './gesetzesstau';
+import { resetGesetzesstau } from './parliament/gesetzesstau';
 import { withPause, getAutoPauseLevel } from '../eventPause';
 import { nextRandom } from '../rng';
 import { CHAR_BONUS_MOOD_MIN, CHAR_KPI_BONUS, KPI_ZF_BOUNDS, KPI_AL_BOUNDS } from '../constants';

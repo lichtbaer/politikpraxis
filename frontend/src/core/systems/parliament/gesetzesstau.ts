@@ -1,5 +1,5 @@
-import type { GameState } from '../types';
-import { addLog } from '../log';
+import type { GameState } from '../../types';
+import { addLog } from '../../log';
 
 /**
  * SMA-268: "Gesetzesstau" — reines Durchpeitschen von Gesetzen ohne Koalitions-/

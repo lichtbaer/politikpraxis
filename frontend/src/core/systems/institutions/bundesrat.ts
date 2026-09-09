@@ -14,7 +14,7 @@ import { addLog } from '../../engine';
 import { scheduleEffects } from '../economics/economy';
 import { applyMoodChange } from '../characters';
 import { applyMilieuEffekte } from '../medien/milieus';
-import { setPolitikfeldBeschluss } from '../politikfeldDruck';
+import { setPolitikfeldBeschluss } from '../parliament/politikfeldDruck';
 import { applyGesetzKosten } from '../economics/haushalt';
 import { checkProaktiveErfuellung } from '../ministerAgenden';
 import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienEvents';

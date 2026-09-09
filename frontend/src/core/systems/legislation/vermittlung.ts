@@ -15,7 +15,7 @@ import { verbrauchePK } from '../../pk';
 import { scheduleEffects } from '../economics/economy';
 import { applyGesetzKosten } from '../economics/haushalt';
 import { applyMilieuEffekte } from '../medien/milieus';
-import { setPolitikfeldBeschluss } from '../politikfeldDruck';
+import { setPolitikfeldBeschluss } from '../parliament/politikfeldDruck';
 import { checkProaktiveErfuellung } from '../ministerAgenden';
 import { featureActive } from '../features';
 import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienEvents';
