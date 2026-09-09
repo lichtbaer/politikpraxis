@@ -262,7 +262,7 @@ tastaturbedienbar; EN-Spieler sehen kein deutsches Protokoll; `mypy --strict` f�
 | Status | Maßnahme |
 |---|---|
 | ⬜ | SemVer-Tags bei jedem Deploy, `CHANGELOG.md` generiert aus Conventional Commits (Konvention existiert bereits). Versionsnummer aus einer Quelle (`package.json` 0.5.0, `pyproject` 0.1.0, `health` liefert `"0.1.0"` hart). |
-| ⬜ | LICENSE festlegen (Issue #265). Ohne Lizenz verlangt `CONTRIBUTING.md` Zustimmung zu etwas, das niemand kennt. |
+| ✅ | LICENSE festgelegt (Issue #265): AGPL-3.0 im Repo-Root, in README und `CONTRIBUTING.md` referenziert. |
 | ⬜ | `SECURITY.md`, `CODEOWNERS`, `docs/adr/` mit den drei bereits getroffenen Entscheidungen (DB als SSOT, fiktive Parteien, Komplexitätsstufen statt Schwierigkeitsgrad). |
 | ⬜ | WIP-Limit für parallele KI-generierte Feature-PRs (max. 3), Refactoring-PRs immer zuerst mergen. Zehn gleichzeitige PRs, von denen mehrere `core/systems/` umbauen, sind ein Konfliktgenerator. |
 | ⬜ | Entscheidung zur Playtest-Sperre: `gesperrte_stufen: [2, 3]` blockiert die Hälfte der dokumentierten Spielerfahrung inkl. Bundesrat-Lobbying. Entweder freigeben oder prominent in README/Doku als Playtest-Zustand kennzeichnen. |
