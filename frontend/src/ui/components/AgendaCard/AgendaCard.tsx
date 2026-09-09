@@ -4,8 +4,8 @@ import { useGameActions } from '../../hooks/useGameActions';
 import { gesetzKongruenz } from '../../../core/ideologie';
 import { featureActive } from '../../../core/systems/features';
 import { getVorstufenBoni } from '../../../core/systems/legislation/gesetzLebenszyklus';
-import { isVerfassungsgerichtBlockiert } from '../../../core/systems/parliament';
-import { applyKongruenzEffekte, getEinbringenPkKosten } from '../../../core/systems/kongruenz';
+import { isVerfassungsgerichtBlockiert } from '../../../core/systems/parliament/parliament';
+import { applyKongruenzEffekte, getEinbringenPkKosten } from '../../../core/systems/parliament/kongruenz';
 import { getMedienPkZusatzkosten } from '../../../core/systems/medien/medienAkteure';
 import { isEinspruchsgesetz } from '../../../core/systems/institutions/bundesrat';
 import {
