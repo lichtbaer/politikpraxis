@@ -7,8 +7,8 @@ unterschiedliche Eskalationswege (Industrie-Gegenwind vs. parlamentarische
 Untersuchung), die in einer Debatte über ein Rüstungsexportkontrollgesetz
 zusammenlaufen.
 
-Revision ID: 068_event_arc_ruestungsexport_sma272
-Revises: 067_char_beziehungen_sma279
+Revision ID: 069_event_arc_ruestungsexport_sma272
+Revises: 068_analytics_events
 """
 
 from __future__ import annotations
@@ -19,8 +19,8 @@ from typing import Any, Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "068_event_arc_ruestungsexport_sma272"
-down_revision: Union[str, Sequence[str], None] = "067_char_beziehungen_sma279"
+revision: str = "069_event_arc_ruestungsexport_sma272"
+down_revision: Union[str, Sequence[str], None] = "068_analytics_events"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
