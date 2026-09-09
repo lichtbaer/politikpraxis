@@ -44,6 +44,5 @@ Für Bugs und Feature-/Balance-Vorschläge stehen [Issue-Templates](.github/ISSU
 
 ## Lizenz
 
-Die Lizenz dieses Projekts ist in [README.md](README.md#lizenz--beitragen) vermerkt, sobald sie vom
-Maintainer festgelegt wurde (siehe [#265](https://github.com/lichtbaer/politikpraxis/issues/265)).
-Mit einem Beitrag stimmst du zu, dass dieser unter der dann geltenden Projektlizenz veröffentlicht wird.
+Dieses Projekt steht unter der [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
+Mit einem Beitrag stimmst du zu, dass dieser unter derselben Lizenz veröffentlicht wird.

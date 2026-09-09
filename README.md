@@ -136,10 +136,13 @@ Details (inkl. Umgebungsvariablen, DB-URL) stehen in [docs/entwicklung/setup.md]
 
 ## Lizenz & Beitragen
 
-**Lizenz:** Noch nicht final festgelegt (Entscheidung liegt beim Maintainer, siehe
-[#265](https://github.com/lichtbaer/politikpraxis/issues/265)). Bis zur Festlegung gilt der
-gesetzliche Standard „alle Rechte vorbehalten"; dieser Abschnitt wird aktualisiert, sobald eine
-Lizenz gewählt und als `LICENSE`-Datei im Repo-Root hinterlegt wurde.
+**Lizenz:** [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0). Das Projekt darf frei
+genutzt, verändert und weitergegeben werden, solange abgeleitete Werke unter derselben Lizenz
+stehen. Wegen § 13 (Remote Network Interaction) gilt das ausdrücklich auch für Änderungen, die
+nur über einen Server bereitgestellt werden: Wer eine modifizierte Fassung von Bundesrepublik
+öffentlich betreibt, muss den Quellcode dieser Fassung den Nutzenden zugänglich machen.
+
+Beiträge werden unter denselben Lizenzbedingungen aufgenommen.
 
 **Beitragen:** Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Entwicklungsumgebung, Konventionen
 (Branches, Commits, Tests) und den PR-Ablauf. Bugs und Feature-/Balance-Vorschläge bitte über die

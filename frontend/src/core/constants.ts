@@ -332,3 +332,27 @@ export const EINNAHMEN_AL_REFERENZ = 5;
 export const EINNAHMEN_AL_KOEFFIZIENT = 0.015;
 /** Konjunktur-Koeffizient für Einnahmen */
 export const EINNAHMEN_KONJUNKTUR_KOEFFIZIENT = 0.02;
+
+// --- Aufmerksamkeits-Aggregat "Braucht Aufmerksamkeit" (Issue #270) ---
+/**
+ * PK-Stand, unterhalb dessen gar keine Aktion mehr bezahlbar ist: die günstigste
+ * Aktion im Spiel kostet 5 PK (`getEinbringenPkKosten` klemmt auf min. 5).
+ */
+export const ALERT_PK_KRITISCH = 5;
+/**
+ * PK-Stand, unterhalb dessen kein Gesetz mehr eingebracht werden kann
+ * (BASE_PK_EINBRINGEN = 20) — der Spieler ist handlungsfähig, aber nicht mehr
+ * gesetzgebungsfähig.
+ */
+export const ALERT_PK_WARNUNG = 20;
+/**
+ * Koalitionsstabilität, ab der der Bruch unmittelbar bevorsteht. Bewusst über
+ * MIN_KOALITION_FORTGANG (15, = Game Over), damit noch Zeit zum Gegensteuern bleibt.
+ */
+export const ALERT_KOALITION_KRITISCH = 25;
+/** Ja-Prognose (%), ab der ein eingebrachtes Gesetz die Mehrheit (>50) sicher verfehlt */
+export const ALERT_JA_PROGNOSE_KRITISCH = 50;
+/** Ja-Prognose (%), ab der die Mehrheit nur noch knapp erreicht wird */
+export const ALERT_JA_PROGNOSE_WARNUNG = 55;
+/** Max. gleichzeitig angezeigte Alerts je Komplexitätsstufe (Stufe 1/2 bewusst ruhiger) */
+export const ALERT_MAX_ANZAHL: Record<number, number> = { 1: 2, 2: 3, 3: 4, 4: 4 };

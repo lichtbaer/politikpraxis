@@ -3151,5 +3151,27 @@
       "label": "Election forecast",
       "text": "Current polling numbers — what percentage would vote for your party. The election forecast influences the election bonus (up to 4 points). The primary victory criterion is the three-pillar score ≥ 40 points — the election threshold alone does not decide the outcome."
     }
+  },
+  "aufmerksamkeit": {
+    "titel": "Needs attention",
+    "zumTab": "Jump to the relevant area",
+    "misstrauensvotum": {
+      "warnung": "The opposition is gathering its own majority. {{monate}} months until you fall.",
+      "kritisch": "A vote of no confidence is imminent — the opposition can call it at any time."
+    },
+    "koalition": {
+      "warnung": "The coalition is showing cracks ({{wert}}%). Without care it breaks below {{grenze}}%.",
+      "kritisch": "Coalition collapse looms: {{wert}}% — below {{grenze}}% the government is over."
+    },
+    "pk": {
+      "warnung": "Only {{pk}} political capital left — a bill costs around {{kosten}}.",
+      "kritisch": "Political capital exhausted ({{pk}}) — you cannot act."
+    },
+    "blockade": {
+      "prognoseWarnung": "“{{gesetz}}” sits at {{ja}}% yes — the majority is not secured.",
+      "prognoseKritisch": "“{{gesetz}}” fails at {{ja}}% yes in {{monate}} months.",
+      "bestandEins": "“{{gesetz}}” is blocked and awaiting a decision.",
+      "bestandMehrere": "{{anzahl}} bills are blocked, among them “{{gesetz}}”."
+    }
   }
 }

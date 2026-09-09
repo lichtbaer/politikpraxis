@@ -1,0 +1,79 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--warn);
+  border-radius: 6px;
+  background: var(--bg3);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.alert {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-left: 2px solid currentcolor;
+  border-radius: 3px;
+  font-family: var(--sans);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.alert:hover,
+.alert:focus-visible {
+  background: var(--bg4);
+}
+
+.kritisch {
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+}
+
+.warnung {
+  color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 10%, transparent);
+}
+
+.text {
+  color: var(--text);
+}
+
+/* Kritische Einträge werden nur durch Gewicht und Farbe hervorgehoben, nicht durch
+   Animation: mehrere blinkende Zeilen nebeneinander wären wieder Rauschen. */
+.kritisch .text {
+  font-weight: 600;
+}
+
+/* Ein kritischer Eintrag färbt die Panel-Kante mit — die Sidebar signalisiert den
+   Ernst der Lage, ohne dass der Spieler den Text lesen muss. */
+.root:has(.kritisch) {
+  border-left-color: var(--red);
+}
