@@ -249,6 +249,25 @@ async def test_submit_feedback_non_uuid_sub_token_does_not_500(client: AsyncClie
     assert r.status_code == 201
 
 
+def _iter_api_routes(routes):
+    """Alle APIRoutes einer App liefern — auch hinter include_router.
+
+    Bis FastAPI 0.135 flachte `include_router` die Sub-Router in `app.routes`
+    ab, sodass dort direkt APIRoute-Objekte lagen. Ab 0.141 steht dort
+    stattdessen ein `_IncludedRouter`-Wrapper, dessen tatsaechliche Routen
+    erst ueber `effective_candidates()` erreichbar sind. Diese Funktion deckt
+    beide Formen ab.
+    """
+    for route in routes:
+        candidates = getattr(route, "effective_candidates", None)
+        if callable(candidates):
+            yield from _iter_api_routes(candidates())
+        else:
+            # Ab 0.141 kommt hier ein _EffectiveRouteContext, der die Route
+            # unter .route traegt; davor die APIRoute selbst.
+            yield getattr(route, "route", route)
+
+
 def test_admin_feedback_routes_carry_admin_rate_limit_and_audit():
     """Qualitätsplan 2.2: Die Admin-Endpunkte hingen vorher mit nur verify_admin
     am öffentlichen Router und umgingen Rate-Limit + Audit-Log des Admin-Routers."""
@@ -257,7 +276,7 @@ def test_admin_feedback_routes_carry_admin_rate_limit_and_audit():
 
     paths = {"/api/admin/usertest-feedback", "/api/admin/usertest-feedback/export"}
     seen = set()
-    for route in app.routes:
+    for route in _iter_api_routes(app.routes):
         path = getattr(route, "path", None)
         if path not in paths:
             continue
