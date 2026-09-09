@@ -4,7 +4,7 @@
  */
 import { tick } from '../engine';
 import { createInitialState } from '../state';
-import { lobbying, fraktionssitzung } from '../systems/parliament';
+import { lobbying, fraktionssitzung } from '../systems/parliament/parliament';
 import { koalitionsrunde, prioritaetsgespraech } from '../systems/koalition';
 import {
   einbringenCommand,
@@ -13,7 +13,7 @@ import {
 } from '../commands/einbringen';
 import { pressemitteilung } from '../systems/medien/medienAktionen';
 import { medienkampagne } from '../systems/medien/media';
-import { kabinettsgespraech } from '../systems/characters';
+import { kabinettsgespraech } from '../systems/kabinett/characters';
 import { regierungserklaerung } from '../systems/institutions/regierung';
 import { verbandGespraech } from '../systems/verbaende';
 import { wahlkampfRede, wahlkampfKoalition, wahlkampfMedienoffensive } from '../systems/election/wahlkampf';

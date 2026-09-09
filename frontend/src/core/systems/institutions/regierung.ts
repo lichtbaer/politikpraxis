@@ -17,7 +17,7 @@ import { addLog } from '../../engine';
 import { verbrauchePK } from '../../pk';
 import { featureActive } from '../features';
 import { adjustMedienKlimaGlobal } from '../medien/medienAkteure';
-import { applyMoodChange } from '../characters';
+import { applyMoodChange } from '../kabinett/characters';
 import { recalcApproval } from '../economics/economy';
 
 const PK_REGIERUNGSERKLAERUNG = 30;

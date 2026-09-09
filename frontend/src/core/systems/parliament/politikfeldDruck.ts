@@ -1,6 +1,6 @@
-import type { GameState, GameEvent } from '../types';
-import { featureActive } from './features';
-import { withPause, getAutoPauseLevel } from '../eventPause';
+import type { GameState, GameEvent } from '../../types';
+import { featureActive } from '../features';
+import { withPause, getAutoPauseLevel } from '../../eventPause';
 
 /** Politikfeld mit Verbands-Zuordnung und optionalem Druck-Event */
 interface PolitikfeldForDruck {

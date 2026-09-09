@@ -7,7 +7,7 @@ import {
 } from './constants';
 import { applyPendingEffects, applyKPIDrift, recalcApproval, decayZustOffsets, roundKpi } from './systems/economics/economy';
 import { berechneWahlprognose } from './systems/medien/wahlprognose';
-import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/characters';
+import { applyCharBonuses, checkUltimatums, applyRessortKonflikt } from './systems/kabinett/characters';
 import { updateCoalitionStability } from './systems/coalition';
 import { advanceRoutes } from './systems/levels';
 import { checkRandomEvents, checkBundesratEvents, checkKommunalEvents, checkKommunalLaenderEvents, checkSteuerEvents, checkFollowupEvents } from './systems/events/events';
@@ -19,12 +19,12 @@ import {
   checkBundesratLaenderEvents,
   flushPendingBundesratLandEvent,
 } from './systems/institutions/bundesratLaenderEvents';
-import { resolveEingebrachteAbstimmung } from './systems/parliament';
+import { resolveEingebrachteAbstimmung } from './systems/parliament/parliament';
 import { tickKoalitionspartner, checkKoalitionsbruch, updateKoalitionsvertragScore } from './systems/koalition';
-import { checkPolitikfeldDruck } from './systems/politikfeldDruck';
+import { checkPolitikfeldDruck } from './systems/parliament/politikfeldDruck';
 import { checkVerbandsAktionen } from './systems/verbaende';
 import { checkMinisterialInitiativen } from './systems/legislation/ministerialInitiativen';
-import { checkMinisterAgenden } from './systems/ministerAgenden';
+import { checkMinisterAgenden } from './systems/kabinett/ministerAgenden';
 import { tickEUKlima, advanceEURoute, checkEUEreignisse } from './systems/eu';
 import {
   tickKonjunktur,
@@ -36,7 +36,7 @@ import {
 } from './systems/economics/haushalt';
 import { tickWirtschaft } from './systems/economics/wirtschaft';
 import { tickGesetzVorstufen } from './systems/legislation/gesetzLebenszyklus';
-import { checkHundertTageBilanz } from './systems/dramaturgie/dramaturgie';
+import { checkHundertTageBilanz, checkSommerloch, checkHalbzeitbilanz } from './systems/dramaturgie/dramaturgie';
 import {
   checkWahlkampfBeginn,
   checkTVDuell,
@@ -491,6 +491,20 @@ const ENGINE_PIPELINE: EnginePhase[] = [
         safe: true,
         run(ctx) {
           if (!ctx.s.activeEvent) ctx.s = checkHundertTageBilanz(ctx.s, ctx.content, ctx.complexity);
+        },
+      },
+      {
+        id: 'checkHalbzeitbilanz',
+        safe: true,
+        run(ctx) {
+          if (!ctx.s.activeEvent) ctx.s = checkHalbzeitbilanz(ctx.s, ctx.content, ctx.complexity);
+        },
+      },
+      {
+        id: 'checkSommerloch',
+        safe: true,
+        run(ctx) {
+          if (!ctx.s.activeEvent) ctx.s = checkSommerloch(ctx.s, ctx.content, ctx.complexity);
         },
       },
       {

@@ -1,10 +1,10 @@
 /**
  * SMA-327: Minister-Entlassung (Stufe 3+)
  */
-import type { GameState, Character } from '../types';
-import { addLog } from '../../core/engine';
-import { featureActive } from './features';
-import { waehleMinisterAusPool } from '../kabinett';
+import type { GameState, Character } from '../../types';
+import { addLog } from '../../engine';
+import { featureActive } from '../features';
+import { waehleMinisterAusPool } from '../../kabinett';
 
 function getChar(state: GameState, charId: string): Character | undefined {
   return state.chars.find((c) => c.id === charId);

@@ -1,9 +1,9 @@
 import type { GameState, Character, MinisterialInitiative } from '../../types';
 import { addLog } from '../../engine';
 import { withPause } from '../../eventPause';
-import { einbringen } from '../parliament';
+import { einbringen } from '../parliament/parliament';
 import { featureActive } from '../features';
-import { resolveCharById } from '../characters';
+import { resolveCharById } from '../kabinett/characters';
 import { nextRandom } from '../../rng';
 
 const COOLDOWN_MONTHS = 8;
