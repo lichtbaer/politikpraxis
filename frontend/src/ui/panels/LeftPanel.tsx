@@ -9,6 +9,7 @@ import { CoalitionMeter } from '../components/CoalitionMeter/CoalitionMeter';
 import { MedienklimaBadge } from '../components/MedienklimaBadge/MedienklimaBadge';
 import { MilieuSidebar } from '../components/MilieuSidebar/MilieuSidebar';
 import { AgendaSidebar } from '../components/AgendaSidebar/AgendaSidebar';
+import { AufmerksamkeitsPanel } from '../components/AufmerksamkeitsPanel/AufmerksamkeitsPanel';
 import { ApprovalChart } from '../components/ApprovalChart/ApprovalChart';
 import { formatMrdSaldo } from '../../utils/format';
 import { Erklaerung } from '../components/Erklaerung/Erklaerung';
@@ -36,6 +37,9 @@ export function LeftPanel() {
 
   return (
     <aside className={styles.panel}>
+      {/* Issue #270: steht bewusst vor den KPIs — was jetzt kippt, muss vor den Kennzahlen stehen */}
+      <AufmerksamkeitsPanel />
+
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}><Erklaerung begriff="wahlprognose" kinder={t('game:leftPanel.wahlprognose')} /></h3>
         <div className={styles.wahlprognose}>

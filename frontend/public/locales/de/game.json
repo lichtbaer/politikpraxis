@@ -3149,5 +3149,27 @@
       "label": "Wahlprognose",
       "text": "Aktuelle Umfragewerte — wie viele Prozent würden deine Partei wählen. Die Wahlprognose beeinflusst den Wahlbonus (bis zu 4 Punkte). Primäres Siegkriterium ist der Dreipfeiler-Score ≥ 40 Punkte — die Wahlhürde allein entscheidet nicht."
     }
+  },
+  "aufmerksamkeit": {
+    "titel": "Braucht Aufmerksamkeit",
+    "zumTab": "Zum betroffenen Bereich springen",
+    "misstrauensvotum": {
+      "warnung": "Die Opposition sammelt eine eigene Mehrheit. Noch {{monate}} Monate bis zum Sturz.",
+      "kritisch": "Misstrauensvotum steht bevor — die Opposition kann jederzeit abstimmen lassen."
+    },
+    "koalition": {
+      "warnung": "Die Koalition zeigt Risse ({{wert}} %). Ohne Pflege bricht sie unter {{grenze}} %.",
+      "kritisch": "Koalitionsbruch droht: {{wert}} % — unter {{grenze}} % ist die Regierung am Ende."
+    },
+    "pk": {
+      "warnung": "Nur noch {{pk}} politisches Kapital — für ein Gesetz brauchen Sie rund {{kosten}}.",
+      "kritisch": "Politisches Kapital erschöpft ({{pk}}) — Sie sind handlungsunfähig."
+    },
+    "blockade": {
+      "prognoseWarnung": "„{{gesetz}}“ steht bei {{ja}} % Ja — die Mehrheit ist nicht gesichert.",
+      "prognoseKritisch": "„{{gesetz}}“ scheitert bei {{ja}} % Ja in {{monate}} Monaten.",
+      "bestandEins": "„{{gesetz}}“ ist blockiert und wartet auf eine Entscheidung.",
+      "bestandMehrere": "{{anzahl}} Gesetze sind blockiert, darunter „{{gesetz}}“."
+    }
   }
 }
