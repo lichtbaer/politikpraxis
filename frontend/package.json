@@ -8,9 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test": "vitest run --exclude src/core/simulation/balanceSim.test.ts",
+    "test:watch": "vitest --exclude src/core/simulation/balanceSim.test.ts",
+    "test:coverage": "vitest run --coverage --exclude src/core/simulation/balanceSim.test.ts",
+    "test:balance": "vitest run src/core/simulation/balanceSim.test.ts",
     "balance:report": "tsx scripts/balanceReport.ts",
     "gen:api-types": "python3 ../backend/scripts/export_openapi.py && openapi-typescript ../backend/openapi.json -o src/types/api-generated.ts",
     "check:api-types": "npm run gen:api-types && git diff --exit-code -- ../backend/openapi.json src/types/api-generated.ts"
@@ -26,8 +27,8 @@
     "i18next": "^26.2.0",
     "i18next-http-backend": "^3.0.2",
     "lucide-react": "^0.577.0",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "react-i18next": "^17.0.10",
     "react-router-dom": "^7.18.1",
     "tslib": "^2.8.1",
@@ -39,8 +40,8 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.12.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9.39.4",
@@ -54,6 +55,6 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^8.1.5",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.10"
   }
 }

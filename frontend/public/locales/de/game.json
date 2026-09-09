@@ -2229,7 +2229,17 @@
     "monatTooltip": "Monat {{month}}: <b>{{value}}%</b>",
     "meilensteine": "Meilensteine",
     "neueErfolge": "Neue Erfolge freigeschaltet!",
-    "zumHauptmenue": "Zum Hauptmenü"
+    "zumHauptmenue": "Zum Hauptmenü",
+    "milestones": {
+      "lawsPassed": "{{count}} Gesetze beschlossen",
+      "lawsBlocked": "{{count}} Gesetze blockiert",
+      "eventsHandled": "{{count}} Ereignisse bewältigt",
+      "coalitionStable": "Koalition stabil gehalten",
+      "coalitionCrisis": "Koalitionskrise erlebt",
+      "budgetPositive": "Haushalt im Plus",
+      "debtBrakeBreached": "Schuldenbremse gerissen",
+      "campaignCompleted": "Wahlkampf durchlaufen"
+    }
   },
   "auswertung": {
     "achievementUnlockedToast": "🏆 Erfolg freigeschaltet: {{title}}",
@@ -2622,7 +2632,8 @@
       "politikfeld": "Politikfeld",
       "sicherheit": "Sicherheit",
       "wirtschaft": "Wirtschaft"
-    }
+    },
+    "oncePerMonth": "Nur 1× pro Monat möglich"
   },
   "introTour": {
     "ariaLabel": "Spiel-Einführung",
@@ -3000,17 +3011,6 @@
     "collapseWarning": "Koalitionsbruch droht!",
     "ariaLabel": "Koalitionsstabilität: {{value}}%, {{status}}."
   },
-  "endScreen.milestones": {
-    "lawsPassed": "{{count}} Gesetze beschlossen",
-    "lawsBlocked": "{{count}} Gesetze blockiert",
-    "eventsHandled": "{{count}} Ereignisse bewältigt",
-    "coalitionStable": "Koalition stabil gehalten",
-    "coalitionCrisis": "Koalitionskrise erlebt",
-    "budgetPositive": "Haushalt im Plus",
-    "debtBrakeBreached": "Schuldenbremse gerissen",
-    "campaignCompleted": "Wahlkampf durchlaufen"
-  },
-  "opposition.oncePerMonth": "Nur 1× pro Monat möglich",
   "bundesratMap": {
     "koalition": "Koalition",
     "neutral": "Neutral",
