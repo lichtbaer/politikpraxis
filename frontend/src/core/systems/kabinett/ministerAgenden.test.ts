@@ -9,7 +9,7 @@ import {
   checkProaktiveErfuellung,
   AGENDA_EVENT_PREFIX,
 } from './ministerAgenden';
-import type { GameState, GameEvent } from '../types';
+import type { GameState, GameEvent } from '../../types';
 
 function createBaseState(overrides: Partial<GameState> = {}): GameState {
   return {

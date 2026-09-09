@@ -2,9 +2,9 @@ import type { GameState, GameEvent, EventChoice, ContentBundle } from '../../typ
 import { getEventNamespace } from '../../eventNamespaces';
 import { addLog } from '../../engine';
 import { withPause, getAutoPauseLevel } from '../../eventPause';
-import { applyMoodChange } from '../characters';
+import { applyMoodChange } from '../kabinett/characters';
 import { resolveMinisterialInitiative } from '../legislation/ministerialInitiativen';
-import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from '../ministerAgenden';
+import { resolveMinisterAgenda, AGENDA_EVENT_PREFIX } from '../kabinett/ministerAgenden';
 import { resolveMisstrauensvotum } from '../election/election';
 import { startKommunalPilot } from '../legislation/gesetzLebenszyklus';
 import { applyVorbildBonus } from '../legislation/gesetzLebenszyklus';
@@ -515,13 +515,15 @@ export function resolveEvent(
     });
   }
 
-  // Wahlkampf-Beginn, Koalitionspartner-Alleingang, 100-Tage-Bilanz: einfaches
-  // Bestätigen — Effekte (falls vorhanden) sind bereits in der jeweiligen
-  // Check-Funktion angewendet worden.
+  // Wahlkampf-Beginn, Koalitionspartner-Alleingang, 100-Tage-Bilanz,
+  // Sommerloch, Halbzeitbilanz: einfaches Bestätigen — Effekte (falls
+  // vorhanden) sind bereits in der jeweiligen Check-Funktion angewendet worden.
   if (
     event.id === 'wahlkampf_beginn'
     || event.id === 'koalitionspartner_alleingang'
     || event.id === 'hundert_tage_bilanz'
+    || event.id === 'halbzeitbilanz'
+    || event.id.startsWith('sommerloch_')
   ) {
     return { ...state, activeEvent: null };
   }

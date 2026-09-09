@@ -7,11 +7,13 @@ statt im Prozess-Speicher — die Tests dafür brauchen eine echte DB-Verbindung
 """
 
 import logging
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
 import sqlalchemy as sa
 from app.db.database import async_session
+from app.services import admin_rate_limit as admin_rate_limit_service
 from app.services.admin_rate_limit import (
     ADMIN_RATE_LIMIT,
     ADMIN_WINDOW_SECONDS,
@@ -186,6 +188,16 @@ async def test_admin_rate_limit_dependency_blocks_after_limit(monkeypatch):
     await _clear_bucket(ip)
     headers = {"x-real-ip": ip}
     auth = ("admin", "test")
+
+    # Die Uhr fuer die Dauer der Schleife einfrieren. check_admin_rate_limit
+    # rastert das Fenster auf `time.time() // ADMIN_WINDOW_SECONDS`; faellt eine
+    # 60s-Grenze zwischen die 31 Requests, setzt der Zaehler zurueck und der
+    # letzte Request kaeme mit 200 statt 429 durch (flaky in CI). Nur das
+    # Modul-lokale `time` des Services wird ersetzt, nicht die globale stdlib.
+    frozen = 1_700_000_000.0
+    monkeypatch.setattr(
+        admin_rate_limit_service, "time", SimpleNamespace(time=lambda: frozen)
+    )
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"

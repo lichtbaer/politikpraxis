@@ -391,3 +391,14 @@ async def test_get_game_content_version_is_stable(client: AsyncClient):
     v2 = r2.json()["contentVersion"]
     assert isinstance(v1, str) and len(v1) > 0
     assert v1 == v2
+
+
+@pytest.mark.asyncio
+async def test_get_events_type_filter_rejects_arbitrary_values(client: AsyncClient):
+    """Qualitätsplan 2.2: `type` landet im Cache-Key. Beliebige Werte (Länge,
+    Sonderzeichen) werden vor dem DB-Zugriff mit 422 abgewiesen."""
+    for bad in ["x" * 40, "Random", "a b", "../etc", ""]:
+        r = await client.get(
+            "/api/content/events", params={"locale": "de", "type": bad}
+        )
+        assert r.status_code == 422, bad

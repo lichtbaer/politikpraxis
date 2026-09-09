@@ -50,3 +50,12 @@ ignore_errors = true
 [tool.bandit]
 exclude_dirs = ["tests", "app/db/migrations"]
 skips = ["B101"]  # assert in Tests/FastAPI-Deps ist OK
+
+[tool.coverage.run]
+branch = true
+source = ["app"]
+omit = ["app/db/migrations/*"]
+
+[tool.coverage.report]
+skip_covered = false
+show_missing = false

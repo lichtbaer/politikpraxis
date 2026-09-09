@@ -9,7 +9,7 @@
 import type { GameState, Law, ContentBundle } from '../../types';
 import { addLog } from '../../engine';
 import { featureActive } from '../features';
-import { applyMoodChange } from '../characters';
+import { applyMoodChange } from '../kabinett/characters';
 import { adjustMedienKlimaGlobal } from '../medien/medienAkteure';
 import { SCHULDENBREMSE_SPIELRAUM_BASIS } from '../../constants';
 
