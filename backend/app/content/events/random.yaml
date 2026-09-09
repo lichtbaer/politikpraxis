@@ -1451,3 +1451,179 @@
         im: 1
         jm: -1
       log: 'Anwälte übernehmen. Ausschuss wirkt blockiert, öffentlicher Unmut wächst.'
+
+# Arc "Rüstungsexport-Kontroverse": eine Re-Export-Enthüllung verzweigt in
+# Industrie-Gegenwind vs. parlamentarische Untersuchung, beide laufen in
+# einer Debatte über ein Rüstungsexportkontrollgesetz zusammen.
+
+- id: ruestungsexport_enthuellung
+  type: danger
+  icon: "\U0001F52B"
+  typeLabel: Rüstungsexportaffäre
+  title: 'Recherche: Deutsche Waffen über Umweg im Konfliktgebiet aufgetaucht'
+  arc_id: ruestungsexport
+  arc_stage: 1
+  min_complexity: 1
+  quote: >-
+    Ein Rechercheverbund weist nach: Rüstungsgüter aus deutscher Produktion
+    wurden über einen Zwischenhändler in ein Konfliktgebiet weiterverkauft —
+    entgegen den Endverbleibserklärungen.
+  context: >-
+    Außenminister-Kollegen der EU fragen nach, Menschenrechtsorganisationen
+    fordern einen sofortigen Exportstopp. Die Werften-Region hängt an den
+    Aufträgen.
+  ticker: 'Rüstungsexportaffäre: deutsche Waffen im Konfliktgebiet aufgetaucht'
+  choices:
+    - label: Exportstopp verhängen
+      desc: 'Lieferungen an den betroffenen Empfänger sofort einstellen'
+      cost: 8
+      type: safe
+      effect:
+        gi: 0.2
+        zf: 1
+      charMood:
+        wm: -1
+        jm: 1
+      log: 'Exportstopp verhängt. Menschenrechtsorganisationen erleichtert, Werften-Region alarmiert.'
+      followup_event_id: ruestungsexport_industrie
+      followup_delay: 1
+    - label: An Verträgen festhalten
+      desc: 'Endverbleibserklärung als ausreichend darstellen, Lieferungen fortsetzen'
+      cost: 3
+      type: danger
+      effect:
+        gi: -0.1
+        zf: -1
+      charMood:
+        wm: 1
+        jm: -1
+      log: 'Verträge fortgesetzt. Vorwurf der Mitverantwortung bleibt im Raum stehen.'
+      followup_event_id: ruestungsexport_untersuchung
+      followup_delay: 1
+
+- id: ruestungsexport_industrie
+  type: warn
+  icon: "\U0001F52B"
+  typeLabel: Rüstungsexportaffäre
+  title: Werften-Region protestiert gegen Exportstopp
+  arc_id: ruestungsexport
+  arc_stage: 2
+  min_complexity: 1
+  quote: >-
+    Nach dem Exportstopp gehen in der Werften-Region Beschäftigte auf die
+    Straße. Betriebsräte warnen vor tausenden Arbeitsplätzen.
+  context: >-
+    Wirtschaftsministerin Maier drängt auf eine schnelle Lösung, bevor
+    Zulieferer Kurzarbeit anmelden.
+  ticker: 'Exportstopp: Werften-Region fürchtet um Arbeitsplätze'
+  choices:
+    - label: Konversionsprogramm auflegen
+      desc: 'Werften auf zivile Zusatzaufträge umstellen, staatlich gefördert'
+      cost: 12
+      type: primary
+      effect:
+        al: 0.1
+        hh: -0.3
+        gi: 0.1
+        zf: 2
+      charMood:
+        wm: 1
+      log: 'Konversionsprogramm aufgelegt. Kostet den Haushalt, sichert aber langfristig Arbeitsplätze.'
+      followup_event_id: ruestungsexport_kontrollgesetz
+      followup_delay: 1
+    - label: Ausnahmegenehmigungen zulassen
+      desc: 'Einzelfallgenehmigungen für laufende Aufträge, Exportstopp aufweichen'
+      cost: 4
+      type: danger
+      effect:
+        al: -0.1
+        hh: 0.1
+        gi: -0.2
+        zf: -1
+      charMood:
+        wm: 1
+        jm: -1
+      log: 'Ausnahmen zugelassen. Werften beruhigt, Glaubwürdigkeit des Exportstopps beschädigt.'
+      followup_event_id: ruestungsexport_kontrollgesetz
+      followup_delay: 1
+
+- id: ruestungsexport_untersuchung
+  type: danger
+  icon: "\U0001F52B"
+  typeLabel: Rüstungsexportaffäre
+  title: Bundestag richtet Untersuchungsausschuss zur Endverbleibskontrolle ein
+  arc_id: ruestungsexport
+  arc_stage: 2
+  min_complexity: 1
+  quote: >-
+    Weil der Vertrag trotz Warnzeichen nicht gestoppt wurde, richtet der
+    Bundestag einen Untersuchungsausschuss zur Endverbleibskontrolle ein.
+  context: >-
+    Die Opposition wittert ein Kontrollversagen im Wirtschaftsministerium.
+    Justizministerin Kern verlangt lückenlose Aufklärung.
+  ticker: 'Untersuchungsausschuss zur Rüstungsexport-Endverbleibskontrolle'
+  choices:
+    - label: Vollständige Akteneinsicht gewähren
+      desc: 'Alle Unterlagen dem Ausschuss übergeben'
+      cost: 6
+      type: safe
+      effect:
+        gi: 0.1
+        zf: 2
+      charMood:
+        jm: 1
+      log: 'Volle Akteneinsicht gewährt. Ausschuss würdigt die Kooperation.'
+      followup_event_id: ruestungsexport_kontrollgesetz
+      followup_delay: 1
+    - label: Staatswohl geltend machen
+      desc: 'Zentrale Unterlagen als geheimhaltungsbedürftig einstufen'
+      cost: 2
+      type: danger
+      effect:
+        gi: -0.2
+        zf: -4
+      charMood:
+        im: 1
+        jm: -1
+      log: 'Staatswohl geltend gemacht. Opposition spricht von Vertuschung, Sicherheitsbehörden erleichtert.'
+      followup_event_id: ruestungsexport_kontrollgesetz
+      followup_delay: 1
+
+- id: ruestungsexport_kontrollgesetz
+  type: primary
+  icon: "\U0001F52B"
+  typeLabel: Rüstungsexportaffäre
+  title: Debatte um ein neues Rüstungsexportkontrollgesetz
+  arc_id: ruestungsexport
+  arc_stage: 3
+  min_complexity: 1
+  quote: >-
+    Nach Wochen der Berichterstattung liegt ein Entwurf für ein verschärftes
+    Rüstungsexportkontrollgesetz vor.
+  context: >-
+    Menschenrechtsorganisationen und Rüstungsindustrie liefern sich einen
+    letzten Schlagabtausch, bevor der Bundestag entscheidet.
+  ticker: 'Rüstungsexportkontrollgesetz: Bundestag vor Entscheidung'
+  choices:
+    - label: Strenges Kontrollgesetz durchsetzen
+      desc: 'Endverbleibskontrollen verschärfen, Ausnahmen stark einschränken'
+      cost: 10
+      type: primary
+      effect:
+        al: 0.1
+        gi: 0.3
+        zf: 3
+      charMood:
+        wm: -1
+        jm: 1
+      log: 'Strenges Gesetz durchgesetzt. Menschenrechtsorganisationen loben, Rüstungsindustrie und Verbündete verstimmt.'
+    - label: Kompromissregelung mit Ausnahmeklausel
+      desc: 'Verschärfte Kontrolle, aber Ausnahmeklausel für strategische Partner'
+      cost: 5
+      type: safe
+      effect:
+        gi: 0.1
+        zf: 1
+      charMood:
+        wm: 1
+      log: 'Kompromiss verabschiedet. Moderat begrüßt, niemand ist wirklich zufrieden.'
