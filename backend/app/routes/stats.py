@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.database import get_db
 from app.dependencies import get_optional_user
+from app.limiter import limiter
 from app.models.user import User
 from app.schemas.stats import (
     CommunityStatsResponse,
@@ -23,7 +24,12 @@ router = APIRouter()
 
 
 @router.post("", response_model=GameStatCreateResponse)
+# Ohne Login schreibbar (session_id reicht) → ohne Limit könnte jeder die
+# Community-Statistik und die Highscores unbegrenzt fluten. Ein Spiel dauert
+# Stunden; 10/h pro IP lässt Haushalte mit mehreren Spielern noch durch.
+@limiter.limit("10/hour")
 async def post_stats(
+    request: Request,
     req: GameStatCreateRequest,
     user: User | None = Depends(get_optional_user),
     db: AsyncSession = Depends(get_db),
