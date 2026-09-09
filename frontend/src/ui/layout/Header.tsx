@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
@@ -25,8 +25,8 @@ export function Header() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const [manualSlot, setManualSlot] = useState(2);
   const [showPressemitteilungModal, setShowPressemitteilungModal] = useState(false);
-  const [showGlossar, setShowGlossar] = useState(false);
-  const [glossarInitialSearch, setGlossarInitialSearch] = useState('');
+  const [manualGlossarOpen, setManualGlossarOpen] = useState(false);
+  const [dismissedGlossarRequestId, setDismissedGlossarRequestId] = useState(0);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
@@ -113,13 +113,23 @@ export function Header() {
     setFastForwardActive(true);
   };
 
-  /** #281: Glossar auf Anfrage (z. B. aus einem GameTip) mit vorausgefüllter Suche öffnen */
-  useEffect(() => {
-    if (openGlossarRequestId === 0 || !openGlossarKey) return;
-    setGlossarInitialSearch(tGame(`glossar.entries.${openGlossarKey}.term`));
-    setShowGlossar(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openGlossarRequestId]);
+  /**
+   * #281: Glossar auf Anfrage (z. B. aus einem GameTip) mit vorausgefüllter Suche öffnen.
+   *
+   * Abgeleitet statt per Effekt gesetzt: eine offene Anfrage ist eine, deren
+   * `openGlossarRequestId` noch nicht weggeklickt wurde. Das Schließen merkt
+   * sich die zuletzt gesehene ID; die nächste Anfrage erhöht sie wieder und
+   * öffnet das Glossar erneut.
+   */
+  const glossarRequestOpen =
+    openGlossarRequestId !== 0 &&
+    openGlossarRequestId !== dismissedGlossarRequestId &&
+    !!openGlossarKey;
+  const showGlossar = manualGlossarOpen || glossarRequestOpen;
+  const glossarInitialSearch =
+    glossarRequestOpen && openGlossarKey
+      ? tGame(`glossar.entries.${openGlossarKey}.term`)
+      : '';
 
   return (
     <header className={styles.header}>
@@ -245,7 +255,7 @@ export function Header() {
         <button
           type="button"
           className={styles.glossarBtn}
-          onClick={() => setShowGlossar(true)}
+          onClick={() => setManualGlossarOpen(true)}
           title={t('game:headerUI.glossarTitle')}
         >
           ?
@@ -270,8 +280,8 @@ export function Header() {
         <Glossar
           initialSearch={glossarInitialSearch}
           onClose={() => {
-            setShowGlossar(false);
-            setGlossarInitialSearch('');
+            setManualGlossarOpen(false);
+            setDismissedGlossarRequestId(openGlossarRequestId);
           }}
         />
       )}
