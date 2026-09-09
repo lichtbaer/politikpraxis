@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { berechneEffektiveBTStimmen, berechneJaBreakdown, resolveEingebrachteAbstimmung } from './parliament';
-import { makeState } from '../test-helpers';
-import type { Law } from '../types';
+import { makeState } from '../../test-helpers';
+import type { Law } from '../../types';
 
 function eeGesetz(): Law {
   return {

@@ -6,7 +6,7 @@ import {
   getKoalitionIdeologieSkalar,
   pruefePartnerWiderstand,
 } from './ideologiePartner';
-import type { Law } from '../types';
+import type { Law } from '../../types';
 
 describe('ideologiePartner (SMA-403)', () => {
   it('berechneIdeologieMalus Stufen', () => {

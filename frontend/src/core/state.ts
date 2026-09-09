@@ -10,7 +10,7 @@ import { createInitialWirtschaft } from './systems/economics/wirtschaft';
 import type { Ausrichtung } from './systems/ausrichtung';
 import { recalcApproval } from './systems/economics/economy';
 import { berechneKongruenz } from './ideologie';
-import { berechneEffektiveBTStimmen } from './systems/parliament';
+import { berechneEffektiveBTStimmen } from './systems/parliament/parliament';
 import {
   PARTEI_VERBANDS_BONUS,
   SPIELBARE_PARTEIEN,
