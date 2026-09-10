@@ -11,8 +11,16 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
+      /**
+       * Dev läuft same-origin: das Frontend ruft `/api/…` auf der eigenen Origin auf
+       * (services/api.ts nutzt ohne VITE_API_URL den Default „/api“), Vite proxyt weiter.
+       * Damit gibt es im Dev keine Cross-Origin-Requests und keine CORS-Preflights —
+       * egal ob die App über localhost, die Container- oder eine LAN-IP geöffnet wird.
+       * Im Docker-Dev-Stack ist der Backend-Host ein anderer als bei `npm run dev`
+       * auf der Maschine, deshalb per Env überschreibbar (siehe docker-compose.dev.yml).
+       */
       '/api': {
-        target: 'http://127.0.0.1:8000',
+        target: process.env.VITE_DEV_API_PROXY_TARGET ?? 'http://127.0.0.1:8000',
         changeOrigin: true,
       },
     },

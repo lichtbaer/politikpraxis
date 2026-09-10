@@ -107,7 +107,7 @@ mkdocs build          # Static build to site/
 - **State management**: Zustand stores — never Redux. Game state changes only through `gameStore` actions (`gameTick`, `doEinbringen`, `doLobbying`, etc.)
 - **Tick system**: `engine.tick(state, content)` in `core/engine.ts` calls subsystems in `core/systems/` sequentially
 - **Data fetching**: TanStack React Query for server state
-- **API client**: Generic `apiFetch<T>()` in `services/api.ts` wrapping fetch with auth headers. Base URL from `VITE_API_URL`
+- **API client**: Generic `apiFetch<T>()` in `services/api.ts` wrapping fetch with auth headers. Base URL from `VITE_API_URL`, defaulting to `/api` (same-origin via the Vite dev proxy / nginx)
 - **Styling**: CSS Modules (`.module.css` per component)
 - **i18n**: i18next with HTTP backend, namespaces `common` and `game`, fallback language `de`
 - **Routing**: React Router v7
@@ -156,7 +156,10 @@ mkdocs build          # Static build to site/
 - `LOG_JSON` — Force structured JSON logs on/off (default: on unless `DEBUG`)
 
 ### Frontend (`frontend/.env`, see `.env.example`)
-- `VITE_API_URL` — Backend API base URL (e.g., `http://localhost:8000/api`)
+- `VITE_API_URL` — Backend API base URL. Leave unset in dev: the default `/api` is same-origin
+  and the Vite proxy forwards to the backend. An absolute URL bypasses the proxy and requires CORS
+- `VITE_DEV_API_PROXY_TARGET` — Vite dev-proxy target (default `http://127.0.0.1:8000`;
+  `http://backend:8000` in `docker-compose.dev.yml`)
 - `VITE_SENTRY_DSN` / `VITE_SENTRY_ENVIRONMENT` — Optional error tracking (no-op if `VITE_SENTRY_DSN` unset)
 
 ## Code Conventions

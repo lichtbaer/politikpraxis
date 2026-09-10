@@ -63,7 +63,8 @@ npm install
 npm run dev
 ```
 
-Vite: typischerweise http://localhost:5173. Für API: `VITE_API_URL=http://localhost:8000/api` setzen.
+Vite: typischerweise http://localhost:5173. `VITE_API_URL` nicht setzen — der Vite-Dev-Proxy
+leitet `/api` an `http://127.0.0.1:8000` weiter (Ziel überschreibbar per `VITE_DEV_API_PROXY_TARGET`).
 
 ### Docker Dev (Vite mit HMR)
 
@@ -71,8 +72,9 @@ Vite: typischerweise http://localhost:5173. Für API: `VITE_API_URL=http://local
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-- Frontend (Vite): http://localhost:5174
+- Frontend (Vite): http://localhost:5174 (nicht die `Network:`-URL mit der Container-IP)
 - Backend: http://localhost:8000
+- API same-origin über den Vite-Proxy (`VITE_API_URL=/api`) — kein CORS nötig
 
 ### Backend lokal
 
@@ -108,7 +110,8 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 2. **Spielzustand:** Nur über Aktionen im `gameStore` ändern (`gameTick`, `doEinbringen`, `doLobbying`, etc.).
 3. **Tick-System:** `engine.tick(state, content)` in `frontend/src/core/engine.ts` ruft nacheinander die Systeme in `core/systems/` auf.
 4. **Typen:** Alle Game-Typen unter `frontend/src/core/types/` (`GameState`, `Law`, `Character`, etc.).
-5. **API:** `frontend/src/services/api.ts` mit `apiFetch`, Basis-URL aus `VITE_API_URL`.
+5. **API:** `frontend/src/services/api.ts` mit `apiFetch`, Basis-URL aus `VITE_API_URL`
+   (Default `/api` → same-origin über Vite-Proxy bzw. nginx).
 
 ---
 

@@ -33,7 +33,8 @@ Für Frontend-Entwicklung im echten `npm run dev`-Modus:
 docker compose -f docker-compose.dev.yml up --build
 ```
 
-- **Frontend (Vite Dev Server):** http://localhost:5174
+- **Frontend (Vite Dev Server):** http://localhost:5174 — nicht die von Vite ausgegebene
+  `Network:`-URL mit der Container-IP verwenden
 - **Backend (FastAPI mit Reload):** http://localhost:8000
 - **API-Doku:** http://localhost:8000/api/docs
 

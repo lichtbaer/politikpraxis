@@ -23,7 +23,10 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-bundesrepublik}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-change-in-production}
       DEBUG: "true"
-      CORS_ORIGINS: '["http://localhost:5174","http://127.0.0.1:5174","http://localhost:8080","http://127.0.0.1:8080"]'
+      # Der reguläre Dev-Flow läuft same-origin über den Vite-Proxy und braucht kein CORS.
+      # Diese Liste deckt nur die Sonderfälle ab, in denen wirklich cross-origin gearbeitet
+      # wird (Swagger unter :8000, Bare-Metal-Vite gegen das Docker-Backend).
+      CORS_ORIGINS: '["http://localhost:5174","http://127.0.0.1:5174","http://localhost:5173","http://127.0.0.1:5173","http://localhost:8080","http://127.0.0.1:8080"]'
     depends_on:
       db:
         condition: service_healthy
@@ -40,7 +43,12 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.dev
     environment:
-      VITE_API_URL: http://localhost:8000/api
+      # Relativ: der Browser ruft /api auf derselben Origin wie die App auf, Vite proxyt
+      # weiter an das Backend. Eine absolute URL (http://localhost:8000/api) würde den
+      # Proxy umgehen und jeden Request cross-origin machen — dann muss CORS_ORIGINS
+      # jede Origin kennen, über die jemand die App öffnet (auch die Container-IP).
+      VITE_API_URL: /api
+      VITE_DEV_API_PROXY_TARGET: http://backend:8000
     depends_on:
       - backend
     volumes:
