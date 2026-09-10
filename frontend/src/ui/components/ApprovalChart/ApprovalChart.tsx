@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import ReactEChartsCore from 'echarts-for-react/lib/core';
+import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { useTranslation } from 'react-i18next';
 import { echarts } from '../../lib/echarts';

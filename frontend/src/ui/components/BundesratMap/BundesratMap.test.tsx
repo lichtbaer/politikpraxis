@@ -9,7 +9,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('echarts-for-react/lib/core', () => ({
+vi.mock('echarts-for-react/esm/core', () => ({
   default: () => <div data-testid="echarts-mock" />,
 }));
 
