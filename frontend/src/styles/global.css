@@ -106,6 +106,13 @@ select:focus-visible {
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* Aufmerksamkeits-Puls. Der Tiefpunkt ist über `--pulse-dip` einstellbar, damit
+ * die Komponenten nicht jeweils eigene, minimal abweichende Keyframes mitbringen. */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: var(--pulse-dip, 0.7); }
+}
+
 @keyframes staggerIn {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -193,6 +200,46 @@ select:focus-visible {
 
 .btn-ghost:active {
   transform: translateY(0);
+}
+
+/* ─── Erhöhter Kontrast ──────────────────────────────────────────────────────
+   Wer `prefers-contrast: more` gesetzt hat, bekommt kräftigere Ränder und
+   Sekundärtext auf Primärniveau. Die Token bleiben die Quelle — hier werden nur
+   die leiseren Stufen angehoben, statt eine fünfte Palette zu pflegen. */
+@media (prefers-contrast: more) {
+  :root {
+    --text2: var(--text);
+    --text3: var(--text);
+    --border: var(--border2);
+  }
+
+  :focus-visible {
+    outline-width: 3px;
+  }
+}
+
+/* Windows-Kontrastmodus: das System setzt eigene Farben. Rahmen und Fokus über
+   Systemfarben führen, damit Flächen nicht unsichtbar werden. */
+@media (forced-colors: active) {
+  * {
+    forced-color-adjust: auto;
+  }
+
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  /* Rein farblich codierte Flächen (Balken, Chips) brauchen eine Kante, sonst
+     verschwinden sie gegen den erzwungenen Hintergrund. */
+  [class*='fill'],
+  [class*='Fill'],
+  [class*='badge'],
+  [class*='Badge'],
+  [class*='chip'],
+  [class*='Chip'] {
+    border: 1px solid CanvasText;
+  }
 }
 
 /* ─── Reduced Motion ─────────────────────────────────────────────────────────── */

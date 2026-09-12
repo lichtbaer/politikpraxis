@@ -199,16 +199,6 @@
   cursor: pointer;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
 /* --- Mobil: Vertikales Stacking --- */
 @media (max-width: 768px) {
   .shell {

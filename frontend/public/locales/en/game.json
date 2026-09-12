@@ -1548,7 +1548,6 @@
     "empfohlen": "Recommended",
     "empfehlungEinbringen": "Introduce now? Accumulated bonuses available.",
     "leer": "No laws.",
-    "gesetzeCount": "laws",
     "ohneFeld": "Other",
     "kongruenzLabel": "Fit",
     "kongruenzTooltip": "How well this law matches your political orientation (0–100 scale). Higher means closer alignment with your government line. This is not the direct Bundestag vote probability.",
@@ -1573,7 +1572,9 @@
     "sortKoalition": "Coalition",
     "sortKoalitionTooltip": "Group laws by coalition agreement alignment: Prioritized · Compatible · Critical",
     "searchPlaceholder": "Search law…",
-    "keineErgebnisse": "No laws found."
+    "keineErgebnisse": "No laws found.",
+    "gesetzeCount_one": "{{count}} law",
+    "gesetzeCount_other": "{{count}} laws"
   },
   "routes": {
     "eu": "EU level",
@@ -1935,7 +1936,6 @@
       "haushalt": "Budget",
       "kabinett": "Cabinet"
     },
-    "kabinettText": "Your cabinet. Six personalities, six portfolios.",
     "memo": "TO: Federal Chancellery\nFROM: Coalition working group\nRE: Coalition agreement — open points\n\nThe draft coalition agreement is ready.\n{{lawCount}} draft laws are prioritised.\nPolitical capital: {{pk}} units available.{{brLine}}\n\nThe work begins now.",
     "memoBrLine": "\n\nFirst Bundesrat (Federal Council) session: in 3 months.",
     "cta1": "Congratulations. You have won.",
@@ -1951,7 +1951,9 @@
     "erstes_gesetz": "Your first law. Political capital (PK) is your central resource — for introducing, lobbying and votes.",
     "bundesrat_intro": "The Bundesrat (Federal Council) is active. 16 states, 4 factions. Lobbying affects willingness to vote.",
     "skandal_intro": "A political scandal has reached the government. How do you respond?",
-    "wahlkampf_beginn": "The campaign begins. 6 months until the election — time for speeches, coalition actions and media offensives."
+    "wahlkampf_beginn": "The campaign begins. 6 months until the election — time for speeches, coalition actions and media offensives.",
+    "kabinettText_one": "Your cabinet. {{count}} personality, {{count}} portfolio.",
+    "kabinettText_other": "Your cabinet. {{count}} personalities, {{count}} portfolios."
   },
   "gameSetup": {
     "title": "Game Start",

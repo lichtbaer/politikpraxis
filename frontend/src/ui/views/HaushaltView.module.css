@@ -97,12 +97,8 @@
 .ampelSection.saldoKrise {
   background: rgba(168, 85, 247, 0.1);
   border-color: #a855f7;
+  --pulse-dip: 0.9;
   animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.9; }
 }
 
 .ampelValue {
@@ -144,6 +140,7 @@
 .sbKritisch {
   background: rgba(239, 68, 68, 0.2);
   color: var(--red);
+  --pulse-dip: 0.9;
   animation: pulse 1.5s ease-in-out infinite;
 }
 

@@ -215,7 +215,7 @@ export function GesetzAgendaView() {
         {t('game:gesetzAgenda.title')}
         {isFiltering && (
           <span className={styles.matchCount}>
-            {' '}&mdash; {matchCount} {t('game:gesetzAgenda.gesetzeCount', 'Gesetze')}
+            {' '}&mdash; {t('game:gesetzAgenda.gesetzeCount', { count: matchCount })}
           </span>
         )}
       </h1>
@@ -349,7 +349,7 @@ export function GesetzAgendaView() {
                     {t(`game:koalition.stanz.${stanz}`, stanz)}
                   </span>
                   <span className={styles.politikfeldCount}>
-                    ({gesetze.length} {t('game:gesetzAgenda.gesetzeCount', 'Gesetze')})
+                    ({t('game:gesetzAgenda.gesetzeCount', { count: gesetze.length })})
                   </span>
                 </header>
                 <div className={styles.list}>
@@ -403,7 +403,7 @@ export function GesetzAgendaView() {
                   <span className={styles.politikfeldIcon}><PolitikfeldIcon feldId={icon} size={16} /></span>
                   <span className={styles.politikfeldName}>{feldName}</span>
                   <span className={styles.politikfeldCount}>
-                    ({gesetze.length} {t('game:gesetzAgenda.gesetzeCount', 'Gesetze')})
+                    ({t('game:gesetzAgenda.gesetzeCount', { count: gesetze.length })})
                   </span>
                   {showDruck && (
                     <div className={styles.druckBar}>

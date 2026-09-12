@@ -1815,7 +1815,6 @@
       "haushalt": "Haushalt",
       "kabinett": "Kabinett"
     },
-    "kabinettText": "Dein Kabinett. {{count}} Persönlichkeiten, {{count}} Agenden.",
     "memo": "AN: Bundeskanzleramt\nVON: Koalitionsarbeitsgruppe\nBETREFF: Koalitionsvertrag — offene Punkte\n\nDer Entwurf des Koalitionsvertrags liegt vor.\n{{lawCount}} Gesetzentwürfe sind priorisiert.\nPolitisches Kapital: {{pk}} Einheiten verfügbar.{{brLine}}\n\nDie Arbeit beginnt jetzt.",
     "memoBrLine": "\n\nErste Bundesratssitzung: in 3 Monaten.",
     "cta1": "Glückwunsch. Du hast gewonnen.",
@@ -1831,7 +1830,9 @@
     "erstes_gesetz": "Dein erstes Gesetz. Politisches Kapital (PK) ist deine zentrale Ressource — für Einbringen, Lobbying und Abstimmungen.",
     "bundesrat_intro": "Der Bundesrat ist aktiv. 16 Länder, 4 Fraktionen. Lobbying beeinflusst die Abstimmungsbereitschaft.",
     "skandal_intro": "Ein politischer Skandal hat die Regierung erreicht. Wie reagierst du?",
-    "wahlkampf_beginn": "Der Wahlkampf beginnt. Noch 6 Monate bis zur Wahl — Zeit für Reden, Koalitions-Aktionen und Medienoffensiven."
+    "wahlkampf_beginn": "Der Wahlkampf beginnt. Noch 6 Monate bis zur Wahl — Zeit für Reden, Koalitions-Aktionen und Medienoffensiven.",
+    "kabinettText_one": "Dein Kabinett. {{count}} Persönlichkeit, {{count}} Agenda.",
+    "kabinettText_other": "Dein Kabinett. {{count}} Persönlichkeiten, {{count}} Agenden."
   },
   "gameSetup": {
     "title": "Spielstart",
@@ -2027,7 +2028,6 @@
     "empfohlen": "Empfohlen",
     "empfehlungEinbringen": "Jetzt einbringen? Akkumulierte Boni vorhanden.",
     "leer": "Keine Gesetze.",
-    "gesetzeCount": "Gesetze",
     "ohneFeld": "Sonstige",
     "kongruenzLabel": "Passung",
     "kongruenzTooltip": "Wie gut das Gesetz zu deiner politischen Ausrichtung passt (Skala 0–100). Höher = stärkere Übereinstimmung mit deiner Regierungslinie. Das ist keine direkte Bundestags-Abstimmungswahrscheinlichkeit.",
@@ -2052,7 +2052,9 @@
     "sortKoalition": "Koalition",
     "sortKoalitionTooltip": "Gesetze nach Koalitionsvertrag-Kongruenz gruppieren: Priorisiert · Koalitionskonform · Koalitionskritisch",
     "searchPlaceholder": "Gesetz suchen…",
-    "keineErgebnisse": "Keine Gesetze gefunden."
+    "keineErgebnisse": "Keine Gesetze gefunden.",
+    "gesetzeCount_one": "{{count}} Gesetz",
+    "gesetzeCount_other": "{{count}} Gesetze"
   },
   "gegenfinanzierung": {
     "title": "Gegenfinanzierung erforderlich",

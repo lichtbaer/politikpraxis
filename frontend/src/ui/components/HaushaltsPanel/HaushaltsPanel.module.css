@@ -58,6 +58,7 @@
 .saldoKrise {
   border-left: 3px solid #a855f7;
   padding-left: 8px;
+  --pulse-dip: 0.85;
   animation: pulse 1.5s ease-in-out infinite;
 }
 
@@ -101,12 +102,8 @@
 .sbKritisch {
   background: rgba(239, 68, 68, 0.2);
   color: var(--red);
+  --pulse-dip: 0.85;
   animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
 }
 
 .konjunkturIndikator {
