@@ -4,15 +4,17 @@
  * Koalitionspartner-Panel, Ultimatum-Anzeige, Kabinett-Initiativen (Stufe 3+)
  */
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { CharacterRow } from '../components/CharacterRow/CharacterRow';
 import { KoalitionspartnerPanel } from '../components/KoalitionspartnerPanel/KoalitionspartnerPanel';
+import { AlertTriangle } from '../icons';
 import styles from './KabinettView.module.css';
 
 export function KabinettView() {
   const { t } = useTranslation('game');
-  const { state, complexity } = useGameStore();
+  const { state, complexity } = useGameStore(useShallow((s) => ({ state: s.state, complexity: s.complexity })));
 
   const chars = state.chars.filter((c) => (c.min_complexity ?? 1) <= complexity);
   const ultimatumChar = chars.find((c) => c.mood <= (c.ultimatum?.moodThresh ?? 0) + 1);
@@ -28,7 +30,7 @@ export function KabinettView() {
 
       {ultimatumChar && (
         <div className={styles.ultimatumBanner}>
-          <span className={styles.ultimatumIcon}>⚠</span>
+          <span className={styles.ultimatumIcon}><AlertTriangle size={13} aria-hidden /></span>
           <span>
             {t('game:kabinett.ultimatumWarnung', {
               name: ultimatumChar.name || t(`game:chars.${ultimatumChar.id}.name`),

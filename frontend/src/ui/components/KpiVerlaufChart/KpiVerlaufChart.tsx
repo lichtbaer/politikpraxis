@@ -4,10 +4,12 @@
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactEChartsCore from 'echarts-for-react/lib/core';
+import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import type { TFunction } from 'i18next';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import type { ChartTokens } from '../../lib/chartTokens';
 import styles from './KpiVerlaufChart.module.css';
 
 interface KpiHistory {
@@ -27,8 +29,9 @@ interface KpiConfig {
   unit: string;
   /** Lower is better? */
   lowerBetter: boolean;
-  color: string;
-  warnColor: string;
+  /** Token-Namen statt Hex — die Farbe kommt aus dem aktiven Theme. */
+  color: keyof ChartTokens;
+  warnColor: keyof ChartTokens;
   /** Value considered "good" threshold */
   goodThreshold: number;
   /** Direction: above or below good threshold is good */
@@ -44,8 +47,8 @@ const KPI_CONFIGS: KpiConfig[] = [
     key: 'al',
     unit: '%',
     lowerBetter: true,
-    color: '#c05848',
-    warnColor: '#c8a84b',
+    color: 'red',
+    warnColor: 'warn',
     goodThreshold: 5,
     goodDir: 'below',
     min: 0,
@@ -56,8 +59,8 @@ const KPI_CONFIGS: KpiConfig[] = [
     key: 'hh',
     unit: ' Mrd. €',
     lowerBetter: false,
-    color: '#5a9870',
-    warnColor: '#c05848',
+    color: 'green',
+    warnColor: 'red',
     goodThreshold: 0,
     goodDir: 'above',
     min: -60,
@@ -68,8 +71,8 @@ const KPI_CONFIGS: KpiConfig[] = [
     key: 'gi',
     unit: '',
     lowerBetter: true,
-    color: '#c8a84b',
-    warnColor: '#c05848',
+    color: 'gold',
+    warnColor: 'red',
     goodThreshold: 30,
     goodDir: 'below',
     min: 20,
@@ -79,8 +82,8 @@ const KPI_CONFIGS: KpiConfig[] = [
     key: 'zf',
     unit: '%',
     lowerBetter: false,
-    color: '#5888c0',
-    warnColor: '#c05848',
+    color: 'blue',
+    warnColor: 'red',
     goodThreshold: 50,
     goodDir: 'above',
     min: 0,
@@ -93,10 +96,15 @@ function isGood(cfg: KpiConfig, value: number): boolean {
   return cfg.goodDir === 'below' ? value <= cfg.goodThreshold : value >= cfg.goodThreshold;
 }
 
-function buildSparkOption(cfg: KpiConfig, data: number[], t: TFunction): EChartsOption {
+function buildSparkOption(
+  cfg: KpiConfig,
+  data: number[],
+  t: TFunction,
+  tokens: ChartTokens,
+): EChartsOption {
   const currentVal = data.length > 0 ? data[data.length - 1] : null;
   const good = currentVal !== null && isGood(cfg, currentVal);
-  const lineColor = good ? cfg.color : cfg.warnColor;
+  const lineColor = good ? tokens[cfg.color] : tokens[cfg.warnColor];
 
   const label = t(`kpiVerlauf.${cfg.key}.label`);
   const desc = t(`kpiVerlauf.${cfg.key}.desc`);
@@ -106,12 +114,12 @@ function buildSparkOption(cfg: KpiConfig, data: number[], t: TFunction): ECharts
   const markLineData = cfg.targetLine !== undefined
     ? [{
         yAxis: cfg.targetLine,
-        lineStyle: { color: 'rgba(255,255,255,0.2)', type: 'dashed' as const, width: 1 },
+        lineStyle: { color: tokens.border2, type: 'dashed' as const, width: 1 },
         label: {
           show: true,
           position: 'insideEndTop' as const,
           formatter: targetLabel,
-          color: 'rgba(255,255,255,0.3)',
+          color: tokens.text3,
           fontSize: 7,
         },
       }]
@@ -125,8 +133,9 @@ function buildSparkOption(cfg: KpiConfig, data: number[], t: TFunction): ECharts
       data: data.map((_, i) => i + 1),
       boundaryGap: false,
       axisLabel: {
-        color: 'rgba(255,255,255,0.25)',
+        color: tokens.text3,
         fontSize: 7,
+        fontFamily: tokens.sans,
         interval: (_: number, v: string) => {
           const n = Number(v);
           return n === 1 || n % 6 === 0;
@@ -142,26 +151,27 @@ function buildSparkOption(cfg: KpiConfig, data: number[], t: TFunction): ECharts
       min: cfg.min,
       max: cfg.max,
       axisLabel: {
-        color: 'rgba(255,255,255,0.25)',
+        color: tokens.text3,
         fontSize: 7,
+        fontFamily: tokens.sans,
         formatter: (v: number) => `${v}${cfg.unit === '%' ? '%' : ''}`,
       },
-      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed', width: 0.5 } },
+      splitLine: { lineStyle: { color: tokens.border, type: 'dashed', width: 0.5 } },
     },
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#1e1c18',
-      borderColor: '#444',
+      backgroundColor: tokens.bg2,
+      borderColor: tokens.border2,
       borderWidth: 1,
       padding: [6, 10],
-      textStyle: { color: '#d0cfc8', fontSize: 10 },
+      textStyle: { color: tokens.text, fontSize: 10, fontFamily: tokens.sans },
       formatter: (params: unknown) => {
         const p = params as Array<{ dataIndex: number; value: number | null }>;
         const first = p.find((x) => x.value != null);
         if (!first) return '';
         const val = first.value as number;
         const g = isGood(cfg, val);
-        const valColor = g ? cfg.color : cfg.warnColor;
+        const valColor = g ? tokens[cfg.color] : tokens[cfg.warnColor];
         return (
           `<strong>${label}</strong> — ${t('kpiVerlauf.tooltipMonat', { month: first.dataIndex + 1 })}<br/>` +
           `${t('kpiVerlauf.tooltipWert')}: <strong style="color:${valColor}">${val.toFixed(1)}${cfg.unit}</strong><br/>` +
@@ -203,7 +213,11 @@ interface KpiSparkProps {
 
 function KpiSpark({ cfg, data }: KpiSparkProps) {
   const { t } = useTranslation('game');
-  const option = useMemo(() => buildSparkOption(cfg, data, t), [cfg, data, t]);
+  const { theme: chartTheme, tokens } = useChartTheme();
+  const option = useMemo(
+    () => buildSparkOption(cfg, data, t, tokens),
+    [cfg, data, t, tokens],
+  );
   const currentVal = data.length > 0 ? data[data.length - 1] : null;
   const good = currentVal !== null && isGood(cfg, currentVal);
   const label = t(`kpiVerlauf.${cfg.key}.label`);
@@ -239,13 +253,13 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
           <div className={styles.sparkValueRow}>
             <span
               className={styles.sparkValue}
-              style={{ color: good ? cfg.color : cfg.warnColor }}
+              style={{ color: `var(--${good ? cfg.color : cfg.warnColor})` }}
             >
               {currentVal.toFixed(1)}{cfg.unit}
             </span>
             <span
               className={styles.sparkTrend}
-              style={{ color: trendGood ? cfg.color : cfg.warnColor }}
+              style={{ color: `var(--${trendGood ? cfg.color : cfg.warnColor})` }}
               title={cfg.lowerBetter ? t('kpiVerlauf.lowerBetter') : t('kpiVerlauf.higherBetter')}
             >
               {trendSymbol}
@@ -258,7 +272,7 @@ function KpiSpark({ cfg, data }: KpiSparkProps) {
           <ReactEChartsCore
             echarts={echarts}
             option={option}
-            theme="politikpraxis"
+            theme={chartTheme}
             style={{ width: '100%', height: 90 }}
             opts={{ renderer: 'canvas' }}
             notMerge={false}

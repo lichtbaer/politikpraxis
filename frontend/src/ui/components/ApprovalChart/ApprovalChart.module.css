@@ -51,3 +51,14 @@
 .trendUp   { color: var(--green); }
 .trendDown { color: var(--red); }
 .trendFlat { color: var(--text3); }
+
+.empty {
+  margin: 6px 0 0;
+  padding: 14px 8px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text3);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}

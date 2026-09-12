@@ -18,11 +18,11 @@
 }
 
 .option:hover {
-  border-color: var(--accent, #c8a84a);
+  border-color: var(--gold);
   background: var(--bg2, #252525);
 }
 
 .option.selected {
-  border-color: var(--accent, #c8a84a);
-  background: color-mix(in srgb, var(--accent, #c8a84a) 15%, transparent);
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 15%, transparent);
 }

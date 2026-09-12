@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
+import { useUIStore } from '../../../store/uiStore';
 import styles from './IntroTour.module.css';
 
 /**
@@ -35,8 +36,18 @@ export function IntroTour() {
   const gameOver = useGameStore((s) => s.state.gameOver);
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(isTourDone);
+  const setIntroTourActive = useUIStore((s) => s.setIntroTourActive);
 
-  if (done || phase !== 'playing' || gameOver || month > 1) return null;
+  const sichtbar = !done && phase === 'playing' && !gameOver && month <= 1;
+
+  // Solange die Tour läuft, pausieren die kontextuellen GameTips — sonst
+  // erscheinen beim ersten Spielstart zwei Erklär-Overlays übereinander.
+  useEffect(() => {
+    setIntroTourActive(sichtbar);
+    return () => setIntroTourActive(false);
+  }, [sichtbar, setIntroTourActive]);
+
+  if (!sichtbar) return null;
 
   const finish = () => {
     markTourDone();

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactEChartsCore from 'echarts-for-react/lib/core';
+import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import { mix } from '../../lib/chartTokens';
 import styles from './EuropeMapChart.module.css';
 
 const MAP_NAME = 'europe-politikpraxis';
@@ -16,6 +18,7 @@ const EU_COUNTRIES = new Set([
 ]);
 
 export function EuropeMapChart() {
+  const { theme: chartTheme, tokens } = useChartTheme();
   const { t } = useTranslation('game');
   const [mapReady, setMapReady] = useState(false);
   const loadedRef = useRef(false);
@@ -47,10 +50,10 @@ export function EuropeMapChart() {
     animationEasing: 'cubicOut',
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#1a1814',
-      borderColor: '#3a3830',
+      backgroundColor: tokens.bg2,
+      borderColor: tokens.border2,
       borderWidth: 1,
-      textStyle: { color: '#c0bfb8', fontSize: 12, fontFamily: 'var(--sans)' },
+      textStyle: { color: tokens.text, fontSize: 12, fontFamily: tokens.sans },
       formatter: (params: unknown) => {
         const p = params as { name: string };
         if (p.name === 'Germany') return `<b>${t('europaKarte.deutschland')}</b>`;
@@ -65,15 +68,15 @@ export function EuropeMapChart() {
         silent: false,
         selectedMode: false,
         itemStyle: {
-          areaColor: '#2a2820',
-          borderColor: '#4a4840',
+          areaColor: tokens.bg3,
+          borderColor: tokens.border2,
           borderWidth: 0.8,
         },
         emphasis: {
           label: { show: false },
           itemStyle: {
-            areaColor: '#4a6858',
-            borderColor: '#6a8878',
+            areaColor: mix(tokens.green, tokens.bg3, 0.45),
+            borderColor: tokens.green,
           },
         },
         // Germany highlighted
@@ -81,20 +84,20 @@ export function EuropeMapChart() {
           {
             name: 'Germany',
             itemStyle: {
-              areaColor: '#3d4e30',
-              borderColor: '#7a9860',
+              areaColor: mix(tokens.gold, tokens.bg3, 0.3),
+              borderColor: tokens.gold,
               borderWidth: 1.5,
             },
             emphasis: {
               itemStyle: {
-                areaColor: '#4d6240',
-                borderColor: '#9ab870',
+                areaColor: mix(tokens.gold, tokens.bg3, 0.5),
+                borderColor: tokens.gold,
               },
             },
             label: {
               show: true,
               formatter: 'DE',
-              color: '#c8d8a0',
+              color: tokens.text,
               fontSize: 9,
               fontWeight: 'bold',
             },
@@ -106,7 +109,7 @@ export function EuropeMapChart() {
         layoutSize: '140%',
       },
     ],
-  }), [t]);
+  }), [t, tokens]);
 
   if (!mapReady) {
     return <div className={styles.placeholder} aria-hidden="true" />;
@@ -117,7 +120,7 @@ export function EuropeMapChart() {
       <ReactEChartsCore
         echarts={echarts}
         option={option}
-        theme="politikpraxis"
+        theme={chartTheme}
         style={{ width: '100%', height: '100%' }}
         opts={{ renderer: 'canvas' }}
         notMerge={false}

@@ -1,7 +1,31 @@
+/* Kopfzone: bleibt beim Scrollen oben (relevant auf Mobile, wo die Seite scrollt).
+ * Header und Tableiste kleben gemeinsam, statt sich gegenseitig zu ueberlappen. */
+.chrome {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  flex-shrink: 0;
+}
+
+/* Die Spalten kapseln ihr eigenes Scrolling (die Panels haben `overflow-y: auto`). */
+.left,
+.right {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Höhe kommt aus der Flex-Spalte in global.css (#root): das Brett füllt den Rest
+ * unter Bannern, Header und Tableiste — ohne feste px-Rechnung. */
 .shell {
   display: grid;
   grid-template-columns: 260px 1fr 300px;
-  height: calc(100vh - 48px - 40px); /* Header + TabBar */
+  /* minmax(0, 1fr) statt der impliziten auto-Zeile: eine auto-Zeile waechst auf
+   * max-content und schiebt lange Panel-Inhalte aus dem Viewport. */
+  grid-template-rows: minmax(0, 1fr);
+  /* flex-basis 0: die Höhe kommt aus dem freien Platz, nicht aus dem Inhalt.
+   * Sonst wüchse das Brett mit der Gesetzesliste und die ganze Seite würde scrollen,
+   * statt der drei Panels (die haben je `overflow-y: auto`). */
+  flex: 1 1 0;
   min-height: 0;
   position: relative;
 }
@@ -68,7 +92,9 @@
   .left,
   .right {
     position: fixed;
-    top: 88px; /* Header + TabBar */
+    /* Oberkante = Unterkante der Kopfzone. Wird von Shell.tsx gemessen (--chrome-h),
+     * damit zusätzliche Banner den Drawer nicht unter den Header schieben. */
+    top: var(--chrome-h, 88px);
     bottom: 0;
     z-index: 250;
     overflow-y: auto;
@@ -173,21 +199,12 @@
   cursor: pointer;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
 /* --- Mobil: Vertikales Stacking --- */
 @media (max-width: 768px) {
   .shell {
     grid-template-columns: 1fr;
-    height: auto;
-    min-height: calc(100vh - 48px - 40px);
+    grid-template-rows: none;
+    /* Gestapelte Panels dürfen über den Viewport hinauswachsen — die Seite scrollt. */
+    flex: 1 0 auto;
   }
 }

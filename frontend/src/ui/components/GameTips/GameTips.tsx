@@ -164,10 +164,13 @@ export function GameTips() {
   const phase = useGameStore((s) => s.phase);
   const complexity = useGameStore((s) => s.complexity);
   const hintsEnabled = useUIStore((s) => s.playerSettings.hintsEnabled);
+  const introTourActive = useUIStore((s) => s.introTourActive);
   const requestOpenGlossar = useUIStore((s) => s.requestOpenGlossar);
   const [dismissed, setDismissed] = useState<Set<string>>(getDismissedTips);
   const activeTip = useMemo(() => {
-    if (!hintsEnabled || phase !== 'playing' || state.gameOver) {
+    // Während der Einführungstour still bleiben: zwei gleichzeitige Overlays
+    // konkurrieren um dieselbe Aufmerksamkeit und verdecken sich gegenseitig.
+    if (!hintsEnabled || introTourActive || phase !== 'playing' || state.gameOver) {
       return null;
     }
 
@@ -180,7 +183,7 @@ export function GameTips() {
       return tip;
     }
     return null;
-  }, [state, phase, dismissed, complexity, hintsEnabled]);
+  }, [state, phase, dismissed, complexity, hintsEnabled, introTourActive]);
 
   if (!activeTip) return null;
 

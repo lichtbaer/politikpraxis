@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
-import ReactEChartsCore from 'echarts-for-react/lib/core';
+import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import { withAlpha } from '../../lib/chartTokens';
 import styles from './MilieuBar.module.css';
 
 interface MilieuBarProps {
@@ -34,8 +36,8 @@ function sparklineOption(history: number[], color: string): EChartsOption {
             type: 'linear',
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: color + '55' },
-              { offset: 1, color: color + '08' },
+              { offset: 0, color: withAlpha(color, 0.33) },
+              { offset: 1, color: withAlpha(color, 0.03) },
             ],
           },
         },
@@ -52,6 +54,7 @@ export function MilieuBar({
   showHeaderValue = true,
   footerDelta,
 }: MilieuBarProps) {
+  const { theme: chartTheme } = useChartTheme();
   const clamped = Math.min(100, Math.max(0, value));
   const showSparkline = history && history.length > 2;
   const showFooter = typeof footerDelta === 'number';
@@ -110,7 +113,7 @@ export function MilieuBar({
             <ReactEChartsCore
               echarts={echarts}
               option={sparklineOpt}
-              theme="politikpraxis"
+              theme={chartTheme}
               style={{ width: 48, height: 18, flexShrink: 0 }}
               opts={{ renderer: 'canvas' }}
               notMerge={false}

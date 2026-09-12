@@ -3,6 +3,7 @@
  * Stadttyp-Auswahl (Stufe 2 abstrakt, Stufe 3+ konkret), Länder-Fraktion, EU-Klima.
  */
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { featureActive } from '../../../core/systems/features';
@@ -41,7 +42,7 @@ interface VorbereitungModalProps {
 
 export function VorbereitungModal({ law, onClose, filter }: VorbereitungModalProps) {
   const { t } = useTranslation('game');
-  const { state, content, complexity } = useGameStore();
+  const { state, content, complexity } = useGameStore(useShallow((s) => ({ state: s.state, content: s.content, complexity: s.complexity })));
   const actions = useGameActions();
   const projekt = state.gesetzProjekte?.[law.id];
   const pk = state.pk;

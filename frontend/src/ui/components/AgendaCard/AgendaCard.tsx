@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { gesetzKongruenz } from '../../../core/ideologie';
@@ -20,6 +21,7 @@ import { AgendaCardProgress } from './AgendaCardProgress';
 import { AgendaCardActions } from './AgendaCardActions';
 import type { Law, LawStatus, KoalitionsStanz } from '../../../core/types';
 import { formatMrd } from '../../../utils/format';
+import { BarChart3, Link2, Lock, Ban, Zap } from '../../icons';
 import styles from './AgendaCard.module.css';
 
 interface AgendaCardProps {
@@ -60,7 +62,7 @@ const STANZ_CLASS: Record<KoalitionsStanz, string> = {
 
 export function AgendaCard({ law, isRecommended, showKongruenz, recommendationScore, koalitionsStanz }: AgendaCardProps) {
   const { t } = useTranslation(['common', 'game']);
-  const { state, content, complexity, ausrichtung } = useGameStore();
+  const { state, content, complexity, ausrichtung } = useGameStore(useShallow((s) => ({ state: s.state, content: s.content, complexity: s.complexity, ausrichtung: s.ausrichtung })));
   const actions = useGameActions();
   const gesetzRelationen = content.gesetzRelationen;
   const expanded = law.expanded;
@@ -144,7 +146,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
         </span>
         {(law.steuer_id || ((law.einnahmeeffekt ?? 0) > 0 && (law.kosten_laufend ?? 0) <= 0)) && (
           <span className={styles.steuergesetzBadge}>
-            📊 {t('game:gesetz.steuergesetz', 'Steuergesetz')}
+            <BarChart3 size={12} aria-hidden /> {t('game:gesetz.steuergesetz', 'Steuergesetz')}
             {(law.einnahmeeffekt ?? 0) > 0 && (
               <> — +{formatMrd(law.einnahmeeffekt!)} Mrd.</>
             )}
@@ -154,7 +156,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
           const gekoppelt = state.gekoppelteGesetze?.[law.id];
           return gekoppelt && gekoppelt.length > 0 ? (
           <span className={styles.kopplungsHinweis}>
-            🔗 {t('game:gesetz.wartetAuf', {
+            <Link2 size={12} aria-hidden /> {t('game:gesetz.wartetAuf', {
               gesetz: gekoppelt.map((id) => getGesetzTitel(id)).join(', '),
               defaultValue: `Wartet auf: ${gekoppelt.map((id) => getGesetzTitel(id)).join(', ')}`,
             })}
@@ -209,17 +211,17 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
             <>
               {fehlendeRequires && (
                 <div className={styles.gesetzLockedBadge}>
-                  🔒 {t('game:gesetz.benoetigt', { gesetz: getGesetzTitel(fehlendeRequires.targetId), defaultValue: `Benötigt: ${getGesetzTitel(fehlendeRequires.targetId)}` })}
+                  <Lock size={12} aria-hidden /> {t('game:gesetz.benoetigt', { gesetz: getGesetzTitel(fehlendeRequires.targetId), defaultValue: `Benötigt: ${getGesetzTitel(fehlendeRequires.targetId)}` })}
                 </div>
               )}
               {ausschliessendeExcludes && (
                 <div className={styles.gesetzExcludedBadge}>
-                  ⛔ {t('game:gesetz.ausgeschlossen', { gesetz: getGesetzTitel(ausschliessendeExcludes.targetId), defaultValue: `Ausgeschlossen durch: ${getGesetzTitel(ausschliessendeExcludes.targetId)}` })}
+                  <Ban size={12} aria-hidden /> {t('game:gesetz.ausgeschlossen', { gesetz: getGesetzTitel(ausschliessendeExcludes.targetId), defaultValue: `Ausgeschlossen durch: ${getGesetzTitel(ausschliessendeExcludes.targetId)}` })}
                 </div>
               )}
               {hasSynergy && aktiveEnhances.map((rel) => (
                 <div key={rel.targetId} className={styles.gesetzSynergyBadge}>
-                  ⚡ {t('game:gesetz.synergie', {
+                  <Zap size={12} aria-hidden /> {t('game:gesetz.synergie', {
                     pct: Math.round(((rel.enhancesFaktor ?? 1) - 1) * 100),
                     gesetz: getGesetzTitel(rel.targetId),
                     defaultValue: `Synergieeffekt +${Math.round(((rel.enhancesFaktor ?? 1) - 1) * 100)}% mit ${getGesetzTitel(rel.targetId)}`,

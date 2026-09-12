@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { featureActive } from '../../../core/systems/features';
 import { berechneJaBreakdown } from '../../../core/systems/parliament/parliament';
-import { Hourglass } from '../../icons';
+import { Hourglass, Link2 } from '../../icons';
 import { Erklaerung } from '../Erklaerung/Erklaerung';
 import { KPI_TO_BEGRIFF } from '../../../constants/begriffe';
 import { VorstufeBadge } from '../VorstufeBadge/VorstufeBadge';
+import { AbstimmungsBalken } from '../AbstimmungsBalken/AbstimmungsBalken';
 import type { GameState, Law, GesetzProjekt, ContentBundle } from '../../../core/types';
 import type { PendingEffect } from '../../../core/types';
 import styles from './AgendaCard.module.css';
@@ -63,12 +64,7 @@ export function AgendaCardProgress({ law, state, complexity, projekt, boni, acti
     <>
       {(law.status === 'entwurf' || law.status === 'aktiv' || law.status === 'eingebracht') && (
         <div className={styles.voteBar}>
-          <div className={styles.voteTrack}>
-            <div className={styles.voteFill} style={{ width: `${pct}%` }} />
-          </div>
-          <span className={styles.voteLabel}>
-            {law.ja} Ja / {law.nein} Nein ({pct}%)
-          </span>
+          <AbstimmungsBalken ja={law.ja} nein={law.nein} effektivProzent={jaBreakdown.effectiveJa} />
           {hasVorstufen && boni.btStimmenBonus > 0 && (
             <div className={styles.btChanceBonus}>
               {t('game:vorstufen.btChanceMitBonus', { base: pct, effective: effectivePct })}
@@ -211,7 +207,7 @@ export function AgendaCardProgress({ law, state, complexity, projekt, boni, acti
         const gekoppelt = state.gekoppelteGesetze?.[law.id];
         return gekoppelt && gekoppelt.length > 0 ? (
         <span className={styles.kopplungsHinweis}>
-          🔗 {t('game:gesetz.wartetAuf', {
+          <Link2 size={12} aria-hidden /> {t('game:gesetz.wartetAuf', {
             gesetz: gekoppelt.map((id) => getGesetzTitel(id)).join(', '),
             defaultValue: `Wartet auf: ${gekoppelt.map((id) => getGesetzTitel(id)).join(', ')}`,
           })}

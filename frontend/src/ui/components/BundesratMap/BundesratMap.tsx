@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactEChartsCore from 'echarts-for-react/lib/core';
+import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import type { BundesratLand } from '../../../core/types';
 import styles from './BundesratMap.module.css';
 
 const MAP_NAME = 'germany-bundeslaender';
 
-// Alignment → base color
-const ALIGN_COLORS = {
-  koalition: '#5a9870',
-  neutral: '#7a7870',
-  opposition: '#c05848',
+/** Lager → Token-Name; die konkrete Farbe kommt aus dem aktiven Theme. */
+const ALIGN_TOKENS = {
+  koalition: 'green',
+  neutral: 'text2',
+  opposition: 'red',
 } as const;
 
 interface BundesratMapProps {
@@ -21,6 +22,15 @@ interface BundesratMapProps {
 
 export function BundesratMap({ laender }: BundesratMapProps) {
   const { t } = useTranslation('game');
+  const { theme: chartTheme, tokens } = useChartTheme();
+  const alignColors = useMemo(
+    () => ({
+      koalition: tokens[ALIGN_TOKENS.koalition],
+      neutral: tokens[ALIGN_TOKENS.neutral],
+      opposition: tokens[ALIGN_TOKENS.opposition],
+    }),
+    [tokens],
+  );
   const [mapReady, setMapReady] = useState(false);
   const loadedRef = useRef(false);
 
@@ -38,7 +48,7 @@ export function BundesratMap({ laender }: BundesratMapProps) {
 
   const seriesData = useMemo(() =>
     laender.map((land) => {
-      const color = ALIGN_COLORS[land.alignment];
+      const color = alignColors[land.alignment];
       // mood 1-5 → opacity 0.45-1.0
       const opacity = 0.45 + (Math.min(5, Math.max(1, land.mood)) - 1) * 0.14;
       return {
@@ -47,28 +57,28 @@ export function BundesratMap({ laender }: BundesratMapProps) {
         itemStyle: {
           areaColor: color,
           opacity,
-          borderColor: '#2a2820',
+          borderColor: tokens.bg3,
           borderWidth: 0.8,
         },
         emphasis: {
-          itemStyle: { areaColor: color, opacity: 1, borderColor: '#d0cfc8', borderWidth: 1.5 },
+          itemStyle: { areaColor: color, opacity: 1, borderColor: tokens.text, borderWidth: 1.5 },
         },
         tooltip: {
           formatter: `${land.name}<br/>${land.mp} (${land.party})<br/>${t('bundesratMap.votes', { count: land.votes })}`,
         },
       };
     }),
-  [laender, t]);
+  [laender, t, alignColors, tokens]);
 
   const option: EChartsOption = useMemo(() => ({
     animation: true,
     animationDuration: 800,
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#1a1814',
-      borderColor: '#3a3830',
+      backgroundColor: tokens.bg2,
+      borderColor: tokens.border2,
       borderWidth: 1,
-      textStyle: { color: '#c0bfb8', fontSize: 11 },
+      textStyle: { color: tokens.text, fontSize: 11, fontFamily: tokens.sans },
       formatter: (params: unknown) => {
         const p = params as { name: string; data?: { tooltip?: { formatter?: string } } };
         return p.data?.tooltip?.formatter ?? p.name;
@@ -81,14 +91,14 @@ export function BundesratMap({ laender }: BundesratMapProps) {
         roam: false,
         selectedMode: false,
         itemStyle: {
-          areaColor: '#2a2820',
-          borderColor: '#3a3830',
+          areaColor: tokens.bg3,
+          borderColor: tokens.border2,
           borderWidth: 0.8,
         },
         label: {
           show: true,
           fontSize: 8,
-          color: '#d0cfc8',
+          color: tokens.text2,
           formatter: (params: unknown) => {
             const p = params as { name: string };
             // GeoJSON name is like 'DE-BY' → show short code
@@ -96,7 +106,7 @@ export function BundesratMap({ laender }: BundesratMapProps) {
           },
         },
         emphasis: {
-          label: { show: true, fontSize: 8, color: '#fff' },
+          label: { show: true, fontSize: 8, color: tokens.text },
         },
         data: seriesData,
         zoom: 1,
@@ -104,7 +114,7 @@ export function BundesratMap({ laender }: BundesratMapProps) {
         layoutSize: '95%',
       },
     ],
-  }), [seriesData]);
+  }), [seriesData, tokens]);
 
   // Vote tallies per alignment for legend display
   const voteTotals = useMemo(() => {
@@ -130,7 +140,7 @@ export function BundesratMap({ laender }: BundesratMapProps) {
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          theme="politikpraxis"
+          theme={chartTheme}
           style={{ width: '100%', height: '100%' }}
           opts={{ renderer: 'canvas' }}
           notMerge={false}
@@ -150,13 +160,13 @@ export function BundesratMap({ laender }: BundesratMapProps) {
         ))}
       </ul>
       <div className={styles.legend}>
-        <span className={styles.legendItem} style={{ color: ALIGN_COLORS.koalition }}>
+        <span className={styles.legendItem} style={{ color: alignColors.koalition }}>
           ● {t('bundesratMap.koalition')} {voteTotals.koalition > 0 && <span className={styles.legendVotes}>{voteTotals.koalition}</span>}
         </span>
-        <span className={styles.legendItem} style={{ color: ALIGN_COLORS.neutral }}>
+        <span className={styles.legendItem} style={{ color: alignColors.neutral }}>
           ● {t('bundesratMap.neutral')} {voteTotals.neutral > 0 && <span className={styles.legendVotes}>{voteTotals.neutral}</span>}
         </span>
-        <span className={styles.legendItem} style={{ color: ALIGN_COLORS.opposition }}>
+        <span className={styles.legendItem} style={{ color: alignColors.opposition }}>
           ● {t('bundesratMap.opposition')} {voteTotals.opposition > 0 && <span className={styles.legendVotes}>{voteTotals.opposition}</span>}
         </span>
       </div>

@@ -2,6 +2,10 @@
  * SMA-390: Statische Medienakteure (spiegeln DB-Seed medien_akteure).
  * min_complexity: ab welcher Spielstufe der Akteur im State aktiv ist.
  */
+import type { ComponentType } from 'react';
+import type { LucideProps } from 'lucide-react';
+import { Tv, Newspaper, Monitor, Smartphone, Megaphone, AlertTriangle } from '../../ui/icons';
+
 export type MedienAkteurTyp =
   | 'oeffentlich'
   | 'boulevard'
@@ -39,15 +43,16 @@ export const AKTEUR_AGENDA_TEXTE: Record<MedienAkteurTyp, string> = {
   alternativ: 'Anti-Establishment. Wächst wenn ignoriert. Nicht beeinflussbar.',
 };
 
-const AKTEUR_ICON: Record<MedienAkteurTyp, string> = {
-  oeffentlich: '📺',
-  boulevard: '🗞️',
-  qualitaet: '💻',
-  social: '📱',
-  konservativ: '📢',
-  alternativ: '⚠️',
+/** Lucide-Komponenten statt Emoji: theme-faehig, gleiche Grundlinie, plattformstabil. */
+const AKTEUR_ICON: Record<MedienAkteurTyp, ComponentType<LucideProps>> = {
+  oeffentlich: Tv,
+  boulevard: Newspaper,
+  qualitaet: Monitor,
+  social: Smartphone,
+  konservativ: Megaphone,
+  alternativ: AlertTriangle,
 };
 
-export function getMedienAkteurIcon(typ: MedienAkteurTyp): string {
+export function getMedienAkteurIcon(typ: MedienAkteurTyp): ComponentType<LucideProps> {
   return AKTEUR_ICON[typ];
 }

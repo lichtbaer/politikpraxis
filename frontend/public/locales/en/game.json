@@ -1548,7 +1548,6 @@
     "empfohlen": "Recommended",
     "empfehlungEinbringen": "Introduce now? Accumulated bonuses available.",
     "leer": "No laws.",
-    "gesetzeCount": "laws",
     "ohneFeld": "Other",
     "kongruenzLabel": "Fit",
     "kongruenzTooltip": "How well this law matches your political orientation (0–100 scale). Higher means closer alignment with your government line. This is not the direct Bundestag vote probability.",
@@ -1573,7 +1572,9 @@
     "sortKoalition": "Coalition",
     "sortKoalitionTooltip": "Group laws by coalition agreement alignment: Prioritized · Compatible · Critical",
     "searchPlaceholder": "Search law…",
-    "keineErgebnisse": "No laws found."
+    "keineErgebnisse": "No laws found.",
+    "gesetzeCount_one": "{{count}} law",
+    "gesetzeCount_other": "{{count}} laws"
   },
   "routes": {
     "eu": "EU level",
@@ -1656,7 +1657,10 @@
       "ideologieAbstand": "Ideological distance from the coalition",
       "koalitionsvertragStanz": "Coalition agreement",
       "abweichlerRisiko": "Defector risk: up to {{risiko}}% additional vote loss possible"
-    }
+    },
+    "mehrheitBei": "Majority at {{sitze}}",
+    "koalitionMehrheit": "Coalition: {{sitze}} seats — majority",
+    "koalitionKeineMehrheit": "Coalition: {{sitze}} seats — no majority"
   },
   "media": {
     "title": "Media",
@@ -1932,7 +1936,6 @@
       "haushalt": "Budget",
       "kabinett": "Cabinet"
     },
-    "kabinettText": "Your cabinet. Six personalities, six portfolios.",
     "memo": "TO: Federal Chancellery\nFROM: Coalition working group\nRE: Coalition agreement — open points\n\nThe draft coalition agreement is ready.\n{{lawCount}} draft laws are prioritised.\nPolitical capital: {{pk}} units available.{{brLine}}\n\nThe work begins now.",
     "memoBrLine": "\n\nFirst Bundesrat (Federal Council) session: in 3 months.",
     "cta1": "Congratulations. You have won.",
@@ -1948,7 +1951,9 @@
     "erstes_gesetz": "Your first law. Political capital (PK) is your central resource — for introducing, lobbying and votes.",
     "bundesrat_intro": "The Bundesrat (Federal Council) is active. 16 states, 4 factions. Lobbying affects willingness to vote.",
     "skandal_intro": "A political scandal has reached the government. How do you respond?",
-    "wahlkampf_beginn": "The campaign begins. 6 months until the election — time for speeches, coalition actions and media offensives."
+    "wahlkampf_beginn": "The campaign begins. 6 months until the election — time for speeches, coalition actions and media offensives.",
+    "kabinettText_one": "Your cabinet. {{count}} personality, {{count}} portfolio.",
+    "kabinettText_other": "Your cabinet. {{count}} personalities, {{count}} portfolios."
   },
   "gameSetup": {
     "title": "Game Start",
@@ -2092,7 +2097,9 @@
     "laender": "States",
     "kommunen": "Municipalities",
     "eu": "EU Level",
-    "wahlkampf": "Campaign"
+    "wahlkampf": "Campaign",
+    "gesperrtSammel_one": "+{{count}} later",
+    "gesperrtSammel_other": "+{{count}} later"
   },
   "leftPanel": {
     "wahlprognose": "Election forecast",
@@ -2772,7 +2779,8 @@
     "monatTooltip": "Month {{month}}: {{value}}%",
     "targetLineLabel": "Election target {{percent}}%",
     "current": "Current:",
-    "ariaLabel": "Election forecast trend, last {{count}} months. Currently {{value}}%, target threshold {{threshold}}%. Trend: {{trend}}."
+    "ariaLabel": "Election forecast trend, last {{count}} months. Currently {{value}}%, target threshold {{threshold}}%. Trend: {{trend}}.",
+    "nochKeinVerlauf": "Trend appears from month two"
   },
   "vorstufeBadge": {
     "restMonate": "({{count}} mo left)"
@@ -3173,5 +3181,49 @@
       "bestandEins": "“{{gesetz}}” is blocked and awaiting a decision.",
       "bestandMehrere": "{{anzahl}} bills are blocked, among them “{{gesetz}}”."
     }
+  },
+  "fallbackZiele": {
+    "ag_gesetz_breit_regieren": {
+      "titel": "Govern broadly",
+      "beschreibung": "Pass at least 5 laws through the Bundestag."
+    },
+    "ag_gesetz_investiv": {
+      "titel": "Invest, don’t just administer",
+      "beschreibung": "Pass at least 2 investment-oriented laws."
+    },
+    "ag_milieu_mitte": {
+      "titel": "Hold the social centre",
+      "beschreibung": "Keep the social centre at 48 % or above for the whole term."
+    },
+    "ag_milieu_buergerlich": {
+      "titel": "Win the middle class",
+      "beschreibung": "Keep the middle class at 45 % or above throughout."
+    },
+    "ag_haushalt_solide": {
+      "titel": "Sound budget",
+      "beschreibung": "Run a deficit of no more than 20bn for 12 consecutive months."
+    },
+    "ag_kabinett_geschlossen": {
+      "titel": "A united cabinet",
+      "beschreibung": "Keep the average cabinet mood at 3.5 or above."
+    },
+    "ag_medien_klima": {
+      "titel": "Friendly press",
+      "beschreibung": "12 months with a media climate above 55."
+    },
+    "kz_gp_umweltgesetz": {
+      "titel": "Coalition goal"
+    },
+    "kz_sdp_sozialgesetz": {
+      "titel": "Coalition goal"
+    }
+  },
+  "abstimmung": {
+    "ja": "Yes",
+    "nein": "No",
+    "reicht": "Majority secured",
+    "reichtNicht": "Majority missing",
+    "schwelle": "Majority at {{schwelle}}%",
+    "balkenAria": "Vote: {{ja}} yes, {{nein}} no — {{prozent}} percent approval against a {{schwelle}} percent majority threshold. {{status}}."
   }
 }

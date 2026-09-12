@@ -1,45 +1,20 @@
 /**
- * SMA-344: Halbkreis-SVG — klassische Parlamentsdarstellung (links → rechts).
+ * Sitzverteilung im Bundestag als Plenums-Halbkreis.
+ *
+ * Vorher drei Ringsegmente (Donut) in Array-Reihenfolge: keine einzelnen Sitze,
+ * keine Mehrheitsmarke — also gerade die beiden Dinge nicht, für die man eine
+ * Halbkreisdarstellung überhaupt wählt. Jetzt echte Sitzpunkte auf konzentrischen
+ * Bögen, links nach rechts in Sitzordnung, mit Marke an der Mehrheitsschwelle.
  */
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BUNDESTAG_SITZE_GESAMT, type FraktionSitze } from '../../../constants/bundestag';
+import { buildSeatLayout, seatRadius } from './seatLayout';
 import styles from './BundestagHalbkreis.module.css';
 
 const CX = 200;
-const CY = 210;
-const R_OUTER = 175;
-const R_INNER = 118;
-
-/** Kreisbogen-Pfad (Ringsegment) von Winkel t1 nach t2 (Radiant, obere Halbebene) */
-function wedgePath(t1: number, t2: number): string {
-  const x1o = CX + R_OUTER * Math.cos(t1);
-  const y1o = CY - R_OUTER * Math.sin(t1);
-  const x2o = CX + R_OUTER * Math.cos(t2);
-  const y2o = CY - R_OUTER * Math.sin(t2);
-  const x1i = CX + R_INNER * Math.cos(t1);
-  const y1i = CY - R_INNER * Math.sin(t1);
-  const x2i = CX + R_INNER * Math.cos(t2);
-  const y2i = CY - R_INNER * Math.sin(t2);
-  return `M ${x1o} ${y1o} A ${R_OUTER} ${R_OUTER} 0 0 1 ${x2o} ${y2o} L ${x2i} ${y2i} A ${R_INNER} ${R_INNER} 0 0 0 ${x1i} ${y1i} Z`;
-}
-
-interface SegmentProps {
-  fraktion: FraktionSitze;
-  tStart: number;
-  tEnd: number;
-}
-
-function HalbkreisSegment({ fraktion, tStart, tEnd }: SegmentProps) {
-  return (
-    <path
-      d={wedgePath(tStart, tEnd)}
-      fill={fraktion.farbe}
-      stroke="var(--border)"
-      strokeWidth={0.5}
-      className={fraktion.passiv ? styles.segmentPassiv : undefined}
-    />
-  );
-}
+const CY = 205;
+const LAYOUT = { cx: CX, cy: CY, rInner: 92, rOuter: 178, rows: 11 };
 
 export interface BundestagHalbkreisProps {
   fraktionen: FraktionSitze[];
@@ -49,15 +24,26 @@ export function BundestagHalbkreis({ fraktionen }: BundestagHalbkreisProps) {
   const { t } = useTranslation('game');
   const total = fraktionen.reduce((s, f) => s + f.sitze, 0) || BUNDESTAG_SITZE_GESAMT;
 
-  let seatCursor = 0;
-  const segments: { fraktion: FraktionSitze; tStart: number; tEnd: number }[] = [];
+  /** Ein Punkt pro Sitz, in Sitzordnung der jeweiligen Fraktion zugeordnet. */
+  const sitze = useMemo(() => {
+    const positions = buildSeatLayout(total, LAYOUT);
+    const result: Array<{ x: number; y: number; fraktion: FraktionSitze }> = [];
+    let cursor = 0;
+    for (const fraktion of fraktionen) {
+      for (let i = 0; i < fraktion.sitze && cursor < positions.length; i++, cursor++) {
+        result.push({ x: positions[cursor].x, y: positions[cursor].y, fraktion });
+      }
+    }
+    return result;
+  }, [fraktionen, total]);
 
-  for (const f of fraktionen) {
-    const tStart = Math.PI * (1 - seatCursor / total);
-    seatCursor += f.sitze;
-    const tEnd = Math.PI * (1 - seatCursor / total);
-    segments.push({ fraktion: f, tStart, tEnd });
-  }
+  const r = seatRadius(LAYOUT, total);
+
+  /** Mehrheit liegt bei der Hälfte der Sitze — in der Sitzordnung also genau mittig. */
+  const mehrheitSitze = Math.floor(total / 2) + 1;
+  const koalitionsSitze = fraktionen
+    .filter((f) => f.id === 'koalition')
+    .reduce((s, f) => s + f.sitze, 0);
 
   return (
     <div className={styles.wrap}>
@@ -65,19 +51,46 @@ export function BundestagHalbkreis({ fraktionen }: BundestagHalbkreisProps) {
         className={styles.svg}
         viewBox="0 0 400 220"
         xmlns="http://www.w3.org/2000/svg"
-        aria-label={t('game:bundestag.halbkreisAria', 'Sitzverteilung Bundestag')}
+        role="img"
+        aria-label={t('bundestag.halbkreisAria', 'Sitzverteilung Bundestag')}
       >
-        <title>{t('game:bundestag.halbkreisTitle', 'Sitzverteilung im Halbkreis')}</title>
-        {segments.map((seg) => (
-          <HalbkreisSegment
-            key={seg.fraktion.id}
-            fraktion={seg.fraktion}
-            tStart={seg.tStart}
-            tEnd={seg.tEnd}
+        <title>{t('bundestag.halbkreisTitle', 'Sitzverteilung im Halbkreis')}</title>
+        {sitze.map((sitz, i) => (
+          <circle
+            key={i}
+            cx={sitz.x}
+            cy={sitz.y}
+            r={r}
+            fill={sitz.fraktion.farbe}
+            className={sitz.fraktion.passiv ? styles.sitzPassiv : styles.sitz}
           />
         ))}
-        <text x={CX} y={198} textAnchor="middle" className={styles.centerLabel} fontSize={12}>
-          {t('game:bundestag.sitzeGesamt', { count: BUNDESTAG_SITZE_GESAMT })}
+        {/* Mehrheitsmarke: senkrecht durch die Mitte des Bogens. */}
+        <line
+          x1={CX}
+          y1={CY - LAYOUT.rOuter - 8}
+          x2={CX}
+          y2={CY - LAYOUT.rInner + 8}
+          className={styles.mehrheitsLinie}
+        />
+        <text x={CX} y={CY - LAYOUT.rOuter - 12} textAnchor="middle" className={styles.mehrheitsLabel}>
+          {t('bundestag.mehrheitBei', { sitze: mehrheitSitze })}
+        </text>
+        <text x={CX} y={CY - 34} textAnchor="middle" className={styles.centerLabel}>
+          {t('bundestag.sitzeGesamt', { count: BUNDESTAG_SITZE_GESAMT })}
+        </text>
+        <text
+          x={CX}
+          y={CY - 16}
+          textAnchor="middle"
+          className={koalitionsSitze >= mehrheitSitze ? styles.statusOk : styles.statusFehlt}
+        >
+          {t(
+            koalitionsSitze >= mehrheitSitze
+              ? 'bundestag.koalitionMehrheit'
+              : 'bundestag.koalitionKeineMehrheit',
+            { sitze: koalitionsSitze },
+          )}
         </text>
       </svg>
 
@@ -87,13 +100,13 @@ export function BundestagHalbkreis({ fraktionen }: BundestagHalbkreisProps) {
             <span className={styles.farbePunkt} style={{ background: f.farbe }} />
             <span className={styles.legendeName}>{f.name}</span>
             <span className={styles.legendeSitze}>
-              {t('game:bundestag.legendeSitzeProzent', {
+              {t('bundestag.legendeSitzeProzent', {
                 sitze: f.sitze,
                 prozent: f.prozent.toFixed(1),
               })}
             </span>
             {f.passiv && (
-              <span className={styles.passivBadge}>{t('game:bundestag.nfKeineKooperation')}</span>
+              <span className={styles.passivBadge}>{t('bundestag.nfKeineKooperation')}</span>
             )}
           </div>
         ))}

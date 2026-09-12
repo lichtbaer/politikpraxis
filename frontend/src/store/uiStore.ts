@@ -29,6 +29,12 @@ interface UIStore {
   openGlossarKey: string | null;
   /** #281: Zähler, der bei jeder Öffnungsanfrage erhöht wird (auch bei gleichem Key erneut auslösbar) */
   openGlossarRequestId: number;
+  /**
+   * Läuft gerade die Einführungstour? Solange sie läuft, halten kontextuelle
+   * GameTips still — sonst konkurrieren beim ersten Spielstart zwei
+   * Erklär-Overlays um dieselbe Aufmerksamkeit.
+   */
+  introTourActive: boolean;
 
   showCharDetail: (id: string) => void;
   closeCharDetail: () => void;
@@ -41,6 +47,7 @@ interface UIStore {
   setShowShortcutHelp: (show: boolean) => void;
   setFastForwardActive: (active: boolean) => void;
   requestOpenGlossar: (key: string) => void;
+  setIntroTourActive: (active: boolean) => void;
 }
 
 let toastCounter = 0;
@@ -58,6 +65,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
   focusEreignisprotokollRequestId: 0,
   showShortcutHelp: false,
   fastForwardActive: false,
+  introTourActive: false,
   openGlossarKey: null,
   openGlossarRequestId: 0,
 
@@ -94,6 +102,7 @@ export const useUIStore = create<UIStore>((set, get) => ({
   setShowShortcutHelp: (show) => set({ showShortcutHelp: show }),
 
   setFastForwardActive: (active) => set({ fastForwardActive: active }),
+  setIntroTourActive: (active) => set({ introTourActive: active }),
 
   requestOpenGlossar: (key) =>
     set((s) => ({ openGlossarKey: key, openGlossarRequestId: s.openGlossarRequestId + 1 })),

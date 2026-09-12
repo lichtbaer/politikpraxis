@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactEChartsCore from 'echarts-for-react/lib/core';
+import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import type { KPI } from '../../../core/types';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import {
   type AuswirkungsChartDaten,
   tintBarSegmentColor,
@@ -64,6 +65,7 @@ export function AuswirkungsBarChart({
 }: AuswirkungsBarChartProps) {
   void _invertiert;
   const { t } = useTranslation('game');
+  const { theme: chartTheme, tokens } = useChartTheme();
 
   const option: EChartsOption = useMemo(() => {
     const k = effektTyp;
@@ -128,8 +130,8 @@ export function AuswirkungsBarChart({
         symbol: 'circle',
         symbolSize: 5,
         showSymbol: true,
-        itemStyle: { color: 'rgba(232,228,216,0.95)', borderColor: 'rgba(40,38,34,0.9)', borderWidth: 1 },
-        lineStyle: { color: 'rgba(232,228,216,0.9)', width: 2 },
+        itemStyle: { color: tokens.text, borderColor: tokens.bg2, borderWidth: 1 },
+        lineStyle: { color: tokens.text, width: 2 },
         z: 10,
         emphasis: {
           lineStyle: { width: 2.5 },
@@ -139,7 +141,7 @@ export function AuswirkungsBarChart({
             ? {
                 silent: true,
                 symbol: ['none', 'none'],
-                lineStyle: { color: 'rgba(255,255,255,0.22)', width: 1 },
+                lineStyle: { color: tokens.border2, width: 1 },
                 data: [{ yAxis: 0 }],
               }
             : undefined,
@@ -153,7 +155,7 @@ export function AuswirkungsBarChart({
       xAxis: {
         type: 'category',
         data: xLabels,
-        axisLabel: { color: 'rgba(255,255,255,0.38)', fontSize: 8 },
+        axisLabel: { color: tokens.text3, fontSize: 8, fontFamily: tokens.sans },
         axisLine: { show: false },
         axisTick: { show: false },
       },
@@ -162,22 +164,22 @@ export function AuswirkungsBarChart({
         min: yMin,
         max: yMax,
         axisLabel: {
-          color: 'rgba(255,255,255,0.28)',
+          color: tokens.text3,
           fontSize: 7,
           formatter: (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1)),
         },
         splitLine: {
-          lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed', width: 0.5 },
+          lineStyle: { color: tokens.border, type: 'dashed', width: 0.5 },
         },
       },
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        backgroundColor: '#1e1c18',
-        borderColor: '#444',
+        backgroundColor: tokens.bg2,
+        borderColor: tokens.border2,
         borderWidth: 1,
         padding: [8, 10],
-        textStyle: { color: '#d0cfc8', fontSize: 10 },
+        textStyle: { color: tokens.text, fontSize: 10, fontFamily: tokens.sans },
         formatter: (params: unknown) => {
           const arr = params as Array<{ seriesName: string; dataIndex: number; value?: number }>;
           const first = arr.find((p) => p.dataIndex != null);
@@ -203,7 +205,7 @@ export function AuswirkungsBarChart({
           }
           const total = daten.gesamteffekt[k][i];
           lines.push(
-            `<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.12);color:rgba(232,228,216,0.95)">` +
+            `<div style="margin-top:6px;padding-top:6px;border-top:1px solid ${tokens.border};color:${tokens.text}">` +
               `${t('pendingEffekte.tooltipGesamteffekt')}: <strong>${formatValue(total, einheit)}</strong>` +
               `</div>`,
           );
@@ -212,7 +214,7 @@ export function AuswirkungsBarChart({
       },
       series: allSeries,
     };
-  }, [daten, effektTyp, einheit, t, xLabels, currentMonth]);
+  }, [daten, effektTyp, einheit, t, xLabels, currentMonth, tokens]);
 
   const chartAriaLabel = useMemo(() => {
     const total = daten.gesamteffekt[effektTyp].reduce((sum, v) => sum + v, 0);
@@ -230,7 +232,7 @@ export function AuswirkungsBarChart({
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          theme="politikpraxis"
+          theme={chartTheme}
           style={{ width: '100%', height: 168 }}
           opts={{ renderer: 'canvas' }}
           notMerge

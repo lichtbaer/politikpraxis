@@ -1,3 +1,18 @@
+/* ─── Kontrast-Regeln für die Farb-Token ─────────────────────────────────────
+   Durchgesetzt von `tokens.contrast.test.ts` — wer hier Farben ändert, muss die
+   Werte dort bestehen. Gemessen nach WCAG 2.1 (Relativluminanz).
+
+     --text, --text2, --text3   ≥ 4.5:1 gegen --bg … --bg4   (sind immer Text)
+     --gold/red/green/blue/warn ≥ 4.5:1 gegen --bg … --bg3   (Werte, Deltas, Labels)
+                                ≥ 3:1   gegen --bg4          (Chips, Ränder, Badges)
+     Stufung: --text heller als --text2 heller als --text3
+     --gold ist von --red und --green klar unterscheidbar (sonst ist der
+     Markenakzent nicht von „schlecht“/„gut“ zu trennen)
+
+   Vor dieser Regel verfehlte --text3 in allen vier Themes die AA-Schwelle
+   (1,66–2,32:1) und wurde trotzdem an 76 Stellen als Textfarbe verwendet.
+   ─────────────────────────────────────────────────────────────────────────── */
+
 /* ─── Typografie-Hierarchie (SMA-302) ───────────────────────────────────────── */
 :root {
   --text-hero:    clamp(2rem, 5vw, 4rem);
@@ -40,17 +55,17 @@
   --border:   #3a3630;
   --border2:  #4c4840;
   --text:     #e6deca;
-  --text2:    #968c7c;
-  --text3:    #5a5448;
+  --text2:    #b6afa3;
+  --text3:    #9a978f;
   --gold:     #c8a84a;
   --gold2:    #8a7030;
-  --red:      #c05848;
+  --red:      #cc786b;
   --red2:     #7a3028;
-  --green:    #5a9870;
+  --green:    #5f9b74;
   --green2:   #2a5838;
-  --blue:     #5888b8;
+  --blue:     #6793be;
   --blue2:    #28486a;
-  --warn:     #c8783a;
+  --warn:     #ca7c40;
   --eu-c:     #6880b8;
   --land-c:   #5a9870;
   --kom-c:    #9a8848;
@@ -70,13 +85,13 @@
   --border:   #2a3a58;
   --border2:  #3a4e70;
   --text:     #dce4f4;
-  --text2:    #7d90b4;
-  --text3:    #445068;
-  --gold:     #4a7ce0;
+  --text2:    #9eacc7;
+  --text3:    #8d94a3;
+  --gold:     #5c89e3;
   --gold2:    #2a4e9a;
-  --red:      #c05860;
+  --red:      #c97178;
   --red2:     #6a2838;
-  --green:    #3a9870;
+  --green:    #3f9b74;
   --green2:   #1a4a38;
   --blue:     #6898d8;
   --blue2:    #1e3860;
@@ -100,11 +115,11 @@
   --border:   #28282e;
   --border2:  #38383e;
   --text:     #f0f0f6;
-  --text2:    #8080a0;
-  --text3:    #484858;
-  --gold:     #e63946;
+  --text2:    #9a9ab3;
+  --text3:    #858590;
+  --gold:     #ef4a57;
   --gold2:    #8a1820;
-  --red:      #e63946;
+  --red:      #ff6b78;
   --red2:     #5a1020;
   --green:    #22c55e;
   --green2:   #0e2e1c;
@@ -130,13 +145,13 @@
   --border:   #2a3848;
   --border2:  #384e62;
   --text:     #dceaf4;
-  --text2:    #6090a8;
-  --text3:    #385060;
+  --text2:    #8cafc0;
+  --text3:    #86949e;
   --gold:     #22d3a0;
   --gold2:    #107850;
   --red:      #f87171;
   --red2:     #3a1010;
-  --green:    #22d3a0;
+  --green:    #7ee787;
   --green2:   #083028;
   --blue:     #38bdf8;
   --blue2:    #082048;

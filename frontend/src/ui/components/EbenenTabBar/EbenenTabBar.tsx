@@ -8,6 +8,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { TABS } from './tabs';
+import { Star } from '../../icons';
 import styles from './EbenenTabBar.module.css';
 
 const EBENE_COLORS: Record<string, string> = {
@@ -39,11 +40,13 @@ export function EbenenTabBar() {
   const complexity = useGameStore((s) => s.complexity);
   const wahlkampfAktiv = useGameStore((s) => s.state.wahlkampfAktiv);
 
+  const offeneTabs = TABS.filter((tab) => complexity >= tab.minLevel);
+  const gesperrteTabs = TABS.filter((tab) => complexity < tab.minLevel);
+
   return (
     <nav className={styles.tabBar} aria-label={t('game:tabBar.ariaLabel')}>
       <div className={styles.tabs}>
-        {TABS.map((tab) => {
-          const unlocked = complexity >= tab.minLevel;
+        {offeneTabs.map((tab) => {
           const isActive = view === tab.id;
           const color = EBENE_COLORS[tab.id] ?? 'var(--text2)';
 
@@ -51,24 +54,36 @@ export function EbenenTabBar() {
             <button
               key={tab.id}
               type="button"
-              className={`${styles.tab} ${isActive ? styles.active : ''} ${!unlocked ? styles.locked : ''}`}
-              onClick={() => unlocked && setView(tab.id)}
-              disabled={!unlocked}
-              title={!unlocked ? t('game:tabBar.lockedTooltip', { level: tab.minLevel }) : undefined}
+              className={`${styles.tab} ${isActive ? styles.active : ''}`}
+              onClick={() => setView(tab.id)}
               style={isActive ? { '--tab-color': color } as React.CSSProperties : undefined}
             >
-              <span className={styles.icon} style={{ color: unlocked ? color : 'var(--text3)' }}>
-                {tab.icon}
+              <span className={styles.icon} style={{ color }}>
+                <tab.Icon size={15} aria-hidden />
               </span>
               <span className={styles.label}>{t(tab.labelKey)}</span>
-              {!unlocked && (
-                <span className={styles.lockIcon} title={t('game:tabBar.lockedTooltip', { level: tab.minLevel })}>
-                  <LockIcon />
-                </span>
-              )}
             </button>
           );
         })}
+        {/* Gesperrte Ebenen gebuendelt: einzeln ausgegraut kommunizierte die Leiste
+            vor allem, was der Spieler *nicht* tun kann — auf Stufe 1 waren das
+            sieben von zehn Tabs. Die Progressionsneugier bleibt, die Navigation
+            wird wieder lesbar. */}
+        {gesperrteTabs.length > 0 && (
+          <span
+            className={`${styles.tab} ${styles.lockedSummary}`}
+            title={gesperrteTabs
+              .map((tab) => `${t(tab.labelKey)} — ${t('game:tabBar.lockedTooltip', { level: tab.minLevel })}`)
+              .join('\n')}
+          >
+            <span className={styles.lockIcon}>
+              <LockIcon />
+            </span>
+            <span className={styles.label}>
+              {t('game:tabBar.gesperrtSammel', { count: gesperrteTabs.length })}
+            </span>
+          </span>
+        )}
         {wahlkampfAktiv && (
           <button
             type="button"
@@ -76,7 +91,9 @@ export function EbenenTabBar() {
             onClick={() => setView('wahlkampf')}
             style={view === 'wahlkampf' ? { '--tab-color': 'var(--gold)' } as React.CSSProperties : undefined}
           >
-            <span className={styles.icon}>⭐</span>
+            <span className={styles.icon} style={{ color: 'var(--gold)' }}>
+              <Star size={15} aria-hidden />
+            </span>
             <span className={styles.label}>{t('game:tabBar.wahlkampf')}</span>
           </button>
         )}

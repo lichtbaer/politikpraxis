@@ -25,7 +25,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id: string) => {
-          if (id.includes('node_modules/echarts') || id.includes('node_modules/echarts-for-react') || id.includes('node_modules/zrender')) {
+          // Nur die Bibliothek selbst — der Schrägstrich ist wichtig: ohne ihn matcht
+          // `node_modules/echarts` auch `echarts-for-react`, und dessen Helfer ziehen
+          // den Chunk als statischen Import in den Entry. Das Hauptmenü lud dadurch
+          // 228 KB ECharts per `modulepreload`, obwohl es keine Charts zeigt.
+          if (id.includes('node_modules/echarts/') || id.includes('node_modules/zrender/')) {
             return 'echarts-vendor';
           }
           if (id.includes('node_modules/react-router-dom') || id.includes('node_modules/react-router')) {

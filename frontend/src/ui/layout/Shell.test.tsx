@@ -18,7 +18,7 @@ vi.mock('../screens/LegislaturBilanzScreen', () => ({ LegislaturBilanzScreen: ()
 vi.mock('../components/MonatszusammenfassungModal/MonatszusammenfassungModal', () => ({
   MonatszusammenfassungModal: () => null,
 }));
-vi.mock('../icons', () => ({ Users: () => null }));
+vi.mock('../icons', () => ({ Users: () => null, Menu: () => null }));
 vi.mock('../hooks/useGameTick', () => ({ useGameTick: vi.fn() }));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (k: string) => k }),

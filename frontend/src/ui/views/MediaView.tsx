@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../store/gameStore';
 import { useContentStore } from '../../store/contentStore';
 import { featureActive } from '../../core/systems/features';
@@ -65,7 +66,7 @@ function getMilieuGruppen(
 
 export function MediaView() {
   const { t } = useTranslation('game');
-  const { state } = useGameStore();
+  const { state } = useGameStore(useShallow((s) => ({ state: s.state })));
   const milieus = useContentStore((s) => s.milieus) ?? [];
   const complexity = useGameStore((s) => s.complexity);
   const zust = state.zust;

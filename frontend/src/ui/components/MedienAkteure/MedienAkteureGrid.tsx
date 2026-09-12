@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { activeMedienAkteurIds } from '../../../core/systems/medien/medienAkteure';
@@ -8,7 +9,7 @@ import styles from './MedienAkteureGrid.module.css';
 
 export function MedienAkteureGrid() {
   const { t } = useTranslation('game');
-  const { state, content, complexity } = useGameStore();
+  const { state, content, complexity } = useGameStore(useShallow((s) => ({ state: s.state, content: s.content, complexity: s.complexity })));
 
   if (!featureActive(complexity, 'medien_akteure_2')) return null;
   const defs = content.medienAkteureContent?.length ? content.medienAkteureContent : DEFAULT_MEDIEN_AKTEURE;

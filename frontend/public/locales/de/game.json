@@ -1662,7 +1662,10 @@
       "ideologieAbstand": "Ideologischer Abstand zur Koalition",
       "koalitionsvertragStanz": "Koalitionsvertrag",
       "abweichlerRisiko": "Abweichler-Risiko: bis zu {{risiko}}% zusätzlicher Stimmenverlust möglich"
-    }
+    },
+    "mehrheitBei": "Mehrheit ab {{sitze}}",
+    "koalitionMehrheit": "Koalition: {{sitze}} Sitze — Mehrheit",
+    "koalitionKeineMehrheit": "Koalition: {{sitze}} Sitze — keine Mehrheit"
   },
   "media": {
     "title": "Medien",
@@ -1812,7 +1815,6 @@
       "haushalt": "Haushalt",
       "kabinett": "Kabinett"
     },
-    "kabinettText": "Dein Kabinett. {{count}} Persönlichkeiten, {{count}} Agenden.",
     "memo": "AN: Bundeskanzleramt\nVON: Koalitionsarbeitsgruppe\nBETREFF: Koalitionsvertrag — offene Punkte\n\nDer Entwurf des Koalitionsvertrags liegt vor.\n{{lawCount}} Gesetzentwürfe sind priorisiert.\nPolitisches Kapital: {{pk}} Einheiten verfügbar.{{brLine}}\n\nDie Arbeit beginnt jetzt.",
     "memoBrLine": "\n\nErste Bundesratssitzung: in 3 Monaten.",
     "cta1": "Glückwunsch. Du hast gewonnen.",
@@ -1828,7 +1830,9 @@
     "erstes_gesetz": "Dein erstes Gesetz. Politisches Kapital (PK) ist deine zentrale Ressource — für Einbringen, Lobbying und Abstimmungen.",
     "bundesrat_intro": "Der Bundesrat ist aktiv. 16 Länder, 4 Fraktionen. Lobbying beeinflusst die Abstimmungsbereitschaft.",
     "skandal_intro": "Ein politischer Skandal hat die Regierung erreicht. Wie reagierst du?",
-    "wahlkampf_beginn": "Der Wahlkampf beginnt. Noch 6 Monate bis zur Wahl — Zeit für Reden, Koalitions-Aktionen und Medienoffensiven."
+    "wahlkampf_beginn": "Der Wahlkampf beginnt. Noch 6 Monate bis zur Wahl — Zeit für Reden, Koalitions-Aktionen und Medienoffensiven.",
+    "kabinettText_one": "Dein Kabinett. {{count}} Persönlichkeit, {{count}} Agenda.",
+    "kabinettText_other": "Dein Kabinett. {{count}} Persönlichkeiten, {{count}} Agenden."
   },
   "gameSetup": {
     "title": "Spielstart",
@@ -2024,7 +2028,6 @@
     "empfohlen": "Empfohlen",
     "empfehlungEinbringen": "Jetzt einbringen? Akkumulierte Boni vorhanden.",
     "leer": "Keine Gesetze.",
-    "gesetzeCount": "Gesetze",
     "ohneFeld": "Sonstige",
     "kongruenzLabel": "Passung",
     "kongruenzTooltip": "Wie gut das Gesetz zu deiner politischen Ausrichtung passt (Skala 0–100). Höher = stärkere Übereinstimmung mit deiner Regierungslinie. Das ist keine direkte Bundestags-Abstimmungswahrscheinlichkeit.",
@@ -2049,7 +2052,9 @@
     "sortKoalition": "Koalition",
     "sortKoalitionTooltip": "Gesetze nach Koalitionsvertrag-Kongruenz gruppieren: Priorisiert · Koalitionskonform · Koalitionskritisch",
     "searchPlaceholder": "Gesetz suchen…",
-    "keineErgebnisse": "Keine Gesetze gefunden."
+    "keineErgebnisse": "Keine Gesetze gefunden.",
+    "gesetzeCount_one": "{{count}} Gesetz",
+    "gesetzeCount_other": "{{count}} Gesetze"
   },
   "gegenfinanzierung": {
     "title": "Gegenfinanzierung erforderlich",
@@ -2118,7 +2123,9 @@
     "laender": "Länder",
     "kommunen": "Kommunen",
     "eu": "EU-Ebene",
-    "wahlkampf": "Wahlkampf"
+    "wahlkampf": "Wahlkampf",
+    "gesperrtSammel_one": "+{{count}} später",
+    "gesperrtSammel_other": "+{{count}} später"
   },
   "leftPanel": {
     "wahlprognose": "Wahlprognose",
@@ -2770,7 +2777,8 @@
     "monatTooltip": "Monat {{month}}: {{value}}%",
     "targetLineLabel": "Wahlziel {{percent}}%",
     "current": "Aktuell:",
-    "ariaLabel": "Wahlprognose-Verlauf, letzte {{count}} Monate. Aktuell {{value}}%, Zielschwelle {{threshold}}%. Trend: {{trend}}."
+    "ariaLabel": "Wahlprognose-Verlauf, letzte {{count}} Monate. Aktuell {{value}}%, Zielschwelle {{threshold}}%. Trend: {{trend}}.",
+    "nochKeinVerlauf": "Verlauf ab dem zweiten Monat"
   },
   "vorstufeBadge": {
     "restMonate": "(noch {{count}} Mo)"
@@ -3171,5 +3179,49 @@
       "bestandEins": "„{{gesetz}}“ ist blockiert und wartet auf eine Entscheidung.",
       "bestandMehrere": "{{anzahl}} Gesetze sind blockiert, darunter „{{gesetz}}“."
     }
+  },
+  "fallbackZiele": {
+    "ag_gesetz_breit_regieren": {
+      "titel": "Breit regieren",
+      "beschreibung": "Mindestens 5 Gesetze durch den Bundestag bringen."
+    },
+    "ag_gesetz_investiv": {
+      "titel": "Investieren statt verwalten",
+      "beschreibung": "Mindestens 2 investive Gesetze beschließen."
+    },
+    "ag_milieu_mitte": {
+      "titel": "Mitte halten",
+      "beschreibung": "Die soziale Mitte die ganze Legislatur über bei mindestens 48 % halten."
+    },
+    "ag_milieu_buergerlich": {
+      "titel": "Bürgerliche Mitte binden",
+      "beschreibung": "Die bürgerliche Mitte durchgehend bei mindestens 45 % halten."
+    },
+    "ag_haushalt_solide": {
+      "titel": "Solide Kasse",
+      "beschreibung": "12 Monate am Stück ein Defizit von höchstens 20 Mrd."
+    },
+    "ag_kabinett_geschlossen": {
+      "titel": "Geschlossenes Kabinett",
+      "beschreibung": "Durchschnittliche Kabinettslaune von mindestens 3,5 halten."
+    },
+    "ag_medien_klima": {
+      "titel": "Freundliche Presse",
+      "beschreibung": "12 Monate mit einem Medienklima über 55."
+    },
+    "kz_gp_umweltgesetz": {
+      "titel": "Koalitionsziel"
+    },
+    "kz_sdp_sozialgesetz": {
+      "titel": "Koalitionsziel"
+    }
+  },
+  "abstimmung": {
+    "ja": "Ja",
+    "nein": "Nein",
+    "reicht": "Mehrheit steht",
+    "reichtNicht": "Mehrheit fehlt",
+    "schwelle": "Mehrheit ab {{schwelle}} %",
+    "balkenAria": "Abstimmung: {{ja}} Ja, {{nein}} Nein — {{prozent}} Prozent Zustimmung bei einer Mehrheitsschwelle von {{schwelle}} Prozent. {{status}}."
   }
 }

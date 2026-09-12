@@ -11,14 +11,50 @@
   height: auto;
 }
 
-.segmentPassiv {
-  filter: saturate(1.05);
-  opacity: 0.98;
+.sitz {
+  stroke: var(--bg2);
+  stroke-width: 0.4;
+}
+
+/* Fraktionen ohne Kooperationsbereitschaft: gleiche Farbe, aber offene Punkte —
+ * sie zaehlen fuer die Sitzzahl, stehen aber fuer keine Mehrheit zur Verfuegung. */
+.sitzPassiv {
+  stroke: var(--bg2);
+  stroke-width: 0.4;
+  opacity: 0.65;
 }
 
 .centerLabel {
   fill: var(--text2);
   font-family: var(--sans, system-ui, sans-serif);
+  font-size: 11px;
+}
+
+/* Mehrheitsschwelle: die Linie, an der sich jede Abstimmung entscheidet. */
+.mehrheitsLinie {
+  stroke: var(--text2);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+
+.mehrheitsLabel {
+  fill: var(--text3);
+  font-family: var(--sans, system-ui, sans-serif);
+  font-size: 9px;
+}
+
+.statusOk {
+  fill: var(--green);
+  font-family: var(--sans, system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.statusFehlt {
+  fill: var(--red);
+  font-family: var(--sans, system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .legende {
@@ -60,7 +96,7 @@
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 4px;
-  background: color-mix(in srgb, var(--danger, #b00020) 12%, transparent);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
   color: var(--text2);
-  border: 1px solid color-mix(in srgb, var(--danger, #b00020) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
 }

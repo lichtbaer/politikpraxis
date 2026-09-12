@@ -12,6 +12,19 @@ export function koalitionsAgendaZielAnzahl(complexity: number): number {
 }
 
 /**
+ * Anzahl frei wählbarer Spieler-Agendaziele je Komplexitätsstufe.
+ *
+ * `verfuegbar` deckelt die Vorgabe auf das, was der geladene Content tatsächlich anbietet.
+ * Ohne diese Deckelung lässt sich das Onboarding nicht abschließen, wenn der Zielpool
+ * kleiner ist als die Stufenvorgabe — genau das passierte im Offline-Fallback
+ * (2 Ziele im Bundle, 3 gefordert).
+ */
+export function spielerAgendaZielAnzahl(complexity: number, verfuegbar: number): number {
+  const soll = complexity === 2 ? 2 : complexity >= 3 ? 3 : 0;
+  return Math.min(soll, Math.max(0, verfuegbar));
+}
+
+/**
  * Wählt die ersten N passenden Koalitionsziele für den aktuellen Partner (deterministisch nach ID).
  */
 export function pickInitialKoalitionsAgenda(
