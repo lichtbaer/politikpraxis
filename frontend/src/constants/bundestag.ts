@@ -17,7 +17,11 @@ export const NF_IDEOLOGIE_REF: Ideologie = {
   staat: 72,
 };
 
-export const NF_FRAKTION_FARBE = '#8B0000';
+/**
+ * Dunkelrot, aber noch sichtbar: #8B0000 erreichte gegen den Panel-Hintergrund nur
+ * 1,6:1 und verschwand im Sitzdiagramm praktisch.
+ */
+export const NF_FRAKTION_FARBE = '#b04a42';
 
 export interface FraktionSitze {
   id: string;
@@ -63,7 +67,8 @@ export function berechneSitzverteilung(
       name: 'Opposition',
       sitze: oppositionSitze,
       prozent: (oppositionSitze / BUNDESTAG_SITZE_GESAMT) * 100,
-      farbe: '#555555',
+      // Neutralgrau mit 4,7:1 gegen den Panel-Hintergrund (vorher #555555: 2,2:1).
+      farbe: '#8a8a8a',
     },
     {
       id: 'koalition',

@@ -1656,7 +1656,10 @@
       "ideologieAbstand": "Ideological distance from the coalition",
       "koalitionsvertragStanz": "Coalition agreement",
       "abweichlerRisiko": "Defector risk: up to {{risiko}}% additional vote loss possible"
-    }
+    },
+    "mehrheitBei": "Majority at {{sitze}}",
+    "koalitionMehrheit": "Coalition: {{sitze}} seats — majority",
+    "koalitionKeineMehrheit": "Coalition: {{sitze}} seats — no majority"
   },
   "media": {
     "title": "Media",
