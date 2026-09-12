@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../store/gameStore';
 import { useContentStore } from '../../store/contentStore';
 import { useGameActions } from '../hooks/useGameActions';
@@ -38,7 +39,7 @@ const COLOR_VAR: Record<RouteType, string> = {
 
 export function EbeneView({ type }: EbeneViewProps) {
   const { t } = useTranslation('game');
-  const { state, complexity } = useGameStore();
+  const { state, complexity } = useGameStore(useShallow((s) => ({ state: s.state, complexity: s.complexity })));
   const content = useContentStore();
   const actions = useGameActions();
   const activeLaws = state.gesetze.filter(

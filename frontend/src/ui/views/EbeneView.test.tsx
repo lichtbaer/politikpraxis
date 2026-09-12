@@ -53,9 +53,14 @@ function setupStore(overrides: { complexity?: number; state?: Record<string, unk
     doStaedtebuendnis: mockStaedtebuendnis,
     doKommunalKonferenz: mockKommunalKonferenz,
   };
-  (vi.mocked(useGameStore) as ReturnType<typeof vi.fn>).mockImplementation(
-    (sel?: (s: typeof store) => unknown) => (sel ? sel(store) : store),
+  const gameStoreMock = vi.mocked(useGameStore) as unknown as ReturnType<typeof vi.fn> & {
+    getState: () => typeof store;
+  };
+  gameStoreMock.mockImplementation((sel?: (s: typeof store) => unknown) =>
+    sel ? sel(store) : store,
   );
+  // useGameActions liest die Aktionen ohne Abonnement ueber getState().
+  gameStoreMock.getState = () => store;
   (vi.mocked(useContentStore) as ReturnType<typeof vi.fn>).mockImplementation(
     (sel?: (s: typeof DEFAULT_CONTENT) => unknown) => (sel ? sel(DEFAULT_CONTENT) : DEFAULT_CONTENT),
   );

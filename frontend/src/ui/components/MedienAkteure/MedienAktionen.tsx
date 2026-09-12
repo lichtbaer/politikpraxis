@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { featureActive } from '../../../core/systems/features';
@@ -13,7 +14,7 @@ import styles from './MedienAktionen.module.css';
 
 export function MedienAktionen() {
   const { t } = useTranslation('game');
-  const { state, content, complexity } = useGameStore();
+  const { state, content, complexity } = useGameStore(useShallow((s) => ({ state: s.state, content: s.content, complexity: s.complexity })));
   const { doMedienAktion } = useGameActions();
 
   if (!featureActive(complexity, 'medien_akteure_3')) return null;

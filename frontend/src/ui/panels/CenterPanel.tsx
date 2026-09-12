@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore } from '../../store/uiStore';
 import { getKoalitionspartner } from '../../core/systems/koalition';
@@ -24,7 +25,7 @@ import styles from './CenterPanel.module.css';
 
 export function CenterPanel() {
   const { t } = useTranslation('game');
-  const { state, content, setView, complexity } = useGameStore();
+  const { state, content, setView, complexity } = useGameStore(useShallow((s) => ({ state: s.state, content: s.content, setView: s.setView, complexity: s.complexity })));
   const {
     resolveEvent,
     gegenfinanzierungAuswaehlen,

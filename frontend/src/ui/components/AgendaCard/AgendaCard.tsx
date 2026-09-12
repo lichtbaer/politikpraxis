@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { gesetzKongruenz } from '../../../core/ideologie';
@@ -61,7 +62,7 @@ const STANZ_CLASS: Record<KoalitionsStanz, string> = {
 
 export function AgendaCard({ law, isRecommended, showKongruenz, recommendationScore, koalitionsStanz }: AgendaCardProps) {
   const { t } = useTranslation(['common', 'game']);
-  const { state, content, complexity, ausrichtung } = useGameStore();
+  const { state, content, complexity, ausrichtung } = useGameStore(useShallow((s) => ({ state: s.state, content: s.content, complexity: s.complexity, ausrichtung: s.ausrichtung })));
   const actions = useGameActions();
   const gesetzRelationen = content.gesetzRelationen;
   const expanded = law.expanded;

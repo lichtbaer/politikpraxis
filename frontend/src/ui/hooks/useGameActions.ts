@@ -2,8 +2,17 @@ import { useGameStore } from '../../store/gameStore';
 import type { GameEvent, EventChoice, RouteType } from '../../core/types';
 import type { MilieuKey } from '../../core/systems/medien/media';
 
+/**
+ * Bündelt die Store-Aktionen.
+ *
+ * Bewusst ohne Abonnement: `useGameStore()` ohne Selektor rendert die Komponente
+ * bei *jeder* Store-Änderung neu — auch bei Geschwindigkeitswechsel oder
+ * Tab-Wechsel. Der Hook steckt unter anderem in jeder AgendaCard, also einmal pro
+ * Gesetz. Die Aktionen werden in `create()` einmal angelegt und nie ersetzt,
+ * deshalb reicht ein Lesen des aktuellen Zustands ohne Subscription.
+ */
 export function useGameActions() {
-  const store = useGameStore();
+  const store = useGameStore.getState();
   return {
     einbringen: store.doEinbringen,
     einbringenMitFraming: store.doEinbringenMitFraming,

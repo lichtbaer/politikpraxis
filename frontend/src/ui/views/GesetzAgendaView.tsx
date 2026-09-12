@@ -6,6 +6,7 @@
  */
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../store/gameStore';
 import { useContentStore } from '../../store/contentStore';
 import { AgendaCard } from '../components/AgendaCard/AgendaCard';
@@ -90,7 +91,7 @@ function formatMonth(month: number): string {
 
 export function GesetzAgendaView() {
   const { t } = useTranslation('game');
-  const { state, ausrichtung, complexity } = useGameStore();
+  const { state, ausrichtung, complexity } = useGameStore(useShallow((s) => ({ state: s.state, ausrichtung: s.ausrichtung, complexity: s.complexity })));
   const politikfelder = useContentStore((s) => s.politikfelder);
   const showCollapsible = complexity >= 2;
   const showDruck = featureActive(complexity, 'politikfeld_druck');

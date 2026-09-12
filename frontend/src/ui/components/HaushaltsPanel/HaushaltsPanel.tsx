@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { checkSchuldenbremse } from '../../../core/systems/economics/haushalt';
@@ -57,7 +58,7 @@ function KonjunkturIndikator({ value }: { value: number }) {
 
 export function HaushaltsPanel() {
   const { t } = useTranslation('game');
-  const { state, complexity } = useGameStore();
+  const { state, complexity } = useGameStore(useShallow((s) => ({ state: s.state, complexity: s.complexity })));
   const haushalt = state.haushalt;
 
   if (!haushalt || complexity < 2) return null;

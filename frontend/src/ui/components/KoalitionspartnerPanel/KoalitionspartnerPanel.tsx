@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../../store/gameStore';
 import { useGameActions } from '../../hooks/useGameActions';
 import { featureActive } from '../../../core/systems/features';
@@ -29,7 +30,7 @@ function getKvScoreLabelKey(score: number): string {
 
 export function KoalitionspartnerPanel() {
   const { t } = useTranslation('game');
-  const { state, content, complexity } = useGameStore();
+  const { state, content, complexity } = useGameStore(useShallow((s) => ({ state: s.state, content: s.content, complexity: s.complexity })));
   const { doKoalitionsrunde, doKoalitionsZugestaendnis } = useGameActions();
 
   if (!featureActive(complexity, 'koalitionspartner')) return null;

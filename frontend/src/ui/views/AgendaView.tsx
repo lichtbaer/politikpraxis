@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useShallow } from 'zustand/react/shallow';
 import { useGameStore } from '../../store/gameStore';
 import { AgendaCard } from '../components/AgendaCard/AgendaCard';
 import type { Law, LawStatus } from '../../core/types';
@@ -23,7 +24,7 @@ function orderLaws(laws: Law[]): Law[] {
 
 export function AgendaView() {
   const { t } = useTranslation('game');
-  const { state, complexity } = useGameStore();
+  const { state, complexity } = useGameStore(useShallow((s) => ({ state: s.state, complexity: s.complexity })));
   const visibleGesetze = state.gesetze.filter((g) => (g.min_complexity ?? 1) <= complexity);
   const ordered = orderLaws(visibleGesetze);
 
