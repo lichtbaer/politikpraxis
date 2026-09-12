@@ -3207,5 +3207,13 @@
     "kz_sdp_sozialgesetz": {
       "titel": "Koalitionsziel"
     }
+  },
+  "abstimmung": {
+    "ja": "Ja",
+    "nein": "Nein",
+    "reicht": "Mehrheit steht",
+    "reichtNicht": "Mehrheit fehlt",
+    "schwelle": "Mehrheit ab {{schwelle}} %",
+    "balkenAria": "Abstimmung: {{ja}} Ja, {{nein}} Nein — {{prozent}} Prozent Zustimmung bei einer Mehrheitsschwelle von {{schwelle}} Prozent. {{status}}."
   }
 }
