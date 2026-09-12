@@ -16,7 +16,7 @@ vi.mock('react-i18next', async (importOriginal) => {
   };
 });
 vi.mock('../../store/gameStore', () => ({ useGameStore: vi.fn() }));
-vi.mock('echarts-for-react/lib/core', () => ({ default: () => <div data-testid="echarts-mock" /> }));
+vi.mock('echarts-for-react/esm/core', () => ({ default: () => <div data-testid="echarts-mock" /> }));
 vi.mock('../lib/echarts', () => ({ echarts: {} }));
 vi.mock('../components/WirtschaftsDashboard/WirtschaftsDashboard', () => ({
   WirtschaftsDashboard: () => <div data-testid="wirtschafts-dashboard" />,

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import ReactEChartsCore from 'echarts-for-react/lib/core';
+import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
 import styles from './MilieuBar.module.css';
