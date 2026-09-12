@@ -533,6 +533,25 @@ function buildGesetzRelationen(api: GesetzRelationApi[]): Record<string, GesetzR
   return out;
 }
 
+/**
+ * Titel/Beschreibung der gebündelten Fallback-Ziele lokalisieren.
+ *
+ * Content aus der API liefert bereits übersetzte Texte; die Offline-Defaults in
+ * `scenarios.ts` tragen nur deutsche Platzhalter. Hier greift `game:fallbackZiele.*`,
+ * damit englische Spieler im Offline-Modus keine deutschen Zieltexte sehen.
+ * `load()` läuft bei jedem Sprachwechsel erneut (App-Effekt auf `i18n.language`),
+ * deshalb ist die Auflösung an dieser Stelle korrekt.
+ */
+function localizeFallbackZiel<T extends { id: string; titel: string; beschreibung: string }>(z: T): T {
+  return {
+    ...z,
+    titel: i18n.t(`game:fallbackZiele.${z.id}.titel`, { defaultValue: z.titel }),
+    beschreibung: i18n.t(`game:fallbackZiele.${z.id}.beschreibung`, {
+      defaultValue: z.beschreibung,
+    }),
+  };
+}
+
 export const useContentStore = create<ContentStore>((set) => ({
   chars: [],
   gesetze: [],
@@ -621,8 +640,8 @@ export const useContentStore = create<ContentStore>((set) => ({
           gesetzRelationen: {},
           medienAkteureContent: DEFAULT_MEDIEN_AKTEURE,
           dynamicEvents: [],
-          agendaZiele: DEFAULT_CONTENT.agendaZiele,
-          koalitionsZiele: DEFAULT_CONTENT.koalitionsZiele,
+          agendaZiele: (DEFAULT_CONTENT.agendaZiele ?? []).map(localizeFallbackZiel),
+          koalitionsZiele: (DEFAULT_CONTENT.koalitionsZiele ?? []).map(localizeFallbackZiel),
           loading: false,
           loaded: true,
           offline: true,

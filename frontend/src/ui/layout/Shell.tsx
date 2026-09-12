@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from './Header';
 import { EbenenTabBar } from '../components/EbenenTabBar/EbenenTabBar';
@@ -13,6 +13,7 @@ import { IntroTour } from '../components/IntroTour/IntroTour';
 import { HaushaltsdebatteScreen } from '../screens/HaushaltsdebatteScreen';
 import { LegislaturBilanzScreen } from '../screens/LegislaturBilanzScreen';
 import { useGameTick } from '../hooks/useGameTick';
+import { useShellTop } from '../hooks/useShellTop';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore } from '../../store/uiStore';
 import type { ViewName } from '../../core/types';
@@ -39,6 +40,8 @@ const ALT_VIEW_MAP: Record<string, ViewName> = {
 export function Shell() {
   const { t } = useTranslation('game');
   useGameTick();
+  const shellRef = useRef<HTMLDivElement>(null);
+  useShellTop(shellRef);
   const aktivesStrukturEvent = useGameStore((s) => s.state.aktivesStrukturEvent);
   const letzterMonatsDiff = useGameStore((s) => s.state.letzterMonatsDiff);
   const laws = useGameStore((s) => s.content.laws);
@@ -136,7 +139,7 @@ export function Shell() {
     <>
       <Header />
       <EbenenTabBar />
-      <div className={`${styles.shell} ${speed === 0 ? styles.shellPaused : ''}`}>
+      <div ref={shellRef} className={`${styles.shell} ${speed === 0 ? styles.shellPaused : ''}`}>
         {speed === 0 && (
           <div className={styles.pauseOverlay} aria-hidden="true" />
         )}

@@ -31,7 +31,20 @@ body {
   font-size: 14px;
   line-height: 1.5;
   min-height: 100vh;
+  min-height: 100dvh; /* dvh: Mobile-Adressleiste ändert die Viewport-Höhe */
   overflow-x: hidden;
+}
+
+/* Der App-Root ist eine Flex-Spalte. Banner (Offline/Speicher-Hinweis), Header und
+ * Ebenen-Tableiste beanspruchen ihre natürliche Höhe, das Spielbrett bekommt den Rest
+ * über `flex: 1`. Dadurch braucht kein Layout eine feste px-Rechnung über die Chrome-Höhe —
+ * ein zusätzliches Banner verschiebt nichts mehr aus dem Viewport heraus.
+ * Overlays (Toast, Modals, Tour) sind `position: fixed` und damit außerhalb des Flusses. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 ::-webkit-scrollbar { width: 4px; }

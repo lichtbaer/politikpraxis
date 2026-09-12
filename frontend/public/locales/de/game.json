@@ -3171,5 +3171,41 @@
       "bestandEins": "„{{gesetz}}“ ist blockiert und wartet auf eine Entscheidung.",
       "bestandMehrere": "{{anzahl}} Gesetze sind blockiert, darunter „{{gesetz}}“."
     }
+  },
+  "fallbackZiele": {
+    "ag_gesetz_breit_regieren": {
+      "titel": "Breit regieren",
+      "beschreibung": "Mindestens 5 Gesetze durch den Bundestag bringen."
+    },
+    "ag_gesetz_investiv": {
+      "titel": "Investieren statt verwalten",
+      "beschreibung": "Mindestens 2 investive Gesetze beschließen."
+    },
+    "ag_milieu_mitte": {
+      "titel": "Mitte halten",
+      "beschreibung": "Die soziale Mitte die ganze Legislatur über bei mindestens 48 % halten."
+    },
+    "ag_milieu_buergerlich": {
+      "titel": "Bürgerliche Mitte binden",
+      "beschreibung": "Die bürgerliche Mitte durchgehend bei mindestens 45 % halten."
+    },
+    "ag_haushalt_solide": {
+      "titel": "Solide Kasse",
+      "beschreibung": "12 Monate am Stück ein Defizit von höchstens 20 Mrd."
+    },
+    "ag_kabinett_geschlossen": {
+      "titel": "Geschlossenes Kabinett",
+      "beschreibung": "Durchschnittliche Kabinettslaune von mindestens 3,5 halten."
+    },
+    "ag_medien_klima": {
+      "titel": "Freundliche Presse",
+      "beschreibung": "12 Monate mit einem Medienklima über 55."
+    },
+    "kz_gp_umweltgesetz": {
+      "titel": "Koalitionsziel"
+    },
+    "kz_sdp_sozialgesetz": {
+      "titel": "Koalitionsziel"
+    }
   }
 }

@@ -3173,5 +3173,41 @@
       "bestandEins": "“{{gesetz}}” is blocked and awaiting a decision.",
       "bestandMehrere": "{{anzahl}} bills are blocked, among them “{{gesetz}}”."
     }
+  },
+  "fallbackZiele": {
+    "ag_gesetz_breit_regieren": {
+      "titel": "Govern broadly",
+      "beschreibung": "Pass at least 5 laws through the Bundestag."
+    },
+    "ag_gesetz_investiv": {
+      "titel": "Invest, don’t just administer",
+      "beschreibung": "Pass at least 2 investment-oriented laws."
+    },
+    "ag_milieu_mitte": {
+      "titel": "Hold the social centre",
+      "beschreibung": "Keep the social centre at 48 % or above for the whole term."
+    },
+    "ag_milieu_buergerlich": {
+      "titel": "Win the middle class",
+      "beschreibung": "Keep the middle class at 45 % or above throughout."
+    },
+    "ag_haushalt_solide": {
+      "titel": "Sound budget",
+      "beschreibung": "Run a deficit of no more than 20bn for 12 consecutive months."
+    },
+    "ag_kabinett_geschlossen": {
+      "titel": "A united cabinet",
+      "beschreibung": "Keep the average cabinet mood at 3.5 or above."
+    },
+    "ag_medien_klima": {
+      "titel": "Friendly press",
+      "beschreibung": "12 months with a media climate above 55."
+    },
+    "kz_gp_umweltgesetz": {
+      "titel": "Coalition goal"
+    },
+    "kz_sdp_sozialgesetz": {
+      "titel": "Coalition goal"
+    }
   }
 }

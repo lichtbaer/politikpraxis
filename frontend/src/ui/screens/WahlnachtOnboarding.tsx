@@ -21,6 +21,7 @@ import {
   getKoalitionspartner,
 } from '../../core/systems/koalition';
 import { getKoalitionsStanz, gruppiereNachKoalitionsStanz } from '../../core/gesetzAgenda';
+import { spielerAgendaZielAnzahl } from '../../core/onboardingAgenda';
 import { IdeologieSlider } from '../components/IdeologieSlider/IdeologieSlider';
 import { ALLE_PARTEIEN, buildKoalitionspartnerContent } from '../../data/defaults/koalitionspartner';
 import { toBcp47 } from '../lib/locale';
@@ -171,8 +172,6 @@ export function WahlnachtOnboarding() {
       .map((k) => buildKoalitionspartnerContent(k.parteiId, selectedPartei));
   }, [selectedPartei, ausrichtung]);
 
-  const spielerZielAnzahl = complexity === 2 ? 2 : complexity >= 3 ? 3 : 0;
-
   const parteiIdFilter = state.spielerPartei?.id ?? selectedPartei;
 
   const zielPoolNachKategorie = useMemo(() => {
@@ -192,6 +191,13 @@ export function WahlnachtOnboarding() {
     }
     return byKat;
   }, [content.agendaZiele, complexity, parteiIdFilter]);
+
+  /** Wie viele eigene Ziele die Stufe verlangt — gedeckelt auf den verfügbaren Pool. */
+  const verfuegbareZiele = useMemo(
+    () => [...zielPoolNachKategorie.values()].reduce((sum, arr) => sum + arr.length, 0),
+    [zielPoolNachKategorie],
+  );
+  const spielerZielAnzahl = spielerAgendaZielAnzahl(complexity, verfuegbareZiele);
 
   const koalitionsZieleAnzeige = useMemo(() => {
     const ids = state.koalitionsAgenda ?? [];
