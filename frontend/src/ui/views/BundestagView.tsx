@@ -12,6 +12,7 @@ import { SPIELBARE_PARTEIEN } from '../../data/defaults/parteien';
 import { berechneSitzverteilung } from '../../constants/bundestag';
 import { BundestagHalbkreis } from '../components/BundestagHalbkreis/BundestagHalbkreis';
 import { MilieuBar } from '../components/MilieuBar/MilieuBar';
+import { Lightbulb } from '../icons';
 import styles from './BundestagView.module.css';
 
 /** SMA-322: Einheitliches Datum-Format "Apr 2025" statt "04/2025" */
@@ -74,10 +75,13 @@ export function BundestagView() {
 
       {showBundestagHinweis && (
         <div className={styles.onboardingHint} role="status">
-          <p className={styles.onboardingHintText}>{t('game:bundestag.ersterTabHinweis')}</p>
-          <button type="button" className={styles.onboardingHintBtn} onClick={() => acknowledgeBundestagHinweis()}>
-            {t('game:bundestag.hinweisVerstanden')}
-          </button>
+          <Lightbulb className={styles.onboardingHintIcon} size={18} aria-hidden />
+          <div className={styles.onboardingHintBody}>
+            <p className={styles.onboardingHintText}>{t('game:bundestag.ersterTabHinweis')}</p>
+            <button type="button" className={styles.onboardingHintBtn} onClick={() => acknowledgeBundestagHinweis()}>
+              {t('game:bundestag.hinweisVerstanden')}
+            </button>
+          </div>
         </div>
       )}
 
