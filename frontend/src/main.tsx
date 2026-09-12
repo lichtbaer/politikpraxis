@@ -3,7 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@sentry/react';
 import './i18n';
-import './ui/lib/echarts'; // ECharts tree-shaken modules + theme registration
+// ECharts wird NICHT hier importiert: der Entry-Chunk wuerde die Bibliothek sonst
+// per `modulepreload` schon im Hauptmenue laden. Die Chart-Komponenten ziehen
+// `ui/lib/echarts` selbst — dort laufen auch `echarts.use()` und die Theme-Registrierung.
 import { initSentry } from './services/sentry';
 import App from './App';
 import { ErrorScreen } from './ui/screens/ErrorScreen';
