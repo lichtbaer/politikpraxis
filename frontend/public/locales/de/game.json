@@ -2121,7 +2121,9 @@
     "laender": "Länder",
     "kommunen": "Kommunen",
     "eu": "EU-Ebene",
-    "wahlkampf": "Wahlkampf"
+    "wahlkampf": "Wahlkampf",
+    "gesperrtSammel_one": "+{{count}} später",
+    "gesperrtSammel_other": "+{{count}} später"
   },
   "leftPanel": {
     "wahlprognose": "Wahlprognose",
@@ -2773,7 +2775,8 @@
     "monatTooltip": "Monat {{month}}: {{value}}%",
     "targetLineLabel": "Wahlziel {{percent}}%",
     "current": "Aktuell:",
-    "ariaLabel": "Wahlprognose-Verlauf, letzte {{count}} Monate. Aktuell {{value}}%, Zielschwelle {{threshold}}%. Trend: {{trend}}."
+    "ariaLabel": "Wahlprognose-Verlauf, letzte {{count}} Monate. Aktuell {{value}}%, Zielschwelle {{threshold}}%. Trend: {{trend}}.",
+    "nochKeinVerlauf": "Verlauf ab dem zweiten Monat"
   },
   "vorstufeBadge": {
     "restMonate": "(noch {{count}} Mo)"

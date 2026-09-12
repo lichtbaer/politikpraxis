@@ -185,16 +185,23 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
         </div>
       )}
       <h4 className={styles.chartTitle}>{t('approvalChart.title')}</h4>
-      <div role="img" aria-label={chartAriaLabel} style={{ width: '100%' }}>
-        <ReactEChartsCore
-          echarts={echarts}
-          option={option}
-          theme={chartTheme}
-          style={{ width: '100%', height: 120 }}
-          opts={{ renderer: 'canvas' }}
-          notMerge={false}
-        />
-      </div>
+      {history.length < 2 ? (
+        /* Im ersten Monat gibt es noch keinen Verlauf. Ein Achsenkreuz ohne
+           Datenreihe sieht aus wie ein kaputtes Diagramm — lieber sagen, ab wann
+           hier etwas steht. */
+        <p className={styles.empty}>{t('approvalChart.nochKeinVerlauf')}</p>
+      ) : (
+        <div role="img" aria-label={chartAriaLabel} style={{ width: '100%' }}>
+          <ReactEChartsCore
+            echarts={echarts}
+            option={option}
+            theme={chartTheme}
+            style={{ width: '100%', height: 120 }}
+            opts={{ renderer: 'canvas' }}
+            notMerge={false}
+          />
+        </div>
+      )}
     </div>
   );
 }

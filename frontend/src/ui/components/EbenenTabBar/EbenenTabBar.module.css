@@ -54,12 +54,16 @@
   opacity: 0.7;
 }
 
-.tab.locked {
+.lockedSummary {
   color: var(--text3);
+  cursor: default;
+  gap: 6px;
 }
 
-.tab.locked .icon {
-  color: var(--text3);
+.lockedSummary:hover {
+  background: transparent;
+  color: var(--text2);
+  transform: none;
 }
 
 .icon {

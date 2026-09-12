@@ -5,12 +5,22 @@
   border-left: 1px solid var(--border);
   /* füllt die Grid-Spalte, damit der Panel-Hintergrund nicht mitten in der Spalte endet */
   height: 100%;
+  min-height: 0;
   overflow-y: auto;
 }
 
 .section {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   padding: 16px;
   border-bottom: 1px solid var(--border);
+}
+
+/* Das Ereignisprotokoll fuellt die Spalte, statt bei 280 px abzubrechen und
+ * darunter leere Flaeche zu lassen. */
+.section:last-child {
+  flex: 1;
 }
 
 .section:last-child {
@@ -43,7 +53,8 @@
 .kpiGrid > *:nth-child(4) { animation-delay: 0.15s; }
 
 .log {
-  max-height: 280px;
+  flex: 1;
+  min-height: 120px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
