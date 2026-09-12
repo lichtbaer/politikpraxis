@@ -7,20 +7,28 @@ sondern der **Produktions-Build tatsächlich gebaut, ausgeliefert und im Browser
 (Chromium 1440×900 und 390×844, Offline-Fallback-Content). Alle Messwerte unten stammen aus diesem
 Durchlauf und sind reproduzierbar.
 
-**Legende:** ✅ in diesem Durchgang behoben · ⬜ offen
+**Legende:** ✅ umgesetzt · ⬜ offen
+
+**Stand:** Alle 20 Befunde sind umgesetzt (Branch `claude/game-improvements-graphics-2nx8t8`).
+Die Messwerte unter „Ergebnis" stammen aus demselben Verfahren wie die Ausgangswerte —
+Produktions-Build, `vite preview`, Chromium.
 
 ---
 
 ## Zusammenfassung
 
-Die technische Basis ist gut (Token-System, 4 Themes, CSS Modules, tree-shaken ECharts,
-i18n, 1004 Unit-Tests). Die **Lücke liegt zwischen Token-Ebene und Renderergebnis**: Charts,
-Karten und Parlamentsgrafiken kennen das Token-System nicht, das Layout rechnet mit Magic
-Numbers statt mit der tatsächlichen Chrome-Höhe, und die zentrale Spielaussage („Geht das
-Gesetz durch?") ist grafisch schwächer codiert als nebensächliche Elemente.
+Die technische Basis war gut (Token-System, 4 Themes, CSS Modules, tree-shaken ECharts, i18n,
+1004 Unit-Tests). Die **Lücke lag zwischen Token-Ebene und Renderergebnis**: Charts, Karten und
+Parlamentsgrafiken kannten das Token-System nicht, das Layout rechnete mit Magic Numbers statt mit
+der tatsächlichen Chrome-Höhe, und die zentrale Spielaussage („Geht das Gesetz durch?") war
+grafisch schwächer codiert als nebensächliche Elemente.
 
-Drei Befunde sind **Blocker**, zwei davon waren im laufenden Build nicht sichtbar, weil die
-Tests genau die kaputte Stelle mocken.
+Drei Befunde waren **Blocker**, zwei davon im laufenden Build nicht sichtbar, weil die Tests genau
+die kaputte Stelle mockten. Die Lehre daraus steckt jetzt als Smoke-Job in der CI (P1-8) — er fand
+beim ersten Lauf prompt eine zweite Layout-Lücke derselben Art.
+
+Jeder Abschnitt unten hält den ursprünglichen Befund fest und ergänzt unter **Ergebnis**, was
+daraus wurde. Die Suite ist von 1004 auf 1062 Tests gewachsen.
 
 ---
 
@@ -51,7 +59,7 @@ alle 1004 Tests grün; Hauptmenü und Spielbrett rendern wieder.
 (`vi.mock('echarts-for-react/lib/core', …)`), alle übrigen Chart-Komponenten haben keinen
 Rendertest. `tsc` prüft nur Typen, nicht Laufzeit-Interop. → siehe P1-8.
 
-### ⬜ 2. Offline-Modus ist ab Stufe 3 eine Sackgasse
+### ✅ 2. Offline-Modus ist ab Stufe 3 eine Sackgasse
 
 Der gebündelte Fallback-Content (`data/defaults/scenarios.ts`, `DEFAULT_AGENDA_ZIELE`) enthält
 **2 Agenda-Ziele**. `WahlnachtOnboarding.tsx:174` verlangt ab Komplexität 3 aber **3 Ziele**, und
@@ -66,7 +74,13 @@ Im Durchlauf reproduziert.
 _oder_ `spielerZielAnzahl` auf `min(3, verfügbarePoolgröße)` deckeln. Zusätzlich einen Test, der
 für jede Komplexitätsstufe prüft, dass der Fallback-Content das Onboarding abschließen kann.
 
-### ⬜ 3. Spielbrett passt nicht in den Viewport (Magic-Number-Layout)
+**Ergebnis:** Beides. Der Pool umfasst jetzt 7 Ziele in 5 Kategorien (Titel/Beschreibungen über
+`game:fallbackZiele.*` lokalisiert), und `spielerAgendaZielAnzahl()` deckelt die Stufenvorgabe auf
+den verfügbaren Pool — ein Content-Engpass kann das Onboarding nicht mehr blockieren.
+`fallbackAgenda.test.ts` prüft das je Stufe. Im Browser verifiziert: Stufe 4 offline erreicht das
+Spielbrett.
+
+### ✅ 3. Spielbrett passt nicht in den Viewport (Magic-Number-Layout)
 
 `Shell.module.css` rechnet fix:
 
@@ -93,11 +107,20 @@ Chrome-Wrapper gesetzt) oder das gesamte Shell als `display: grid; grid-template
 über `100dvh` aufbauen — dann entfällt die Rechnung ganz. `dvh` löst zusätzlich das
 Mobile-Adressleisten-Problem.
 
+**Ergebnis:** `#root` ist eine Flex-Spalte über `100dvh`, das Brett nimmt den Rest (`flex: 1 1 0`),
+die Panels scrollen wieder selbst. `--chrome-h` bleibt für den Drawer-Offset auf Tablet/Mobile
+(gemessen statt fest 88 px). Nachgemessen: `scrollHeight` 983 → 900 px bei 900 px Viewport, keine
+Seiten-Scrollbar.
+
+Der neue Smoke-Test (P1-8) fand direkt eine zweite Lücke derselben Art: die implizite `auto`-Zeile
+des Shell-Grids wuchs auf max-content, sodass ein langes linkes Panel (Stufe 4) das Brett erneut
+266 px aus dem Viewport schob — jetzt `grid-template-rows: minmax(0, 1fr)`.
+
 ---
 
 ## P1 — Grafik: das Theme endet an der Canvas-Kante
 
-### ⬜ 4. Charts ignorieren das Theme-System vollständig
+### ✅ 4. Charts ignorieren das Theme-System vollständig
 
 `ui/lib/echarts.ts` registriert **ein** Theme namens `politikpraxis` mit fest verdrahteten
 Amtsstube-Farben (`#5a9870`, `#c05848`, `#c8a84b`, Achsen `#888`, Tooltip `#1e1c18`). Alle 13
@@ -118,14 +141,25 @@ bleiben `#888`, Filter-Chips bleiben blau. Das Theme greift geschätzt auf ~70 %
    verschwinden die 111 Literale aus den TSX-Dateien.
 3. ESLint-Regel (oder ein Stylelint-Lauf), die neue Hex-Literale in `src/ui` blockiert.
 
-### ⬜ 5. `font: '11px var(--sans)'` funktioniert im Canvas nicht
+**Ergebnis:** Punkt 1 und 2 sind umgesetzt. `lib/chartTokens.ts` liest die Token einmal pro Theme
+aus dem echten Stylesheet — über ein temporäres Element mit `data-theme`, damit das Ergebnis nicht
+davon abhängt, ob das Attribut am Wurzelelement schon gesetzt ist — und registriert daraus je ein
+ECharts-Theme. `useChartTheme()` liefert Theme-Name und aufgelöste Farben; `withAlpha()` und `mix()`
+ersetzen die rgba-Literale und `color-mix()`, das im Canvas nicht existiert. Rund 90 Literale sind
+damit aus den TSX-Dateien verschwunden. Im Browser geprüft: Gauge, Verlaufschart und
+Milieu-Sparklines wechseln in „Redaktion" und „Lageraum" mit.
+
+Punkt 3 (Lint-Regel gegen neue Hex-Literale) ist bewusst offen — sinnvoll erst, wenn auch die
+verbliebenen Literale in den CSS-Modulen aufgeräumt sind.
+
+### ✅ 5. `font: '11px var(--sans)'` funktioniert im Canvas nicht
 
 `StartMapView.tsx` und das registrierte ECharts-Theme setzen CSS-Variablen in
 Canvas-Font-Strings. Der Canvas-2D-Kontext löst **keine** CSS-Variablen auf — `ctx.font` wird
 ungültig und fällt still auf die Browser-Default-Schrift zurück. Deshalb sehen Chart-Labels
 anders aus als die umgebende UI. → Zusammen mit Punkt 4 beheben (konkrete Font-Stacks einsetzen).
 
-### ⬜ 6. Bundestag-Halbkreis ist ein Donut, kein Parlament
+### ✅ 6. Bundestag-Halbkreis ist ein Donut, kein Parlament
 
 `BundestagHalbkreis.tsx` zeichnet drei Ringsegmente in Array-Reihenfolge. Das ist die
 Kernvisualisierung des Spiels und leistet weniger als sie soll:
@@ -145,7 +179,17 @@ Kernvisualisierung des Spiels und leistet weniger als sie soll:
 `achse`-Eigenschaft der Fraktion, 50-%-Marker als Radiallinie, Fraktionsfarben durch Token
 laufen lassen (Kontrastprüfung gegen `--bg`). Reines SVG, kein Mehraufwand an Abhängigkeiten.
 
-### ⬜ 7. Die wichtigste Zahl des Spiels ist der schwächste Balken
+**Ergebnis:** 600 Sitzpunkte auf 11 konzentrischen Bögen, in Sitzordnung von links nach rechts den
+Fraktionen zugeteilt, mit gestrichelter Mehrheitsmarke und Klartext, ob die Koalition die Mehrheit
+hat. Fraktionen ohne Kooperationsbereitschaft sind gedimmt. `seatLayout.ts` verteilt proportional
+zum Reihenradius und gleicht Rundungsreste aus, damit Punktzahl = Sitzzahl; sechs Tests decken das
+ab. Zwei Farben repariert, die praktisch unsichtbar waren: Nationale Front `#8B0000` (1,6:1) →
+`#b04a42`, Opposition `#555555` (2,2:1) → `#8a8a8a` (4,7:1).
+
+Eine eigene Links-Rechts-Achse pro Fraktion bringt erst etwas, wenn der Content mehr als die drei
+Blöcke Opposition/Koalition/NF kennt — bis dahin ist die Array-Reihenfolge bereits die politische.
+
+### ✅ 7. Die wichtigste Zahl des Spiels ist der schwächste Balken
 
 Die Ja-Quote eines Gesetzes („78 Ja / 22 Nein (78 %)") wird als **durchgehender 4-px-Goldbalken**
 über die volle Kartenbreite gerendert — optisch ein Fortschrittsbalken, kein Abstimmungsergebnis.
@@ -159,7 +203,12 @@ ausgezeichnet.
 Höhe 10–12 px, Ja/Nein-Zahlen an den Balkenenden. Eine Komponente, die auch der Bundesrat
 wiederverwenden kann.
 
-### ⬜ 8. Chart-Komponenten haben keine Rendertests
+**Ergebnis:** `AbstimmungsBalken` — Split, Mehrheitsmarke, Statusfarbe am Rahmen, Klartext
+(„Mehrheit steht" / „Mehrheit fehlt"), zweite Marke für die effektive Ja-Quote nach Boni/Mali und
+ein `aria-label` mit dem kompletten Ergebnis. Die Bundesrat-Ansicht hatte eine eigene Darstellung
+mit Mehrheitslinie bereits richtig; die Bundestagskarte zieht damit nach.
+
+### ✅ 8. Chart-Komponenten haben keine Rendertests
 
 Ursache dafür, dass P0-1 unbemerkt blieb. 1004 Tests waren grün, während die Anwendung beim
 ersten Frame abstürzte.
@@ -169,11 +218,17 @@ ErrorScreen erscheint. (b) Ein Playwright-Smoke-Job in `lint.yml`: Build → `vi
 Hauptmenü und Spielbrett laden, `pageerror`-Ereignisse als Fehlschlag werten. Das hätte sowohl
 P0-1 als auch P0-2 gefangen.
 
+**Ergebnis:** `scripts/smoke.mjs` + Job `frontend-smoke` in `lint.yml`. Geprüft wird: Hauptmenü
+rendert ohne ErrorScreen und ohne uncaught errors, das Onboarding ist auf Stufe 1 und Stufe 4
+durchklickbar, mindestens ein Chart-Canvas ist tatsächlich gerendert, und das Brett passt in den
+Viewport. Läuft bewusst ohne Backend, deckt also denselben Offline-Pfad ab wie P0-2. Watchdog nach
+240 s, damit der Job nicht hängen bleibt. Lokal: `npm run test:smoke`.
+
 ---
 
 ## P2 — Visuelle Komposition & Informationsarchitektur
 
-### ⬜ 9. Ikonografie ist gemischt: Lucide-SVG neben Emoji
+### ✅ 9. Ikonografie ist gemischt: Lucide-SVG neben Emoji
 
 `ui/icons.tsx` sagt in der Kopfzeile ausdrücklich „ersetzt Emoji-Zeichen durch Lucide React
 SVG-Icons" — die Ebenen-Tableiste nutzt aber weiterhin Emoji (📋 🏛 👥 💰 📰 🤝 ⚖️ 🗺 🏘 🇪🇺), ebenso
@@ -183,7 +238,12 @@ Emoji nehmen die Theme-Farbe nicht an, sitzen auf abweichender Grundlinie, rende
 Plattform unterschiedlich, und 🇪🇺 erscheint als vollfarbige Flagge zwischen monochromen
 Piktogrammen. → Auf Lucide vereinheitlichen, `currentColor` nutzen.
 
-### ⬜ 10. Rechte Spalte ist auf Stufe 1 zu ~80 % leer
+**Ergebnis:** Umgestellt sind alle 10 Tabs plus Wahlkampf-Tab, Offline-Banner, Speicher-Hinweis,
+Feedback- und Cloud-Speichern-Button, Drawer-Toggle, Tastaturhilfe, Kabinett-Ultimatum, die
+Gesetz-Badges (Steuergesetz, Kopplung, benötigt, ausgeschlossen, Synergie), Medienakteur-Karten und
+Medienaktionen. Typografische Pfeile (▲ ▼ → für Trends) bleiben — das ist Text, kein Piktogramm.
+
+### ✅ 10. Rechte Spalte ist auf Stufe 1 zu ~80 % leer
 
 Laut [UI-Architektur](../game-design/ui-architektur.md) trägt die rechte Spalte KPI-Kacheln
 **und** Ereignisprotokoll. Auf Stufe 1 sind die Wirtschafts-KPIs featuregated, das Protokoll hat
@@ -195,7 +255,13 @@ keine Datenreihe), weil in Monat 1 noch keine Historie existiert.
 rechte Spalte auf niedrigen Stufen entweder schließen (2-Spalten-Grid) oder mit stufengerechtem
 Inhalt füllen (z. B. Koalitionsziele, nächste Termine).
 
-### ⬜ 11. Zwei Akzentfarben konkurrieren; in „Redaktion" kollidiert die Semantik
+**Ergebnis:** Der Wahlprognose-Verlauf zeigt bis Monat 2 einen Platzhalter statt eines
+datenlosen Achsenkreuzes. Die rechte Spalte bleibt bestehen — das Ereignisprotokoll füllt sie jetzt
+(vorher brach es bei `max-height: 280px` ab und ließ darunter leere Fläche). Es wächst über die
+48 Monate; die Leere war ein Monat-1-Artefakt, kein struktureller Überhang. Eine 2-Spalten-Variante
+für niedrige Stufen wäre der nächste Schritt, falls Playtests das bestätigen.
+
+### ✅ 11. Zwei Akzentfarben konkurrieren; in „Redaktion" kollidiert die Semantik
 
 Die aktiven Filter-Chips der Gesetz-Agenda sind blau, während das gesamte übrige System Gold als
 Akzent führt — zwei Primärfarben ohne Hierarchie.
@@ -207,7 +273,12 @@ Marken-Auszeichnung unterscheidbar. Gleiches Muster in „Lageraum": `--gold` = 
 **Fix:** Akzent- und Semantikfarben in den Themes entkoppeln (semantische Farben dürfen nie mit
 `--gold` zusammenfallen), Filter-Chips auf das Akzent-Token umstellen.
 
-### ⬜ 12. Zwei Onboarding-Overlays gleichzeitig
+**Ergebnis:** Die Chips nutzten `var(--accent, #4f7cff)` — ein Token, das es in keinem Theme gibt,
+also immer den blauen Fallback. Alle `--accent`-Stellen laufen jetzt über `--gold`; die Schriftfarbe
+auf dem aktiven Chip von `#fff` auf `--bg` (weiß auf Gold war nicht lesbar). Die Token-Kollisionen
+sind mit P3-15 weg und werden dort vom Test festgehalten.
+
+### ✅ 12. Zwei Onboarding-Overlays gleichzeitig
 
 Beim ersten Spielstart erscheinen `IntroTour` („Schritt 1 von 5") und ein `GameTips`-Hinweis
 („Dein erstes Gesetz") **übereinander** — dazu ein dritter Erklärkasten („Verstanden") in der
@@ -217,7 +288,11 @@ konkurrieren.
 **Fix:** Ein Hinweis-Queue im `uiStore`: `GameTips` pausieren, solange die `IntroTour` läuft; die
 Inline-Erklärkästen auf das `Erklaerung`-Muster vereinheitlichen. Zahlt auf Issue #281 ein.
 
-### ⬜ 13. Vertikale Chrome frisst den Bildschirm
+**Ergebnis:** `uiStore.introTourActive` hält die kontextuellen Tipps still, solange die Tour läuft.
+Der Einmal-Hinweis in der Bundestagsansicht bekommt dieselbe Bildsprache wie die GameTips
+(Glühbirne, Goldrand). Im Browser geprüft: beim Spielstart erscheint nur noch die Tour.
+
+### ✅ 13. Vertikale Chrome frisst den Bildschirm
 
 Gemessen: Offline-Banner (32 px) + Save-Hinweis (46 px) + Header (48 px) + Tableiste (40 px)
 = **166 px** dauerhafte Kopfzone bei 900 px Höhe. Auf 390×844 (Phone) wachsen dieselben Elemente
@@ -227,7 +302,14 @@ Spielinformation sichtbar wird; die Tableiste bricht auf vier Zeilen um, der Hea
 **Fix:** Save-Hinweis in den Header integrieren (Icon + Tooltip statt Vollbreitband), Offline-Banner
 als kompakter Status-Chip, Tableiste auf Mobile als horizontal scrollbare Leiste oder „Mehr"-Menü.
 
-### ⬜ 14. Gesperrte Ebenen dominieren die Navigation
+**Ergebnis:** Header und Tableiste liegen in einer gemeinsamen sticky Einheit — vorher klebte die
+Leiste mit `top: 48px`, einer Annahme über die Header-Höhe, die bei umgebrochenem Header nicht mehr
+stimmte. Die Tableiste scrollt horizontal statt umzubrechen. Der Speicher-Hinweis ist einzeilig und
+wegklickbar (Entscheidung wird gespeichert), das Offline-Banner kompakter. Der Phone-Header blendet
+Sekundäres aus (Beta-Badge, PK-Balken, PK-Regen, Tastenkürzel).
+**Gemessen auf 390×844: 480 px → 162 px Kopfzone.**
+
+### ✅ 14. Gesperrte Ebenen dominieren die Navigation
 
 Auf Stufe 1 tragen 7 von 10 Tabs ein Schloss. Die Leiste kommuniziert damit primär, was der
 Spieler _nicht_ tun kann.
@@ -235,11 +317,14 @@ Spieler _nicht_ tun kann.
 **Fix:** Gesperrte Ebenen zusammenfassen (z. B. ein „+7 später"-Element mit Popover statt sieben
 ausgegrauter Tabs) — behält die Progressionsneugier, ohne die Navigation zu blockieren.
 
+**Ergebnis:** Genau so umgesetzt — auf Stufe 1 zeigt die Leiste drei offene Tabs und ein
+Sammel-Element „+7 später", dessen Tooltip auflistet, was ab welcher Stufe dazukommt.
+
 ---
 
 ## P3 — Accessibility
 
-### ⬜ 15. `--text3` erfüllt in keinem Theme die WCAG-AA-Schwelle
+### ✅ 15. `--text3` erfüllt in keinem Theme die WCAG-AA-Schwelle
 
 Kontrastwerte (berechnet nach WCAG 2.1, alle Token-Kombinationen):
 
@@ -261,23 +346,41 @@ Zusätzlich liegt in Amtsstube — dem **Default-Theme** — auch `--red` auf `-
 leicht nachziehen, Semantikfarben für Fließtext prüfen. Ein Vitest-Test, der die Token-Matrix
 gegen 4,5:1 (Text) bzw. 3:1 (UI-Elemente) prüft, hält das dauerhaft.
 
-### ⬜ 16. Kein `prefers-contrast` / `forced-colors`
+**Ergebnis:** Alle vier Themes erfüllen jetzt die Regeln, die oben in `tokens.css` dokumentiert und
+von `tokens.contrast.test.ts` (41 Fälle) durchgesetzt werden:
+
+| Token | Regel | Amtsstube vorher → nachher |
+|---|---|---|
+| `--text`, `--text2`, `--text3` | ≥ 4,5:1 gegen `--bg` … `--bg4` | `--text3` 1,76 → 4,52 |
+| `--gold/red/green/blue/warn` | ≥ 4,5:1 gegen `--bg` … `--bg3`, ≥ 3:1 gegen `--bg4` | `--red` 2,97 → 4,06 |
+| Stufung | `--text` > `--text2` > `--text3` | 12,2 / 7,5 / 5,6 gegen `--bg2` |
+| Akzent | `--gold` klar getrennt von `--red`/`--green` | Kollision in „Redaktion"/„Lageraum" aufgelöst |
+
+Amtsstube erfüllte vorher 15 von 32 Kombinationen, jetzt alle.
+
+### ✅ 16. Kein `prefers-contrast` / `forced-colors`
 
 `prefers-reduced-motion` ist global sauber abgedeckt (`global.css`). Für erhöhten Kontrast und
 den Windows-Kontrastmodus gibt es keine Behandlung — bei 56 `animation:`-Deklarationen und
 durchgehend tokenbasierten Farben wäre ein High-Contrast-Block billig zu ergänzen.
 
-### ⬜ 17. i18n-Pluralformen fehlen stellenweise
+**Ergebnis:** `prefers-contrast: more` hebt die leisen Textstufen auf Primärniveau und verstärkt
+Ränder; unter `forced-colors: active` bekommen rein farblich codierte Flächen (Balken, Chips,
+Badges) eine Kante und der Fokus läuft über Systemfarben.
+
+### ✅ 17. i18n-Pluralformen fehlen stellenweise
 
 Im Durchlauf: „Dein Kabinett. **1 Persönlichkeiten, 1 Agenden.**" und „Bildung & Forschung
 **(1 Gesetze)**". i18next-Pluralregeln (`_one`/`_other`) sind vorhanden, werden an diesen Stellen
 aber nicht genutzt.
 
+**Ergebnis:** Beide Stellen nutzen jetzt `_one`/`_other` in de und en.
+
 ---
 
 ## P4 — Performance
 
-### ⬜ 18. Das Hauptmenü lädt ~430 KB für eine dekorative Hintergrundkarte
+### ✅ 18. Das Hauptmenü lädt ~430 KB für eine dekorative Hintergrundkarte
 
 Gemessene Transfergrößen der Startseite (Produktions-Build, `vite preview`):
 
@@ -298,7 +401,25 @@ theme-fähig über `currentColor`) und ECharts per `React.lazy` erst im Spiel la
 Ersparnis auf der Startseite: **~400 KB / ~90 % des Payloads**. Zusätzlich die GeoJSONs
 vereinfachen (`mapshaper`) und mit `Cache-Control: immutable` ausliefern.
 
-### ⬜ 19. 23 Komponenten abonnieren den gesamten `gameStore`
+**Ergebnis:** `scripts/generateStartMap.mjs` rendert die Silhouetten aus denselben GeoJSONs vor
+(Douglas-Peucker); die Farben kommen aus den Theme-Tokens. Zwei Änderungen halten ECharts von der
+Startseite fern: `main.tsx` importiert `ui/lib/echarts` nicht mehr eager, und die
+`manualChunks`-Regel matcht jetzt `node_modules/echarts/` **mit Schrägstrich** — ohne ihn matchte
+sie auch `echarts-for-react`, dessen Helfer den Chunk als statischen Import in den Entry zogen (daher
+der `modulepreload`).
+
+| Startseite | vorher | nachher |
+|---|---|---|
+| `echarts-vendor.js` | 228 KB | — (lädt erst mit dem Spiel) |
+| `europe.geojson` | 172 KB | — |
+| `germany-bundeslaender.geojson` | 27 KB | — |
+| größte Ressource | echarts 228 KB | `index.js` 122 KB |
+| Summe JS/Daten | ~460 KB | ~200 KB |
+
+ECharts bleibt ein eigener, cachebarer Chunk. Das Vereinfachen der GeoJSONs für die In-Game-Karten
+steht noch aus — die werden erst im Spiel geladen.
+
+### ✅ 19. 23 Komponenten abonnieren den gesamten `gameStore`
 
 `useGameStore()` ohne Selektor in u. a. `CenterPanel`, `GesetzAgendaView`, `AgendaCard`,
 `KabinettView`, `HaushaltView`, `VerbaendeView`, `EbeneView`, `MediaView`. Jeder Monats-Tick
@@ -309,33 +430,55 @@ Ruckel-Kandidat und deckt sich mit dem Roadmap-Punkt „Performance: Tick-/UI-Ho
 **Fix:** Schrittweise auf `useShallow`-Selektoren umstellen (das Muster existiert bereits in
 `Header.tsx`), beginnend bei `AgendaCard` (n-fach instanziiert) und `CenterPanel`.
 
-### ⬜ 20. Doppelte Keyframes
+**Ergebnis:** `useGameActions` abonniert gar nicht mehr — die Aktionen werden in `create()` einmal
+angelegt und nie ersetzt, ein `getState()` reicht; der Hook steckt in 13 Komponenten, darunter jede
+AgendaCard. 13 weitere Komponenten nutzen `useShallow`-Selektoren statt des ganzen Stores. Damit
+rendern Gesetzeskarten nicht mehr bei jedem Geschwindigkeits- oder Tab-Wechsel neu.
+
+### ✅ 20. Doppelte Keyframes
 
 `pulse` 4×, `fadeIn` 3×, `slideIn` 2×, `scaleIn` 2× über verschiedene CSS-Module verteilt —
 teils mit abweichenden Werten. `global.css` hat die gemeinsamen Definitionen bereits; die
 Duplikate stammen aus der Zeit davor (siehe `plan.md`, Punkt 6, nie abgeschlossen).
 
+**Ergebnis:** Die exakten Duplikate sind raus; `pulse` liegt einmal global und nimmt den Tiefpunkt
+über `--pulse-dip` entgegen, sodass die drei abweichenden Werte erhalten bleiben. Der `slideIn` im
+MilieuDetailPanel bleibt: der animiert X statt Y, ist also eine andere Bewegung und kein Duplikat.
+
 ---
 
-## Umsetzungsreihenfolge
+## Umsetzungsstand
 
-| # | Schritt | Aufwand | Wirkung |
-|---|---|---|---|
-| ✅ | **P0-1** ECharts-Import (`esm/core`) | XS | App startet überhaupt wieder |
-| 1 | **P0-3** Shell-Layout auf `dvh`/Grid ohne Magic Numbers | S | Spielbrett passt in den Viewport |
-| 2 | **P0-2** Fallback-Agenda-Ziele + Onboarding-Test | S | Offline-Modus wird spielbar |
-| 3 | **P1-8** Playwright-Smoke-Job in der CI | S | verhindert Wiederholung von P0-1/2 |
-| 4 | **P3-15** Kontrast-Token korrigieren + Token-Test | S | Lesbarkeit, WCAG AA |
-| 5 | **P4-18** Startkarte als SVG, ECharts lazy | M | −400 KB auf der Startseite |
-| 6 | **P1-4/5** Chart-Theming über Tokens, Canvas-Fonts | M | Themes wirken vollständig |
-| 7 | **P1-7** Abstimmungs-Balken als Split + Schwelle | S | Kernaussage wird lesbar (#270) |
-| 8 | **P2-9** Emoji → Lucide | S | konsistente Ikonografie |
-| 9 | **P2-13** Chrome-Höhe reduzieren, Mobile-Tableiste | M | +166 px Spielfläche, Phone nutzbar |
-| 10 | **P1-6** Bundestag als Sitzpunkt-Grafik | M | Signature-Visual des Spiels |
-| 11 | **P2-12** Onboarding-Overlays serialisieren | S | erster Eindruck (#281) |
-| 12 | **P4-19** Store-Selektoren in Hot-Path-Komponenten | M | Tick-Performance |
-| 13 | **P2-10/11/14** Leerzustände, Akzentfarben, Tab-Sperren | M | visuelle Kohärenz |
-| 14 | **P3-16/17, P4-20** Kontrastmodus, Plurale, Keyframes | S | Feinschliff |
+Alle 14 Schritte der ursprünglichen Reihenfolge sind umgesetzt.
+
+| # | Schritt | Status |
+|---|---|---|
+| 0 | **P0-1** ECharts-Import (`esm/core`) | ✅ App startet wieder |
+| 1 | **P0-3** Shell-Layout ohne Magic Numbers | ✅ kein Seiten-Überlauf mehr |
+| 2 | **P0-2** Fallback-Agenda-Ziele + Onboarding-Test | ✅ Offline-Modus spielbar |
+| 3 | **P1-8** Playwright-Smoke-Job in der CI | ✅ fand direkt eine zweite Layout-Lücke |
+| 4 | **P3-15** Kontrast-Token + Token-Test | ✅ 41 Fälle, alle Themes AA |
+| 5 | **P4-18** Startkarte als SVG, ECharts lazy | ✅ ~460 KB → ~200 KB |
+| 6 | **P1-4/5** Chart-Theming über Tokens, Canvas-Fonts | ✅ 13 Charts folgen dem Theme |
+| 7 | **P1-7** Abstimmungsbalken als Split + Schwelle | ✅ (#270) |
+| 8 | **P2-9** Emoji → Lucide | ✅ |
+| 9 | **P2-13** Chrome-Höhe, Mobile-Tableiste | ✅ 480 px → 162 px auf 390×844 |
+| 10 | **P1-6** Bundestag als Sitzpunkt-Grafik | ✅ 600 Sitze, Mehrheitsmarke |
+| 11 | **P2-12** Onboarding-Overlays serialisieren | ✅ (#281) |
+| 12 | **P4-19** Store-Selektoren in Hot-Path-Komponenten | ✅ 14 Stellen |
+| 13 | **P2-10/11/14** Leerzustände, Akzentfarben, Tab-Sperren | ✅ |
+| 14 | **P3-16/17, P4-20** Kontrastmodus, Plurale, Keyframes | ✅ |
+
+### Bewusst offen geblieben
+
+- **Lint-Regel gegen neue Hex-Literale** (aus P1-4): sinnvoll erst, wenn auch die ~86 Hex- und
+  142 `rgba()`-Literale in den CSS-Modulen aufgeräumt sind.
+- **Zwei-Spalten-Layout für niedrige Stufen** (aus P2-10): die rechte Spalte füllt sich über die
+  Legislatur; ob sie auf Stufe 1 stört, sollten Playtests entscheiden.
+- **GeoJSON-Vereinfachung für die In-Game-Karten** (aus P4-18): die laden erst im Spiel, der
+  Startseiten-Effekt ist bereits weg.
+- **Links-Rechts-Achse pro Fraktion** (aus P1-6): bringt erst etwas, wenn der Content mehr als die
+  drei Blöcke Opposition/Koalition/NF kennt.
 
 **Nicht in diesem Plan:** Balancing und Spiellogik (siehe [Verbesserungsplan](verbesserungsplan.md)
 und die offenen Issues #267, #272, #275–#285) sowie Audio/Sound, das laut
@@ -348,9 +491,11 @@ und die offenen Issues #267, #272, #275–#285) sowie Audio/Sound, das laut
 ```bash
 cd frontend
 npm ci && npm run build
-npx vite preview --port 5173        # ohne Backend → Offline-Fallback
-# Hauptmenü → Neues Spiel → Kanzleramt → Kandidatur annehmen → Onboarding durchklicken
+npx vite preview --port 4173        # ohne Backend → Offline-Fallback
+npm run test:smoke                  # Hauptmenü + Spielbrett Stufe 1/4 im echten Browser
 ```
+
+Für die Startkarte nach einer GeoJSON-Änderung: `node scripts/generateStartMap.mjs`.
 
 Die Kontrastwerte in P3-15 folgen der WCAG-2.1-Relativluminanz über die Token aus
 `src/styles/tokens.css`; die Payload-Zahlen in P4-18 stammen aus
