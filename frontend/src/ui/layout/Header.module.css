@@ -6,9 +6,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  position: sticky;
-  top: 0;
-  z-index: 200;
 }
 
 .titleRow {
@@ -388,15 +385,41 @@
   }
 
   .title {
-    width: 100%;
-    text-align: center;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .meta {
-    width: 100%;
-    justify-content: center;
+    flex: 1;
+    justify-content: flex-end;
     flex-wrap: wrap;
     gap: 8px;
+  }
+}
+
+/* --- Phone: Kopfzone klein halten ---------------------------------------
+ * Bei 390 px brach der Header auf vier Zeilen um; zusammen mit Bannern und
+ * Tableiste war über die Hälfte des Bildschirms Chrome, bevor eine einzige
+ * Spielinformation sichtbar wurde. Sekundäres wird hier ausgeblendet. */
+@media (max-width: 768px) {
+  .betaBadge,
+  .pkBar,
+  .pkRegen,
+  .kbd {
+    display: none;
+  }
+
+  /* Feedback-Button auf das Icon reduzieren */
+  .playtestFeedbackBtn {
+    font-size: 0;
+    gap: 0;
+    padding: 6px 8px;
+  }
+
+  .meta {
+    gap: 6px;
+  }
+
+  .spd {
+    padding: 4px 8px;
   }
 }

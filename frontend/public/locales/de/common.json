@@ -159,7 +159,8 @@
     "manualSaveTooltip": "Spielstand speichern (Cloud)",
     "saveHintBanner": "Dein Spielstand wird automatisch in diesem Browser gespeichert. Melde dich an, um in der Cloud zu speichern und auf mehreren Geräten weiterzuspielen.",
     "saveHintLogin": "Anmelden",
-    "autoSaveFailed": "Automatisches Speichern fehlgeschlagen — Browser-Speicher voll oder blockiert. Spielstand manuell exportieren!"
+    "autoSaveFailed": "Automatisches Speichern fehlgeschlagen — Browser-Speicher voll oder blockiert. Spielstand manuell exportieren!",
+    "saveHintDismiss": "Hinweis ausblenden"
   },
   "startMap": {
     "subtitle": "Bund · Länder · Kommunen · Europa"

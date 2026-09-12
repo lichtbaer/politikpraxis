@@ -1,3 +1,12 @@
+/* Kopfzone: bleibt beim Scrollen oben (relevant auf Mobile, wo die Seite scrollt).
+ * Header und Tableiste kleben gemeinsam, statt sich gegenseitig zu ueberlappen. */
+.chrome {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  flex-shrink: 0;
+}
+
 /* Die Spalten kapseln ihr eigenes Scrolling (die Panels haben `overflow-y: auto`). */
 .left,
 .right {
@@ -83,9 +92,9 @@
   .left,
   .right {
     position: fixed;
-    /* Oberkante = Unterkante der Chrome. Wird von Shell.tsx gemessen (--shell-top),
+    /* Oberkante = Unterkante der Kopfzone. Wird von Shell.tsx gemessen (--chrome-h),
      * damit zusätzliche Banner den Drawer nicht unter den Header schieben. */
-    top: var(--shell-top, 88px);
+    top: var(--chrome-h, 88px);
     bottom: 0;
     z-index: 250;
     overflow-y: auto;

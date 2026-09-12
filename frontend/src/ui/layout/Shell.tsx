@@ -13,7 +13,7 @@ import { IntroTour } from '../components/IntroTour/IntroTour';
 import { HaushaltsdebatteScreen } from '../screens/HaushaltsdebatteScreen';
 import { LegislaturBilanzScreen } from '../screens/LegislaturBilanzScreen';
 import { useGameTick } from '../hooks/useGameTick';
-import { useShellTop } from '../hooks/useShellTop';
+import { useChromeHeight } from '../hooks/useChromeHeight';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore } from '../../store/uiStore';
 import type { ViewName } from '../../core/types';
@@ -40,8 +40,8 @@ const ALT_VIEW_MAP: Record<string, ViewName> = {
 export function Shell() {
   const { t } = useTranslation('game');
   useGameTick();
-  const shellRef = useRef<HTMLDivElement>(null);
-  useShellTop(shellRef);
+  const chromeRef = useRef<HTMLDivElement>(null);
+  useChromeHeight(chromeRef);
   const aktivesStrukturEvent = useGameStore((s) => s.state.aktivesStrukturEvent);
   const letzterMonatsDiff = useGameStore((s) => s.state.letzterMonatsDiff);
   const laws = useGameStore((s) => s.content.laws);
@@ -137,9 +137,14 @@ export function Shell() {
 
   return (
     <>
-      <Header />
-      <EbenenTabBar />
-      <div ref={shellRef} className={`${styles.shell} ${speed === 0 ? styles.shellPaused : ''}`}>
+      {/* Header und Tableiste als eine sticky Einheit — sonst muesste die Tableiste
+          ihren Abstand zum Header fest in px kennen (war `top: 48px` und stimmte
+          nicht mehr, sobald der Header umbrach oder ein Banner darueber stand). */}
+      <div ref={chromeRef} className={styles.chrome}>
+        <Header />
+        <EbenenTabBar />
+      </div>
+      <div className={`${styles.shell} ${speed === 0 ? styles.shellPaused : ''}`}>
         {speed === 0 && (
           <div className={styles.pauseOverlay} aria-hidden="true" />
         )}

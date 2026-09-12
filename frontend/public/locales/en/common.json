@@ -159,7 +159,8 @@
     "manualSaveTooltip": "Save game (cloud)",
     "saveHintBanner": "Your game is saved automatically in this browser. Sign in to save to the cloud and continue on multiple devices.",
     "saveHintLogin": "Sign in",
-    "autoSaveFailed": "Auto-save failed — browser storage is full or blocked. Export your save manually!"
+    "autoSaveFailed": "Auto-save failed — browser storage is full or blocked. Export your save manually!",
+    "saveHintDismiss": "Dismiss hint"
   },
   "startMap": {
     "subtitle": "Federal · States · Municipalities · Europe"

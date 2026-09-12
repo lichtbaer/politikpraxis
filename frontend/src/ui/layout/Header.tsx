@@ -16,7 +16,7 @@ import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import { LoginModal } from '../components/LoginModal/LoginModal';
 import { UserTestFeedbackModal } from '../components/UserTestFeedbackModal/UserTestFeedbackModal';
 import type { SpeedLevel } from '../../core/types';
-import { Megaphone, Bug, Save } from '../icons';
+import { Megaphone, Bug, Save, Keyboard } from '../icons';
 import styles from './Header.module.css';
 
 export function Header() {
@@ -267,7 +267,7 @@ export function Header() {
           title={t('game:shortcuts.headerButton')}
           aria-label={t('game:shortcuts.headerButton')}
         >
-          ⌨
+          <Keyboard size={15} aria-hidden />
         </button>
       </div>
       {showPressemitteilungModal && (
