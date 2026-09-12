@@ -1,8 +1,18 @@
+/* Die Spalten kapseln ihr eigenes Scrolling (die Panels haben `overflow-y: auto`). */
+.left,
+.right {
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* Höhe kommt aus der Flex-Spalte in global.css (#root): das Brett füllt den Rest
  * unter Bannern, Header und Tableiste — ohne feste px-Rechnung. */
 .shell {
   display: grid;
   grid-template-columns: 260px 1fr 300px;
+  /* minmax(0, 1fr) statt der impliziten auto-Zeile: eine auto-Zeile waechst auf
+   * max-content und schiebt lange Panel-Inhalte aus dem Viewport. */
+  grid-template-rows: minmax(0, 1fr);
   /* flex-basis 0: die Höhe kommt aus dem freien Platz, nicht aus dem Inhalt.
    * Sonst wüchse das Brett mit der Gesetzesliste und die ganze Seite würde scrollen,
    * statt der drei Panels (die haben je `overflow-y: auto`). */
@@ -194,6 +204,7 @@
 @media (max-width: 768px) {
   .shell {
     grid-template-columns: 1fr;
+    grid-template-rows: none;
     /* Gestapelte Panels dürfen über den Viewport hinauswachsen — die Seite scrollt. */
     flex: 1 0 auto;
   }
