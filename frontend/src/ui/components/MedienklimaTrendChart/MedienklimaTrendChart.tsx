@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import { withAlpha, type ChartTokens } from '../../lib/chartTokens';
 import { formatMedienklima } from '../../lib/medienDisplay';
 import styles from './MedienklimaTrendChart.module.css';
 
@@ -16,10 +18,10 @@ interface MedienklimaTrendChartProps {
   current: number;
 }
 
-function getMKStatusColor(value: number): string {
-  if (value >= 60) return '#5a9870';
-  if (value >= 40) return '#c8a84b';
-  return '#c05848';
+function getMKStatusColor(value: number, tokens: ChartTokens): string {
+  if (value >= 60) return tokens.green;
+  if (value >= 40) return tokens.warn;
+  return tokens.red;
 }
 
 function getMKStatusKey(value: number): string {
@@ -40,9 +42,10 @@ function getMKTrendKey(history: number[], current: number): 'trendUp' | 'trendDo
 
 export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChartProps) {
   const { t } = useTranslation('game');
+  const { theme: chartTheme, tokens } = useChartTheme();
   const historyRounded = useMemo(() => history.map((v) => Math.round(v)), [history]);
   const currentRounded = Math.round(current);
-  const statusColor = getMKStatusColor(currentRounded);
+  const statusColor = getMKStatusColor(currentRounded, tokens);
   const statusLabel = t(`medienklima.${getMKStatusKey(currentRounded)}`);
 
   const option: EChartsOption = useMemo(() => {
@@ -57,7 +60,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
         data: months,
         boundaryGap: false,
         axisLabel: {
-          color: 'rgba(255,255,255,0.3)',
+          color: tokens.text3,
           fontSize: 8,
           interval: (_index: number, value: string) => {
             const n = Number(value);
@@ -75,25 +78,25 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
         max: 100,
         interval: 20,
         axisLabel: {
-          color: 'rgba(255,255,255,0.3)',
+          color: tokens.text3,
           fontSize: 8,
           formatter: '{value}',
         },
-        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.07)', type: 'dashed', width: 0.5 } },
+        splitLine: { lineStyle: { color: tokens.border, type: 'dashed', width: 0.5 } },
       },
       tooltip: {
         trigger: 'axis',
-        backgroundColor: '#1e1c18',
-        borderColor: '#444',
+        backgroundColor: tokens.bg2,
+        borderColor: tokens.border2,
         borderWidth: 1,
         padding: [6, 10],
-        textStyle: { color: '#d0cfc8', fontSize: 11 },
+        textStyle: { color: tokens.text, fontSize: 11, fontFamily: tokens.sans },
         formatter: (params: unknown) => {
           const p = params as Array<{ dataIndex: number; value: number | null }>;
           const first = p.find((x) => x.value != null);
           if (!first) return '';
           const val = Math.round(first.value as number);
-          const sColor = getMKStatusColor(val);
+          const sColor = getMKStatusColor(val, tokens);
           const sLabel = t(`medienklima.${getMKStatusKey(val)}`);
           return (
             `<strong>${t('medienklima.tooltipMonat', { month: first.dataIndex + 1 })}</strong><br/>` +
@@ -130,23 +133,23 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
             data: [
               {
                 yAxis: 60,
-                lineStyle: { color: '#5a9870', type: 'dashed', width: 1, opacity: 0.4 },
+                lineStyle: { color: tokens.green, type: 'dashed', width: 1, opacity: 0.4 },
                 label: {
                   show: true,
                   position: 'insideEndTop',
                   formatter: t('medienklima.markPositiv'),
-                  color: '#5a987088',
+                  color: withAlpha(tokens.green, 0.53),
                   fontSize: 8,
                 },
               },
               {
                 yAxis: 40,
-                lineStyle: { color: '#c05848', type: 'dashed', width: 1, opacity: 0.4 },
+                lineStyle: { color: tokens.red, type: 'dashed', width: 1, opacity: 0.4 },
                 label: {
                   show: true,
                   position: 'insideEndBottom',
                   formatter: t('medienklima.markKritisch'),
-                  color: '#c0584888',
+                  color: withAlpha(tokens.red, 0.53),
                   fontSize: 8,
                 },
               },
@@ -155,7 +158,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
         },
       ],
     };
-  }, [historyRounded, statusColor, t]);
+  }, [historyRounded, statusColor, t, tokens]);
 
   // Trend
   let trendSymbol = '→';
@@ -205,7 +208,7 @@ export function MedienklimaTrendChart({ history, current }: MedienklimaTrendChar
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          theme="politikpraxis"
+          theme={chartTheme}
           style={{ width: '100%', height: 130 }}
           opts={{ renderer: 'canvas' }}
           notMerge={false}

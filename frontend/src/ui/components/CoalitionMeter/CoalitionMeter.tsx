@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import type { ChartTokens } from '../../lib/chartTokens';
 import styles from './CoalitionMeter.module.css';
 
 interface CoalitionMeterProps {
@@ -16,16 +18,18 @@ function getLabelKey(value: number): string {
   return 'coalition.atLimit';
 }
 
-function getColor(value: number): string {
-  if (value >= 60) return '#5a9870';
-  if (value >= 35) return '#c8a84b';
-  return '#c05848';
+/** Ampelfarbe der Koalitionsstabilität — aus den Theme-Token, nicht fest verdrahtet. */
+function getColor(value: number, tokens: ChartTokens): string {
+  if (value >= 60) return tokens.green;
+  if (value >= 35) return tokens.warn;
+  return tokens.red;
 }
 
 export function CoalitionMeter({ value }: CoalitionMeterProps) {
   const { t } = useTranslation('game');
+  const { theme: chartTheme, tokens } = useChartTheme();
   const clamped = Math.min(100, Math.max(0, value));
-  const color = getColor(clamped);
+  const color = getColor(clamped, tokens);
 
   const option: EChartsOption = useMemo(() => ({
     animation: true,
@@ -44,10 +48,10 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
           lineStyle: {
             width: 10,
             color: [
-              [0.15, '#c05848'],
-              [0.35, '#c05848'],
-              [0.60, '#c8a84b'],
-              [1.0,  '#5a9870'],
+              [0.15, tokens.red],
+              [0.35, tokens.red],
+              [0.60, tokens.warn],
+              [1.0,  tokens.green],
             ],
           },
         },
@@ -66,14 +70,14 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
           formatter: '{value}%',
           color: color,
           fontSize: 14,
-          fontFamily: 'var(--mono)',
+          fontFamily: tokens.mono,
           offsetCenter: [0, '-30%'],
         },
         title: { show: false },
         data: [{ value: Math.round(clamped) }],
       },
     ],
-  }), [clamped, color]);
+  }), [clamped, color, tokens]);
 
   const isCritical = clamped < 25;
   const chartAriaLabel = t('coalition.ariaLabel', {
@@ -87,7 +91,7 @@ export function CoalitionMeter({ value }: CoalitionMeterProps) {
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          theme="politikpraxis"
+          theme={chartTheme}
           style={{ width: '100%', height: 100 }}
           opts={{ renderer: 'canvas' }}
           notMerge={false}

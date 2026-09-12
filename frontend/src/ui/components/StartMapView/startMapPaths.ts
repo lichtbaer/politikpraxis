@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * GENERIERT — nicht von Hand bearbeiten.
  * Quelle: public/geo/*.geojson · Generator: scripts/generateStartMap.mjs

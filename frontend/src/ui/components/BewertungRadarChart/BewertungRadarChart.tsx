@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import { withAlpha } from '../../lib/chartTokens';
 import styles from './BewertungRadarChart.module.css';
 
 interface Dimensionen {
@@ -24,6 +26,7 @@ interface BewertungRadarChartProps {
 const DIM_KEYS = ['demokratie', 'wirtschaft', 'gesellschaft', 'kommunikation', 'effizienz'] as const;
 
 export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
+  const { theme: chartTheme, tokens } = useChartTheme();
   const { t } = useTranslation('game');
 
   const dimMeta = useMemo(
@@ -47,11 +50,11 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
       animationEasing: 'cubicOut',
       tooltip: {
         trigger: 'item',
-        backgroundColor: '#1e1c18',
+        backgroundColor: tokens.bg2,
         borderColor: '#444',
         borderWidth: 1,
         padding: [8, 12],
-        textStyle: { color: '#d0cfc8', fontSize: 11 },
+        textStyle: { color: tokens.text, fontSize: 11, fontFamily: tokens.sans },
         formatter: () =>
           dimMeta.map((d, i) => {
             const v = values[i];
@@ -60,9 +63,9 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
               '░'.repeat(10 - Math.round(v / 10));
             return (
               `<div style="margin-bottom:6px">` +
-              `<strong style="color:#e8e4d8">${d.label}</strong>` +
-              `<span style="float:right;color:#5a9870;font-weight:700;margin-left:12px">${v}</span>` +
-              `<br/><span style="font-family:monospace;color:#5a9870;font-size:10px">${bar}</span>` +
+              `<strong style="color:${tokens.text}">${d.label}</strong>` +
+              `<span style="float:right;color:${tokens.green};font-weight:700;margin-left:12px">${v}</span>` +
+              `<br/><span style="font-family:${tokens.mono};color:${tokens.green};font-size:10px">${bar}</span>` +
               `<br/><span style="color:#888;font-size:10px">${d.desc}</span>` +
               `</div>`
             );
@@ -74,7 +77,7 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
         center: ['50%', '52%'],
         radius: '68%',
         axisName: {
-          color: '#c8c4bc',
+          color: tokens.text2,
           fontSize: 11,
           fontWeight: 600,
         },
@@ -82,15 +85,15 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
         splitArea: {
           areaStyle: {
             color: [
-              'rgba(255,255,255,0.01)',
-              'rgba(255,255,255,0.03)',
-              'rgba(255,255,255,0.05)',
-              'rgba(255,255,255,0.07)',
+              withAlpha(tokens.bg2, 0.4),
+              withAlpha(tokens.bg3, 0.4),
+              withAlpha(tokens.bg3, 0.7),
+              withAlpha(tokens.bg4, 0.7),
             ],
           },
         },
-        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
-        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)', type: 'dashed' } },
+        axisLine: { lineStyle: { color: tokens.border } },
+        splitLine: { lineStyle: { color: tokens.border, type: 'dashed' } },
       },
       series: [
         {
@@ -106,13 +109,13 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
                   y: 0.5,
                   r: 0.7,
                   colorStops: [
-                    { offset: 0, color: 'rgba(90,152,112,0.45)' },
-                    { offset: 1, color: 'rgba(90,152,112,0.08)' },
+                    { offset: 0, color: withAlpha(tokens.green, 0.45) },
+                    { offset: 1, color: withAlpha(tokens.green, 0.08) },
                   ],
                 },
               },
-              lineStyle: { color: '#5a9870', width: 2.5 },
-              itemStyle: { color: '#5a9870', borderColor: '#1e1c18', borderWidth: 2 },
+              lineStyle: { color: tokens.green, width: 2.5 },
+              itemStyle: { color: tokens.green, borderColor: tokens.bg2, borderWidth: 2 },
               symbol: 'circle',
               symbolSize: 5,
             },
@@ -120,7 +123,7 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
         },
       ],
     }),
-    [values, dimMeta, t],
+    [values, dimMeta, t, tokens],
   );
 
   return (
@@ -133,7 +136,7 @@ export function BewertungRadarChart({ dimensionen }: BewertungRadarChartProps) {
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          theme="politikpraxis"
+          theme={chartTheme}
           style={{ width: '100%', height: 260 }}
           opts={{ renderer: 'canvas' }}
           notMerge={false}

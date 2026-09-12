@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import type { ChartTokens } from '../../lib/chartTokens';
 import { featureActive } from '../../../core/systems/features';
 import type { GameState, Verband } from '../../../core/types';
 import type { WirtschaftIndikatorenSnapshot } from '../../../core/types/wirtschaft';
@@ -21,7 +23,7 @@ type IndikatorKey = 'bip' | 'inflation' | 'arbeitslosigkeit' | 'investitionsklim
 
 function sektorBalkenFarbe(zustand: number): string {
   if (zustand < 30) return 'var(--red)';
-  if (zustand < 50) return '#f97316';
+  if (zustand < 50) return 'var(--warn)';
   if (zustand < 65) return 'var(--warn)';
   return 'var(--green)';
 }
@@ -101,6 +103,7 @@ function buildIndikatorChartOption(
   referenzLabel: string | undefined,
   yFormatter: (v: number) => string,
   t: (k: string, opts?: Record<string, unknown>) => string,
+  tokens: ChartTokens,
 ): EChartsOption {
   const xs = daten.map((s) => s.monat);
   const ys = daten.map((s) => s[indikator]);
@@ -109,8 +112,8 @@ function buildIndikatorChartOption(
       ? {
           silent: true,
           symbol: 'none',
-          data: [{ yAxis: referenzlinie, label: { formatter: referenzLabel ?? '', color: '#888', fontSize: 9 } }],
-          lineStyle: { type: 'dashed' as const, color: '#666', width: 1 },
+          data: [{ yAxis: referenzlinie, label: { formatter: referenzLabel ?? '', color: tokens.text3, fontSize: 9, fontFamily: tokens.sans } }],
+          lineStyle: { type: 'dashed' as const, color: tokens.border2, width: 1 },
         }
       : undefined;
   return {
@@ -119,15 +122,15 @@ function buildIndikatorChartOption(
     xAxis: {
       type: 'category',
       data: xs,
-      axisLabel: { fontSize: 9, color: '#888' },
+      axisLabel: { fontSize: 9, color: tokens.text3, fontFamily: tokens.sans },
       axisLine: { show: false },
       axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
       scale: true,
-      axisLabel: { fontSize: 9, color: '#888', formatter: (v: number) => yFormatter(v) },
-      splitLine: { lineStyle: { color: '#333', type: 'dashed' } },
+      axisLabel: { fontSize: 9, color: tokens.text3, fontFamily: tokens.sans, formatter: (v: number) => yFormatter(v) },
+      splitLine: { lineStyle: { color: tokens.border, type: 'dashed' } },
     },
     tooltip: {
       trigger: 'axis',
@@ -179,10 +182,12 @@ function IndikatorVerlaufChart({
   option,
   label,
   ariaLabel,
+  chartTheme,
 }: {
   option: EChartsOption;
   label: string;
   ariaLabel: string;
+  chartTheme: string;
 }) {
   return (
     <div className={styles.chartWrap}>
@@ -191,7 +196,7 @@ function IndikatorVerlaufChart({
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          theme="politikpraxis"
+          theme={chartTheme}
           style={{ width: '100%', height: 100 }}
           opts={{ renderer: 'canvas' }}
         />
@@ -210,6 +215,7 @@ export function WirtschaftsDashboard({
   verbaende: Verband[];
 }) {
   const { t } = useTranslation('game');
+  const { theme: chartTheme, tokens } = useChartTheme();
   const w = state.wirtschaft;
   const dashboardAktiv = Boolean(w) && featureActive(complexity, 'wirtschaftssektoren');
 
@@ -236,9 +242,10 @@ export function WirtschaftsDashboard({
             t('wirtschaft.ref.nullwachstum', 'Nullwachstum'),
             (v) => `${v.toFixed(1)}%`,
             t,
+            tokens,
           )
         : null,
-    [showCharts, chartDaten, t],
+    [showCharts, chartDaten, t, tokens],
   );
   const chartOptInf = useMemo(
     () =>
@@ -250,16 +257,17 @@ export function WirtschaftsDashboard({
             t('wirtschaft.ref.ezb2', 'EZB-Ziel 2%'),
             (v) => `${v.toFixed(1)}%`,
             t,
+            tokens,
           )
         : null,
-    [showCharts, chartDaten, t],
+    [showCharts, chartDaten, t, tokens],
   );
   const chartOptAl = useMemo(
     () =>
       showCharts
-        ? buildIndikatorChartOption(chartDaten, 'arbeitslosigkeit', undefined, undefined, (v) => `${v.toFixed(1)}%`, t)
+        ? buildIndikatorChartOption(chartDaten, 'arbeitslosigkeit', undefined, undefined, (v) => `${v.toFixed(1)}%`, t, tokens)
         : null,
-    [showCharts, chartDaten, t],
+    [showCharts, chartDaten, t, tokens],
   );
   const chartOptInv = useMemo(
     () =>
@@ -271,9 +279,10 @@ export function WirtschaftsDashboard({
             undefined,
             (v) => String(Math.round(v)),
             t,
+            tokens,
           )
         : null,
-    [showCharts, chartDaten, t],
+    [showCharts, chartDaten, t, tokens],
   );
 
   const chartAriaBip = useMemo(
@@ -436,10 +445,10 @@ export function WirtschaftsDashboard({
         <section className={styles.panel}>
           <h3 className={styles.panelTitle}>{t('wirtschaft.verlaufTitle', 'Indikatoren-Verlauf (12 Monate)')}</h3>
           <div className={styles.chartsGrid}>
-            <IndikatorVerlaufChart option={chartOptBip} label={t('wirtschaft.indikator.bip')} ariaLabel={chartAriaBip} />
-            <IndikatorVerlaufChart option={chartOptInf} label={t('wirtschaft.indikator.inflation')} ariaLabel={chartAriaInf} />
-            <IndikatorVerlaufChart option={chartOptAl} label={t('wirtschaft.indikator.arbeitslosigkeit')} ariaLabel={chartAriaAl} />
-            <IndikatorVerlaufChart option={chartOptInv} label={t('wirtschaft.indikator.investitionsklima')} ariaLabel={chartAriaInv} />
+            <IndikatorVerlaufChart option={chartOptBip} label={t('wirtschaft.indikator.bip')} ariaLabel={chartAriaBip} chartTheme={chartTheme} />
+            <IndikatorVerlaufChart option={chartOptInf} label={t('wirtschaft.indikator.inflation')} ariaLabel={chartAriaInf} chartTheme={chartTheme} />
+            <IndikatorVerlaufChart option={chartOptAl} label={t('wirtschaft.indikator.arbeitslosigkeit')} ariaLabel={chartAriaAl} chartTheme={chartTheme} />
+            <IndikatorVerlaufChart option={chartOptInv} label={t('wirtschaft.indikator.investitionsklima')} ariaLabel={chartAriaInv} chartTheme={chartTheme} />
           </div>
         </section>
       )}

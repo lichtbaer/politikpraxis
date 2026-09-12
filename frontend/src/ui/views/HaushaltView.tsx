@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../lib/echarts';
+import { useChartTheme } from '../hooks/useChartTheme';
+import { withAlpha } from '../lib/chartTokens';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { berechneSchuldenbremseVerbrauchtMrd, checkSchuldenbremse } from '../../core/systems/economics/haushalt';
@@ -247,6 +249,7 @@ function VerbandsForderungen({ verbaende }: { verbaende: Verband[] }) {
 
 export function HaushaltView() {
   const { t } = useTranslation('game');
+  const { theme: chartTheme, tokens } = useChartTheme();
   const { state, complexity, content } = useGameStore();
   const haushalt = state.haushalt;
   const saldoHistory = state.haushaltSaldoHistory ?? EMPTY_SALDO_HISTORY;
@@ -271,14 +274,14 @@ export function HaushaltView() {
     xAxis: {
       type: 'category',
       data: chartMonatLabels,
-      axisLabel: { color: '#888', fontSize: 10 },
+      axisLabel: { color: tokens.text3, fontSize: 10, fontFamily: tokens.sans },
       axisLine: { show: false },
       axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#888', fontSize: 10, formatter: `{value} ${t('ui.mrd')}` },
-      splitLine: { lineStyle: { color: '#333', type: 'dashed' } },
+      axisLabel: { color: tokens.text3, fontSize: 10, fontFamily: tokens.sans, formatter: `{value} ${t('ui.mrd')}` },
+      splitLine: { lineStyle: { color: tokens.border, type: 'dashed' } },
     },
     tooltip: {
       trigger: 'axis',
@@ -294,14 +297,14 @@ export function HaushaltView() {
       data: chartSaldoData,
       smooth: 0.3,
       symbol: 'none',
-      lineStyle: { color: haushaltSaldo >= 0 ? '#5a9870' : '#c05848', width: 2 },
+      lineStyle: { color: haushaltSaldo >= 0 ? tokens.green : tokens.red, width: 2 },
       areaStyle: {
         color: haushaltSaldo >= 0
-          ? { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(90,152,112,0.3)' }, { offset: 1, color: 'rgba(90,152,112,0.02)' }] }
-          : { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(192,88,72,0.3)' }, { offset: 1, color: 'rgba(192,88,72,0.02)' }] },
+          ? { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: withAlpha(tokens.green, 0.3) }, { offset: 1, color: withAlpha(tokens.green, 0.02) }] }
+          : { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: withAlpha(tokens.red, 0.3) }, { offset: 1, color: withAlpha(tokens.red, 0.02) }] },
       },
     }],
-  }), [chartSaldoData, chartMonatLabels, haushaltSaldo, t]);
+  }), [chartSaldoData, chartMonatLabels, haushaltSaldo, t, tokens]);
 
   const saldoChartAriaLabel = useMemo(() => {
     const first = chartSaldoData[0];
@@ -393,7 +396,7 @@ export function HaushaltView() {
           <ReactEChartsCore
             echarts={echarts}
             option={chartOption}
-            theme="politikpraxis"
+            theme={chartTheme}
             style={{ width: '100%', height: 160 }}
             opts={{ renderer: 'canvas' }}
           />

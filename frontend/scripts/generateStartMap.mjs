@@ -150,8 +150,7 @@ const germany = buildPath(GERMANY, {
   minArea: MIN_AREA_GERMANY,
 });
 
-const file = `/* eslint-disable */
-/**
+const file = `/**
  * GENERIERT — nicht von Hand bearbeiten.
  * Quelle: public/geo/*.geojson · Generator: scripts/generateStartMap.mjs
  *

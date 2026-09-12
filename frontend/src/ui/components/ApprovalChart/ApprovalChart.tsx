@@ -3,6 +3,8 @@ import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { useTranslation } from 'react-i18next';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import { withAlpha } from '../../lib/chartTokens';
 import styles from './ApprovalChart.module.css';
 
 interface ApprovalChartProps {
@@ -14,6 +16,7 @@ interface ApprovalChartProps {
 
 export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChartProps) {
   const { t } = useTranslation('game');
+  const { theme: chartTheme, tokens } = useChartTheme();
   const option: EChartsOption = useMemo(() => {
     const anchorMonth = currentMonth ?? (history.length > 0 ? history.length : 1);
     const startMonth = history.length > 0 ? Math.max(1, anchorMonth - history.length + 1) : 1;
@@ -38,8 +41,9 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
         data: monthLabels,
         boundaryGap: false,
         axisLabel: {
-          color: 'rgba(255,255,255,0.35)',
+          color: tokens.text3,
           fontSize: 8,
+          fontFamily: tokens.sans,
           interval: (index: number) => [0, 11, 23, 35, 47].includes(index),
           formatter: (v: string) => {
             const m = Number(v);
@@ -57,21 +61,22 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
         max: 100,
         interval: 20,
         axisLabel: {
-          color: 'rgba(255,255,255,0.35)',
+          color: tokens.text3,
           fontSize: 8,
+          fontFamily: tokens.sans,
           formatter: '{value}%',
         },
         splitLine: {
-          lineStyle: { color: 'rgba(255,255,255,0.07)', type: 'dashed', width: 0.5 },
+          lineStyle: { color: tokens.border, type: 'dashed', width: 0.5 },
         },
       },
       tooltip: {
         trigger: 'axis',
         show: true,
-        backgroundColor: '#1e1c18',
-        borderColor: '#444',
+        backgroundColor: tokens.bg2,
+        borderColor: tokens.border2,
         borderWidth: 1,
-        textStyle: { color: '#d0cfc8', fontSize: 11 },
+        textStyle: { color: tokens.text, fontSize: 11, fontFamily: tokens.sans },
         formatter: (params: unknown) => {
           const p = params as Array<{ dataIndex: number; value: number | null }>;
           const first = p.find((x) => x.value != null);
@@ -89,14 +94,14 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
           data: aboveData,
           smooth: 0.3,
           symbol: 'none',
-          lineStyle: { color: '#5a9870', width: 2 },
+          lineStyle: { color: tokens.green, width: 2 },
           areaStyle: {
             color: {
               type: 'linear',
               x: 0, y: 0, x2: 0, y2: 1,
               colorStops: [
-                { offset: 0, color: 'rgba(90,152,112,0.35)' },
-                { offset: 1, color: 'rgba(90,152,112,0.04)' },
+                { offset: 0, color: withAlpha(tokens.green, 0.35) },
+                { offset: 1, color: withAlpha(tokens.green, 0.04) },
               ],
             },
           },
@@ -105,13 +110,14 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
             silent: true,
             symbol: 'none',
             data: [{ yAxis: threshold }],
-            lineStyle: { color: 'rgba(255,255,255,0.25)', type: 'dashed', width: 1 },
+            lineStyle: { color: tokens.border2, type: 'dashed', width: 1 },
             label: {
               show: true,
               position: 'insideEndTop',
               formatter: t('approvalChart.targetLineLabel', { percent: threshold }),
-              color: 'rgba(255,255,255,0.35)',
+              color: tokens.text3,
               fontSize: 8,
+              fontFamily: tokens.sans,
             },
           },
         },
@@ -121,14 +127,14 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
           data: belowData,
           smooth: 0.3,
           symbol: 'none',
-          lineStyle: { color: '#c05848', width: 2 },
+          lineStyle: { color: tokens.red, width: 2 },
           areaStyle: {
             color: {
               type: 'linear',
               x: 0, y: 0, x2: 0, y2: 1,
               colorStops: [
-                { offset: 0, color: 'rgba(192,88,72,0.35)' },
-                { offset: 1, color: 'rgba(192,88,72,0.04)' },
+                { offset: 0, color: withAlpha(tokens.red, 0.35) },
+                { offset: 1, color: withAlpha(tokens.red, 0.04) },
               ],
             },
           },
@@ -137,7 +143,7 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
       ],
     };
    
-  }, [history, threshold, currentMonth, t]);
+  }, [history, threshold, currentMonth, t, tokens]);
 
   const latestVal = history.length > 0 ? history[history.length - 1] : null;
 
@@ -183,7 +189,7 @@ export function ApprovalChart({ history, threshold, currentMonth }: ApprovalChar
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          theme="politikpraxis"
+          theme={chartTheme}
           style={{ width: '100%', height: 120 }}
           opts={{ renderer: 'canvas' }}
           notMerge={false}

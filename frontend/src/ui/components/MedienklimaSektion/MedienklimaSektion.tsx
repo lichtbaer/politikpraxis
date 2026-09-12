@@ -7,19 +7,18 @@ import { useTranslation } from 'react-i18next';
 import ReactEChartsCore from 'echarts-for-react/esm/core';
 import type { EChartsOption } from 'echarts';
 import { echarts } from '../../lib/echarts';
+import { useChartTheme } from '../../hooks/useChartTheme';
+import { withAlpha, type ChartTokens } from '../../lib/chartTokens';
 import { useGameStore } from '../../../store/gameStore';
 import { featureActive } from '../../../core/systems/features';
 import { AlertTriangle } from '../../icons';
 import { formatMedienklima } from '../../lib/medienDisplay';
 import styles from './MedienklimaSektion.module.css';
 
-// Matches --gold token (#c8a84a) — ECharts can't consume CSS variables directly
-const CHART_GOLD = '#c8a84a';
-
 /** Stabile Fallback-Referenz — vermeidet neues `[]` pro Render (exhaustive-deps / useMemo). */
 const EMPTY_MEDIEN_HISTORY: number[] = [];
 
-function medienklimaChartOption(history: number[]): EChartsOption {
+function medienklimaChartOption(history: number[], tokens: ChartTokens): EChartsOption {
   const data = history.slice(-12).map((v) => Math.round(v));
   const months = data.map((_, i) => i + 1);
   return {
@@ -29,7 +28,7 @@ function medienklimaChartOption(history: number[]): EChartsOption {
       type: 'category',
       data: months,
       boundaryGap: false,
-      axisLabel: { color: 'rgba(255,255,255,0.3)', fontSize: 9 },
+      axisLabel: { color: tokens.text3, fontSize: 9, fontFamily: tokens.sans },
       axisLine: { show: false },
       axisTick: { show: false },
     },
@@ -38,7 +37,7 @@ function medienklimaChartOption(history: number[]): EChartsOption {
       min: 0,
       max: 100,
       show: true,
-      axisLabel: { color: 'rgba(255,255,255,0.3)', fontSize: 9, formatter: '{value}' },
+      axisLabel: { color: tokens.text3, fontSize: 9, fontFamily: tokens.sans, formatter: '{value}' },
       splitLine: { show: false },
       axisLine: { show: false },
       axisTick: { show: false },
@@ -50,15 +49,15 @@ function medienklimaChartOption(history: number[]): EChartsOption {
         smooth: 0.3,
         symbol: 'circle',
         symbolSize: 4,
-        lineStyle: { color: CHART_GOLD, width: 2 },
-        itemStyle: { color: CHART_GOLD },
+        lineStyle: { color: tokens.gold, width: 2 },
+        itemStyle: { color: tokens.gold },
         areaStyle: {
           color: {
             type: 'linear',
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(200,168,74,0.28)' },
-              { offset: 1, color: 'rgba(200,168,74,0.02)' },
+              { offset: 0, color: withAlpha(tokens.gold, 0.28) },
+              { offset: 1, color: withAlpha(tokens.gold, 0.02) },
             ],
           },
         },
@@ -69,11 +68,12 @@ function medienklimaChartOption(history: number[]): EChartsOption {
 
 export function MedienklimaSektion() {
   const { t } = useTranslation('game');
+  const { theme: chartTheme, tokens } = useChartTheme();
   const complexity = useGameStore((s) => s.complexity);
   const state = useGameStore((s) => s.state);
 
   const history = state.medienKlimaHistory ?? EMPTY_MEDIEN_HISTORY;
-  const chartOption = useMemo(() => medienklimaChartOption(history), [history]);
+  const chartOption = useMemo(() => medienklimaChartOption(history, tokens), [history, tokens]);
 
   if (!featureActive(complexity, 'medienklima')) return null;
 
@@ -110,7 +110,7 @@ export function MedienklimaSektion() {
             <ReactEChartsCore
               echarts={echarts}
               option={chartOption}
-              theme="politikpraxis"
+              theme={chartTheme}
               style={{ width: '100%', height: 80 }}
               opts={{ renderer: 'canvas' }}
               notMerge={false}
