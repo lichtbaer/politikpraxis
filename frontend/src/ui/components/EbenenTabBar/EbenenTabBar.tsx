@@ -8,6 +8,7 @@
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { TABS } from './tabs';
+import { Star } from '../../icons';
 import styles from './EbenenTabBar.module.css';
 
 const EBENE_COLORS: Record<string, string> = {
@@ -58,7 +59,7 @@ export function EbenenTabBar() {
               style={isActive ? { '--tab-color': color } as React.CSSProperties : undefined}
             >
               <span className={styles.icon} style={{ color: unlocked ? color : 'var(--text3)' }}>
-                {tab.icon}
+                <tab.Icon size={15} aria-hidden />
               </span>
               <span className={styles.label}>{t(tab.labelKey)}</span>
               {!unlocked && (
@@ -76,7 +77,9 @@ export function EbenenTabBar() {
             onClick={() => setView('wahlkampf')}
             style={view === 'wahlkampf' ? { '--tab-color': 'var(--gold)' } as React.CSSProperties : undefined}
           >
-            <span className={styles.icon}>⭐</span>
+            <span className={styles.icon} style={{ color: 'var(--gold)' }}>
+              <Star size={15} aria-hidden />
+            </span>
             <span className={styles.label}>{t('game:tabBar.wahlkampf')}</span>
           </button>
         )}

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useContentStore } from '../../../store/contentStore';
+import { AlertTriangle } from '../../icons';
 import styles from './OfflineBanner.module.css';
 
 /** Hinweis-Banner wenn das Spiel mit gebündeltem Fallback-Content läuft (Backend nicht erreichbar) */
@@ -12,7 +13,7 @@ export function OfflineBanner() {
 
   return (
     <div className={styles.banner} role="status">
-      <span aria-hidden="true">⚠️</span>
+      <AlertTriangle size={15} aria-hidden="true" />
       <span>{t('offline.banner')}</span>
       <button type="button" className={styles.retry} onClick={() => load(i18n.language)}>
         {t('offline.retry')}

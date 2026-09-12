@@ -1,3 +1,4 @@
+import { createElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MedienAkteurContent } from '../../../data/defaults/medienAkteure';
 import {
@@ -46,12 +47,13 @@ export function MedienAkteurKarte({ def, stateRow, game }: MedienAkteurKarteProp
   const effStimmungRaw = effektiveMedienAkteurStimmung(def.id, stateRow, game.medienAkteurBuffs, game.month);
   const effStimmung = Math.round(effStimmungRaw);
   const pct = ((effStimmung + 100) / 200) * 100;
-
   return (
     <article className={`${styles.card} ${typClass(def.typ)}`}>
       <div className={styles.header}>
         <span className={styles.icon} aria-hidden>
-          {getMedienAkteurIcon(def.typ)}
+          {/* createElement statt <Icon/>: der Typ kommt aus einer Map, eine lokale
+              Grossbuchstaben-Variable wuerde als „Komponente im Render" gelten. */}
+          {createElement(getMedienAkteurIcon(def.typ), { size: 18 })}
         </span>
         <div className={styles.headerText}>
           <h3 className={styles.title}>{def.name}</h3>

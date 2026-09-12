@@ -17,7 +17,7 @@ import { useShellTop } from '../hooks/useShellTop';
 import { useGameStore } from '../../store/gameStore';
 import { useUIStore } from '../../store/uiStore';
 import type { ViewName } from '../../core/types';
-import { Users } from '../icons';
+import { Users, Menu } from '../icons';
 import { MonatszusammenfassungModal } from '../components/MonatszusammenfassungModal/MonatszusammenfassungModal';
 import { Modal } from '../components/Modal/Modal';
 import styles from './Shell.module.css';
@@ -164,7 +164,7 @@ export function Shell() {
         onClick={() => { setLeftOpen(!leftOpen); setRightOpen(false); }}
         aria-label={t('shortcuts.showAgenda')}
       >
-        ☰
+        <Menu size={18} aria-hidden />
       </button>
       <button
         type="button"

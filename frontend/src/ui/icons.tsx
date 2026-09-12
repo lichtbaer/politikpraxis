@@ -14,6 +14,7 @@ import {
   Hourglass, RefreshCw, ArrowRight,
   Circle, CircleAlert, Frown, Meh, Smile, Angry, SmilePlus,
   Users, Lightbulb, Vote,
+  ClipboardList, Handshake, Scale, Map, Globe, Star, Bug, Save, Menu, Link2, Lock, Ban, Smartphone,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 
@@ -26,6 +27,7 @@ export {
   Hourglass, RefreshCw, ArrowRight,
   Circle, CircleAlert, Frown, Meh, Smile, Angry, SmilePlus,
   Users, Lightbulb, Vote,
+  ClipboardList, Handshake, Scale, Map, Globe, Star, Bug, Save, Menu, Link2, Lock, Ban, Smartphone,
 };
 
 // ── Politikfeld-Icons ──────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@ import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { CharacterRow } from '../components/CharacterRow/CharacterRow';
 import { KoalitionspartnerPanel } from '../components/KoalitionspartnerPanel/KoalitionspartnerPanel';
+import { AlertTriangle } from '../icons';
 import styles from './KabinettView.module.css';
 
 export function KabinettView() {
@@ -28,7 +29,7 @@ export function KabinettView() {
 
       {ultimatumChar && (
         <div className={styles.ultimatumBanner}>
-          <span className={styles.ultimatumIcon}>⚠</span>
+          <span className={styles.ultimatumIcon}><AlertTriangle size={13} aria-hidden /></span>
           <span>
             {t('game:kabinett.ultimatumWarnung', {
               name: ultimatumChar.name || t(`game:chars.${ultimatumChar.id}.name`),

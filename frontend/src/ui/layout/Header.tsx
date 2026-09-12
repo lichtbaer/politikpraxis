@@ -16,7 +16,7 @@ import { Erklaerung } from '../components/Erklaerung/Erklaerung';
 import { LoginModal } from '../components/LoginModal/LoginModal';
 import { UserTestFeedbackModal } from '../components/UserTestFeedbackModal/UserTestFeedbackModal';
 import type { SpeedLevel } from '../../core/types';
-import { Megaphone } from '../icons';
+import { Megaphone, Bug, Save } from '../icons';
 import styles from './Header.module.css';
 
 export function Header() {
@@ -144,7 +144,7 @@ export function Header() {
             className={styles.playtestFeedbackBtn}
             onClick={() => setShowFeedbackModal(true)}
           >
-            🐛 {t('header.playtestFeedback')}
+            <Bug size={14} aria-hidden /> {t('header.playtestFeedback')}
           </button>
         )}
         <div className={styles.monthRow}>
@@ -248,7 +248,7 @@ export function Header() {
               onClick={manualSave}
               title={t('game.manualSaveTooltip')}
             >
-              💾
+              <Save size={15} aria-hidden />
             </button>
           </div>
         )}

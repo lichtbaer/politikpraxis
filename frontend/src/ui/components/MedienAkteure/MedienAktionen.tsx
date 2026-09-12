@@ -6,6 +6,9 @@ import { activeMedienAkteurIds } from '../../../core/systems/medien/medienAkteur
 import { medienAktionCooldownVerbleibend } from '../../../core/systems/medien/medienAktionen';
 import { DEFAULT_MEDIEN_AKTEURE } from '../../../data/defaults/medienAkteure';
 import type { MedienSpielerAktionKey } from '../../../core/systems/medien/medienAktionen';
+import type { ComponentType } from 'react';
+import type { LucideProps } from 'lucide-react';
+import { Tv, Newspaper, Smartphone, Monitor } from '../../icons';
 import styles from './MedienAktionen.module.css';
 
 export function MedienAktionen() {
@@ -22,7 +25,7 @@ export function MedienAktionen() {
 
   const rows: Array<{
     key: MedienSpielerAktionKey;
-    icon: string;
+    Icon: ComponentType<LucideProps>;
     titleKey: string;
     pkCost: number;
     effektKey: string;
@@ -33,7 +36,7 @@ export function MedienAktionen() {
   }> = [
     {
       key: 'oeffentlich_talkshow',
-      icon: '📺',
+      Icon: Tv,
       titleKey: 'media.aktionen.talkshow.title',
       pkCost: 10,
       effektKey: 'media.aktionen.talkshow.effekt',
@@ -41,7 +44,7 @@ export function MedienAktionen() {
     },
     {
       key: 'boulevard_interview',
-      icon: '🗞️',
+      Icon: Newspaper,
       titleKey: 'media.aktionen.boulevard.title',
       pkCost: 15,
       effektKey: 'media.aktionen.boulevard.effekt',
@@ -50,7 +53,7 @@ export function MedienAktionen() {
     },
     {
       key: 'social_kampagne',
-      icon: '📱',
+      Icon: Smartphone,
       titleKey: 'media.aktionen.social.title',
       pkCost: 20,
       effektKey: 'media.aktionen.social.effekt',
@@ -59,7 +62,7 @@ export function MedienAktionen() {
     },
     {
       key: 'qualitaet_gespraech',
-      icon: '💻',
+      Icon: Monitor,
       titleKey: 'media.aktionen.qualitaet.title',
       pkCost: 15,
       effektKey: 'media.aktionen.qualitaet.effekt',
@@ -88,7 +91,7 @@ export function MedienAktionen() {
             >
               <div className={styles.cardHeader}>
                 <span className={styles.cardIcon} aria-hidden>
-                  {r.icon}
+                  <r.Icon size={16} aria-hidden />
                 </span>
                 <h3 className={styles.cardTitle}>{t(r.titleKey)}</h3>
                 <span className={styles.pk}>{r.pkCost} PK</span>

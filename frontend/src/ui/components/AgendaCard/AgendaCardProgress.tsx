@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { featureActive } from '../../../core/systems/features';
 import { berechneJaBreakdown } from '../../../core/systems/parliament/parliament';
-import { Hourglass } from '../../icons';
+import { Hourglass, Link2 } from '../../icons';
 import { Erklaerung } from '../Erklaerung/Erklaerung';
 import { KPI_TO_BEGRIFF } from '../../../constants/begriffe';
 import { VorstufeBadge } from '../VorstufeBadge/VorstufeBadge';
@@ -207,7 +207,7 @@ export function AgendaCardProgress({ law, state, complexity, projekt, boni, acti
         const gekoppelt = state.gekoppelteGesetze?.[law.id];
         return gekoppelt && gekoppelt.length > 0 ? (
         <span className={styles.kopplungsHinweis}>
-          🔗 {t('game:gesetz.wartetAuf', {
+          <Link2 size={12} aria-hidden /> {t('game:gesetz.wartetAuf', {
             gesetz: gekoppelt.map((id) => getGesetzTitel(id)).join(', '),
             defaultValue: `Wartet auf: ${gekoppelt.map((id) => getGesetzTitel(id)).join(', ')}`,
           })}
