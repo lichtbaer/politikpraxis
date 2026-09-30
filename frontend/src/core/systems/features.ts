@@ -15,7 +15,8 @@ const FEATURES: Record<string, { minLevel: number }> = {
   tradeoff: { minLevel: 3 },
   br_events: { minLevel: 3 },
   eu_events: { minLevel: 4 },
-  followup_events: { minLevel: 4 },
+  /** Folge-Events und Story-Arcs (#267: ab Stufe 2 — vorher endeten Arc-Einstiege auf Stufe 1–3 als Sackgasse) */
+  followup_events: { minLevel: 2 },
   media_agenda: { minLevel: 4 },
   konjunktur_cycles: { minLevel: 4 },
   /** SMA-404/SMA-405: Sektoren + Makroindikatoren, BIP-gekoppelte Einnahmen (Dashboard ab Stufe 2) */
