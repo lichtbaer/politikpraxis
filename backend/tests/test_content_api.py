@@ -1,7 +1,10 @@
 """Pytest-Tests für Content-API-Endpoints (SMA-255)."""
 
+import re
+
 import pytest
 from app.main import app
+from app.services.content_db_service import content_cache_clear
 from httpx import ASGITransport, AsyncClient
 from tests.conftest import requires_db
 
@@ -390,6 +393,47 @@ async def test_get_game_content_version_is_stable(client: AsyncClient):
     v1 = r1.json()["contentVersion"]
     v2 = r2.json()["contentVersion"]
     assert isinstance(v1, str) and len(v1) > 0
+    assert v1 == v2
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_content_version_is_stable_hex(client: AsyncClient):
+    """#244: GET /api/content/version liefert einen kurzen Hex-Hash, der über
+    wiederholte Requests stabil ist."""
+    r1 = await client.get("/api/content/version")
+    r2 = await client.get("/api/content/version")
+    assert r1.status_code == 200 and r2.status_code == 200
+    v1 = r1.json()["content_version"]
+    assert re.fullmatch(r"[0-9a-f]{16}", v1)
+    assert r2.json()["content_version"] == v1
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_content_version_ignores_locale(client: AsyncClient):
+    """#244: Die Version ist locale-unabhängig — ein Sprachwechsel darf einen
+    Spielstand nicht als „anderer Content“ markieren."""
+    base = (await client.get("/api/content/version")).json()["content_version"]
+    for locale in ("de", "en"):
+        r = await client.get("/api/content/version", params={"locale": locale})
+        assert r.status_code == 200
+        assert r.json()["content_version"] == base
+
+
+@pytest.mark.asyncio
+@requires_db
+async def test_get_content_version_stable_after_cache_clear(client: AsyncClient):
+    """#244: Frisch aus der DB berechnet (Cache geleert) ergibt sich derselbe Hash —
+    die Version hängt nicht von der Zeilenreihenfolge oder vom Cache ab."""
+    content_cache_clear()
+    v1 = (await client.get("/api/content/version")).json()["content_version"]
+    content_cache_clear()
+    # Andere Locale zuerst befüllen, damit ein versehentlich locale-abhängiger
+    # Cache-Treffer auffiele.
+    await client.get("/api/content/gesetze", params={"locale": "en"})
+    v2 = (await client.get("/api/content/version")).json()["content_version"]
+    content_cache_clear()
     assert v1 == v2
 
 

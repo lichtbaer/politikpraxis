@@ -84,6 +84,7 @@ docker compose -f docker-compose.dev.yml down
 | `GET /api/content/milieus` | Milieus |
 | `GET /api/content/politikfelder` | Politikfelder |
 | `GET /api/content/verbaende` | Verbände |
+| `GET /api/content/version` | Sprachunabhängige Content-Version (Hash) für Spielstand-Kompatibilität |
 | `POST /api/analytics/batch` | Analytics-Events (JWT) |
 | `GET /api/analytics/summary` | Analytics-Summary |
 | `GET /api/mods` | Mod-Liste |

@@ -1,10 +1,14 @@
 """Unit-Tests für app.services.content_db_service, die keine DB benötigen (#244, #249)."""
 
 import pytest
+from app.services import content_db_service
 from app.services.content_db_service import (
     CACHE_TTL,
+    CONTENT_VERSION_LOCALE,
+    _canonicalize,
     _hash_content,
     content_cache_clear,
+    get_content_version,
     get_game_content_from_db,
 )
 
@@ -229,5 +233,111 @@ async def test_game_content_choice_index_follows_choice_id():
         ev = content["events"]["haushalt"]
         assert ev["choices"]["0"]["label"] == "erste"
         assert ev["choices"]["1"]["label"] == "zweite"
+    finally:
+        content_cache_clear()
+
+
+# --- Content-Version (#244) ---
+
+
+def test_canonicalize_ignores_row_order_of_object_lists():
+    """Zeilen ohne ORDER BY dürfen den Hash nicht verändern — auch verschachtelt."""
+    a = {
+        "gesetze": [{"id": "a", "kosten": 1}, {"id": "b", "kosten": 2}],
+        "events": [
+            {"id": "e", "choices": [{"key": "x", "cost_pk": 1}, {"key": "y"}]},
+        ],
+        "relationen": [{"gesetz_a_id": "a", "t": 1}, {"gesetz_a_id": "b", "t": 2}],
+    }
+    b = {
+        "gesetze": [{"id": "b", "kosten": 2}, {"id": "a", "kosten": 1}],
+        "events": [
+            {"id": "e", "choices": [{"key": "y"}, {"key": "x", "cost_pk": 1}]},
+        ],
+        "relationen": [{"gesetz_a_id": "b", "t": 2}, {"gesetz_a_id": "a", "t": 1}],
+    }
+    assert _hash_content(_canonicalize(a)) == _hash_content(_canonicalize(b))
+
+
+def test_canonicalize_keeps_scalar_list_order():
+    """Skalarlisten (Tags, Länder) sind gespeicherte Daten — Reihenfolge bleibt."""
+    assert _canonicalize({"tags": ["b", "a"]}) == {"tags": ["b", "a"]}
+
+
+def test_content_version_hash_changes_with_engine_value():
+    a = {"gesetze": [{"id": "a", "kosten_einmalig": 1.0}]}
+    b = {"gesetze": [{"id": "a", "kosten_einmalig": 1.5}]}
+    assert _hash_content(_canonicalize(a)) != _hash_content(_canonicalize(b))
+
+
+_VERSION_FETCHERS = (
+    "fetch_chars",
+    "fetch_gesetze",
+    "fetch_events",
+    "fetch_bundesrat",
+    "fetch_milieus",
+    "fetch_politikfelder",
+    "fetch_verbaende",
+    "fetch_gesetz_relationen",
+    "fetch_medien_akteure",
+    "fetch_bundeslaender",
+    "fetch_agenda_ziele",
+    "fetch_koalitions_ziele",
+    "fetch_eu_events",
+)
+
+
+def _patch_version_fetchers(monkeypatch, rows_for, calls):
+    for name in _VERSION_FETCHERS:
+
+        async def fake(_db, locale="de", *_args, _name=name, **_kwargs):
+            calls.append((_name, locale))
+            return rows_for(_name)
+
+        monkeypatch.setattr(content_db_service, name, fake)
+
+
+@pytest.mark.asyncio
+async def test_get_content_version_uses_fixed_locale_and_all_fetchers(monkeypatch):
+    """Die Version hängt nicht von der Spielsprache ab: gehasht wird immer über
+    CONTENT_VERSION_LOCALE — und über alle Content-Endpoints, die das Frontend lädt."""
+    calls: list[tuple[str, str]] = []
+    _patch_version_fetchers(monkeypatch, lambda name: [{"id": name}], calls)
+    content_cache_clear()
+    try:
+        version = await get_content_version(object())
+        assert len(version) == 16
+        int(version, 16)
+        assert sorted(name for name, _ in calls) == sorted(_VERSION_FETCHERS)
+        assert {loc for _, loc in calls} == {CONTENT_VERSION_LOCALE}
+
+        # Zweiter Aufruf kommt aus dem Cache — keine erneuten Fetches.
+        calls.clear()
+        assert await get_content_version(object()) == version
+        assert calls == []
+    finally:
+        content_cache_clear()
+
+
+@pytest.mark.asyncio
+async def test_get_content_version_is_row_order_independent(monkeypatch):
+    rows = [{"id": "a", "wert": 1}, {"id": "b", "wert": 2}]
+    calls: list[tuple[str, str]] = []
+    content_cache_clear()
+    try:
+        _patch_version_fetchers(monkeypatch, lambda _name: list(rows), calls)
+        v1 = await get_content_version(object())
+        content_cache_clear()
+        _patch_version_fetchers(monkeypatch, lambda _name: list(reversed(rows)), calls)
+        v2 = await get_content_version(object())
+        assert v1 == v2
+
+        content_cache_clear()
+        _patch_version_fetchers(
+            monkeypatch,
+            lambda _name: [{"id": "a", "wert": 1}, {"id": "b", "wert": 3}],
+            calls,
+        )
+        assert await get_content_version(object()) != v1
     finally:
         content_cache_clear()

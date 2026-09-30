@@ -28,6 +28,8 @@ export type BundeslandApi = Schemas['BundeslandResponse'];
 export type MedienAkteurApi = Schemas['MedienAkteurResponse'];
 export type EuEventChoiceApi = Schemas['EuEventChoiceResponse'];
 export type EuEventApi = Schemas['EuEventResponse'];
+/** #244: Locale-unabhängige Content-Version (GET /content/version). */
+export type ContentVersionApi = Schemas['ContentVersionResponse'];
 
 /** SMA-501: Spieler-Agenda-Ziel (API).
  *  Manuell gepflegt — die Route /content/agenda-ziele hat (noch) kein response_model,

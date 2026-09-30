@@ -8,6 +8,9 @@
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useGameStore } from './gameStore';
+import { useContentStore } from './contentStore';
+import { useUIStore } from './uiStore';
+import i18n from '../i18n';
 import { makeState, makeLaw } from '../core/test-helpers';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { seedRng } from '../core/rng';
@@ -197,5 +200,89 @@ describe('gameStore — Save/Load/Reset', () => {
     expect(after.complexity).toBe(3);
     expect(after.cloudSaveId).toBe('cloud-42');
     expect(after.spielerPartei?.id).toBe('gp');
+  });
+});
+
+describe('gameStore — Content-Version (#244)', () => {
+  const warnungen = () => useUIStore.getState().toastQueue.filter((t) => t.type === 'warning');
+
+  function saveMitVersion(contentVersion?: string) {
+    return {
+      version: '1',
+      savedAt: new Date(2026, 0, 1).toISOString(),
+      gameState: makeState({ pk: 50, month: 7, ...(contentVersion !== undefined && { contentVersion }) }),
+      playerName: 'Test',
+      complexity: 1,
+      ausrichtung: DEFAULT_AUSRICHTUNG,
+    };
+  }
+
+  beforeEach(() => {
+    seedRng(1);
+    resetStoreWithLaw({ status: 'entwurf' });
+    useUIStore.setState({ toastQueue: [] });
+    useContentStore.setState({ contentVersion: 'aaaa1111bbbb2222' });
+  });
+
+  it('init() hält die aktuelle Content-Version im neuen Spielstand fest', () => {
+    useGameStore.getState().init(DEFAULT_CONTENT);
+    expect(useGameStore.getState().state.contentVersion).toBe('aaaa1111bbbb2222');
+  });
+
+  it('init() ohne bekannte Content-Version setzt kein Feld', () => {
+    useContentStore.setState({ contentVersion: null });
+    useGameStore.getState().init(DEFAULT_CONTENT);
+    expect(useGameStore.getState().state.contentVersion).toBeUndefined();
+  });
+
+  it('warnt beim Laden eines Spielstands mit abweichender Content-Version (Datei/Cloud)', () => {
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('cccc3333dddd4444'));
+
+    const after = useGameStore.getState();
+    // Nicht-blockierend: der Spielstand ist trotzdem geladen
+    expect(after.phase).toBe('playing');
+    expect(after.state.month).toBe(7);
+    expect(after.state.contentVersion).toBe('cccc3333dddd4444');
+    expect(warnungen()).toHaveLength(1);
+    expect(warnungen()[0].msg).toBe(i18n.t('common:game.contentVersionMismatch'));
+  });
+
+  it('warnt auch über loadSave() bei abweichender Version', () => {
+    useGameStore.getState().loadSave(makeState({ contentVersion: 'cccc3333dddd4444' }));
+    expect(warnungen()).toHaveLength(1);
+  });
+
+  it('keine Warnung bei gleicher Content-Version', () => {
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('aaaa1111bbbb2222'));
+    expect(useGameStore.getState().state.contentVersion).toBe('aaaa1111bbbb2222');
+    expect(warnungen()).toHaveLength(0);
+  });
+
+  it('keine Warnung bei älteren Spielständen ohne contentVersion', () => {
+    useGameStore.getState().loadSaveFromFile(saveMitVersion());
+    expect(useGameStore.getState().state.contentVersion).toBeUndefined();
+    expect(warnungen()).toHaveLength(0);
+  });
+
+  it('keine Warnung, wenn eine Seite offline lief oder die aktuelle Version unbekannt ist', () => {
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('offline'));
+    expect(warnungen()).toHaveLength(0);
+
+    useContentStore.setState({ contentVersion: 'offline' });
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('cccc3333dddd4444'));
+    expect(warnungen()).toHaveLength(0);
+
+    useContentStore.setState({ contentVersion: null });
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('cccc3333dddd4444'));
+    expect(warnungen()).toHaveLength(0);
+  });
+
+  it('verwirft eine unplausible contentVersion aus dem Spielstand (kein String)', () => {
+    const kaputt = { ...makeState(), contentVersion: { evil: true } } as unknown as Parameters<
+      ReturnType<typeof useGameStore.getState>['loadSave']
+    >[0];
+    useGameStore.getState().loadSave(kaputt);
+    expect(useGameStore.getState().state.contentVersion).toBeUndefined();
+    expect(warnungen()).toHaveLength(0);
   });
 });

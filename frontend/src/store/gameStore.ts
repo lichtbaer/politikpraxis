@@ -33,7 +33,7 @@ import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch, bundeslandGespraech }
 import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
-import { getContentBundle } from './contentStore';
+import { getContentBundle, istContentVersionAbweichend, useContentStore } from './contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { SPIELBARE_PARTEIEN } from '../data/defaults/parteien';
 import { type SaveFile, saveGameDebounced } from '../services/localStorageSave';
@@ -81,6 +81,18 @@ export type GamePhase = 'onboarding' | 'playing';
 /** Convenience: fire-and-forget toast from game actions. `major`: #284 — größeres, längeres Feedback für große Momente. */
 const toast = (msg: string, type?: 'info' | 'success' | 'warning' | 'danger', major?: boolean) =>
   useUIStore.getState().showToast(msg, type, { major });
+
+/**
+ * #244: Nicht-blockierende Warnung, wenn ein Spielstand mit anderem Content
+ * gespielt wurde als dem aktuell geladenen (z.B. nach einer Content-Migration).
+ * Der Spielstand wird trotzdem geladen; seine `contentVersion` bleibt die des
+ * Spielbeginns, denn Gesetze/Chars im State stammen weiterhin von dort.
+ */
+function warneBeiContentVersionAbweichung(gespeichert: string | undefined): void {
+  if (istContentVersionAbweichend(gespeichert, useContentStore.getState().contentVersion)) {
+    toast(i18n.t('common:game.contentVersionMismatch'), 'warning');
+  }
+}
 
 /** Warnung bei fehlgeschlagenem lokalen Autosave nur einmal pro Sitzung. */
 let localSaveWarned = false;
@@ -236,6 +248,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const ersterMonatTicker = i18n.exists('game:onboarding.erster_monat')
       ? i18n.t('game:onboarding.erster_monat')
       : 'Neue Legislaturperiode. Koalitionsvertrag unterzeichnet.';
+    // #244: Content-Version des Spielbeginns im Spielstand festhalten
+    const contentVersion = useContentStore.getState().contentVersion;
     const withExpanded = {
       ...withLogs,
       gesetze: withLogs.gesetze.map((g, i) => i === 0 ? { ...g, expanded: true } : g),
@@ -243,6 +257,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ticker: ersterMonatTicker,
       ...(kanzlerName && { kanzlerName }),
       kanzlerGeschlecht,
+      ...(contentVersion && { contentVersion }),
     };
     set({ state: withExpanded, content: c, cloudSaveId: null });
   },
@@ -781,6 +796,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         electionThreshold: validated.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD,
       });
       set({ state, content: getContentBundle() });
+      warneBeiContentVersionAbweichung(state.contentVersion);
     } catch {
       logger.warn('Ungültiger Spielstand – Laden abgebrochen');
     }
@@ -812,6 +828,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         cloudSaveId: save.cloudSaveId ?? null,
         phase: 'playing',
       });
+      warneBeiContentVersionAbweichung(state.contentVersion);
     } catch {
       logger.warn('Ungültiger Spielstand – Laden abgebrochen (loadSaveFromFile)');
     }
