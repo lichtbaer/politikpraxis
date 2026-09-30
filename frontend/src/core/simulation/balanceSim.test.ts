@@ -407,6 +407,18 @@ describe('Echter Content (DB-Snapshot)', () => {
     expect(content.euEvents?.length ?? 0).toBeGreaterThan(0);
   });
 
+  it('#272: alle Story-Arcs sind mit Einstieg im Pool und ihre Fortsetzungen erreichbar', () => {
+    const content = echterContent();
+    const ids = new Set(content.events.map(e => e.id));
+    const arcs = new Set(content.events.filter(e => e.arcId && (e.arcStage ?? 1) === 1).map(e => e.arcId));
+    expect([...arcs].sort()).toEqual(['beraterskandal', 'ruestungsexport', 'stahlkrise']);
+    const fortsetzungen = content.events
+      .filter(e => e.arcId)
+      .flatMap(e => e.choices.map(c => c.followup_event_id))
+      .filter((id): id is string => !!id);
+    expect(fortsetzungen.filter(id => !ids.has(id))).toEqual([]);
+  });
+
   for (const complexity of [1, 4]) {
     it(`Stufe ${complexity}: keine Crashes, keine Engine-Fehler (alle Strategien)`, () => {
       for (const [name, strategy] of Object.entries(strategien)) {
