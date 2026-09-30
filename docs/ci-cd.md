@@ -118,10 +118,16 @@ Trigger: `workflow_run` — startet nur, wenn `lint.yml` auf `main` erfolgreich 
 Ablauf:
 
 1. **`build-check`**: `npm ci` + `npm run build` (Frontend)
-2. **`deploy`**: SSH auf den Server, dort `scripts/deploy.sh`:
-   `git pull`, `docker compose -f docker-compose.prod.yml build`, `up -d`,
+2. **`deploy`**: prüft zuerst, ob `DEPLOY_HOST`, `DEPLOY_USER` und `DEPLOY_SSH_KEY`
+   gesetzt sind (Fehlermeldung nennt das fehlende Secret), dann SSH auf den Server,
+   dort `scripts/deploy.sh <head_sha>`: `git fetch`, Fast-Forward auf genau den von
+   `lint.yml` geprüften Commit (nur Commits auf `main`, nie rückwärts),
+   `docker compose -f docker-compose.prod.yml build`, `up -d`,
    Health-Gate gegen `/api/health`, bei Fehlschlag Rollback per `git reset --hard`
    auf den vorherigen Commit und erneutes `up -d`.
+
+`appleboy/ssh-action` ist auf einen Commit-SHA gepinnt, weil der Schritt den
+SSH-Key sieht.
 
 Es laufen **keine** Tests in `deploy.yml` — die Tests sind bereits Bedingung für den
 Start (grüner `lint.yml`).
