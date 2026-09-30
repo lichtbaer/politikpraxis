@@ -387,6 +387,29 @@ describe('checkKohlSabotage', () => {
     const result = checkKohlSabotage(state);
     expect(result.triggered).toBe(true);
     expect(result.lawId).toBe('test_law');
+    // #276: anrufende Fraktion für den Vermittlungsausschuss
+    expect(result.fraktionId).toBe('ostblock');
+  });
+
+  it('triggert nicht für ein Gesetz, das bereits im Vermittlungsausschuss liegt (#276)', () => {
+    const state = makeState({
+      bundesratFraktionen: [
+        makeFraktion({ id: 'ostblock', beziehung: 10, sonderregel: 'kohl_saboteur' }),
+      ],
+      gesetze: [makeLaw({ status: 'bt_passed', tags: ['land'] })],
+      vermittlungAktiv: { test_law: 15 },
+    });
+    expect(checkKohlSabotage(state).triggered).toBe(false);
+  });
+
+  it('triggert nur für Länder-Gesetze im Bundesratsverfahren', () => {
+    const state = makeState({
+      bundesratFraktionen: [
+        makeFraktion({ id: 'ostblock', beziehung: 10, sonderregel: 'kohl_saboteur' }),
+      ],
+      gesetze: [makeLaw({ status: 'bt_passed', tags: ['bund'] }), makeLaw({ id: 'l2', status: 'blockiert', tags: ['land'] })],
+    });
+    expect(checkKohlSabotage(state).triggered).toBe(false);
   });
 
   it('triggert nicht bei Beziehung >= 15', () => {

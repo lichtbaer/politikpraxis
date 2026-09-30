@@ -167,6 +167,19 @@ describe('validateGameState', () => {
     expect(validated.media?.klima).toBe(72);
     expect(validated.media?.klimaHistory).toEqual([72]);
   });
+
+  it('behält laufende Vermittlungsverfahren beim Speichern/Laden (#276)', () => {
+    const state: GameState = {
+      ...createInitialState(DEFAULT_CONTENT, 4),
+      vermittlungAktiv: { ee: 14, kita: 15 },
+      vermittlungAusgang: { ee: 'erfolg' },
+      vermittlungAnrufer: { kita: 'ostblock' },
+    };
+    const geladen = validateGameState(JSON.parse(JSON.stringify(state)));
+    expect(geladen.vermittlungAktiv).toEqual({ ee: 14, kita: 15 });
+    expect(geladen.vermittlungAusgang).toEqual({ ee: 'erfolg' });
+    expect(geladen.vermittlungAnrufer).toEqual({ kita: 'ostblock' });
+  });
 });
 
 describe('createInitialState', () => {

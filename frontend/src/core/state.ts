@@ -618,6 +618,8 @@ export function validateGameState(raw: unknown): GameState {
     'opposition', 'medienoffensiveGenutzt',
     'staedtebuendnisBisMonat', 'kommunalKonferenzJahr', 'vorstufeBonusMonate', 'lowApprovalMonths',
     'activeEventPool', 'unlockedLaws', 'pendingFollowups', 'lastRandomEventMonth',
+    // #276: laufende Vermittlungsverfahren (sonst hinge ein Gesetz nach dem Laden in 'eingebracht' fest)
+    'vermittlungAktiv', 'vermittlungAusgang', 'vermittlungAnrufer',
     'medienAkteure', 'medienAktionenGenutzt', 'medienAkteurBuffs',
     'ausgeloesteEvents',
     'konjunkturIndexHistory',

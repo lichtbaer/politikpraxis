@@ -1,23 +1,33 @@
 /**
  * Vermittlungsausschuss-Mechanik (Art. 77 GG).
  *
- * Wenn ein Gesetz im Bundesrat blockiert wird, kann der Spieler den
+ * Anrufung durch den Spieler (Bundesregierung): Wird ein Gesetz im Bundesrat
+ * blockiert (oder legt der Bundesrat Einspruch ein), kann der Spieler den
  * Vermittlungsausschuss einberufen (20 PK). Der Ausgang ist offen und wird
  * bei Einberufung ausgewürfelt, gekoppelt an die durchschnittliche Beziehung
  * zu den Bundesrats-Fraktionen und abgelehnte Trade-off-Angebote:
- * voller Erfolg (Originaleffekte), Kompromiss (50% Effekte, wie bisher) oder
- * Scheitern (Gesetz fällt zurück in die Bundesrat-Blockade, PK verloren).
+ * voller Erfolg (Originaleffekte), Kompromiss (50% Effekte) oder Scheitern
+ * (Bundesrat-Blockade bzw. Einspruch beim Einspruchsgesetz, PK verloren).
  * Nach 2 Monaten wird der vorab bestimmte Ausgang im Tick aufgelöst.
+ *
+ * Anrufung durch den Bundesrat (#276, z. B. Kohl-Sonderregel): Das Gesetz liegt
+ * noch zur Abstimmung im Bundesrat (`bt_passed`); die Abstimmung verschiebt sich
+ * um 2 Monate. Der Ausgang wird erst bei Fristende ausgewürfelt, damit die
+ * Reaktion des Spielers und Lobbying in der Zwischenzeit (Beziehungen) zählen.
+ * Einigung/Kompromiss → erneute Bundesratsabstimmung, Scheitern → Blockade bzw.
+ * Einspruch (vom Bundestag überstimmbar).
  */
-import type { GameState, LawEffects, ContentBundle } from '../../types';
+import type { GameState, Law, LawEffects, ContentBundle } from '../../types';
 import { addLog } from '../../engine';
 import { verbrauchePK } from '../../pk';
+import { withPause } from '../../eventPause';
 import { scheduleEffects } from '../economics/economy';
 import { applyGesetzKosten } from '../economics/haushalt';
 import { applyMilieuEffekte } from '../medien/milieus';
 import { setPolitikfeldBeschluss } from '../parliament/politikfeldDruck';
 import { checkProaktiveErfuellung } from '../kabinett/ministerAgenden';
 import { featureActive } from '../features';
+import { isEinspruchsgesetz } from '../institutions/bundesrat';
 import { applyGesetzMedienAkteureNachBeschluss } from '../medien/medienEvents';
 import { nextRandom } from '../../rng';
 
@@ -34,11 +44,17 @@ const VERMITTLUNG_PROB_BASIS = 0.15;
 const VERMITTLUNG_PROB_SPREAD = 0.6;
 /** Abzug auf den Beziehungs-Score je abgelehntem Trade-off-Angebot einer BR-Fraktion */
 const VERMITTLUNG_TRADEOFF_MALUS = 0.15;
+/**
+ * #276: Anteil der Beziehung zur anrufenden BR-Fraktion am Score, wenn der Bundesrat
+ * den Ausschuss selbst angerufen hat — wer anruft, muss für eine Einigung gewonnen werden.
+ */
+const VERMITTLUNG_ANRUFER_GEWICHT = 0.5;
 
 /**
  * Beziehungs-Score (0–1) als Basis für die Ausgangs-Chancen: Durchschnitt der
  * Fraktions-Beziehungen, abzüglich eines Malus je abgelehntem Trade-off-Angebot
- * für dieses Gesetz.
+ * für dieses Gesetz. Hat der Bundesrat den Ausschuss angerufen, geht die
+ * Beziehung zur anrufenden Fraktion zur Hälfte gesondert ein.
  */
 function berechneVermittlungsScore(state: GameState, lawId: string): number {
   const fraktionen = state.bundesratFraktionen ?? [];
@@ -50,8 +66,13 @@ function berechneVermittlungsScore(state: GameState, lawId: string): number {
     summe += f.beziehung;
     if (law?.lobbyFraktionen?.[f.id]?.tradeoffAblehnen) ablehnungen++;
   }
-  const avg = summe / fraktionen.length / 100;
-  return Math.max(0, Math.min(1, avg - ablehnungen * VERMITTLUNG_TRADEOFF_MALUS));
+  let basis = summe / fraktionen.length / 100;
+  const anruferId = state.vermittlungAnrufer?.[lawId];
+  const anrufer = anruferId != null ? fraktionen.find(f => f.id === anruferId) : undefined;
+  if (anrufer) {
+    basis = (1 - VERMITTLUNG_ANRUFER_GEWICHT) * basis + VERMITTLUNG_ANRUFER_GEWICHT * (anrufer.beziehung / 100);
+  }
+  return Math.max(0, Math.min(1, basis - ablehnungen * VERMITTLUNG_TRADEOFF_MALUS));
 }
 
 /**
@@ -171,6 +192,101 @@ export function vermittlungsausschuss(state: GameState, lawId: string, complexit
   );
 }
 
+/**
+ * #276 AC3: Der Bundesrat ruft von sich aus den Vermittlungsausschuss an (Art. 77 Abs. 2 GG),
+ * z. B. über die Kohl-Sonderregel. Nur für Gesetze, die noch auf die Bundesratsabstimmung
+ * warten (`bt_passed`). Keine PK-Kosten für den Spieler; die Abstimmung verschiebt sich um
+ * {@link VERMITTLUNG_DELAY_MONATE} Monate auf das Fristende. Der Ausgang wird bewusst erst
+ * dann ausgewürfelt (siehe {@link tickVermittlungsausschuss}).
+ *
+ * Feature-Gating: Aufrufer ist `checkBundesratEvents` (Feature `bundesrat_sichtbar`,
+ * ab Stufe 2 — dieselbe Stufe wie `vermittlungsausschuss`).
+ */
+export function bundesratRuftVermittlungAn(state: GameState, lawId: string, fraktionId: string): GameState {
+  const law = state.gesetze.find(g => g.id === lawId);
+  if (!law || law.status !== 'bt_passed') return state;
+  if (state.vermittlungAktiv?.[lawId] != null) return state;
+
+  const frist = Math.max(state.month, law.brVoteMonth ?? state.month) + VERMITTLUNG_DELAY_MONATE;
+  const gesetze = state.gesetze.map(g => (g.id === lawId ? { ...g, brVoteMonth: frist } : g));
+  const anrufer = state.bundesratFraktionen.find(f => f.id === fraktionId)?.name ?? fraktionId;
+
+  return addLog(
+    {
+      ...state,
+      gesetze,
+      vermittlungAktiv: { ...(state.vermittlungAktiv ?? {}), [lawId]: frist },
+      vermittlungAnrufer: { ...(state.vermittlungAnrufer ?? {}), [lawId]: fraktionId },
+    },
+    'game:bundesrat.logVermittlungAngerufen',
+    'r',
+    { anrufer, gesetz: law.kurz, monate: frist - state.month },
+  );
+}
+
+/**
+ * Gescheiterte Vermittlung: Beim Einspruchsgesetz legt der Bundesrat Einspruch ein
+ * (vom Bundestag mit absoluter Mehrheit überstimmbar, #278), sonst bleibt/wird das
+ * Gesetz im Bundesrat blockiert (Zustimmungsgesetz).
+ */
+function nachGescheiterterVermittlung(law: Law, einspruch: boolean): Law {
+  return einspruch
+    ? { ...law, status: 'br_einspruch', blockiert: null, brEinspruchEingelegt: true }
+    : { ...law, status: 'blockiert', blockiert: 'bundesrat' };
+}
+
+function istEinspruchAktiv(law: Law, complexity: number | undefined): boolean {
+  return featureActive(complexity ?? 4, 'einspruch_vs_zustimmung') && isEinspruchsgesetz(law);
+}
+
+/**
+ * #276 AC3: Löst eine vom Bundesrat angerufene Vermittlung auf. Der Ausgang wird erst jetzt
+ * ausgewürfelt — auf Basis der aktuellen Beziehungen inkl. der anrufenden Fraktion.
+ * Einigung (voll oder als Kompromiss mit halben Effekten) → das Gesetz geht erneut in den
+ * Bundesrat, die Abstimmung folgt noch in diesem Monat. Scheitern → Blockade bzw. Einspruch.
+ */
+function loeseBundesratVermittlungAuf(
+  state: GameState,
+  lawIdx: number,
+  anruferId: string,
+  complexity: number | undefined,
+): GameState {
+  const law = state.gesetze[lawIdx];
+  // Gesetz hat das Bundesratsverfahren inzwischen anders verlassen → Verfahren erledigt sich
+  if (law.status !== 'bt_passed') return state;
+  const ausgang = wuerfleVermittlungsAusgang(berechneVermittlungsChancen(state, law.id));
+  const params = {
+    gesetz: law.kurz,
+    anrufer: state.bundesratFraktionen.find(f => f.id === anruferId)?.name ?? anruferId,
+  };
+
+  if (ausgang === 'scheitern') {
+    const einspruch = istEinspruchAktiv(law, complexity);
+    const gesetze = state.gesetze.map((g, i) => (i === lawIdx ? nachGescheiterterVermittlung(g, einspruch) : g));
+    return addLog(
+      { ...state, gesetze, ...withPause(state) },
+      einspruch ? 'game:bundesrat.logVermittlungGescheitertEinspruch' : 'game:bundesrat.logVermittlungGescheitert',
+      'r',
+      params,
+    );
+  }
+
+  const kompromiss = ausgang === 'kompromiss';
+  const gesetze = state.gesetze.map((g, i) => {
+    if (i !== lawIdx) return g;
+    const neu = { ...g, brVoteMonth: state.month };
+    return kompromiss
+      ? { ...neu, effekte: reduziereEffekte(g.effekte), wirkungFaktor: (g.wirkungFaktor ?? 1) * EFFEKT_FAKTOR }
+      : neu;
+  });
+  return addLog(
+    { ...state, gesetze },
+    kompromiss ? 'game:bundesrat.logVermittlungKompromiss' : 'game:bundesrat.logVermittlungEinigung',
+    'g',
+    params,
+  );
+}
+
 /** Reduziert Law-Effekte um Faktor (für vermitteltes Gesetz) */
 function reduziereEffekte(effekte: LawEffects): LawEffects {
   const result: LawEffects = {};
@@ -184,7 +300,10 @@ function reduziereEffekte(effekte: LawEffects): LawEffects {
 
 /**
  * Tick-Check: Vermittlungsausschuss abschließen wenn Frist erreicht.
- * Wird im Engine-Tick aufgerufen.
+ * Wird im Engine-Tick (Phase 2, vor den Bundesratsabstimmungen in Phase 4) aufgerufen:
+ * Vom Spieler angerufene Verfahren enden mit dem vorab gewürfelten Ausgang (Beschluss
+ * oder Scheitern), vom Bundesrat angerufene würfeln jetzt und gehen bei Einigung noch im
+ * selben Monat erneut in die Bundesratsabstimmung.
  */
 export function tickVermittlungsausschuss(
   state: GameState,
@@ -200,19 +319,27 @@ export function tickVermittlungsausschuss(
 
   let s = state;
   const verbleibend: Record<string, number> = {};
-
   const ausgangVerbleibend: Record<string, VermittlungAusgang> = {};
+  const anruferVerbleibend: Record<string, string> = {};
 
   for (const [lawId, fristMonat] of Object.entries(aktiv)) {
+    const anruferId = s.vermittlungAnrufer?.[lawId];
     if (s.month < fristMonat) {
       verbleibend[lawId] = fristMonat;
       const bestehenderAusgang = s.vermittlungAusgang?.[lawId];
       if (bestehenderAusgang) ausgangVerbleibend[lawId] = bestehenderAusgang;
+      if (anruferId != null) anruferVerbleibend[lawId] = anruferId;
       continue;
     }
 
     const lawIdx = s.gesetze.findIndex(g => g.id === lawId);
     if (lawIdx === -1) continue;
+
+    // #276 AC3: Vom Bundesrat angerufen → Ausgang erst jetzt würfeln, danach erneute BR-Abstimmung
+    if (anruferId != null) {
+      s = loeseBundesratVermittlungAuf(s, lawIdx, anruferId, context?.complexity);
+      continue;
+    }
 
     const law = s.gesetze[lawIdx];
     // Fehlender Eintrag (z.B. Spielstand vor SMA-276) -> 'kompromiss' als bisheriges Standardverhalten
@@ -220,16 +347,17 @@ export function tickVermittlungsausschuss(
     const akteure = bestimmeVermittlungsAkteure(s, lawId);
 
     if (ausgang === 'scheitern') {
-      // Vermittlung gescheitert: Gesetz fällt zurück in die Bundesrat-Blockade, keine Effekte/Kosten.
-      const gesetze = s.gesetze.map((g, i) =>
-        i === lawIdx ? { ...g, status: 'blockiert' as const, blockiert: 'bundesrat' as const } : g,
-      );
+      // Vermittlung gescheitert, keine Effekte/Kosten: Zustimmungsgesetz fällt zurück in die
+      // Bundesrat-Blockade, beim Einspruchsgesetz bleibt der Einspruch (überstimmbar) bestehen.
+      const einspruch = istEinspruchAktiv(law, context?.complexity);
+      const gesetze = s.gesetze.map((g, i) => (i === lawIdx ? nachGescheiterterVermittlung(g, einspruch) : g));
       s = { ...s, gesetze };
       s = addLog(s, formatiereVermittlungsLog('scheitern', law.kurz, akteure), 'r');
       continue;
     }
 
-    const wirkungFaktor = ausgang === 'erfolg' ? 1 : EFFEKT_FAKTOR;
+    // Faktor multiplikativ: ein bereits (z. B. durch eine BR-Vermittlung) verwässertes Gesetz bleibt verwässert
+    const wirkungFaktor = (law.wirkungFaktor ?? 1) * (ausgang === 'erfolg' ? 1 : EFFEKT_FAKTOR);
     const vermittelteEffekte = ausgang === 'erfolg' ? law.effekte : reduziereEffekte(law.effekte);
 
     const gesetze = s.gesetze.map((g, i) =>
@@ -267,6 +395,7 @@ export function tickVermittlungsausschuss(
     ...s,
     vermittlungAktiv: Object.keys(verbleibend).length > 0 ? verbleibend : undefined,
     vermittlungAusgang: Object.keys(ausgangVerbleibend).length > 0 ? ausgangVerbleibend : undefined,
+    vermittlungAnrufer: Object.keys(anruferVerbleibend).length > 0 ? anruferVerbleibend : undefined,
   };
   return s;
 }

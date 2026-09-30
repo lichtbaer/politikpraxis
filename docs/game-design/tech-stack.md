@@ -66,7 +66,7 @@ Das folgende Schema ist eine **inhaltliche Übersicht** (keine vollständige API
 ### Bundesrat & Länder
 
 - `bundesrat` (Länderliste), `bundesratFraktionen`, `landBeziehungen`, `pendingBundesratLandEvent`
-- `vermittlungAktiv` (Vermittlungsausschuss)
+- `vermittlungAktiv`, `vermittlungAusgang`, `vermittlungAnrufer` (Vermittlungsausschuss: Frist, vorab gewürfelter Ausgang bei Spieler-Anrufung, anrufende BR-Fraktion bei Bundesrats-Anrufung)
 
 ### EU, Haushalt, Wirtschaft
 

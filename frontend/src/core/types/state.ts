@@ -387,6 +387,11 @@ export interface GameState {
   vermittlungAktiv?: Record<string, number>;
   /** Vorab ermittelter Ausgang je Gesetz-ID (SMA-276); fehlt ein Eintrag (z.B. alte Spielstände), gilt 'kompromiss' als Default */
   vermittlungAusgang?: Record<string, 'erfolg' | 'kompromiss' | 'scheitern'>;
+  /**
+   * #276: Vom Bundesrat angerufene Vermittlungsverfahren — Gesetz-ID → ID der anrufenden
+   * BR-Fraktion. Für diese Verfahren wird der Ausgang erst bei Fristende ausgewürfelt.
+   */
+  vermittlungAnrufer?: Record<string, string>;
   letzteRegierungserklaerungMonat?: number;
   vertrauensfrageGestellt?: boolean;
   sachverstaendigenrat?: {

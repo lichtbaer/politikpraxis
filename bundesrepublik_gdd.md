@@ -327,7 +327,7 @@ Eigene Events alle 5–8 Monate (zufällig aus Pool):
 |-------|----------|--------|
 | Länderfinanzausgleich-Streit | alle 12 Mo. fix | Fraktion 2+4 fordern Neuverteilung — Kosten oder Zustimmungsverlust |
 | Landtagswahl kippt Fraktion | zufällig, ab Mo. 10 | Ein Land wechselt die Regierungspartei und Landeskoalition (→ Koalitionsklausel/Enthaltung), Beziehungswert zurückgesetzt |
-| Kohl eskaliert (Sondersitzung) | Beziehung Kohl < 15 | Vermittlungsausschuss wird beantragt — Gesetz verzögert 2 Monate |
+| Kohl eskaliert (Sondersitzung) | Beziehung Kohl < 15 | Der Bundesrat ruft den Vermittlungsausschuss an — Abstimmung verzögert 2 Monate, Ausgang offen (Einigung → erneute BR-Abstimmung, Scheitern → Blockade bzw. Einspruch) |
 | Sprecher-Wechsel | zufällig, ~20% nach Mo. 24 | Neuer Charakter mit anderen Interessen ersetzt Sprecher |
 | Bundesrat-Initiative | Fraktion 3 oder 4 | Länder bringen eigenes Gesetz ein — Spieler muss reagieren |
 | Föderalismusgipfel | alle 18 Mo. fix | Alle 4 Sprecher gleichzeitig — Sammel-Lobbying möglich |

@@ -11,6 +11,8 @@ import { startKommunalPilot } from '../legislation/gesetzLebenszyklus';
 import { applyVorbildBonus } from '../legislation/gesetzLebenszyklus';
 import { resolveTVDuell, applyWahlkampfThema, applyWahlkampfZwischenbilanz } from '../election/wahlkampf';
 import { setNormenkontrollReaktion } from '../institutions/verfassungsgericht';
+import { checkKohlSabotage } from '../institutions/bundesrat';
+import { bundesratRuftVermittlungAn } from '../legislation/vermittlung';
 import { applyMedienChoiceDelta } from '../medien/medienEvents';
 import { adjustMedienKlimaGlobal } from '../medien/medienAkteure';
 import { applyMilieuDelta } from './dynamischeEvents';
@@ -69,6 +71,31 @@ function applyLandtagswahlKoalition(state: GameState, event: GameEvent): GameSta
       land: land.name,
       partei: regierungPartei,
     });
+}
+
+/**
+ * #276: Beziehungs-Deltas der Reaktion auf Kohls Vermittlungsantrag (Choice-Key → Delta für die
+ * anrufende Fraktion). Die Optionen versprechen „Beziehung Kohl verbessern" / „sinkt weiter",
+ * der DB-Content trägt dafür aber kein `br_relation_json`. Weil die Beziehung jetzt den Ausgang
+ * des vom Bundesrat angerufenen Vermittlungsausschusses mitbestimmt, gelten die Werte des
+ * Fallback-Contents (bundesratEvents.ts) — nur wenn die Option selbst kein Delta mitbringt.
+ */
+const KOHL_REAKTION_BEZIEHUNG = new Map<string, number>([
+  ['kooperieren', 8],
+  ['oeffentlich_kritisieren_kohl', -10],
+]);
+
+function applyKohlReaktion(state: GameState, event: GameEvent, choice: EventChoice): GameState {
+  const fraktionId = event.fraktionId ?? 'ostblock';
+  if (choice.brRelation?.[fraktionId] != null || choice.brRelationJson?.[fraktionId] != null) return state;
+  const delta = choice.key != null ? KOHL_REAKTION_BEZIEHUNG.get(choice.key) : undefined;
+  if (delta == null) return state;
+  return {
+    ...state,
+    bundesratFraktionen: state.bundesratFraktionen.map(f =>
+      f.id === fraktionId ? { ...f, beziehung: clamp(f.beziehung + delta, 0, 100) } : f,
+    ),
+  };
 }
 
 /** Sprecher-Wechsel: Neuen Sprecher einsetzen, Beziehung -15 */
@@ -185,29 +212,24 @@ export function checkBundesratEvents(
     }
   }
 
-  // 3. Konditionell: Kohl eskaliert (Beziehung < 15, laufendes Gesetz)
-  const kohl = state.bundesratFraktionen.find(f => f.id === 'ostblock' && f.sonderregel === 'kohl_saboteur');
-  if (kohl && kohl.beziehung < 15) {
-    const btPassedLaws = state.gesetze.filter(
-      g => g.status === 'bt_passed' && g.tags.includes('land') && !g.kohlSabotageTriggered,
-    );
-    if (btPassedLaws.length > 0) {
-      const ev = bundesratEvents.find(e => e.id === 'kohl_eskaliert');
-      if (ev) {
-        const law = btPassedLaws[0];
-        const gesetze = state.gesetze.map(g =>
-          g.id === law.id
-            ? { ...g, kohlSabotageTriggered: true, brVoteMonth: (g.brVoteMonth ?? state.month) + 2 }
-            : g,
-        );
-        return {
-          ...state,
-          gesetze,
-          firedBundesratEvents: [...fired, 'kohl_eskaliert'],
-          activeEvent: { ...ev, lawId: law.id },
-          ...withPause(state, getAutoPauseLevel(ev)),
-        };
-      }
+  // 3. Konditionell: Kohl eskaliert (Beziehung < 15, laufendes Gesetz) — der Bundesrat
+  //    ruft den Vermittlungsausschuss an (#276 AC3); die Abstimmung verschiebt sich um 2 Monate.
+  const kohl = checkKohlSabotage(state);
+  if (kohl.triggered && kohl.lawId && kohl.fraktionId) {
+    const ev = bundesratEvents.find(e => e.id === 'kohl_eskaliert');
+    if (ev) {
+      const lawId = kohl.lawId;
+      const mitVermittlung = bundesratRuftVermittlungAn(state, lawId, kohl.fraktionId);
+      const gesetze = mitVermittlung.gesetze.map(g =>
+        g.id === lawId ? { ...g, kohlSabotageTriggered: true } : g,
+      );
+      return {
+        ...mitVermittlung,
+        gesetze,
+        firedBundesratEvents: [...fired, 'kohl_eskaliert'],
+        activeEvent: { ...ev, lawId, fraktionId: kohl.fraktionId },
+        ...withPause(state, getAutoPauseLevel(ev)),
+      };
     }
   }
 
@@ -784,6 +806,9 @@ export function resolveEvent(
   }
   if (event.id === 'sprecher_wechsel' && event.fraktionId && event.sprecherErsatz) {
     s = applySprecherWechselEffect(s, event);
+  }
+  if (event.id === 'kohl_eskaliert') {
+    s = applyKohlReaktion(s, event, choice);
   }
 
   s = applyKoalitionspartnerDelta(s, choice);

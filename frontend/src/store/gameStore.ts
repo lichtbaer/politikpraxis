@@ -730,7 +730,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(prev => {
       const next = vermittlungsausschuss(prev.state, lawId, prev.complexity);
       if (next !== prev.state) {
-        toast('Vermittlungsausschuss einberufen — Kompromiss in 2 Monaten', 'info');
+        toast('Vermittlungsausschuss einberufen — Ausgang offen, Ergebnis in 2 Monaten', 'info');
       }
       return next !== prev.state ? { state: next } : {};
     }),
