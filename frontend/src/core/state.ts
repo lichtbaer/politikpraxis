@@ -728,6 +728,21 @@ export function migrateGameState(state: GameState): GameState {
       };
     }
   }
+  // Grüne: Schlüsselthemen sind Politikfelder statt der Gesetz-IDs 'ee'/'bp' — erfüllte
+  // Themen alter Spielstände übertragen.
+  if (result.koalitionspartner?.id === 'gp' || (result.koalitionspartner?.id as string) === 'gruene') {
+    const alt: Record<string, string> = { ee: 'umwelt_energie', bp: 'bildung_forschung' };
+    const erfuellt = result.koalitionspartner!.schluesselthemenErfuellt ?? [];
+    if (erfuellt.some((t) => t in alt)) {
+      result = {
+        ...result,
+        koalitionspartner: {
+          ...result.koalitionspartner!,
+          schluesselthemenErfuellt: [...new Set(erfuellt.map((t) => alt[t] ?? t))],
+        },
+      };
+    }
+  }
   if ((result.koalitionspartner?.id as string) === 'gruene') {
     const kp = result.koalitionspartner!;
     result = {

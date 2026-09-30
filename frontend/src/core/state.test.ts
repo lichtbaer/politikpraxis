@@ -210,6 +210,15 @@ describe('createInitialState', () => {
 });
 
 describe('migrateGameState', () => {
+  it('überträgt erfüllte Grünen-Schlüsselthemen von Gesetz-IDs auf Politikfelder', () => {
+    const base = createInitialState(DEFAULT_CONTENT, 2);
+    const migrated = migrateGameState({
+      ...base,
+      koalitionspartner: { id: 'gp', beziehung: 50, koalitionsvertragScore: 0, schluesselthemenErfuellt: ['ee', 'bp'] },
+    });
+    expect(migrated.koalitionspartner?.schluesselthemenErfuellt).toEqual(['umwelt_energie', 'bildung_forschung']);
+  });
+
   const baseState = createInitialState(DEFAULT_CONTENT, 4);
 
   it('befüllt media aus flachen Feldern wenn nicht vorhanden', () => {
