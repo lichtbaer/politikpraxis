@@ -1,5 +1,6 @@
 import type { GameEvent } from '../../types';
 import { nextRandom } from '../../rng';
+import { fortsetzungsZiele, istEigenstaendigesEvent } from './eventUtils';
 
 /** Anteil der Events die pro Durchlauf ausgewählt werden */
 const POOL_RATIO = 0.65;
@@ -27,4 +28,14 @@ export function selectEventPool(events: GameEvent[]): string[] {
     ...alwaysInclude.map(e => e.id),
     ...selected.map(e => e.id),
   ];
+}
+
+/**
+ * Nur Events, die eigenständig gezogen werden können. Fortsetzungen (Arc-Stufen,
+ * Follow-up-Ziele) gehören nicht in die Pool-Auswahl — sonst belegten sie Plätze
+ * im 65-%-Subset, ohne je ziehbar zu sein; erreicht werden sie über den Follow-up.
+ */
+export function eigenstaendigeEvents(events: GameEvent[]): GameEvent[] {
+  const ziele = fortsetzungsZiele(events);
+  return events.filter(e => istEigenstaendigesEvent(e, ziele));
 }

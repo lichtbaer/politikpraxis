@@ -61,6 +61,10 @@ export interface EventChoice {
   haushaltSaldoDeltaMrd?: number;
   /** SMA-404: Sektorzustand 0–100 relativ */
   sektorDelta?: Record<string, number>;
+  /** EU-Ereignis: EU-Klima im Politikfeld relativ (0–100) */
+  euKlima?: { feldId: string; delta: number };
+  /** EU-Ereignis: Kofinanzierungsanteil der Umsetzung (0–1) */
+  kofinanzierung?: number;
 }
 
 export interface GameEvent {

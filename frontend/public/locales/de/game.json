@@ -3225,5 +3225,8 @@
     "reichtNicht": "Mehrheit fehlt",
     "schwelle": "Mehrheit ab {{schwelle}} %",
     "balkenAria": "Abstimmung: {{ja}} Ja, {{nein}} Nein — {{prozent}} Prozent Zustimmung bei einer Mehrheitsschwelle von {{schwelle}} Prozent. {{status}}."
+  },
+  "euEreignis": {
+    "typeLabel": "Europäische Union"
   }
 }

@@ -113,10 +113,13 @@ Der Service **certbot** im Compose-Stack führt regelmäßig `certbot renew` aus
 ## Manuelles Deployment
 
 ```bash
-PP_ROOT=/opt/politikpraxis /opt/politikpraxis/scripts/deploy.sh
+PP_ROOT=/opt/politikpraxis /opt/politikpraxis/scripts/deploy.sh            # aktueller Stand von origin/main
+PP_ROOT=/opt/politikpraxis /opt/politikpraxis/scripts/deploy.sh <commit>   # bestimmter Commit (40-stelliger SHA)
 ```
 
-Das Skript (`scripts/deploy.sh`) übernimmt `git pull`, `docker compose config`-Validierung, Build, `up -d --remove-orphans`, einen Post-Deploy-Healthcheck gegen `/api/health` (mit Retries) sowie automatischen Rollback auf den vorherigen Commit, falls der Healthcheck fehlschlägt. Bei Rollback endet das Skript trotzdem mit Exit-Code `1`, damit ein fehlgeschlagener Deploy sichtbar bleibt (kein stiller Fallback).
+Das Skript (`scripts/deploy.sh`) übernimmt `git fetch` und einen Fast-Forward auf den Ziel-Commit, `docker compose config`-Validierung, Build, `up -d --remove-orphans`, einen Post-Deploy-Healthcheck gegen `/api/health` (mit Retries) sowie automatischen Rollback auf den vorherigen Commit, falls der Healthcheck fehlschlägt. Bei Rollback endet das Skript trotzdem mit Exit-Code `1`, damit ein fehlgeschlagener Deploy sichtbar bleibt (kein stiller Fallback).
+
+Ziel-Commit: erstes Argument, sonst `DEPLOY_SHA`, sonst ein SHA in `SSH_ORIGINAL_COMMAND` (Forced-Command-Key, s. u.), sonst `origin/main`. Das Skript deployt nur Commits, die auf `origin/main` liegen, und spult ausschließlich vorwärts (`git merge --ff-only`): Ein verspäteter Lauf für einen älteren Commit ist ein No-op statt eines Rückschritts, eine divergierte Server-Kopie bricht laut ab.
 
 Relevante Umgebungsvariablen (alle optional, mit sinnvollen Defaults): `PP_ROOT` (Projektverzeichnis), `COMPOSE_FILE` (Default `docker-compose.prod.yml`), `HEALTH_RETRIES` (Default `10`), `HEALTH_DELAY` in Sekunden zwischen Versuchen (Default `3`).
 
@@ -124,7 +127,9 @@ Relevante Umgebungsvariablen (alle optional, mit sinnvollen Defaults): `PP_ROOT`
 
 Workflow: `.github/workflows/deploy.yml`
 
-- Bei Push auf **main**: Backend-Tests (`pytest`), Frontend-Build (`npm run build`), danach SSH-Deploy auf den Server via `scripts/deploy.sh` (siehe oben).
+- Startet erst, wenn `lint.yml` auf **main** grün ist (Tests, Lint, Security-Scans laufen dort, nicht im Deploy-Workflow).
+- Ablauf: Frontend-Build als Plausibilitätscheck, Prüfung der Deploy-Secrets, dann SSH-Deploy via `scripts/deploy.sh` mit genau dem Commit, den `lint.yml` geprüft hat (`workflow_run.head_sha`).
+- Fehlt eines der Secrets unten, schlägt der Schritt „Check deploy secrets“ mit dem Namen des fehlenden Secrets fehl.
 
 ---
 
@@ -168,6 +173,8 @@ Der `DEPLOY_SSH_KEY` sollte **minimale Rechte** haben:
    ```
    command="/opt/politikpraxis/scripts/deploy.sh",no-pty,no-port-forwarding,no-agent-forwarding,no-X11-forwarding ssh-ed25519 AAAA...
    ```
+
+   Mit Forced Command führt der Server **nicht** das `script:` aus `deploy.yml` aus, sondern immer `deploy.sh`. Der zu deployende Commit kommt dann über `SSH_ORIGINAL_COMMAND` an (die Action sendet ihn als `DEPLOY_SHA`); `deploy.sh` liest ihn dort aus. Der Bootstrap-Zweig im Workflow (`git pull`, falls `deploy.sh` fehlt) greift in diesem Modus nicht — `deploy.sh` muss vor dem Umstellen auf Forced Command einmal auf dem Server liegen.
 
 4. **Deploy-Script:** Das Skript `scripts/deploy.sh` ist im Repo versioniert (Pull, Compose-Validierung, Build, Healthcheck-Gate, Rollback — siehe [Manuelles Deployment](#manuelles-deployment)) und muss nicht mehr manuell auf dem Server angelegt werden. Rechte setzen: `chmod 750 /opt/politikpraxis/scripts/deploy.sh`.
 

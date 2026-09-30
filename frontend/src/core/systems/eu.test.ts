@@ -7,7 +7,8 @@ import {
   getRatsvorsitzModifikator,
   initEUKlima,
 } from './eu';
-import type { GameState, Law, ContentBundle, Verband } from '../types';
+import { seedRng, nextRandom } from '../rng';
+import type { GameState, Law, ContentBundle, Verband, EUEventContent } from '../types';
 
 function createMockState(overrides: Partial<GameState> = {}): GameState {
   const gesetz: Law = {
@@ -242,5 +243,85 @@ describe('initEUKlima', () => {
     const result = initEUKlima(state, content, 3);
     expect(result.eu?.klima).toBeDefined();
     expect(Object.keys(result.eu!.klima).length).toBeGreaterThan(0);
+  });
+});
+
+describe('checkEUEreignisse mit geladenen EU-Events', () => {
+  const baseContent: ContentBundle = {
+    characters: [],
+    events: [],
+    charEvents: {},
+    bundesratEvents: [],
+    laws: [],
+    bundesrat: [],
+    bundesratFraktionen: [],
+    milieus: [],
+    politikfelder: [],
+    verbaende: [],
+    scenario: { id: 's1', name: 'Test', startMonth: 1, startPK: 100, startKPI: { al: 5, hh: 0, gi: 50, zf: 50 }, startCoalition: 70 },
+  };
+
+  function euEvent(id: string, event_type: string): EUEventContent {
+    return {
+      id,
+      politikfeld_id: 'umwelt_energie',
+      trigger_klima_min: null,
+      min_complexity: 3,
+      event_type,
+      event: {
+        id,
+        type: 'info',
+        icon: 'eu',
+        typeLabel: 'Europäische Union',
+        title: `Titel ${id}`,
+        quote: '',
+        context: '',
+        ticker: '',
+        choices: [{ label: 'OK', desc: '', cost: 0, type: 'primary', effect: {}, log: 'ok' }],
+      },
+    };
+  }
+
+  /** Erster Seed, dessen erster nextRandom()-Wert unter `grenze` liegt. */
+  function seedMitErstemWertUnter(grenze: number): number {
+    for (let seed = 1; seed < 10_000; seed++) {
+      seedRng(seed);
+      if (nextRandom() < grenze) return seed;
+    }
+    throw new Error('kein passender Seed');
+  }
+
+  const content: ContentBundle = {
+    ...baseContent,
+    euEvents: [euEvent('europawahl', 'fix'), euEvent('eu_rl_klima', 'reaktiv_richtlinie')],
+  };
+
+  it('Europawahl wird in Monat 12 ein echtes Ereignis statt eines Protokolleintrags', () => {
+    const result = checkEUEreignisse(createMockState({ month: 12 }), content, 4);
+    expect(result.activeEvent?.id).toBe('europawahl');
+    expect(result.firedEvents).toContain('europawahl');
+  });
+
+  it('verschiebt die Europawahl, solange ein anderes Ereignis offen ist', () => {
+    const offen = { id: 'anderes', type: 'info' as const, icon: 'info', typeLabel: '', title: '', quote: '', context: '', ticker: '', choices: [] };
+    const blockiert = checkEUEreignisse(createMockState({ month: 12, activeEvent: offen }), content, 4);
+    expect(blockiert.activeEvent?.id).toBe('anderes');
+    expect(blockiert.firedEvents).not.toContain('europawahl');
+
+    const spaeter = checkEUEreignisse({ ...blockiert, month: 13, activeEvent: null }, content, 4);
+    expect(spaeter.activeEvent?.id).toBe('europawahl');
+  });
+
+  it('zieht fest getaktete Events (Europawahl) nie zufällig', () => {
+    seedRng(seedMitErstemWertUnter(0.08)); // Zufalls-EU-Event feuert
+    const result = checkEUEreignisse(createMockState({ month: 5 }), content, 4);
+    expect(result.activeEvent?.id).toBe('eu_rl_klima');
+    expect(result.firedEvents).not.toContain('europawahl');
+  });
+
+  it('bleibt ohne spielbares Event beim Protokolleintrag', () => {
+    const result = checkEUEreignisse(createMockState({ month: 12 }), baseContent, 4);
+    expect(result.activeEvent).toBeNull();
+    expect(result.firedEvents).toContain('europawahl');
   });
 });

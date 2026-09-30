@@ -1,7 +1,8 @@
 /**
  * EU-Engine (SMA-269): Klima-System, 3-Phasen-Ausweichroute, reaktive Richtlinien, Ratsvorsitz.
  */
-import type { GameState, Verband, ContentBundle } from '../types';
+import type { GameState, Verband, ContentBundle, EUEventContent } from '../types';
+import { withPause, getAutoPauseLevel } from '../eventPause';
 import { addLog } from '../log';
 import { verbrauchePK } from '../pk';
 import { featureActive } from './features';
@@ -381,11 +382,20 @@ export function setRatsvorsitzPrioritaeten(
   };
 }
 
-function triggerEUEvent(state: GameState, eventId: string): GameState {
-  return addLog(state, `EU-Event: ${eventId}`, 'info');
+/**
+ * Löst ein EU-Ereignis aus. Mit Content wird es ein normales Ereignis mit Auswahl
+ * (gleiche Karte, gleiche Auflösung wie Zufallsereignisse); ohne Content — etwa
+ * `ratsvorsitz_beginn` oder offline — bleibt es beim Protokolleintrag.
+ * Gibt `null` zurück, wenn gerade ein anderes Ereignis offen ist: dann nächsten Monat erneut.
+ */
+function triggerEUEvent(state: GameState, eventId: string, content: ContentBundle): GameState | null {
+  const event = getEUEventsPool(content).find(e => e.id === eventId)?.event;
+  if (!event) return addLog(state, `EU-Event: ${eventId}`, 'info');
+  if (state.activeEvent) return null;
+  return { ...state, activeEvent: event, ...withPause(state, getAutoPauseLevel(event)) };
 }
 
-function getEUEventsPool(content: ContentBundle): { id: string; politikfeld_id: string | null; trigger_klima_min: number | null; min_complexity: number }[] {
+function getEUEventsPool(content: ContentBundle): EUEventContent[] {
   return content.euEvents ?? [];
 }
 
@@ -433,16 +443,16 @@ export function checkEUEreignisse(
 
   const fired = s.firedEvents ?? [];
 
-  // Europawahl: fix in Monat 12
-  if (s.month === 12 && !fired.includes('europawahl')) {
-    s = triggerEUEvent(s, 'europawahl');
-    s = { ...s, firedEvents: [...s.firedEvents, 'europawahl'] };
+  // Europawahl: fix ab Monat 12 (später, falls in Monat 12 ein anderes Ereignis offen ist)
+  if (s.month >= 12 && !fired.includes('europawahl')) {
+    const next = triggerEUEvent(s, 'europawahl', content);
+    if (next) s = { ...next, firedEvents: [...next.firedEvents, 'europawahl'] };
   }
 
   // Ratsvorsitz: Start in Monat 6 oder 30 (beim Init zufällig)
   if (s.eu!.ratsvorsitzStartMonat > 0 && s.month === s.eu!.ratsvorsitzStartMonat && !s.eu!.ratsvorsitz) {
     s = { ...s, eu: { ...s.eu!, ratsvorsitz: true } };
-    s = triggerEUEvent(s, 'ratsvorsitz_beginn');
+    s = triggerEUEvent(s, 'ratsvorsitz_beginn', content) ?? s;
   }
   if (s.eu!.ratsvorsitz && s.eu!.ratsvorsitzStartMonat > 0 && s.month === s.eu!.ratsvorsitzStartMonat + 6) {
     s = { ...s, eu: { ...s.eu!, ratsvorsitz: false } };
@@ -451,7 +461,8 @@ export function checkEUEreignisse(
 
   // Random EU-Events
   if (featureActive(complexity, 'eu_events_voll') && nextRandom() < 0.08) {
-    const pool = getEUEventsPool(content);
+    // Fest getaktete EU-Ereignisse (Europawahl) nie zufällig ziehen
+    const pool = getEUEventsPool(content).filter(e => e.event_type !== 'fix');
     const eligible = pool.filter(
       e =>
         !s.firedEvents.includes(e.id) &&
@@ -461,8 +472,8 @@ export function checkEUEreignisse(
     );
     if (eligible.length > 0) {
       const event = eligible[Math.floor(nextRandom() * eligible.length)];
-      s = triggerEUEvent(s, event.id);
-      s = { ...s, firedEvents: [...s.firedEvents, event.id] };
+      const next = triggerEUEvent(s, event.id, content);
+      if (next) s = { ...next, firedEvents: [...next.firedEvents, event.id] };
     }
   }
 
