@@ -79,6 +79,10 @@ export interface GameEvent {
   landId?: string;
   landName?: string;
   landtagswahlToFraktion?: string;
+  /** #275: Neue Landesregierung nach der Landtagswahl (beim Auslösen gezogen) */
+  landtagswahlKoalition?: string[];
+  /** #275: Profil-Kürzel der neuen Regierungspartei */
+  landtagswahlRegierungPartei?: string;
   sprecherErsatz?: { name: string; partei: string; land: string; initials: string; color: string; bio: string; quote?: string };
   politikfeldId?: string | null;
   triggerDruckMin?: number | null;

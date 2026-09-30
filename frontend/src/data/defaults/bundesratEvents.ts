@@ -1,4 +1,4 @@
-import type { GameEvent } from '../../core/types';
+import type { GameEvent, LandtagswahlTransition } from '../../core/types';
 
 /** Bundesrat-spezifische Events — eigener Pool, getrennt von RANDOM_EVENTS */
 export const BUNDESRAT_EVENTS: GameEvent[] = [
@@ -237,18 +237,35 @@ export const SPRECHER_ERSATZ: Record<
   },
 };
 
-/** Mögliche Landtagswahl-Übergänge: Land wechselt von Fraktion A zu B */
-export const LANDTAGSWAHL_TRANSITIONS: Array<{
-  landId: string;
-  landName: string;
-  newParty: string;
-  fromFraktion: string;
-  toFraktion: string;
-}> = [
-  { landId: 'TH', landName: 'Thüringen', newParty: 'SPD', fromFraktion: 'ostblock', toFraktion: 'pragmatische_mitte' },
-  { landId: 'BB', landName: 'Brandenburg', newParty: 'SPD', fromFraktion: 'ostblock', toFraktion: 'koalitionstreue' },
-  { landId: 'MV', landName: 'Mecklenburg-Vorpommern', newParty: 'SPD', fromFraktion: 'ostblock', toFraktion: 'pragmatische_mitte' },
-  { landId: 'HE', landName: 'Hessen', newParty: 'CDU', fromFraktion: 'pragmatische_mitte', toFraktion: 'konservativer_block' },
-  { landId: 'BE', landName: 'Berlin', newParty: 'SPD', fromFraktion: 'pragmatische_mitte', toFraktion: 'koalitionstreue' },
-  { landId: 'SH', landName: 'Schleswig-Holstein', newParty: 'SPD', fromFraktion: 'koalitionstreue', toFraktion: 'pragmatische_mitte' },
+/**
+ * Mögliche Landtagswahl-Übergänge: Land wechselt von Fraktion A zu B.
+ * #275: `koalitionsOptionen` nutzt die Profil-Kürzel aus `bundeslaender.koalition`
+ * (CDP/SDP/GP/LDP/LP). Einparteien-Optionen schließen die Koalitionsklausel aus,
+ * gemischte Koalitionen machen Enthaltungen möglich.
+ */
+export const LANDTAGSWAHL_TRANSITIONS: LandtagswahlTransition[] = [
+  {
+    landId: 'TH', landName: 'Thüringen', newParty: 'SPD', fromFraktion: 'ostblock', toFraktion: 'pragmatische_mitte',
+    neueRegierungPartei: 'SDP', koalitionsOptionen: [['SDP', 'CDP'], ['SDP', 'LP', 'GP']],
+  },
+  {
+    landId: 'BB', landName: 'Brandenburg', newParty: 'SPD', fromFraktion: 'ostblock', toFraktion: 'koalitionstreue',
+    neueRegierungPartei: 'SDP', koalitionsOptionen: [['SDP'], ['SDP', 'GP']],
+  },
+  {
+    landId: 'MV', landName: 'Mecklenburg-Vorpommern', newParty: 'SPD', fromFraktion: 'ostblock', toFraktion: 'pragmatische_mitte',
+    neueRegierungPartei: 'SDP', koalitionsOptionen: [['SDP', 'LP'], ['SDP', 'GP']],
+  },
+  {
+    landId: 'HE', landName: 'Hessen', newParty: 'CDU', fromFraktion: 'pragmatische_mitte', toFraktion: 'konservativer_block',
+    neueRegierungPartei: 'CDP', koalitionsOptionen: [['CDP', 'LDP'], ['CDP']],
+  },
+  {
+    landId: 'BE', landName: 'Berlin', newParty: 'SPD', fromFraktion: 'pragmatische_mitte', toFraktion: 'koalitionstreue',
+    neueRegierungPartei: 'SDP', koalitionsOptionen: [['SDP', 'GP'], ['SDP', 'CDP']],
+  },
+  {
+    landId: 'SH', landName: 'Schleswig-Holstein', newParty: 'SPD', fromFraktion: 'koalitionstreue', toFraktion: 'pragmatische_mitte',
+    neueRegierungPartei: 'SDP', koalitionsOptionen: [['SDP', 'GP'], ['SDP', 'GP', 'LDP']],
+  },
 ];

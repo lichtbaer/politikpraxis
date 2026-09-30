@@ -35,6 +35,25 @@ export interface BundesratLand {
   profilMinComplexity?: number;
 }
 
+/**
+ * Mögliche Landtagswahl-Übergänge: Land wechselt von Fraktion A zu B.
+ * #275: Die Wahl bildet auch eine neue Landesregierung (Partei-Kürzel wie in
+ * `BundeslandContent.partei`/`koalition`). Eine davon wird beim Auslösen des Events
+ * per Engine-RNG gezogen und steuert die Koalitionsklausel (Enthaltung) im Bundesrat.
+ */
+export interface LandtagswahlTransition {
+  landId: string;
+  landName: string;
+  /** Anzeigename des Wahlsiegers (Ticker) */
+  newParty: string;
+  fromFraktion: string;
+  toFraktion: string;
+  /** Profil-Kürzel der neuen Regierungspartei (z. B. 'SDP') */
+  neueRegierungPartei: string;
+  /** Plausible Regierungsbildungen; Länge 1 = Alleinregierung (keine Enthaltung möglich) */
+  koalitionsOptionen: string[][];
+}
+
 export interface Tradeoff {
   id: string;
   label: string;

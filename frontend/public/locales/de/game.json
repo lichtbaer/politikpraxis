@@ -2185,6 +2185,8 @@
     "votumNein": "Nein",
     "votumEnthaltung": "Enthaltung",
     "koalitionsklausel": "Koalitionsklausel: Landesregierung uneinig",
+    "logLandtagswahlKoalition": "{{land}}: Neue Landesregierung {{koalition}} — gemischte Koalition, bei Uneinigkeit enthält sich das Land im Bundesrat (Koalitionsklausel).",
+    "logLandtagswahlAlleinregierung": "{{land}}: {{partei}} regiert nach der Landtagswahl allein — die Koalitionsklausel (Enthaltung) greift dort nicht.",
     "mehrheitJa": "✓ Mehrheit",
     "mehrheitNein": "✗ Keine Mehrheit",
     "mehrheitBei": "Mehrheit (9)",

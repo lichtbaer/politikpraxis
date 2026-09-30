@@ -2159,6 +2159,8 @@
     "votumNein": "No",
     "votumEnthaltung": "Abstain",
     "koalitionsklausel": "Coalition clause: state government divided",
+    "logLandtagswahlKoalition": "{{land}}: New state government {{koalition}} — mixed coalition; if divided, the state abstains in the Bundesrat (coalition clause).",
+    "logLandtagswahlAlleinregierung": "{{land}}: {{partei}} governs alone after the state election — the coalition clause (abstention) does not apply there.",
     "mehrheitJa": "✓ Majority",
     "mehrheitNein": "✗ No majority",
     "mehrheitBei": "Majority (9)",
