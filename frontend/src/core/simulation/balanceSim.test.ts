@@ -11,11 +11,17 @@
  *   D) Komplexitäts-Skalierung: Stufen 1–3
  *   E) Score-Dimensionen: bilanzPunkte, agendaPunkte, urteilPunkte
  *   F) Mechanik-Coverage: Vermittlungsausschuss, event-locked Gesetze
+ *   G) Echter Content: DB-Snapshot (content-snapshot.json) statt Test-Fixture
+ *
+ * Die Blöcke A–F laufen auf dem Test-Fixture `SIM_CONTENT` (19 Gesetze) und prüfen
+ * Engine-Invarianten. Die Balance-Aussagen im Report (`npm run balance:report`)
+ * stammen seit dem Umstieg aus dem echten Content — Block G sichert dessen Grundlagen ab.
  */
 import { describe, it, expect, vi } from 'vitest';
 import { monteCarlo } from './balanceSim';
 import { alleStrategien } from './strategien';
 import { SIM_CONTENT, SIM_CONTENT_WITH_UNLOCK_EVENTS } from './testContent';
+import { echterContent } from './echterContent';
 
 const N = 200;
 const COMPLEXITY = 4;
@@ -385,4 +391,50 @@ describe('Ressourcen-Balance', () => {
     console.table(report);
     expect(Object.keys(report).length).toBe(4);
   }, 120_000);
+});
+
+describe('Echter Content (DB-Snapshot)', () => {
+  const strategien = alleStrategien();
+  const N_ECHT = 40;
+  const AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'];
+
+  it('Snapshot liefert den vollen Content — nicht das 19-Gesetze-Fixture', () => {
+    const content = echterContent();
+    expect(content.laws.length).toBeGreaterThan(100);
+    expect(content.laws.filter(g => g.locked_until_event).length).toBeGreaterThan(0);
+    // Story-Arc-Einstiege und EU-Events sind im Pool (vorher gefiltert bzw. nie geladen)
+    expect(content.events.some(e => e.arcId && (e.arcStage ?? 1) === 1)).toBe(true);
+    expect(content.euEvents?.length ?? 0).toBeGreaterThan(0);
+  });
+
+  for (const complexity of [1, 4]) {
+    it(`Stufe ${complexity}: keine Crashes, keine Engine-Fehler (alle Strategien)`, () => {
+      for (const [name, strategy] of Object.entries(strategien)) {
+        const result = monteCarlo(echterContent(), strategy, 10, complexity, AGENDA);
+        if (result.crashes > 0 || result.engineErrors > 0) {
+          throw new Error(
+            `${name} (Stufe ${complexity}): ${result.crashes} Crashes, ${result.engineErrors} Engine-Fehler – ` +
+            (result.engineErrorDetails ?? []).slice(0, 3).join('; '),
+          );
+        }
+      }
+    }, 180_000);
+  }
+
+  it('Stufe 4: gutes Spiel schlägt passives Spiel', () => {
+    const muster = monteCarlo(echterContent(), strategien['musterschueler'], N_ECHT, 4, AGENDA);
+    const passiv = monteCarlo(echterContent(), strategien['pk_horten'], N_ECHT, 4, AGENDA);
+    expect(muster.gewinnRate).toBeGreaterThan(passiv.gewinnRate);
+  }, 120_000);
+
+  it('Jedes gesperrte Gesetz hat im Zufalls-Pool ein Event, das es freischaltet', () => {
+    const content = echterContent();
+    const freischaltbar = new Set(
+      content.events.flatMap(e => e.choices.flatMap(c => c.unlocks_laws ?? [])),
+    );
+    const unerreichbar = content.laws
+      .filter(g => g.locked_until_event && !freischaltbar.has(g.id))
+      .map(g => g.id);
+    expect(unerreichbar).toEqual([]);
+  });
 });

@@ -252,6 +252,13 @@ jobs:
       - name: Upgrade empty DB to head
         run: cd backend && alembic upgrade head
 
+      - name: Content-Snapshot der Balance-Simulation aktuell
+        # Die Balance-Simulation läuft auf frontend/src/core/simulation/content-snapshot.json
+        # (Rohantworten der Content-API). Ändert eine Migration den Content, muss der
+        # Snapshot mitgezogen werden: cd backend && python scripts/export_content_snapshot.py
+        # Läuft vor pytest, weil Tests Content in die DB schreiben.
+        run: cd backend && python scripts/export_content_snapshot.py --check
+
       - name: pytest (against real Postgres, incl. @requires_db tests) + Coverage
         # Schwelle bewusst unter dem Ist-Stand (61 % inkl. Branch-Coverage im
         # Sept. 2026), damit sie Regressionen fängt statt sofort rot zu sein;

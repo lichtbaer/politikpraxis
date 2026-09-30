@@ -11,6 +11,7 @@
  *   npm run balance:report -- --complexity=1,4   # nur ausgewählte Stufen
  *   npm run balance:report -- --json             # zusätzlich JSON neben dem Markdown
  *   npm run balance:report -- --out=../report.md # eigener Ausgabepfad (relativ zu cwd)
+ *   npm run balance:report -- --content=test     # Test-Fixture statt DB-Snapshot (Vergleich)
  *
  * Reproduzierbarkeit: `Math.random` wird vor dem Lauf global durch einen seedbaren
  * Mulberry32-PRNG ersetzt. Dadurch werden createInitialState (rngSeed) und die
@@ -44,6 +45,7 @@ function parseArgs(argv: string[]): {
   strategies?: string[];
   out: string;
   json: boolean;
+  inhalt: 'echt' | 'test';
 } {
   const get = (flag: string): string | undefined => {
     const entry = argv.find(a => a === `--${flag}` || a.startsWith(`--${flag}=`));
@@ -71,6 +73,7 @@ function parseArgs(argv: string[]): {
     strategies: strategiesRaw ? strategiesRaw.split(',').map(s => s.trim()).filter(Boolean) : undefined,
     out: outRaw ? resolve(process.cwd(), outRaw) : defaultOut,
     json: get('json') !== undefined,
+    inhalt: get('content') === 'test' ? 'test' : 'echt',
   };
 }
 
@@ -82,7 +85,7 @@ function main(): void {
 
   const start = Date.now();
   console.log(
-    `Balance-Report: N=${args.n}, Komplexität ${args.complexities.join(',')}, Seed ${args.seed} …`,
+    `Balance-Report: N=${args.n}, Komplexität ${args.complexities.join(',')}, Seed ${args.seed}, Content ${args.inhalt} …`,
   );
 
   // Engine-/State-Logs während des Laufs stummschalten (sonst eine Zeile pro Spiel).
@@ -96,6 +99,7 @@ function main(): void {
       complexities: args.complexities,
       seed: args.seed,
       strategies: args.strategies,
+      inhalt: args.inhalt,
     }));
   } finally {
     Object.assign(console, original);

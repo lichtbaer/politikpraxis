@@ -8,6 +8,7 @@
 import { monteCarlo, type AggregatedResult } from '../src/core/simulation/balanceSim';
 import { alleStrategien } from '../src/core/simulation/strategien';
 import { SIM_CONTENT_WITH_UNLOCK_EVENTS } from '../src/core/simulation/testContent';
+import { echterContent } from '../src/core/simulation/echterContent';
 import { ELECTION_THRESHOLDS_BY_COMPLEXITY } from '../src/core/constants';
 import type { ContentBundle } from '../src/core/types';
 
@@ -28,7 +29,9 @@ export interface ReportOptions {
   seed: number;
   /** Optionaler Strategie-Filter (Namen aus alleStrategien); leer = alle */
   strategies?: string[];
-  /** Content-Bundle (Default: SIM_CONTENT_WITH_UNLOCK_EVENTS) */
+  /** Welcher Content: 'echt' = DB-Snapshot wie im Spiel (Default), 'test' = Fixture */
+  inhalt?: 'echt' | 'test';
+  /** Eigenes Content-Bundle (überschreibt `inhalt`) */
   content?: ContentBundle;
   /** Spieler-Agenda-IDs, die für jeden Lauf gesetzt werden (Default: DEFAULT_REPORT_SPIELER_AGENDA) */
   spielerAgendaIds?: string[];
@@ -62,7 +65,8 @@ export interface ReportData {
  * Monte-Carlo-Simulation gefahren wird. Reine Funktion (kein Datei-I/O).
  */
 export function collectReportData(opts: ReportOptions): ReportData {
-  const content = opts.content ?? SIM_CONTENT_WITH_UNLOCK_EVENTS;
+  const inhalt = opts.inhalt ?? 'echt';
+  const content = opts.content ?? (inhalt === 'test' ? SIM_CONTENT_WITH_UNLOCK_EVENTS : echterContent());
   const alle = alleStrategien();
   const namen = opts.strategies && opts.strategies.length > 0
     ? opts.strategies.filter(name => name in alle)
@@ -84,7 +88,11 @@ export function collectReportData(opts: ReportOptions): ReportData {
     seed: opts.seed,
     complexities: opts.complexities,
     strategienAnzahl: namen.length,
-    contentVariante: opts.content ? 'custom' : 'SIM_CONTENT_WITH_UNLOCK_EVENTS',
+    contentVariante: opts.content
+      ? 'custom'
+      : inhalt === 'test'
+        ? `SIM_CONTENT_WITH_UNLOCK_EVENTS (Test-Fixture, ${content.laws.length} Gesetze)`
+        : `DB-Snapshot content-snapshot.json (${content.laws.length} Gesetze, ${content.events.length} Events)`,
     spielerAgendaIds,
     bloecke,
   };

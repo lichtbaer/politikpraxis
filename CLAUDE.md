@@ -167,6 +167,7 @@ mkdocs build          # Static build to site/
 - **State changes**: Only through gameStore actions — no direct mutations
 - **API sync**: Keep backend routes and frontend services in sync when changing API contracts
 - **API types (content)**: The frontend content-API types (`frontend/src/types/content.ts`) are generated from the backend OpenAPI schema (Pydantic schemas in `backend/app/schemas/content.py` are the single source of truth). When you change a content schema, regenerate with `npm run gen:api-types` and commit `frontend/src/types/api-generated.ts` + `backend/openapi.json`. The `api-types-drift` CI job (`npm run check:api-types`) fails on drift. Do not hand-edit `api-generated.ts`.
+- **Content snapshot (balance simulation)**: The balance simulation runs on `frontend/src/core/simulation/content-snapshot.json` (raw content-API responses from a freshly migrated DB). When a migration changes game content, regenerate it (`cd backend && python scripts/export_content_snapshot.py`) and commit it; CI checks drift with `--check`.
 - **Documentation**: Update `docs/` for significant changes
 - **Testing**: Frontend game logic in `core/` should have unit tests (Vitest). Backend uses pytest with async fixtures and `AsyncClient`
 - **Python style**: Ruff formatting (line length 88), type hints required, MyPy checked
