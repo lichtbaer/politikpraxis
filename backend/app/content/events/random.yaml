@@ -876,6 +876,8 @@
         wm: 1
         fm: -1
       log: 'Infrastruktur-Notfallprogramm aufgelegt. Milliarden für Brücken und Straßen.'
+      unlocks_laws:
+        - schienen
     - label: Kommunen entlasten
       desc: 'Föderale Lösung, langsamer'
       cost: 5
@@ -885,6 +887,8 @@
         hh: -0.2
       charMood: {}
       log: 'Kommunale Infrastrukturhilfen beschlossen.'
+      unlocks_laws:
+        - schienen
     - label: Priorisieren und planen
       desc: 'Sparsam, aber Kritik an Untätigkeit'
       cost: 0
@@ -1173,6 +1177,8 @@
         wm: 1
         im: 1
       log: 'Sofortprogramm für Landwirte beschlossen. Proteste nehmen ab, Haushalt belastet.'
+      unlocks_laws:
+        - bauernentlastung
     - label: Dialog anbieten
       desc: 'Runden Tisch einberufen — gewinnt Zeit, löst nichts sofort'
       cost: 5
@@ -1183,6 +1189,8 @@
       charMood:
         wm: 1
       log: 'Agrar-Runder Tisch einberufen. Bauern skeptisch, Proteste dauern an.'
+      unlocks_laws:
+        - bauernentlastung
     - label: Polizei durchgreifen lassen
       desc: 'Räumung der Blockaden — politisch riskant'
       cost: 10
@@ -1219,6 +1227,8 @@
       charMood:
         gm: 2
       log: 'Pflegesofortprogramm beschlossen. Neumann erleichtert, Haushalt belastet.'
+      unlocks_laws:
+        - pflegepersonal
     - label: Experten-Kommission einsetzen
       desc: 'Gewinnt Zeit, senkt Druck — aber keine Sofortwirkung'
       cost: 5
@@ -1229,6 +1239,8 @@
         gm: 1
         fm: 1
       log: 'Expertenkommission Pflege eingesetzt. Bericht in 6 Monaten erwartet.'
+      unlocks_laws:
+        - pflegepersonal
     - label: Krankenkassen in die Pflicht nehmen
       desc: 'Beitragserhöhung — unpopulär, aber wirksam'
       cost: 0
@@ -1269,6 +1281,8 @@
         jm: 1
         wm: -1
       log: 'KI-Einsatzstopp für Bundesbehörden verhängt. BSI prüft alle Systeme.'
+      unlocks_laws:
+        - ki_regulierung
     - label: Regulierung beschleunigen
       desc: 'KI-Governance-Gesetz sofort einbringen'
       cost: 15
@@ -1280,6 +1294,8 @@
         jm: 1
         wm: 1
       log: 'KI-Regulierungsinitiative gestartet. Branche reagiert gemischt.'
+      unlocks_laws:
+        - ki_regulierung
     - label: EU-Koordination suchen
       desc: 'Auf europäische Lösung warten — Zeitverlust'
       cost: 5

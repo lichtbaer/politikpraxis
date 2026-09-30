@@ -63,6 +63,7 @@ export const EVENT_TYPE_ICONS: Record<string, ComponentType<LucideProps>> = {
   ministerial: Briefcase,
   kommune: Building2,
   wahlkampf: Vote,
+  eu: Globe,
 };
 
 /** Rendert ein Event-Icon anhand des String-Keys */

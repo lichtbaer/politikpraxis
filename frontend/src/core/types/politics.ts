@@ -178,4 +178,8 @@ export interface EUEventContent {
   politikfeld_id: string | null;
   trigger_klima_min: number | null;
   min_complexity: number;
+  /** 'reaktiv_richtlinie' | 'random' | 'fix' (fix = fest getaktet, z. B. Europawahl) */
+  event_type?: string;
+  /** Spielbares Ereignis (Texte + Optionen). Fehlt es, bleibt es beim Protokolleintrag. */
+  event?: import('./event').GameEvent;
 }

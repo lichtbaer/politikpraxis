@@ -3225,5 +3225,8 @@
     "reichtNicht": "Majority missing",
     "schwelle": "Majority at {{schwelle}}%",
     "balkenAria": "Vote: {{ja}} yes, {{nein}} no — {{prozent}} percent approval against a {{schwelle}} percent majority threshold. {{status}}."
+  },
+  "euEreignis": {
+    "typeLabel": "European Union"
   }
 }

@@ -1,4 +1,5 @@
-import type { GameState, GameEvent, EventChoice, ContentBundle } from '../../types';
+import type { GameState, GameEvent, EventChoice, ContentBundle, Law } from '../../types';
+import { instanziiereGesetz } from '../legislation/gesetzInstanz';
 import { getEventNamespace } from '../../eventNamespaces';
 import { addLog } from '../../engine';
 import { withPause, getAutoPauseLevel } from '../../eventPause';
@@ -67,7 +68,7 @@ const WAHLKAMPF_EVENT_IDS = new Set([
 ]);
 
 export { isOnCooldown, isEventAvailable, recordEventFired } from './eventUtils';
-import { isEventAvailable, recordEventFired } from './eventUtils';
+import { isEventAvailable, recordEventFired, fortsetzungsZiele, istEigenstaendigesEvent } from './eventUtils';
 import { nextRandom } from '../../rng';
 
 export function checkRandomEvents(state: GameState, eventPool: GameEvent[], complexity: number = 4): GameState {
@@ -91,15 +92,16 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[], comp
   if (nextRandom() >= prob) return state;
 
   const firedSet = new Set(state.firedEvents);
+  const fortsetzungen = fortsetzungsZiele(eventPool);
   const available = eventPool
     .filter(e => !WAHLKAMPF_EVENT_IDS.has(e.id))
     // #274: Dramaturgie-Anker (100-Tage-Bilanz, Sommerloch, Halbzeitbilanz)
     // sind fest getaktet, nie eigenständig zufällig auslösbar.
     .filter(e => !e.dramaturgieAnker)
-    // #272: Arc-Fortsetzungen (Stage >= 2) sind keine eigenständigen
-    // Zufallsereignisse — sie werden ausschließlich über den geplanten
-    // Follow-up der Vorstufe erreicht (siehe applyUnlocksAndFollowups).
-    .filter(e => (e.arcStage ?? 1) <= 1)
+    // #272: Arc-Fortsetzungen (Stage >= 2) und andere Follow-up-Ziele sind keine
+    // eigenständigen Zufallsereignisse — sie werden ausschließlich über den
+    // geplanten Follow-up der Vorstufe erreicht (siehe applyUnlocksAndFollowups).
+    .filter(e => istEigenstaendigesEvent(e, fortsetzungen))
     .filter(e => (e.min_complexity ?? 1) <= complexity)
     .filter(e => isEventAvailable(state, e, firedSet));
   if (!available.length) return state;
@@ -769,15 +771,37 @@ function applyUnlocksAndFollowups(
 ): GameState {
   let s = state;
 
-  // Gesetze freischalten
+  // Gesetze freischalten: gesperrte Gesetze (locked_until_event) sind beim Spielstart
+  // nicht in state.gesetze — erst hier kommen sie aus dem Content dazu.
   if (choice.unlocks_laws?.length) {
     const unlockedLaws = [...(s.unlockedLaws ?? [])];
+    const neueGesetze: Law[] = [];
     for (const lawId of choice.unlocks_laws) {
       if (!unlockedLaws.includes(lawId)) {
         unlockedLaws.push(lawId);
       }
+      if (s.gesetze.some(g => g.id === lawId)) continue;
+      const law = options?.contentBundle?.laws.find(g => g.id === lawId);
+      if (!law) continue;
+      neueGesetze.push(instanziiereGesetz(law, s.gesetzBTStimmen?.[lawId] ?? law.ja));
     }
     s = { ...s, unlockedLaws };
+    if (neueGesetze.length) {
+      s = { ...s, gesetze: [...s.gesetze, ...neueGesetze] };
+      for (const law of neueGesetze) {
+        s = addLog(s, `Neue Gesetzesinitiative möglich: ${law.titel}`, 'g');
+      }
+    }
+  }
+
+  // EU-Ereignisse: Auswirkung auf das EU-Klima im betroffenen Politikfeld
+  if (choice.euKlima && s.eu) {
+    const { feldId, delta } = choice.euKlima;
+    const klima = { ...s.eu.klima, [feldId]: Math.max(0, Math.min(100, (s.eu.klima[feldId] ?? 50) + delta)) };
+    s = { ...s, eu: { ...s.eu, klima } };
+  }
+  if (choice.kofinanzierung) {
+    s = addLog(s, `EU-Kofinanzierung: ${(choice.kofinanzierung * 100).toFixed(0)}%`, 'g');
   }
 
   // Follow-up Events planen (nur bei Komplexität >= 4)

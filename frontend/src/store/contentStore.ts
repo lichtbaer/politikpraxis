@@ -7,6 +7,7 @@ import type {
   CharApi,
   GesetzApi,
   EventApi,
+  EuEventApi,
   BundesratFraktionApi,
   BundeslandApi,
   MilieuApi,
@@ -100,6 +101,16 @@ const EVENT_TYPE_ICON_KEYS: Record<string, string> = {
   vorstufe_erfolg: 'vorstufe_erfolg',
   dynamic: 'random',
 };
+
+/** Event-Kategorien mit eigener Auslöse-Logik — nie Teil des Zufalls-Pools. */
+const NICHT_ZUFALLS_KATEGORIEN = new Set([
+  'bundesrat',
+  'char_ultimatum',
+  'conditional',
+  'dynamic',
+  'kommunal_initiative',
+  'vorstufe_erfolg',
+]);
 
 const EVENT_TYPE_MAP: Record<string, 'danger' | 'warn' | 'good' | 'info'> = {
   danger: 'danger',
@@ -370,6 +381,49 @@ function transformEvent(api: EventApi): GameEvent {
   return ev;
 }
 
+/** Richtlinien-Klage und Gegenposition sind die konfrontativen Optionen. */
+const EU_DANGER_KEYS = new Set(['klagen', 'gegenposition']);
+
+/** EU-Ereignis aus der API → Pool-Eintrag inkl. spielbarem GameEvent. */
+export function transformEuEvent(api: EuEventApi): import('../core/types').EUEventContent {
+  const id = guardString(api.id, 'EuEvent.id', '_unknown_eu_event_');
+  const choices = guardArray<EuEventApi['choices'][number]>(api.choices, `EuEvent[${id}].choices`);
+  const event: GameEvent = {
+    id,
+    type: 'info',
+    icon: 'eu',
+    typeLabel: i18n.t('game:euEreignis.typeLabel'),
+    title: guardString(api.title, `EuEvent[${id}].title`, id),
+    quote: api.quote,
+    context: api.context,
+    ticker: api.ticker,
+    choices: choices.map((c, index) => {
+      const choice: EventChoice = {
+        key: c.key,
+        label: c.label,
+        desc: c.desc,
+        cost: c.cost_pk ?? 0,
+        type: EU_DANGER_KEYS.has(c.key) ? 'danger' : index === 0 ? 'primary' : 'safe',
+        effect: { al: c.effekte?.al ?? 0, hh: c.effekte?.hh ?? 0, gi: c.effekte?.gi ?? 0, zf: c.effekte?.zf ?? 0 },
+        log: c.log_msg,
+      };
+      if (c.eu_klima_delta && api.politikfeld_id) {
+        choice.euKlima = { feldId: api.politikfeld_id, delta: c.eu_klima_delta };
+      }
+      if (c.kofinanzierung) choice.kofinanzierung = c.kofinanzierung;
+      return choice;
+    }),
+  };
+  return {
+    id,
+    politikfeld_id: api.politikfeld_id ?? null,
+    trigger_klima_min: api.trigger_klima_min ?? null,
+    min_complexity: api.min_complexity ?? 1,
+    event_type: api.event_type,
+    event,
+  };
+}
+
 function transformBundesratFraktion(api: BundesratFraktionApi): BundesratFraktion {
   return {
     id: api.id,
@@ -599,6 +653,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         bundeslaenderRaw,
         agendaZieleRaw,
         koalitionsZieleRaw,
+        euEventsRaw,
       ] =
         await Promise.all([
           // Kritische Endpoints: einzeln catchen, damit „Backend komplett weg“
@@ -615,6 +670,7 @@ export const useContentStore = create<ContentStore>((set) => ({
           apiFetch<BundeslandApi[]>(`/content/bundeslaender?locale=${locale}`).catch(() => []),
           apiFetch<AgendaZielApi[]>(`/content/agenda-ziele?locale=${locale}`).catch(() => []),
           apiFetch<KoalitionsZielApi[]>(`/content/koalitions-ziele?locale=${locale}`).catch(() => []),
+          apiFetch<EuEventApi[]>(`/content/eu-events?locale=${locale}`).catch(() => []),
         ]);
 
       if (chars == null && gesetze == null && eventsAll == null && bundesratFraktionen == null) {
@@ -680,8 +736,13 @@ export const useContentStore = create<ContentStore>((set) => ({
         if (type === 'char_ultimatum') charEventsMap[ev.id] = ev;
       }
       const dynamicEventsList = byType['dynamic'] ?? [];
-      const randomEvents = (byType['random'] ?? []).filter(
-        (e) => eventTypeById.get(e.id) !== 'dynamic',
+      // Zufalls-Pool: alles außer den Spezialkategorien. `event_type` trägt bei den
+      // Story-Arcs und den nachgeseedeten Events (Migration 070) den Anzeigetyp
+      // (danger/warn/…) statt 'random' — ein Filter auf 'random' allein ließ sie
+      // nie in den Pool und Follow-ups liefen ins Leere. Fortsetzungen werden in
+      // checkRandomEvents nicht eigenständig gezogen.
+      const randomEvents = events.filter(
+        (e) => !NICHT_ZUFALLS_KATEGORIEN.has(eventTypeById.get(e.id) ?? 'random'),
       );
       const brEventsList = byType['bundesrat'] ?? [];
       const kommunalEventsList = byType['kommunal_initiative'] ?? [];
@@ -726,6 +787,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         dynamicEvents: dynamicEventsList,
         agendaZiele: (agendaZieleRaw ?? []).map(transformAgendaZiel),
         koalitionsZiele: (koalitionsZieleRaw ?? []).map(transformKoalitionsZiel),
+        euEvents: (euEventsRaw ?? []).map(transformEuEvent),
         loading: false,
         loaded: true,
         error: null,

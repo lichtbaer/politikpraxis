@@ -27,7 +27,8 @@ import {
   DEFAULT_ELECTION_THRESHOLD,
   ZUST_OFFSET_MAX,
 } from './constants';
-import { selectEventPool } from './systems/events/eventPoolSelection';
+import { selectEventPool, eigenstaendigeEvents } from './systems/events/eventPoolSelection';
+import { instanziiereGesetz } from './systems/legislation/gesetzInstanz';
 import {
   berechneMedianklima,
   initMedienAkteureFromContent,
@@ -235,23 +236,15 @@ export function createInitialState(
 
   const partnerIdeologie = partner?.ideologie ?? null;
   const gesetzBTStimmen: Record<string, number> = {};
+  // Auch für gesperrte Gesetze: Die Ideologie steht nur hier zur Verfügung, die
+  // Freischaltung per Event (applyUnlocksAndFollowups) greift auf diesen Wert zurück.
+  for (const g of content.laws) {
+    gesetzBTStimmen[g.id] = berechneEffektiveBTStimmen(g, g.ja, ideologie, partnerIdeologie);
+  }
   // Gesperrte Gesetze (locked_until_event) werden nicht in den initialen State aufgenommen
-  const availableLaws = content.laws.filter(g => !g.locked_until_event);
-  const gesetze = availableLaws.map((g) => {
-    const basis = g.ja;
-    const effektiv = berechneEffektiveBTStimmen(g, basis, ideologie, partnerIdeologie);
-    gesetzBTStimmen[g.id] = effektiv;
-    return {
-      ...g,
-      ja: effektiv,
-      nein: 100 - effektiv,
-      expanded: false,
-      route: null,
-      rprog: 0,
-      rdur: 0,
-      blockiert: null,
-    };
-  });
+  const gesetze = content.laws
+    .filter(g => !g.locked_until_event)
+    .map(g => instanziiereGesetz(g, gesetzBTStimmen[g.id]));
 
   // SMA-330: Minister-Agenden init (Stufe 2+)
   const ministerAgenden: Record<string, { status: 'wartend'; letzte_forderung_monat: number; ablehnungen_count: number }> = {};
@@ -305,7 +298,7 @@ export function createInitialState(
     firedCharEvents: [],
     firedBundesratEvents: [],
     firedKommunalEvents: [],
-    activeEventPool: selectEventPool(content.events),
+    activeEventPool: selectEventPool(eigenstaendigeEvents(content.events)),
     unlockedLaws: [],
     pendingFollowups: [],
 
