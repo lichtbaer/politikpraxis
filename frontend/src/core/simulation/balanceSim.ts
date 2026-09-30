@@ -109,11 +109,14 @@ const DEFAULT_AUSRICHTUNG = { wirtschaft: -20, gesellschaft: -40, staat: -15 };
 
 /** Unter dieser Partnerbeziehung wählt die Sim Event-Optionen partnerfreundlich. */
 const PARTNER_KRITISCH = 30;
+/** Unter dieser Partnerbeziehung räumt die Sim Partner-Widerstand per Koalitionsrunde aus. */
+const PARTNER_ANGESPANNT = 50;
 
 /**
  * Löst pendingPartnerWiderstand in der Simulation automatisch auf (ohne UI).
- * Veto: Koalitionsrunde, danach sofort erneut einbringen (wie ein Spieler nach der Freigabe).
- * Reicht das PK nicht für die Runde, bricht die Sim ab („Später“ im Modal).
+ * Veto: Koalitionsrunde (bringt direkt ein). Widerstand: Koalitionsrunde, wenn die Beziehung
+ * angespannt ist und das PK reicht, sonst „Trotzdem“. Hinweis: „Trotzdem“.
+ * Reicht das PK beim Veto nicht, bricht die Sim ab („Später“ im Modal).
  */
 function autoResolvePartnerWiderstand(
   state: GameState,
@@ -122,30 +125,18 @@ function autoResolvePartnerWiderstand(
 ): GameState {
   const pending = state.pendingPartnerWiderstand;
   if (!pending) return state;
+  const input = { ausrichtung: DEFAULT_AUSRICHTUNG, complexity, content };
 
-  if (pending.intensitaet === 'veto') {
-    const { state: s } = partnerWiderstandKoalitionsverhandlungCommand(state, {
-      complexity,
-      content,
-    });
-    if (s.partnerWiderstandVetoFreigabeGesetzId !== pending.lawId) {
-      return { ...s, pendingPartnerWiderstand: undefined };
-    }
-    const { state: s2 } = einbringenCommand(s, {
-      lawId: pending.lawId,
-      ausrichtung: DEFAULT_AUSRICHTUNG,
-      complexity,
-      content,
-    });
-    return s2;
+  const runde =
+    pending.intensitaet === 'veto' ||
+    (pending.intensitaet === 'widerstand' &&
+      (state.koalitionspartner?.beziehung ?? 100) < PARTNER_ANGESPANNT &&
+      state.pk >= 15 + einbringenPkKosten(state, pending.lawId, DEFAULT_AUSRICHTUNG, complexity));
+  if (runde) {
+    const { state: s } = partnerWiderstandKoalitionsverhandlungCommand(state, input);
+    return { ...s, pendingPartnerWiderstand: undefined };
   }
-
-  const { state: s } = partnerWiderstandTrotzdemCommand(state, {
-    ausrichtung: DEFAULT_AUSRICHTUNG,
-    complexity,
-    content,
-  });
-  return s;
+  return partnerWiderstandTrotzdemCommand(state, input).state;
 }
 
 /** Reihenfolge, in der die Sim Gegenfinanzierungen wählt: erst die ohne Nebenwirkungen. */

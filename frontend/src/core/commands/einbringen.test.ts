@@ -8,6 +8,7 @@ import {
 } from './einbringen';
 import { DEFAULT_CONTENT } from '../../data/defaults/scenarios';
 import type { GegenfinanzierungsOption } from '../systems/economics/gegenfinanzierung';
+import type { GameState, Law } from '../types';
 
 const AUSRICHTUNG = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
 
@@ -249,6 +250,7 @@ describe('partnerWiderstandKoalitionsverhandlungCommand', () => {
   it('gibt noop zurück wenn kein pendingPartnerWiderstand', () => {
     const state = makeState({ pk: 50 });
     const { state: next, effect } = partnerWiderstandKoalitionsverhandlungCommand(state, {
+      ausrichtung: AUSRICHTUNG,
       complexity: 4,
       content: DEFAULT_CONTENT,
     });
@@ -256,7 +258,7 @@ describe('partnerWiderstandKoalitionsverhandlungCommand', () => {
     expect(effect.type).toBe('none');
   });
 
-  it('gibt noop zurück bei nicht-veto Widerstand', () => {
+  it('gibt noop zurück bei Hinweis (nur Widerstand/Veto bieten die Runde)', () => {
     const state = makeState({
       pk: 50,
       pendingPartnerWiderstand: {
@@ -268,6 +270,7 @@ describe('partnerWiderstandKoalitionsverhandlungCommand', () => {
       },
     });
     const { state: next, effect } = partnerWiderstandKoalitionsverhandlungCommand(state, {
+      ausrichtung: AUSRICHTUNG,
       complexity: 4,
       content: DEFAULT_CONTENT,
     });
@@ -287,6 +290,7 @@ describe('partnerWiderstandKoalitionsverhandlungCommand', () => {
       },
     });
     const { state: next, effect } = partnerWiderstandKoalitionsverhandlungCommand(state, {
+      ausrichtung: AUSRICHTUNG,
       complexity: 4,
       content: DEFAULT_CONTENT,
     });
@@ -297,29 +301,161 @@ describe('partnerWiderstandKoalitionsverhandlungCommand', () => {
     }
   });
 
-  it('schaltet Veto-Freigabe frei bei ausreichend PK', () => {
-    const state = makeState({
-      pk: 80,
-      pendingPartnerWiderstand: {
-        lawId: 'simple',
-        intensitaet: 'veto',
-        koalitionsMalus: -15,
-        framingKey: null,
-        partnerId: 'gp',
-      },
-    });
+  it('Veto: Koalitionsrunde und direkt einbringen — ohne Malus', () => {
+    const state = partnerState({ pk: 80, gesetze: [partnerLaw(40)] }, 'veto');
     const { state: next, effect } = partnerWiderstandKoalitionsverhandlungCommand(state, {
+      ausrichtung: AUSRICHTUNG,
       complexity: 4,
       content: DEFAULT_CONTENT,
     });
-
-    if (next.pk === state.pk) return; // Koalitionsrunde hatte keinen Effekt — überspringen
-
     expect(next.pendingPartnerWiderstand).toBeUndefined();
-    expect(next.partnerWiderstandVetoFreigabeGesetzId).toBe('simple');
-    expect(effect.type).toBe('toast');
-    if (effect.type === 'toast') {
-      expect(effect.variant).toBe('success');
-    }
+    expect(next.gesetze.find((g) => g.id === 'partner')?.status).not.toBe('entwurf');
+    expect(next.partnerWiderstandVetoFreigabeGesetzId).toBeUndefined();
+    expect(next.koalitionspartner?.beziehung).toBe(58); // +8 Runde, kein Malus
+    expect(effect.type === 'toast' && effect.variant).toBe('success');
+  });
+
+  it('Widerstand: bietet die Koalitionsrunde als Alternative zu „Trotzdem“ (−15)', () => {
+    const state = partnerState({ pk: 80, gesetze: [partnerLaw(20)] }, 'widerstand');
+    const runde = partnerWiderstandKoalitionsverhandlungCommand(state, {
+      ausrichtung: AUSRICHTUNG,
+      complexity: 3,
+      content: DEFAULT_CONTENT,
+    });
+    expect(runde.state.gesetze.find((g) => g.id === 'partner')?.status).not.toBe('entwurf');
+    expect(runde.state.koalitionspartner?.beziehung).toBe(58);
+
+    const trotzdem = partnerWiderstandTrotzdemCommand(state, {
+      ausrichtung: AUSRICHTUNG,
+      complexity: 3,
+      content: DEFAULT_CONTENT,
+    });
+    expect(trotzdem.state.koalitionspartner?.beziehung).toBe(35);
+    // Veto ist nie günstiger als Widerstand: dieselbe Runde, nur ohne die „Trotzdem“-Option
+    expect(runde.state.pk).toBeLessThan(trotzdem.state.pk);
+  });
+
+  it('PK reicht nach der Runde nicht fürs Einbringen → Freigabe bleibt, Hinweis', () => {
+    const state = partnerState({ pk: 20, gesetze: [partnerLaw(40)] }, 'veto');
+    const { state: next, effect } = partnerWiderstandKoalitionsverhandlungCommand(state, {
+      ausrichtung: AUSRICHTUNG,
+      complexity: 4,
+      content: DEFAULT_CONTENT,
+    });
+    expect(next.gesetze.find((g) => g.id === 'partner')?.status).toBe('entwurf');
+    expect(next.partnerWiderstandVetoFreigabeGesetzId).toBe('partner');
+    expect(effect.type === 'toast' && effect.variant).toBe('info');
+  });
+});
+
+/** Gesetz im Grünen-Kernthema; Ideologie +20 → Widerstand, +40 → Veto (Partner GP bei −40). */
+function partnerLaw(ideologieWert: number, extra: Partial<Law> = {}): Law {
+  return makeLaw({
+    id: 'partner',
+    kurz: 'PL',
+    politikfeldId: 'umwelt_energie',
+    ideologie_wert: ideologieWert,
+    kosten_laufend: 0,
+    ...extra,
+  });
+}
+
+function partnerState(
+  overrides: Partial<GameState>,
+  intensitaet?: 'hinweis' | 'widerstand' | 'veto',
+): GameState {
+  return makeState({
+    koalitionspartner: { id: 'gp', beziehung: 50, koalitionsvertragScore: 0, schluesselthemenErfuellt: [] },
+    ...(intensitaet
+      ? {
+          pendingPartnerWiderstand: {
+            lawId: 'partner',
+            intensitaet,
+            koalitionsMalus: intensitaet === 'veto' ? 0 : intensitaet === 'widerstand' ? -15 : -5,
+            framingKey: null,
+            partnerId: 'gp',
+          },
+        }
+      : {}),
+    ...overrides,
+  });
+}
+
+describe('Einbringen-Reihenfolge: Partner vor Gegenfinanzierung, PK vor allem', () => {
+  const teuerMitWiderstand = () => partnerLaw(20, { kosten_laufend: -3 });
+
+  it('Partner-Modal kommt vor der Gegenfinanzierung — nichts ist schon bezahlt', () => {
+    const state = partnerState({ pk: 80, gesetze: [teuerMitWiderstand()] });
+    const { state: next } = einbringenCommand(state, {
+      lawId: 'partner',
+      ausrichtung: AUSRICHTUNG,
+      complexity: 3,
+      content: DEFAULT_CONTENT,
+    });
+    expect(next.pendingPartnerWiderstand?.intensitaet).toBe('widerstand');
+    expect(next.pendingGegenfinanzierung).toBeUndefined();
+    expect(next.haushalt).toStrictEqual(state.haushalt);
+  });
+
+  it('Trotzdem → Gegenfinanzierung → eingebracht: Malus und Finanzierung genau einmal', () => {
+    const state = partnerState({ pk: 80, gesetze: [teuerMitWiderstand()] });
+    let s = einbringenCommand(state, {
+      lawId: 'partner',
+      ausrichtung: AUSRICHTUNG,
+      complexity: 3,
+      content: DEFAULT_CONTENT,
+    }).state;
+    s = partnerWiderstandTrotzdemCommand(s, { ausrichtung: AUSRICHTUNG, complexity: 3, content: DEFAULT_CONTENT }).state;
+    expect(s.pendingGegenfinanzierung?.gesetzId).toBe('partner');
+    expect(s.pendingPartnerWiderstand).toBeUndefined();
+    expect(s.koalitionspartner?.beziehung).toBe(50); // Malus erst beim Einbringen
+
+    const schulden = s.pendingGegenfinanzierung!.optionen.find((o) => o.key === 'schulden')!;
+    const res = gegenfinanzierungAuswaehlenCommand(s, {
+      gesetzId: 'partner',
+      option: schulden as GegenfinanzierungsOption,
+      ausrichtung: AUSRICHTUNG,
+      complexity: 3,
+      content: DEFAULT_CONTENT,
+    });
+    expect(res.state.gesetze.find((g) => g.id === 'partner')?.status).not.toBe('entwurf');
+    expect(res.state.pendingPartnerWiderstand).toBeUndefined();
+    expect(res.state.pendingGegenfinanzierung).toBeUndefined();
+    expect(res.state.koalitionspartner?.beziehung).toBe(35);
+    expect(res.effect.type === 'toast' && res.effect.variant).toBe('success');
+  });
+
+  it('PK reicht nicht: kein Modal, Warnung', () => {
+    const state = makeState({ pk: 1, gesetze: [teureLaw()] });
+    const { state: next, effect } = einbringenCommand(state, {
+      lawId: 'teure',
+      ausrichtung: AUSRICHTUNG,
+      complexity: 2,
+      content: DEFAULT_CONTENT,
+    });
+    expect(next.pendingGegenfinanzierung).toBeUndefined();
+    expect(effect.type === 'toast' && effect.variant).toBe('warning');
+  });
+
+  it('Gegenfinanzierung wird nicht angewandt, wenn das PK inzwischen fehlt', () => {
+    const offen = einbringenCommand(makeState({ pk: 80, gesetze: [teureLaw()] }), {
+      lawId: 'teure',
+      ausrichtung: AUSRICHTUNG,
+      complexity: 2,
+      content: DEFAULT_CONTENT,
+    }).state;
+    const knapp = { ...offen, pk: 1 };
+    const schulden = knapp.pendingGegenfinanzierung!.optionen.find((o) => o.key === 'schulden')!;
+    const res = gegenfinanzierungAuswaehlenCommand(knapp, {
+      gesetzId: 'teure',
+      option: schulden as GegenfinanzierungsOption,
+      ausrichtung: AUSRICHTUNG,
+      complexity: 2,
+      content: DEFAULT_CONTENT,
+    });
+    expect(res.state.haushalt).toStrictEqual(knapp.haushalt);
+    expect(res.state.gesetze.find((g) => g.id === 'teure')?.status).toBe('entwurf');
+    expect(res.state.pendingGegenfinanzierung).toBeUndefined();
+    expect(res.effect.type === 'toast' && res.effect.variant).toBe('warning');
   });
 });
