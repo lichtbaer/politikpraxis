@@ -20,7 +20,9 @@ export function koalitionsAgendaZielAnzahl(complexity: number): number {
  * (2 Ziele im Bundle, 3 gefordert).
  */
 export function spielerAgendaZielAnzahl(complexity: number, verfuegbar: number): number {
-  const soll = complexity === 2 ? 2 : complexity >= 3 ? 3 : 0;
+  // Stufe 1 hat seit #267 ebenfalls eine (kleine) Agenda — ohne sie gab es dort kein Ziel
+  // außer „nichts kaputt machen“, und die Legislatur war praktisch unverlierbar.
+  const soll = complexity <= 2 ? 2 : 3;
   return Math.min(soll, Math.max(0, verfuegbar));
 }
 

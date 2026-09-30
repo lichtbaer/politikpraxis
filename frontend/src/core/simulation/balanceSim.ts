@@ -397,7 +397,8 @@ export function runSingleSim(
         verlustGrund = 'koalitionsbruch';
       } else if ((state.lowApprovalMonths ?? 0) >= 6) {
         verlustGrund = 'misstrauensvotum';
-      } else if (state.spielziel && state.spielziel.gesamtpunkte < 40) {
+      } else if (state.spielziel) {
+        // Legislatur regulär beendet, aber verfehlt (Schwelle der Stufe oder kein Gesetz)
         verlustGrund = 'punkte';
       } else {
         verlustGrund = 'unbekannt';
