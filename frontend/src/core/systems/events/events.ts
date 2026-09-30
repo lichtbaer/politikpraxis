@@ -1,4 +1,4 @@
-import type { GameState, GameEvent, EventChoice, ContentBundle, Law } from '../../types';
+import type { GameState, GameEvent, EventChoice, ContentBundle, Law, LandtagswahlTransition } from '../../types';
 import { instanziiereGesetz } from '../legislation/gesetzInstanz';
 import { getEventNamespace } from '../../eventNamespaces';
 import { addLog } from '../../engine';
@@ -22,7 +22,11 @@ import {
 } from '../../constants';
 import i18n from '../../../i18n';
 
-/** Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20 */
+/**
+ * Landtagswahl: Land von Fraktion A zu B verschieben, verlierende Fraktion Beziehung -20.
+ * #275: Die neue Landesregierung (Regierungspartei + Koalition) wird übernommen — sie
+ * entscheidet, ob die Koalitionsklausel (Enthaltung) im Bundesrat künftig greifen kann.
+ */
 function applyLandtagswahlEffect(state: GameState, event: GameEvent): GameState {
   const { fraktionId, landId, landtagswahlToFraktion } = event;
   if (!fraktionId || !landId || !landtagswahlToFraktion) return state;
@@ -39,7 +43,32 @@ function applyLandtagswahlEffect(state: GameState, event: GameEvent): GameState 
     }
     return f;
   });
-  return { ...state, bundesratFraktionen: fraktionen };
+  return applyLandtagswahlKoalition({ ...state, bundesratFraktionen: fraktionen }, event);
+}
+
+/**
+ * #275: Neue Landeskoalition setzen. Nur wenn das Länderprofil (SMA-395) geladen ist —
+ * ohne Koalitionsdaten (vereinfachter 9/16-Pfad) gibt es keine Koalitionsklausel.
+ */
+function applyLandtagswahlKoalition(state: GameState, event: GameEvent): GameState {
+  const koalition = event.landtagswahlKoalition;
+  const land = state.bundesrat.find(l => l.id === event.landId);
+  if (!koalition?.length || !land || land.koalition == null) return state;
+
+  const regierungPartei = event.landtagswahlRegierungPartei ?? koalition[0];
+  const bundesrat = state.bundesrat.map(l =>
+    l.id === land.id ? { ...l, regierungPartei, koalition: [...koalition] } : l,
+  );
+  const s = { ...state, bundesrat };
+  return koalition.length > 1
+    ? addLog(s, 'game:bundesrat.logLandtagswahlKoalition', '', {
+      land: land.name,
+      koalition: koalition.join(' + '),
+    })
+    : addLog(s, 'game:bundesrat.logLandtagswahlAlleinregierung', '', {
+      land: land.name,
+      partei: regierungPartei,
+    });
 }
 
 /** Sprecher-Wechsel: Neuen Sprecher einsetzen, Beziehung -15 */
@@ -119,7 +148,7 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[], comp
 export interface BundesratEventContext {
   bundesratEvents: GameEvent[];
   sprecherErsatz: Record<string, { name: string; partei: string; land: string; initials: string; color: string; bio: string; quote?: string }>;
-  landtagswahlTransitions: Array<{ landId: string; landName: string; newParty: string; fromFraktion: string; toFraktion: string }>;
+  landtagswahlTransitions: LandtagswahlTransition[];
 }
 
 /** Prüft Bundesrat-spezifische Events: fix (12/18 Mo.), konditionell (Kohl, Initiative), zufällig (Landtagswahl, Sprecher-Wechsel) */
@@ -189,6 +218,12 @@ export function checkBundesratEvents(
       const t = landtagswahlTransitions[Math.floor(nextRandom() * landtagswahlTransitions.length)];
       const fromFraktion = state.bundesratFraktionen.find(f => f.id === t.fromFraktion);
       if (fromFraktion?.laender.includes(t.landId)) {
+        // #275: Regierungsbildung beim Auslösen ziehen (seeded Engine-RNG), damit das
+        // Ergebnis beim Auflösen deterministisch feststeht.
+        const optionen = t.koalitionsOptionen;
+        const koalition = optionen.length > 1
+          ? optionen[Math.floor(nextRandom() * optionen.length)]
+          : optionen[0];
         return {
           ...state,
           firedBundesratEvents: [...fired, 'landtagswahl'],
@@ -198,6 +233,9 @@ export function checkBundesratEvents(
             landId: t.landId,
             landName: t.landName,
             landtagswahlToFraktion: t.toFraktion,
+            ...(koalition?.length
+              ? { landtagswahlKoalition: [...koalition], landtagswahlRegierungPartei: t.neueRegierungPartei }
+              : {}),
             ticker: `${t.landName}: ${t.newParty} gewinnt Landtagswahl`,
           },
           ...withPause(state, getAutoPauseLevel(ev)),

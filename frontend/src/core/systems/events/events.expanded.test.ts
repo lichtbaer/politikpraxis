@@ -7,10 +7,21 @@ import {
   isEventAvailable,
   recordEventFired,
 } from './events';
+import { calcBundesratMehrheit } from '../institutions/bundesrat';
 import * as rng from '../../rng';
 import { createInitialState } from '../../state';
 import { DEFAULT_CONTENT } from '../../../data/defaults/scenarios';
-import type { GameState, GameEvent, EventChoice } from '../../types';
+import { LANDTAGSWAHL_TRANSITIONS } from '../../../data/defaults/bundesratEvents';
+import { SPIELER_PARTEI_TO_PROFIL } from '../../../constants/bundeslaenderProfil';
+import type {
+  GameState,
+  GameEvent,
+  EventChoice,
+  BundesratFraktion,
+  BundesratLand,
+  LandtagswahlTransition,
+  Law,
+} from '../../types';
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   const base = createInitialState(DEFAULT_CONTENT, 4);
@@ -459,5 +470,208 @@ describe('repeatable events', () => {
     expect(result.activeEvent!.id).toBe('rep_random');
     expect(result.eventCooldowns?.['rep_random']).toBe(26);
     vi.restoreAllMocks();
+  });
+});
+
+describe('#275: Landtagswahl ändert Landeskoalition (Koalitionsklausel)', () => {
+  const HE_LAND: BundesratLand = {
+    id: 'HE',
+    name: 'Hessen',
+    mp: 'Marcus Roth',
+    party: 'CDU',
+    alignment: 'koalition',
+    mood: 2,
+    interests: [],
+    votes: 5,
+    regierungPartei: 'CDP',
+    koalition: ['CDP', 'GP'],
+    // Themen ungleich dem Politikfeld des Gesetzes → themenBonus = 0
+    themen: ['sonstiges_thema'],
+    stimmgewicht: 5,
+  };
+
+  /** basisBereitschaft 43 + Beziehungsbonus 7 = 50 → lobbyTilt 0 */
+  function makeBrFraktion(id: string, laender: string[]): BundesratFraktion {
+    return {
+      id,
+      name: id,
+      sprecher: { name: 'S', partei: 'P', land: 'HE', initials: 'S', color: '#000', bio: '' },
+      laender,
+      basisBereitschaft: 43,
+      beziehung: 50,
+      tradeoffPool: [],
+    };
+  }
+
+  const LAW: Law = {
+    id: 'br_law', titel: 'L', kurz: 'L', desc: '', tags: ['land'], status: 'bt_passed',
+    ja: 55, nein: 45, effekte: {}, lag: 3, expanded: false, route: null, rprog: 0, rdur: 0,
+    blockiert: null, brVoteMonth: 13,
+  };
+
+  /** Ein Land (HE, 5 Stimmen), Land-Beziehung 50 → Ja-Wahrscheinlichkeit genau 50% (ohne Parteibonus) */
+  function makeBrState(land: Partial<BundesratLand> = {}): GameState {
+    return makeState({
+      month: 10,
+      firedBundesratEvents: [],
+      bundesrat: [{ ...HE_LAND, ...land }],
+      bundesratFraktionen: [
+        makeBrFraktion('pragmatische_mitte', ['HE']),
+        makeBrFraktion('konservativer_block', []),
+      ],
+      landBeziehungen: { HE: 50 },
+      gesetze: [LAW],
+    });
+  }
+
+  function makeLandtagswahlEvent(overrides: Partial<GameEvent> = {}): GameEvent {
+    return makeEvent({
+      id: 'landtagswahl',
+      fraktionId: 'pragmatische_mitte',
+      landId: 'HE',
+      landName: 'Hessen',
+      landtagswahlToFraktion: 'konservativer_block',
+      choices: [{ label: 'OK', desc: '', cost: 0, type: 'primary', effect: {}, log: 'Regierungswechsel akzeptiert.' }],
+      ...overrides,
+    });
+  }
+
+  function resolveLandtagswahl(state: GameState, overrides: Partial<GameEvent> = {}): GameState {
+    const event = makeLandtagswahlEvent(overrides);
+    return resolveEvent(state, event, event.choices[0]);
+  }
+
+  const HE_TRANSITION: LandtagswahlTransition = {
+    landId: 'HE',
+    landName: 'Hessen',
+    newParty: 'CDU',
+    fromFraktion: 'pragmatische_mitte',
+    toFraktion: 'konservativer_block',
+    neueRegierungPartei: 'CDP',
+    koalitionsOptionen: [['CDP', 'LDP'], ['CDP']],
+  };
+
+  it('checkBundesratEvents zieht die neue Landesregierung per Engine-RNG beim Auslösen', () => {
+    // Auslöse-Chance, Transition-Index, Koalitions-Option (0.99 → letzte Option)
+    vi.spyOn(rng, 'nextRandom').mockReturnValueOnce(0).mockReturnValueOnce(0).mockReturnValueOnce(0.99);
+    const result = checkBundesratEvents(makeBrState(), {
+      bundesratEvents: [makeEvent({ id: 'landtagswahl' })],
+      sprecherErsatz: {},
+      landtagswahlTransitions: [HE_TRANSITION],
+    });
+    vi.restoreAllMocks();
+    expect(result.activeEvent?.id).toBe('landtagswahl');
+    expect(result.activeEvent?.landtagswahlKoalition).toEqual(['CDP']);
+    expect(result.activeEvent?.landtagswahlRegierungPartei).toBe('CDP');
+  });
+
+  it('bei nur einer Koalitions-Option wird kein zusätzlicher Zufallswert gezogen', () => {
+    const spy = vi.spyOn(rng, 'nextRandom').mockReturnValueOnce(0).mockReturnValueOnce(0);
+    const result = checkBundesratEvents(makeBrState(), {
+      bundesratEvents: [makeEvent({ id: 'landtagswahl' })],
+      sprecherErsatz: {},
+      landtagswahlTransitions: [{ ...HE_TRANSITION, koalitionsOptionen: [['CDP', 'SDP']] }],
+    });
+    expect(spy).toHaveBeenCalledTimes(2);
+    vi.restoreAllMocks();
+    expect(result.activeEvent?.landtagswahlKoalition).toEqual(['CDP', 'SDP']);
+  });
+
+  it('resolveEvent übernimmt Regierungspartei + Koalition und loggt die Regierungsbildung', () => {
+    const result = resolveLandtagswahl(
+      makeBrState({ regierungPartei: 'GP', koalition: ['GP', 'SDP'] }),
+      { landtagswahlKoalition: ['CDP', 'LDP'], landtagswahlRegierungPartei: 'CDP' },
+    );
+
+    const he = result.bundesrat.find(l => l.id === 'HE')!;
+    expect(he.koalition).toEqual(['CDP', 'LDP']);
+    expect(he.regierungPartei).toBe('CDP');
+    // Fraktionswechsel wie bisher
+    expect(result.bundesratFraktionen.find(f => f.id === 'konservativer_block')!.laender).toContain('HE');
+    expect(result.bundesratFraktionen.find(f => f.id === 'pragmatische_mitte')!.laender).not.toContain('HE');
+    expect(result.log.some(e =>
+      e.msg === 'game:bundesrat.logLandtagswahlKoalition'
+        && e.params?.koalition === 'CDP + LDP'
+        && e.params?.land === 'Hessen',
+    )).toBe(true);
+  });
+
+  it('Alleinregierung wird mit eigenem Log-Eintrag erklärt', () => {
+    const result = resolveLandtagswahl(makeBrState(), {
+      landtagswahlKoalition: ['CDP'],
+      landtagswahlRegierungPartei: 'CDP',
+    });
+    expect(result.bundesrat.find(l => l.id === 'HE')!.koalition).toEqual(['CDP']);
+    expect(result.log.some(e =>
+      e.msg === 'game:bundesrat.logLandtagswahlAlleinregierung' && e.params?.partei === 'CDP',
+    )).toBe(true);
+  });
+
+  it('ohne Länderprofil (vereinfachter Pfad) bleibt die Koalition unverändert, der Fraktionswechsel greift', () => {
+    const result = resolveLandtagswahl(
+      makeBrState({ koalition: undefined, regierungPartei: undefined, themen: undefined }),
+      { landtagswahlKoalition: ['CDP'], landtagswahlRegierungPartei: 'CDP' },
+    );
+    const he = result.bundesrat.find(l => l.id === 'HE')!;
+    expect(he.koalition).toBeUndefined();
+    expect(he.regierungPartei).toBeUndefined();
+    expect(result.bundesratFraktionen.find(f => f.id === 'konservativer_block')!.laender).toContain('HE');
+  });
+
+  it('Legacy-Event ohne gezogene Koalition lässt die Landeskoalition unverändert', () => {
+    const result = resolveLandtagswahl(makeBrState());
+    expect(result.bundesrat.find(l => l.id === 'HE')!.koalition).toEqual(['CDP', 'GP']);
+  });
+
+  it('Wechsel zur Alleinregierung beendet die Enthaltung (Koalitionsklausel) im Bundesrat', () => {
+    const state = makeBrState({ koalition: ['CDP', 'GP'] });
+    const vorher = calcBundesratMehrheit(state, 'br_law');
+    expect(vorher.enthaltung).toBe(5);
+    expect(vorher.ja).toBe(0);
+
+    const nachher = calcBundesratMehrheit(
+      resolveLandtagswahl(state, { landtagswahlKoalition: ['CDP'], landtagswahlRegierungPartei: 'CDP' }),
+      'br_law',
+    );
+    expect(nachher.enthaltung).toBe(0);
+    expect(nachher.ja).toBe(5);
+  });
+
+  it('neue gemischte Koalition macht eine Enthaltung erst möglich', () => {
+    const state = makeBrState({ koalition: ['CDP'] });
+    expect(calcBundesratMehrheit(state, 'br_law').enthaltung).toBe(0);
+
+    const nachher = calcBundesratMehrheit(
+      resolveLandtagswahl(state, { landtagswahlKoalition: ['CDP', 'LDP'], landtagswahlRegierungPartei: 'CDP' }),
+      'br_law',
+    );
+    expect(nachher.enthaltung).toBe(5);
+    expect(nachher.ja).toBe(0);
+  });
+
+  it('neue Regierungspartei = Spielerpartei: klare Zustimmung statt Enthaltung trotz Koalition', () => {
+    // Spielerpartei im Default-State: SDP → Parteibonus +20% hebt das Land aus dem Uneinigkeits-Band
+    const state = makeBrState({ regierungPartei: 'LP', koalition: ['LP', 'SDP'] });
+    expect(calcBundesratMehrheit(state, 'br_law').enthaltung).toBe(5);
+
+    const nachher = calcBundesratMehrheit(
+      resolveLandtagswahl(state, { landtagswahlKoalition: ['SDP', 'CDP'], landtagswahlRegierungPartei: 'SDP' }),
+      'br_law',
+    );
+    expect(nachher.enthaltung).toBe(0);
+    expect(nachher.ja).toBe(5);
+  });
+
+  it('LANDTAGSWAHL_TRANSITIONS: Koalitionen nutzen Profil-Kürzel und enthalten den Wahlsieger', () => {
+    const profilParteien = new Set(Object.values(SPIELER_PARTEI_TO_PROFIL));
+    for (const t of LANDTAGSWAHL_TRANSITIONS) {
+      expect(t.koalitionsOptionen.length).toBeGreaterThan(0);
+      expect(profilParteien.has(t.neueRegierungPartei)).toBe(true);
+      for (const k of t.koalitionsOptionen) {
+        expect(k[0]).toBe(t.neueRegierungPartei);
+        expect(new Set(k).size).toBe(k.length);
+        for (const p of k) expect(profilParteien.has(p)).toBe(true);
+      }
+    }
   });
 });

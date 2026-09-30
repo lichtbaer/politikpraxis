@@ -285,6 +285,8 @@ Fraktionsentscheidung:
 
 **Startmehrheit ohne Lobbying:** Nur Koalitionstreue (5) stimmt sicher zu — 5/16 = kein Mehrheit. Immer Lobbying oder Ebenenwechsel nötig für zustimmungspflichtige Gesetze.
 
+**Koalitionsklausel (ab Stufe 3, 35/69-Modell):** Länder mit gemischter Regierungskoalition enthalten sich, wenn die Landesregierung uneinig ist (abgelehnte Trade-off-Forderung der zuständigen Fraktion oder Ja-Wahrscheinlichkeit nahe 50%). Enthaltung zählt wie Nein. Eine Landtagswahl bildet die Landesregierung neu (Alleinregierung oder Koalition, per Engine-RNG aus plausiblen Optionen gezogen): Eine Alleinregierung kann sich nicht mehr enthalten, eine neue Koalition macht Enthaltungen erst möglich; stellt die Spielerpartei die neue Regierungspartei, greift zusätzlich der Parteibonus.
+
 ### 3.7.4 Bundesrat als eigene Agenda-Ebene
 
 Eigene Events alle 5–8 Monate (zufällig aus Pool):
@@ -292,7 +294,7 @@ Eigene Events alle 5–8 Monate (zufällig aus Pool):
 | Event | Auslöser | Effekt |
 |-------|----------|--------|
 | Länderfinanzausgleich-Streit | alle 12 Mo. fix | Fraktion 2+4 fordern Neuverteilung — Kosten oder Zustimmungsverlust |
-| Landtagswahl kippt Fraktion | zufällig, ab Mo. 10 | Ein Land wechselt die Regierungspartei, Beziehungswert zurückgesetzt |
+| Landtagswahl kippt Fraktion | zufällig, ab Mo. 10 | Ein Land wechselt die Regierungspartei und Landeskoalition (→ Koalitionsklausel/Enthaltung), Beziehungswert zurückgesetzt |
 | Kohl eskaliert (Sondersitzung) | Beziehung Kohl < 15 | Vermittlungsausschuss wird beantragt — Gesetz verzögert 2 Monate |
 | Sprecher-Wechsel | zufällig, ~20% nach Mo. 24 | Neuer Charakter mit anderen Interessen ersetzt Sprecher |
 | Bundesrat-Initiative | Fraktion 3 oder 4 | Länder bringen eigenes Gesetz ein — Spieler muss reagieren |
