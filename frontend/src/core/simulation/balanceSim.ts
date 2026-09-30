@@ -275,7 +275,11 @@ export function runSingleSim(
     // Verlustgrund bestimmen
     let verlustGrund: SimResult['verlustGrund'] | undefined;
     if (!gewonnen && state.gameOver) {
-      if ((state.coalition ?? 100) < 15) {
+      // Zwei Wege zum Koalitionsbruch: instabile Koalition (coalition) oder der
+      // Partner kündigt nach 3 Monaten mit Beziehung < 15 (koalition.ts).
+      const partnerBruch =
+        state.koalitionsbruchSeitMonat != null && (state.koalitionspartner?.beziehung ?? 100) < 15;
+      if ((state.coalition ?? 100) < 15 || partnerBruch) {
         verlustGrund = 'koalitionsbruch';
       } else if ((state.lowApprovalMonths ?? 0) >= 6) {
         verlustGrund = 'misstrauensvotum';

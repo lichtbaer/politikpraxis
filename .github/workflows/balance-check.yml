@@ -5,6 +5,7 @@ on:
     paths:
       - 'backend/app/content/**'
       - 'frontend/src/core/**'
+      - 'frontend/src/store/contentStore.ts'
       - 'frontend/scripts/**'
       - 'frontend/package.json'
       - 'frontend/package-lock.json'
@@ -15,6 +16,7 @@ on:
     paths:
       - 'backend/app/content/**'
       - 'frontend/src/core/**'
+      - 'frontend/src/store/contentStore.ts'
       - 'frontend/scripts/**'
       - 'frontend/package.json'
       - 'frontend/package-lock.json'

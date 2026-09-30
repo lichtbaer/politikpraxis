@@ -1,7 +1,7 @@
 import { logger } from '../utils/logger';
 import i18n from '../i18n';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const API_BASE = import.meta.env?.VITE_API_URL || '/api';
 
 interface RequestOptions {
   method?: string;

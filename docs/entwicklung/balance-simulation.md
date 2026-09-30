@@ -10,7 +10,10 @@ Die Balance-Simulation testet 23 Spielstrategien gegen die echte Game-Engine (`f
 |------------|--------------|
 | `frontend/src/core/simulation/balanceSim.ts` | Simulations-Runner, Monte-Carlo-Aggregation |
 | `frontend/src/core/simulation/strategien.ts` | 23 Strategie-Definitionen (random, musterschueler, etc.) |
-| `frontend/src/core/simulation/testContent.ts` | Content-Fixture (Gesetze, Minister, Events) |
+| `frontend/src/core/simulation/content-snapshot.json` | **Echter Content**: Rohantworten der Content-API aus einer frisch migrierten DB |
+| `frontend/src/core/simulation/echterContent.ts` | Baut daraus das ContentBundle — mit derselben Umwandlung wie das Spiel (`contentDatenAusApi`) |
+| `frontend/src/core/simulation/testContent.ts` | Kleines Content-Fixture (19 Gesetze) für Engine-Invarianten-Tests |
+| `backend/scripts/export_content_snapshot.py` | Erzeugt bzw. prüft (`--check`) den Snapshot |
 | `frontend/src/core/simulation/balanceSim.test.ts` | Vitest-Tests mit Gewinnraten-Prüfung |
 | `frontend/scripts/balanceReport.ts` | Report-Generator (Markdown/JSON pro Strategie & Komplexität) |
 
@@ -37,7 +40,29 @@ npm run balance:report -- --n=25             # schnellerer Lauf (z. B. CI)
 npm run balance:report -- --complexity=1,4   # nur ausgewählte Stufen
 npm run balance:report -- --json             # zusätzlich JSON neben dem Markdown
 npm run balance:report -- --out=../report.md # eigener Ausgabepfad (relativ zu cwd)
+npm run balance:report -- --content=test     # Test-Fixture statt echtem Content (Vergleich)
 ```
+
+### Content: echter Snapshot statt Fixture
+
+Der Report läuft seit Oktober 2026 auf dem **echten Spiel-Content** (115 Gesetze, alle
+Zufalls-Events inkl. Story-Arcs, EU-Events). Vorher nutzte er das handgepflegte
+`testContent.ts` mit 19 Gesetzen — dessen Zahlen sagten über das echte Spiel wenig aus
+(u. a. gewannen dort 22–23 von 25 Strategien auf jeder Stufe).
+
+Der Snapshot enthält die Rohantworten der Content-Endpoints, die `contentStore.load` im
+Spiel abruft, und läuft durch dieselbe Umwandlung. Ändert eine Migration den Content,
+muss er neu erzeugt werden — die CI (`lint.yml`, Job `backend-pytest-db`) prüft das:
+
+```bash
+cd backend
+alembic upgrade head                              # frische DB
+python scripts/export_content_snapshot.py         # Snapshot neu schreiben, dann committen
+python scripts/export_content_snapshot.py --check # nur prüfen (CI)
+```
+
+Die Vitest-Blöcke A–F in `balanceSim.test.ts` bleiben auf dem Fixture (Engine-Invarianten,
+schnell); Block G prüft die Grundlagen auf echtem Content.
 
 - **Ausgabe** (Default): `docs/entwicklung/balance-report.md` — eine Tabelle je
   Komplexitätsstufe mit Gewinnrate, Wahlhürden-Rate, Wahlprognose (Median/p10/p90),

@@ -606,7 +606,116 @@ function localizeFallbackZiel<T extends { id: string; titel: string; beschreibun
   };
 }
 
-export const useContentStore = create<ContentStore>((set) => ({
+/**
+ * Wandelt die Rohantworten der Content-API in Store-Daten um (rein, ohne Netz).
+ * Genutzt von `load` und von der Balance-Simulation (Content-Snapshot).
+ */
+export function contentDatenAusApi(a: ContentApiAntworten): Omit<ContentDaten, 'bundesrat' | 'euKlimaStartwerte' | 'scenario'> {
+  const events = a.events.map(transformEvent);
+
+  // Kategorisiere Events in einem Durchlauf statt 8 separater .filter()-Aufrufe
+  const eventTypeById = new Map(a.events.map((e) => [e.id, e.event_type]));
+  const byType: Record<string, GameEvent[]> = {};
+  const charEventsMap: Record<string, GameEvent> = {};
+  const SPECIAL_IDS: Record<string, string> = {
+    koalitionspartner_extremismus_warnung: 'extremismus',
+    verfassungsgericht_klage: 'extremismus',
+    kommunal_haushaltskrise: 'kommunal_laender',
+    kommunal_buergerprotest: 'kommunal_laender',
+    laender_koalitionskrise: 'kommunal_laender',
+    steuerstreit_koalition: 'steuer',
+    steuereinnahmen_einbruch: 'steuer',
+    haushaltsstreit_opposition: 'steuer',
+  };
+  for (const ev of events) {
+    const type = eventTypeById.get(ev.id) ?? 'random';
+    if (ev.id in SPECIAL_IDS) {
+      const cat = SPECIAL_IDS[ev.id];
+      (byType[cat] ??= []).push(ev);
+    }
+    (byType[type] ??= []).push(ev);
+    if (type === 'char_ultimatum') charEventsMap[ev.id] = ev;
+  }
+  const dynamicEventsList = byType['dynamic'] ?? [];
+  // Zufalls-Pool: alles außer den Spezialkategorien. `event_type` trägt bei den
+  // Story-Arcs und den nachgeseedeten Events (Migration 070) den Anzeigetyp
+  // (danger/warn/…) statt 'random' — ein Filter auf 'random' allein ließ sie
+  // nie in den Pool und Follow-ups liefen ins Leere. Fortsetzungen werden in
+  // checkRandomEvents nicht eigenständig gezogen.
+  const randomEvents = events.filter(
+    (e) => !NICHT_ZUFALLS_KATEGORIEN.has(eventTypeById.get(e.id) ?? 'random'),
+  );
+  const brEventsList = byType['bundesrat'] ?? [];
+  const kommunalEventsList = byType['kommunal_initiative'] ?? [];
+  const vorstufenEventsList = byType['vorstufe_erfolg'] ?? [];
+  const extremismusEventsList = byType['extremismus'] ?? [];
+  const kommunalLaenderEventsList = byType['kommunal_laender'] ?? [];
+  const steuerEventsList = byType['steuer'] ?? [];
+
+  const bundesratEventsResolved =
+    brEventsList.length > 0 ? brEventsList : BUNDESRAT_EVENTS;
+
+  const milieus = a.milieus.map(transformMilieu);
+  const verbaende = a.verbaende.length > 0
+    ? a.verbaende.map(transformVerband)
+    : DEFAULT_VERBAENDE;
+  const politikfelder = a.politikfelder.map((p) => transformPolitikfeld(p, a.verbaende));
+
+  const medienAkteureContent =
+    a.medienAkteure.length > 0
+      ? a.medienAkteure.map(transformMedienAkteur)
+      : DEFAULT_MEDIEN_AKTEURE;
+
+  return {
+    chars: a.chars.map(transformChar),
+    gesetze: a.gesetze.map(transformGesetz),
+    events: randomEvents.length > 0 ? randomEvents : events,
+    charEvents: charEventsMap,
+    bundesratEvents: bundesratEventsResolved,
+    kommunalEvents: kommunalEventsList,
+    vorstufenEvents: vorstufenEventsList,
+    extremismusEvents: extremismusEventsList,
+    kommunalLaenderEvents: kommunalLaenderEventsList,
+    steuerEvents: steuerEventsList,
+    bundesratFraktionen: a.bundesrat.map(transformBundesratFraktion),
+    bundeslaender: a.bundeslaender.map(transformBundesland),
+    milieus,
+    politikfelder,
+    verbaende,
+    ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
+    gesetzRelationen: buildGesetzRelationen(a.gesetzRelationen),
+    medienAkteureContent,
+    dynamicEvents: dynamicEventsList,
+    agendaZiele: a.agendaZiele.map(transformAgendaZiel),
+    koalitionsZiele: a.koalitionsZiele.map(transformKoalitionsZiel),
+    euEvents: a.euEvents.map(transformEuEvent),
+  };
+}
+
+/** Rohantworten der Content-API in der Form, in der `load` sie abruft. Der
+ *  Balance-Snapshot (core/simulation) hat dieselbe Form — beide laufen durch
+ *  `contentDatenAusApi`, damit die Simulation genau den Content des Spiels sieht. */
+export interface ContentApiAntworten {
+  chars: CharApi[];
+  gesetze: GesetzApi[];
+  events: EventApi[];
+  bundesrat: BundesratFraktionApi[];
+  milieus: MilieuApi[];
+  politikfelder: PolitikfeldApi[];
+  verbaende: VerbandApi[];
+  gesetzRelationen: GesetzRelationApi[];
+  medienAkteure: MedienAkteurApi[];
+  bundeslaender: BundeslandApi[];
+  agendaZiele: AgendaZielApi[];
+  koalitionsZiele: KoalitionsZielApi[];
+  euEvents: EuEventApi[];
+}
+
+/** Daten-Teil des Stores (ohne Ladezustand und Aktionen). */
+export type ContentDaten = Omit<ContentStore, 'load' | 'loading' | 'loaded' | 'offline' | 'error'>;
+
+/** Startwerte vor dem ersten Laden — Felder, die `load` nicht setzt, behalten sie. */
+export const INITIAL_CONTENT_DATEN: ContentDaten = {
   chars: [],
   gesetze: [],
   events: [],
@@ -632,6 +741,10 @@ export const useContentStore = create<ContentStore>((set) => ({
   agendaZiele: [],
   koalitionsZiele: [],
   scenario: DEFAULT_SCENARIO,
+};
+
+export const useContentStore = create<ContentStore>((set) => ({
+  ...INITIAL_CONTENT_DATEN,
   loading: false,
   loaded: false,
   offline: false,
@@ -710,84 +823,22 @@ export const useContentStore = create<ContentStore>((set) => ({
         throw new Error('Content-API: Teilausfall kritischer Endpoints');
       }
 
-      const events = eventsAll.map(transformEvent);
-
-      // Kategorisiere Events in einem Durchlauf statt 8 separater .filter()-Aufrufe
-      const eventTypeById = new Map(eventsAll.map((a) => [a.id, a.event_type]));
-      const byType: Record<string, GameEvent[]> = {};
-      const charEventsMap: Record<string, GameEvent> = {};
-      const SPECIAL_IDS: Record<string, string> = {
-        koalitionspartner_extremismus_warnung: 'extremismus',
-        verfassungsgericht_klage: 'extremismus',
-        kommunal_haushaltskrise: 'kommunal_laender',
-        kommunal_buergerprotest: 'kommunal_laender',
-        laender_koalitionskrise: 'kommunal_laender',
-        steuerstreit_koalition: 'steuer',
-        steuereinnahmen_einbruch: 'steuer',
-        haushaltsstreit_opposition: 'steuer',
-      };
-      for (const ev of events) {
-        const type = eventTypeById.get(ev.id) ?? 'random';
-        if (ev.id in SPECIAL_IDS) {
-          const cat = SPECIAL_IDS[ev.id];
-          (byType[cat] ??= []).push(ev);
-        }
-        (byType[type] ??= []).push(ev);
-        if (type === 'char_ultimatum') charEventsMap[ev.id] = ev;
-      }
-      const dynamicEventsList = byType['dynamic'] ?? [];
-      // Zufalls-Pool: alles außer den Spezialkategorien. `event_type` trägt bei den
-      // Story-Arcs und den nachgeseedeten Events (Migration 070) den Anzeigetyp
-      // (danger/warn/…) statt 'random' — ein Filter auf 'random' allein ließ sie
-      // nie in den Pool und Follow-ups liefen ins Leere. Fortsetzungen werden in
-      // checkRandomEvents nicht eigenständig gezogen.
-      const randomEvents = events.filter(
-        (e) => !NICHT_ZUFALLS_KATEGORIEN.has(eventTypeById.get(e.id) ?? 'random'),
-      );
-      const brEventsList = byType['bundesrat'] ?? [];
-      const kommunalEventsList = byType['kommunal_initiative'] ?? [];
-      const vorstufenEventsList = byType['vorstufe_erfolg'] ?? [];
-      const extremismusEventsList = byType['extremismus'] ?? [];
-      const kommunalLaenderEventsList = byType['kommunal_laender'] ?? [];
-      const steuerEventsList = byType['steuer'] ?? [];
-
-      const bundesratEventsResolved =
-        brEventsList.length > 0 ? brEventsList : BUNDESRAT_EVENTS;
-
-      const milieus = (milieusRaw ?? []).map(transformMilieu);
-      const verbaende = (verbaendeRaw ?? []).length > 0
-        ? (verbaendeRaw ?? []).map(transformVerband)
-        : DEFAULT_VERBAENDE;
-      const politikfelder = (politikfelderRaw ?? []).map((p) => transformPolitikfeld(p, verbaendeRaw ?? []));
-
-      const medienAkteureContent =
-        medienAkteureRaw && medienAkteureRaw.length > 0
-          ? medienAkteureRaw.map(transformMedienAkteur)
-          : DEFAULT_MEDIEN_AKTEURE;
-
       set({
-        chars: chars.map(transformChar),
-        gesetze: gesetze.map(transformGesetz),
-        events: randomEvents.length > 0 ? randomEvents : events,
-        charEvents: charEventsMap,
-        bundesratEvents: bundesratEventsResolved,
-        kommunalEvents: kommunalEventsList,
-        vorstufenEvents: vorstufenEventsList,
-        extremismusEvents: extremismusEventsList,
-        kommunalLaenderEvents: kommunalLaenderEventsList,
-        steuerEvents: steuerEventsList,
-        bundesratFraktionen: bundesratFraktionen.map(transformBundesratFraktion),
-        bundeslaender: (bundeslaenderRaw ?? []).map(transformBundesland),
-        milieus,
-        politikfelder,
-        verbaende,
-        ministerialInitiativen: DEFAULT_MINISTERIAL_INITIATIVEN,
-        gesetzRelationen: buildGesetzRelationen(gesetzRelationenRaw ?? []),
-        medienAkteureContent,
-        dynamicEvents: dynamicEventsList,
-        agendaZiele: (agendaZieleRaw ?? []).map(transformAgendaZiel),
-        koalitionsZiele: (koalitionsZieleRaw ?? []).map(transformKoalitionsZiel),
-        euEvents: (euEventsRaw ?? []).map(transformEuEvent),
+        ...contentDatenAusApi({
+          chars,
+          gesetze,
+          events: eventsAll,
+          bundesrat: bundesratFraktionen,
+          milieus: milieusRaw ?? [],
+          politikfelder: politikfelderRaw ?? [],
+          verbaende: verbaendeRaw ?? [],
+          gesetzRelationen: gesetzRelationenRaw ?? [],
+          medienAkteure: medienAkteureRaw ?? [],
+          bundeslaender: bundeslaenderRaw ?? [],
+          agendaZiele: agendaZieleRaw ?? [],
+          koalitionsZiele: koalitionsZieleRaw ?? [],
+          euEvents: euEventsRaw ?? [],
+        }),
         loading: false,
         loaded: true,
         error: null,
@@ -815,6 +866,11 @@ export function getContentBundle(): ContentBundle {
   if (!s.chars.length || !s.gesetze.length) {
     logger.warn('ContentBundle: Kritische Daten fehlen — Content noch nicht vollständig geladen');
   }
+  return bundleAusContentDaten(s);
+}
+
+/** ContentBundle aus Store-Daten — so, wie das Spiel es an createInitialState/tick gibt. */
+export function bundleAusContentDaten(s: ContentDaten): ContentBundle {
   const wahlkampfEvents = [
     WAHLKAMPF_BEGINN_EVENT,
     TV_DUELL_EVENT,
