@@ -1643,3 +1643,181 @@
       charMood:
         wm: 1
       log: 'Kompromiss verabschiedet. Moderat begrüßt, niemand ist wirklich zufrieden.'
+
+- id: stahlkrise_ankuendigung
+  type: danger
+  icon: "\U0001F3ED"
+  typeLabel: Stahlkrise
+  title: 'Kessler Stahlwerke kündigen Aus für Hochofenstandort an'
+  arc_id: stahlkrise
+  arc_stage: 1
+  min_complexity: 1
+  quote: >-
+    Ohne Hilfe aus Berlin gehen hier nächstes Jahr die Lichter aus.
+  context: >-
+    Der Konzern will den Standort mit rund 8.000 Beschäftigten schließen,
+    falls der Bund den Umbau auf wasserstoffbasierten Stahl nicht
+    mitfinanziert. Das Wirtschaftsministerium drängt auf eine Entscheidung,
+    das Finanzministerium warnt vor einem Präzedenzfall.
+  ticker: 'Stahlwerk vor dem Aus: 8.000 Jobs in Gefahr'
+  choices:
+    - label: Staatsbeteiligung und Umbauhilfe
+      desc: 'Bund steigt ein und finanziert den Umbau mit — teuer, rettet Arbeitsplätze'
+      cost: 12
+      type: primary
+      effect:
+        al: -0.2
+        hh: -0.3
+        zf: 1
+      charMood:
+        am: 1
+        fm: -1
+      log: 'Bund steigt bei Kessler ein. Belegschaft erleichtert, Haushälter skeptisch.'
+      followup_event_id: stahlkrise_beihilfe
+      followup_delay: 2
+    - label: Keine Einzelfallhilfe
+      desc: 'Unternehmerische Entscheidung respektieren — billig, aber riskant für die Region'
+      cost: 2
+      type: danger
+      effect:
+        al: 0.3
+        gi: 0.1
+        zf: -2
+      charMood:
+        fm: 1
+        am: -1
+      log: 'Keine Staatshilfe für Kessler. Gewerkschaften kündigen Widerstand an.'
+      followup_event_id: stahlkrise_protest
+      followup_delay: 1
+
+- id: stahlkrise_beihilfe
+  type: warn
+  icon: "\U0001F3ED"
+  typeLabel: Stahlkrise
+  title: 'EU-Kommission prüft Staatshilfe für Kessler'
+  arc_id: stahlkrise
+  arc_stage: 2
+  min_complexity: 1
+  quote: >-
+    Wettbewerb im Binnenmarkt endet nicht an der deutschen Grenze.
+  context: >-
+    Stahlhersteller aus drei Mitgliedstaaten haben Beschwerde eingelegt,
+    Brüssel eröffnet ein Beihilfeverfahren. Genehmigt die Kommission die
+    Hilfe nur mit Auflagen, muss Kessler Kapazitäten abbauen und schneller
+    auf grünen Stahl umstellen.
+  ticker: 'Brüssel prüft Kessler-Hilfen'
+  choices:
+    - label: Auflagen akzeptieren
+      desc: 'Kapazitätsabbau und schnelleren Umbau zusagen — die Hilfe wird genehmigt'
+      cost: 6
+      type: safe
+      effect:
+        al: 0.1
+        hh: -0.1
+        zf: 1
+      charMood:
+        wm: 1
+      log: 'Beihilfe mit Auflagen genehmigt. Kessler baut um, einige Stellen fallen weg.'
+      followup_event_id: stahlkrise_industriestrategie
+      followup_delay: 2
+    - label: Auf Konfrontation gehen
+      desc: 'Auf strategische Grundstoffindustrie pochen, Verfahren aussitzen'
+      cost: 3
+      type: danger
+      effect:
+        hh: -0.1
+        zf: -1
+      charMood:
+        wm: -1
+        jm: -1
+      log: 'Bundesregierung stellt sich gegen Brüssel. Eine Rückforderung der Hilfe droht.'
+      followup_event_id: stahlkrise_industriestrategie
+      followup_delay: 2
+
+- id: stahlkrise_protest
+  type: danger
+  icon: "\U0001F3ED"
+  typeLabel: Stahlkrise
+  title: 'Belegschaft besetzt Werkstor – Region fordert den Bund'
+  arc_id: stahlkrise
+  arc_stage: 2
+  min_complexity: 1
+  quote: >-
+    Wir sind nicht die Verfügungsmasse einer Konzernbilanz.
+  context: >-
+    Seit Tagen blockieren Beschäftigte das Werksgelände, Zulieferer melden
+    Kurzarbeit an. Die Landesregierung verlangt vom Bund ein Programm für
+    den Strukturwandel der Region.
+  ticker: 'Stahlwerk besetzt: Region in Aufruhr'
+  choices:
+    - label: Strukturwandelfonds auflegen
+      desc: 'Milliardenprogramm für neue Industrie in der Region'
+      cost: 10
+      type: primary
+      effect:
+        al: -0.2
+        hh: -0.3
+        gi: -0.1
+        zf: 2
+      charMood:
+        am: 1
+        fm: -1
+      log: 'Strukturwandelfonds beschlossen. Die Blockade endet, Zweifel an der Finanzierung bleiben.'
+      followup_event_id: stahlkrise_industriestrategie
+      followup_delay: 2
+    - label: Transfergesellschaft finanzieren
+      desc: 'Qualifizierung und Vermittlung für die Beschäftigten — begrenzt, aber gezielt'
+      cost: 4
+      type: safe
+      effect:
+        al: 0.1
+        hh: -0.1
+      charMood:
+        am: 1
+      log: 'Transfergesellschaft startet. Die Stimmung bleibt angespannt.'
+      followup_event_id: stahlkrise_industriestrategie
+      followup_delay: 2
+
+- id: stahlkrise_industriestrategie
+  type: primary
+  icon: "\U0001F3ED"
+  typeLabel: Stahlkrise
+  title: 'Kabinett ringt um Industriestrategie für Grundstoffe'
+  arc_id: stahlkrise
+  arc_stage: 3
+  min_complexity: 1
+  quote: >-
+    Kessler war kein Einzelfall. Chemie, Zement und Glas stehen vor
+    derselben Frage.
+  context: >-
+    Weitere Unternehmen der Grundstoffindustrie melden Förderbedarf für den
+    klimaneutralen Umbau an. Die Regierung muss entscheiden, ob sie
+    Einzelfälle rettet oder einen allgemeinen Rahmen setzt.
+  ticker: 'Industriestrategie: Kabinett uneins'
+  choices:
+    - label: Klimaschutzverträge für alle
+      desc: 'Differenzverträge für den klimaneutralen Umbau der Grundstoffindustrie'
+      cost: 10
+      type: primary
+      effect:
+        al: -0.1
+        hh: -0.2
+        zf: 2
+      charMood:
+        um: 1
+        wm: 1
+        fm: -1
+      log: 'Klimaschutzverträge beschlossen. Industrie und Umweltverbände zeigen sich zufrieden.'
+    - label: Technologieoffen, ohne Subventionen
+      desc: 'Keine Einzelhilfen mehr, der CO₂-Preis soll es richten'
+      cost: 4
+      type: safe
+      effect:
+        al: 0.1
+        hh: 0.1
+        gi: 0.1
+        zf: -1
+      charMood:
+        fm: 1
+        um: -1
+      log: 'Keine neuen Industriehilfen. Umweltverbände und Gewerkschaften kritisieren den Kurs.'

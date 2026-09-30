@@ -179,7 +179,9 @@ werden nie eigenständig gezogen, sondern nur über den geplanten Follow-up erre
   (→ Oppositions-Vorwurf), Fachkräftemangel, Energiekrise, Rentendebatte,
   Pandemie-Vorbereitung, Infrastruktur-Kollaps, Migrationskrise, Bauernproteste,
   Pflegenotstand, KI-Vorfall (seit Migration 070 in der DB)
-- Story-Arcs: Beraterskandal, Rüstungsexport
+- Story-Arcs (#272, je 3 Stufen mit Verzweigung nach Stufe 1; Fortsetzungen nur mit
+  Follow-up-Events, d. h. ab Stufe 4): Beraterskandal, Rüstungsexport, Stahlkrise
+  (Staatshilfe → EU-Beihilfeverfahren bzw. keine Hilfe → Werksbesetzung → Industriestrategie)
 
 **Gesperrte Gesetze:** 14 Gesetze (`locked_until_event`, Migration 051) sind zu Spielbeginn
 nicht verfügbar. Eine Option des zugehörigen Events (`unlocks_laws`) — in der Regel die aktive
