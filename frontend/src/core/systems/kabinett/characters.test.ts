@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { applyCharBonuses, checkUltimatums, applyMoodChange } from './characters';
+import { applyCharBonuses, checkUltimatums, applyMoodChange, resolveCharRelationships } from './characters';
 import { createInitialState } from '../../state';
 import { DEFAULT_CONTENT } from '../../../data/defaults/scenarios';
+import { SPIELBARE_PARTEIEN } from '../../../data/defaults/parteien';
+import { echterContent } from '../../simulation/echterContent';
 import type { GameState, Character, GameEvent } from '../../types';
 
 function makeChar(overrides: Partial<Character> = {}): Character {
@@ -199,5 +201,76 @@ describe('applyCharBonuses', () => {
     });
     const result = applyCharBonuses(state);
     expect(result.kpi.hh).toBe(0.5); // Kein Effekt
+  });
+});
+
+describe('resolveCharRelationships (SMA-279)', () => {
+  const kanzler = makeChar({
+    id: 'kanzler',
+    ist_kanzler: true,
+    relationships: [
+      { target: 'im', type: 'verfeindet', staerke: 2 },
+      { target: 'jm', type: 'verbuendet', staerke: 2 },
+    ],
+  });
+  const fm = makeChar({
+    id: 'sdp_fm',
+    name: 'Finanzministerin',
+    ressort: 'finanzen',
+    relationships: [
+      { target: 'wm', type: 'verfeindet', staerke: 2 },
+      { target: 'gm', type: 'verfeindet', staerke: 1 },
+    ],
+  });
+  const wm = makeChar({ id: 'gp_wm', name: 'Wirtschaftsminister', ressort: 'wirtschaft' });
+  const im = makeChar({
+    id: 'sdp_im',
+    ressort: 'innen',
+    relationships: [{ target: 'kanzler', type: 'verfeindet', staerke: 2 }],
+  });
+
+  it('löst Rollen-Schlüssel auf den amtierenden Minister des Ressorts auf', () => {
+    const res = resolveCharRelationships([kanzler, fm, wm, im], fm);
+    // 'gm' ist nicht im Kabinett → entfällt
+    expect(res.map((r) => [r.target.id, r.rel.type])).toEqual([['gp_wm', 'verfeindet']]);
+  });
+
+  it('löst "kanzler" auf den (synthetischen) Kanzler auf', () => {
+    const res = resolveCharRelationships([kanzler, fm, wm, im], im);
+    expect(res.map((r) => r.target.id)).toEqual(['kanzler']);
+    expect(resolveCharRelationships([kanzler, fm, wm, im], kanzler).map((r) => r.target.id)).toEqual(['sdp_im']);
+  });
+
+  it('funktioniert mit direkten Char-IDs (Offline-Fallback mit Legacy-IDs)', () => {
+    const legacyFm = makeChar({ id: 'fm', relationships: [{ target: 'wm', type: 'verfeindet', staerke: 2 }] });
+    const legacyWm = makeChar({ id: 'wm' });
+    expect(resolveCharRelationships([legacyFm, legacyWm], legacyFm).map((r) => r.target.id)).toEqual(['wm']);
+  });
+
+  it('liefert nichts ohne relationships', () => {
+    expect(resolveCharRelationships([kanzler, wm], wm)).toEqual([]);
+  });
+
+  it('echter Content: jedes Kabinettsmitglied hat Beziehungen, die im Kabinett auflösbar sind', () => {
+    const content = echterContent();
+    for (const partei of SPIELBARE_PARTEIEN) {
+      const state = createInitialState(content, 4, undefined, {
+        id: partei.id,
+        kuerzel: partei.kuerzel,
+        farbe: partei.farbe,
+        name: partei.name,
+      });
+      expect(state.chars.length, partei.id).toBeGreaterThan(1);
+      let aufgeloest = 0;
+      for (const char of state.chars) {
+        expect(char.relationships?.length ?? 0, `${partei.id}/${char.id}`).toBeGreaterThan(0);
+        const res = resolveCharRelationships(state.chars, char);
+        for (const { target } of res) {
+          expect(state.chars).toContain(target);
+        }
+        aufgeloest += res.length;
+      }
+      expect(aufgeloest, partei.id).toBeGreaterThan(0);
+    }
   });
 });
