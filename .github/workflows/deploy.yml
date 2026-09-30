@@ -14,6 +14,9 @@ concurrency:
   group: deploy-main
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   build-check:
     if: github.event.workflow_run.conclusion == 'success'
@@ -45,22 +48,38 @@ jobs:
     #   no-agent-forwarding,no-X11-forwarding ssh-ed25519 AAAA...
     # Siehe docs/deployment.md für vollständige Anleitung.
     steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+      # Fehlen die Secrets, bricht ssh-action nur mit "missing server host" ab.
+      # Hier lieber klar sagen, welches Secret fehlt und wo es dokumentiert ist.
+      - name: Check deploy secrets
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          missing=()
+          [ -n "$DEPLOY_HOST" ] || missing+=(DEPLOY_HOST)
+          [ -n "$DEPLOY_USER" ] || missing+=(DEPLOY_USER)
+          [ -n "$DEPLOY_SSH_KEY" ] || missing+=(DEPLOY_SSH_KEY)
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error title=Deploy nicht konfiguriert::Fehlende Repository-Secrets: ${missing[*]} (Settings -> Secrets and variables -> Actions, siehe docs/deployment.md)"
+            exit 1
+          fi
 
       - name: Deploy via SSH
-        # TODO(#262): pin to a commit SHA. This step has access to
-        # DEPLOY_SSH_KEY, making it the highest-priority target for SHA
-        # pinning — but this sandbox's network policy only allows GitHub API
-        # access to this repo, so the current v1.x commit SHA couldn't be
-        # looked up and verified here. A follow-up with unrestricted network
-        # access (or a maintainer) should pin this before relying on it.
-        uses: appleboy/ssh-action@v1
+        # Auf einen Commit gepinnt (v1.2.5), weil dieser Schritt DEPLOY_SSH_KEY sieht.
+        # Update: `git ls-remote https://github.com/appleboy/ssh-action refs/tags/<tag>`.
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        env:
+          # Der von lint.yml geprüfte Commit — nicht der aktuelle Stand von main,
+          # der inzwischen weitergelaufen sein kann.
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: DEPLOY_SHA
+          # Bei einem Forced-Command-Key (docs/deployment.md) wird dieses Skript nicht
+          # ausgeführt; deploy.sh liest den SHA dann aus SSH_ORIGINAL_COMMAND.
           script: |
             set -e
             cd /opt/politikpraxis
@@ -69,4 +88,4 @@ jobs:
               git pull origin main
             fi
             chmod +x scripts/deploy.sh
-            ./scripts/deploy.sh
+            ./scripts/deploy.sh "$DEPLOY_SHA"
