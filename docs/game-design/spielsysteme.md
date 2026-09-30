@@ -160,22 +160,31 @@ Events sind das spielerische Herz. Sie erscheinen zufällig (~22% Chance/Monat),
 
 **Zwei Event-Typen:**
 
-*Random Events* (aus Pool, max. 1× pro Spieldurchlauf):
-- Haushaltsloch
+*Random Events* (aus Pool; einmalig oder mit Cooldown wiederholbar). Der Pool umfasst alle
+Events außerhalb der Spezialkategorien (Bundesrat, Char-Ultimatum, bedingte, dynamische,
+Kommunal-Initiative, Vorstufen-Erfolg) — also auch die Einstiege der Story-Arcs (#272).
+Fortsetzungen, d. h. Arc-Stufen ≥ 2 und jedes Event, das eine Option als Follow-up ansteuert,
+werden nie eigenständig gezogen, sondern nur über den geplanten Follow-up erreicht.
+
+- Haushaltsloch (→ Folge: Verfassungsklage gegen Schuldenaufnahme)
 - Ministeriumsskandal
 - EU-Vertragsverletzungsverfahren
 - Konjunkturabschwung
 - Koalitionskrise
 - Großdemonstration
 - EU-Strukturfonds-Freigabe
-- Verfassungsgerichtsurteil (geplant)
-- Naturkatastrophe (geplant)
-- Cyberangriff auf Behörden (geplant)
-- G7-Gipfel / internationale Krise (geplant)
-- Whistleblower-Affäre (geplant)
-- Streikwelle (geplant)
-- Wohnungsnot-Proteste (geplant)
-- Rechtsextremismus-Krise (geplant)
+- Verfassungsgerichtsurteil, Naturkatastrophe (→ Wiederaufbau-Debatte), Cyberangriff auf
+  Behörden (→ diplomatische Krise), G7-/internationale Krise, Whistleblower-Affäre,
+  Streikwelle (→ Gewerkschafts-Eskalation), Wohnungsnot-Proteste, Rechtsextremismus-Krise
+  (→ Oppositions-Vorwurf), Fachkräftemangel, Energiekrise, Rentendebatte,
+  Pandemie-Vorbereitung, Infrastruktur-Kollaps, Migrationskrise, Bauernproteste,
+  Pflegenotstand, KI-Vorfall (seit Migration 070 in der DB)
+- Story-Arcs: Beraterskandal, Rüstungsexport
+
+**Gesperrte Gesetze:** 14 Gesetze (`locked_until_event`, Migration 051) sind zu Spielbeginn
+nicht verfügbar. Eine Option des zugehörigen Events (`unlocks_laws`) — in der Regel die aktive
+bzw. konstruktive Reaktion — fügt sie dem Spielstand als Entwurf hinzu, z. B. Naturkatastrophe →
+Katastrophenschutzgesetz, KI-Vorfall → KI-Governance-Gesetz.
 
 *Char-Ultimatums* (ausgelöst bei Mood-Schwelle):
 - Lehmann: Haushalt-Ultimatum

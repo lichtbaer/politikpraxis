@@ -95,3 +95,79 @@ describe('contentStore Offline-Fallback', () => {
     expect(s.error).not.toBeNull();
   });
 });
+
+describe('contentStore: Zufalls-Pool und EU-Events aus der API', () => {
+  beforeEach(() => {
+    apiFetchMock.mockReset();
+  });
+
+  function apiEvent(id: string, event_type: string, extra: Record<string, unknown> = {}) {
+    return { id, event_type, type_label: '', title: id, quote: '', context: '', ticker: '', choices: [], ...extra };
+  }
+
+  const EVENTS = [
+    apiEvent('haushalt', 'random'),
+    apiEvent('naturkatastrophe', 'danger'),
+    apiEvent('beraterskandal_enthuellung', 'danger', { arc_id: 'beraterskandal', arc_stage: 1 }),
+    apiEvent('beraterskandal_leak', 'danger', { arc_id: 'beraterskandal', arc_stage: 2 }),
+    apiEvent('ruestungsexport_kontrollgesetz', 'primary', { arc_id: 'ruestungsexport', arc_stage: 3 }),
+    apiEvent('foederalismusgipfel', 'bundesrat'),
+    apiEvent('dyn_rezession_eintritt', 'dynamic'),
+    apiEvent('fm_ultimatum', 'char_ultimatum'),
+    apiEvent('steuerstreit_koalition', 'conditional'),
+  ];
+
+  const EU_EVENTS = [
+    {
+      id: 'eu_rl_mindestlohn',
+      event_type: 'reaktiv_richtlinie',
+      politikfeld_id: 'arbeit_soziales',
+      trigger_klima_min: 45,
+      trigger_monat: null,
+      min_complexity: 3,
+      title: 'EU-Mindestlohn-Richtlinie',
+      quote: 'Brüssel verlangt Standards.',
+      context: 'Kontext',
+      ticker: 'Ticker',
+      choices: [
+        { key: 'sofort_umsetzen', cost_pk: 0, effekte: { al: 0, hh: 0, gi: 0, zf: 0 }, eu_klima_delta: 8, kofinanzierung: 0.2, label: 'Sofort', desc: '', log_msg: 'umgesetzt' },
+        { key: 'minimal_umsetzen', cost_pk: 0, effekte: { al: 0, hh: 0, gi: 0, zf: 0 }, eu_klima_delta: 0, kofinanzierung: 0.1, label: 'Minimal', desc: '', log_msg: 'minimal' },
+        { key: 'klagen', cost_pk: 0, effekte: { al: 0, hh: 0, gi: 0, zf: 0 }, eu_klima_delta: 0, kofinanzierung: 0, label: 'Klagen', desc: '', log_msg: 'geklagt' },
+      ],
+    },
+  ];
+
+  async function ladeMitApi() {
+    apiFetchMock.mockImplementation((path: string) => {
+      if (path.startsWith('/content/events')) return Promise.resolve(EVENTS);
+      if (path.startsWith('/content/eu-events')) return Promise.resolve(EU_EVENTS);
+      return Promise.resolve([]);
+    });
+    await useContentStore.getState().load('de');
+    return useContentStore.getState();
+  }
+
+  it('nimmt Story-Arcs und nachgeseedete Events in den Pool, Spezialkategorien nicht', async () => {
+    const s = await ladeMitApi();
+    expect(s.error).toBeNull();
+    expect(s.events.map(e => e.id).sort()).toEqual([
+      'beraterskandal_enthuellung',
+      'beraterskandal_leak',
+      'haushalt',
+      'naturkatastrophe',
+      'ruestungsexport_kontrollgesetz',
+    ]);
+  });
+
+  it('lädt EU-Events als spielbare Ereignisse mit EU-Klima-Wirkung', async () => {
+    const s = await ladeMitApi();
+    expect(s.euEvents).toHaveLength(1);
+    const eu = s.euEvents[0];
+    expect(eu).toMatchObject({ id: 'eu_rl_mindestlohn', politikfeld_id: 'arbeit_soziales', trigger_klima_min: 45, min_complexity: 3, event_type: 'reaktiv_richtlinie' });
+    expect(eu.event?.title).toBe('EU-Mindestlohn-Richtlinie');
+    expect(eu.event?.choices.map(c => c.type)).toEqual(['primary', 'safe', 'danger']);
+    expect(eu.event?.choices[0]).toMatchObject({ key: 'sofort_umsetzen', euKlima: { feldId: 'arbeit_soziales', delta: 8 }, kofinanzierung: 0.2, log: 'umgesetzt' });
+    expect(eu.event?.choices[2].euKlima).toBeUndefined();
+    expect(getContentBundle().euEvents).toHaveLength(1);
+  });
+});

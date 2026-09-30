@@ -4,6 +4,30 @@
  */
 import type { GameState, GameEvent } from '../../types';
 
+const fortsetzungsZieleCache = new WeakMap<readonly GameEvent[], Set<string>>();
+
+/**
+ * IDs aller Events, die eine Option eines anderen Events als Follow-up ansteuert.
+ * Solche Fortsetzungen (Arc-Stufen, Ketten wie haushalt → verfassungsklage_schulden)
+ * setzen ihre Vorgeschichte voraus und werden nie eigenständig zufällig gezogen,
+ * sondern nur über `pendingFollowups` erreicht. Pro Pool-Array gecacht.
+ */
+export function fortsetzungsZiele(events: readonly GameEvent[]): Set<string> {
+  let ziele = fortsetzungsZieleCache.get(events);
+  if (!ziele) {
+    ziele = new Set(
+      events.flatMap(e => e.choices.map(c => c.followup_event_id).filter((id): id is string => !!id)),
+    );
+    fortsetzungsZieleCache.set(events, ziele);
+  }
+  return ziele;
+}
+
+/** Ob ein Event eigenständig in den Zufalls-Pool darf (Arc-Einstieg ja, Fortsetzung nein). */
+export function istEigenstaendigesEvent(event: GameEvent, ziele: Set<string>): boolean {
+  return (event.arcStage ?? 1) <= 1 && !ziele.has(event.id);
+}
+
 /** Check if a repeatable event is currently on cooldown */
 export function isOnCooldown(state: GameState, event: GameEvent): boolean {
   if (!event.repeatable) return false;
