@@ -279,8 +279,11 @@ describe('Score-Dimensionen', () => {
     expect(aktiv.agendaPunkte.median).toBeGreaterThan(passiv.agendaPunkte.median + 20);
   }, 30_000);
 
-  it('Spieler-Agenda gesetzt: pk_horten schneidet mit gesetzter Agenda schlechter ab als ohne (der bisherige Default 55 kaschierte reine Passivität)', () => {
-    const ohneAgenda = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
+  // Seit #267 zählt jedes Agendaziel gleich (vorher Spieler- und Koalitionsziele 50/50):
+  // Ohne Spieler-Agenda bleiben nur die (für pk_horten roten) Koalitionsziele, der Vergleich
+  // „mit vs. ohne“ sagt daher nichts mehr aus. Geprüft wird die eigentliche Absicht:
+  // reine Passivität liegt mit gesetzter Agenda unter dem neutralen Default 55.
+  it('Spieler-Agenda gesetzt: pk_horten liegt unter dem neutralen Agenda-Default (55)', () => {
     const mitAgenda = monteCarlo(
       SIM_CONTENT,
       strategien['pk_horten'],
@@ -288,7 +291,7 @@ describe('Score-Dimensionen', () => {
       COMPLEXITY,
       ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'],
     );
-    expect(mitAgenda.agendaPunkte.median).toBeLessThan(ohneAgenda.agendaPunkte.median);
+    expect(mitAgenda.agendaPunkte.median).toBeLessThan(55);
   }, 30_000);
 
   it('Gesamtübersicht aller Strategien: Score-Dimensionen (console.table)', () => {
@@ -451,6 +454,44 @@ describe('Echter Content (DB-Snapshot)', () => {
     const passiv = monteCarlo(echterContent(), strategien['pk_horten'], N_ECHT, 4, AGENDA);
     expect(muster.gewinnRate).toBeGreaterThan(passiv.gewinnRate);
   }, 120_000);
+
+  // #267: Zielbänder. Toleranzen decken das Monte-Carlo-Rauschen ab (SE bei N=150 ≈ 4 Pp.).
+  describe('Zielbänder (#267)', () => {
+    const rate = (name: string, stufe: number, n: number) =>
+      monteCarlo(echterContent(), strategien[name], n, stufe, AGENDA).gewinnRate;
+
+    it('Stufe 1: Nichtstun verliert, Zufall gewinnt höchstens rund die Hälfte, gutes Spiel meist', () => {
+      const n = 150;
+      expect(rate('pk_horten', 1, n)).toBeLessThanOrEqual(0.1);
+      expect(rate('nur_sparen', 1, n)).toBeLessThanOrEqual(0.1);
+      const zufall = rate('random', 1, n);
+      expect(zufall).toBeLessThanOrEqual(0.6);
+      const allrounder = rate('allrounder', 1, n);
+      expect(allrounder).toBeGreaterThanOrEqual(0.6);
+      expect(allrounder).toBeGreaterThan(zufall + 0.2);
+      expect(rate('musterschueler', 1, n)).toBeGreaterThanOrEqual(0.45);
+    }, 180_000);
+
+    it('Stufe 2–4: Nichtstun verliert immer, gutes Spiel gewinnt mindestens 60 %', () => {
+      for (const stufe of [2, 3, 4]) {
+        expect(rate('pk_horten', stufe, 40)).toBe(0);
+        for (const gut of ['musterschueler', 'koalitionsmanager']) {
+          const r = rate(gut, stufe, 60);
+          if (r < 0.6) throw new Error(`${gut} auf Stufe ${stufe}: ${(r * 100).toFixed(0)} % < 60 %`);
+        }
+      }
+    }, 300_000);
+
+    it('Stufe 3 → 4: keine Strategie springt um mehr als 40 Pp.', () => {
+      for (const name of ['musterschueler', 'koalitionsmanager', 'allrounder', 'bundesrat_profi', 'stapler']) {
+        const r3 = rate(name, 3, 60);
+        const r4 = rate(name, 4, 60);
+        if (Math.abs(r3 - r4) > 0.4) {
+          throw new Error(`${name}: Stufe 3 ${(r3 * 100).toFixed(0)} % vs. Stufe 4 ${(r4 * 100).toFixed(0)} %`);
+        }
+      }
+    }, 300_000);
+  });
 
   it('Jedes Gesetz mit Gegenfinanzierungspflicht bekommt zum Start eine verfügbare Option', () => {
     const content = echterContent();
