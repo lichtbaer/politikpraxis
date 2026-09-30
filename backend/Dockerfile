@@ -6,9 +6,13 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# System-Abhängigkeiten für asyncpg/cryptography
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
+# System-Abhängigkeiten für asyncpg/cryptography.
+# `apt-get upgrade`: Das Base-Image hinkt Debian-Sicherheitsupdates oft einige Tage
+# hinterher (Sept. 2026: OpenSSL 3.5.7-1~deb13u2 statt deb13u3, CVE-2026-75804/-84782).
+# Ohne Upgrade bliebe der Trivy-Gate in lint.yml bis zum nächsten Base-Image-Release rot.
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
 # Abhängigkeiten
