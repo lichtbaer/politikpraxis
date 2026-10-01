@@ -33,8 +33,9 @@ const COMPLEXITY = 4;
 // Coverage-Instrumentierung > 5 s (Vitest-Default) — sonst rot aus Zufall.
 vi.setConfig({ testTimeout: 60_000 });
 
-// Deterministisch wie der Report (#483/#484): Math.random je Test seeden. Die Gewinnraten sind
-// damit reproduzierbar — ein rotes Zielband ist eine echte Änderung, kein Monte-Carlo-Rauschen.
+// Deterministisch wie der Report: Math.random je Test seeden. Die Gewinnraten sind damit
+// reproduzierbar — ein rotes Zielband ist eine echte Änderung, kein Monte-Carlo-Rauschen
+// (vorher lag z. B. random auf Stufe 1 je nach Lauf mal unter, mal über der 60-%-Grenze).
 const originalRandom = Math.random;
 beforeEach(() => {
   Math.random = mulberry32(42);
