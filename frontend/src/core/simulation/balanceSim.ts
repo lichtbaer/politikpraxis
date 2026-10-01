@@ -14,7 +14,7 @@ import {
   partnerWiderstandKoalitionsverhandlungCommand,
 } from '../commands/einbringen';
 import { berechneOptionen, type GegenfinanzierungsOption } from '../systems/economics/gegenfinanzierung';
-import { spielerAgendaZielAnzahl } from '../onboardingAgenda';
+import { spielerAgendaZielAnzahl, waehlbareSpielerAgendaZiele } from '../onboardingAgenda';
 import { pressemitteilung } from '../systems/medien/medienAktionen';
 import { medienkampagne } from '../systems/medien/media';
 import { kabinettsgespraech } from '../systems/kabinett/characters';
@@ -331,11 +331,13 @@ export function runSingleSim(
     // SMA-269: Spieler-Agenda setzen (die UI tut dies im Onboarding via setSpielerAgendaIds;
     // die Sim ruft den Store nicht auf, daher hier direkt am State — sonst bleibt die
     // Agenda-Säule des Spielziels konstant beim Default-Wert, egal welche Strategie spielt).
-    // Wie im Onboarding: so viele Ziele, wie die Stufe verlangt (Stufe 1: keine).
-    const agenda = (spielerAgendaIds ?? []).slice(
-      0,
-      spielerAgendaZielAnzahl(complexity, spielerAgendaIds?.length ?? 0),
+    // Wie im Onboarding: nur Ziele, die auf der Stufe für die Partei wählbar sind (#475 —
+    // sonst bekäme Stufe 1 ein Milieuziel ohne Milieu-Werte), so viele wie die Stufe verlangt.
+    const waehlbar = new Set(
+      waehlbareSpielerAgendaZiele(content, complexity, state.spielerPartei?.id).map((z) => z.id),
     );
+    const wunsch = (spielerAgendaIds ?? []).filter((id) => waehlbar.has(id));
+    const agenda = wunsch.slice(0, spielerAgendaZielAnzahl(complexity, wunsch.length));
     if (agenda.length > 0) {
       state = { ...state, spielerAgenda: agenda };
     }

@@ -477,11 +477,14 @@ describe('Echter Content (DB-Snapshot)', () => {
       expect(rate('pk_horten', 1, n)).toBeLessThanOrEqual(0.1);
       expect(rate('nur_sparen', 1, n)).toBeLessThanOrEqual(0.1);
       const zufall = rate('random', 1, n);
-      expect(zufall).toBeLessThanOrEqual(0.6);
-      const allrounder = rate('allrounder', 1, n);
-      expect(allrounder).toBeGreaterThanOrEqual(0.6);
-      expect(allrounder).toBeGreaterThan(zufall + 0.2);
-      expect(rate('musterschueler', 1, n)).toBeGreaterThanOrEqual(0.45);
+      expect(zufall).toBeLessThanOrEqual(0.5);
+      // #475: Seit die Stufe-1-Agenda nur noch Gesetzesziele hat (vorher las das Milieuziel
+      // ohne Milieu-Werte 0), gewinnt, wer die Ziele verfolgt. musterschueler bringt die zur
+      // Sim-Agenda passenden Gesetze ein; allrounder verteilt sich über alle Systeme und
+      // verfehlt das Politikfeld-Ziel oft — er ist auf Stufe 1 kein „gutes Spiel“ mehr.
+      const gut = rate('musterschueler', 1, n);
+      expect(gut).toBeGreaterThanOrEqual(0.6);
+      expect(gut).toBeGreaterThan(zufall + 0.2);
     }, 180_000);
 
     it('Stufe 2–4: Nichtstun verliert immer, gutes Spiel gewinnt mindestens 60 %', () => {

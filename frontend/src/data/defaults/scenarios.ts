@@ -85,7 +85,7 @@ const DEFAULT_EU_KLIMA_STARTWERTE: ContentBundle['euKlimaStartwerte'] = [
   { politikfeld_id: 'landwirtschaft', startwert: 75 },
 ];
 
-/** Minimal-Stub für Offline/Fallback — IDs konsistent mit DB-Seed (058_sma501) */
+/** Minimal-Stub für Offline/Fallback (eigene IDs; Bedingungstypen wie im DB-Content, #475) */
 const DEFAULT_AGENDA_ZIELE: AgendaZielContent[] = [
   {
     id: 'ag_gesetz_breit_regieren',
@@ -114,10 +114,10 @@ const DEFAULT_AGENDA_ZIELE: AgendaZielContent[] = [
     kategorie: 'milieu',
     schwierigkeit: 2,
     partei_filter: null,
-    min_complexity: 1,
-    bedingung_typ: 'milieu_zustimmung_min',
-    bedingung_param: { milieu_id: 'soziale_mitte', min_pct: 48 },
-    titel: 'Mitte halten',
+    min_complexity: 2,
+    bedingung_typ: 'milieu_zustimmung_steigern',
+    bedingung_param: { milieu_id: 'soziale_mitte', min_delta: 10 },
+    titel: 'Mitte gewinnen',
     beschreibung: '',
   },
   {
@@ -125,9 +125,9 @@ const DEFAULT_AGENDA_ZIELE: AgendaZielContent[] = [
     kategorie: 'milieu',
     schwierigkeit: 2,
     partei_filter: null,
-    min_complexity: 1,
-    bedingung_typ: 'milieu_zustimmung_min',
-    bedingung_param: { milieu_id: 'buergerliche_mitte', min_pct: 45 },
+    min_complexity: 2,
+    bedingung_typ: 'milieu_zustimmung_steigern',
+    bedingung_param: { milieu_id: 'buergerliche_mitte', min_delta: 10 },
     titel: 'Bürgerliche Mitte binden',
     beschreibung: '',
   },

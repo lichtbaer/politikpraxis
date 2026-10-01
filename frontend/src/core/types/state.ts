@@ -127,6 +127,15 @@ export interface MilieuHistoryStats {
   months: number;
 }
 
+/**
+ * #475: Werte bei Spielbeginn — Bezug für Agenda-Ziele „… steigern“
+ * (`milieu_zustimmung_steigern`, `verband_beziehung_steigern`).
+ */
+export interface AgendaStartwerte {
+  milieus: Record<string, number>;
+  verbaende: Record<string, number>;
+}
+
 /** SMA-502: Kumulierte Koalitionspartner-Beziehung (Summe/Monate → Ø = sum/months) */
 export interface KoalitionsbeziehungLegislaturStats {
   sum: number;
@@ -235,6 +244,8 @@ export interface GameState {
   spielerAgenda?: string[];
   /** SMA-500: aktive Koalitions-Ziel-IDs */
   koalitionsAgenda?: string[];
+  /** #475: Milieu-/Verbandswerte bei Spielbeginn (Bezug der „steigern“-Ziele) */
+  agendaStartwerte?: AgendaStartwerte;
   gesetze: Law[];
   eingebrachteGesetze?: EingebrachteGesetz[];
   bundesrat: BundesratLand[];

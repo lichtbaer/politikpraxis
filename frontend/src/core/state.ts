@@ -394,13 +394,18 @@ export function createInitialState(
     return withInitialKoalitionsAgenda(s, content, complexity);
   }
 
+  /** Letzter Schritt jedes Startpfads: Medienklima-Verlauf + Startwerte der Agenda-Ziele (#475) */
+  function abschluss(s: GameState): GameState {
+    return withAgendaStartwerte(withMedienKlimaHistorySeed(s));
+  }
+
   if (featureActive(complexity, 'haushaltsdebatte')) {
     let withHaushalt: GameState = { ...base, haushalt: createInitialHaushalt(base) };
     if (featureActive(complexity, 'wirtschaftssektoren')) {
       withHaushalt = { ...withHaushalt, wirtschaft: createInitialWirtschaft() };
     }
     if (hasKoalition && partner) {
-      return withMedienKlimaHistorySeed(
+      return abschluss(
         seedKoalitionsAgenda(
           applyEUKlimaAndRatsvorsitz({
             ...withHaushalt,
@@ -416,7 +421,7 @@ export function createInitialState(
         ),
       );
     }
-    return withMedienKlimaHistorySeed(applyEUKlimaAndRatsvorsitz(withHaushalt));
+    return abschluss(applyEUKlimaAndRatsvorsitz(withHaushalt));
   }
 
   if (featureActive(complexity, 'wirtschaftssektoren')) {
@@ -427,7 +432,7 @@ export function createInitialState(
     const verbandsBeziehungen = { ...base.verbandsBeziehungen };
     verbandsBeziehungen['uvb'] = 50;
     verbandsBeziehungen['bvd'] = 50;
-    return withMedienKlimaHistorySeed(
+    return abschluss(
       seedKoalitionsAgenda(
         applyEUKlimaAndRatsvorsitz({
           ...base,
@@ -444,7 +449,23 @@ export function createInitialState(
     );
   }
 
-  return withMedienKlimaHistorySeed(applyEUKlimaAndRatsvorsitz(base));
+  return abschluss(applyEUKlimaAndRatsvorsitz(base));
+}
+
+/**
+ * #475: Startwerte für Agenda-Ziele „… steigern“ festhalten (Milieu-Zustimmung und
+ * Verbandsbeziehungen bei Spielbeginn). Die Ziele messen am Legislaturende gegen
+ * Startwert + `min_delta` — so ist kein Halte-Ziel schon zum Start erfüllt, und das
+ * Ziel ist für jede Partei/Ausrichtung gleich weit entfernt.
+ */
+export function withAgendaStartwerte(state: GameState): GameState {
+  return {
+    ...state,
+    agendaStartwerte: {
+      milieus: { ...(state.milieuZustimmung ?? {}) },
+      verbaende: { ...(state.verbandsBeziehungen ?? {}) },
+    },
+  };
 }
 
 /** Maximale Array-Längen für GameState (Schutz vor localStorage-Manipulation) */
@@ -747,6 +768,17 @@ export function validateGameState(raw: unknown): GameState {
     if (vermittlungAnrufer) validated.vermittlungAnrufer = vermittlungAnrufer;
   }
 
+  // #475: Startwerte der „steigern“-Ziele — nur geprüft übernehmen (Werte 0–100)
+  const startwerteRaw = get('agendaStartwerte', undefined) as
+    | { milieus?: Record<string, number>; verbaende?: Record<string, number> }
+    | undefined;
+  if (startwerteRaw && typeof startwerteRaw === 'object' && !Array.isArray(startwerteRaw)) {
+    validated.agendaStartwerte = {
+      milieus: clampRecord0_100(startwerteRaw.milieus),
+      verbaende: clampRecord0_100(startwerteRaw.verbaende),
+    };
+  }
+
   // #244: Content-Version des Spielstands — nur kurze Strings übernehmen
   // (Hex-Hash oder 'offline'), alles andere gilt als „unbekannt“.
   const contentVersion = get('contentVersion', undefined);
@@ -858,6 +890,11 @@ export function migrateGameState(state: GameState): GameState {
         schluesselthemenErfuellt: kp.schluesselthemenErfuellt ?? [],
       },
     };
+  }
+  // #475: Spielstände vor den „steigern“-Zielen kennen ihre Startwerte nicht — Bezug ist
+  // dann der Stand beim Laden (sonst wäre das Ziel gegen 0 schon erfüllt).
+  if (!result.agendaStartwerte) {
+    result = withAgendaStartwerte(result);
   }
   // SMA-320: View-Migration land->laender, kommune->kommunen
   const viewMap: Record<string, 'laender' | 'kommunen'> = { land: 'laender', kommune: 'kommunen' };
