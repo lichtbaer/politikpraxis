@@ -498,6 +498,20 @@ function sanitizeVermittlungAusgang(
   return Object.keys(out).length > 0 ? out : undefined;
 }
 
+/** vermittlungAnrufer (#276): anrufende BR-Fraktion je Gesetz — nur für Gesetze mit laufendem Verfahren */
+function sanitizeVermittlungAnrufer(
+  raw: unknown,
+  aktiv: Record<string, number>,
+): Record<string, string> | undefined {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (UNSAFE_KEYS.has(k) || !Object.hasOwn(aktiv, k) || typeof v !== 'string' || v.length === 0 || v.length > 64) continue;
+    out[k] = v;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 /**
  * Validiert und sanitized GameState beim Laden aus localStorage.
  * Schützt vor Manipulation: clampt numerische Werte, validiert Enums, begrenzt Arrays,
@@ -703,12 +717,15 @@ export function validateGameState(raw: unknown): GameState {
   const complexityRaw = Number(get('complexity', undefined));
   if (Number.isFinite(complexityRaw)) validated.complexity = clamp(Math.round(complexityRaw), 1, 4);
 
-  // Laufender Vermittlungsausschuss (Frist-Monat + vorab gewürfelter Ausgang je Gesetz-ID)
+  // Laufender Vermittlungsausschuss (Frist-Monat, vorab gewürfelter Ausgang bzw. anrufende
+  // BR-Fraktion je Gesetz-ID, #276) — nur geprüft übernehmen, nicht über optionalKeys
   const vermittlungAktiv = sanitizeVermittlungAktiv(get('vermittlungAktiv', undefined));
   if (vermittlungAktiv) {
     validated.vermittlungAktiv = vermittlungAktiv;
     const vermittlungAusgang = sanitizeVermittlungAusgang(get('vermittlungAusgang', undefined), vermittlungAktiv);
     if (vermittlungAusgang) validated.vermittlungAusgang = vermittlungAusgang;
+    const vermittlungAnrufer = sanitizeVermittlungAnrufer(get('vermittlungAnrufer', undefined), vermittlungAktiv);
+    if (vermittlungAnrufer) validated.vermittlungAnrufer = vermittlungAnrufer;
   }
 
   return validated as GameState;

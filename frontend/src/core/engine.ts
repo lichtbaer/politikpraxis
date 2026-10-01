@@ -70,14 +70,17 @@ function formatTickTime(month: number): string {
   return `${String(mo).padStart(2, '0')}/${yr}`;
 }
 
-/** Führt Bundesratsabstimmungen durch, wenn brVoteMonth erreicht */
+/** Führt Bundesratsabstimmungen durch, wenn brVoteMonth erreicht (nicht während eines laufenden Vermittlungsverfahrens, #276) */
 function processBundesratVotes(state: GameState, content: ContentBundle, complexity: number): GameState {
   let s = flushPendingBundesratLandEvent(state, content.bundesratEvents);
   const voteContext = content.milieus
     ? { milieus: content.milieus, complexity, gesetzRelationen: content.gesetzRelationen, content }
     : undefined;
   for (const law of s.gesetze) {
-    if (law.status === 'bt_passed' && law.brVoteMonth != null && s.month >= law.brVoteMonth) {
+    if (
+      law.status === 'bt_passed' && law.brVoteMonth != null && s.month >= law.brVoteMonth
+      && s.vermittlungAktiv?.[law.id] == null
+    ) {
       s = executeBundesratVote(s, law.id, voteContext);
       const newLaw = s.gesetze.find(g => g.id === law.id);
       if (newLaw?.status === 'beschlossen') {

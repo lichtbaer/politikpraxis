@@ -298,7 +298,7 @@ Eigene Events alle 5–8 Monate (zufällig aus Pool):
 |-------|----------|--------|
 | Länderfinanzausgleich-Streit | alle 12 Mo. fix | Fraktion 2+4 fordern Neuverteilung — Kosten oder Zustimmungsverlust |
 | Landtagswahl kippt Fraktion | zufällig, ab Mo. 10 | Ein Land wechselt die Regierungspartei und Landeskoalition (→ Koalitionsklausel/Enthaltung), Beziehungswert zurückgesetzt |
-| Kohl eskaliert (Sondersitzung) | Beziehung Kohl < 15 | Vermittlungsausschuss wird beantragt — Gesetz verzögert 2 Monate |
+| Kohl eskaliert (Sondersitzung) | Beziehung Kohl < 15 | Der Bundesrat ruft den Vermittlungsausschuss an (3.7.6) — Abstimmung verzögert 2 Monate, Ausgang offen |
 | Sprecher-Wechsel | zufällig, ~20% nach Mo. 24 | Neuer Charakter mit anderen Interessen ersetzt Sprecher |
 | Bundesrat-Initiative | Fraktion 3 oder 4 | Länder bringen eigenes Gesetz ein — Spieler muss reagieren |
 | Föderalismusgipfel | alle 18 Mo. fix | Alle 4 Sprecher gleichzeitig — Sammel-Lobbying möglich |
@@ -320,6 +320,17 @@ Eigene Events alle 5–8 Monate (zufällig aus Pool):
 - Stimmenbalken: 16 Felder, farblich nach Fraktion
 - Klickbar: zeigt Fraktionsdetail
 - Mehrheitslinie bei Feld 9 sichtbar
+
+### 3.7.6 Vermittlungsausschuss (Art. 77 GG)
+
+Ab Stufe 2. Der Ausgang ist offen (#276): **Einigung ohne Abstriche** (Originaleffekte), **Kompromiss** (Effekte −50 %) oder **Scheitern**. Die Chancen hängen am Beziehungs-Score — Ø Beziehung der BR-Fraktionen, −0,15 je für das Gesetz abgelehntem Trade-off; bei neutralem Score etwa 45 / 10 / 45 %, bessere Beziehungen verschieben Richtung Einigung. Das Protokoll nennt, wer vermittelt bzw. blockiert hat.
+
+| Anrufung durch | Kosten | Ausgang gewürfelt | Nach der Frist (2 Monate) |
+|----------------|--------|-------------------|---------------------------|
+| Spieler (Bundesregierung) — nach BR-Blockade oder -Einspruch | 20 PK | bei Anrufung | Einigung/Kompromiss → Gesetz beschlossen; Scheitern → Blockade (Zustimmungsgesetz) bzw. Einspruch bleibt, vom Bundestag überstimmbar (Einspruchsgesetz) |
+| Bundesrat — z. B. Kohl-Sonderregel, für ein Länder-Gesetz vor der BR-Abstimmung | keine | erst bei Fristende; die Beziehung zur anrufenden Fraktion zählt zur Hälfte | Einigung/Kompromiss → erneute Bundesratsabstimmung im selben Monat; Scheitern → Blockade bzw. Einspruch |
+
+Ruft Kohl den Ausschuss an, verschiebt sich die Abstimmung um 2 Monate. Weil erst bei Fristende gewürfelt wird, zählen die Reaktion auf den Antrag („Kooperieren" +8, „Öffentlich kritisieren" −10 Beziehung zum Ostblock) und Lobbying in der Zwischenzeit. Während eines laufenden Verfahrens stimmt der Bundesrat nicht ab; laufende Verfahren bleiben im Spielstand erhalten.
 
 ---
 

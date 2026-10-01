@@ -168,6 +168,19 @@ describe('validateGameState', () => {
     expect(validated.media?.klimaHistory).toEqual([72]);
   });
 
+  it('behält laufende Vermittlungsverfahren beim Speichern/Laden (#276)', () => {
+    const state: GameState = {
+      ...createInitialState(DEFAULT_CONTENT, 4),
+      vermittlungAktiv: { ee: 14, kita: 15 },
+      vermittlungAusgang: { ee: 'erfolg' },
+      vermittlungAnrufer: { kita: 'ostblock' },
+    };
+    const geladen = validateGameState(JSON.parse(JSON.stringify(state)));
+    expect(geladen.vermittlungAktiv).toEqual({ ee: 14, kita: 15 });
+    expect(geladen.vermittlungAusgang).toEqual({ ee: 'erfolg' });
+    expect(geladen.vermittlungAnrufer).toEqual({ kita: 'ostblock' });
+  });
+
   describe('laufender Vermittlungsausschuss', () => {
     const base = () => JSON.parse(JSON.stringify(createInitialState(DEFAULT_CONTENT, 4))) as Record<string, unknown>;
 
@@ -189,6 +202,17 @@ describe('validateGameState', () => {
       });
       expect(validated.vermittlungAktiv).toEqual({ ee: 14 });
       expect(validated.vermittlungAusgang).toBeUndefined();
+    });
+
+    it('vermittlungAnrufer nur für laufende Verfahren und als String (#276)', () => {
+      const validated = validateGameState({
+        ...base(),
+        vermittlungAktiv: { ee: 14 },
+        vermittlungAnrufer: { ee: 'ostblock', verwaist: 'ostblock', __proto__x: 1 },
+      });
+      expect(validated.vermittlungAnrufer).toEqual({ ee: 'ostblock' });
+      const ohneVerfahren = validateGameState({ ...base(), vermittlungAnrufer: { ee: 'ostblock' } });
+      expect(ohneVerfahren.vermittlungAnrufer).toBeUndefined();
     });
 
     it('lässt die Felder weg, wenn kein Verfahren läuft', () => {

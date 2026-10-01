@@ -4,6 +4,7 @@ import {
   vermittlungsausschuss,
   tickVermittlungsausschuss,
   berechneVermittlungsChancen,
+  bundesratRuftVermittlungAn,
 } from './vermittlung';
 import * as rng from '../../rng';
 import type { GameState, Law, BundesratFraktion } from '../../types';
@@ -66,6 +67,19 @@ function createBlockedLaw(id = 'ee'): Law {
     rprog: 0,
     rdur: 0,
     blockiert: 'bundesrat',
+  };
+}
+
+/** Gesetz nach Bundestagsbeschluss, wartet auf die Bundesratsabstimmung */
+function createBtPassedLaw(overrides: Partial<Law> = {}): Law {
+  return {
+    ...createBlockedLaw(),
+    status: 'bt_passed',
+    blockiert: null,
+    ja: 55,
+    nein: 45,
+    brVoteMonth: 13,
+    ...overrides,
   };
 }
 
@@ -251,6 +265,22 @@ describe('tickVermittlungsausschuss', () => {
     expect(kannVermitteln(result, 'ee', 2)).toBe(true);
   });
 
+  it('lässt beim Einspruchsgesetz nach gescheiterter Vermittlung den Einspruch bestehen (überstimmbar)', () => {
+    const law = { ...createBlockedLaw(), status: 'eingebracht' as const, blockiert: null as null, zustimmungspflichtig: false };
+    const state = createMockState({
+      month: 14,
+      gesetze: [law],
+      vermittlungAktiv: { ee: 14 },
+      vermittlungAusgang: { ee: 'scheitern' },
+    });
+
+    const result = tickVermittlungsausschuss(state, { complexity: 4 });
+
+    expect(result.gesetze[0].status).toBe('br_einspruch');
+    expect(result.gesetze[0].blockiert).toBeNull();
+    expect(result.gesetze[0].brEinspruchEingelegt).toBe(true);
+  });
+
   it('behält den vorab gewürfelten Ausgang, solange die Frist noch läuft', () => {
     const law = { ...createBlockedLaw(), status: 'eingebracht' as const, blockiert: null as null };
     const state = createMockState({
@@ -365,5 +395,149 @@ describe('tickVermittlungsausschuss', () => {
     const result = tickVermittlungsausschuss(state);
     const letzterLogEintrag = result.log[result.log.length - 1];
     expect(letzterLogEintrag.msg).toBe('Vermittlungsausschuss: EE-Beschleunigung gescheitert — der Bundesrat bleibt bei seiner Ablehnung');
+  });
+});
+
+describe('Vermittlungsausschuss auf Anrufung des Bundesrats (#276 AC3)', () => {
+  const fraktionen = () => [createFraktion('ostblock', 10), createFraktion('mitte', 50)];
+
+  function laufendeBrVermittlung(month: number, lawOverrides: Partial<Law> = {}): GameState {
+    const start = createMockState({ gesetze: [createBtPassedLaw(lawOverrides)], bundesratFraktionen: fraktionen() });
+    return { ...bundesratRuftVermittlungAn(start, 'ee', 'ostblock'), month };
+  }
+
+  describe('berechneVermittlungsChancen', () => {
+    it('gewichtet die Beziehung zur anrufenden Fraktion zusätzlich', () => {
+      const ohneAnrufer = createMockState({ bundesratFraktionen: fraktionen() });
+      const mitAnrufer = createMockState({ bundesratFraktionen: fraktionen(), vermittlungAnrufer: { ee: 'ostblock' } });
+      // Ø Beziehung 30 → Score 0.30; mit Anrufer (Beziehung 10) zur Hälfte → Score 0.20
+      expect(berechneVermittlungsChancen(ohneAnrufer, 'ee').erfolg).toBeCloseTo(0.15 + 0.6 * 0.3, 5);
+      expect(berechneVermittlungsChancen(mitAnrufer, 'ee').erfolg).toBeCloseTo(0.15 + 0.6 * 0.2, 5);
+    });
+
+    it('bessere Beziehung zur anrufenden Fraktion verbessert die Chancen', () => {
+      const schlecht = createMockState({ bundesratFraktionen: fraktionen(), vermittlungAnrufer: { ee: 'ostblock' } });
+      const besser = createMockState({
+        bundesratFraktionen: [createFraktion('ostblock', 18), createFraktion('mitte', 50)],
+        vermittlungAnrufer: { ee: 'ostblock' },
+      });
+      const cSchlecht = berechneVermittlungsChancen(schlecht, 'ee');
+      const cBesser = berechneVermittlungsChancen(besser, 'ee');
+      expect(cBesser.erfolg).toBeGreaterThan(cSchlecht.erfolg);
+      expect(cBesser.scheitern).toBeLessThan(cSchlecht.scheitern);
+    });
+  });
+
+  describe('bundesratRuftVermittlungAn', () => {
+    it('startet die Vermittlung ohne PK-Kosten und verschiebt die BR-Abstimmung um 2 Monate', () => {
+      const spy = vi.spyOn(rng, 'nextRandom');
+      const state = createMockState({ gesetze: [createBtPassedLaw()], bundesratFraktionen: fraktionen(), pk: 30 });
+
+      const result = bundesratRuftVermittlungAn(state, 'ee', 'ostblock');
+
+      expect(result.pk).toBe(30);
+      expect(result.gesetze[0].status).toBe('bt_passed');
+      expect(result.gesetze[0].brVoteMonth).toBe(15); // bisher 13, +2
+      expect(result.vermittlungAktiv?.['ee']).toBe(15);
+      expect(result.vermittlungAnrufer?.['ee']).toBe('ostblock');
+      // Ausgang wird erst bei Fristende gewürfelt
+      expect(result.vermittlungAusgang?.['ee']).toBeUndefined();
+      expect(spy).not.toHaveBeenCalled();
+      expect(result.log[0].msg).toBe('game:bundesrat.logVermittlungAngerufen');
+      expect(result.log[0].params).toEqual({ anrufer: 'ostblock', gesetz: 'EE-Beschleunigung', monate: 3 });
+    });
+
+    it('ignoriert Gesetze, die nicht auf die Bundesratsabstimmung warten', () => {
+      const state = createMockState({ gesetze: [createBlockedLaw()] });
+      expect(bundesratRuftVermittlungAn(state, 'ee', 'ostblock')).toBe(state);
+    });
+
+    it('ignoriert Gesetze, die bereits in Vermittlung sind', () => {
+      const state = createMockState({ gesetze: [createBtPassedLaw()], vermittlungAktiv: { ee: 15 } });
+      expect(bundesratRuftVermittlungAn(state, 'ee', 'ostblock')).toBe(state);
+    });
+
+    it('bietet dem Spieler währenddessen keine eigene Vermittlung an', () => {
+      expect(kannVermitteln(laufendeBrVermittlung(13), 'ee', 4)).toBe(false);
+    });
+  });
+
+  describe('tickVermittlungsausschuss', () => {
+    it('wartet bis zur Frist, ohne zu würfeln, und behält den Anrufer', () => {
+      const spy = vi.spyOn(rng, 'nextRandom');
+      const result = tickVermittlungsausschuss(laufendeBrVermittlung(14));
+      expect(spy).not.toHaveBeenCalled();
+      expect(result.vermittlungAktiv?.['ee']).toBe(15);
+      expect(result.vermittlungAnrufer?.['ee']).toBe('ostblock');
+      expect(result.gesetze[0].status).toBe('bt_passed');
+    });
+
+    it('Einigung: Gesetz geht mit vollen Effekten erneut in den Bundesrat (Abstimmung im selben Monat)', () => {
+      vi.spyOn(rng, 'nextRandom').mockReturnValue(0.01);
+      const result = tickVermittlungsausschuss(laufendeBrVermittlung(15));
+
+      expect(result.gesetze[0].status).toBe('bt_passed');
+      expect(result.gesetze[0].brVoteMonth).toBe(15);
+      expect(result.gesetze[0].effekte).toEqual(createBlockedLaw().effekte);
+      expect(result.vermittlungAktiv).toBeUndefined();
+      expect(result.vermittlungAnrufer).toBeUndefined();
+      expect(result.log[0].msg).toBe('game:bundesrat.logVermittlungEinigung');
+      expect(result.log[0].params).toEqual({ gesetz: 'EE-Beschleunigung', anrufer: 'ostblock' });
+    });
+
+    it('Kompromiss: Gesetz geht mit halben Effekten erneut in den Bundesrat', () => {
+      const state = laufendeBrVermittlung(15);
+      const chancen = berechneVermittlungsChancen(state, 'ee');
+      vi.spyOn(rng, 'nextRandom').mockReturnValue(chancen.erfolg + chancen.kompromiss / 2);
+
+      const result = tickVermittlungsausschuss(state);
+
+      expect(result.gesetze[0].status).toBe('bt_passed');
+      expect(result.gesetze[0].brVoteMonth).toBe(15);
+      expect(result.gesetze[0].effekte).toEqual({ al: -0.5, hh: -1, zf: 1.5, gi: -0.5 });
+      expect(result.gesetze[0].wirkungFaktor).toBe(0.5);
+      expect(result.log[0].msg).toBe('game:bundesrat.logVermittlungKompromiss');
+    });
+
+    it('Scheitern beim Zustimmungsgesetz: Bundesrat verweigert die Zustimmung (Blockade)', () => {
+      vi.spyOn(rng, 'nextRandom').mockReturnValue(0.99);
+      const result = tickVermittlungsausschuss(laufendeBrVermittlung(15, { zustimmungspflichtig: true }), { complexity: 4 });
+
+      expect(result.gesetze[0].status).toBe('blockiert');
+      expect(result.gesetze[0].blockiert).toBe('bundesrat');
+      expect(result.gesetze[0].effekte).toEqual(createBlockedLaw().effekte);
+      expect(result.vermittlungAktiv).toBeUndefined();
+      expect(result.vermittlungAnrufer).toBeUndefined();
+      expect(result.log[0].msg).toBe('game:bundesrat.logVermittlungGescheitert');
+      // Der Spieler kann danach selbst den Vermittlungsausschuss anrufen
+      expect(kannVermitteln(result, 'ee', 4)).toBe(true);
+    });
+
+    it('Scheitern beim Einspruchsgesetz: Bundesrat legt Einspruch ein (vom Bundestag überstimmbar)', () => {
+      vi.spyOn(rng, 'nextRandom').mockReturnValue(0.99);
+      const result = tickVermittlungsausschuss(laufendeBrVermittlung(15, { zustimmungspflichtig: false }), { complexity: 4 });
+
+      expect(result.gesetze[0].status).toBe('br_einspruch');
+      expect(result.gesetze[0].blockiert).toBeNull();
+      expect(result.gesetze[0].brEinspruchEingelegt).toBe(true);
+      expect(result.log[0].msg).toBe('game:bundesrat.logVermittlungGescheitertEinspruch');
+    });
+
+    it('würfelt erst bei Fristende: zwischenzeitlich verbesserte Beziehungen zählen', () => {
+      const state = laufendeBrVermittlung(15);
+      const verbessert: GameState = {
+        ...state,
+        bundesratFraktionen: state.bundesratFraktionen.map(f => (f.id === 'ostblock' ? { ...f, beziehung: 60 } : f)),
+      };
+      const cSchlecht = berechneVermittlungsChancen(state, 'ee');
+      const cBesser = berechneVermittlungsChancen(verbessert, 'ee');
+      const einigungSchlecht = cSchlecht.erfolg + cSchlecht.kompromiss;
+      expect(cBesser.erfolg).toBeGreaterThan(einigungSchlecht);
+      // Wurf zwischen beiden Schwellen: nur mit verbesserter Beziehung eine Einigung
+      vi.spyOn(rng, 'nextRandom').mockReturnValue((einigungSchlecht + cBesser.erfolg) / 2);
+
+      expect(tickVermittlungsausschuss(state).gesetze[0].status).toBe('blockiert');
+      expect(tickVermittlungsausschuss(verbessert).gesetze[0].status).toBe('bt_passed');
+    });
   });
 });
