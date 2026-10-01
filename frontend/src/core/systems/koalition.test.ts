@@ -193,4 +193,40 @@ describe('checkKoalitionsbruch', () => {
     const result = checkKoalitionsbruch(state, {}, 4);
     expect(result).toBe(state);
   });
+
+  it('Partner kündigt nach 3 Monaten mit Beziehung < 15 → Spielende (#482, Pfad I)', () => {
+    const state = createMockState({
+      month: 20,
+      koalitionspartner: {
+        id: 'gp',
+        beziehung: 10,
+        koalitionsvertragScore: 50,
+        schluesselthemenErfuellt: [],
+      },
+      koalitionsbruchSeitMonat: 17,
+      activeEvent: null,
+    });
+    const result = checkKoalitionsbruch(state, {}, 4);
+    expect(result.gameOver).toBe(true);
+    expect(result.won).toBe(false);
+    expect(result.speed).toBe(0);
+    expect(result.spielendeGrund).toBe('partner_kuendigt');
+  });
+
+  it('weniger als 3 Monate seit Koalitionsbruch-Event: noch kein Spielende', () => {
+    const state = createMockState({
+      month: 19,
+      koalitionspartner: {
+        id: 'gp',
+        beziehung: 10,
+        koalitionsvertragScore: 50,
+        schluesselthemenErfuellt: [],
+      },
+      koalitionsbruchSeitMonat: 17,
+      activeEvent: null,
+    });
+    const result = checkKoalitionsbruch(state, {}, 4);
+    expect(result.gameOver).toBe(false);
+    expect(result.spielendeGrund).toBeUndefined();
+  });
 });

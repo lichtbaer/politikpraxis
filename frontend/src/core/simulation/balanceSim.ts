@@ -26,7 +26,8 @@ import { startKommunalPilot } from '../systems/legislation/gesetzLebenszyklus';
 import { laenderGipfel } from '../systems/ebeneActions';
 import { vermittlungsausschuss } from '../systems/legislation/vermittlung';
 import { resolveEvent } from '../systems/events/events';
-import type { GameState, ContentBundle } from '../types';
+import type { GameState, ContentBundle, SpielendeGrund } from '../types';
+import { legislaturMisserfolgGrund, type LegislaturMisserfolgGrund } from '../spielziel';
 import type { StrategyAction, Strategy } from './strategien';
 import {
   LEGISLATUR_MONATE,
@@ -34,6 +35,13 @@ import {
   DEFAULT_ELECTION_THRESHOLD,
   berechnePkRegen,
 } from '../constants';
+
+/**
+ * #482: Grund für eine Niederlage — entweder das vorzeitige Spielende aus
+ * `state.spielendeGrund` oder, bei regulärem Legislaturende, der verfehlte Teil des
+ * Spielziels (`legislaturMisserfolgGrund`).
+ */
+export type VerlustGrund = Exclude<SpielendeGrund, 'legislatur'> | LegislaturMisserfolgGrund;
 
 export interface SimResult {
   gewonnen: boolean;
@@ -54,8 +62,8 @@ export interface SimResult {
   gesamtpunkte?: number;
   /** Ob die Wahlhürde überschritten wurde (unabhängig von legislaturErfolg) */
   wahlUeberHuerde?: boolean;
-  /** Grund für Niederlage falls !gewonnen */
-  verlustGrund?: 'koalitionsbruch' | 'misstrauensvotum' | 'punkte' | 'unbekannt';
+  /** Grund für Niederlage falls !gewonnen (#482: aus state.spielendeGrund bzw. Spielziel) */
+  verlustGrund?: VerlustGrund;
   /** Ressourcen-Balance: PK am Legislaturende */
   pkEnde: number;
   /** Anzahl Monate mit PK < 10 (Dauerbankrott-Indikator) */
@@ -102,8 +110,6 @@ export interface AggregatedResult {
     counts: Record<VerlustGrund, number>;
   };
 }
-
-type VerlustGrund = NonNullable<SimResult['verlustGrund']>;
 
 const DEFAULT_AUSRICHTUNG = { wirtschaft: -20, gesellschaft: -40, staat: -15 };
 
@@ -291,6 +297,23 @@ function autoResolveEvent(state: GameState, complexity: number, content: Content
   return resolveEvent(state, event, prioritized[0], resolveOpts);
 }
 
+/**
+ * #482: Verlustgrund eines beendeten Laufs (`undefined` bei Sieg).
+ * Vorzeitiges Ende → der gespeicherte `state.spielendeGrund`; reguläres Legislaturende
+ * (bzw. Schleife bis Monat 48 durchgelaufen) → verfehlter Teil des Spielziels via
+ * `legislaturMisserfolgGrund`, Fallback `punkte` ohne Spielziel.
+ */
+export function bestimmeVerlustGrund(
+  state: GameState,
+  gewonnen: boolean,
+  complexity: number,
+): VerlustGrund | undefined {
+  if (gewonnen) return undefined;
+  const grund = state.spielendeGrund;
+  if (grund && grund !== 'legislatur') return grund;
+  return (state.spielziel ? legislaturMisserfolgGrund(state.spielziel, complexity) : null) ?? 'punkte';
+}
+
 /** Führt eine einzelne 48-Monats-Simulation durch */
 export function runSingleSim(
   content: ContentBundle,
@@ -388,24 +411,7 @@ export function runSingleSim(
     const saldo = state.haushalt?.saldo ?? 0;
     const gewonnen = state.legislaturErfolg ?? state.won ?? false;
 
-    // Verlustgrund bestimmen
-    let verlustGrund: SimResult['verlustGrund'] | undefined;
-    if (!gewonnen && state.gameOver) {
-      // Zwei Wege zum Koalitionsbruch: instabile Koalition (coalition) oder der
-      // Partner kündigt nach 3 Monaten mit Beziehung < 15 (koalition.ts).
-      const partnerBruch =
-        state.koalitionsbruchSeitMonat != null && (state.koalitionspartner?.beziehung ?? 100) < 15;
-      if ((state.coalition ?? 100) < 15 || partnerBruch) {
-        verlustGrund = 'koalitionsbruch';
-      } else if ((state.lowApprovalMonths ?? 0) >= 6) {
-        verlustGrund = 'misstrauensvotum';
-      } else if (state.spielziel) {
-        // Legislatur regulär beendet, aber verfehlt (Schwelle der Stufe oder kein Gesetz)
-        verlustGrund = 'punkte';
-      } else {
-        verlustGrund = 'unbekannt';
-      }
-    }
+    const verlustGrund = bestimmeVerlustGrund(state, gewonnen, complexity);
 
     return {
       gewonnen,
@@ -475,9 +481,13 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
   // Verlustgrund-Verteilung über alle Niederlagen (gecrashte Runs ausgenommen)
   const verlustCounts: Record<VerlustGrund, number> = {
     koalitionsbruch: 0,
+    partner_kuendigt: 0,
     misstrauensvotum: 0,
+    vertrauensfrage: 0,
+    ruecktritt: 0,
+    kein_gesetz: 0,
+    agenda: 0,
     punkte: 0,
-    unbekannt: 0,
   };
   for (const e of ergebnisse) {
     if (!e.crash && !e.gewonnen && e.verlustGrund) {

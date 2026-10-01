@@ -128,12 +128,12 @@ export function resolveMisstrauensvotum(
       };
     } else {
       // Vertrauensfrage verloren → Spielende
-      return { ...state, gameOver: true, won: false, speed: 0 };
+      return { ...state, gameOver: true, won: false, speed: 0, spielendeGrund: 'vertrauensfrage' };
     }
   }
 
   if (choiceKey === 'ruecktritt') {
-    return { ...state, gameOver: true, won: false, speed: 0 };
+    return { ...state, gameOver: true, won: false, speed: 0, spielendeGrund: 'ruecktritt' };
   }
 
   return state;
@@ -155,6 +155,7 @@ export function checkGameEnd(state: GameState, content?: ContentBundle, complexi
       return {
         ...sMitBilanz,
         gameOver: true,
+        spielendeGrund: 'legislatur',
         won,
         legislaturErfolg: won,
         wahlUeberHuerde,
@@ -166,12 +167,12 @@ export function checkGameEnd(state: GameState, content?: ContentBundle, complexi
 
     const wahlUeberHuerde = wahlergebnis >= threshold;
     const won = wahlUeberHuerde;
-    return { ...state, gameOver: true, won, wahlUeberHuerde, speed: 0 };
+    return { ...state, gameOver: true, spielendeGrund: 'legislatur', won, wahlUeberHuerde, speed: 0 };
   }
 
   // Koalitionsbruch
   if (state.coalition < MIN_KOALITION_FORTGANG) {
-    return { ...state, gameOver: true, won: false, speed: 0 };
+    return { ...state, gameOver: true, won: false, speed: 0, spielendeGrund: 'koalitionsbruch' };
   }
 
   // Misstrauensvotum: aufeinanderfolgende Monate mit realer Mehrheitsbasis für die
@@ -196,12 +197,26 @@ export function checkGameEnd(state: GameState, content?: ContentBundle, complexi
         }
         // Trotzdem Hard-Game-Over nach 6 Monaten (Fallback)
         if (newLowMonths >= MISSTRAUENSVOTUM_MONATE) {
-          return { ...state, gameOver: true, won: false, speed: 0, lowApprovalMonths: newLowMonths };
+          return {
+            ...state,
+            gameOver: true,
+            won: false,
+            speed: 0,
+            lowApprovalMonths: newLowMonths,
+            spielendeGrund: 'misstrauensvotum',
+          };
         }
       } else {
         // Legacy: direktes Game-Over nach 6 Monaten
         if (newLowMonths >= MISSTRAUENSVOTUM_MONATE) {
-          return { ...state, gameOver: true, won: false, speed: 0, lowApprovalMonths: newLowMonths };
+          return {
+            ...state,
+            gameOver: true,
+            won: false,
+            speed: 0,
+            lowApprovalMonths: newLowMonths,
+            spielendeGrund: 'misstrauensvotum',
+          };
         }
       }
       return { ...state, lowApprovalMonths: newLowMonths };

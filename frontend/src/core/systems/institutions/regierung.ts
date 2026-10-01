@@ -143,6 +143,7 @@ export function vertrauensfrage(state: GameState, complexity: number): GameState
         gameOver: true,
         won: false,
         speed: 0,
+        spielendeGrund: 'vertrauensfrage',
       },
       'Vertrauensfrage gescheitert — Koalition zerbrochen, Regierung gestürzt',
       'danger',
