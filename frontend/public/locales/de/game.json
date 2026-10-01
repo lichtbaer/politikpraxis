@@ -1832,7 +1832,9 @@
     "skandal_intro": "Ein politischer Skandal hat die Regierung erreicht. Wie reagierst du?",
     "wahlkampf_beginn": "Der Wahlkampf beginnt. Noch 6 Monate bis zur Wahl — Zeit für Reden, Koalitions-Aktionen und Medienoffensiven.",
     "kabinettText_one": "Dein Kabinett. {{count}} Persönlichkeit, {{count}} Agenda.",
-    "kabinettText_other": "Dein Kabinett. {{count}} Persönlichkeiten, {{count}} Agenden."
+    "kabinettText_other": "Dein Kabinett. {{count}} Persönlichkeiten, {{count}} Agenden.",
+    "agendaPflichtHinweis": "Auf dieser Stufe gewinnst du, wenn du alle gewählten Ziele bis zur Wahl erreichst — den Stand siehst du links in der Agenda.",
+    "agendaSubtitleOhneKoalition": "Setze deine Schwerpunkte für diese Legislatur."
   },
   "gameSetup": {
     "title": "Spielstart",
@@ -2307,7 +2309,9 @@
     "nochmalPartei": "Nochmal als {{partei}}",
     "save": "Auswertung speichern",
     "commGewinnrate": "Community-Gewinnrate",
-    "commWahl": "Community-Ø Wahlprognose"
+    "commWahl": "Community-Ø Wahlprognose",
+    "legislaturErfolgNeinOhneGesetz": "Ohne ein einziges beschlossenes Gesetz gilt keine Legislatur als erfolgreich.",
+    "legislaturErfolgNeinAgenda": "Auf dieser Stufe zählt die Legislatur nur als Erfolg, wenn alle deine Agenda-Ziele erfüllt sind — erreicht: {{erfuellt}} von {{gesamt}}."
   },
   "charDetail": {
     "close": "Schließen",
@@ -2653,7 +2657,7 @@
     "losgehts": "Los geht's!",
     "ziel": {
       "title": "Dein Ziel: die Wiederwahl",
-      "text": "Du führst die Bundesregierung durch 48 Monate. Links siehst du deine Wahlprognose — sie beeinflusst deinen Wahlbonus (0–4 Punkte). Gewonnen wird durch den Dreipfeiler-Score aus Legislatur-Bilanz (30 %), Agenda (35 %) und historischem Urteil der Gesetze (35 %), plus Wahlbonus — insgesamt ≥ 40 von 100 Punkten."
+      "text": "Du führst die Bundesregierung durch 48 Monate. Links siehst du deine Wahlprognose — sie beeinflusst deinen Wahlbonus (0–4 Punkte). Gewonnen wird durch den Dreipfeiler-Score aus Legislatur-Bilanz (30 %), Agenda (35 %) und historischem Urteil der Gesetze (35 %), plus Wahlbonus — insgesamt ≥ 40 von 100 Punkten. Auf der Einstiegsstufe musst du zusätzlich alle deine Agenda-Ziele erreichen."
     },
     "gesetze": {
       "title": "Gesetze einbringen",

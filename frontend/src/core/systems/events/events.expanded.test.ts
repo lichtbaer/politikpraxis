@@ -149,6 +149,16 @@ describe('checkRandomEvents (extended)', () => {
     vi.restoreAllMocks();
   });
 
+  it('#267: ohne Folge-Events (Stufe 1) keine Arc-Einstiege — ab Stufe 2 schon', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
+    const einstieg = makeEvent({ id: 'arc_stage1', arcId: 'testarc', arcStage: 1 });
+    const normal = makeEvent({ id: 'normal' });
+    expect(checkRandomEvents(makeState(), [einstieg], 1).activeEvent).toBeNull();
+    expect(checkRandomEvents(makeState(), [einstieg, normal], 1).activeEvent!.id).toBe('normal');
+    expect(checkRandomEvents(makeState(), [einstieg], 2).activeEvent!.id).toBe('arc_stage1');
+    vi.restoreAllMocks();
+  });
+
   it('bietet im Spätspiel (Monat 36+) weiterhin Events, wenn nicht-wiederholbare Events erschöpft sind (SMA-273)', () => {
     vi.spyOn(rng, 'nextRandom').mockReturnValue(0); // immer auslösen, immer erstes verfügbares Event wählen
     const einmaligA = makeEvent({ id: 'einmalig_a' });

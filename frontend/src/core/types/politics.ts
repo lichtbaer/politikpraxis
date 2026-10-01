@@ -118,6 +118,8 @@ export interface KoalitionspartnerState {
   beziehung: number;
   koalitionsvertragScore: number;
   schluesselthemenErfuellt: string[];
+  /** Bisher abgezogene Beziehung wegen unerfüllter Schlüsselthemen (gedeckelt, fehlt bei alten Spielständen = 0) */
+  schluesselthemenMalus?: number;
 }
 
 /** Koalitionspartner-Content (Daten des Partners) */
