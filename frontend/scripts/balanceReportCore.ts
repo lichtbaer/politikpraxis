@@ -18,7 +18,11 @@ import type { ContentBundle } from '../src/core/types';
  * Spielstil). Ohne dies bleibt die Agenda-Säule des Spielziels konstant beim Default-Wert,
  * egal welche Strategie spielt (siehe Issue #269).
  */
-export const DEFAULT_REPORT_SPIELER_AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'];
+export const DEFAULT_REPORT_SPIELER_AGENDA = [
+  'ag_gesetz_breit_regieren',
+  'ag_milieu_mitte',
+  'ag_gesetz_klimawende',
+];
 
 export interface ReportOptions {
   /** Anzahl Monte-Carlo-Läufe pro Strategie und Komplexität */
@@ -115,6 +119,7 @@ const COLUMNS = [
   'Prognose (med)',
   'p10',
   'p90',
+  'Gesetze',
   'Gesamt',
   'Bilanz',
   'Agenda',
@@ -123,6 +128,7 @@ const COLUMNS = [
   'PK-Ende',
   'PK<10 (Mon.)',
   'Verlustgrund',
+  'Hänger (Mon.)',
   'Crashes',
   'EngErr',
 ];
@@ -136,6 +142,7 @@ function rowCells(row: StrategyRow): string[] {
     num(e.wahlprognose.median, 1),
     num(e.wahlprognose.p10, 1),
     num(e.wahlprognose.p90, 1),
+    num(e.gesetze.median),
     num(e.gesamtpunkte.median, 1),
     num(e.bilanzPunkte.median, 1),
     num(e.agendaPunkte.median, 1),
@@ -144,6 +151,7 @@ function rowCells(row: StrategyRow): string[] {
     num(e.pkEnde.median),
     num(e.pkKnappeMonate.median),
     e.verlustGrund.haeufigster ? VERLUST_LABEL[e.verlustGrund.haeufigster] : '–',
+    String(e.einbringenHaengerMax),
     String(e.crashes),
     String(e.engineErrors),
   ];
@@ -165,7 +173,7 @@ export function renderMarkdown(data: ReportData): string {
   lines.push(`| Komplexitätsstufen | ${data.complexities.join(', ')} |`);
   lines.push(`| Strategien | ${data.strategienAnzahl} |`);
   lines.push(`| Content | ${data.contentVariante} |`);
-  lines.push(`| Spieler-Agenda | ${data.spielerAgendaIds.length > 0 ? data.spielerAgendaIds.join(', ') : '(keine)'} |`);
+  lines.push(`| Spieler-Agenda | ${data.spielerAgendaIds.length > 0 ? data.spielerAgendaIds.join(', ') : '(keine)'} (je Stufe gekürzt auf die Onboarding-Anzahl) |`);
   lines.push('');
 
   for (const block of data.bloecke) {

@@ -13,6 +13,7 @@ import { einbringen, type EinbringenContext } from '../systems/parliament/parlia
 import {
   brauchtGegenfinanzierung,
   berechneOptionen,
+  gegenfinanzierungsBedarf,
   wendeGegenfinanzierungAn,
 } from '../systems/economics/gegenfinanzierung';
 import { applyKongruenzEffekte, getEinbringenPkKosten } from '../systems/parliament/kongruenz';
@@ -25,6 +26,30 @@ import { koalitionsrunde } from '../systems/koalition';
 export type CommandEffect =
   | { type: 'toast'; message: string; variant: 'success' | 'info' | 'warning' | 'danger' }
   | { type: 'none' };
+
+/**
+ * PK-Kosten fürs Einbringen (Kongruenz, Vorstufen-Rabatt, Medienklima) — dieselbe Formel
+ * wie `einbringen` in parliament.ts für den Aufruf mit Kontext.
+ */
+export function einbringenPkKosten(
+  state: GameState,
+  lawId: string,
+  ausrichtung: Ideologie,
+  complexity: number,
+): number {
+  const rabatt =
+    featureActive(complexity, 'kommunal_pilot') || featureActive(complexity, 'laender_pilot')
+      ? getVorstufenBoni(state, lawId).pkKostenRabatt
+      : 0;
+  const kongruenzEffekt = applyKongruenzEffekte(state, lawId, ausrichtung, complexity);
+  const medienZusatz = featureActive(complexity, 'medienklima')
+    ? getMedienPkZusatzkosten(state.medienKlima ?? 55)
+    : 0;
+  return Math.max(
+    2,
+    getEinbringenPkKosten(kongruenzEffekt.pkModifikator) - rabatt + medienZusatz,
+  );
+}
 
 /** Berechnet pendingGegenfinanzierung-State ohne Toast/Store-Zugriff */
 function buildPendingGFState(
@@ -43,16 +68,8 @@ function buildPendingGFState(
   if (!law) return state;
 
   const optionen = berechneOptionen(state, law, content, complexity);
-  const kosten = Math.abs(law.kosten_laufend ?? 0) || Math.abs(law.kosten_einmalig ?? 0) / 10;
-  const boni = getVorstufenBoni(state, lawId);
-  const kongruenzEffekt = applyKongruenzEffekte(state, lawId, ausrichtung, complexity);
-  const medienZusatz = featureActive(complexity, 'medienklima')
-    ? getMedienPkZusatzkosten(state.medienKlima ?? 55)
-    : 0;
-  const pkKosten = Math.max(
-    2,
-    getEinbringenPkKosten(kongruenzEffekt.pkModifikator) - boni.pkKostenRabatt + medienZusatz,
-  );
+  const kosten = gegenfinanzierungsBedarf(law);
+  const pkKosten = einbringenPkKosten(state, lawId, ausrichtung, complexity);
 
   return {
     ...state,

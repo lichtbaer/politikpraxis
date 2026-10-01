@@ -22,6 +22,8 @@ import { monteCarlo } from './balanceSim';
 import { alleStrategien } from './strategien';
 import { SIM_CONTENT, SIM_CONTENT_WITH_UNLOCK_EVENTS } from './testContent';
 import { echterContent } from './echterContent';
+import { createInitialState } from '../state';
+import { berechneOptionen, brauchtGegenfinanzierung } from '../systems/economics/gegenfinanzierung';
 
 const N = 200;
 const COMPLEXITY = 4;
@@ -396,7 +398,8 @@ describe('Ressourcen-Balance', () => {
 describe('Echter Content (DB-Snapshot)', () => {
   const strategien = alleStrategien();
   const N_ECHT = 40;
-  const AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'];
+  // Wie im Report; runSingleSim kürzt je Stufe auf die Onboarding-Anzahl.
+  const AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte', 'ag_gesetz_klimawende'];
 
   it('Snapshot liefert den vollen Content — nicht das 19-Gesetze-Fixture', () => {
     const content = echterContent();
@@ -419,14 +422,24 @@ describe('Echter Content (DB-Snapshot)', () => {
     expect(fortsetzungen.filter(id => !ids.has(id))).toEqual([]);
   });
 
+  // Hänger = eine Strategie will Monat für Monat dasselbe Gesetz einbringen, und es bleibt
+  // im Entwurf (gesperrt, unfinanzierbar, Modal nie aufgelöst). Damit misst die Sim nicht
+  // mehr die Spielweise, sondern den eigenen Deadlock.
+  const MAX_HAENGER_MONATE = 6;
+
   for (const complexity of [1, 4]) {
-    it(`Stufe ${complexity}: keine Crashes, keine Engine-Fehler (alle Strategien)`, () => {
+    it(`Stufe ${complexity}: keine Crashes, keine Engine-Fehler, keine Einbringen-Hänger (alle Strategien)`, () => {
       for (const [name, strategy] of Object.entries(strategien)) {
         const result = monteCarlo(echterContent(), strategy, 10, complexity, AGENDA);
         if (result.crashes > 0 || result.engineErrors > 0) {
           throw new Error(
             `${name} (Stufe ${complexity}): ${result.crashes} Crashes, ${result.engineErrors} Engine-Fehler – ` +
             (result.engineErrorDetails ?? []).slice(0, 3).join('; '),
+          );
+        }
+        if (result.einbringenHaengerMax > MAX_HAENGER_MONATE) {
+          throw new Error(
+            `${name} (Stufe ${complexity}): hängt ${result.einbringenHaengerMax} Monate am selben Gesetz`,
           );
         }
       }
@@ -438,6 +451,16 @@ describe('Echter Content (DB-Snapshot)', () => {
     const passiv = monteCarlo(echterContent(), strategien['pk_horten'], N_ECHT, 4, AGENDA);
     expect(muster.gewinnRate).toBeGreaterThan(passiv.gewinnRate);
   }, 120_000);
+
+  it('Jedes Gesetz mit Gegenfinanzierungspflicht bekommt zum Start eine verfügbare Option', () => {
+    const content = echterContent();
+    const state = createInitialState(content, 2, { wirtschaft: -20, gesellschaft: -40, staat: -15 });
+    const ohneOption = content.laws
+      .filter(g => brauchtGegenfinanzierung(g))
+      .filter(g => !berechneOptionen(state, g, content, 2).some(o => o.verfuegbar))
+      .map(g => g.id);
+    expect(ohneOption).toEqual([]);
+  });
 
   it('Jedes gesperrte Gesetz hat im Zufalls-Pool ein Event, das es freischaltet', () => {
     const content = echterContent();
