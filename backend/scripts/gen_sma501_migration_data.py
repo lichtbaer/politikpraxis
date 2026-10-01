@@ -8,7 +8,9 @@ from pathlib import Path
 
 
 def collect_gesetz_ids() -> list[str]:
-    root = Path(__file__).resolve().parents[1] / "app" / "db" / "migrations" / "versions"
+    root = (
+        Path(__file__).resolve().parents[1] / "app" / "db" / "migrations" / "versions"
+    )
     ids: list[str] = []
     for path in sorted(root.glob("*.py")):
         text = path.read_text(encoding="utf-8")
@@ -130,7 +132,18 @@ def theme(gid: str) -> tuple[int, list[str], list[str]]:
             "Lohnnebenkosten und Wirtschaftlichkeit kleiner Betriebe steigen dauerhaft.",
             "Fiskalische Belastung, wenn keine Gegenfinanzierung folgt.",
         ]
-    elif any(x in g for x in ("digital", "cyber", "ki_", "plattform", "daten", "verwaltungsdigital", "breitband")):
+    elif any(
+        x in g
+        for x in (
+            "digital",
+            "cyber",
+            "ki_",
+            "plattform",
+            "daten",
+            "verwaltungsdigital",
+            "breitband",
+        )
+    ):
         score = 5
         pos = [
             "Digitale Souveränität, IT-Sicherheit und moderne Verwaltungsabläufe.",
@@ -278,7 +291,7 @@ def write_migration(path: Path) -> None:
         "                VALUES (:id, 'de', :titel, :besch)",
         '                """',
         "            ),",
-        "            {\"id\": z[\"id\"], \"titel\": z[\"titel_de\"], \"besch\": z[\"beschreibung_de\"]},",
+        '            {"id": z["id"], "titel": z["titel_de"], "besch": z["beschreibung_de"]},',
         "        )",
         "",
         "    kziele = [",
@@ -317,7 +330,7 @@ def write_migration(path: Path) -> None:
         "                VALUES (:id, 'de', :titel, :besch)",
         '                """',
         "            ),",
-        "            {\"id\": z[\"id\"], \"titel\": z[\"titel_de\"], \"besch\": z[\"beschreibung_de\"]},",
+        '            {"id": z["id"], "titel": z["titel_de"], "besch": z["beschreibung_de"]},',
         "        )",
         "",
         "    for gid, score, pos, neg in [",
@@ -357,21 +370,21 @@ def write_migration(path: Path) -> None:
         "    for kid in k_ids:",
         "        conn.execute(",
         "            sa.text(",
-        '                "DELETE FROM koalitions_ziele_i18n WHERE koalitions_ziel_id = :id AND locale = \'de\'"',
+        "                \"DELETE FROM koalitions_ziele_i18n WHERE koalitions_ziel_id = :id AND locale = 'de'\"",
         "            ),",
-        "            {\"id\": kid},",
+        '            {"id": kid},',
         "        )",
         "    for kid in k_ids:",
-        "        conn.execute(sa.text(\"DELETE FROM koalitions_ziele WHERE id = :id\"), {\"id\": kid})",
+        '        conn.execute(sa.text("DELETE FROM koalitions_ziele WHERE id = :id"), {"id": kid})',
         "    for aid in a_ids:",
         "        conn.execute(",
         "            sa.text(",
-        '                "DELETE FROM agenda_ziele_i18n WHERE agenda_ziel_id = :id AND locale = \'de\'"',
+        "                \"DELETE FROM agenda_ziele_i18n WHERE agenda_ziel_id = :id AND locale = 'de'\"",
         "            ),",
-        "            {\"id\": aid},",
+        '            {"id": aid},',
         "        )",
         "    for aid in a_ids:",
-        "        conn.execute(sa.text(\"DELETE FROM agenda_ziele WHERE id = :id\"), {\"id\": aid})",
+        '        conn.execute(sa.text("DELETE FROM agenda_ziele WHERE id = :id"), {"id": aid})',
         "    g_ids = [",
     ]
     for gid, _sc, _pos, _neg in rows:
@@ -381,9 +394,9 @@ def write_migration(path: Path) -> None:
         "    for gid in g_ids:",
         "        conn.execute(",
         "            sa.text(",
-        '                "UPDATE gesetze SET langzeit_score = 0, langzeitwirkung_positiv_de = \'{}\', langzeitwirkung_negativ_de = \'{}\' WHERE id = :gid"',
+        "                \"UPDATE gesetze SET langzeit_score = 0, langzeitwirkung_positiv_de = '{}', langzeitwirkung_negativ_de = '{}' WHERE id = :gid\"",
         "            ),",
-        "            {\"gid\": gid},",
+        '            {"gid": gid},',
         "        )",
     ]
 
@@ -400,7 +413,10 @@ def _agenda_seed_rows() -> list[dict[str, object]]:
             "partei_filter": ["sdp", "gp", "lp"],
             "min_complexity": 1,
             "bedingung_typ": "gesetz_politikfeld",
-            "bedingung_param": {"politikfeld_id": "umwelt_energie", "min_beschlossen": 2},
+            "bedingung_param": {
+                "politikfeld_id": "umwelt_energie",
+                "min_beschlossen": 2,
+            },
             "titel_de": "Klimawende voranbringen",
             "beschreibung_de": "Mindestens zwei Gesetze aus dem Politikfeld Umwelt & Energie erfolgreich beschließen.",
         },
@@ -411,7 +427,10 @@ def _agenda_seed_rows() -> list[dict[str, object]]:
             "partei_filter": ["cdp", "ldp"],
             "min_complexity": 1,
             "bedingung_typ": "gesetz_politikfeld",
-            "bedingung_param": {"politikfeld_id": "wirtschaft_finanzen", "min_beschlossen": 2},
+            "bedingung_param": {
+                "politikfeld_id": "wirtschaft_finanzen",
+                "min_beschlossen": 2,
+            },
             "titel_de": "Wirtschaftsstandort stärken",
             "beschreibung_de": "Mindestens zwei Gesetze aus Wirtschaft & Finanzen beschließen.",
         },
@@ -536,7 +555,10 @@ def _koalition_seed_rows() -> list[dict[str, object]]:
             "kategorie": "gesetzgebung",
             "min_complexity": 1,
             "bedingung_typ": "gesetz_politikfeld",
-            "bedingung_param": {"politikfeld_id": "umwelt_energie", "min_beschlossen": 1},
+            "bedingung_param": {
+                "politikfeld_id": "umwelt_energie",
+                "min_beschlossen": 1,
+            },
             "beziehung_malus": 8,
             "titel_de": "Grüne: klares Umweltgesetz",
             "beschreibung_de": "Mindestens ein Gesetz aus Umwelt & Energie muss beschlossen werden — sonst wächst der Druck aus der Koalition.",
@@ -569,7 +591,10 @@ def _koalition_seed_rows() -> list[dict[str, object]]:
             "kategorie": "gesetzgebung",
             "min_complexity": 1,
             "bedingung_typ": "gesetz_politikfeld",
-            "bedingung_param": {"politikfeld_id": "arbeit_soziales", "min_beschlossen": 1},
+            "bedingung_param": {
+                "politikfeld_id": "arbeit_soziales",
+                "min_beschlossen": 1,
+            },
             "beziehung_malus": 8,
             "titel_de": "SPD: Sozialpolitisches Signal",
             "beschreibung_de": "Mindestens ein Gesetz aus Arbeit & Soziales muss beschlossen werden.",
@@ -600,7 +625,10 @@ def _koalition_seed_rows() -> list[dict[str, object]]:
 
 
 def main() -> None:
-    out = Path(__file__).resolve().parents[1] / "app/db/migrations/versions/058_sma501_agenda_koalition_seed.py"
+    out = (
+        Path(__file__).resolve().parents[1]
+        / "app/db/migrations/versions/058_sma501_agenda_koalition_seed.py"
+    )
     write_migration(out)
     print(f"Wrote {out}")
 

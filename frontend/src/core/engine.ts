@@ -196,7 +196,7 @@ const ENGINE_PIPELINE: EnginePhase[] = [
         id: 'checkGameEndAndPendingEffects',
         safe: false,
         run(ctx) {
-          ctx.s = checkGameEnd(ctx.s, ctx.content);
+          ctx.s = checkGameEnd(ctx.s, ctx.content, ctx.complexity);
           if (ctx.s.gameOver) return;
           if (ctx.s.medienKlima == null) ctx.s = { ...ctx.s, medienKlima: MEDIEN_KLIMA_DEFAULT };
           const kpiBeforePending = { ...ctx.s.kpi };

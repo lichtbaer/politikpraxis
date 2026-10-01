@@ -4,6 +4,10 @@
  * auf die echte TypeScript-Engine.
  */
 import type { GameState, ContentBundle, Law } from '../types';
+import { kannGesetzEingebracht } from '../gesetz';
+import { isVerfassungsgerichtBlockiert } from '../systems/parliament/parliament';
+import { featureActive } from '../systems/features';
+import { brauchtGegenfinanzierung, berechneOptionen } from '../systems/economics/gegenfinanzierung';
 
 export type StrategyAction =
   | { typ: 'einbringen'; gesetzId: string }
@@ -38,11 +42,27 @@ export type Strategy = (
   complexity: number,
 ) => StrategyAction | StrategyAction[];
 
-/** Verfügbare Gesetze: Entwurf-Status, nicht event-locked */
-function verfuegbareGesetze(state: GameState): Law[] {
+/**
+ * Verfügbare Gesetze: Entwurf-Status, nicht event-locked — und nur, was die Engine
+ * tatsächlich einbringen lässt (requires/excludes, Verfassungsgericht-Sperre, eine
+ * verfügbare Gegenfinanzierung). Sonst wählt eine Strategie Monat für Monat dasselbe
+ * gesperrte Gesetz und bringt die restliche Legislatur nichts mehr ein.
+ */
+function verfuegbareGesetze(state: GameState, content: ContentBundle, complexity: number): Law[] {
   return state.gesetze.filter(
-    g => g.status === 'entwurf' && !g.locked_until_event
+    g =>
+      g.status === 'entwurf' &&
+      !g.locked_until_event &&
+      kannGesetzEingebracht(state, g.id, content.gesetzRelationen) &&
+      !isVerfassungsgerichtBlockiert(state, g) &&
+      gegenfinanzierbar(state, g, content, complexity),
   );
+}
+
+/** Braucht das Gesetz eine Gegenfinanzierung, muss mindestens eine Option verfügbar sein. */
+function gegenfinanzierbar(state: GameState, law: Law, content: ContentBundle, complexity: number): boolean {
+  if (!featureActive(complexity, 'gegenfinanzierung') || !brauchtGegenfinanzierung(law)) return true;
+  return berechneOptionen(state, law, content, complexity).some(o => o.verfuegbar);
 }
 
 /** Kongruenz-Score Gesetz vs. Partei (vereinfacht) */
@@ -58,12 +78,16 @@ function kongruenz(law: Law, partei: 'sdp' | 'cdp'): number {
 // =============================================================================
 
 /** Wählt zufällig eine Aktion */
-export function strategieRandom(state: GameState): StrategyAction {
+export function strategieRandom(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   const aktionen = ['nichts', 'einbringen', 'lobbying', 'pressemitteilung'] as const;
   const a = aktionen[Math.floor(Math.random() * aktionen.length)];
 
   if (a === 'einbringen') {
-    const gesetze = verfuegbareGesetze(state);
+    const gesetze = verfuegbareGesetze(state, content, complexity);
     if (gesetze.length > 0 && state.pk >= 15) {
       const g = gesetze[Math.floor(Math.random() * gesetze.length)];
       return { typ: 'einbringen', gesetzId: g.id };
@@ -82,8 +106,12 @@ export function strategieRandom(state: GameState): StrategyAction {
 }
 
 /** Bringt immer das erste verfügbare Gesetz ein */
-export function strategieImmerEinbringen(state: GameState): StrategyAction {
-  const gesetze = verfuegbareGesetze(state);
+export function strategieImmerEinbringen(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0 && state.pk >= 15) {
     return { typ: 'einbringen', gesetzId: gesetze[0].id };
   }
@@ -91,8 +119,12 @@ export function strategieImmerEinbringen(state: GameState): StrategyAction {
 }
 
 /** Bringt nur Spargesetze ein (pflichtausgaben_delta < 0) */
-export function strategieNurSparen(state: GameState): StrategyAction {
-  const spargesetze = verfuegbareGesetze(state).filter(
+export function strategieNurSparen(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const spargesetze = verfuegbareGesetze(state, content, complexity).filter(
     g => (g.pflichtausgaben_delta ?? 0) < 0
   );
   if (spargesetze.length > 0 && state.pk >= 15) {
@@ -102,8 +134,12 @@ export function strategieNurSparen(state: GameState): StrategyAction {
 }
 
 /** Bringt nur teure Ausgaben-Gesetze ein */
-export function strategieNurAusgaben(state: GameState): StrategyAction {
-  const ausgaben = verfuegbareGesetze(state)
+export function strategieNurAusgaben(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const ausgaben = verfuegbareGesetze(state, content, complexity)
     .filter(g => (g.kosten_laufend ?? 0) > 2 || (g.effekte.hh ?? 0) < -0.3)
     .sort((a, b) => {
       const scoreA = (a.kosten_laufend ?? 0) * 12 + ((a.effekte.hh ?? 0) * 10);
@@ -122,8 +158,12 @@ export function strategiePkHorten(): StrategyAction {
 }
 
 /** Ideologisch kongruent für SDP (links) */
-export function strategieIdeologischSdp(state: GameState): StrategyAction {
-  const gesetze = verfuegbareGesetze(state);
+export function strategieIdeologischSdp(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length === 0 || state.pk < 15) return { typ: 'nichts' };
   // Höchster kongruenz(·,'sdp') = am linksten (negativster Achsen-Mix)
   const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
@@ -131,8 +171,12 @@ export function strategieIdeologischSdp(state: GameState): StrategyAction {
 }
 
 /** Ideologisch kongruent für CDP (rechts) */
-export function strategieIdeologischCdp(state: GameState): StrategyAction {
-  const gesetze = verfuegbareGesetze(state);
+export function strategieIdeologischCdp(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length === 0 || state.pk < 15) return { typ: 'nichts' };
   const passend = [...gesetze].sort((a, b) => kongruenz(b, 'cdp') - kongruenz(a, 'cdp'));
   return { typ: 'einbringen', gesetzId: passend[0].id };
@@ -143,7 +187,11 @@ export function strategieIdeologischCdp(state: GameState): StrategyAction {
 // =============================================================================
 
 /** Szenario 1: Musterschüler — 1 Gesetz pro Quartal, ideologisch kohärent, pflegt Koalition */
-export function strategieMusterschueler(state: GameState): StrategyAction {
+export function strategieMusterschueler(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   if (state.pk < 15) return { typ: 'nichts' };
 
   const quartal = Math.floor((state.month - 1) / 3);
@@ -153,7 +201,7 @@ export function strategieMusterschueler(state: GameState): StrategyAction {
   ).length - (state.gesetze.filter(g => g.locked_until_event).length);
 
   if (bereitsGebracht < gesetzeErwartet) {
-    const gesetze = verfuegbareGesetze(state);
+    const gesetze = verfuegbareGesetze(state, content, complexity);
     if (gesetze.length > 0) {
       const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
       return { typ: 'einbringen', gesetzId: passend[0].id };
@@ -176,14 +224,22 @@ export function strategieMusterschueler(state: GameState): StrategyAction {
 }
 
 /** Szenario 2: Sparkommissar — nur Spargesetze */
-export function strategieSparkommissar(state: GameState): StrategyAction {
-  return strategieNurSparen(state);
+export function strategieSparkommissar(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  return strategieNurSparen(state, content, complexity);
 }
 
 /** Szenario 4: Koalitionsbrecher — Gesetze die dem Partner widersprechen, nie Koalitionsrunde */
-export function strategieKoalitionsbrecher(state: GameState): StrategyAction {
+export function strategieKoalitionsbrecher(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   if (state.pk < 15) return { typ: 'nichts' };
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length === 0) return { typ: 'nichts' };
   // Gesetze mit niedrigster CDP-Kongruenz (widerspricht Partner)
   const widersprechend = [...gesetze].sort((a, b) => kongruenz(a, 'cdp') - kongruenz(b, 'cdp'));
@@ -201,8 +257,12 @@ export function strategieMedienmogul(state: GameState): StrategyAction {
 }
 
 /** Szenario 6: Verbands-Freund — Gesetze mit höchstem zf + gi Score */
-export function strategieVerbandsFreund(state: GameState): StrategyAction {
-  const gesetze = verfuegbareGesetze(state);
+export function strategieVerbandsFreund(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length === 0 || state.pk < 15) return { typ: 'nichts' };
   const best = [...gesetze].sort((a, b) => {
     const scoreA = (a.effekte.zf ?? 0) + (a.effekte.gi ?? 0) * 0.5;
@@ -213,8 +273,12 @@ export function strategieVerbandsFreund(state: GameState): StrategyAction {
 }
 
 /** Szenario 8: Speed-Runner — so viele Gesetze wie möglich so früh wie möglich */
-export function strategieSpeedRunner(state: GameState): StrategyAction {
-  const gesetze = verfuegbareGesetze(state);
+export function strategieSpeedRunner(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0 && state.pk >= 15) {
     return { typ: 'einbringen', gesetzId: gesetze[0].id };
   }
@@ -226,7 +290,11 @@ export function strategieSpeedRunner(state: GameState): StrategyAction {
 // =============================================================================
 
 /** Bundesrat-Profi: Einbringen + aktives Bundesrat-Lobbying + Ländergipfel */
-export function strategieBundesratProfi(state: GameState): StrategyAction {
+export function strategieBundesratProfi(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   if (state.pk < 12) return { typ: 'nichts' };
 
   // Ländergipfel einmal pro Jahr (alle 12 Monate)
@@ -242,7 +310,7 @@ export function strategieBundesratProfi(state: GameState): StrategyAction {
   }
 
   // Gesetze einbringen
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0 && state.pk >= 15) {
     const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     return { typ: 'einbringen', gesetzId: passend[0].id };
@@ -252,7 +320,11 @@ export function strategieBundesratProfi(state: GameState): StrategyAction {
 }
 
 /** Kabinettspfleger: Pflegt Minister-Mood, bringt daneben Gesetze ein */
-export function strategieKabinettspfleger(state: GameState): StrategyAction {
+export function strategieKabinettspfleger(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   // Minister mit niedriger Stimmung pflegen
   const unzufrieden = state.chars.filter(c => c.mood <= 1 && !c.ist_kanzler);
   if (unzufrieden.length > 0 && state.pk >= 8) {
@@ -265,7 +337,7 @@ export function strategieKabinettspfleger(state: GameState): StrategyAction {
   }
 
   // Gesetze einbringen (SDP-kongruent)
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0 && state.pk >= 15) {
     const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     return { typ: 'einbringen', gesetzId: passend[0].id };
@@ -275,7 +347,11 @@ export function strategieKabinettspfleger(state: GameState): StrategyAction {
 }
 
 /** Medienstratege: Medienkampagne + Pressemitteilung + Einbringen */
-export function strategieMedienstratege(state: GameState): StrategyAction {
+export function strategieMedienstratege(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   // Abwechselnd Medienkampagne und Einbringen
   if (state.month % 3 === 0 && state.pk >= 10) {
     // Medienkampagne auf schwächstes Milieu
@@ -290,7 +366,7 @@ export function strategieMedienstratege(state: GameState): StrategyAction {
   }
 
   // Gesetze einbringen
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0 && state.pk >= 15) {
     return { typ: 'einbringen', gesetzId: gesetze[0].id };
   }
@@ -299,11 +375,15 @@ export function strategieMedienstratege(state: GameState): StrategyAction {
 }
 
 /** Kommunalpolitiker: Startet Kommunal-Piloten, bringt dann ein */
-export function strategieKommunalpolitiker(state: GameState): StrategyAction {
+export function strategieKommunalpolitiker(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   if (state.pk < 15) return { typ: 'nichts' };
 
   // Prüfe ob ein Pilot gestartet werden kann (Gesetz ohne laufende Vorstufe)
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   const ohnePilot = gesetze.filter(g => {
     const aktiveVorstufen = state.gesetzProjekte?.[g.id]?.aktiveVorstufen ?? [];
     return !aktiveVorstufen.some(v => !v.abgeschlossen);
@@ -323,7 +403,11 @@ export function strategieKommunalpolitiker(state: GameState): StrategyAction {
 }
 
 /** Wahlkämpfer: Standard bis Monat 42, dann aggressive Wahlkampf-Aktionen */
-export function strategieWahlkaempfer(state: GameState): StrategyAction {
+export function strategieWahlkaempfer(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   // Wahlkampf-Phase (ab Monat 43)
   if (state.wahlkampfAktiv) {
     if (state.pk >= 15 && !state.medienoffensiveGenutzt) {
@@ -341,7 +425,7 @@ export function strategieWahlkaempfer(state: GameState): StrategyAction {
   }
 
   // Normale Phase: Gesetze einbringen
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0 && state.pk >= 15) {
     const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     return { typ: 'einbringen', gesetzId: passend[0].id };
@@ -350,7 +434,11 @@ export function strategieWahlkaempfer(state: GameState): StrategyAction {
 }
 
 /** Koalitionsmanager: Prioritätsgespräche + intensive Koalitionspflege */
-export function strategieKoalitionsmanager(state: GameState): StrategyAction {
+export function strategieKoalitionsmanager(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   // Koalitionsrunde bei niedrigem Koalitionswert
   if (state.coalition < 50 && state.pk >= 15) {
     return { typ: 'koalitionsrunde' };
@@ -363,7 +451,7 @@ export function strategieKoalitionsmanager(state: GameState): StrategyAction {
   }
 
   // Gesetze einbringen
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0 && state.pk >= 15) {
     const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     return { typ: 'einbringen', gesetzId: passend[0].id };
@@ -375,7 +463,11 @@ export function strategieKoalitionsmanager(state: GameState): StrategyAction {
 }
 
 /** Allrounder: Rotiert durch alle Systeme basierend auf State */
-export function strategieAllrounder(state: GameState): StrategyAction {
+export function strategieAllrounder(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   const monatImQuartal = (state.month - 1) % 6;
 
   // Wahlkampf-Phase
@@ -389,7 +481,7 @@ export function strategieAllrounder(state: GameState): StrategyAction {
   switch (monatImQuartal) {
     case 0: {
       // Gesetze einbringen
-      const gesetze = verfuegbareGesetze(state);
+      const gesetze = verfuegbareGesetze(state, content, complexity);
       if (gesetze.length > 0 && state.pk >= 15) {
         const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
         return { typ: 'einbringen', gesetzId: passend[0].id };
@@ -442,7 +534,7 @@ export function strategieAllrounder(state: GameState): StrategyAction {
   }
 
   // Fallback: Gesetze einbringen
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0 && state.pk >= 15) {
     return { typ: 'einbringen', gesetzId: gesetze[0].id };
   }
@@ -458,7 +550,11 @@ export function strategieAllrounder(state: GameState): StrategyAction {
  * Vermittlungsprofi: Nutzt den Vermittlungsausschuss auf blockierten Gesetzen.
  * Testet den Vermittlungsausschuss-Mechanismus (bisher ungetestet in Balance-Sim).
  */
-export function strategieVermittlungsprofi(state: GameState): StrategyAction {
+export function strategieVermittlungsprofi(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
   // Blockierte Gesetze (Bundesrat hat abgelehnt) → Vermittlungsausschuss
   const blockiert = state.gesetze.filter(
     g => g.status === 'blockiert' || g.status === 'br_einspruch',
@@ -467,7 +563,7 @@ export function strategieVermittlungsprofi(state: GameState): StrategyAction {
     return { typ: 'vermittlungsausschuss', gesetzId: blockiert[0].id };
   }
   // Neue Gesetze einbringen
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0 && state.pk >= 15) {
     const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     return { typ: 'einbringen', gesetzId: passend[0].id };
@@ -480,8 +576,12 @@ export function strategieVermittlungsprofi(state: GameState): StrategyAction {
  * Schuldenmacher: Priorisiert absichtlich teure Gesetze.
  * Testet den Haushaltskonflikt und Saldo-Effekte auf die Bilanz.
  */
-export function strategieSchuldenmacher(state: GameState): StrategyAction {
-  const gesetze = verfuegbareGesetze(state);
+export function strategieSchuldenmacher(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length === 0 || state.pk < 15) {
     if (state.pk >= 5) return { typ: 'pressemitteilung' };
     return { typ: 'nichts' };
@@ -499,8 +599,12 @@ export function strategieSchuldenmacher(state: GameState): StrategyAction {
  * Historiker: Priorisiert Gesetze mit hohem langzeit_score.
  * Testet die Urteil-Dimension des Spielziels (35% Gewicht).
  */
-export function strategieHistoriker(state: GameState): StrategyAction {
-  const gesetze = verfuegbareGesetze(state);
+export function strategieHistoriker(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length === 0 || state.pk < 15) {
     // PK aufbauen mit Koalitionsrunde falls nötig
     if (state.pk >= 15 && state.coalition < 70) return { typ: 'koalitionsrunde' };
@@ -520,17 +624,27 @@ export function strategieHistoriker(state: GameState): StrategyAction {
 // testete die Sim ausschließlich Ein-Aktion-pro-Monat-Spielweisen.
 // =============================================================================
 
+/** PK, ab dem der Stapler ein Gesetz einbringt (Einbringen kostet je nach Kongruenz/Medienklima ~15–25). */
+const STAPLER_EINBRINGEN_RESERVE = 25;
+
 /**
  * Stapler: stapelt in jedem Monat so viele Aktionen wie möglich —
  * Gesetz einbringen, Lobbying auf ein eingebrachtes Gesetz und Pressemitteilung
  * im selben Monat, sofern PK/Cooldowns es zulassen (die Aktionen selbst prüfen
  * ihre Affordability und sind No-Ops bei fehlendem PK/Cooldown).
  */
-export function strategieStapler(state: GameState): StrategyAction[] {
+export function strategieStapler(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction[] {
   const actions: StrategyAction[] = [];
 
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0) {
+    // Reicht das PK nicht fürs Einbringen, spart der Stapler auf das nächste Gesetz,
+    // statt es jeden Monat für Nebenaktionen auszugeben (sonst kommt nie ein Gesetz durch).
+    if (state.pk < STAPLER_EINBRINGEN_RESERVE) return [{ typ: 'nichts' }];
     const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     actions.push({ typ: 'einbringen', gesetzId: passend[0].id });
   }
@@ -555,14 +669,18 @@ export function strategieStapler(state: GameState): StrategyAction[] {
  * einen Schwall Aktionen in einem einzigen Monat — testet, ob Banking + Burst
  * die Balance anders trifft als gleichmäßiges Einzel-Aktions-Spiel.
  */
-export function strategieBurstSpieler(state: GameState): StrategyAction[] {
+export function strategieBurstSpieler(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction[] {
   const BURST_INTERVALL = 4;
   if (state.month % BURST_INTERVALL !== 0) {
     return [{ typ: 'nichts' }];
   }
 
   const actions: StrategyAction[] = [];
-  const gesetze = verfuegbareGesetze(state);
+  const gesetze = verfuegbareGesetze(state, content, complexity);
   if (gesetze.length > 0) {
     const passend = [...gesetze].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
     actions.push({ typ: 'einbringen', gesetzId: passend[0].id });

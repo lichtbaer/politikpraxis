@@ -99,14 +99,27 @@ export interface GegenfinanzierungsOption {
   hat_lehmann?: boolean;
 }
 
+/**
+ * Zu finanzierender Betrag in Mrd. — die eine Grundlage für Pflicht, Optionen und Anwendung.
+ * Laufend netto (Kosten + Einnahmeeffekt; Steuersenkungen zählen als Kosten), sonst ein
+ * Zehntel der Einmalkosten. 0 = keine Gegenfinanzierungspflicht.
+ *
+ * Vorher rechneten Pflicht (netto) und Optionen (brutto `|laufend| || |einmalig|/10`)
+ * verschieden: Steuersenkungen und Gesetze mit kleinen laufenden, aber hohen einmaligen
+ * Kosten lösten die Pflicht aus, bekamen aber keine Option — sie ließen sich ab Stufe 2
+ * nicht einbringen.
+ */
+export function gegenfinanzierungsBedarf(gesetz: Law): number {
+  const nettoLaufend = (gesetz.kosten_laufend ?? 0) + (gesetz.einnahmeeffekt ?? 0);
+  if (nettoLaufend < -1.0) return -nettoLaufend;
+  const einmalig = gesetz.kosten_einmalig ?? 0;
+  if (einmalig < -3.0) return -einmalig / 10;
+  return 0;
+}
+
 /** Prüft ob Gesetz Gegenfinanzierung braucht */
 export function brauchtGegenfinanzierung(gesetz: Law): boolean {
-  const laufend = gesetz.kosten_laufend ?? 0;
-  const einmalig = gesetz.kosten_einmalig ?? 0;
-  const einnahme = gesetz.einnahmeeffekt ?? 0;
-  // Netto-Kosten: laufend + einnahme (positiv = Einnahmen überwiegen, negativ = Kosten überwiegen)
-  const nettoLaufend = laufend + einnahme;
-  return nettoLaufend < -1.0 || einmalig < -3.0;
+  return gegenfinanzierungsBedarf(gesetz) > 0;
 }
 
 /** Berechnet verfügbare Gegenfinanzierungs-Optionen */
@@ -118,10 +131,8 @@ export function berechneOptionen(
 ): GegenfinanzierungsOption[] {
   if (!featureActive(complexity, 'gegenfinanzierung')) return [];
 
-  const kosten = Math.abs(
-    gesetz.kosten_laufend ?? 0,
-  ) || Math.abs(gesetz.kosten_einmalig ?? 0) / 10;
-  if (kosten < 1) return [];
+  const kosten = gegenfinanzierungsBedarf(gesetz);
+  if (kosten <= 0) return [];
 
   const haushalt = state.haushalt;
   const schuldenbremseSpielraum =
@@ -231,7 +242,7 @@ export function wendeGegenfinanzierungAn(
   complexity: number = 4,
   content?: ContentBundle,
 ): GameState {
-  const kosten = Math.abs(gesetz.kosten_laufend ?? 0) || Math.abs(gesetz.kosten_einmalig ?? 0) / 10;
+  const kosten = gegenfinanzierungsBedarf(gesetz);
 
   switch (option.key) {
     case 'ministerium_kuerzen': {

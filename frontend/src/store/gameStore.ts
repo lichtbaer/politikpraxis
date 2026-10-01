@@ -386,7 +386,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }),
   doGegenfinanzierungAuswaehlen: (gesetzId, option, subOption) =>
     set((prev) => {
-      const { state } = gegenfinanzierungAuswaehlenCommand(prev.state, {
+      const { state, effect } = gegenfinanzierungAuswaehlenCommand(prev.state, {
         gesetzId,
         option,
         subOption,
@@ -394,6 +394,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         complexity: prev.complexity,
         content: prev.content,
       });
+      if (effect.type === 'toast') toast(effect.message, effect.variant);
       return { state };
     }),
   doGegenfinanzierungAbbrechen: () =>
@@ -432,6 +433,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doPartnerWiderstandKoalitionsverhandlung: () =>
     set((prev) => {
       const { state, effect } = partnerWiderstandKoalitionsverhandlungCommand(prev.state, {
+        ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
         content: prev.content,
       });
@@ -794,6 +796,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const initial = createInitialState(getContentBundle(), complexity);
       const state = migrateGameState({
         ...validated,
+        // Die Stufe aus den Save-Metadaten ist maßgeblich (sie steuert auch den Tick)
+        complexity,
         bundesratFraktionen: validated.bundesratFraktionen ?? initial.bundesratFraktionen,
         firedBundesratEvents: validated.firedBundesratEvents ?? [],
         electionThreshold: validated.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD,

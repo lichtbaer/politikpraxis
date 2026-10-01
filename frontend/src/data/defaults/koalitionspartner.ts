@@ -57,7 +57,9 @@ export const KOALITIONSPARTNER_PROFILE: Record<KoalitionspartnerParteiId, Koalit
     initials: 'LF',
     kernmilieus: ['postmaterielle', 'soziale_mitte'],
     kernverbaende: ['uvb', 'bvd'],
-    schluesselthemen: ['ee', 'bp'],
+    // Politikfelder wie bei den anderen Partnern (vorher die Gesetz-IDs 'ee'/'bp' —
+    // nur zwei konkrete Gesetze erfüllten den Vertrag)
+    schluesselthemen: ['umwelt_energie', 'bildung_forschung'],
     forderungen: [
       { id: 'ee_prioritaet', label: 'EE-Beschleunigung priorisieren', effekte: { hh: -0.2, zf: 2 } },
       { id: 'bp_wohnung', label: 'Bundeswohnungsbauoffensive stärken', effekte: { hh: -0.3, zf: 3 } },
@@ -183,7 +185,7 @@ export const GRUENE: KoalitionspartnerContent = {
   bt_stimmen: 18,
   kernmilieus: ['postmaterielle', 'soziale_mitte'],
   kernverbaende: ['uvb', 'bvd'],
-  schluesselthemen: ['ee', 'bp'],
+  schluesselthemen: ['umwelt_energie', 'bildung_forschung'],
   forderungen: [
     { id: 'ee_prioritaet', label: 'EE-Beschleunigung priorisieren', effekte: { hh: -0.2, zf: 2 } },
     { id: 'bp_wohnung', label: 'Bundeswohnungsbauoffensive stärken', effekte: { hh: -0.3, zf: 3 } },

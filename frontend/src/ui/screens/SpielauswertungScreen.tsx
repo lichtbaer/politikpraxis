@@ -19,6 +19,7 @@ import {
 } from '../../core/systems/election/wahlnachtParteien';
 import { checkAchievements, getAllAchievements } from '../../core/systems/achievements';
 import { useGameStore } from '../../store/gameStore';
+import { agendaPflicht } from '../../core/spielziel';
 import { useAuthStore } from '../../store/authStore';
 import { useContentStore } from '../../store/contentStore';
 import type { Milieu } from '../../core/types';
@@ -302,7 +303,14 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
           <p className={styles.muted}>
             {gewonnen
               ? t('game:auswertung.legislaturErfolgJa')
-              : t('game:auswertung.legislaturErfolgNein')}
+              : spielziel.beschlosseneGesetzeUrteil === 0
+                ? t('game:auswertung.legislaturErfolgNeinOhneGesetz')
+                : agendaPflicht(complexity) && spielziel.agendaSpielerErfuellt < spielziel.agendaSpielerGesamt
+                  ? t('game:auswertung.legislaturErfolgNeinAgenda', {
+                      erfuellt: spielziel.agendaSpielerErfuellt,
+                      gesamt: spielziel.agendaSpielerGesamt,
+                    })
+                  : t('game:auswertung.legislaturErfolgNein')}
           </p>
         )}
         <p className={styles.muted}>

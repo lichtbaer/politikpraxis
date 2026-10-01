@@ -158,6 +158,8 @@ export function checkRandomEvents(state: GameState, eventPool: GameEvent[], comp
     // eigenständigen Zufallsereignisse — sie werden ausschließlich über den
     // geplanten Follow-up der Vorstufe erreicht (siehe applyUnlocksAndFollowups).
     .filter(e => istEigenstaendigesEvent(e, fortsetzungen))
+    // Ohne Folge-Events (Stufe 1) keine Arc-Einstiege — ihre Fortsetzung käme nie.
+    .filter(e => !e.arcId || featureActive(complexity, 'followup_events'))
     .filter(e => (e.min_complexity ?? 1) <= complexity)
     .filter(e => isEventAvailable(state, e, firedSet));
   if (!available.length) return state;
@@ -867,7 +869,7 @@ function applyUnlocksAndFollowups(
     s = addLog(s, `EU-Kofinanzierung: ${(choice.kofinanzierung * 100).toFixed(0)}%`, 'g');
   }
 
-  // Follow-up Events planen (nur bei Komplexität >= 4)
+  // Follow-up Events planen (Feature followup_events, ab Stufe 2)
   const complexity = options?.complexity ?? 4;
   if (choice.followup_event_id && featureActive(complexity, 'followup_events')) {
     const delay = choice.followup_delay ?? 2;

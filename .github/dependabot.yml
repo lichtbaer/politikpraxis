@@ -13,8 +13,15 @@
 #      weitere braucht dann einen Rebase.
 #
 # Minor+Patch laufen deshalb je Ecosystem als ein PR. Majors bleiben bewusst
-# einzeln: die brauchen ohnehin eine Einzelfallprüfung (eslint 10 scheitert
-# z. B. aktuell an eslint-plugin-jsx-a11y, das noch kein eslint 10 unterstützt).
+# einzeln: die brauchen ohnehin eine Einzelfallprüfung.
+#
+# Nachgeschärft (September 2026, Runde 2):
+#   - pydantic_core steht nicht mehr in requirements.txt (pydantic pinnt es exakt);
+#     #470 hatte es auf 2.49.0 gebumpt, das keine pydantic-Version zulässt.
+#   - vitest und @vitest/* laufen als eigene Gruppe inkl. Majors — getrennt
+#     gebumpt (#447/#448) passen Runner und Coverage-Provider nicht zusammen.
+#   - eslint-Majors werden ignoriert, bis eslint-plugin-jsx-a11y ESLint 10
+#     unterstützt (#446 scheitert daran).
 version: 2
 updates:
   - package-ecosystem: "pip"
@@ -45,7 +52,20 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
+    ignore:
+      # Bis eslint-plugin-jsx-a11y ESLint 10 unterstützt (Peer-Dependency <= 9)
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/js"
+        update-types: ["version-update:semver-major"]
     groups:
+      # Runner und Coverage-Provider nur gemeinsam (auch Majors) — Gruppen greifen
+      # in Reihenfolge, daher vor frontend-minor-patch.
+      vitest:
+        applies-to: version-updates
+        patterns:
+          - "vitest"
+          - "@vitest/*"
       frontend-minor-patch:
         applies-to: version-updates
         update-types:

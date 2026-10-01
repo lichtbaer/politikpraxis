@@ -60,7 +60,8 @@ function ampelLowerIsBetter(value: number, max: number): AgendaAmpel {
 
 function ampelCountTowardsTarget(current: number, target: number): AgendaAmpel {
   if (current >= target) return 'green';
-  if (target > 0 && current === target - 1) return 'yellow';
+  // Gelb = ein Schritt vor dem Ziel — aber nie ohne jeden Fortschritt (bei Ziel 1 war 0 sonst gelb)
+  if (current > 0 && current === target - 1) return 'yellow';
   return 'red';
 }
 

@@ -22,6 +22,7 @@ import {
 } from '../../core/systems/koalition';
 import { getKoalitionsStanz, gruppiereNachKoalitionsStanz } from '../../core/gesetzAgenda';
 import { spielerAgendaZielAnzahl } from '../../core/onboardingAgenda';
+import { agendaPflicht } from '../../core/spielziel';
 import { IdeologieSlider } from '../components/IdeologieSlider/IdeologieSlider';
 import { ALLE_PARTEIEN, buildKoalitionspartnerContent } from '../../data/defaults/koalitionspartner';
 import { toBcp47 } from '../lib/locale';
@@ -92,7 +93,8 @@ export function WahlnachtOnboarding() {
 
   const showParteiScreen = complexity >= 2;
   const showIdeologieScreen = complexity >= 3;
-  const showAgendaScreen = complexity >= 2;
+  // #267: Agenda auf allen Stufen (Stufe 1/2: zwei Ziele, ab Stufe 3: drei)
+  const showAgendaScreen = true;
 
   const [beat, setBeat] = useState(showParteiScreen ? 0 : 4);
   const [selectedPartei, setSelectedPartei] = useState<SpielerParteiId | null>(null);
@@ -550,17 +552,26 @@ export function WahlnachtOnboarding() {
           </div>
         )}
 
-        {/* SMA-503: Legislatur-Agenda (Stufe 2+) */}
+        {/* SMA-503: Legislatur-Agenda (#267: auf allen Stufen) */}
         {showAgendaScreen && beat === agendaBeat && (
           <div className={styles.beatAgenda}>
             <h1 className={styles.agendaTitle}>{t('game:onboarding.agendaTitle')}</h1>
-            <p className={styles.agendaSubtitle}>{t('game:onboarding.agendaSubtitle')}</p>
+            <p className={styles.agendaSubtitle}>
+              {t(
+                koalitionsZieleAnzeige.length > 0
+                  ? 'game:onboarding.agendaSubtitle'
+                  : 'game:onboarding.agendaSubtitleOhneKoalition',
+              )}
+            </p>
             <p className={styles.agendaHint}>
               {t('game:onboarding.agendaPickHint', {
                 count: spielerZielAnzahl,
                 current: gewaehlteAgendaIds.length,
               })}
             </p>
+            {agendaPflicht(complexity) && (
+              <p className={styles.agendaHint}>{t('game:onboarding.agendaPflichtHinweis')}</p>
+            )}
             <div className={styles.agendaScroll}>
               {AGENDA_KATEGORIE_ORDER.map((kat) => {
                 const goals = zielPoolNachKategorie.get(kat);
