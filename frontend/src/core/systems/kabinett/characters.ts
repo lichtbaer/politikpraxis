@@ -1,4 +1,4 @@
-import type { GameState, Character } from '../../types';
+import type { GameState, Character, CharacterRelationship } from '../../types';
 import { addLog } from '../../log';
 import { resetGesetzesstau } from '../parliament/gesetzesstau';
 import { withPause, getAutoPauseLevel } from '../../eventPause';
@@ -29,6 +29,27 @@ export function resolveCharById(chars: Character[], id: string): Character | und
   if (ressort) return chars.find((c) => c.ressort === ressort);
   if (id === 'kanzler') return chars.find((c) => c.ist_kanzler);
   return undefined;
+}
+
+/**
+ * SMA-279: Beziehungen eines Chars auf die aktuellen Kabinettsmitglieder auflösen.
+ * Ziele sind Rollen-Schlüssel ('fm', 'wm', …, 'kanzler' — Pool-Content aus Migration 072)
+ * oder direkte Char-IDs (Offline-Fallback, bei dem die Legacy-IDs selbst die Chars sind).
+ * Rollen, die im aktuellen Kabinett nicht besetzt sind, entfallen.
+ */
+export function resolveCharRelationships(
+  chars: Character[],
+  character: Character,
+): Array<{ rel: CharacterRelationship; target: Character }> {
+  const out: Array<{ rel: CharacterRelationship; target: Character }> = [];
+  const seen = new Set<string>();
+  for (const rel of character.relationships ?? []) {
+    const target = resolveCharById(chars, rel.target);
+    if (!target || target.id === character.id || seen.has(target.id)) continue;
+    seen.add(target.id);
+    out.push({ rel, target });
+  }
+  return out;
 }
 
 /** Findet Minister nach Ressort (unabhängig von Partei). */

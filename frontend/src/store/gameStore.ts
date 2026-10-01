@@ -796,6 +796,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const initial = createInitialState(getContentBundle(), complexity);
       const state = migrateGameState({
         ...validated,
+        // Die Stufe aus den Save-Metadaten ist maßgeblich (sie steuert auch den Tick)
+        complexity,
         bundesratFraktionen: validated.bundesratFraktionen ?? initial.bundesratFraktionen,
         firedBundesratEvents: validated.firedBundesratEvents ?? [],
         electionThreshold: validated.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD,
