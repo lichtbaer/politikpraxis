@@ -1,7 +1,7 @@
 /**
  * SMA-503: Koalitions-Agenda beim Spielstart aus Content ableiten (nicht wählbar).
  */
-import type { ContentBundle, GameState } from './types';
+import type { AgendaZielContent, ContentBundle, GameState } from './types';
 
 /** Anzahl fixer Koalitionsziele je Komplexitätsstufe (Design SMA-503). */
 export function koalitionsAgendaZielAnzahl(complexity: number): number {
@@ -20,12 +20,34 @@ export function koalitionsAgendaZielAnzahl(complexity: number): number {
  * (2 Ziele im Bundle, 3 gefordert).
  */
 export function spielerAgendaZielAnzahl(complexity: number, verfuegbar: number): number {
-  const soll = complexity === 2 ? 2 : complexity >= 3 ? 3 : 0;
+  // Stufe 1 hat seit #267 ebenfalls eine (kleine) Agenda — ohne sie gab es dort kein Ziel
+  // außer „nichts kaputt machen“, und die Legislatur war praktisch unverlierbar.
+  const soll = complexity <= 2 ? 2 : 3;
   return Math.min(soll, Math.max(0, verfuegbar));
 }
 
 /**
- * Wählt die ersten N passenden Koalitionsziele für den aktuellen Partner (deterministisch nach ID).
+ * Spieler-Agendaziele, die auf dieser Stufe für diese Partei wählbar sind
+ * (Onboarding und Balance-Simulation nutzen dieselbe Auswahl).
+ */
+export function waehlbareSpielerAgendaZiele(
+  content: Pick<ContentBundle, 'agendaZiele'>,
+  complexity: number,
+  parteiId: string | null | undefined,
+): AgendaZielContent[] {
+  return (content.agendaZiele ?? []).filter((z) => {
+    if (z.min_complexity > complexity) return false;
+    if (z.partei_filter && z.partei_filter.length > 0 && parteiId) {
+      if (!z.partei_filter.includes(parteiId)) return false;
+    }
+    return true;
+  });
+}
+
+/**
+ * Wählt N passende Koalitionsziele für den aktuellen Partner (deterministisch):
+ * Gesetzesziele zuerst, dann die übrigen, jeweils nach ID (#475). Bisher galt nur die ID —
+ * auf Stufe 2 war das einzige Koalitionsziel der Grünen damit ein Milieuziel.
  */
 export function pickInitialKoalitionsAgenda(
   state: GameState,
@@ -39,8 +61,12 @@ export function pickInitialKoalitionsAgenda(
   if (!partnerId || alle.length === 0) return [];
   const pool = alle
     .filter((z) => z.partner_profil === partnerId && z.min_complexity <= complexity)
-    .map((z) => z.id)
-    .sort((a, b) => a.localeCompare(b));
+    .sort((a, b) => {
+      const gesetzA = a.bedingung_typ.startsWith('gesetz_') ? 0 : 1;
+      const gesetzB = b.bedingung_typ.startsWith('gesetz_') ? 0 : 1;
+      return gesetzA - gesetzB || a.id.localeCompare(b.id);
+    })
+    .map((z) => z.id);
   return pool.slice(0, n);
 }
 

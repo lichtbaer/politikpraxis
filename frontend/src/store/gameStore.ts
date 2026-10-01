@@ -33,7 +33,7 @@ import { lobbyLand, lobbyFraktion, ueberstimmeBReinspruch, bundeslandGespraech }
 import { verbandGespraech, verbandTradeoff, verbandLobbyAbstimmung } from '../core/systems/verbaende';
 import { applyAusrichtung, type Ausrichtung } from '../core/systems/ausrichtung';
 import type { LobbyTradeoffOptions } from '../core/types';
-import { getContentBundle } from './contentStore';
+import { getContentBundle, istContentVersionAbweichend, useContentStore } from './contentStore';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
 import { SPIELBARE_PARTEIEN } from '../data/defaults/parteien';
 import { type SaveFile, saveGameDebounced } from '../services/localStorageSave';
@@ -81,6 +81,18 @@ export type GamePhase = 'onboarding' | 'playing';
 /** Convenience: fire-and-forget toast from game actions. `major`: #284 — größeres, längeres Feedback für große Momente. */
 const toast = (msg: string, type?: 'info' | 'success' | 'warning' | 'danger', major?: boolean) =>
   useUIStore.getState().showToast(msg, type, { major });
+
+/**
+ * #244: Nicht-blockierende Warnung, wenn ein Spielstand mit anderem Content
+ * gespielt wurde als dem aktuell geladenen (z.B. nach einer Content-Migration).
+ * Der Spielstand wird trotzdem geladen; seine `contentVersion` bleibt die des
+ * Spielbeginns, denn Gesetze/Chars im State stammen weiterhin von dort.
+ */
+function warneBeiContentVersionAbweichung(gespeichert: string | undefined): void {
+  if (istContentVersionAbweichend(gespeichert, useContentStore.getState().contentVersion)) {
+    toast(i18n.t('common:game.contentVersionMismatch'), 'warning');
+  }
+}
 
 /** Warnung bei fehlgeschlagenem lokalen Autosave nur einmal pro Sitzung. */
 let localSaveWarned = false;
@@ -236,6 +248,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const ersterMonatTicker = i18n.exists('game:onboarding.erster_monat')
       ? i18n.t('game:onboarding.erster_monat')
       : 'Neue Legislaturperiode. Koalitionsvertrag unterzeichnet.';
+    // #244: Content-Version des Spielbeginns im Spielstand festhalten
+    const contentVersion = useContentStore.getState().contentVersion;
     const withExpanded = {
       ...withLogs,
       gesetze: withLogs.gesetze.map((g, i) => i === 0 ? { ...g, expanded: true } : g),
@@ -243,6 +257,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ticker: ersterMonatTicker,
       ...(kanzlerName && { kanzlerName }),
       kanzlerGeschlecht,
+      ...(contentVersion && { contentVersion }),
     };
     set({ state: withExpanded, content: c, cloudSaveId: null });
   },
@@ -386,7 +401,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }),
   doGegenfinanzierungAuswaehlen: (gesetzId, option, subOption) =>
     set((prev) => {
-      const { state } = gegenfinanzierungAuswaehlenCommand(prev.state, {
+      const { state, effect } = gegenfinanzierungAuswaehlenCommand(prev.state, {
         gesetzId,
         option,
         subOption,
@@ -394,6 +409,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         complexity: prev.complexity,
         content: prev.content,
       });
+      if (effect.type === 'toast') toast(effect.message, effect.variant);
       return { state };
     }),
   doGegenfinanzierungAbbrechen: () =>
@@ -432,6 +448,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   doPartnerWiderstandKoalitionsverhandlung: () =>
     set((prev) => {
       const { state, effect } = partnerWiderstandKoalitionsverhandlungCommand(prev.state, {
+        ausrichtung: prev.ausrichtung,
         complexity: prev.complexity,
         content: prev.content,
       });
@@ -730,7 +747,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set(prev => {
       const next = vermittlungsausschuss(prev.state, lawId, prev.complexity);
       if (next !== prev.state) {
-        toast('Vermittlungsausschuss einberufen — Kompromiss in 2 Monaten', 'info');
+        toast('Vermittlungsausschuss einberufen — Ausgang offen, Ergebnis in 2 Monaten', 'info');
       }
       return next !== prev.state ? { state: next } : {};
     }),
@@ -781,6 +798,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         electionThreshold: validated.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD,
       });
       set({ state, content: getContentBundle() });
+      warneBeiContentVersionAbweichung(state.contentVersion);
     } catch {
       logger.warn('Ungültiger Spielstand – Laden abgebrochen');
     }
@@ -794,6 +812,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const initial = createInitialState(getContentBundle(), complexity);
       const state = migrateGameState({
         ...validated,
+        // Die Stufe aus den Save-Metadaten ist maßgeblich (sie steuert auch den Tick)
+        complexity,
         bundesratFraktionen: validated.bundesratFraktionen ?? initial.bundesratFraktionen,
         firedBundesratEvents: validated.firedBundesratEvents ?? [],
         electionThreshold: validated.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD,
@@ -812,6 +832,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         cloudSaveId: save.cloudSaveId ?? null,
         phase: 'playing',
       });
+      warneBeiContentVersionAbweichung(state.contentVersion);
     } catch {
       logger.warn('Ungültiger Spielstand – Laden abgebrochen (loadSaveFromFile)');
     }

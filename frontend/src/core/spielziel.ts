@@ -20,6 +20,14 @@ export const SPIELZIEL_WAHLBONUS_MAX = 4;
 export const SPIELZIEL_ERFOLG_SCHWELLE = 40;
 
 /**
+ * #267: Bis zu dieser Stufe muss zusätzlich die komplette Spieler-Agenda erfüllt sein.
+ * Auf Stufe 1 gehen Gesetze fast von selbst durch — Punkte allein trennten dort gutes von
+ * zufälligem Spiel kaum (Median 81 vs. 65). Die zwei selbst gewählten Ziele sind das
+ * sichtbare, verständliche Siegkriterium der Einstiegsstufe.
+ */
+export const SPIELZIEL_AGENDA_PFLICHT_BIS_STUFE = 1;
+
+/**
  * Historisches Urteil wenn kein einziges Gesetz beschlossen wurde.
  * Vorher neutral 50 — dadurch erreichte komplette Passivität zusammen mit dem
  * Agenda-Default (55) fast die Erfolgsschwelle. Eine Regierung ohne ein
@@ -43,8 +51,10 @@ function ampelToScore(ampel: 'green' | 'yellow' | 'red'): number {
 }
 
 /**
- * Agenda-Anteil 0–100: Mittelwert aus Spieler- und Koalitionszielen (Sidebar-Ampeln).
- * Ohne Agenda-Ziele in beiden Kategorien: neutral 55.
+ * Agenda-Anteil 0–100: Mittelwert über alle Spieler- und Koalitionsziele (Sidebar-Ampeln),
+ * jedes Ziel gleich gewichtet. Vorher wurden die beiden Gruppen 50/50 gemittelt — ein einzelnes
+ * (auf Stufe 2 oft schon zum Start erfülltes) Koalitionsziel zählte so viel wie die ganze
+ * Spieler-Agenda. Ohne Agenda-Ziele: neutral 55.
  */
 function agendaAnteilPunkte(state: GameState, content: ContentBundle): {
   punkte: number;
@@ -63,14 +73,7 @@ function agendaAnteilPunkte(state: GameState, content: ContentBundle): {
     return sum / list.length;
   };
 
-  const aS = avg(spieler);
-  const aK = avg(koalition);
-
-  let punkte: number;
-  if (aS != null && aK != null) punkte = (aS + aK) / 2;
-  else if (aS != null) punkte = aS;
-  else if (aK != null) punkte = aK;
-  else punkte = 55;
+  const punkte = avg([...spieler, ...koalition]) ?? 55;
 
   return {
     punkte: clamp(Math.round(punkte), 0, 100),
@@ -150,6 +153,52 @@ export function berechneSpielzielErgebnis(
   };
 }
 
-export function istLegislaturErfolg(gesamtpunkte: number): boolean {
-  return gesamtpunkte >= SPIELZIEL_ERFOLG_SCHWELLE;
+/** Für die Erfolgsprüfung benötigte Felder des Spielziel-Ergebnisses. */
+type LegislaturErfolgInput = Pick<
+  SpielzielErgebnis,
+  'gesamtpunkte' | 'beschlosseneGesetzeUrteil' | 'agendaSpielerErfuellt' | 'agendaSpielerGesamt'
+>;
+
+/** #482: Warum eine regulär beendete Legislatur das Spielziel verfehlt hat. */
+export type LegislaturMisserfolgGrund = 'kein_gesetz' | 'agenda' | 'punkte';
+
+/**
+ * #482: Einzige Quelle für den Misserfolgsgrund einer regulär beendeten Legislatur
+ * (genutzt von Erfolgsprüfung, Auswertungs-Screen und Balance-Simulation).
+ * Prüfreihenfolge — der erste zutreffende Grund gewinnt:
+ * 1. `kein_gesetz`: kein einziges beschlossenes Gesetz (#267),
+ * 2. `agenda`: bis SPIELZIEL_AGENDA_PFLICHT_BIS_STUFE nicht alle Spieler-Agendaziele erfüllt,
+ * 3. `punkte`: Gesamtpunkte unter SPIELZIEL_ERFOLG_SCHWELLE.
+ * Liefert `null`, wenn die Legislatur erfolgreich war.
+ */
+export function legislaturMisserfolgGrund(
+  ergebnis: LegislaturErfolgInput,
+  complexity: number | undefined,
+): LegislaturMisserfolgGrund | null {
+  if (ergebnis.beschlosseneGesetzeUrteil <= 0) return 'kein_gesetz';
+  if (agendaPflicht(complexity) && ergebnis.agendaSpielerErfuellt < ergebnis.agendaSpielerGesamt) {
+    return 'agenda';
+  }
+  if (ergebnis.gesamtpunkte < SPIELZIEL_ERFOLG_SCHWELLE) return 'punkte';
+  return null;
+}
+
+/**
+ * Erfolgreiche Legislatur (#267):
+ * - mindestens ein beschlossenes Gesetz — eine Regierung ohne ein einziges Gesetz gewinnt auf
+ *   keiner Stufe, egal wie ruhig es sonst zuging,
+ * - bis SPIELZIEL_AGENDA_PFLICHT_BIS_STUFE: alle Spieler-Agendaziele erfüllt,
+ * - Gesamtpunkte ≥ SPIELZIEL_ERFOLG_SCHWELLE.
+ * Details siehe `legislaturMisserfolgGrund` (#482).
+ */
+export function istLegislaturErfolg(
+  ergebnis: LegislaturErfolgInput,
+  complexity: number | undefined,
+): boolean {
+  return legislaturMisserfolgGrund(ergebnis, complexity) === null;
+}
+
+/** Muss auf dieser Stufe die komplette Spieler-Agenda erfüllt sein? */
+export function agendaPflicht(complexity: number | undefined): boolean {
+  return complexity != null && complexity <= SPIELZIEL_AGENDA_PFLICHT_BIS_STUFE;
 }

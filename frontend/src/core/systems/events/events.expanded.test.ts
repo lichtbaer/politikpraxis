@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   checkRandomEvents,
   checkBundesratEvents,
@@ -8,6 +8,7 @@ import {
   recordEventFired,
 } from './events';
 import { calcBundesratMehrheit } from '../institutions/bundesrat';
+import { berechneVermittlungsChancen, tickVermittlungsausschuss } from '../legislation/vermittlung';
 import * as rng from '../../rng';
 import { createInitialState } from '../../state';
 import { DEFAULT_CONTENT } from '../../../data/defaults/scenarios';
@@ -149,6 +150,16 @@ describe('checkRandomEvents (extended)', () => {
     vi.restoreAllMocks();
   });
 
+  it('#267: ohne Folge-Events (Stufe 1) keine Arc-Einstiege — ab Stufe 2 schon', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0);
+    const einstieg = makeEvent({ id: 'arc_stage1', arcId: 'testarc', arcStage: 1 });
+    const normal = makeEvent({ id: 'normal' });
+    expect(checkRandomEvents(makeState(), [einstieg], 1).activeEvent).toBeNull();
+    expect(checkRandomEvents(makeState(), [einstieg, normal], 1).activeEvent!.id).toBe('normal');
+    expect(checkRandomEvents(makeState(), [einstieg], 2).activeEvent!.id).toBe('arc_stage1');
+    vi.restoreAllMocks();
+  });
+
   it('bietet im Spätspiel (Monat 36+) weiterhin Events, wenn nicht-wiederholbare Events erschöpft sind (SMA-273)', () => {
     vi.spyOn(rng, 'nextRandom').mockReturnValue(0); // immer auslösen, immer erstes verfügbares Event wählen
     const einmaligA = makeEvent({ id: 'einmalig_a' });
@@ -227,6 +238,99 @@ describe('checkBundesratEvents', () => {
     });
     expect(result.activeEvent).toBeTruthy();
     expect(result.activeEvent!.id).toBe('kohl_eskaliert');
+  });
+
+  describe('Kohl ruft den Vermittlungsausschuss an (#276 AC3)', () => {
+    const ctx = { bundesratEvents: brEvents, sprecherErsatz: {}, landtagswahlTransitions: [] };
+    const ostblock = (beziehung: number): BundesratFraktion => ({
+      id: 'ostblock', name: 'Ostblock',
+      sprecher: { name: 'Kohl', partei: 'P', land: 'SN', initials: 'K', color: '#000', bio: '' },
+      laender: ['SN', 'TH'], basisBereitschaft: 30, beziehung,
+      tradeoffPool: [], sonderregel: 'kohl_saboteur',
+    });
+    const mitte: BundesratFraktion = { ...ostblock(50), id: 'mitte', name: 'Mitte', sonderregel: undefined };
+    const landGesetz = (overrides: Partial<Law> = {}): Law => ({
+      id: 'law1', titel: 'L', kurz: 'L', desc: '', tags: ['land'], status: 'bt_passed',
+      ja: 55, nein: 45, effekte: { zf: 2 }, lag: 3, expanded: false, route: null, rprog: 0, rdur: 0,
+      blockiert: null, brVoteMonth: 22, zustimmungspflichtig: true, ...overrides,
+    });
+    /** Choices wie im DB-Content: Keys, aber kein br_relation_json */
+    const kohlEvent = makeEvent({
+      id: 'kohl_eskaliert',
+      choices: [
+        { label: 'Kooperieren', desc: '', cost: 15, type: 'primary', effect: {}, log: 'k', key: 'kooperieren' },
+        { label: 'Juristisch blockieren', desc: '', cost: 20, type: 'safe', effect: {}, log: 'j', key: 'juristisch_blockieren' },
+        { label: 'Öffentlich kritisieren', desc: '', cost: 0, type: 'danger', effect: { zf: -2 }, log: 'o', key: 'oeffentlich_kritisieren_kohl' },
+      ],
+    });
+    const ausgeloest = () => checkBundesratEvents(
+      makeState({ month: 20, pk: 50, firedBundesratEvents: [], bundesratFraktionen: [ostblock(10), mitte], gesetze: [landGesetz()] }),
+      { ...ctx, bundesratEvents: [kohlEvent] },
+    );
+    const beziehungOstblock = (s: GameState) => s.bundesratFraktionen.find(f => f.id === 'ostblock')!.beziehung;
+
+    afterEach(() => vi.restoreAllMocks());
+
+    it('startet eine Bundesrats-Vermittlung statt nur zu verzögern', () => {
+      const result = ausgeloest();
+      const law = result.gesetze[0];
+      expect(result.activeEvent!.id).toBe('kohl_eskaliert');
+      expect(result.activeEvent!.lawId).toBe('law1');
+      expect(result.activeEvent!.fraktionId).toBe('ostblock');
+      expect(law.status).toBe('bt_passed');
+      expect(law.kohlSabotageTriggered).toBe(true);
+      // Abstimmung wie bisher um 2 Monate verschoben — jetzt als Fristende der Vermittlung
+      expect(law.brVoteMonth).toBe(24);
+      expect(result.vermittlungAktiv?.law1).toBe(24);
+      expect(result.vermittlungAnrufer?.law1).toBe('ostblock');
+      expect(result.vermittlungAusgang?.law1).toBeUndefined();
+      expect(result.pk).toBe(50);
+    });
+
+    it('löst für dasselbe Gesetz keine zweite Vermittlung aus', () => {
+      const erste = { ...ausgeloest(), activeEvent: null };
+      const zweite = checkBundesratEvents(erste, { ...ctx, bundesratEvents: [kohlEvent] });
+      expect(zweite.activeEvent).toBeNull();
+      expect(zweite.vermittlungAktiv).toEqual(erste.vermittlungAktiv);
+    });
+
+    it('„Kooperieren" verbessert die Beziehung zu Kohl, „Öffentlich kritisieren" verschlechtert sie', () => {
+      const s = ausgeloest();
+      const [kooperieren, juristisch, kritisieren] = kohlEvent.choices;
+      expect(beziehungOstblock(resolveEvent(s, s.activeEvent!, kooperieren))).toBe(18);
+      expect(beziehungOstblock(resolveEvent(s, s.activeEvent!, juristisch))).toBe(10);
+      expect(beziehungOstblock(resolveEvent(s, s.activeEvent!, kritisieren))).toBe(0);
+    });
+
+    it('wendet das Beziehungs-Delta nicht doppelt an, wenn der Content eines mitbringt', () => {
+      const s = ausgeloest();
+      const mitContentDelta: EventChoice = { ...kohlEvent.choices[0], brRelation: { ostblock: 5 } };
+      expect(beziehungOstblock(resolveEvent(s, s.activeEvent!, mitContentDelta))).toBe(15);
+    });
+
+    it('die Reaktion auf den Antrag verschiebt den Ausgang der Vermittlung', () => {
+      const s = ausgeloest();
+      const [kooperieren, , kritisieren] = kohlEvent.choices;
+      const bisFrist = (x: GameState): GameState => ({ ...x, month: 24 });
+      const kooperativ = bisFrist(resolveEvent(s, s.activeEvent!, kooperieren));
+      const konfrontativ = bisFrist(resolveEvent(s, s.activeEvent!, kritisieren));
+
+      const cKoop = berechneVermittlungsChancen(kooperativ, 'law1');
+      const cKrit = berechneVermittlungsChancen(konfrontativ, 'law1');
+      const einigungKoop = cKoop.erfolg + cKoop.kompromiss;
+      const einigungKrit = cKrit.erfolg + cKrit.kompromiss;
+      expect(einigungKoop).toBeGreaterThan(einigungKrit);
+
+      // Gleicher Wurf zwischen beiden Einigungsschwellen: Kooperation rettet das Gesetz
+      vi.spyOn(rng, 'nextRandom').mockReturnValue((einigungKoop + einigungKrit) / 2);
+      const nachKoop = tickVermittlungsausschuss(kooperativ, { complexity: 4 });
+      const nachKrit = tickVermittlungsausschuss(konfrontativ, { complexity: 4 });
+
+      expect(nachKoop.gesetze[0].status).toBe('bt_passed');
+      expect(nachKoop.gesetze[0].brVoteMonth).toBe(24);
+      expect(nachKrit.gesetze[0].status).toBe('blockiert');
+      expect(nachKrit.gesetze[0].blockiert).toBe('bundesrat');
+    });
   });
 
   it('triggert nicht wenn activeEvent vorhanden', () => {

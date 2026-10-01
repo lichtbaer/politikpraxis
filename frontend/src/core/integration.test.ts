@@ -7,6 +7,8 @@ import { einbringen } from './systems/parliament/parliament';
 import { applyMilieuEffekte } from './systems/medien/milieus';
 import { berechneWahlprognose } from './systems/medien/wahlprognose';
 import { triggerHaushaltsdebatte } from './systems/economics/haushalt';
+import { bundesratRuftVermittlungAn } from './systems/legislation/vermittlung';
+import * as rng from './rng';
 import type { GameState, ContentBundle, Law } from './types';
 
 function createInitialState(): GameState {
@@ -152,6 +154,52 @@ describe('Integration: Haushaltsdebatte Oktober → Politikfeld-Priorisierung', 
     const politikfelder = [{ id: 'umwelt_energie' }, { id: 'wirtschaft_finanzen' }];
     const s = triggerHaushaltsdebatte(state, 3, politikfelder);
     expect(s.aktivesStrukturEvent?.type).toBe('haushaltsdebatte');
+  });
+});
+
+describe('#276: Bundesrat ruft den Vermittlungsausschuss an → erneute Bundesratsabstimmung', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  /** Land-Gesetz im Bundesratsverfahren; eine Fraktion mit 9 Ländern und Auto-Ja (Beziehung 90) */
+  function stateMitBrVermittlung(month: number): GameState {
+    const gesetz: Law = {
+      id: 'wb', titel: 'Wohnungsbau', kurz: 'WB', desc: '', tags: ['land'], status: 'bt_passed',
+      ja: 60, nein: 40, effekte: { gi: 1 }, lag: 2, expanded: false, route: null, rprog: 0, rdur: 0,
+      blockiert: null, brVoteMonth: 3, zustimmungspflichtig: true,
+    };
+    const state: GameState = {
+      ...createInitialState(),
+      month,
+      gesetze: [gesetz],
+      bundesratFraktionen: [
+        {
+          id: 'kb', name: 'KB', laender: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'],
+          sprecher: { name: 'X', partei: 'CDP', land: 'BY', initials: 'X', color: '#000', bio: '' },
+          beziehung: 90, basisBereitschaft: 60, tradeoffPool: [],
+        },
+      ] as GameState['bundesratFraktionen'],
+    };
+    // Aufruf in Monat 1: Abstimmung (bisher Monat 3) verschiebt sich auf Monat 5
+    return { ...bundesratRuftVermittlungAn({ ...state, month: 1 }, 'wb', 'kb'), month };
+  }
+
+  it('stimmt während der laufenden Vermittlung nicht ab', () => {
+    const state = stateMitBrVermittlung(2);
+    // Abstimmungstermin künstlich überschritten — die laufende Vermittlung hat Vorrang
+    const s = tick({ ...state, gesetze: state.gesetze.map(g => ({ ...g, brVoteMonth: 3 })) }, content, 4);
+    expect(s.month).toBe(3);
+    expect(s.gesetze[0].status).toBe('bt_passed');
+    expect(s.vermittlungAktiv?.wb).toBe(5);
+  });
+
+  it('Einigung bei Fristende → der Bundesrat stimmt im selben Monat erneut ab', () => {
+    vi.spyOn(rng, 'nextRandom').mockReturnValue(0.01);
+    const s = tick(stateMitBrVermittlung(4), content, 4);
+    expect(s.month).toBe(5);
+    expect(s.vermittlungAktiv).toBeUndefined();
+    expect(s.vermittlungAnrufer).toBeUndefined();
+    expect(s.gesetze[0].status).toBe('beschlossen');
+    expect(s.log.some(e => e.msg === 'game:bundesrat.logVermittlungEinigung')).toBe(true);
   });
 });
 

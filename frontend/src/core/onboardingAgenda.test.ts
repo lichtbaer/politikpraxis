@@ -3,6 +3,7 @@ import type { ContentBundle, GameState } from './types';
 import {
   koalitionsAgendaZielAnzahl,
   pickInitialKoalitionsAgenda,
+  waehlbareSpielerAgendaZiele,
   withInitialKoalitionsAgenda,
 } from './onboardingAgenda';
 
@@ -67,6 +68,35 @@ describe('onboardingAgenda', () => {
     };
     const st = minimalState('gp');
     expect(pickInitialKoalitionsAgenda(st, content as unknown as ContentBundle, 3)).toEqual(['z_a', 'z_b']);
+  });
+
+  it('pickInitialKoalitionsAgenda nimmt Gesetzesziele zuerst (#475)', () => {
+    const z = (id: string, bedingung_typ: string) => ({
+      id, partner_profil: 'gp', kategorie: 'x', min_complexity: 1, bedingung_typ, bedingung_param: {},
+      beziehung_malus: 1, titel: '', beschreibung: '',
+    });
+    const content = {
+      koalitionsZiele: [
+        z('kz_a_milieu', 'milieu_zustimmung_steigern'),
+        z('kz_b_verband', 'verband_beziehung_steigern'),
+        z('kz_z_gesetz', 'gesetz_politikfeld'),
+      ],
+    } as unknown as ContentBundle;
+    const st = minimalState('gp');
+    expect(pickInitialKoalitionsAgenda(st, content, 2)).toEqual(['kz_z_gesetz']);
+    expect(pickInitialKoalitionsAgenda(st, content, 4)).toEqual(['kz_z_gesetz', 'kz_a_milieu', 'kz_b_verband']);
+  });
+
+  it('waehlbareSpielerAgendaZiele filtert nach Stufe und Partei', () => {
+    const z = (id: string, min_complexity: number, partei_filter: string[] | null) => ({
+      id, kategorie: 'x', schwierigkeit: 1, partei_filter, min_complexity, bedingung_typ: 'x',
+      bedingung_param: {}, titel: '', beschreibung: '',
+    });
+    const content = {
+      agendaZiele: [z('alle_1', 1, null), z('sdp_1', 1, ['sdp']), z('cdp_1', 1, ['cdp']), z('alle_2', 2, null)],
+    } as unknown as ContentBundle;
+    expect(waehlbareSpielerAgendaZiele(content, 1, 'sdp').map((x) => x.id)).toEqual(['alle_1', 'sdp_1']);
+    expect(waehlbareSpielerAgendaZiele(content, 2, 'cdp').map((x) => x.id)).toEqual(['alle_1', 'cdp_1', 'alle_2']);
   });
 
   it('withInitialKoalitionsAgenda mutiert State nur bei Treffern', () => {

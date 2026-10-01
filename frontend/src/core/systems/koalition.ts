@@ -17,6 +17,10 @@ import {
 import type { SpielerParteiId } from '../../data/defaults/parteien';
 import { resetGesetzesstau } from './parliament/gesetzesstau';
 
+/** Schlüsselthemen-Druck: Beziehungsabzug pro Monat und insgesamt (Stufe 2+, ab Monat 24). */
+export const SCHLUESSELTHEMEN_MALUS_MONAT = 2;
+export const SCHLUESSELTHEMEN_MALUS_MAX = 20;
+
 /** #283: Alle möglichen Koalitionspartner sortiert nach Ideologie-Distanz (nächster zuerst) */
 export function berechneKoalitionspartnerKandidaten(
   spielerParteiId: SpielerParteiId,
@@ -231,22 +235,27 @@ export function tickKoalitionspartner(
     }
   }
 
-  // Koalitionsvertrag-Schlüsselthemen Druck (Stufe 2+, ab Monat 24)
+  // Koalitionsvertrag-Schlüsselthemen Druck (Stufe 2+, ab Monat 24): unter 50 % Erfüllung
+  // monatlich −2 Beziehung, insgesamt höchstens SCHLUESSELTHEMEN_MALUS_MAX. Ungedeckelt summierte
+  // sich das bis Monat 48 auf −50 und beendete viele Legislaturen kurz vor der Wahl.
   if (
     featureActive(complexity, 'koalitionsvertrag_tracker') &&
     state.month >= 24
   ) {
-    const erfuellt = next.koalitionspartner?.schluesselthemenErfuellt ?? [];
-    const gesamt = partner.schluesselthemen?.length ?? 0;
+    const themen = partner.schluesselthemen ?? [];
+    const erfuellt = (next.koalitionspartner?.schluesselthemenErfuellt ?? []).filter(t => themen.includes(t));
+    const gesamt = themen.length;
     const erfuellungsQuote = gesamt > 0 ? erfuellt.length / gesamt : 1;
-    // Unter 50% Erfüllung ab Monat 24: monatlich -2 Beziehung
-    if (erfuellungsQuote < 0.5 && next.koalitionspartner) {
+    const bisher = next.koalitionspartner?.schluesselthemenMalus ?? 0;
+    if (erfuellungsQuote < 0.5 && next.koalitionspartner && bisher < SCHLUESSELTHEMEN_MALUS_MAX) {
       const kpNext = next.koalitionspartner;
+      const abzug = Math.min(SCHLUESSELTHEMEN_MALUS_MONAT, SCHLUESSELTHEMEN_MALUS_MAX - bisher);
       next = {
         ...next,
         koalitionspartner: {
           ...kpNext,
-          beziehung: Math.max(0, kpNext.beziehung - 2),
+          beziehung: Math.max(0, kpNext.beziehung - abzug),
+          schluesselthemenMalus: bisher + abzug,
         },
       };
       // Warnung nur alle 6 Monate
@@ -298,7 +307,8 @@ export function checkKoalitionsbruch(
 
   const seitMonat = state.koalitionsbruchSeitMonat;
   if (seitMonat != null && state.month >= seitMonat + 3) {
-    return { ...state, gameOver: true, won: false, speed: 0 };
+    // #482: Partner kündigt die Koalition — eigener Grund neben dem Stabilitäts-Bruch
+    return { ...state, gameOver: true, won: false, speed: 0, spielendeGrund: 'partner_kuendigt' };
   }
 
   if (seitMonat == null) {

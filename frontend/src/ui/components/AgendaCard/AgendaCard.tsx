@@ -6,8 +6,7 @@ import { gesetzKongruenz } from '../../../core/ideologie';
 import { featureActive } from '../../../core/systems/features';
 import { getVorstufenBoni } from '../../../core/systems/legislation/gesetzLebenszyklus';
 import { isVerfassungsgerichtBlockiert } from '../../../core/systems/parliament/parliament';
-import { applyKongruenzEffekte, getEinbringenPkKosten } from '../../../core/systems/parliament/kongruenz';
-import { getMedienPkZusatzkosten } from '../../../core/systems/medien/medienAkteure';
+import { einbringenPkKosten } from '../../../core/commands/einbringen';
 import { isEinspruchsgesetz } from '../../../core/systems/institutions/bundesrat';
 import {
   kannGesetzEingebracht,
@@ -77,14 +76,9 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
   const spielraum = haushalt?.spielraum ?? 0;
   const jahresbudget = haushalt ? haushalt.einnahmen - haushalt.pflichtausgaben : 0;
 
-  const kongruenzEffekt = applyKongruenzEffekte(state, law.id, ausrichtung, complexity);
-  const medienZusatz = featureActive(complexity, 'medienklima')
-    ? getMedienPkZusatzkosten(state.medienKlima ?? 55)
-    : 0;
+  // Dieselbe Formel wie beim Einbringen selbst — Button und Kosten stimmen überein
   const geschaetztePkKosten =
-    law.status === 'entwurf'
-      ? Math.max(2, getEinbringenPkKosten(kongruenzEffekt.pkModifikator) - boni.pkKostenRabatt + medienZusatz)
-      : 0;
+    law.status === 'entwurf' ? einbringenPkKosten(state, law.id, ausrichtung, complexity) : 0;
 
   const handleHeaderClick = () => actions.toggleAgenda(law.id);
 
@@ -92,7 +86,7 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
   const canEinbringenRelationen = kannGesetzEingebracht(state, law.id, gesetzRelationen);
   const canEinbringen =
     law.status === 'entwurf' &&
-    pk >= 20 &&
+    pk >= geschaetztePkKosten &&
     !verfassungsgerichtBlockiert &&
     canEinbringenRelationen;
   const canLobbying = (law.status === 'entwurf' || law.status === 'aktiv' || law.status === 'eingebracht') && pk >= 12;
@@ -113,8 +107,8 @@ export function AgendaCard({ law, isRecommended, showKongruenz, recommendationSc
         ? t('game:gesetz.benoetigt', { gesetz: getGesetzTitel(fehlendeRequires.targetId), defaultValue: `Benötigt: ${getGesetzTitel(fehlendeRequires.targetId)}` })
         : !canEinbringenRelationen && ausschliessendeExcludes
           ? t('game:gesetz.ausgeschlossen', { gesetz: getGesetzTitel(ausschliessendeExcludes.targetId), defaultValue: `Nicht möglich: Du hast bereits ${getGesetzTitel(ausschliessendeExcludes.targetId)} beschlossen` })
-          : pk < 20
-            ? t('game:gesetz.pkNichtGenug', { required: 20, current: pk })
+          : pk < geschaetztePkKosten
+            ? t('game:gesetz.pkNichtGenug', { required: geschaetztePkKosten, current: pk })
             : ''
     : '';
   const lobbyingTooltip = !canLobbying

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   brauchtGegenfinanzierung,
+  gegenfinanzierungsBedarf,
   berechneOptionen,
   wendeGegenfinanzierungAn,
   istGegenfinanzierungErfuellt,
@@ -138,6 +139,29 @@ describe('gegenfinanzierung', () => {
     expect(optionen.length).toBeGreaterThan(0);
     expect(optionen.some((o) => o.key === 'ministerium_kuerzen')).toBe(true);
     expect(optionen.some((o) => o.key === 'schulden')).toBe(true);
+  });
+
+  it('Pflicht und Optionen haben dieselbe Grundlage: Steuersenkung bekommt Optionen', () => {
+    // Vorher: Pflicht netto (−12), Optionen brutto (|0| || 0/10 = 0 → leer) → nicht einbringbar
+    const law = makeLaw({ kosten_laufend: 0, einnahmeeffekt: -12 });
+    expect(brauchtGegenfinanzierung(law)).toBe(true);
+    expect(gegenfinanzierungsBedarf(law)).toBe(12);
+    const optionen = berechneOptionen(makeState(), law, {} as ContentBundle, 2);
+    expect(optionen.some((o) => o.verfuegbar)).toBe(true);
+  });
+
+  it('Pflicht und Optionen haben dieselbe Grundlage: hohe Einmalkosten trotz kleiner laufender', () => {
+    // −0,4 laufend (unter der Schwelle), −3,5 einmalig (darüber) → Bedarf ein Zehntel der Einmalkosten
+    const law = makeLaw({ kosten_laufend: -0.4, kosten_einmalig: -3.5 });
+    expect(brauchtGegenfinanzierung(law)).toBe(true);
+    expect(gegenfinanzierungsBedarf(law)).toBeCloseTo(0.35);
+    const optionen = berechneOptionen(makeState(), law, {} as ContentBundle, 2);
+    expect(optionen.some((o) => o.verfuegbar)).toBe(true);
+  });
+
+  it('gegenfinanzierungsBedarf: laufend netto — Einnahmen mindern den Bedarf', () => {
+    expect(gegenfinanzierungsBedarf(makeLaw({ kosten_laufend: -5, einnahmeeffekt: 2 }))).toBe(3);
+    expect(gegenfinanzierungsBedarf(makeLaw({ kosten_laufend: -3, einnahmeeffekt: 2 }))).toBe(0);
   });
 
   it('berechneOptionen: leer bei complexity 1 (Stufe 1: kein Dialog)', () => {

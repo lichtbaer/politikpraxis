@@ -2,18 +2,29 @@
  * SMA-279: Wahlnacht-Screen (Monat 48) — animierte Hochrechnung, Sieg/Niederlage
  * SMA-343: Anschließend vollständige Spielauswertung
  * SMA-509: Beat 3 Kanzlerbilanz vor der Auswertung
+ * #482: Vorzeitiges Spielende (Regierung gestürzt) — ohne Hochrechnung und Wahlergebnis
  */
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../store/gameStore';
 import { featureActive } from '../../core/systems/features';
 import { DEFAULT_ELECTION_THRESHOLD } from '../../core/constants';
+import type { SpielendeGrund } from '../../core/types';
 import { SpielauswertungScreen } from './SpielauswertungScreen';
 import { KanzlerbilanzBeat } from './KanzlerbilanzBeat';
 import { generateConfettiPieces, type ConfettiPiece } from './wahlnachtConfetti';
 import styles from './WahlnachtScreen.module.css';
 
 const HOCHRECHNUNG_DURATION_MS = 2500;
+
+/** #482: Begründungstext je vorzeitigem Spielende (Regierung gestürzt, keine Wahl). */
+const STURZ_GRUND_KEY: Record<Exclude<SpielendeGrund, 'legislatur'>, string> = {
+  koalitionsbruch: 'game:endScreen.lostKoalitionsbruch',
+  partner_kuendigt: 'game:endScreen.lostPartnerKuendigt',
+  misstrauensvotum: 'game:endScreen.lostMisstrauen',
+  vertrauensfrage: 'game:endScreen.lostVertrauensfrage',
+  ruecktritt: 'game:endScreen.lostRuecktritt',
+};
 
 /** Rein CSS-getriebenes Konfetti (keine neue Abhängigkeit) — feiert einen Wahlsieg auf Beat 2. */
 function Confetti() {
@@ -49,12 +60,19 @@ export function WahlnachtScreen() {
   const wahlergebnis = state.wahlergebnis ?? state.zust.g;
   const threshold = state.electionThreshold ?? DEFAULT_ELECTION_THRESHOLD;
   const wahlUeberHuerde = state.wahlUeberHuerde ?? wahlergebnis >= threshold;
-  const legislaturErfolg = state.legislaturErfolg ?? state.won ?? false;
+  // #482: Regierung vorzeitig gestürzt → keine Wahl, keine Hochrechnung. Alte Spielstände
+  // ohne spielendeGrund behalten das bisherige Wahlnacht-Verhalten.
+  const sturzGrund =
+    state.spielendeGrund && state.spielendeGrund !== 'legislatur' ? state.spielendeGrund : null;
+  const vorzeitigesEnde = sturzGrund !== null;
+  const legislaturErfolg = !vorzeitigesEnde && (state.legislaturErfolg ?? state.won ?? false);
+  // Beat 1 (Hochrechnung) gibt es nur nach einer Wahl.
+  const anzeigeBeat = vorzeitigesEnde && beat === 1 ? 2 : beat;
   const showKanzlerbilanzDetails = featureActive(complexity, 'wahlnacht_analyse');
   const showArchetyp = complexity >= 4;
 
   useEffect(() => {
-    if (!state.gameOver || beat !== 1) return;
+    if (!state.gameOver || beat !== 1 || vorzeitigesEnde) return;
 
     let rafId: number;
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -79,13 +97,13 @@ export function WahlnachtScreen() {
       cancelAnimationFrame(rafId);
       clearTimeout(timeoutId!);
     };
-  }, [state.gameOver, beat, wahlergebnis]);
+  }, [state.gameOver, beat, wahlergebnis, vorzeitigesEnde]);
 
   if (!state.gameOver) return null;
 
   return (
     <div className={`${styles.overlay} ${legislaturErfolg ? styles.overlayWon : styles.overlayLost}`}>
-      {beat === 1 && (
+      {anzeigeBeat === 1 && (
         <div className={styles.hochrechnung}>
           <h2 className={styles.hochrechnungTitle}>{t('game:wahlnacht.hochrechnung')}</h2>
           <div className={styles.percentDisplay}>
@@ -108,9 +126,30 @@ export function WahlnachtScreen() {
         </div>
       )}
 
-      {beat === 2 && legislaturErfolg && <Confetti />}
+      {anzeigeBeat === 2 && legislaturErfolg && <Confetti />}
 
-      {beat === 2 && (
+      {anzeigeBeat === 2 && sturzGrund && (
+        <div className={styles.content}>
+          <h1 className={styles.titleLost}>{t('game:endScreen.gestuerzt', 'Regierung gestürzt')}</h1>
+          <p className={styles.subtitle}>{t(STURZ_GRUND_KEY[sturzGrund])}</p>
+          <p className={styles.subtitleHint}>
+            {t('game:endScreen.gestuerztKeineWahl', { month: state.month })}
+          </p>
+
+          <SpielauswertungScreen
+            wahlergebnis={wahlergebnis}
+            gewonnen={false}
+            threshold={threshold}
+            vorzeitigesEnde
+          />
+
+          <button type="button" className={`${styles.restart} ${styles.bilanzCta}`} onClick={() => setBeat(3)}>
+            {t('game:wahlnacht.weiterKanzlerbilanz', 'Kanzlerbilanz ansehen')}
+          </button>
+        </div>
+      )}
+
+      {anzeigeBeat === 2 && !sturzGrund && (
         <div className={styles.content}>
           <h1 className={legislaturErfolg ? styles.titleWon : styles.titleLost}>
             {legislaturErfolg ? t('game:endScreen.won') : t('game:endScreen.lost')}
@@ -145,7 +184,7 @@ export function WahlnachtScreen() {
         </div>
       )}
 
-      {beat === 3 && (
+      {anzeigeBeat === 3 && (
         <div className={styles.content}>
           <KanzlerbilanzBeat
             state={state}

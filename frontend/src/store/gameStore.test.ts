@@ -6,11 +6,18 @@
  * Gegenfinanzierung und Bundesrat sind dort inaktiv (siehe core/systems/features.ts),
  * was die Fixtures klein und die Tests deterministisch hält.
  */
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useGameStore } from './gameStore';
-import { makeState, makeLaw } from '../core/test-helpers';
+import { useContentStore } from './contentStore';
+import { useUIStore } from './uiStore';
+import i18n from '../i18n';
+import { makeState, makeLaw, makeFraktion } from '../core/test-helpers';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
+import * as rng from '../core/rng';
 import { seedRng } from '../core/rng';
+import { tick } from '../core/engine';
+import { vermittlungsausschuss } from '../core/systems/legislation/vermittlung';
+import { _resetStorageProbeForTests, flushPendingSave, loadGame, saveGame } from '../services/localStorageSave';
 import type { SpielerParteiState } from '../core/types';
 
 const DEFAULT_AUSRICHTUNG = { wirtschaft: 0, gesellschaft: 0, staat: 0 };
@@ -197,5 +204,170 @@ describe('gameStore — Save/Load/Reset', () => {
     expect(after.complexity).toBe(3);
     expect(after.cloudSaveId).toBe('cloud-42');
     expect(after.spielerPartei?.id).toBe('gp');
+  });
+});
+
+describe('gameStore — Content-Version (#244)', () => {
+  const warnungen = () => useUIStore.getState().toastQueue.filter((t) => t.type === 'warning');
+
+  function saveMitVersion(contentVersion?: string) {
+    return {
+      version: '1',
+      savedAt: new Date(2026, 0, 1).toISOString(),
+      gameState: makeState({ pk: 50, month: 7, ...(contentVersion !== undefined && { contentVersion }) }),
+      playerName: 'Test',
+      complexity: 1,
+      ausrichtung: DEFAULT_AUSRICHTUNG,
+    };
+  }
+
+  beforeEach(() => {
+    seedRng(1);
+    resetStoreWithLaw({ status: 'entwurf' });
+    useUIStore.setState({ toastQueue: [] });
+    useContentStore.setState({ contentVersion: 'aaaa1111bbbb2222' });
+  });
+
+  it('init() hält die aktuelle Content-Version im neuen Spielstand fest', () => {
+    useGameStore.getState().init(DEFAULT_CONTENT);
+    expect(useGameStore.getState().state.contentVersion).toBe('aaaa1111bbbb2222');
+  });
+
+  it('init() ohne bekannte Content-Version setzt kein Feld', () => {
+    useContentStore.setState({ contentVersion: null });
+    useGameStore.getState().init(DEFAULT_CONTENT);
+    expect(useGameStore.getState().state.contentVersion).toBeUndefined();
+  });
+
+  it('warnt beim Laden eines Spielstands mit abweichender Content-Version (Datei/Cloud)', () => {
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('cccc3333dddd4444'));
+
+    const after = useGameStore.getState();
+    // Nicht-blockierend: der Spielstand ist trotzdem geladen
+    expect(after.phase).toBe('playing');
+    expect(after.state.month).toBe(7);
+    expect(after.state.contentVersion).toBe('cccc3333dddd4444');
+    expect(warnungen()).toHaveLength(1);
+    expect(warnungen()[0].msg).toBe(i18n.t('common:game.contentVersionMismatch'));
+  });
+
+  it('warnt auch über loadSave() bei abweichender Version', () => {
+    useGameStore.getState().loadSave(makeState({ contentVersion: 'cccc3333dddd4444' }));
+    expect(warnungen()).toHaveLength(1);
+  });
+
+  it('keine Warnung bei gleicher Content-Version', () => {
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('aaaa1111bbbb2222'));
+    expect(useGameStore.getState().state.contentVersion).toBe('aaaa1111bbbb2222');
+    expect(warnungen()).toHaveLength(0);
+  });
+
+  it('keine Warnung bei älteren Spielständen ohne contentVersion', () => {
+    useGameStore.getState().loadSaveFromFile(saveMitVersion());
+    expect(useGameStore.getState().state.contentVersion).toBeUndefined();
+    expect(warnungen()).toHaveLength(0);
+  });
+
+  it('keine Warnung, wenn eine Seite offline lief oder die aktuelle Version unbekannt ist', () => {
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('offline'));
+    expect(warnungen()).toHaveLength(0);
+
+    useContentStore.setState({ contentVersion: 'offline' });
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('cccc3333dddd4444'));
+    expect(warnungen()).toHaveLength(0);
+
+    useContentStore.setState({ contentVersion: null });
+    useGameStore.getState().loadSaveFromFile(saveMitVersion('cccc3333dddd4444'));
+    expect(warnungen()).toHaveLength(0);
+  });
+
+  it('verwirft eine unplausible contentVersion aus dem Spielstand (kein String)', () => {
+    const kaputt = { ...makeState(), contentVersion: { evil: true } } as unknown as Parameters<
+      ReturnType<typeof useGameStore.getState>['loadSave']
+    >[0];
+    useGameStore.getState().loadSave(kaputt);
+    expect(useGameStore.getState().state.contentVersion).toBeUndefined();
+    expect(warnungen()).toHaveLength(0);
+  });
+});
+
+describe('gameStore — Save/Load-Roundtrip mit laufendem Vermittlungsausschuss', () => {
+  let storage: Record<string, string>;
+  const COMPLEXITY = 2; // Vermittlungsausschuss ab Stufe 2
+
+  beforeEach(() => {
+    seedRng(1);
+    _resetStorageProbeForTests();
+    storage = {};
+    vi.spyOn(localStorage, 'setItem').mockImplementation((key, value) => {
+      storage[key] = String(value);
+    });
+    vi.spyOn(localStorage, 'getItem').mockImplementation((key) => storage[key] ?? null);
+    vi.spyOn(localStorage, 'removeItem').mockImplementation((key) => {
+      delete storage[key];
+    });
+  });
+
+  afterEach(() => {
+    flushPendingSave();
+    vi.restoreAllMocks();
+    _resetStorageProbeForTests();
+  });
+
+  it('Verfahren überlebt Speichern/Laden und wird nach Fristablauf aufgelöst', () => {
+    const law = makeLaw({
+      id: 'va_law',
+      kurz: 'VA-Testgesetz',
+      status: 'blockiert',
+      blockiert: 'bundesrat',
+      tags: ['bund', 'land'],
+      effekte: { al: -1, zf: 2 },
+    });
+    const vorher = makeState({
+      month: 12,
+      pk: 100,
+      complexity: COMPLEXITY,
+      gesetze: [law],
+      bundesratFraktionen: [makeFraktion({ id: 'a', beziehung: 80 })],
+    });
+
+    // Ausgang beim Einberufen auf 'erfolg' festlegen (r < Erfolgs-Chance)
+    const wuerfel = vi.spyOn(rng, 'nextRandom').mockReturnValueOnce(0);
+    const mitVA = vermittlungsausschuss(vorher, 'va_law', COMPLEXITY);
+    wuerfel.mockRestore();
+    expect(mitVA.vermittlungAktiv).toEqual({ va_law: 14 });
+    expect(mitVA.vermittlungAusgang).toEqual({ va_law: 'erfolg' });
+
+    // Pfad des Spiels: localStorage-Save (JSON) → loadGame → loadSaveFromFile
+    expect(
+      saveGame({
+        gameState: mitVA,
+        playerName: 'Test',
+        complexity: COMPLEXITY,
+        ausrichtung: DEFAULT_AUSRICHTUNG,
+      }),
+    ).toBe(true);
+    const geladen = loadGame();
+    expect(geladen.ok).toBe(true);
+    if (!geladen.ok) return;
+    useGameStore.getState().loadSaveFromFile(geladen.data);
+
+    const nachLaden = useGameStore.getState().state;
+    expect(nachLaden.vermittlungAktiv).toEqual({ va_law: 14 });
+    expect(nachLaden.vermittlungAusgang).toEqual({ va_law: 'erfolg' });
+    expect(nachLaden.complexity).toBe(COMPLEXITY);
+    expect(nachLaden.gesetze.find((g) => g.id === 'va_law')?.status).toBe('eingebracht');
+
+    // Zwei Engine-Ticks (Monat 13, 14) — in Monat 14 läuft die Frist ab
+    let s = tick(nachLaden, DEFAULT_CONTENT, COMPLEXITY, DEFAULT_AUSRICHTUNG);
+    expect(s.vermittlungAktiv).toEqual({ va_law: 14 });
+    s = tick({ ...s, activeEvent: null }, DEFAULT_CONTENT, COMPLEXITY, DEFAULT_AUSRICHTUNG);
+
+    expect(s.month).toBe(14);
+    const aufgeloest = s.gesetze.find((g) => g.id === 'va_law');
+    expect(aufgeloest?.status).toBe('beschlossen');
+    expect(aufgeloest?.wirkungFaktor).toBe(1);
+    expect(s.vermittlungAktiv).toBeUndefined();
+    expect(s.vermittlungAusgang).toBeUndefined();
   });
 });

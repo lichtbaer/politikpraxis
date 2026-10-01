@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class IdeologieSchema(BaseModel):
@@ -322,3 +322,19 @@ class ContentBundleResponse(BaseModel):
     bundesrat: list[dict[str, Any]]
     scenario: dict[str, Any]
     scenarios: list[dict[str, Any]] = []
+
+
+class ContentVersionResponse(BaseModel):
+    """#244: Locale-unabhängige Version des engine-relevanten Spielinhalts.
+
+    Das Frontend speichert den Wert im Spielstand und warnt beim Laden, wenn der
+    Spielstand mit einem anderen Content-Stand gespielt wurde.
+    """
+
+    content_version: str = Field(
+        description=(
+            "Kurzer Hex-Hash über den Content, den das Frontend lädt "
+            "(chars, gesetze, events inkl. Choices, bundesrat, milieus, …). "
+            "Unabhängig von der angefragten Sprache."
+        ),
+    )

@@ -60,7 +60,8 @@ function ampelLowerIsBetter(value: number, max: number): AgendaAmpel {
 
 function ampelCountTowardsTarget(current: number, target: number): AgendaAmpel {
   if (current >= target) return 'green';
-  if (target > 0 && current === target - 1) return 'yellow';
+  // Gelb = ein Schritt vor dem Ziel — aber nie ohne jeden Fortschritt (bei Ziel 1 war 0 sonst gelb)
+  if (current > 0 && current === target - 1) return 'yellow';
   return 'red';
 }
 
@@ -86,6 +87,56 @@ function milieuMinLegislatur(state: GameState, milieuId: string): number {
   const h = state.milieuHistory?.[milieuId];
   if (h && h.months > 0) return h.min;
   return milieuAktuell(state, milieuId);
+}
+
+function verbandAktuell(state: GameState, verbandId: string): number {
+  return state.verbandsBeziehungen?.[verbandId] ?? 0;
+}
+
+/**
+ * #475: Ziele „… steigern“ — erfüllt, wenn der Wert (am Legislaturende) mindestens
+ * Startwert + `min_delta` beträgt. Ohne gespeicherten Startwert gilt der aktuelle Wert
+ * als Start (alte Spielstände bekommen ihn beim Laden in `migrateGameState`).
+ */
+function evaluateSteigern(
+  z: { id: string; titel: string },
+  art: 'milieu' | 'verband',
+  current: number,
+  start: number,
+  delta: number,
+): Omit<AgendaSidebarRow, 'source'> {
+  const target = start + delta;
+  const erfuellt = current >= target;
+  return {
+    id: z.id,
+    titel: z.titel,
+    erfuellt,
+    ampel: ampelHigherIsBetter(current, target),
+    subtitle: {
+      key: `game:leftPanel.agendaSubtitle.${art}Steigern${erfuellt ? 'Ok' : 'Offen'}`,
+      params: { current: Math.round(current), start: Math.round(start), target: Math.round(target) },
+    },
+  };
+}
+
+function evaluateMilieuSteigern(
+  state: GameState,
+  z: { id: string; titel: string; bedingung_param: Record<string, unknown> },
+): Omit<AgendaSidebarRow, 'source'> {
+  const milieuId = str(z.bedingung_param.milieu_id);
+  const current = milieuAktuell(state, milieuId);
+  const start = state.agendaStartwerte?.milieus[milieuId] ?? current;
+  return evaluateSteigern(z, 'milieu', current, start, num(z.bedingung_param.min_delta));
+}
+
+function evaluateVerbandSteigern(
+  state: GameState,
+  z: { id: string; titel: string; bedingung_param: Record<string, unknown> },
+): Omit<AgendaSidebarRow, 'source'> {
+  const verbandId = str(z.bedingung_param.verband_id);
+  const current = verbandAktuell(state, verbandId);
+  const start = state.agendaStartwerte?.verbaende[verbandId] ?? current;
+  return evaluateSteigern(z, 'verband', current, start, num(z.bedingung_param.min_delta));
 }
 
 function countMedienMonateUeberSchwelle(state: GameState, schwelle: number): number {
@@ -183,6 +234,10 @@ function evaluateSpielerZiel(state: GameState, z: AgendaZielContent): Omit<Agend
         },
       };
     }
+    case 'milieu_zustimmung_steigern':
+      return evaluateMilieuSteigern(state, z);
+    case 'verband_beziehung_steigern':
+      return evaluateVerbandSteigern(state, z);
     case 'milieu_zustimmung_min': {
       const milieuId = str(p.milieu_id);
       const target = num(p.min_pct);
@@ -345,6 +400,10 @@ function evaluateKoalitionsZiel(
         },
       };
     }
+    case 'milieu_zustimmung_steigern':
+      return evaluateMilieuSteigern(state, z);
+    case 'verband_beziehung_steigern':
+      return evaluateVerbandSteigern(state, z);
     case 'milieu_zustimmung_min': {
       const milieuId = str(p.milieu_id);
       const target = num(p.min_pct);

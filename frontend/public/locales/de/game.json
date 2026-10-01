@@ -1832,7 +1832,9 @@
     "skandal_intro": "Ein politischer Skandal hat die Regierung erreicht. Wie reagierst du?",
     "wahlkampf_beginn": "Der Wahlkampf beginnt. Noch 6 Monate bis zur Wahl — Zeit für Reden, Koalitions-Aktionen und Medienoffensiven.",
     "kabinettText_one": "Dein Kabinett. {{count}} Persönlichkeit, {{count}} Agenda.",
-    "kabinettText_other": "Dein Kabinett. {{count}} Persönlichkeiten, {{count}} Agenden."
+    "kabinettText_other": "Dein Kabinett. {{count}} Persönlichkeiten, {{count}} Agenden.",
+    "agendaPflichtHinweis": "Auf dieser Stufe gewinnst du, wenn du alle gewählten Ziele bis zur Wahl erreichst — den Stand siehst du links in der Agenda.",
+    "agendaSubtitleOhneKoalition": "Setze deine Schwerpunkte für diese Legislatur."
   },
   "gameSetup": {
     "title": "Spielstart",
@@ -2139,6 +2141,10 @@
       "gesetzPolitikfeld": "{{current}}/{{target}} Gesetze (Politikfeld)",
       "milieuMinOk": "Legislatur-Tiefststand ≥ {{target}}%",
       "milieuMinOffen": "aktuell: {{current}}% (Ziel ≥ {{target}}%)",
+      "milieuSteigernOk": "{{current}}% — Ziel ≥ {{target}}% erreicht (Start {{start}}%)",
+      "milieuSteigernOffen": "aktuell {{current}}% (Start {{start}}%, Ziel am Ende ≥ {{target}}%)",
+      "verbandSteigernOk": "Beziehung {{current}} — Ziel ≥ {{target}} erreicht (Start {{start}})",
+      "verbandSteigernOffen": "aktuell {{current}} (Start {{start}}, Ziel am Ende ≥ {{target}})",
       "medienUeber": "{{current}}/{{target}} Monate ≥ {{schwelle}} Medienklima",
       "medienUntenOk": "≤ {{max}} Monate unter {{schwelle}}",
       "medienUntenOffen": "{{current}} Monate unter {{schwelle}} (max. {{max}})",
@@ -2187,6 +2193,11 @@
     "koalitionsklausel": "Koalitionsklausel: Landesregierung uneinig",
     "logLandtagswahlKoalition": "{{land}}: Neue Landesregierung {{koalition}} — gemischte Koalition, bei Uneinigkeit enthält sich das Land im Bundesrat (Koalitionsklausel).",
     "logLandtagswahlAlleinregierung": "{{land}}: {{partei}} regiert nach der Landtagswahl allein — die Koalitionsklausel (Enthaltung) greift dort nicht.",
+    "logVermittlungAngerufen": "{{anrufer}} ruft den Vermittlungsausschuss zu {{gesetz}} an (Art. 77 GG) — Ausgang offen, neue Bundesratsabstimmung in {{monate}} Monaten.",
+    "logVermittlungEinigung": "Vermittlungsausschuss zu {{gesetz}}: Einigung ohne Abstriche, {{anrufer}} lenkt ein — der Bundesrat stimmt erneut ab.",
+    "logVermittlungKompromiss": "Vermittlungsausschuss zu {{gesetz}}: Kompromiss mit {{anrufer}} (Wirkung −50 %) — der Bundesrat stimmt erneut ab.",
+    "logVermittlungGescheitert": "Vermittlungsausschuss zu {{gesetz}} gescheitert — {{anrufer}} setzt sich durch, der Bundesrat verweigert die Zustimmung.",
+    "logVermittlungGescheitertEinspruch": "Vermittlungsausschuss zu {{gesetz}} gescheitert — {{anrufer}} setzt sich durch, der Bundesrat legt Einspruch ein. Der Bundestag kann mit absoluter Mehrheit überstimmen.",
     "mehrheitJa": "✓ Mehrheit",
     "mehrheitNein": "✗ Keine Mehrheit",
     "mehrheitBei": "Mehrheit (9)",
@@ -2223,8 +2234,13 @@
     "lost": "Abgewählt",
     "wonSubtitle": "Legislaturbilanz erfolgreich — Wahlergebnis: {{percent}}% Zustimmung.",
     "lostSubtitle": "Legislaturbilanz unzureichend — Wahlergebnis: {{percent}}% Zustimmung.",
-    "lostMisstrauen": "Misstrauensvotum! Sechs Monate unter 20% Zustimmung führen zum Sturz der Regierung.",
-    "lostKoalitionsbruch": "Koalitionsbruch! Die Koalition ist zerbrochen.",
+    "gestuerzt": "Regierung gestürzt",
+    "gestuerztKeineWahl": "Die Legislatur endete vorzeitig in Monat {{month}} von 48 — eine Wahl fand nicht statt.",
+    "lostMisstrauen": "Konstruktives Misstrauensvotum! Sechs Monate in Folge hatte die Opposition eine eigene Kanzlermehrheit in Reichweite — starke Opposition und instabile Koalition (bei kritischer Zustimmung genügte eines von beiden). Der Bundestag hat einen Nachfolger gewählt.",
+    "lostKoalitionsbruch": "Koalitionsbruch! Die Koalitionsstabilität ist zu tief gefallen — die Koalition ist zerbrochen.",
+    "lostPartnerKuendigt": "Der Koalitionspartner hat die Koalition aufgekündigt — die Beziehung lag drei Monate lang unter 15. Ohne Mehrheit ist deine Regierung am Ende.",
+    "lostVertrauensfrage": "Vertrauensfrage verloren (Art. 68 GG)! Der Bundestag hat dir das Vertrauen entzogen — deine Regierung ist gestürzt.",
+    "lostRuecktritt": "Rücktritt! Angesichts des drohenden Misstrauensvotums bist du zurückgetreten und hast die Regierung einem Nachfolger überlassen.",
     "beschlosseneGesetze": "Beschlossene Gesetze",
     "finaleKPIs": "Finale KPIs",
     "milieuZustimmung": "Milieu-Zustimmung",
@@ -2307,7 +2323,9 @@
     "nochmalPartei": "Nochmal als {{partei}}",
     "save": "Auswertung speichern",
     "commGewinnrate": "Community-Gewinnrate",
-    "commWahl": "Community-Ø Wahlprognose"
+    "commWahl": "Community-Ø Wahlprognose",
+    "legislaturErfolgNeinOhneGesetz": "Ohne ein einziges beschlossenes Gesetz gilt keine Legislatur als erfolgreich.",
+    "legislaturErfolgNeinAgenda": "Auf dieser Stufe zählt die Legislatur nur als Erfolg, wenn alle deine Agenda-Ziele erfüllt sind — erreicht: {{erfuellt}} von {{gesamt}}."
   },
   "charDetail": {
     "close": "Schließen",
@@ -2653,7 +2671,7 @@
     "losgehts": "Los geht's!",
     "ziel": {
       "title": "Dein Ziel: die Wiederwahl",
-      "text": "Du führst die Bundesregierung durch 48 Monate. Links siehst du deine Wahlprognose — sie beeinflusst deinen Wahlbonus (0–4 Punkte). Gewonnen wird durch den Dreipfeiler-Score aus Legislatur-Bilanz (30 %), Agenda (35 %) und historischem Urteil der Gesetze (35 %), plus Wahlbonus — insgesamt ≥ 40 von 100 Punkten."
+      "text": "Du führst die Bundesregierung durch 48 Monate. Links siehst du deine Wahlprognose — sie beeinflusst deinen Wahlbonus (0–4 Punkte). Gewonnen wird durch den Dreipfeiler-Score aus Legislatur-Bilanz (30 %), Agenda (35 %) und historischem Urteil der Gesetze (35 %), plus Wahlbonus — insgesamt ≥ 40 von 100 Punkten. Auf der Einstiegsstufe musst du zusätzlich alle deine Agenda-Ziele erreichen."
     },
     "gesetze": {
       "title": "Gesetze einbringen",

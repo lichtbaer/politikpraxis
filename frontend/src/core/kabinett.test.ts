@@ -1,7 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { bildeKabinett, waehleMinisterAusPool, ALLE_RESSORTS } from './kabinett';
+import { describe, it, expect, vi } from 'vitest';
+import { bildeKabinett, waehleMinisterAusPool, ALLE_RESSORTS, anzahlMinister } from './kabinett';
+import { createInitialState } from './state';
+import { echterContent } from './simulation/echterContent';
+import { SPIELBARE_PARTEIEN } from '../data/defaults/parteien';
 
-/** Kabinett-Größen laut KABINETT_GROESSE: 1→2, 2→5, 3→7, 4→8 */
+/** Kabinett-Größen laut KABINETT_GROESSE (inkl. Kanzler/in): 1→2, 2→5, 3→7, 4→8 */
 const EXPECTED_GROESSE: Record<number, number> = { 1: 2, 2: 5, 3: 7, 4: 8 };
 
 describe('bildeKabinett — ohne Koalitionspartner', () => {
@@ -101,4 +104,54 @@ describe('waehleMinisterAusPool', () => {
     expect(result).not.toBeNull();
     expect(result!.id).toBe('char_p');
   });
+});
+
+describe('bildeKabinett — Kabinettsgröße zählt die Kanzlerin/den Kanzler mit (#481)', () => {
+  it('Minister = Größe − 1', () => {
+    expect([1, 2, 3, 4].map(anzahlMinister)).toEqual([1, 4, 6, 7]);
+  });
+
+  it('Stufe 1 ohne Partner: genau ein Minister, das erste Präferenz-Ressort', () => {
+    expect(bildeKabinett('sdp', null, 1)).toEqual({ spielerRessorts: ['arbeit'], partnerRessorts: [] });
+  });
+
+  it('überspringt Ressorts ohne Pool-Minister und füllt mit dem nächsten auf', () => {
+    const ohneFinanzen = (_partei: string, ressort: string) => ressort !== 'finanzen';
+    const result = bildeKabinett('sdp', null, 2, ohneFinanzen);
+    expect(result.spielerRessorts).toEqual(['arbeit', 'innen', 'soziales', 'justiz']);
+  });
+
+  it('Partner übernimmt weitere Ressorts, wenn der Pool der Spieler-Partei erschöpft ist', () => {
+    const nurArbeit = (partei: string, ressort: string) => partei === 'gp' || ressort === 'arbeit';
+    const result = bildeKabinett('sdp', 'gp', 3, nurArbeit);
+    expect(result.spielerRessorts).toEqual(['arbeit']);
+    expect(result.partnerRessorts).toHaveLength(5);
+  });
+});
+
+describe('createInitialState mit echtem Content: Kabinett je Stufe (#481)', () => {
+  for (const partei of SPIELBARE_PARTEIEN) {
+    it(`${partei.id}: Stufe 1 hat einen Pool-Minister, Stufe 2 fünf Personen, keine Fallback-Warnung`, () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const groessen = [1, 2, 3, 4].map((k) => {
+        const state = createInitialState(echterContent(), k, undefined, {
+          id: partei.id,
+          kuerzel: partei.kuerzel,
+          farbe: partei.farbe,
+          name: partei.name,
+        });
+        return state.chars.length;
+      });
+      const kabinettWarnungen = warn.mock.calls.filter((args) => String(args[0]).startsWith('[state]'));
+      warn.mockRestore();
+      expect(kabinettWarnungen).toEqual([]);
+      expect(groessen[0]).toBe(EXPECTED_GROESSE[1]);
+      expect(groessen[1]).toBe(EXPECTED_GROESSE[2]);
+      // Stufe 3/4: „bis zu“ 7/8 — die Pools mancher Parteien sind kleiner
+      for (const [i, k] of [[2, 3], [3, 4]] as const) {
+        expect(groessen[i]).toBeGreaterThanOrEqual(groessen[i - 1]);
+        expect(groessen[i]).toBeLessThanOrEqual(EXPECTED_GROESSE[k]);
+      }
+    });
+  }
 });

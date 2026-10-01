@@ -186,6 +186,14 @@ function noteFromPunkte(punkte: number): LegislaturBilanzNote {
  */
 export const BILANZ_OHNE_GESETZE_MAX = 15;
 
+/**
+ * #267: Die „nichts kaputt gemacht“-Grundpunkte der Bilanz (Haushalt, Stabilität, Koalition,
+ * Zusammenhalt — zusammen bis 50) wachsen mit der Zahl der Beschlüsse und sind erst ab so vielen
+ * Gesetzen voll. Vorher fielen sie ohne Zutun an: Auf Stufe 1 brachten sie ~47 der ~54
+ * Bilanzpunkte einer untätigen Regierung, die Legislatur war kaum zu verlieren.
+ */
+export const BILANZ_RAMPE_GESETZE = 5;
+
 export interface BilanzNoteErgebnis {
   bilanzPunkte: number;
   bilanzNote: LegislaturBilanzNote;
@@ -201,12 +209,13 @@ export function berechneBilanzNote(
 ): BilanzNoteErgebnis {
   const gesetze = Math.min(25, bilanz.gesetzeBeschlossen * 3);
   const politikfelder = Math.min(16, bilanz.politikfelderAbgedeckt * 2);
-  const haushalt = scoreHaushaltSaldo(bilanz.haushaltsaldo);
-  const stabilitaet = scoreStabilitaet(bilanz.stabilitaet);
-  const koalition = scoreKoalitionsBilanz(
-    bilanz.koalitionsBilanz ?? 'angespannt',
+  const rampe = Math.min(1, bilanz.gesetzeBeschlossen / BILANZ_RAMPE_GESETZE);
+  const haushalt = Math.round(scoreHaushaltSaldo(bilanz.haushaltsaldo) * rampe);
+  const stabilitaet = Math.round(scoreStabilitaet(bilanz.stabilitaet) * rampe);
+  const koalition = Math.round(
+    scoreKoalitionsBilanz(bilanz.koalitionsBilanz ?? 'angespannt') * rampe,
   );
-  const zusammenhalt = scoreMilieuZusammenhalt(state);
+  const zusammenhalt = Math.round(scoreMilieuZusammenhalt(state) * rampe);
   const reformTiefe = scoreReformTiefe(bilanz.reformTiefe ?? 'mittel');
 
   const bilanzPunkteRoh = Math.min(
@@ -774,7 +783,7 @@ export function berechneWahlergebnis(state: GameState): number {
 export function triggerWahlnacht(
   state: GameState,
   content: ContentBundle,
-  _complexity: number,
+  complexity: number,
 ): GameState {
   if (state.month !== 48) return state;
   if (state.gameOver) return state;
@@ -793,12 +802,13 @@ export function triggerWahlnacht(
   const wahlbonus = berechneWahlbonus(wahlergebnis, threshold);
   const spielziel = berechneSpielzielErgebnis(s, content, bilanzPunkte, wahlbonus);
   const wahlUeberHuerde = wahlergebnis >= threshold;
-  const won = istLegislaturErfolg(spielziel.gesamtpunkte);
+  const won = istLegislaturErfolg(spielziel, complexity);
 
   return {
     ...s,
     wahlergebnis,
     gameOver: true,
+    spielendeGrund: 'legislatur',
     won,
     legislaturErfolg: won,
     wahlUeberHuerde,

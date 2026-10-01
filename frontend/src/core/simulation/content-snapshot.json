@@ -16,6 +16,20 @@
   {
    "bedingung_param": {
     "min_beschlossen": 2,
+    "politikfeld_id": "digital_infrastruktur"
+   },
+   "bedingung_typ": "gesetz_politikfeld",
+   "beschreibung": "Mindestens zwei Gesetze aus Digital & Infrastruktur erfolgreich beschließen.",
+   "id": "ag_gesetz_digital",
+   "kategorie": "gesetzgebung",
+   "min_complexity": 1,
+   "partei_filter": null,
+   "schwierigkeit": 3,
+   "titel": "Digitaler Aufbruch"
+  },
+  {
+   "bedingung_param": {
+    "min_beschlossen": 2,
     "politikfeld_id": "umwelt_energie"
    },
    "bedingung_typ": "gesetz_politikfeld",
@@ -30,6 +44,41 @@
    ],
    "schwierigkeit": 3,
    "titel": "Klimawende voranbringen"
+  },
+  {
+   "bedingung_param": {
+    "min_beschlossen": 2,
+    "politikfeld_id": "innere_sicherheit"
+   },
+   "bedingung_typ": "gesetz_politikfeld",
+   "beschreibung": "Mindestens zwei Gesetze aus Innere Sicherheit erfolgreich beschließen.",
+   "id": "ag_gesetz_sicherheit",
+   "kategorie": "gesetzgebung",
+   "min_complexity": 1,
+   "partei_filter": [
+    "cdp",
+    "ldp"
+   ],
+   "schwierigkeit": 3,
+   "titel": "Rechtsstaat und Sicherheit"
+  },
+  {
+   "bedingung_param": {
+    "min_beschlossen": 2,
+    "politikfeld_id": "arbeit_soziales"
+   },
+   "bedingung_typ": "gesetz_politikfeld",
+   "beschreibung": "Mindestens zwei Gesetze aus Arbeit & Soziales erfolgreich beschließen.",
+   "id": "ag_gesetz_sozialstaat",
+   "kategorie": "gesetzgebung",
+   "min_complexity": 1,
+   "partei_filter": [
+    "sdp",
+    "gp",
+    "lp"
+   ],
+   "schwierigkeit": 3,
+   "titel": "Sozialstaat stärken"
   },
   {
    "bedingung_param": {
@@ -126,27 +175,27 @@
   {
    "bedingung_param": {
     "milieu_id": "soziale_mitte",
-    "min_pct": 48
+    "min_delta": 10
    },
-   "bedingung_typ": "milieu_zustimmung_min",
-   "beschreibung": "Die soziale Mitte stabil bei mindestens 48 % Zustimmung halten.",
+   "bedingung_typ": "milieu_zustimmung_steigern",
+   "beschreibung": "Die Zustimmung der sozialen Mitte bis zum Ende der Legislatur um mindestens 10 Punkte gegenüber dem Start steigern.",
    "id": "ag_milieu_mitte",
    "kategorie": "milieu",
-   "min_complexity": 1,
+   "min_complexity": 2,
    "partei_filter": null,
    "schwierigkeit": 2,
-   "titel": "Mitte halten"
+   "titel": "Soziale Mitte gewinnen"
   },
   {
    "bedingung_param": {
     "milieu_id": "prekaere",
-    "min_pct": 42
+    "min_delta": 10
    },
-   "bedingung_typ": "milieu_zustimmung_min",
-   "beschreibung": "Milieu „Prekäre“ mindestens auf 42 % Zustimmung halten oder erreichen.",
+   "bedingung_typ": "milieu_zustimmung_steigern",
+   "beschreibung": "Die Zustimmung des Milieus „Prekäre“ bis zum Ende der Legislatur um mindestens 10 Punkte gegenüber dem Start steigern.",
    "id": "ag_milieu_prekaere",
    "kategorie": "milieu",
-   "min_complexity": 2,
+   "min_complexity": 3,
    "partei_filter": [
     "sdp",
     "gp",
@@ -157,32 +206,32 @@
   },
   {
    "bedingung_param": {
-    "min_beziehung": 60,
+    "min_delta": 10,
     "verband_id": "gbd"
    },
-   "bedingung_typ": "verband_beziehung_min",
-   "beschreibung": "Beziehung zum GBD mindestens 60 halten.",
+   "bedingung_typ": "verband_beziehung_steigern",
+   "beschreibung": "Die Beziehung zum GBD bis zum Ende der Legislatur um mindestens 10 Punkte gegenüber dem Start verbessern.",
    "id": "ag_verband_gewerkschaften",
    "kategorie": "verbaende",
-   "min_complexity": 1,
+   "min_complexity": 3,
    "partei_filter": [
     "sdp",
     "gp",
     "lp"
    ],
    "schwierigkeit": 2,
-   "titel": "Gewerkschaften an Bord"
+   "titel": "Gewerkschaften gewinnen"
   },
   {
    "bedingung_param": {
-    "min_beziehung": 58,
+    "min_delta": 10,
     "verband_id": "bdi"
    },
-   "bedingung_typ": "verband_beziehung_min",
-   "beschreibung": "Beziehung zum BDI mindestens 58 halten.",
+   "bedingung_typ": "verband_beziehung_steigern",
+   "beschreibung": "Die Beziehung zum BDI bis zum Ende der Legislatur um mindestens 10 Punkte gegenüber dem Start verbessern.",
    "id": "ag_verband_wirtschaft",
    "kategorie": "verbaende",
-   "min_complexity": 1,
+   "min_complexity": 3,
    "partei_filter": [
     "cdp",
     "ldp"
@@ -777,7 +826,18 @@
    "partei_id": "cdp",
    "partei_kuerzel": "CDP",
    "pool_partei": "cdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 1,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "um",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "bildung",
    "ressort_partner": null,
    "role": "Bildungsministerin",
@@ -815,14 +875,40 @@
    "ist_partner_minister": false,
    "keyword": "Sparkommissar",
    "loyalty_start": 3,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 2,
    "name": "Robert Lehmann",
    "partei_farbe": "#2D2D2D",
    "partei_id": "cdp",
    "partei_kuerzel": "CDP",
    "pool_partei": "cdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "wm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "gm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "bm",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "finanzen",
    "ressort_partner": null,
    "role": "Finanzminister",
@@ -867,7 +953,18 @@
    "partei_id": "cdp",
    "partei_kuerzel": "CDP",
    "pool_partei": "cdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "kanzler",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "innen",
    "ressort_partner": null,
    "role": "Innenminister",
@@ -912,7 +1009,23 @@
    "partei_id": "cdp",
    "partei_kuerzel": "CDP",
    "pool_partei": "cdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "im",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "kanzler",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "justiz",
    "ressort_partner": null,
    "role": "Justizministerin",
@@ -945,14 +1058,25 @@
    "ist_partner_minister": false,
    "keyword": "Konservativer",
    "loyalty_start": 5,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 3,
    "name": "Friedrich Schwarz",
    "partei_farbe": "#2D2D2D",
    "partei_id": "cdp",
    "partei_kuerzel": "CDP",
    "pool_partei": "cdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "im",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": null,
    "ressort_partner": null,
    "role": "Kanzler-Kandidat",
@@ -997,7 +1121,23 @@
    "partei_id": "cdp",
    "partei_kuerzel": "CDP",
    "pool_partei": "cdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "wirtschaft",
    "ressort_partner": null,
    "role": "Wirtschaftsminister",
@@ -1042,7 +1182,33 @@
    "partei_id": "gp",
    "partei_kuerzel": "GP",
    "pool_partei": "gp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "wm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "gm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "bm",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "finanzen",
    "ressort_partner": null,
    "role": "Finanzminister",
@@ -1087,7 +1253,18 @@
    "partei_id": "gp",
    "partei_kuerzel": "GP",
    "pool_partei": "gp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "kanzler",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "innen",
    "ressort_partner": null,
    "role": "Innenminister",
@@ -1132,7 +1309,23 @@
    "partei_id": "gp",
    "partei_kuerzel": "GP",
    "pool_partei": "gp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "im",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "kanzler",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "justiz",
    "ressort_partner": null,
    "role": "Justizministerin",
@@ -1165,14 +1358,25 @@
    "ist_partner_minister": false,
    "keyword": "Klimakanzlerin",
    "loyalty_start": 5,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 3,
    "name": "Lena Fischer",
    "partei_farbe": "#46962B",
    "partei_id": "gp",
    "partei_kuerzel": "GP",
    "pool_partei": "gp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "im",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": null,
    "ressort_partner": null,
    "role": "Kanzlerin-Kandidatin",
@@ -1210,14 +1414,30 @@
    "ist_partner_minister": false,
    "keyword": "Klimaschützer",
    "loyalty_start": 3,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 3,
    "name": "Jonas Wolf",
    "partei_farbe": "#46962B",
    "partei_id": "gp",
    "partei_kuerzel": "GP",
    "pool_partei": "gp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "wm",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "bm",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "umwelt",
    "ressort_partner": null,
    "role": "Umweltminister",
@@ -1262,7 +1482,23 @@
    "partei_id": "gp",
    "partei_kuerzel": "GP",
    "pool_partei": "gp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "wirtschaft",
    "ressort_partner": null,
    "role": "Wirtschaftsministerin",
@@ -1307,7 +1543,18 @@
    "partei_id": "ldp",
    "partei_kuerzel": "LDP",
    "pool_partei": "ldp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 1,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "um",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "bildung",
    "ressort_partner": null,
    "role": "Bildungsministerin",
@@ -1352,7 +1599,33 @@
    "partei_id": "ldp",
    "partei_kuerzel": "LDP",
    "pool_partei": "ldp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "wm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "gm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "bm",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "finanzen",
    "ressort_partner": null,
    "role": "Finanzministerin",
@@ -1397,7 +1670,18 @@
    "partei_id": "ldp",
    "partei_kuerzel": "LDP",
    "pool_partei": "ldp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "kanzler",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "innen",
    "ressort_partner": null,
    "role": "Innenminister",
@@ -1442,7 +1726,23 @@
    "partei_id": "ldp",
    "partei_kuerzel": "LDP",
    "pool_partei": "ldp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "im",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "kanzler",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "justiz",
    "ressort_partner": null,
    "role": "Justizministerin",
@@ -1475,14 +1775,25 @@
    "ist_partner_minister": false,
    "keyword": "Liberaler",
    "loyalty_start": 5,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 3,
    "name": "Christian Frei",
    "partei_farbe": "#FFED00",
    "partei_id": "ldp",
    "partei_kuerzel": "LDP",
    "pool_partei": "ldp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "im",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": null,
    "ressort_partner": null,
    "role": "Kanzler-Kandidat",
@@ -1520,14 +1831,30 @@
    "ist_partner_minister": false,
    "keyword": "Digitalisierer",
    "loyalty_start": 4,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 4,
    "name": "Marco Digital",
    "partei_farbe": "#FFED00",
    "partei_id": "ldp",
    "partei_kuerzel": "LDP",
    "pool_partei": "ldp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "wirtschaft",
    "ressort_partner": null,
    "role": "Wirtschaftsminister",
@@ -1565,14 +1892,30 @@
    "ist_partner_minister": false,
    "keyword": "Arbeiterführer",
    "loyalty_start": 4,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 4,
    "name": "Gerd Arbeit",
    "partei_farbe": "#BE3075",
    "partei_id": "lp",
    "partei_kuerzel": "LP",
    "pool_partei": "lp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 1,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "wm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "jm",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "arbeit",
    "ressort_partner": null,
    "role": "Arbeitsminister",
@@ -1617,7 +1960,33 @@
    "partei_id": "lp",
    "partei_kuerzel": "LP",
    "pool_partei": "lp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "wm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "gm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "bm",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "finanzen",
    "ressort_partner": null,
    "role": "Finanzminister",
@@ -1662,7 +2031,18 @@
    "partei_id": "lp",
    "partei_kuerzel": "LP",
    "pool_partei": "lp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "kanzler",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "innen",
    "ressort_partner": null,
    "role": "Innenministerin",
@@ -1707,7 +2087,23 @@
    "partei_id": "lp",
    "partei_kuerzel": "LP",
    "pool_partei": "lp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "im",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "kanzler",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "justiz",
    "ressort_partner": null,
    "role": "Justizministerin",
@@ -1740,14 +2136,25 @@
    "ist_partner_minister": false,
    "keyword": "Gerechtigkeitskämpferin",
    "loyalty_start": 5,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 3,
    "name": "Rosa Volk",
    "partei_farbe": "#BE3075",
    "partei_id": "lp",
    "partei_kuerzel": "LP",
    "pool_partei": "lp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "im",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": null,
    "ressort_partner": null,
    "role": "Kanzlerin-Kandidatin",
@@ -1792,7 +2199,23 @@
    "partei_id": "lp",
    "partei_kuerzel": "LP",
    "pool_partei": "lp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "wirtschaft",
    "ressort_partner": null,
    "role": "Wirtschaftsminister",
@@ -1830,14 +2253,30 @@
    "ist_partner_minister": false,
    "keyword": "Sozialreformerin",
    "loyalty_start": 4,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 4,
    "name": "Maria Schulze",
    "partei_farbe": "#E3000F",
    "partei_id": "sdp",
    "partei_kuerzel": "SDP",
    "pool_partei": "sdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 1,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "wm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "jm",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "arbeit",
    "ressort_partner": null,
    "role": "Arbeitsministerin",
@@ -1882,7 +2321,18 @@
    "partei_id": "sdp",
    "partei_kuerzel": "SDP",
    "pool_partei": "sdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 1,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "um",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": "bildung",
    "ressort_partner": null,
    "role": "Bildungsministerin",
@@ -1927,7 +2377,33 @@
    "partei_id": "sdp",
    "partei_kuerzel": "SDP",
    "pool_partei": "sdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "wm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "gm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 1,
+     "target": "bm",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "finanzen",
    "ressort_partner": null,
    "role": "Finanzminister",
@@ -1972,7 +2448,13 @@
    "partei_id": "sdp",
    "partei_kuerzel": "SDP",
    "pool_partei": "sdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 1,
+     "target": "fm",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "gesundheit",
    "ressort_partner": null,
    "role": "Gesundheitsminister",
@@ -2017,7 +2499,18 @@
    "partei_id": "sdp",
    "partei_kuerzel": "SDP",
    "pool_partei": "sdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "kanzler",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "innen",
    "ressort_partner": null,
    "role": "Innenminister",
@@ -2046,14 +2539,25 @@
    "ist_partner_minister": false,
    "keyword": "Pragmatiker",
    "loyalty_start": 5,
-   "min_complexity": 2,
+   "min_complexity": 1,
    "mood_start": 3,
    "name": "Martin Krause",
    "partei_farbe": "#E3000F",
    "partei_id": "sdp",
    "partei_kuerzel": "SDP",
    "pool_partei": "sdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "im",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "jm",
+     "type": "verbuendet"
+    }
+   ],
    "ressort": null,
    "ressort_partner": null,
    "role": "Kanzler-Kandidat",
@@ -2098,7 +2602,23 @@
    "partei_id": "sdp",
    "partei_kuerzel": "SDP",
    "pool_partei": "sdp",
-   "relationships": null,
+   "relationships": [
+    {
+     "staerke": 2,
+     "target": "fm",
+     "type": "verfeindet"
+    },
+    {
+     "staerke": 2,
+     "target": "um",
+     "type": "verbuendet"
+    },
+    {
+     "staerke": 1,
+     "target": "am",
+     "type": "verfeindet"
+    }
+   ],
    "ressort": "wirtschaft",
    "ressort_partner": null,
    "role": "Wirtschaftsministerin",
@@ -21589,16 +22109,16 @@
   {
    "bedingung_param": {
     "milieu_id": "postmaterielle",
-    "min_pct": 45
+    "min_delta": 10
    },
-   "bedingung_typ": "milieu_zustimmung_min",
-   "beschreibung": "Die postmaterielle Zustimmung soll mindestens 45 % nicht unterschreiten.",
+   "bedingung_typ": "milieu_zustimmung_steigern",
+   "beschreibung": "Die Zustimmung des postmateriellen Milieus bis zum Ende der Legislatur um mindestens 10 Punkte gegenüber dem Start steigern.",
    "beziehung_malus": 6,
    "id": "kz_gp_postmateriell",
    "kategorie": "milieu",
-   "min_complexity": 1,
+   "min_complexity": 2,
    "partner_profil": "gp",
-   "titel": "Postmaterielles Milieu"
+   "titel": "Postmaterielles Milieu gewinnen"
   },
   {
    "bedingung_param": {
@@ -21616,45 +22136,45 @@
   },
   {
    "bedingung_param": {
-    "min_beziehung": 50,
+    "min_delta": 10,
     "verband_id": "uvb"
    },
-   "bedingung_typ": "verband_beziehung_min",
-   "beschreibung": "Beziehung zum Umweltverband (UVB) mindestens bei 50 halten.",
+   "bedingung_typ": "verband_beziehung_steigern",
+   "beschreibung": "Die Beziehung zum Umweltverband (UVB) bis zum Ende der Legislatur um mindestens 10 Punkte gegenüber dem Start verbessern.",
    "beziehung_malus": 5,
    "id": "kz_gp_uvb",
    "kategorie": "verbaende",
-   "min_complexity": 1,
+   "min_complexity": 3,
    "partner_profil": "gp",
-   "titel": "UVB nicht verprellen"
+   "titel": "Umweltverband gewinnen"
   },
   {
    "bedingung_param": {
-    "min_beziehung": 50,
+    "min_delta": 10,
     "verband_id": "gbd"
    },
-   "bedingung_typ": "verband_beziehung_min",
-   "beschreibung": "Beziehung zum GBD mindestens 50 halten.",
+   "bedingung_typ": "verband_beziehung_steigern",
+   "beschreibung": "Die Beziehung zum GBD bis zum Ende der Legislatur um mindestens 10 Punkte gegenüber dem Start verbessern.",
    "beziehung_malus": 5,
    "id": "kz_sdp_gbd",
    "kategorie": "verbaende",
-   "min_complexity": 1,
+   "min_complexity": 3,
    "partner_profil": "sdp",
-   "titel": "Gewerkschafts-Vertrauen"
+   "titel": "Gewerkschafts-Vertrauen stärken"
   },
   {
    "bedingung_param": {
     "milieu_id": "soziale_mitte",
-    "min_pct": 45
+    "min_delta": 10
    },
-   "bedingung_typ": "milieu_zustimmung_min",
-   "beschreibung": "Zustimmung der sozialen Mitte mindestens 45 %.",
+   "bedingung_typ": "milieu_zustimmung_steigern",
+   "beschreibung": "Die Zustimmung der sozialen Mitte bis zum Ende der Legislatur um mindestens 10 Punkte gegenüber dem Start steigern.",
    "beziehung_malus": 6,
    "id": "kz_sdp_soziale_mitte",
    "kategorie": "milieu",
-   "min_complexity": 1,
+   "min_complexity": 2,
    "partner_profil": "sdp",
-   "titel": "Soziale Mitte sichern"
+   "titel": "Soziale Mitte stärken"
   },
   {
    "bedingung_param": {

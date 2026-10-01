@@ -46,7 +46,9 @@ jobs:
 
       - name: Run Balance Simulation
         run: cd frontend && npm run test:balance -- --reporter=verbose
-        timeout-minutes: 5
+        # Die Suite braucht lokal schon ~5 min (Zielbänder auf echtem Content) — 5 min als
+        # Grenze ließe sie an der Laufzeit statt an den Zielbändern scheitern.
+        timeout-minutes: 10
 
       - name: Generate Balance Report
         if: always()

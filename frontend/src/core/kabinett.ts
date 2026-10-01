@@ -37,46 +37,76 @@ const RESSORT_PRAEFERENZEN: Record<string, RessortPraeferenzen> = {
   lp: { praeferenz: ['arbeit', 'justiz', 'umwelt'] },
 };
 
-/** Kabinett-Größe pro Stufe: 1→2, 2→5, 3→7, 4→8 (SMA-328) */
-const KABINETT_GROESSE: Record<number, number> = { 1: 2, 2: 5, 3: 7, 4: 8 };
+/**
+ * Kabinett-Größe pro Stufe **inklusive Kanzler/in** (SMA-328, `docs/game-design/komplexitaet.md`):
+ * 1→2, 2→5, 3→7, 4→8. Minister = Größe − 1; die Kanzlerin/der Kanzler kommt in
+ * `createInitialState` als synthetischer Char dazu.
+ */
+export const KABINETT_GROESSE: Record<number, number> = { 1: 2, 2: 5, 3: 7, 4: 8 };
+
+/** Anzahl der Minister (ohne Kanzler/in) auf einer Stufe. */
+export function anzahlMinister(complexity: number): number {
+  return Math.max(0, (KABINETT_GROESSE[complexity] ?? 5) - 1);
+}
 
 export interface KabinettConfig {
   spielerRessorts: RessortId[];
   partnerRessorts: RessortId[];
 }
 
+/** Prüft, ob eine Partei für ein Ressort einen Pool-Minister hat (#481). */
+export type HatMinister = (partei: string, ressort: RessortId) => boolean;
+
+/** Ressorts in Wunschreihenfolge einer Partei: erst ihre Präferenzen, dann alle übrigen. */
+function ressortReihenfolge(partei: string): RessortId[] {
+  const praeferenz = RESSORT_PRAEFERENZEN[partei]?.praeferenz ?? [];
+  return [...praeferenz, ...ALLE_RESSORTS.filter((r) => !praeferenz.includes(r))];
+}
+
 /**
  * Bildet die Ressort-Aufteilung zwischen Spieler-Partei und Koalitionspartner.
  * SMA-329: Partner wählt Top-2 aus Präferenz (wenn verfügbar), Spieler bekommt Rest.
  * GP als Partner bekommt immer Umwelt.
+ * #481: Mit `hatMinister` werden Ressorts ohne Pool-Minister übersprungen und durch das
+ * nächste Ressort der Reihenfolge ersetzt — sonst bliebe das Kabinett unter der Zielgröße.
  * @param spielerPartei Spieler-Partei-ID
  * @param koalitionspartner Koalitionspartner-Partei-ID (oder null bei Stufe 1)
  * @param complexity Komplexitätsstufe 1–4
+ * @param hatMinister optional: nur Ressorts mit Pool-Minister vergeben
  */
 export function bildeKabinett(
   spielerPartei: SpielerParteiId,
   koalitionspartner: KoalitionspartnerParteiId | null,
-  complexity: number
+  complexity: number,
+  hatMinister?: HatMinister,
 ): KabinettConfig {
-  const kabinettGroesse = KABINETT_GROESSE[complexity] ?? 5;
+  const minister = anzahlMinister(complexity);
+  const besetzbar = (partei: string) => (r: RessortId) => !hatMinister || hatMinister(partei, r);
 
   if (!koalitionspartner) {
-    const pref = RESSORT_PRAEFERENZEN[spielerPartei];
-    const spielerRessorts = (pref?.praeferenz ?? []).slice(0, kabinettGroesse) as RessortId[];
+    const spielerRessorts = ressortReihenfolge(spielerPartei)
+      .filter(besetzbar(spielerPartei))
+      .slice(0, minister);
     return { spielerRessorts, partnerRessorts: [] };
   }
 
-  const partnerPref = RESSORT_PRAEFERENZEN[koalitionspartner];
-  const partnerRessorts: RessortId[] = (partnerPref?.praeferenz ?? []).slice(0, 2) as RessortId[];
+  const partnerRessorts = ressortReihenfolge(koalitionspartner)
+    .filter(besetzbar(koalitionspartner))
+    .slice(0, Math.min(2, minister));
+  const spielerRessorts = ressortReihenfolge(spielerPartei)
+    .filter((r) => !partnerRessorts.includes(r))
+    .filter(besetzbar(spielerPartei))
+    .slice(0, minister - partnerRessorts.length);
 
-  const spielerPref = RESSORT_PRAEFERENZEN[spielerPartei];
-  const spielerVerfuegbar = ALLE_RESSORTS.filter((r) => !partnerRessorts.includes(r));
-  const spielerRessorts = [
-    ...(spielerPref?.praeferenz ?? []).filter((r) => spielerVerfuegbar.includes(r)),
-    ...spielerVerfuegbar.filter((r) => !(spielerPref?.praeferenz ?? []).includes(r)),
-  ]
-    .filter((r, i, arr) => arr.indexOf(r) === i)
-    .slice(0, kabinettGroesse - partnerRessorts.length) as RessortId[];
+  // Reicht der Pool der Spieler-Partei nicht, übernimmt der Partner weitere Ressorts
+  const offen = minister - partnerRessorts.length - spielerRessorts.length;
+  if (offen > 0) {
+    const zusatz = ressortReihenfolge(koalitionspartner)
+      .filter((r) => !partnerRessorts.includes(r) && !spielerRessorts.includes(r))
+      .filter(besetzbar(koalitionspartner))
+      .slice(0, offen);
+    partnerRessorts.push(...zusatz);
+  }
 
   return { spielerRessorts, partnerRessorts };
 }

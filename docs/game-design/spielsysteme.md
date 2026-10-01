@@ -70,6 +70,8 @@ Option offen — aktuell ist dafür kein Bedarf belegt.
 
 **Koalitionsstabilität:** Gewichteter Durchschnitt aus allen Char-Stimmungen und Loyalitäten. Sichtbar als Balken. Unter 30%: Koalitionskrise-Event. Unter 15%: Koalitionsbruch = Spielende.
 
+**Koalitionspartner (ab Stufe 2):** Eigene Beziehung (0–100); unter 15 kündigt der Partner nach 3 Monaten (Spielende). Jeder Partner hat zwei **Schlüsselthemen** (Politikfelder, z. B. Grüne: Umwelt/Energie, Bildung/Forschung). Ein beschlossenes Gesetz im Feld erfüllt das Thema (+5 Beziehung). Sind ab Monat 24 weniger als die Hälfte erfüllt, sinkt die Beziehung um 2 pro Monat — insgesamt höchstens um 20 (`SCHLUESSELTHEMEN_MALUS_MAX`; ungedeckelt beendete das viele Legislaturen kurz vor der Wahl).
+
 ---
 
 ## 3.3 Gesetzgebungssystem
@@ -84,7 +86,7 @@ Entwurf → [optional: Vorstufen] → eingebracht (Ausschuss-Lag)
 
 **Bundestagsabstimmung:** Benötigt > 50% Ja-Stimmen. Basis-Ja-Quote je Gesetz, modifiziert durch Lobbying, Koalitionspartner-Priorität, Vorstufen-Boni, Normenkontrolle-Folgen, Medien/Framing, Ideologie-Abstand (Koalition ↔ Gesetz), Fraktionsdisziplin (Abweichler-Risiko, Fraktionssitzung) — je nach Stufe aktiv.
 
-**Einbringen:** Nach Kosten (Kongruenz mit Spieler-Ausrichtung, ggf. Gegenfinanzierungs-Dialog ab Stufe 2, Medienklima-Zuschlag) wechselt das Gesetz in die **Eingebracht-Phase** (`eingebracht`): Ausschuss-Lag (Stufe 1: 1 Monat fix; höhere Stufen: aus Content bzw. abgeleitet), danach automatische BT-Abstimmung im Monatstick.
+**Einbringen:** Reihenfolge der Prüfungen: PK (Kongruenz mit Spieler-Ausrichtung, Vorstufen-Rabatt, Medienklima-Zuschlag; der Button sperrt nach genau diesen Kosten) → Partner-Widerstand (ab Stufe 3) → Gegenfinanzierungs-Dialog (ab Stufe 2) → Einbringen. Die Gegenfinanzierung kommt bewusst zuletzt, weil sie sofort wirkt; sie wird nur angewandt, wenn das PK fürs Einbringen reicht. **Partner-Widerstand:** Hinweis (−5 Beziehung) und Widerstand (−15) lassen sich mit „Trotzdem“ überstimmen; Widerstand und Veto (Stufe 4) auch per Koalitionsrunde (15 PK, Beziehung +8), danach geht das Gesetz ohne Malus durch — beim Veto ist das der einzige Weg. Danach wechselt das Gesetz in die **Eingebracht-Phase** (`eingebracht`): Ausschuss-Lag (Stufe 1: 1 Monat fix; höhere Stufen: aus Content bzw. abgeleitet), danach automatische BT-Abstimmung im Monatstick.
 
 **Bundesratsabstimmung:** Für Gesetze mit `land`-Tag, **wenn** der Bundesrat für die gewählte Stufe aktiv ist (Tab ab Stufe 2). Nach BT-Mehrheit: Status `bt_passed`, Lobbying-Fenster bis zur BR-Abstimmung. **Stufe 1:** ohne sichtbaren BR — bei Ja im Bundestag direkt `beschlossen` (wie „kein Land-Gesetz“ im Codepfad). Ab Stufe 3: vier Fraktionen, PK-Lobbying, Trade-offs, Beziehungen, Events (siehe GDD 3.7).
 
@@ -180,7 +182,8 @@ werden nie eigenständig gezogen, sondern nur über den geplanten Follow-up erre
   Pandemie-Vorbereitung, Infrastruktur-Kollaps, Migrationskrise, Bauernproteste,
   Pflegenotstand, KI-Vorfall (seit Migration 070 in der DB)
 - Story-Arcs (#272, je 3 Stufen mit Verzweigung nach Stufe 1; Fortsetzungen nur mit
-  Follow-up-Events, d. h. ab Stufe 4): Beraterskandal, Rüstungsexport, Stahlkrise
+  Follow-up-Events, d. h. ab Stufe 2 — auf Stufe 1 werden keine Arc-Einstiege gezogen):
+  Beraterskandal, Rüstungsexport, Stahlkrise
   (Staatshilfe → EU-Beihilfeverfahren bzw. keine Hilfe → Werksbesetzung → Industriestrategie)
 
 **Gesperrte Gesetze:** 14 Gesetze (`locked_until_event`, Migration 051) sind zu Spielbeginn
@@ -196,7 +199,7 @@ Katastrophenschutzgesetz, KI-Vorfall → KI-Governance-Gesetz.
 - Hoffmann: Vertrauensfrage
 - Maier: Standort-Ultimatum
 
-**Folge-Events:** Umgesetzt für höhere Stufen (`followup_events` ab Komplexität 4 in `features.ts`); Ketten werden aus dem Content gespeist und im Tick aufgelöst.
+**Folge-Events:** `followup_events` ab Komplexität 2 in `features.ts` (bis #267 erst ab Stufe 4 — Arc-Einstiege endeten auf Stufe 1–3 als Sackgasse); Ketten werden aus dem Content gespeist und im Tick aufgelöst.
 
 ---
 
@@ -295,7 +298,7 @@ Eigene Events alle 5–8 Monate (zufällig aus Pool):
 |-------|----------|--------|
 | Länderfinanzausgleich-Streit | alle 12 Mo. fix | Fraktion 2+4 fordern Neuverteilung — Kosten oder Zustimmungsverlust |
 | Landtagswahl kippt Fraktion | zufällig, ab Mo. 10 | Ein Land wechselt die Regierungspartei und Landeskoalition (→ Koalitionsklausel/Enthaltung), Beziehungswert zurückgesetzt |
-| Kohl eskaliert (Sondersitzung) | Beziehung Kohl < 15 | Vermittlungsausschuss wird beantragt — Gesetz verzögert 2 Monate |
+| Kohl eskaliert (Sondersitzung) | Beziehung Kohl < 15 | Der Bundesrat ruft den Vermittlungsausschuss an (3.7.6) — Abstimmung verzögert 2 Monate, Ausgang offen |
 | Sprecher-Wechsel | zufällig, ~20% nach Mo. 24 | Neuer Charakter mit anderen Interessen ersetzt Sprecher |
 | Bundesrat-Initiative | Fraktion 3 oder 4 | Länder bringen eigenes Gesetz ein — Spieler muss reagieren |
 | Föderalismusgipfel | alle 18 Mo. fix | Alle 4 Sprecher gleichzeitig — Sammel-Lobbying möglich |
@@ -317,6 +320,17 @@ Eigene Events alle 5–8 Monate (zufällig aus Pool):
 - Stimmenbalken: 16 Felder, farblich nach Fraktion
 - Klickbar: zeigt Fraktionsdetail
 - Mehrheitslinie bei Feld 9 sichtbar
+
+### 3.7.6 Vermittlungsausschuss (Art. 77 GG)
+
+Ab Stufe 2. Der Ausgang ist offen (#276): **Einigung ohne Abstriche** (Originaleffekte), **Kompromiss** (Effekte −50 %) oder **Scheitern**. Die Chancen hängen am Beziehungs-Score — Ø Beziehung der BR-Fraktionen, −0,15 je für das Gesetz abgelehntem Trade-off; bei neutralem Score etwa 45 / 10 / 45 %, bessere Beziehungen verschieben Richtung Einigung. Das Protokoll nennt, wer vermittelt bzw. blockiert hat.
+
+| Anrufung durch | Kosten | Ausgang gewürfelt | Nach der Frist (2 Monate) |
+|----------------|--------|-------------------|---------------------------|
+| Spieler (Bundesregierung) — nach BR-Blockade oder -Einspruch | 20 PK | bei Anrufung | Einigung/Kompromiss → Gesetz beschlossen; Scheitern → Blockade (Zustimmungsgesetz) bzw. Einspruch bleibt, vom Bundestag überstimmbar (Einspruchsgesetz) |
+| Bundesrat — z. B. Kohl-Sonderregel, für ein Länder-Gesetz vor der BR-Abstimmung | keine | erst bei Fristende; die Beziehung zur anrufenden Fraktion zählt zur Hälfte | Einigung/Kompromiss → erneute Bundesratsabstimmung im selben Monat; Scheitern → Blockade bzw. Einspruch |
+
+Ruft Kohl den Ausschuss an, verschiebt sich die Abstimmung um 2 Monate. Weil erst bei Fristende gewürfelt wird, zählen die Reaktion auf den Antrag („Kooperieren" +8, „Öffentlich kritisieren" −10 Beziehung zum Ostblock) und Lobbying in der Zwischenzeit. Während eines laufenden Verfahrens stimmt der Bundesrat nicht ab; laufende Verfahren bleiben im Spielstand erhalten.
 
 ---
 

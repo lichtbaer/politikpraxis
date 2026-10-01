@@ -13,7 +13,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.services.agenda_eval_service import AGENDA_TRACKING_MEDIENKLIMA_SCHWELLE
+from app.services.agenda_eval_service import (
+    AGENDA_TRACKING_MEDIENKLIMA_SCHWELLE,
+    steigern_ziel_werte,
+)
 from app.services.historisches_urteil_service import (
     berechne_historisches_urteil,
     ermittle_kanzler_archetyp,
@@ -211,6 +214,9 @@ def _spieler_ziel_ampel(gs: dict[str, Any], z: dict[str, Any]) -> str:
     target: float
     current: float
 
+    steigern = steigern_ziel_werte(gs, typ, param)
+    if steigern is not None:
+        return _ampel_higher_is_better(*steigern)
     if typ == "gesetz_anzahl_beschlossen":
         target = max(0, round(_num(param.get("min_beschlossen"))))
         current = _count_beschlossen_gesamt(gs)
@@ -272,6 +278,9 @@ def _koalitions_ziel_ampel(gs: dict[str, Any], z: dict[str, Any]) -> str:
     target: float
     current: float
 
+    steigern = steigern_ziel_werte(gs, typ, param)
+    if steigern is not None:
+        return _ampel_higher_is_better(*steigern)
     if typ == "gesetz_politikfeld":
         pf = _str(param.get("politikfeld_id"))
         target = max(0, round(_num(param.get("min_beschlossen"))))
