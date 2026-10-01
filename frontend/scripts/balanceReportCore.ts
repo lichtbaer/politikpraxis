@@ -5,7 +5,7 @@
  * sowohl unter Vitest (jsdom) als auch über das tsx-CLI (`balanceReport.ts`) genutzt
  * und vom App-TypeScript-Programm typgeprüft werden kann.
  */
-import { monteCarlo, type AggregatedResult } from '../src/core/simulation/balanceSim';
+import { monteCarlo, type AggregatedResult, type VerlustGrund } from '../src/core/simulation/balanceSim';
 import { alleStrategien } from '../src/core/simulation/strategien';
 import { SIM_CONTENT_WITH_UNLOCK_EVENTS } from '../src/core/simulation/testContent';
 import { echterContent } from '../src/core/simulation/echterContent';
@@ -18,7 +18,11 @@ import type { ContentBundle } from '../src/core/types';
  * Spielstil). Ohne dies bleibt die Agenda-Säule des Spielziels konstant beim Default-Wert,
  * egal welche Strategie spielt (siehe Issue #269).
  */
-export const DEFAULT_REPORT_SPIELER_AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'];
+export const DEFAULT_REPORT_SPIELER_AGENDA = [
+  'ag_gesetz_breit_regieren',
+  'ag_milieu_mitte',
+  'ag_gesetz_klimawende',
+];
 
 export interface ReportOptions {
   /** Anzahl Monte-Carlo-Läufe pro Strategie und Komplexität */
@@ -98,12 +102,35 @@ export function collectReportData(opts: ReportOptions): ReportData {
   };
 }
 
-const VERLUST_LABEL: Record<string, string> = {
-  koalitionsbruch: 'Koalitionsbruch',
-  misstrauensvotum: 'Misstrauensvotum',
+/** #482: Kurzlabels je Verlustgrund (Reihenfolge = Tie-Break bei gleicher Anzahl). */
+const VERLUST_LABEL: Record<VerlustGrund, string> = {
+  koalitionsbruch: 'Bruch',
+  partner_kuendigt: 'Partner',
+  misstrauensvotum: 'Misstrauen',
+  vertrauensfrage: 'Vertrauensfrage',
+  ruecktritt: 'Rücktritt',
+  kein_gesetz: 'Kein Gesetz',
+  agenda: 'Agenda',
   punkte: 'Punkte',
-  unbekannt: 'Unbekannt',
 };
+
+/** Wie viele Verlustgründe die Report-Spalte höchstens nennt. */
+const VERLUST_TOP_N = 3;
+
+/**
+ * #482: Verlustgrund-Verteilung als kompakte Zelle, z. B. `Bruch 12 · Agenda 5` —
+ * absteigend nach Anzahl, höchstens VERLUST_TOP_N Gründe; ohne Niederlagen `–`.
+ */
+export function formatVerlustVerteilung(counts: Record<VerlustGrund, number>): string {
+  const reihenfolge = Object.keys(VERLUST_LABEL) as VerlustGrund[];
+  const teile = reihenfolge
+    .map((grund, index) => ({ grund, index, anzahl: counts[grund] ?? 0 }))
+    .filter((e) => e.anzahl > 0)
+    .sort((a, b) => b.anzahl - a.anzahl || a.index - b.index)
+    .slice(0, VERLUST_TOP_N)
+    .map((e) => `${VERLUST_LABEL[e.grund]} ${e.anzahl}`);
+  return teile.length > 0 ? teile.join(' · ') : '–';
+}
 
 const pct = (v: number) => `${(v * 100).toFixed(0)}%`;
 const num = (v: number, digits = 0) => v.toFixed(digits);
@@ -115,6 +142,7 @@ const COLUMNS = [
   'Prognose (med)',
   'p10',
   'p90',
+  'Gesetze',
   'Gesamt',
   'Bilanz',
   'Agenda',
@@ -123,6 +151,7 @@ const COLUMNS = [
   'PK-Ende',
   'PK<10 (Mon.)',
   'Verlustgrund',
+  'Hänger (Mon.)',
   'Crashes',
   'EngErr',
 ];
@@ -136,6 +165,7 @@ function rowCells(row: StrategyRow): string[] {
     num(e.wahlprognose.median, 1),
     num(e.wahlprognose.p10, 1),
     num(e.wahlprognose.p90, 1),
+    num(e.gesetze.median),
     num(e.gesamtpunkte.median, 1),
     num(e.bilanzPunkte.median, 1),
     num(e.agendaPunkte.median, 1),
@@ -143,7 +173,8 @@ function rowCells(row: StrategyRow): string[] {
     num(e.saldo.median, 1),
     num(e.pkEnde.median),
     num(e.pkKnappeMonate.median),
-    e.verlustGrund.haeufigster ? VERLUST_LABEL[e.verlustGrund.haeufigster] : '–',
+    formatVerlustVerteilung(e.verlustGrund.counts),
+    String(e.einbringenHaengerMax),
     String(e.crashes),
     String(e.engineErrors),
   ];
@@ -165,7 +196,7 @@ export function renderMarkdown(data: ReportData): string {
   lines.push(`| Komplexitätsstufen | ${data.complexities.join(', ')} |`);
   lines.push(`| Strategien | ${data.strategienAnzahl} |`);
   lines.push(`| Content | ${data.contentVariante} |`);
-  lines.push(`| Spieler-Agenda | ${data.spielerAgendaIds.length > 0 ? data.spielerAgendaIds.join(', ') : '(keine)'} |`);
+  lines.push(`| Spieler-Agenda | ${data.spielerAgendaIds.length > 0 ? data.spielerAgendaIds.join(', ') : '(keine)'} (je Stufe gekürzt auf die Onboarding-Anzahl) |`);
   lines.push('');
 
   for (const block of data.bloecke) {

@@ -26,17 +26,7 @@ import { writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateBalanceReport, type ReportData } from './balanceReportCore';
-
-/** Seedbarer Mulberry32-PRNG — identische Routine wie src/core/rng.ts. */
-function mulberry32(seed: number): () => number {
-  let state = seed >>> 0 || 1;
-  return () => {
-    let t = (state += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+import { mulberry32 } from '../src/core/rng';
 
 function parseArgs(argv: string[]): {
   n: number;

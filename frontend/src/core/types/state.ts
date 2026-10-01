@@ -127,6 +127,15 @@ export interface MilieuHistoryStats {
   months: number;
 }
 
+/**
+ * #475: Werte bei Spielbeginn — Bezug für Agenda-Ziele „… steigern“
+ * (`milieu_zustimmung_steigern`, `verband_beziehung_steigern`).
+ */
+export interface AgendaStartwerte {
+  milieus: Record<string, number>;
+  verbaende: Record<string, number>;
+}
+
 /** SMA-502: Kumulierte Koalitionspartner-Beziehung (Summe/Monate → Ø = sum/months) */
 export interface KoalitionsbeziehungLegislaturStats {
   sum: number;
@@ -186,6 +195,23 @@ export interface SpielzielErgebnis extends SpielzielSnapshot {
   beschlosseneGesetzeUrteil: number;
 }
 
+/**
+ * #482: Grund für das Spielende.
+ * - `legislatur`: reguläres Legislaturende mit Wahl (Monat 48)
+ * - `koalitionsbruch`: Koalitionsstabilität unter MIN_KOALITION_FORTGANG
+ * - `partner_kuendigt`: Koalitionspartner kündigt (Beziehung < 15 über 3 Monate)
+ * - `misstrauensvotum`: konstruktives Misstrauensvotum (Art. 67 GG) erfolgreich
+ * - `vertrauensfrage`: Vertrauensfrage (Art. 68 GG) verloren
+ * - `ruecktritt`: Rücktritt angesichts eines Misstrauensvotums
+ */
+export type SpielendeGrund =
+  | 'legislatur'
+  | 'koalitionsbruch'
+  | 'partner_kuendigt'
+  | 'misstrauensvotum'
+  | 'vertrauensfrage'
+  | 'ruecktritt';
+
 export interface GameState {
   month: number;
   speed: SpeedLevel;
@@ -218,6 +244,8 @@ export interface GameState {
   spielerAgenda?: string[];
   /** SMA-500: aktive Koalitions-Ziel-IDs */
   koalitionsAgenda?: string[];
+  /** #475: Milieu-/Verbandswerte bei Spielbeginn (Bezug der „steigern“-Ziele) */
+  agendaStartwerte?: AgendaStartwerte;
   gesetze: Law[];
   eingebrachteGesetze?: EingebrachteGesetz[];
   bundesrat: BundesratLand[];
@@ -243,9 +271,22 @@ export interface GameState {
 
   /** Seed für den deterministischen PRNG (Mulberry32). Einmalig bei Spielstart gesetzt. */
   rngSeed: number;
+  /**
+   * #244: Content-Version (`GET /api/content/version`), mit der das Spiel begonnen
+   * wurde — `'offline'` beim gebündelten Fallback-Content. Einmalig bei Spielstart
+   * gesetzt; weicht sie beim Laden vom aktuellen Content ab, warnt das Spiel.
+   * Fehlt bei älteren Spielständen.
+   */
+  contentVersion?: string;
 
   gameOver: boolean;
   won: boolean;
+  /**
+   * #482: Warum das Spiel endete — wird an jeder Stelle gesetzt, die `gameOver` setzt.
+   * `'legislatur'` = reguläres Ende mit Wahl (Monat 48); alle anderen Werte = Regierung
+   * vorzeitig gestürzt (keine Wahl). Fehlt bei laufenden Spielen und älteren Spielständen.
+   */
+  spielendeGrund?: SpielendeGrund;
   /** SMA-499: Erfolg nach dreistufigem Spielziel (unabhängig von reiner Wahlhürde) */
   legislaturErfolg?: boolean;
   /** Wahlergebnis hat die konfigurierte Hürde überschritten (für Achievements / Text) */
@@ -387,6 +428,11 @@ export interface GameState {
   vermittlungAktiv?: Record<string, number>;
   /** Vorab ermittelter Ausgang je Gesetz-ID (SMA-276); fehlt ein Eintrag (z.B. alte Spielstände), gilt 'kompromiss' als Default */
   vermittlungAusgang?: Record<string, 'erfolg' | 'kompromiss' | 'scheitern'>;
+  /**
+   * #276: Vom Bundesrat angerufene Vermittlungsverfahren — Gesetz-ID → ID der anrufenden
+   * BR-Fraktion. Für diese Verfahren wird der Ausgang erst bei Fristende ausgewürfelt.
+   */
+  vermittlungAnrufer?: Record<string, string>;
   letzteRegierungserklaerungMonat?: number;
   vertrauensfrageGestellt?: boolean;
   sachverstaendigenrat?: {

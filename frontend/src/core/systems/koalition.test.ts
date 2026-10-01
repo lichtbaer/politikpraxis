@@ -5,6 +5,8 @@ import {
   berechneKoalitionsvertragProfil,
   tickKoalitionspartner,
   checkKoalitionsbruch,
+  updateKoalitionsvertragScore,
+  SCHLUESSELTHEMEN_MALUS_MAX,
 } from './koalition';
 import { GRUENE } from '../../data/defaults/koalitionspartner';
 import type { GameState } from '../types';
@@ -114,6 +116,40 @@ describe('tickKoalitionspartner', () => {
   });
 });
 
+describe('Schlüsselthemen-Druck', () => {
+  const kp = { id: 'gp' as const, beziehung: 80, koalitionsvertragScore: 0, schluesselthemenErfuellt: [] };
+
+  it('zieht ab Monat 24 monatlich ab, insgesamt höchstens SCHLUESSELTHEMEN_MALUS_MAX', () => {
+    let s = createMockState({ koalitionspartner: { ...kp } });
+    for (let m = 24; m < 40; m++) {
+      s = tickKoalitionspartner({ ...s, month: m }, { koalitionspartner: GRUENE }, 2);
+    }
+    expect(s.koalitionspartner?.schluesselthemenMalus).toBe(SCHLUESSELTHEMEN_MALUS_MAX);
+    // Gedeckelt: ein weiterer Monat ab 24 wirkt wie ein Monat davor (kein Themen-Druck)
+    const ab24 = tickKoalitionspartner({ ...s, month: 40 }, { koalitionspartner: GRUENE }, 2);
+    const vor24 = tickKoalitionspartner({ ...s, month: 23 }, { koalitionspartner: GRUENE }, 2);
+    expect(ab24.koalitionspartner?.beziehung).toBe(vor24.koalitionspartner?.beziehung);
+  });
+
+  it('kein Abzug bei mindestens 50 % erfüllten Themen', () => {
+    const s = createMockState({
+      month: 30,
+      koalitionspartner: { ...kp, schluesselthemenErfuellt: ['umwelt_energie'] },
+    });
+    const next = tickKoalitionspartner(s, { koalitionspartner: GRUENE }, 2);
+    expect(next.koalitionspartner?.schluesselthemenMalus ?? 0).toBe(0);
+  });
+
+  it('Grüne: ein Gesetz im Politikfeld Umwelt/Energie erfüllt ein Schlüsselthema', () => {
+    const s = createMockState({
+      koalitionspartner: { ...kp },
+      gesetze: [{ id: 'klimaschutz', politikfeldId: 'umwelt_energie' } as GameState['gesetze'][number]],
+    });
+    const next = updateKoalitionsvertragScore(s, 'klimaschutz', { koalitionspartner: GRUENE }, 2);
+    expect(next.koalitionspartner?.schluesselthemenErfuellt).toContain('umwelt_energie');
+  });
+});
+
 describe('checkKoalitionsbruch', () => {
   it('triggert bei Beziehung < 15', () => {
     const state = createMockState({
@@ -156,5 +192,41 @@ describe('checkKoalitionsbruch', () => {
     });
     const result = checkKoalitionsbruch(state, {}, 4);
     expect(result).toBe(state);
+  });
+
+  it('Partner kündigt nach 3 Monaten mit Beziehung < 15 → Spielende (#482, Pfad I)', () => {
+    const state = createMockState({
+      month: 20,
+      koalitionspartner: {
+        id: 'gp',
+        beziehung: 10,
+        koalitionsvertragScore: 50,
+        schluesselthemenErfuellt: [],
+      },
+      koalitionsbruchSeitMonat: 17,
+      activeEvent: null,
+    });
+    const result = checkKoalitionsbruch(state, {}, 4);
+    expect(result.gameOver).toBe(true);
+    expect(result.won).toBe(false);
+    expect(result.speed).toBe(0);
+    expect(result.spielendeGrund).toBe('partner_kuendigt');
+  });
+
+  it('weniger als 3 Monate seit Koalitionsbruch-Event: noch kein Spielende', () => {
+    const state = createMockState({
+      month: 19,
+      koalitionspartner: {
+        id: 'gp',
+        beziehung: 10,
+        koalitionsvertragScore: 50,
+        schluesselthemenErfuellt: [],
+      },
+      koalitionsbruchSeitMonat: 17,
+      activeEvent: null,
+    });
+    const result = checkKoalitionsbruch(state, {}, 4);
+    expect(result.gameOver).toBe(false);
+    expect(result.spielendeGrund).toBeUndefined();
   });
 });

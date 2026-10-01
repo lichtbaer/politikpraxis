@@ -9,7 +9,12 @@ vi.mock('../services/api', () => ({
 }));
 
 import { apiFetch } from '../services/api';
-import { useContentStore, getContentBundle } from './contentStore';
+import {
+  useContentStore,
+  getContentBundle,
+  istContentVersionAbweichend,
+  OFFLINE_CONTENT_VERSION,
+} from './contentStore';
 import { createInitialState } from '../core/state';
 
 const apiFetchMock = vi.mocked(apiFetch);
@@ -169,5 +174,64 @@ describe('contentStore: Zufalls-Pool und EU-Events aus der API', () => {
     expect(eu.event?.choices[0]).toMatchObject({ key: 'sofort_umsetzen', euKlima: { feldId: 'arbeit_soziales', delta: 8 }, kofinanzierung: 0.2, log: 'umgesetzt' });
     expect(eu.event?.choices[2].euKlima).toBeUndefined();
     expect(getContentBundle().euEvents).toHaveLength(1);
+  });
+});
+
+describe('contentStore: Content-Version (#244)', () => {
+  beforeEach(() => {
+    apiFetchMock.mockReset();
+    useContentStore.setState({ contentVersion: null });
+  });
+
+  function mockApi(version: () => Promise<unknown>) {
+    apiFetchMock.mockImplementation((path: string) => {
+      if (path.startsWith('/content/version')) return version();
+      return Promise.resolve([]);
+    });
+  }
+
+  it('lädt die Content-Version sprachunabhängig und speichert sie', async () => {
+    mockApi(() => Promise.resolve({ content_version: '0123456789abcdef' }));
+
+    await useContentStore.getState().load('en');
+
+    const s = useContentStore.getState();
+    expect(s.loaded).toBe(true);
+    expect(s.contentVersion).toBe('0123456789abcdef');
+    // Kein locale-Parameter: die Version darf nicht von der Spielsprache abhängen
+    expect(apiFetchMock).toHaveBeenCalledWith('/content/version');
+  });
+
+  it('Ausfall des Version-Endpoints ist nicht kritisch (Content lädt, Version null)', async () => {
+    mockApi(() => Promise.reject(new Error('404')));
+
+    await useContentStore.getState().load('de');
+
+    const s = useContentStore.getState();
+    expect(s.loaded).toBe(true);
+    expect(s.error).toBeNull();
+    expect(s.contentVersion).toBeNull();
+  });
+
+  it('ignoriert eine unerwartete Antwortform', async () => {
+    mockApi(() => Promise.resolve([]));
+    await useContentStore.getState().load('de');
+    expect(useContentStore.getState().contentVersion).toBeNull();
+  });
+
+  it("Offline-Fallback trägt die Version 'offline'", async () => {
+    apiFetchMock.mockRejectedValue(new Error('network down'));
+    await useContentStore.getState().load('de');
+    expect(useContentStore.getState().offline).toBe(true);
+    expect(useContentStore.getState().contentVersion).toBe(OFFLINE_CONTENT_VERSION);
+  });
+
+  it('istContentVersionAbweichend vergleicht nur echte Versionen', () => {
+    expect(istContentVersionAbweichend('aaa', 'bbb')).toBe(true);
+    expect(istContentVersionAbweichend('aaa', 'aaa')).toBe(false);
+    expect(istContentVersionAbweichend(undefined, 'aaa')).toBe(false);
+    expect(istContentVersionAbweichend('aaa', null)).toBe(false);
+    expect(istContentVersionAbweichend(OFFLINE_CONTENT_VERSION, 'aaa')).toBe(false);
+    expect(istContentVersionAbweichend('aaa', OFFLINE_CONTENT_VERSION)).toBe(false);
   });
 });

@@ -25,6 +25,8 @@ describe('checkGameEnd', () => {
     expect(typeof result.won).toBe('boolean');
     expect(result.legislaturErfolg).toBe(result.won);
     expect(result.speed).toBe(0);
+    // #482: reguläres Legislaturende (Pfad C)
+    expect(result.spielendeGrund).toBe('legislatur');
   });
 
   it('ohne Content: Fallback won = Wahlhürde (Zustimmung)', () => {
@@ -37,6 +39,8 @@ describe('checkGameEnd', () => {
     expect(result.gameOver).toBe(true);
     expect(result.won).toBe(true);
     expect(result.speed).toBe(0);
+    // #482: reguläres Legislaturende ohne Content (Pfad D)
+    expect(result.spielendeGrund).toBe('legislatur');
   });
 
   it('ohne Content: won=false wenn Zustimmung < Schwelle', () => {
@@ -68,6 +72,8 @@ describe('checkGameEnd', () => {
     const result = checkGameEnd(state);
     expect(result.gameOver).toBe(true);
     expect(result.won).toBe(false);
+    // #482: Koalitionsbruch über die Stabilität (Pfad E)
+    expect(result.spielendeGrund).toBe('koalitionsbruch');
   });
 
   it('lässt Spiel weiterlaufen bei normalen Werten', () => {
@@ -78,6 +84,7 @@ describe('checkGameEnd', () => {
     });
     const result = checkGameEnd(state);
     expect(result.gameOver).toBe(false);
+    expect(result.spielendeGrund).toBeUndefined();
   });
 
   it('Koalition genau 15 lässt Spiel weiterlaufen', () => {

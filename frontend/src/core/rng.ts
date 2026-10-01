@@ -36,3 +36,18 @@ export function nextRandom(): number {
 export function nextInt(n: number): number {
   return Math.floor(nextRandom() * n);
 }
+
+/**
+ * Unabhängiger, seedbarer Mulberry32-Generator (gleiche Routine wie oben, eigener Zustand).
+ * Balance-Report und Balance-Tests ersetzen damit `Math.random`, damit Monte-Carlo-Läufe
+ * reproduzierbar sind.
+ */
+export function mulberry32(seed: number): () => number {
+  let state = seed >>> 0 || 1;
+  return () => {
+    let t = (state += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}

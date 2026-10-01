@@ -661,18 +661,23 @@ export function lobbyLand(state: GameState, landId: string): GameState {
   );
 }
 
-/** Prüft Kohl-Sonderregel: Beziehung < 15 → Sabotage-Event */
-export function checkKohlSabotage(state: GameState): { triggered: boolean; lawId?: string } {
+/**
+ * Prüft Kohl-Sonderregel (GDD 3.7.1): Beziehung < 15 → Kohl ruft für das erste
+ * Länder-Gesetz, das auf die Bundesratsabstimmung wartet, den Vermittlungsausschuss an
+ * (#276, Auslösung in `checkBundesratEvents`). Jedes Gesetz nur einmal.
+ */
+export function checkKohlSabotage(state: GameState): { triggered: boolean; lawId?: string; fraktionId?: string } {
   const kohl = state.bundesratFraktionen.find(f => f.id === 'ostblock' && f.sonderregel === 'kohl_saboteur');
   if (!kohl || kohl.beziehung >= 15) return { triggered: false };
 
   const btPassedLaws = state.gesetze.filter(
-    g => g.status === 'bt_passed' && g.tags.includes('land') && !g.kohlSabotageTriggered,
+    g => g.status === 'bt_passed' && g.tags.includes('land') && !g.kohlSabotageTriggered
+      && state.vermittlungAktiv?.[g.id] == null,
   );
   if (btPassedLaws.length === 0) return { triggered: false };
 
   const law = btPassedLaws[0];
-  return { triggered: true, lawId: law.id };
+  return { triggered: true, lawId: law.id, fraktionId: kohl.id };
 }
 
 export interface BundesratVoteContext {

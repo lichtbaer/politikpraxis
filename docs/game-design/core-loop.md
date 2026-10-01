@@ -62,13 +62,20 @@ Wahlhürde je Komplexitätsstufe (gespeichert in `electionThreshold`):
 
 **Verlust-Bedingungen (sofortiges Spielende, `won = false`):**
 
-| Bedingung | Auslöser |
-|-----------|----------|
-| Schlechte Legislaturbilanz | `spielziel.gesamtpunkte < 40` in Monat 48 |
-| Koalitionsbruch | `coalition < 15` (Stabilitätswert) |
-| Misstrauensvotum (Art. 67 GG) | 6 Monate mit realer Mehrheitsbasis der Opposition (Sitzanteil ≥ 45 % + Koalitionsstabilität < 35 %; Zustimmung < 20 % nur sekundär) (ab Monat 7); interaktives Event bei 4 Monaten (Stufe ≥ 2) |
-| Vertrauensfrage (Art. 68 GG) | Vertrauensfrage gescheitert (Zufallscheck auf Koalitionsstabilität) |
-| Rücktritt | Spieler wählt Rücktritt im Misstrauensvotum-Event |
+| Bedingung | Auslöser | `spielendeGrund` |
+|-----------|----------|------------------|
+| Schlechte Legislaturbilanz | `spielziel.gesamtpunkte < 40` in Monat 48 (bzw. kein beschlossenes Gesetz, auf Stufe 1 unerfüllte Agenda) | `legislatur` |
+| Koalitionsbruch | `coalition < 15` (Stabilitätswert) | `koalitionsbruch` |
+| Partner kündigt | Beziehung zum Koalitionspartner 3 Monate lang < 15 | `partner_kuendigt` |
+| Misstrauensvotum (Art. 67 GG) | 6 Monate mit realer Mehrheitsbasis der Opposition (Sitzanteil ≥ 45 % + Koalitionsstabilität < 35 %; Zustimmung < 20 % nur sekundär) (ab Monat 7); interaktives Event bei 4 Monaten (Stufe ≥ 2) | `misstrauensvotum` |
+| Vertrauensfrage (Art. 68 GG) | Vertrauensfrage gescheitert (Zufallscheck auf Koalitionsstabilität) | `vertrauensfrage` |
+| Rücktritt | Spieler wählt Rücktritt im Misstrauensvotum-Event | `ruecktritt` |
+
+Jeder Spielende-Pfad speichert seinen Grund in `state.spielendeGrund` (#482). Bei einem
+vorzeitigen Ende (alles außer `legislatur`) zeigt der End-Screen keine Wahlnacht-Hochrechnung
+und kein Wahlergebnis, sondern „Regierung gestürzt" mit der Begründung. Der Misserfolgsgrund
+einer regulär beendeten Legislatur kommt aus `legislaturMisserfolgGrund()` in
+`core/spielziel.ts` (`kein_gesetz` → `agenda` → `punkte`).
 
 **Begriffe:**
 

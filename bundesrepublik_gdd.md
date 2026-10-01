@@ -48,7 +48,7 @@ Monat 48: Wahl → Wiederwahl ≥ Wahlhürde?
 
 **Zeitstruktur:** Echtzeit mit Pause. 1 Spieltick = 1 Monat. Geschwindigkeiten: Pause / 1× (1,8 Sek/Monat). Events pausieren automatisch.
 
-**Win-Bedingung:** Das dreistufige Spielziel entscheidet: `spielziel.gesamtpunkte ≥ 40` (Skala 0–100) aus Bilanz 30 % / Agenda 35 % / Historisches Urteil 35 %; bei überschrittener Wahlhürde zusätzlicher Bonus von 0–4 Punkten. Die Wahlhürde je Komplexitätsstufe (35 % / 38 % / 40 % / 42 %, zentral in `ELECTION_THRESHOLDS_BY_COMPLEXITY`, Feld `electionThreshold` im Spielstand) ist kein alleiniges Siegkriterium — man kann trotz überschrittener Hürde verlieren und trotz verfehlter Hürde gewinnen. Ohne ein einziges beschlossenes Gesetz fällt das Historische Urteil auf 25 (statt neutral 50).
+**Win-Bedingung:** Das dreistufige Spielziel entscheidet: `spielziel.gesamtpunkte ≥ 40` (Skala 0–100) aus Bilanz 30 % / Agenda 35 % / Historisches Urteil 35 %; bei überschrittener Wahlhürde zusätzlicher Bonus von 0–4 Punkten. Die Wahlhürde je Komplexitätsstufe (35 % / 38 % / 40 % / 42 %, zentral in `ELECTION_THRESHOLDS_BY_COMPLEXITY`, Feld `electionThreshold` im Spielstand) ist kein alleiniges Siegkriterium — man kann trotz überschrittener Hürde verlieren und trotz verfehlter Hürde gewinnen. Ohne ein einziges beschlossenes Gesetz fällt das Historische Urteil auf 25 (statt neutral 50), und die Legislatur gilt auf keiner Stufe als Erfolg (#267). Auf Stufe 1 muss zusätzlich die komplette Spieler-Agenda (2 Ziele) erfüllt sein. Die Agenda-Säule mittelt über alle Spieler- und Koalitionsziele, jedes Ziel gleich gewichtet; eine Zählziel-Ampel ist ohne jeden Fortschritt rot. Milieu- und Verbandsziele messen seit #475 relativ zum Spielstart: erfüllt, wenn der Wert am Legislaturende mindestens Startwert + 10 beträgt (`*_steigern`, Startwerte in `agendaStartwerte`) — absolute Schwellen lagen teils unter dem Startwert und waren ohne Zutun erfüllt. Die „nichts kaputt gemacht“-Bilanzpunkte (Haushalt, Stabilität, Koalition, Zusammenhalt) sind erst ab 5 beschlossenen Gesetzen voll.
 
 **Lose-Bedingungen:** `spielziel.gesamtpunkte < 40` am Legislaturende (Dreipfeiler-Score: Bilanz/Agenda/Urteil), Koalitionsbruch (Stabilitätswert < 15 %), Misstrauensvotum (6 Monate mit realer Bundestags-Mehrheitsbasis der Opposition: Sitzanteil ≥ 45 % + Koalitionsstabilität < 35 %; kritische Zustimmung < 20 % zählt nur sekundär, wenn einer der beiden primären Faktoren bereits erfüllt ist — Art. 67 GG), gescheiterte Vertrauensfrage oder Rücktritt. Die Wahlhürde allein ist kein Verlustkriterium — sie beeinflusst nur den Wahlbonus (0–4 Punkte).
 
@@ -222,7 +222,7 @@ Events sind das spielerische Herz. Sie erscheinen zufällig (~22% Chance/Monat),
 - Hoffmann: Vertrauensfrage
 - Maier: Standort-Ultimatum
 
-**Folge-Events:** Für höhere Komplexität umgesetzt (`followup_events` ab Stufe 4); Ketten kommen aus dem Content und werden im Tick verarbeitet.
+**Folge-Events:** `followup_events` ab Stufe 2 (#267); Ketten kommen aus dem Content und werden im Tick verarbeitet. Auf Stufe 1 werden keine Story-Arc-Einstiege gezogen.
 
 ---
 
@@ -327,7 +327,7 @@ Eigene Events alle 5–8 Monate (zufällig aus Pool):
 |-------|----------|--------|
 | Länderfinanzausgleich-Streit | alle 12 Mo. fix | Fraktion 2+4 fordern Neuverteilung — Kosten oder Zustimmungsverlust |
 | Landtagswahl kippt Fraktion | zufällig, ab Mo. 10 | Ein Land wechselt die Regierungspartei und Landeskoalition (→ Koalitionsklausel/Enthaltung), Beziehungswert zurückgesetzt |
-| Kohl eskaliert (Sondersitzung) | Beziehung Kohl < 15 | Vermittlungsausschuss wird beantragt — Gesetz verzögert 2 Monate |
+| Kohl eskaliert (Sondersitzung) | Beziehung Kohl < 15 | Der Bundesrat ruft den Vermittlungsausschuss an — Abstimmung verzögert 2 Monate, Ausgang offen (Einigung → erneute BR-Abstimmung, Scheitern → Blockade bzw. Einspruch) |
 | Sprecher-Wechsel | zufällig, ~20% nach Mo. 24 | Neuer Charakter mit anderen Interessen ersetzt Sprecher |
 | Bundesrat-Initiative | Fraktion 3 oder 4 | Länder bringen eigenes Gesetz ein — Spieler muss reagieren |
 | Föderalismusgipfel | alle 18 Mo. fix | Alle 4 Sprecher gleichzeitig — Sammel-Lobbying möglich |
@@ -391,7 +391,7 @@ Ausführliche Stufenbeschreibung: **`docs/game-design/komplexitaet.md`**. Kurzfa
 | 1 | 2 (Kanzler/in + 1 Minister aus Parteipool) | ausgeblendet; `land`-Gesetze nach BT-Ja direkt beschlossen | 35 % | Bundestag, reduzierte Parallelität |
 | 2 | 5 | Tab sichtbar, noch ohne volles Lobbying/Trade-off der Stufe 3 | 38 % | Koalition, BR-Phase für Länder-Gesetze, Ebenen/Vorstufen |
 | 3 | 7 | vier Fraktionen, Lobbying, Trade-offs, Länderdetail | 40 % | Föderalismus, Verbands/Politikfelder-Tiefe |
-| 4 | 8 | wie 3 + mehr EU/Medien/Follow-ups/… | 42 % | maximale Systemkopplung |
+| 4 | 8 | wie 3 + mehr EU/Medien/… | 42 % | maximale Systemkopplung |
 
 **Spieler-setup:** Wählbare **Partei**, **Ausrichtung** (drei Achsen), **Name**, **Kanzler-Anrede** (sie/er/they); Kabinett wird aus Content-Pools zusammengesetzt (`bildeKabinett`).
 

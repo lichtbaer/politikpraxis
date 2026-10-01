@@ -19,6 +19,7 @@ import {
 } from '../../core/systems/election/wahlnachtParteien';
 import { checkAchievements, getAllAchievements } from '../../core/systems/achievements';
 import { useGameStore } from '../../store/gameStore';
+import { legislaturMisserfolgGrund } from '../../core/spielziel';
 import { useAuthStore } from '../../store/authStore';
 import { useContentStore } from '../../store/contentStore';
 import type { Milieu } from '../../core/types';
@@ -35,9 +36,14 @@ type Props = {
   wahlergebnis: number;
   gewonnen: boolean;
   threshold: number;
+  /**
+   * #482: Regierung vorzeitig gestürzt — es fand keine Wahl statt, daher werden
+   * Wahlergebnis, Wahlhürde und Parteien-Hochrechnung ausgeblendet.
+   */
+  vorzeitigesEnde?: boolean;
 };
 
-export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Props) {
+export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold, vorzeitigesEnde = false }: Props) {
   const { t } = useTranslation(['game', 'common']);
   const { state, complexity, spielerPartei, content, resetGame } = useGameStore();
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
@@ -68,8 +74,9 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
 
   // Issue #266: Leichtes Verhältniswahl-Modell — nur ab Stufe 3, reine Auswertung/Präsentation.
   const parteienErgebnis = useMemo(
-    () => (complexity >= 3 ? berechneWahlnachtParteienErgebnis(state, wahlergebnis) : []),
-    [complexity, state, wahlergebnis],
+    () =>
+      complexity >= 3 && !vorzeitigesEnde ? berechneWahlnachtParteienErgebnis(state, wahlergebnis) : [],
+    [complexity, state, wahlergebnis, vorzeitigesEnde],
   );
   const koalitionsoptionen = useMemo(
     () => berechneWahlnachtKoalitionsoptionen(parteienErgebnis),
@@ -199,6 +206,7 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
   };
 
   const partnerName = getKoalitionspartner(content, state)?.name ?? '—';
+  const misserfolgGrund = spielziel ? legislaturMisserfolgGrund(spielziel, complexity) : null;
   const maxBar = Math.max(1, ...konjunkturHistory.map((x) => Math.abs(x)));
 
   return (
@@ -283,32 +291,41 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
         </div>
       </div>
 
-      <div className={styles.block}>
-        <h3>{t('game:auswertung.blockWahl', 'Wahlergebnis')}</h3>
-        <p>
-          {wahlUeberHuerde
-            ? t('game:auswertung.wahlHuerdeJa', {
-                pct: wahlergebnis.toFixed(1),
-                threshold,
-                partei: spielerPartei?.kuerzel ?? '—',
-              })
-            : t('game:auswertung.wahlHuerdeNein', {
-                pct: wahlergebnis.toFixed(1),
-                threshold,
-                partei: spielerPartei?.kuerzel ?? '—',
-              })}
-        </p>
-        {spielziel && (
-          <p className={styles.muted}>
-            {gewonnen
-              ? t('game:auswertung.legislaturErfolgJa')
-              : t('game:auswertung.legislaturErfolgNein')}
+      {!vorzeitigesEnde && (
+        <div className={styles.block}>
+          <h3>{t('game:auswertung.blockWahl', 'Wahlergebnis')}</h3>
+          <p>
+            {wahlUeberHuerde
+              ? t('game:auswertung.wahlHuerdeJa', {
+                  pct: wahlergebnis.toFixed(1),
+                  threshold,
+                  partei: spielerPartei?.kuerzel ?? '—',
+                })
+              : t('game:auswertung.wahlHuerdeNein', {
+                  pct: wahlergebnis.toFixed(1),
+                  threshold,
+                  partei: spielerPartei?.kuerzel ?? '—',
+                })}
           </p>
-        )}
-        <p className={styles.muted}>
-          {t('game:auswertung.koalition', 'Koalition: {{partner}}', { partner: partnerName })}
-        </p>
-      </div>
+          {spielziel && (
+            <p className={styles.muted}>
+              {gewonnen
+                ? t('game:auswertung.legislaturErfolgJa')
+                : misserfolgGrund === 'kein_gesetz'
+                  ? t('game:auswertung.legislaturErfolgNeinOhneGesetz')
+                  : misserfolgGrund === 'agenda'
+                    ? t('game:auswertung.legislaturErfolgNeinAgenda', {
+                        erfuellt: spielziel.agendaSpielerErfuellt,
+                        gesamt: spielziel.agendaSpielerGesamt,
+                      })
+                    : t('game:auswertung.legislaturErfolgNein')}
+            </p>
+          )}
+          <p className={styles.muted}>
+            {t('game:auswertung.koalition', 'Koalition: {{partner}}', { partner: partnerName })}
+          </p>
+        </div>
+      )}
 
       {parteienErgebnis.length > 0 && (
         <div className={styles.block}>
@@ -386,6 +403,11 @@ export function SpielauswertungScreen({ wahlergebnis, gewonnen, threshold }: Pro
           <span>{t('game:auswertung.skandale', 'Medien-Skandale')}</span>
           <strong>{state.skandaleGesamt ?? 0}</strong>
         </div>
+        {vorzeitigesEnde && (
+          <p className={styles.muted}>
+            {t('game:auswertung.koalition', 'Koalition: {{partner}}', { partner: partnerName })}
+          </p>
+        )}
       </div>
 
       <div className={styles.block}>

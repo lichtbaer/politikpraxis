@@ -8,6 +8,7 @@ from app.schemas.content import (
     BundesratResponse,
     CharResponse,
     ContentBundleResponse,
+    ContentVersionResponse,
     EuEventResponse,
     EventResponse,
     GesetzResponse,
@@ -30,6 +31,7 @@ from app.services.content_db_service import (
     fetch_milieus,
     fetch_politikfelder,
     fetch_verbaende,
+    get_content_version,
     get_game_content_from_db,
 )
 from app.services.content_service import (
@@ -58,6 +60,19 @@ async def game_content(
 ):
     """Narrative content from DB (chars, laws, events, bundesrat). Use ?locale=en for English."""
     return await get_game_content_from_db(db, locale)
+
+
+@router.get("/version", response_model=ContentVersionResponse)
+async def content_version(
+    db: AsyncSession = Depends(get_db),
+) -> ContentVersionResponse:
+    """GET /api/content/version — Version des engine-relevanten Contents (#244).
+
+    Bewusst ohne `locale`: Der Hash wird immer über dieselbe Basis-Locale
+    berechnet, damit ein Spielstand beim Sprachwechsel nicht als „anderer
+    Content“ gilt (siehe CONTENT_VERSION_LOCALE im Content-Service).
+    """
+    return ContentVersionResponse(content_version=await get_content_version(db))
 
 
 @router.get("/characters")

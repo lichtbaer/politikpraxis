@@ -71,10 +71,12 @@ const baseState = {
   spielziel: null,
 };
 
-function setupMocks(overrides: { gewonnen?: boolean } = {}) {
+function setupMocks(
+  overrides: { gewonnen?: boolean; state?: Record<string, unknown>; complexity?: number } = {},
+) {
   const gs = {
-    state: baseState,
-    complexity: 1,
+    state: { ...baseState, ...overrides.state },
+    complexity: overrides.complexity ?? 1,
     spielerPartei: { id: 'sdp', kuerzel: 'SDP', farbe: '#e3000f', name: 'SDP' },
     content: { laws: [], koalitionsZiele: [] },
     resetGame: mockResetGame,
@@ -138,6 +140,66 @@ describe('SpielauswertungScreen — Rendering', () => {
   it('zeigt Haushalt-KPI (Arbeitslosigkeit)', () => {
     render(<SpielauswertungScreen {...defaultProps} />);
     expect(screen.getByText('Arbeitslosigkeit')).toBeInTheDocument();
+  });
+});
+
+describe('SpielauswertungScreen — Grund für eine verfehlte Legislatur (#267)', () => {
+  const spielziel = {
+    gesamtpunkte: 70,
+    gesamtnote: 'B',
+    bilanzPunkte: 70,
+    agendaPunkte: 58,
+    urteilPunkte: 60,
+    wahlbonus: 1,
+    agendaSpielerErfuellt: 1,
+    agendaSpielerGesamt: 2,
+    agendaKoalitionErfuellt: 0,
+    agendaKoalitionGesamt: 0,
+    beschlosseneGesetzeUrteil: 6,
+  };
+  const verloren = { ...defaultProps, gewonnen: false };
+
+  it('Stufe 1: nennt die unerfüllte Agenda', () => {
+    setupMocks({ state: { spielziel }, complexity: 1 });
+    render(<SpielauswertungScreen {...verloren} />);
+    expect(screen.getByText('game:auswertung.legislaturErfolgNeinAgenda')).toBeInTheDocument();
+  });
+
+  it('ohne beschlossenes Gesetz: nennt das fehlende Gesetz', () => {
+    setupMocks({ state: { spielziel: { ...spielziel, beschlosseneGesetzeUrteil: 0 } }, complexity: 2 });
+    render(<SpielauswertungScreen {...verloren} />);
+    expect(screen.getByText('game:auswertung.legislaturErfolgNeinOhneGesetz')).toBeInTheDocument();
+  });
+
+  it('ab Stufe 2: die Agenda allein ist kein Grund — allgemeiner Text', () => {
+    setupMocks({ state: { spielziel: { ...spielziel, gesamtpunkte: 30 } }, complexity: 2 });
+    render(<SpielauswertungScreen {...verloren} />);
+    expect(screen.getByText('game:auswertung.legislaturErfolgNein')).toBeInTheDocument();
+  });
+});
+
+describe('SpielauswertungScreen — vorzeitiges Spielende (#482)', () => {
+  it('ohne Wahl: kein Wahlergebnis-/Wahlhürden-Block', () => {
+    render(<SpielauswertungScreen {...defaultProps} gewonnen={false} vorzeitigesEnde />);
+    expect(screen.queryByText('Wahlergebnis')).not.toBeInTheDocument();
+    expect(screen.queryByText('game:auswertung.wahlHuerdeJa')).not.toBeInTheDocument();
+    expect(screen.queryByText('game:auswertung.wahlHuerdeNein')).not.toBeInTheDocument();
+    // Koalitionspartner bleibt sichtbar (im Bilanz-Block)
+    expect(screen.getByText('Koalition: {{partner}}')).toBeInTheDocument();
+    // Restliche Auswertung bleibt
+    expect(screen.getByText('Gesetze beschlossen')).toBeInTheDocument();
+  });
+
+  it('ohne Wahl: keine Parteien-Hochrechnung (auch ab Stufe 3)', () => {
+    setupMocks({ complexity: 4 });
+    render(<SpielauswertungScreen {...defaultProps} gewonnen={false} vorzeitigesEnde />);
+    expect(screen.queryByText('Wahlnacht: Parteien-Ergebnis')).not.toBeInTheDocument();
+  });
+
+  it('reguläres Ende (Default): Wahlergebnis-Block wie bisher', () => {
+    render(<SpielauswertungScreen {...defaultProps} />);
+    expect(screen.getByText('Wahlergebnis')).toBeInTheDocument();
+    expect(screen.getByText('game:auswertung.wahlHuerdeJa')).toBeInTheDocument();
   });
 });
 

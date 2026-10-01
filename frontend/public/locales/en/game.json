@@ -1953,7 +1953,9 @@
     "skandal_intro": "A political scandal has reached the government. How do you respond?",
     "wahlkampf_beginn": "The campaign begins. 6 months until the election — time for speeches, coalition actions and media offensives.",
     "kabinettText_one": "Your cabinet. {{count}} personality, {{count}} portfolio.",
-    "kabinettText_other": "Your cabinet. {{count}} personalities, {{count}} portfolios."
+    "kabinettText_other": "Your cabinet. {{count}} personalities, {{count}} portfolios.",
+    "agendaPflichtHinweis": "At this level you win by reaching all chosen goals before the election — track them in the agenda on the left.",
+    "agendaSubtitleOhneKoalition": "Set your priorities for this term."
   },
   "gameSetup": {
     "title": "Game Start",
@@ -2113,6 +2115,10 @@
       "gesetzPolitikfeld": "{{current}}/{{target}} laws (policy field)",
       "milieuMinOk": "Legislature low ≥ {{target}}%",
       "milieuMinOffen": "current: {{current}}% (target ≥ {{target}}%)",
+      "milieuSteigernOk": "{{current}}% — target ≥ {{target}}% reached (start {{start}}%)",
+      "milieuSteigernOffen": "currently {{current}}% (start {{start}}%, target at the end ≥ {{target}}%)",
+      "verbandSteigernOk": "Relationship {{current}} — target ≥ {{target}} reached (start {{start}})",
+      "verbandSteigernOffen": "currently {{current}} (start {{start}}, target at the end ≥ {{target}})",
       "medienUeber": "{{current}}/{{target}} months ≥ {{schwelle}} media climate",
       "medienUntenOk": "≤ {{max}} months below {{schwelle}}",
       "medienUntenOffen": "{{current}} months below {{schwelle}} (max. {{max}})",
@@ -2161,6 +2167,11 @@
     "koalitionsklausel": "Coalition clause: state government divided",
     "logLandtagswahlKoalition": "{{land}}: New state government {{koalition}} — mixed coalition; if divided, the state abstains in the Bundesrat (coalition clause).",
     "logLandtagswahlAlleinregierung": "{{land}}: {{partei}} governs alone after the state election — the coalition clause (abstention) does not apply there.",
+    "logVermittlungAngerufen": "{{anrufer}} calls the mediation committee on {{gesetz}} (Art. 77 GG) — outcome open, new Bundesrat vote in {{monate}} months.",
+    "logVermittlungEinigung": "Mediation committee on {{gesetz}}: agreement without concessions, {{anrufer}} gives way — the Bundesrat votes again.",
+    "logVermittlungKompromiss": "Mediation committee on {{gesetz}}: compromise with {{anrufer}} (effect −50%) — the Bundesrat votes again.",
+    "logVermittlungGescheitert": "Mediation committee on {{gesetz}} failed — {{anrufer}} prevails, the Bundesrat withholds its consent.",
+    "logVermittlungGescheitertEinspruch": "Mediation committee on {{gesetz}} failed — {{anrufer}} prevails, the Bundesrat lodges an objection. The Bundestag can override it with an absolute majority.",
     "mehrheitJa": "✓ Majority",
     "mehrheitNein": "✗ No majority",
     "mehrheitBei": "Majority (9)",
@@ -2197,8 +2208,13 @@
     "lost": "Voted out",
     "wonSubtitle": "Legislative record successful — election result: {{percent}}% approval.",
     "lostSubtitle": "Legislative record insufficient — election result: {{percent}}% approval.",
-    "lostMisstrauen": "Vote of no confidence! Six months below 20% approval lead to the fall of the government.",
-    "lostKoalitionsbruch": "Coalition collapse! The coalition has broken apart.",
+    "gestuerzt": "Government toppled",
+    "gestuerztKeineWahl": "The legislative term ended early in month {{month}} of 48 — no election took place.",
+    "lostMisstrauen": "Constructive vote of no confidence! For six consecutive months the opposition had a chancellor majority of its own within reach — a strong opposition and an unstable coalition (with critically low approval, either one was enough). The Bundestag has elected a successor.",
+    "lostKoalitionsbruch": "Coalition collapse! Coalition stability fell too low — the coalition has broken apart.",
+    "lostPartnerKuendigt": "Your coalition partner has terminated the coalition — the relationship stayed below 15 for three months. Without a majority, your government is finished.",
+    "lostVertrauensfrage": "Confidence vote lost (Art. 68 Basic Law)! The Bundestag has withdrawn its confidence in you — your government has fallen.",
+    "lostRuecktritt": "Resignation! Facing the looming vote of no confidence, you stepped down and handed the government over to a successor.",
     "beschlosseneGesetze": "Laws passed",
     "finaleKPIs": "Final KPIs",
     "milieuZustimmung": "Milieu approval",
@@ -2281,7 +2297,9 @@
     "nochmalPartei": "Play again as {{partei}}",
     "save": "Save summary",
     "commGewinnrate": "Community win rate",
-    "commWahl": "Community avg. forecast"
+    "commWahl": "Community avg. forecast",
+    "legislaturErfolgNeinOhneGesetz": "Without a single law passed, no term counts as successful.",
+    "legislaturErfolgNeinAgenda": "At this level, the term only counts as a success if all your agenda goals are met — achieved: {{erfuellt}} of {{gesamt}}."
   },
   "charDetail": {
     "close": "Close",
@@ -2655,7 +2673,7 @@
     "losgehts": "Let's go!",
     "ziel": {
       "title": "Your goal: re-election",
-      "text": "You lead the federal government through 48 months. On the left you see your election forecast — it influences your election bonus (0–4 points). Victory is decided by the three-pillar score: legislative balance (30%), agenda (35%), and historical verdict of passed laws (35%), plus election bonus — ≥ 40 out of 100 points in total."
+      "text": "You lead the federal government through 48 months. On the left you see your election forecast — it influences your election bonus (0–4 points). Victory is decided by the three-pillar score: legislative balance (30%), agenda (35%), and historical verdict of passed laws (35%), plus election bonus — ≥ 40 out of 100 points in total. At the entry level, you also need to reach all of your agenda goals."
     },
     "gesetze": {
       "title": "Introducing laws",

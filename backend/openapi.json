@@ -1443,6 +1443,21 @@
         "title": "ContentBundleResponse",
         "type": "object"
       },
+      "ContentVersionResponse": {
+        "description": "#244: Locale-unabhängige Version des engine-relevanten Spielinhalts.\n\nDas Frontend speichert den Wert im Spielstand und warnt beim Laden, wenn der\nSpielstand mit einem anderen Content-Stand gespielt wurde.",
+        "properties": {
+          "content_version": {
+            "description": "Kurzer Hex-Hash über den Content, den das Frontend lädt (chars, gesetze, events inkl. Choices, bundesrat, milieus, …). Unabhängig von der angefragten Sprache.",
+            "title": "Content Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "content_version"
+        ],
+        "title": "ContentVersionResponse",
+        "type": "object"
+      },
       "EffekteSchema": {
         "description": "Effekte für Gesetze, Event-Choices und Bundesrat-Tradeoffs.",
         "properties": {
@@ -7547,6 +7562,28 @@
           }
         },
         "summary": "Get Verbaende",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/content/version": {
+      "get": {
+        "description": "GET /api/content/version — Version des engine-relevanten Contents (#244).\n\nBewusst ohne `locale`: Der Hash wird immer über dieselbe Basis-Locale\nberechnet, damit ein Spielstand beim Sprachwechsel nicht als „anderer\nContent“ gilt (siehe CONTENT_VERSION_LOCALE im Content-Service).",
+        "operationId": "content_version_api_content_version_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentVersionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Content Version",
         "tags": [
           "content"
         ]

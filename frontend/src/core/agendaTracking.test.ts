@@ -103,3 +103,67 @@ describe('buildAgendaSidebarRows', () => {
     expect(rows[0].subtitle.key).toContain('koalitionGesetzOffen');
   });
 });
+
+describe('Ziele „… steigern“ (#475)', () => {
+  const milieuZiel: AgendaZielContent = {
+    id: 'ag_milieu_mitte',
+    kategorie: 'milieu',
+    schwierigkeit: 2,
+    partei_filter: null,
+    min_complexity: 2,
+    bedingung_typ: 'milieu_zustimmung_steigern',
+    bedingung_param: { milieu_id: 'soziale_mitte', min_delta: 10 },
+    titel: 'Soziale Mitte gewinnen',
+    beschreibung: '',
+  };
+  const verbandZiel: KoalitionsZielContent = {
+    id: 'kz_gp_uvb',
+    partner_profil: 'gp',
+    kategorie: 'verbaende',
+    min_complexity: 3,
+    bedingung_typ: 'verband_beziehung_steigern',
+    bedingung_param: { verband_id: 'uvb', min_delta: 10 },
+    beziehung_malus: 5,
+    titel: 'Umweltverband gewinnen',
+    beschreibung: '',
+  };
+  const content = { agendaZiele: [milieuZiel], koalitionsZiele: [verbandZiel] } as unknown as ContentBundle;
+  const mitStart = (milieu: number, verband: number): GameState => ({
+    ...minimalState(),
+    spielerAgenda: ['ag_milieu_mitte'],
+    koalitionsAgenda: ['kz_gp_uvb'],
+    milieuZustimmung: { soziale_mitte: milieu },
+    verbandsBeziehungen: { uvb: verband },
+    agendaStartwerte: { milieus: { soziale_mitte: 52 }, verbaende: { uvb: 60 } },
+  });
+
+  it('erfüllt erst ab Startwert + min_delta, nicht beim Halten des Startwerts', () => {
+    const [m, v] = buildAgendaSidebarRows(mitStart(52, 60), content);
+    expect(m.erfuellt).toBe(false);
+    expect(m.ampel).toBe('red');
+    expect(v.erfuellt).toBe(false);
+
+    const [m2, v2] = buildAgendaSidebarRows(mitStart(62, 70), content);
+    expect(m2.erfuellt).toBe(true);
+    expect(m2.ampel).toBe('green');
+    expect(v2.erfuellt).toBe(true);
+    expect(m2.subtitle).toEqual({
+      key: 'game:leftPanel.agendaSubtitle.milieuSteigernOk',
+      params: { current: 62, start: 52, target: 62 },
+    });
+  });
+
+  it('knapp unter dem Ziel ist gelb', () => {
+    const [m] = buildAgendaSidebarRows(mitStart(60, 60), content);
+    expect(m.erfuellt).toBe(false);
+    expect(m.ampel).toBe('yellow');
+    expect(m.subtitle.key).toBe('game:leftPanel.agendaSubtitle.milieuSteigernOffen');
+  });
+
+  it('ohne Startwerte gilt der aktuelle Wert als Start', () => {
+    const state = { ...mitStart(70, 80), agendaStartwerte: undefined };
+    const [m, v] = buildAgendaSidebarRows(state, content);
+    expect(m.erfuellt).toBe(false);
+    expect(v.erfuellt).toBe(false);
+  });
+});

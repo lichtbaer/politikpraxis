@@ -189,12 +189,13 @@ export function einbringen(
     const widerstand = pruefePartnerWiderstand(law, workState.koalitionspartner.id, options.complexity, {
       vetoErlaubt: options.complexity >= 4,
     });
-    if (widerstand) {
+    if (widerstand && workState.partnerWiderstandVetoFreigabeGesetzId === lawId) {
+      // Koalitionsrunde hat das Gesetz freigegeben (Veto oder Widerstand) — einmalig, ohne Malus
+      workState = { ...workState, partnerWiderstandVetoFreigabeGesetzId: undefined };
+    } else if (widerstand) {
       const skipModal = options.skipPartnerWiderstandCheck === true;
       if (widerstand.intensitaet === 'veto') {
-        if (workState.partnerWiderstandVetoFreigabeGesetzId === lawId) {
-          workState = { ...workState, partnerWiderstandVetoFreigabeGesetzId: undefined };
-        } else if (!skipModal) {
+        if (!skipModal) {
           return {
             ...baseState,
             pendingPartnerWiderstand: {

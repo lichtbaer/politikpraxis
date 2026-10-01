@@ -17,11 +17,14 @@
  * Engine-Invarianten. Die Balance-Aussagen im Report (`npm run balance:report`)
  * stammen seit dem Umstieg aus dem echten Content — Block G sichert dessen Grundlagen ab.
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { monteCarlo } from './balanceSim';
 import { alleStrategien } from './strategien';
 import { SIM_CONTENT, SIM_CONTENT_WITH_UNLOCK_EVENTS } from './testContent';
 import { echterContent } from './echterContent';
+import { createInitialState } from '../state';
+import { berechneOptionen, brauchtGegenfinanzierung } from '../systems/economics/gegenfinanzierung';
+import { mulberry32 } from '../rng';
 
 const N = 200;
 const COMPLEXITY = 4;
@@ -29,6 +32,17 @@ const COMPLEXITY = 4;
 // Monte-Carlo über die echte Engine: einzelne Strategien brauchen unter
 // Coverage-Instrumentierung > 5 s (Vitest-Default) — sonst rot aus Zufall.
 vi.setConfig({ testTimeout: 60_000 });
+
+// Deterministisch wie der Report: Math.random je Test seeden. Die Gewinnraten sind damit
+// reproduzierbar — ein rotes Zielband ist eine echte Änderung, kein Monte-Carlo-Rauschen
+// (vorher lag z. B. random auf Stufe 1 je nach Lauf mal unter, mal über der 60-%-Grenze).
+const originalRandom = Math.random;
+beforeEach(() => {
+  Math.random = mulberry32(42);
+});
+afterAll(() => {
+  Math.random = originalRandom;
+});
 
 describe('Balance-Simulation (echte Engine)', () => {
   const strategien = alleStrategien();
@@ -277,8 +291,11 @@ describe('Score-Dimensionen', () => {
     expect(aktiv.agendaPunkte.median).toBeGreaterThan(passiv.agendaPunkte.median + 20);
   }, 30_000);
 
-  it('Spieler-Agenda gesetzt: pk_horten schneidet mit gesetzter Agenda schlechter ab als ohne (der bisherige Default 55 kaschierte reine Passivität)', () => {
-    const ohneAgenda = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
+  // Seit #267 zählt jedes Agendaziel gleich (vorher Spieler- und Koalitionsziele 50/50):
+  // Ohne Spieler-Agenda bleiben nur die (für pk_horten roten) Koalitionsziele, der Vergleich
+  // „mit vs. ohne“ sagt daher nichts mehr aus. Geprüft wird die eigentliche Absicht:
+  // reine Passivität liegt mit gesetzter Agenda unter dem neutralen Default 55.
+  it('Spieler-Agenda gesetzt: pk_horten liegt unter dem neutralen Agenda-Default (55)', () => {
     const mitAgenda = monteCarlo(
       SIM_CONTENT,
       strategien['pk_horten'],
@@ -286,7 +303,7 @@ describe('Score-Dimensionen', () => {
       COMPLEXITY,
       ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'],
     );
-    expect(mitAgenda.agendaPunkte.median).toBeLessThan(ohneAgenda.agendaPunkte.median);
+    expect(mitAgenda.agendaPunkte.median).toBeLessThan(55);
   }, 30_000);
 
   it('Gesamtübersicht aller Strategien: Score-Dimensionen (console.table)', () => {
@@ -396,7 +413,8 @@ describe('Ressourcen-Balance', () => {
 describe('Echter Content (DB-Snapshot)', () => {
   const strategien = alleStrategien();
   const N_ECHT = 40;
-  const AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'];
+  // Wie im Report; runSingleSim kürzt je Stufe auf die Onboarding-Anzahl.
+  const AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte', 'ag_gesetz_klimawende'];
 
   it('Snapshot liefert den vollen Content — nicht das 19-Gesetze-Fixture', () => {
     const content = echterContent();
@@ -419,14 +437,24 @@ describe('Echter Content (DB-Snapshot)', () => {
     expect(fortsetzungen.filter(id => !ids.has(id))).toEqual([]);
   });
 
+  // Hänger = eine Strategie will Monat für Monat dasselbe Gesetz einbringen, und es bleibt
+  // im Entwurf (gesperrt, unfinanzierbar, Modal nie aufgelöst). Damit misst die Sim nicht
+  // mehr die Spielweise, sondern den eigenen Deadlock.
+  const MAX_HAENGER_MONATE = 6;
+
   for (const complexity of [1, 4]) {
-    it(`Stufe ${complexity}: keine Crashes, keine Engine-Fehler (alle Strategien)`, () => {
+    it(`Stufe ${complexity}: keine Crashes, keine Engine-Fehler, keine Einbringen-Hänger (alle Strategien)`, () => {
       for (const [name, strategy] of Object.entries(strategien)) {
         const result = monteCarlo(echterContent(), strategy, 10, complexity, AGENDA);
         if (result.crashes > 0 || result.engineErrors > 0) {
           throw new Error(
             `${name} (Stufe ${complexity}): ${result.crashes} Crashes, ${result.engineErrors} Engine-Fehler – ` +
             (result.engineErrorDetails ?? []).slice(0, 3).join('; '),
+          );
+        }
+        if (result.einbringenHaengerMax > MAX_HAENGER_MONATE) {
+          throw new Error(
+            `${name} (Stufe ${complexity}): hängt ${result.einbringenHaengerMax} Monate am selben Gesetz`,
           );
         }
       }
@@ -438,6 +466,61 @@ describe('Echter Content (DB-Snapshot)', () => {
     const passiv = monteCarlo(echterContent(), strategien['pk_horten'], N_ECHT, 4, AGENDA);
     expect(muster.gewinnRate).toBeGreaterThan(passiv.gewinnRate);
   }, 120_000);
+
+  // Zielbänder (#267, #475, #483, #484) — Math.random ist geseedet (siehe oben).
+  describe('Zielbänder', () => {
+    const rate = (name: string, stufe: number, n: number) =>
+      monteCarlo(echterContent(), strategien[name], n, stufe, AGENDA).gewinnRate;
+    const pct = (r: number) => `${(r * 100).toFixed(0)} %`;
+
+    it('Stufe 1: Nichtstun verliert, Zufall gewinnt weniger als die Hälfte, agenda-bewusstes Spiel meist', () => {
+      const n = 100;
+      expect(rate('pk_horten', 1, n)).toBeLessThanOrEqual(0.1);
+      expect(rate('nur_sparen', 1, n)).toBeLessThanOrEqual(0.1);
+      const zufall = rate('random', 1, n);
+      expect(zufall).toBeLessThan(0.5);
+      // #484: agenda_fokus verfolgt die eigenen Ziele wie eine Spielerin mit Blick auf die Sidebar
+      const fokus = rate('agenda_fokus', 1, n);
+      expect(fokus).toBeGreaterThanOrEqual(0.7);
+      expect(fokus).toBeGreaterThan(zufall + 0.3);
+      expect(rate('musterschueler', 1, n)).toBeGreaterThanOrEqual(0.6);
+    }, 240_000);
+
+    it('Stufe 2–4: Nichtstun verliert immer, Zufall höchstens 60 %, gutes Spiel mindestens 60 %', () => {
+      for (const stufe of [2, 3, 4]) {
+        expect(rate('pk_horten', stufe, 40)).toBe(0);
+        // #475: Ziele, die schon zum Start erfüllt waren, trugen Zufallsspiel auf 69–92 %
+        const zufall = rate('random', stufe, 100);
+        if (zufall > 0.6) throw new Error(`random auf Stufe ${stufe}: ${pct(zufall)} > 60 %`);
+        for (const gut of ['agenda_fokus', 'musterschueler', 'koalitionsmanager']) {
+          const r = rate(gut, stufe, 60);
+          if (r < 0.6) throw new Error(`${gut} auf Stufe ${stufe}: ${pct(r)} < 60 %`);
+        }
+      }
+    }, 400_000);
+
+    // #483: Für dieselbe Strategie darf Stufe 4 nicht leichter sein als Stufe 3. Geprüft für
+    // Strategien, die die Koalition pflegen; Strategien, die den Partner ignorieren
+    // (immer_einbringen, speed_runner, nur_ausgaben), liegen auf Stufe 4 noch ~15 Pp. höher —
+    // siehe Analyse in #483.
+    it('Stufe 3 → 4: Stufe 4 ist für koalitionsbewusstes Spiel nicht leichter (Toleranz 10 Pp.)', () => {
+      for (const name of ['agenda_fokus', 'musterschueler', 'koalitionsmanager', 'allrounder', 'bundesrat_profi', 'stapler']) {
+        const r3 = rate(name, 3, 60);
+        const r4 = rate(name, 4, 60);
+        if (r4 > r3 + 0.1) throw new Error(`${name}: Stufe 3 ${pct(r3)} vs. Stufe 4 ${pct(r4)}`);
+      }
+    }, 400_000);
+  });
+
+  it('Jedes Gesetz mit Gegenfinanzierungspflicht bekommt zum Start eine verfügbare Option', () => {
+    const content = echterContent();
+    const state = createInitialState(content, 2, { wirtschaft: -20, gesellschaft: -40, staat: -15 });
+    const ohneOption = content.laws
+      .filter(g => brauchtGegenfinanzierung(g))
+      .filter(g => !berechneOptionen(state, g, content, 2).some(o => o.verfuegbar))
+      .map(g => g.id);
+    expect(ohneOption).toEqual([]);
+  });
 
   it('Jedes gesperrte Gesetz hat im Zufalls-Pool ein Event, das es freischaltet', () => {
     const content = echterContent();
