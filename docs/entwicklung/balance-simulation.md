@@ -1,6 +1,6 @@
 # Balance-Simulation (TypeScript, echte Engine)
 
-Die Balance-Simulation testet 23 Spielstrategien gegen die echte Game-Engine (`frontend/src/core/engine.ts`). Im Gegensatz zur früheren Python-Replik werden hier exakt die gleichen Funktionen (`tick()`, `einbringen()`, etc.) wie im Browser genutzt.
+Die Balance-Simulation testet 26 Spielstrategien gegen die echte Game-Engine (`frontend/src/core/engine.ts`). Im Gegensatz zur früheren Python-Replik werden hier exakt die gleichen Funktionen (`tick()`, `einbringen()`, etc.) wie im Browser genutzt.
 
 ---
 
@@ -9,7 +9,7 @@ Die Balance-Simulation testet 23 Spielstrategien gegen die echte Game-Engine (`f
 | Komponente | Beschreibung |
 |------------|--------------|
 | `frontend/src/core/simulation/balanceSim.ts` | Simulations-Runner, Monte-Carlo-Aggregation |
-| `frontend/src/core/simulation/strategien.ts` | 23 Strategie-Definitionen (random, musterschueler, etc.) |
+| `frontend/src/core/simulation/strategien.ts` | 26 Strategie-Definitionen (random, musterschueler, agenda_fokus, …) |
 | `frontend/src/core/simulation/content-snapshot.json` | **Echter Content**: Rohantworten der Content-API aus einer frisch migrierten DB |
 | `frontend/src/core/simulation/echterContent.ts` | Baut daraus das ContentBundle — mit derselben Umwandlung wie das Spiel (`contentDatenAusApi`) |
 | `frontend/src/core/simulation/testContent.ts` | Kleines Content-Fixture (19 Gesetze) für Engine-Invarianten-Tests |
@@ -25,6 +25,35 @@ Die Balance-Simulation testet 23 Spielstrategien gegen die echte Game-Engine (`f
 cd frontend
 npx vitest run src/core/simulation/balanceSim.test.ts --reporter=verbose
 ```
+
+Die Tests ersetzen `Math.random` je Test durch einen geseedeten Mulberry32 (`mulberry32` aus
+`core/rng.ts`, Seed 42) — wie der Report. Gewinnraten sind damit reproduzierbar; ein rotes
+Zielband bedeutet eine echte Änderung, kein Monte-Carlo-Rauschen.
+
+### Entscheidungsregeln der Sim
+
+Die Sim löst Modals so auf, wie eine umsichtige Spielerin es täte:
+
+- **Gesetzauswahl:** nur Entwürfe, die die Agenda-Ansicht auf der Stufe zeigt
+  (`min_complexity`), die einbringbar und finanzierbar sind.
+- **Gegenfinanzierung:** erst Optionen ohne Nebenwirkung (`GF_PRAEFERENZ`).
+- **Partner-Widerstand (#483):** Hinweis → „Trotzdem“ (−5). Widerstand/Veto → Koalitionsrunde,
+  wenn das PK reicht (+8 statt −15); sonst bei Widerstand „Trotzdem“ nur ab Beziehung 65,
+  ansonsten verschieben. `SimResult.partnerEntscheidungen` zählt die Fälle.
+- **Spieler-Agenda:** wie das Onboarding (siehe unten).
+
+### Zielbänder (Block G, echter Content)
+
+| Stufe | Band |
+|---|---|
+| 1 | `pk_horten`/`nur_sparen` ≤ 10 %, `random` < 50 %, `agenda_fokus` ≥ 70 % und > Zufall + 30 Pp., `musterschueler` ≥ 60 % |
+| 2–4 | `pk_horten` 0 %, `random` ≤ 60 % (#475), `agenda_fokus`/`musterschueler`/`koalitionsmanager` ≥ 60 % |
+| 3 → 4 | Für koalitionsbewusste Strategien ist Stufe 4 nicht leichter als Stufe 3 (Toleranz 10 Pp., #483) |
+
+`agenda_fokus` (#484) spielt gezielt auf offene Agenda- und Koalitionsziele: passende Gesetze
+für Gesetzesziele, Verbandsgespräche für Verbandsziele, Gesetze mit hoher Milieu-Kongruenz für
+Milieuziele; Gesetze, die ein offenes Milieuziel senken würden, meidet sie. Kippt die
+Partnerbeziehung unter 40, beruft sie eine Koalitionsrunde ein.
 
 ---
 

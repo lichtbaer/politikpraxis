@@ -8,6 +8,9 @@ import { kannGesetzEingebracht } from '../gesetz';
 import { isVerfassungsgerichtBlockiert } from '../systems/parliament/parliament';
 import { featureActive } from '../systems/features';
 import { brauchtGegenfinanzierung, berechneOptionen } from '../systems/economics/gegenfinanzierung';
+import { buildAgendaSidebarRows } from '../agendaTracking';
+import { milieuGesetzKongruenz } from '../ideologie';
+import { MILIEU_SCORE_SCHWELLEN } from '../constants';
 
 export type StrategyAction =
   | { typ: 'einbringen'; gesetzId: string }
@@ -43,16 +46,19 @@ export type Strategy = (
 ) => StrategyAction | StrategyAction[];
 
 /**
- * Verfügbare Gesetze: Entwurf-Status, nicht event-locked — und nur, was die Engine
- * tatsächlich einbringen lässt (requires/excludes, Verfassungsgericht-Sperre, eine
- * verfügbare Gegenfinanzierung). Sonst wählt eine Strategie Monat für Monat dasselbe
+ * Verfügbare Gesetze: Entwurf-Status, nicht event-locked, auf der Stufe sichtbar — und nur,
+ * was die Engine tatsächlich einbringen lässt (requires/excludes, Verfassungsgericht-Sperre,
+ * eine verfügbare Gegenfinanzierung). Sonst wählt eine Strategie Monat für Monat dasselbe
  * gesperrte Gesetz und bringt die restliche Legislatur nichts mehr ein.
+ * `min_complexity` filtert wie die Agenda-Ansicht im Spiel (`AgendaView`): Auf Stufe 1 sieht
+ * die Spielerin 56 der 115 Gesetze, die Sim wählte bisher aus allen.
  */
-function verfuegbareGesetze(state: GameState, content: ContentBundle, complexity: number): Law[] {
+export function verfuegbareGesetze(state: GameState, content: ContentBundle, complexity: number): Law[] {
   return state.gesetze.filter(
     g =>
       g.status === 'entwurf' &&
       !g.locked_until_event &&
+      (g.min_complexity ?? 1) <= complexity &&
       kannGesetzEingebracht(state, g.id, content.gesetzRelationen) &&
       !isVerfassungsgerichtBlockiert(state, g) &&
       gegenfinanzierbar(state, g, content, complexity),
@@ -704,6 +710,77 @@ export function strategieBurstSpieler(
 }
 
 /** Alle Strategien */
+// =============================================================================
+// Agenda-Fokus (#484): spielt gezielt auf die eigenen Agenda- und Koalitionsziele
+// =============================================================================
+
+/** Ab dieser Partnerbeziehung pflegt agenda_fokus die Koalition vorrangig (Kündigung < 15). */
+const AGENDA_FOKUS_PARTNER_PFLEGE = 40;
+
+/**
+ * agenda_fokus: wie eine Spielerin, die ihre Ziele in der Sidebar sieht und gegensteuert.
+ * Reihenfolge je Monat:
+ * 1. Koalition retten, wenn die Partnerbeziehung kippt (Koalitionsrunde).
+ * 2. Offene Gesetzesziele: passendes Gesetz im Politikfeld einbringen (beliebiges bei
+ *    „Anzahl beschlossen“, investives bei „investiv“).
+ * 3. Offene Verbandsziele: Verbandsgespräch (ab Stufe 3).
+ * 4. Offene Milieuziele: Gesetz, das das Ziel-Milieu am stärksten anspricht.
+ * 5. Sonst wie musterschueler (ein Gesetz pro Quartal, Koalitionsrunde bei Bedarf).
+ * Gesetze, die ein offenes Milieuziel senken würden (Kongruenz unter der Schwelle für
+ * einen negativen Milieu-Effekt), meidet sie in allen Schritten.
+ */
+export function strategieAgendaFokus(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): StrategyAction {
+  const kp = state.koalitionspartner;
+  if (kp && kp.beziehung < AGENDA_FOKUS_PARTNER_PFLEGE && state.pk >= 15) {
+    return { typ: 'koalitionsrunde' };
+  }
+
+  const offen = buildAgendaSidebarRows(state, content).filter((r) => !r.erfuellt);
+  const ziele = new Map(
+    [...(content.agendaZiele ?? []), ...(content.koalitionsZiele ?? [])].map((z) => [z.id, z]),
+  );
+  const offeneZiele = offen.map((r) => ziele.get(r.id)).filter((z) => z != null);
+  const milieus = content.milieus ?? [];
+  const offeneMilieus = offeneZiele
+    .filter((z) => z.bedingung_typ.startsWith('milieu_'))
+    .map((z) => milieus.find((m) => m.id === z.bedingung_param.milieu_id))
+    .filter((m) => m != null);
+  // Kongruenz unter der vorletzten Schwelle ergibt einen negativen Milieu-Effekt
+  const senktMilieu = (g: Law) =>
+    offeneMilieus.some((m) => milieuGesetzKongruenz(m, g) < MILIEU_SCORE_SCHWELLEN[3]);
+
+  const gesetze = verfuegbareGesetze(state, content, complexity).filter((g) => !senktMilieu(g));
+  const nachKongruenz = (liste: Law[]) => [...liste].sort((a, b) => kongruenz(a, 'sdp') - kongruenz(b, 'sdp'));
+
+  if (state.pk >= 15) {
+    for (const z of offeneZiele) {
+      const p = z.bedingung_param;
+      let passend: Law[] = [];
+      if (z.bedingung_typ === 'gesetz_politikfeld') passend = gesetze.filter((g) => g.politikfeldId === p.politikfeld_id);
+      else if (z.bedingung_typ === 'gesetz_investiv_beschlossen') passend = gesetze.filter((g) => g.investiv);
+      else if (z.bedingung_typ === 'gesetz_anzahl_beschlossen') passend = gesetze;
+      if (passend.length > 0) return { typ: 'einbringen', gesetzId: nachKongruenz(passend)[0].id };
+    }
+  }
+
+  if (state.pk >= 10 && featureActive(complexity, 'verbands_lobbying')) {
+    const verbandZiel = offeneZiele.find((z) => z.bedingung_typ.startsWith('verband_'));
+    if (verbandZiel) return { typ: 'verbandGespraech', verbandId: String(verbandZiel.bedingung_param.verband_id) };
+  }
+
+  if (state.pk >= 15 && offeneMilieus.length > 0 && gesetze.length > 0) {
+    const ziel = offeneMilieus[0];
+    const best = [...gesetze].sort((a, b) => milieuGesetzKongruenz(ziel, b) - milieuGesetzKongruenz(ziel, a))[0];
+    return { typ: 'einbringen', gesetzId: best.id };
+  }
+
+  return strategieMusterschueler(state, content, complexity);
+}
+
 export function alleStrategien(): Record<string, Strategy> {
   return {
     random: strategieRandom,
@@ -726,6 +803,7 @@ export function alleStrategien(): Record<string, Strategy> {
     wahlkaempfer: strategieWahlkaempfer,
     koalitionsmanager: strategieKoalitionsmanager,
     allrounder: strategieAllrounder,
+    agenda_fokus: strategieAgendaFokus,
     // Neue Strategien: Mechanik-Coverage & Gewinnvarianten
     vermittlungsprofi: strategieVermittlungsprofi,
     schuldenmacher: strategieSchuldenmacher,

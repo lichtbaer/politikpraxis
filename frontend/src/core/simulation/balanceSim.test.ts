@@ -17,13 +17,14 @@
  * Engine-Invarianten. Die Balance-Aussagen im Report (`npm run balance:report`)
  * stammen seit dem Umstieg aus dem echten Content — Block G sichert dessen Grundlagen ab.
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { monteCarlo } from './balanceSim';
 import { alleStrategien } from './strategien';
 import { SIM_CONTENT, SIM_CONTENT_WITH_UNLOCK_EVENTS } from './testContent';
 import { echterContent } from './echterContent';
 import { createInitialState } from '../state';
 import { berechneOptionen, brauchtGegenfinanzierung } from '../systems/economics/gegenfinanzierung';
+import { mulberry32 } from '../rng';
 
 const N = 200;
 const COMPLEXITY = 4;
@@ -31,6 +32,16 @@ const COMPLEXITY = 4;
 // Monte-Carlo über die echte Engine: einzelne Strategien brauchen unter
 // Coverage-Instrumentierung > 5 s (Vitest-Default) — sonst rot aus Zufall.
 vi.setConfig({ testTimeout: 60_000 });
+
+// Deterministisch wie der Report (#483/#484): Math.random je Test seeden. Die Gewinnraten sind
+// damit reproduzierbar — ein rotes Zielband ist eine echte Änderung, kein Monte-Carlo-Rauschen.
+const originalRandom = Math.random;
+beforeEach(() => {
+  Math.random = mulberry32(42);
+});
+afterAll(() => {
+  Math.random = originalRandom;
+});
 
 describe('Balance-Simulation (echte Engine)', () => {
   const strategien = alleStrategien();
@@ -455,45 +466,49 @@ describe('Echter Content (DB-Snapshot)', () => {
     expect(muster.gewinnRate).toBeGreaterThan(passiv.gewinnRate);
   }, 120_000);
 
-  // #267: Zielbänder. Toleranzen decken das Monte-Carlo-Rauschen ab (SE bei N=150 ≈ 4 Pp.).
-  describe('Zielbänder (#267)', () => {
+  // Zielbänder (#267, #475, #483, #484) — Math.random ist geseedet (siehe oben).
+  describe('Zielbänder', () => {
     const rate = (name: string, stufe: number, n: number) =>
       monteCarlo(echterContent(), strategien[name], n, stufe, AGENDA).gewinnRate;
+    const pct = (r: number) => `${(r * 100).toFixed(0)} %`;
 
-    it('Stufe 1: Nichtstun verliert, Zufall gewinnt höchstens rund die Hälfte, gutes Spiel meist', () => {
-      const n = 150;
+    it('Stufe 1: Nichtstun verliert, Zufall gewinnt weniger als die Hälfte, agenda-bewusstes Spiel meist', () => {
+      const n = 100;
       expect(rate('pk_horten', 1, n)).toBeLessThanOrEqual(0.1);
       expect(rate('nur_sparen', 1, n)).toBeLessThanOrEqual(0.1);
       const zufall = rate('random', 1, n);
-      expect(zufall).toBeLessThanOrEqual(0.5);
-      // #475: Seit die Stufe-1-Agenda nur noch Gesetzesziele hat (vorher las das Milieuziel
-      // ohne Milieu-Werte 0), gewinnt, wer die Ziele verfolgt. musterschueler bringt die zur
-      // Sim-Agenda passenden Gesetze ein; allrounder verteilt sich über alle Systeme und
-      // verfehlt das Politikfeld-Ziel oft — er ist auf Stufe 1 kein „gutes Spiel“ mehr.
-      const gut = rate('musterschueler', 1, n);
-      expect(gut).toBeGreaterThanOrEqual(0.6);
-      expect(gut).toBeGreaterThan(zufall + 0.2);
-    }, 180_000);
+      expect(zufall).toBeLessThan(0.5);
+      // #484: agenda_fokus verfolgt die eigenen Ziele wie eine Spielerin mit Blick auf die Sidebar
+      const fokus = rate('agenda_fokus', 1, n);
+      expect(fokus).toBeGreaterThanOrEqual(0.7);
+      expect(fokus).toBeGreaterThan(zufall + 0.3);
+      expect(rate('musterschueler', 1, n)).toBeGreaterThanOrEqual(0.6);
+    }, 240_000);
 
-    it('Stufe 2–4: Nichtstun verliert immer, gutes Spiel gewinnt mindestens 60 %', () => {
+    it('Stufe 2–4: Nichtstun verliert immer, Zufall höchstens 60 %, gutes Spiel mindestens 60 %', () => {
       for (const stufe of [2, 3, 4]) {
         expect(rate('pk_horten', stufe, 40)).toBe(0);
-        for (const gut of ['musterschueler', 'koalitionsmanager']) {
+        // #475: Ziele, die schon zum Start erfüllt waren, trugen Zufallsspiel auf 69–92 %
+        const zufall = rate('random', stufe, 100);
+        if (zufall > 0.6) throw new Error(`random auf Stufe ${stufe}: ${pct(zufall)} > 60 %`);
+        for (const gut of ['agenda_fokus', 'musterschueler', 'koalitionsmanager']) {
           const r = rate(gut, stufe, 60);
-          if (r < 0.6) throw new Error(`${gut} auf Stufe ${stufe}: ${(r * 100).toFixed(0)} % < 60 %`);
+          if (r < 0.6) throw new Error(`${gut} auf Stufe ${stufe}: ${pct(r)} < 60 %`);
         }
       }
-    }, 300_000);
+    }, 400_000);
 
-    it('Stufe 3 → 4: keine Strategie springt um mehr als 40 Pp.', () => {
-      for (const name of ['musterschueler', 'koalitionsmanager', 'allrounder', 'bundesrat_profi', 'stapler']) {
+    // #483: Für dieselbe Strategie darf Stufe 4 nicht leichter sein als Stufe 3. Geprüft für
+    // Strategien, die die Koalition pflegen; Strategien, die den Partner ignorieren
+    // (immer_einbringen, speed_runner, nur_ausgaben), liegen auf Stufe 4 noch ~15 Pp. höher —
+    // siehe Analyse in #483.
+    it('Stufe 3 → 4: Stufe 4 ist für koalitionsbewusstes Spiel nicht leichter (Toleranz 10 Pp.)', () => {
+      for (const name of ['agenda_fokus', 'musterschueler', 'koalitionsmanager', 'allrounder', 'bundesrat_profi', 'stapler']) {
         const r3 = rate(name, 3, 60);
         const r4 = rate(name, 4, 60);
-        if (Math.abs(r3 - r4) > 0.4) {
-          throw new Error(`${name}: Stufe 3 ${(r3 * 100).toFixed(0)} % vs. Stufe 4 ${(r4 * 100).toFixed(0)} %`);
-        }
+        if (r4 > r3 + 0.1) throw new Error(`${name}: Stufe 3 ${pct(r3)} vs. Stufe 4 ${pct(r4)}`);
       }
-    }, 300_000);
+    }, 400_000);
   });
 
   it('Jedes Gesetz mit Gegenfinanzierungspflicht bekommt zum Start eine verfügbare Option', () => {
