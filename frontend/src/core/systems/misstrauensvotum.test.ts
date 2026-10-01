@@ -152,6 +152,8 @@ describe('Konstruktives Misstrauensvotum (Art. 67 GG)', () => {
       const result = checkGameEnd(state);
       expect(result.gameOver).toBe(true);
       expect(result.won).toBe(false);
+      // #482: Misstrauensvotum mit Feature (Pfad F)
+      expect(result.spielendeGrund).toBe('misstrauensvotum');
     });
 
     it('Stufe 1: kein Event, direktes Game-Over nach 6 Monaten (Legacy)', () => {
@@ -166,6 +168,8 @@ describe('Konstruktives Misstrauensvotum (Art. 67 GG)', () => {
       const result = checkGameEnd(state);
       expect(result.gameOver).toBe(true);
       expect(result.activeEvent).toBeNull();
+      // #482: Misstrauensvotum Legacy-Pfad (Pfad G)
+      expect(result.spielendeGrund).toBe('misstrauensvotum');
     });
 
     it('Reset von lowApprovalMonths und misstrauensvotumAbgewendet bei Erholung', () => {
@@ -239,6 +243,25 @@ describe('Konstruktives Misstrauensvotum (Art. 67 GG)', () => {
       const result = resolveMisstrauensvotum(state, 'ruecktritt');
       expect(result.gameOver).toBe(true);
       expect(result.won).toBe(false);
+      // #482: Rücktritt (Pfad B)
+      expect(result.spielendeGrund).toBe('ruecktritt');
+    });
+
+    it('vertrauensfrage gescheitert: Spielende mit Grund vertrauensfrage (#482, Pfad A)', () => {
+      // coalition 10 + max. 20 Zufall = 30 < Schwelle 45 → scheitert immer
+      const state = makeState({ coalition: 10, lowApprovalMonths: 4 });
+      const result = resolveMisstrauensvotum(state, 'vertrauensfrage');
+      expect(result.gameOver).toBe(true);
+      expect(result.won).toBe(false);
+      expect(result.spielendeGrund).toBe('vertrauensfrage');
+    });
+
+    it('vertrauensfrage erfolgreich: kein Spielende-Grund (#482)', () => {
+      // coalition 100 + min. 0 Zufall = 100 > Schwelle 45 → gelingt immer
+      const state = makeState({ coalition: 100, lowApprovalMonths: 4 });
+      const result = resolveMisstrauensvotum(state, 'vertrauensfrage');
+      expect(result.gameOver).toBe(false);
+      expect(result.spielendeGrund).toBeUndefined();
     });
 
     it('vertrauensfrage: Ergebnis abhängig von coalition', () => {

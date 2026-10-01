@@ -1,5 +1,5 @@
 import type { GameState, ContentBundle, SpielerParteiState, BundeslandContent, SpeedLevel, KoalitionspartnerParteiId } from './types';
-import type { MilieuHistoryStats, MediaState } from './types/state';
+import type { MilieuHistoryStats, MediaState, SpielendeGrund } from './types/state';
 import type { Approval } from './types';
 import { featureActive } from './systems/features';
 import { berechneKoalitionspartnerKandidaten, berechneKoalitionsvertragProfil } from './systems/koalition';
@@ -477,6 +477,19 @@ const VALID_VIEWS = new Set<string>([
   'agenda', 'bundestag', 'kabinett', 'haushalt', 'medien', 'verbaende', 'bundesrat', 'laender', 'kommunen', 'eu', 'wahlkampf',
 ]);
 const VALID_SPEEDS = new Set<number>([0, 1, 2]);
+/**
+ * #482: Erlaubte Spielende-Gründe. Als Record typisiert, damit ein neuer Wert im
+ * Union-Typ `SpielendeGrund` hier ohne Ergänzung einen Compile-Fehler auslöst.
+ */
+const SPIELENDE_GRUENDE: Record<SpielendeGrund, true> = {
+  legislatur: true,
+  koalitionsbruch: true,
+  partner_kuendigt: true,
+  misstrauensvotum: true,
+  vertrauensfrage: true,
+  ruecktritt: true,
+};
+const VALID_SPIELENDE_GRUENDE = new Set<string>(Object.keys(SPIELENDE_GRUENDE));
 
 /** Clampt Zahl auf Bereich [min, max] */
 function clamp(n: number, min: number, max: number): number {
@@ -771,6 +784,13 @@ export function validateGameState(raw: unknown): GameState {
   const contentVersion = get('contentVersion', undefined);
   if (typeof contentVersion === 'string' && contentVersion.length > 0 && contentVersion.length <= 64) {
     validated.contentVersion = contentVersion;
+  }
+
+  // #482: Grund des Spielendes — nur bekannte Werte übernehmen (Whitelist),
+  // fehlender/ungültiger Wert = altes Verhalten (Wahlnacht-Ansicht).
+  const spielendeGrund = get('spielendeGrund', undefined);
+  if (typeof spielendeGrund === 'string' && VALID_SPIELENDE_GRUENDE.has(spielendeGrund)) {
+    validated.spielendeGrund = spielendeGrund as SpielendeGrund;
   }
 
   return validated as GameState;

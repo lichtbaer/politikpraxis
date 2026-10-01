@@ -178,6 +178,31 @@ describe('SpielauswertungScreen — Grund für eine verfehlte Legislatur (#267)'
   });
 });
 
+describe('SpielauswertungScreen — vorzeitiges Spielende (#482)', () => {
+  it('ohne Wahl: kein Wahlergebnis-/Wahlhürden-Block', () => {
+    render(<SpielauswertungScreen {...defaultProps} gewonnen={false} vorzeitigesEnde />);
+    expect(screen.queryByText('Wahlergebnis')).not.toBeInTheDocument();
+    expect(screen.queryByText('game:auswertung.wahlHuerdeJa')).not.toBeInTheDocument();
+    expect(screen.queryByText('game:auswertung.wahlHuerdeNein')).not.toBeInTheDocument();
+    // Koalitionspartner bleibt sichtbar (im Bilanz-Block)
+    expect(screen.getByText('Koalition: {{partner}}')).toBeInTheDocument();
+    // Restliche Auswertung bleibt
+    expect(screen.getByText('Gesetze beschlossen')).toBeInTheDocument();
+  });
+
+  it('ohne Wahl: keine Parteien-Hochrechnung (auch ab Stufe 3)', () => {
+    setupMocks({ complexity: 4 });
+    render(<SpielauswertungScreen {...defaultProps} gewonnen={false} vorzeitigesEnde />);
+    expect(screen.queryByText('Wahlnacht: Parteien-Ergebnis')).not.toBeInTheDocument();
+  });
+
+  it('reguläres Ende (Default): Wahlergebnis-Block wie bisher', () => {
+    render(<SpielauswertungScreen {...defaultProps} />);
+    expect(screen.getByText('Wahlergebnis')).toBeInTheDocument();
+    expect(screen.getByText('game:auswertung.wahlHuerdeJa')).toBeInTheDocument();
+  });
+});
+
 describe('SpielauswertungScreen — Aktionsbuttons', () => {
   it('zeigt "Neues Spiel"-Button', () => {
     render(<SpielauswertungScreen {...defaultProps} />);

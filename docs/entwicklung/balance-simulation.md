@@ -67,8 +67,11 @@ schnell); Block G prüft die Grundlagen auf echtem Content.
 - **Ausgabe** (Default): `docs/entwicklung/balance-report.md` — eine Tabelle je
   Komplexitätsstufe mit Gewinnrate, Wahlhürden-Rate, Wahlprognose (Median/p10/p90),
   beschlossenen Gesetzen (Median), Score-Dimensionen (Gesamt/Bilanz/Agenda/Urteil),
-  Haushaltssaldo, PK-Ende, Monaten mit PK < 10, häufigstem Verlustgrund, längstem
-  Einbringen-Hänger sowie Crash-/Engine-Error-Count.
+  Haushaltssaldo, PK-Ende, Monaten mit PK < 10, Verlustgrund-Verteilung (top 3, z. B.
+  `Bruch 12 · Agenda 5`), längstem Einbringen-Hänger sowie Crash-/Engine-Error-Count.
+  Der Verlustgrund stammt aus `state.spielendeGrund` (vorzeitiges Ende) bzw. bei
+  regulärem Legislaturende aus `legislaturMisserfolgGrund()` (`kein_gesetz`, `agenda`,
+  `punkte`) — keine Heuristik mehr (#482).
 - **Spieler-Agenda:** Der Report übergibt eine Wunschliste von drei Zielen. `runSingleSim`
   behält davon wie das Onboarding nur die auf der Stufe für die Partei wählbaren
   (`waehlbareSpielerAgendaZiele`) und kürzt auf `spielerAgendaZielAnzahl(complexity)`
