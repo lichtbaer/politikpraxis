@@ -121,6 +121,7 @@ describe('vertrauensfrage', () => {
     expect(result.pk).toBe(60); // 100 - 40
     expect(result.vertrauensfrageGestellt).toBe(true);
     expect(result.gameOver).toBe(false);
+    expect(result.spielendeGrund).toBeUndefined();
     expect(result.koalitionspartner!.beziehung).toBe(85); // 60 + 25
     // Chars mit mood < 4 bekommen +1
     expect(result.chars.find(c => c.id === 'c2')!.mood).toBe(3); // 2 + 1
@@ -133,6 +134,8 @@ describe('vertrauensfrage', () => {
     expect(result.vertrauensfrageGestellt).toBe(true);
     expect(result.gameOver).toBe(true);
     expect(result.won).toBe(false);
+    // #482: Vertrauensfrage über die Regierungsaktion verloren (Pfad H)
+    expect(result.spielendeGrund).toBe('vertrauensfrage');
   });
 
   it('ändert nichts wenn nicht möglich', () => {

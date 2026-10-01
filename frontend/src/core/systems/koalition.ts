@@ -307,7 +307,8 @@ export function checkKoalitionsbruch(
 
   const seitMonat = state.koalitionsbruchSeitMonat;
   if (seitMonat != null && state.month >= seitMonat + 3) {
-    return { ...state, gameOver: true, won: false, speed: 0 };
+    // #482: Partner kündigt die Koalition — eigener Grund neben dem Stabilitäts-Bruch
+    return { ...state, gameOver: true, won: false, speed: 0, spielendeGrund: 'partner_kuendigt' };
   }
 
   if (seitMonat == null) {

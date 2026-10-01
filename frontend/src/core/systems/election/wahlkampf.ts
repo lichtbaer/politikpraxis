@@ -808,6 +808,7 @@ export function triggerWahlnacht(
     ...s,
     wahlergebnis,
     gameOver: true,
+    spielendeGrund: 'legislatur',
     won,
     legislaturErfolg: won,
     wahlUeberHuerde,

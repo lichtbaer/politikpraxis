@@ -5,7 +5,7 @@
  * sowohl unter Vitest (jsdom) als auch über das tsx-CLI (`balanceReport.ts`) genutzt
  * und vom App-TypeScript-Programm typgeprüft werden kann.
  */
-import { monteCarlo, type AggregatedResult } from '../src/core/simulation/balanceSim';
+import { monteCarlo, type AggregatedResult, type VerlustGrund } from '../src/core/simulation/balanceSim';
 import { alleStrategien } from '../src/core/simulation/strategien';
 import { SIM_CONTENT_WITH_UNLOCK_EVENTS } from '../src/core/simulation/testContent';
 import { echterContent } from '../src/core/simulation/echterContent';
@@ -102,12 +102,35 @@ export function collectReportData(opts: ReportOptions): ReportData {
   };
 }
 
-const VERLUST_LABEL: Record<string, string> = {
-  koalitionsbruch: 'Koalitionsbruch',
-  misstrauensvotum: 'Misstrauensvotum',
+/** #482: Kurzlabels je Verlustgrund (Reihenfolge = Tie-Break bei gleicher Anzahl). */
+const VERLUST_LABEL: Record<VerlustGrund, string> = {
+  koalitionsbruch: 'Bruch',
+  partner_kuendigt: 'Partner',
+  misstrauensvotum: 'Misstrauen',
+  vertrauensfrage: 'Vertrauensfrage',
+  ruecktritt: 'Rücktritt',
+  kein_gesetz: 'Kein Gesetz',
+  agenda: 'Agenda',
   punkte: 'Punkte',
-  unbekannt: 'Unbekannt',
 };
+
+/** Wie viele Verlustgründe die Report-Spalte höchstens nennt. */
+const VERLUST_TOP_N = 3;
+
+/**
+ * #482: Verlustgrund-Verteilung als kompakte Zelle, z. B. `Bruch 12 · Agenda 5` —
+ * absteigend nach Anzahl, höchstens VERLUST_TOP_N Gründe; ohne Niederlagen `–`.
+ */
+export function formatVerlustVerteilung(counts: Record<VerlustGrund, number>): string {
+  const reihenfolge = Object.keys(VERLUST_LABEL) as VerlustGrund[];
+  const teile = reihenfolge
+    .map((grund, index) => ({ grund, index, anzahl: counts[grund] ?? 0 }))
+    .filter((e) => e.anzahl > 0)
+    .sort((a, b) => b.anzahl - a.anzahl || a.index - b.index)
+    .slice(0, VERLUST_TOP_N)
+    .map((e) => `${VERLUST_LABEL[e.grund]} ${e.anzahl}`);
+  return teile.length > 0 ? teile.join(' · ') : '–';
+}
 
 const pct = (v: number) => `${(v * 100).toFixed(0)}%`;
 const num = (v: number, digits = 0) => v.toFixed(digits);
@@ -150,7 +173,7 @@ function rowCells(row: StrategyRow): string[] {
     num(e.saldo.median, 1),
     num(e.pkEnde.median),
     num(e.pkKnappeMonate.median),
-    e.verlustGrund.haeufigster ? VERLUST_LABEL[e.verlustGrund.haeufigster] : '–',
+    formatVerlustVerteilung(e.verlustGrund.counts),
     String(e.einbringenHaengerMax),
     String(e.crashes),
     String(e.engineErrors),

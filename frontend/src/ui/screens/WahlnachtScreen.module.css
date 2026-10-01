@@ -184,6 +184,14 @@
   text-align: center;
 }
 
+/* #482: Zusatzzeile beim vorzeitigen Spielende (keine Wahl) */
+.subtitleHint {
+  font-size: 13px;
+  color: var(--text3);
+  margin: -12px 0 24px;
+  text-align: center;
+}
+
 .stats {
   display: flex;
   flex-direction: column;

@@ -153,26 +153,49 @@ export function berechneSpielzielErgebnis(
   };
 }
 
+/** Für die Erfolgsprüfung benötigte Felder des Spielziel-Ergebnisses. */
+type LegislaturErfolgInput = Pick<
+  SpielzielErgebnis,
+  'gesamtpunkte' | 'beschlosseneGesetzeUrteil' | 'agendaSpielerErfuellt' | 'agendaSpielerGesamt'
+>;
+
+/** #482: Warum eine regulär beendete Legislatur das Spielziel verfehlt hat. */
+export type LegislaturMisserfolgGrund = 'kein_gesetz' | 'agenda' | 'punkte';
+
+/**
+ * #482: Einzige Quelle für den Misserfolgsgrund einer regulär beendeten Legislatur
+ * (genutzt von Erfolgsprüfung, Auswertungs-Screen und Balance-Simulation).
+ * Prüfreihenfolge — der erste zutreffende Grund gewinnt:
+ * 1. `kein_gesetz`: kein einziges beschlossenes Gesetz (#267),
+ * 2. `agenda`: bis SPIELZIEL_AGENDA_PFLICHT_BIS_STUFE nicht alle Spieler-Agendaziele erfüllt,
+ * 3. `punkte`: Gesamtpunkte unter SPIELZIEL_ERFOLG_SCHWELLE.
+ * Liefert `null`, wenn die Legislatur erfolgreich war.
+ */
+export function legislaturMisserfolgGrund(
+  ergebnis: LegislaturErfolgInput,
+  complexity: number | undefined,
+): LegislaturMisserfolgGrund | null {
+  if (ergebnis.beschlosseneGesetzeUrteil <= 0) return 'kein_gesetz';
+  if (agendaPflicht(complexity) && ergebnis.agendaSpielerErfuellt < ergebnis.agendaSpielerGesamt) {
+    return 'agenda';
+  }
+  if (ergebnis.gesamtpunkte < SPIELZIEL_ERFOLG_SCHWELLE) return 'punkte';
+  return null;
+}
+
 /**
  * Erfolgreiche Legislatur (#267):
- * - Gesamtpunkte ≥ SPIELZIEL_ERFOLG_SCHWELLE,
  * - mindestens ein beschlossenes Gesetz — eine Regierung ohne ein einziges Gesetz gewinnt auf
  *   keiner Stufe, egal wie ruhig es sonst zuging,
- * - bis SPIELZIEL_AGENDA_PFLICHT_BIS_STUFE: alle Spieler-Agendaziele erfüllt.
+ * - bis SPIELZIEL_AGENDA_PFLICHT_BIS_STUFE: alle Spieler-Agendaziele erfüllt,
+ * - Gesamtpunkte ≥ SPIELZIEL_ERFOLG_SCHWELLE.
+ * Details siehe `legislaturMisserfolgGrund` (#482).
  */
 export function istLegislaturErfolg(
-  ergebnis: Pick<
-    SpielzielErgebnis,
-    'gesamtpunkte' | 'beschlosseneGesetzeUrteil' | 'agendaSpielerErfuellt' | 'agendaSpielerGesamt'
-  >,
+  ergebnis: LegislaturErfolgInput,
   complexity: number | undefined,
 ): boolean {
-  if (ergebnis.beschlosseneGesetzeUrteil <= 0) return false;
-  if (ergebnis.gesamtpunkte < SPIELZIEL_ERFOLG_SCHWELLE) return false;
-  if (agendaPflicht(complexity) && ergebnis.agendaSpielerErfuellt < ergebnis.agendaSpielerGesamt) {
-    return false;
-  }
-  return true;
+  return legislaturMisserfolgGrund(ergebnis, complexity) === null;
 }
 
 /** Muss auf dieser Stufe die komplette Spieler-Agenda erfüllt sein? */
