@@ -186,6 +186,23 @@ export interface SpielzielErgebnis extends SpielzielSnapshot {
   beschlosseneGesetzeUrteil: number;
 }
 
+/**
+ * #482: Grund für das Spielende.
+ * - `legislatur`: reguläres Legislaturende mit Wahl (Monat 48)
+ * - `koalitionsbruch`: Koalitionsstabilität unter MIN_KOALITION_FORTGANG
+ * - `partner_kuendigt`: Koalitionspartner kündigt (Beziehung < 15 über 3 Monate)
+ * - `misstrauensvotum`: konstruktives Misstrauensvotum (Art. 67 GG) erfolgreich
+ * - `vertrauensfrage`: Vertrauensfrage (Art. 68 GG) verloren
+ * - `ruecktritt`: Rücktritt angesichts eines Misstrauensvotums
+ */
+export type SpielendeGrund =
+  | 'legislatur'
+  | 'koalitionsbruch'
+  | 'partner_kuendigt'
+  | 'misstrauensvotum'
+  | 'vertrauensfrage'
+  | 'ruecktritt';
+
 export interface GameState {
   month: number;
   speed: SpeedLevel;
@@ -253,6 +270,12 @@ export interface GameState {
 
   gameOver: boolean;
   won: boolean;
+  /**
+   * #482: Warum das Spiel endete — wird an jeder Stelle gesetzt, die `gameOver` setzt.
+   * `'legislatur'` = reguläres Ende mit Wahl (Monat 48); alle anderen Werte = Regierung
+   * vorzeitig gestürzt (keine Wahl). Fehlt bei laufenden Spielen und älteren Spielständen.
+   */
+  spielendeGrund?: SpielendeGrund;
   /** SMA-499: Erfolg nach dreistufigem Spielziel (unabhängig von reiner Wahlhürde) */
   legislaturErfolg?: boolean;
   /** Wahlergebnis hat die konfigurierte Hürde überschritten (für Achievements / Text) */

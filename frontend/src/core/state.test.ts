@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { validateGameState, migrateGameState, createInitialState, syncMediaState } from './state';
 import { berechneKoalitionspartnerKandidaten } from './systems/koalition';
 import { DEFAULT_CONTENT } from '../data/defaults/scenarios';
-import type { GameState, SpielerParteiState } from './types';
+import type { GameState, SpielendeGrund, SpielerParteiState } from './types';
 
 describe('validateGameState', () => {
   it('clampt wahlprognose auf 0–100', () => {
@@ -219,6 +219,43 @@ describe('validateGameState', () => {
       const validated = validateGameState({ ...base(), vermittlungAusgang: { ee: 'erfolg' } });
       expect(validated.vermittlungAktiv).toBeUndefined();
       expect(validated.vermittlungAusgang).toBeUndefined();
+    });
+  });
+
+  describe('spielendeGrund (#482)', () => {
+    const base = () => JSON.parse(JSON.stringify(createInitialState(DEFAULT_CONTENT, 4))) as Record<string, unknown>;
+
+    it('überlebt den JSON-Roundtrip für jeden gültigen Grund', () => {
+      const gruende: SpielendeGrund[] = [
+        'legislatur',
+        'koalitionsbruch',
+        'partner_kuendigt',
+        'misstrauensvotum',
+        'vertrauensfrage',
+        'ruecktritt',
+      ];
+      for (const grund of gruende) {
+        const state: GameState = {
+          ...createInitialState(DEFAULT_CONTENT, 4),
+          gameOver: true,
+          spielendeGrund: grund,
+        };
+        const geladen = validateGameState(JSON.parse(JSON.stringify(state)));
+        expect(geladen.spielendeGrund, grund).toBe(grund);
+      }
+    });
+
+    it('verwirft unbekannte oder falsch typisierte Werte', () => {
+      for (const ungueltig of ['hack', '', 'LEGISLATUR', '__proto__', 42, true, { grund: 'legislatur' }, ['ruecktritt']]) {
+        const validated = validateGameState({ ...base(), gameOver: true, spielendeGrund: ungueltig });
+        expect(validated.spielendeGrund, JSON.stringify(ungueltig)).toBeUndefined();
+      }
+    });
+
+    it('fehlt bei alten Spielständen ohne das Feld', () => {
+      const validated = validateGameState({ ...base(), gameOver: true });
+      expect(validated.spielendeGrund).toBeUndefined();
+      expect('spielendeGrund' in validated).toBe(false);
     });
   });
 

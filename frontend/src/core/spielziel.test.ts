@@ -3,6 +3,7 @@ import {
   berechneSpielzielErgebnis,
   berechneWahlbonus,
   istLegislaturErfolg,
+  legislaturMisserfolgGrund,
   agendaPflicht,
   SPIELZIEL_ERFOLG_SCHWELLE,
 } from './spielziel';
@@ -103,6 +104,56 @@ describe('spielziel', () => {
     expect(agendaPflicht(1)).toBe(true);
     expect(agendaPflicht(2)).toBe(false);
     expect(agendaPflicht(undefined)).toBe(false);
+  });
+
+  describe('legislaturMisserfolgGrund (#482)', () => {
+    it('null bei erfolgreicher Legislatur (auf jeder Stufe)', () => {
+      for (const stufe of [1, 2, 3, 4]) {
+        expect(legislaturMisserfolgGrund(erfolg(), stufe)).toBeNull();
+      }
+    });
+
+    it('kein_gesetz: kein einziges beschlossenes Gesetz', () => {
+      expect(legislaturMisserfolgGrund(erfolg({ gesamtpunkte: 100, beschlosseneGesetzeUrteil: 0 }), 3)).toBe(
+        'kein_gesetz',
+      );
+    });
+
+    it('agenda: nur mit Agenda-Pflicht (Stufe 1) und unerfüllter Spieler-Agenda', () => {
+      const teilweise = erfolg({ gesamtpunkte: 90, agendaSpielerErfuellt: 1 });
+      expect(legislaturMisserfolgGrund(teilweise, 1)).toBe('agenda');
+      expect(legislaturMisserfolgGrund(teilweise, 2)).toBeNull();
+    });
+
+    it('punkte: Gesamtpunkte unter der Erfolgsschwelle', () => {
+      for (const stufe of [1, 2, 3, 4]) {
+        expect(legislaturMisserfolgGrund(erfolg({ gesamtpunkte: SPIELZIEL_ERFOLG_SCHWELLE - 0.1 }), stufe)).toBe(
+          'punkte',
+        );
+      }
+    });
+
+    it('Reihenfolge: kein_gesetz vor agenda vor punkte', () => {
+      const allesVerfehlt = erfolg({ gesamtpunkte: 10, beschlosseneGesetzeUrteil: 0, agendaSpielerErfuellt: 0 });
+      expect(legislaturMisserfolgGrund(allesVerfehlt, 1)).toBe('kein_gesetz');
+      const agendaUndPunkte = erfolg({ gesamtpunkte: 10, agendaSpielerErfuellt: 0 });
+      expect(legislaturMisserfolgGrund(agendaUndPunkte, 1)).toBe('agenda');
+      expect(legislaturMisserfolgGrund(agendaUndPunkte, 2)).toBe('punkte');
+    });
+
+    it('istLegislaturErfolg ist genau dann wahr, wenn es keinen Misserfolgsgrund gibt', () => {
+      const faelle = [
+        erfolg(),
+        erfolg({ beschlosseneGesetzeUrteil: 0 }),
+        erfolg({ agendaSpielerErfuellt: 0 }),
+        erfolg({ gesamtpunkte: 0 }),
+      ];
+      for (const fall of faelle) {
+        for (const stufe of [undefined, 1, 2, 3, 4]) {
+          expect(istLegislaturErfolg(fall, stufe)).toBe(legislaturMisserfolgGrund(fall, stufe) === null);
+        }
+      }
+    });
   });
 
   it('Agenda: jedes Ziel zählt gleich — ein Koalitionsziel wiegt nicht die ganze Spieler-Agenda auf', () => {

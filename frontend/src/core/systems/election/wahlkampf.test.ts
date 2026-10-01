@@ -105,6 +105,8 @@ describe('wahlkampf', () => {
     expect(after.spielziel).toBeDefined();
     expect(after.wahlUeberHuerde).toBeDefined();
     expect(typeof after.legislaturErfolg).toBe('boolean');
+    // #482: Wahlnacht in Monat 48 = reguläres Legislaturende (Pfad J)
+    expect(after.spielendeGrund).toBe('legislatur');
   });
 
   it('berechneWahlergebnis liefert Zahl', () => {
