@@ -17,13 +17,14 @@
  * Engine-Invarianten. Die Balance-Aussagen im Report (`npm run balance:report`)
  * stammen seit dem Umstieg aus dem echten Content — Block G sichert dessen Grundlagen ab.
  */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { monteCarlo } from './balanceSim';
 import { alleStrategien } from './strategien';
 import { SIM_CONTENT, SIM_CONTENT_WITH_UNLOCK_EVENTS } from './testContent';
 import { echterContent } from './echterContent';
 import { createInitialState } from '../state';
 import { berechneOptionen, brauchtGegenfinanzierung } from '../systems/economics/gegenfinanzierung';
+import { mulberry32 } from '../rng';
 
 const N = 200;
 const COMPLEXITY = 4;
@@ -31,6 +32,17 @@ const COMPLEXITY = 4;
 // Monte-Carlo über die echte Engine: einzelne Strategien brauchen unter
 // Coverage-Instrumentierung > 5 s (Vitest-Default) — sonst rot aus Zufall.
 vi.setConfig({ testTimeout: 60_000 });
+
+// Deterministisch wie der Report: Math.random je Test seeden. Die Gewinnraten sind damit
+// reproduzierbar — ein rotes Zielband ist eine echte Änderung, kein Monte-Carlo-Rauschen
+// (vorher lag z. B. random auf Stufe 1 je nach Lauf mal unter, mal über der 60-%-Grenze).
+const originalRandom = Math.random;
+beforeEach(() => {
+  Math.random = mulberry32(42);
+});
+afterAll(() => {
+  Math.random = originalRandom;
+});
 
 describe('Balance-Simulation (echte Engine)', () => {
   const strategien = alleStrategien();
