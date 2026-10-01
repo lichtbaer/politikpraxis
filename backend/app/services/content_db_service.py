@@ -4,6 +4,7 @@ import hashlib
 import json
 import time
 from collections.abc import Awaitable, Callable, Sequence
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import Select, select, text
@@ -42,6 +43,10 @@ from app.models.content import (
     VerbandsTradeoffI18n,
 )
 from app.models.medien_akteur import MedienAkteur, MedienAkteurI18n
+
+# SQLAlchemy 2.1: Select ist über ein TypeVarTuple generisch (eine Typvariable je Spalte).
+# „Beliebig viele Spalten beliebigen Typs“ ist daher Select[*tuple[Any, ...]], nicht Select[Any].
+type AnySelect = Select[*tuple[Any, ...]]
 
 # Erweiterung: neue Sprache hier ergänzen + PgEnum-Migration + Frontend-Locale-Dateien
 VALID_LOCALES = frozenset({"de", "en"})
@@ -94,7 +99,10 @@ def _set_cached(cache_key: tuple[str, str], data: Any) -> None:
 
 
 def _effekte(
-    al: float | None, hh: float | None, gi: float | None, zf: float | None
+    al: float | Decimal | None,
+    hh: float | Decimal | None,
+    gi: float | Decimal | None,
+    zf: float | Decimal | None,
 ) -> dict[str, float]:
     return {
         "al": float(al or 0),
@@ -145,7 +153,7 @@ async def _fetch_cached_i18n(
     db: AsyncSession,
     locale: str,
     cache_key: tuple[str, str],
-    build_stmt: Callable[[str, str], Select[Any]],
+    build_stmt: Callable[[str, str], AnySelect],
     map_rows: Callable[[Sequence[Any], str, AsyncSession], Awaitable[list[dict]]],
 ) -> list[dict]:
     """Cache → alle Basiszeilen mit LEFT JOIN primär + Fallback-Locale → map."""
@@ -221,7 +229,7 @@ async def fetch_medien_akteure(db: AsyncSession, locale: str = "de") -> list[dic
 
 
 async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(CharI18n)
         i18n_f = aliased(CharI18n)
         return (
@@ -286,7 +294,7 @@ async def fetch_chars(db: AsyncSession, locale: str) -> list[dict]:
 
 
 async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(GesetzI18n)
         i18n_f = aliased(GesetzI18n)
         return (
@@ -375,7 +383,7 @@ async def fetch_gesetze(db: AsyncSession, locale: str) -> list[dict]:
 async def fetch_agenda_ziele(db: AsyncSession, locale: str) -> list[dict]:
     """Spieler-wählbare Agenda-Ziele (SMA-501) mit Lokalisierung."""
 
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(AgendaZielI18n)
         i18n_f = aliased(AgendaZielI18n)
         return (
@@ -419,7 +427,7 @@ async def fetch_agenda_ziele(db: AsyncSession, locale: str) -> list[dict]:
 async def fetch_koalitions_ziele(db: AsyncSession, locale: str) -> list[dict]:
     """Koalitionspartner-Ziele (SMA-501) mit Lokalisierung."""
 
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(KoalitionsZielI18n)
         i18n_f = aliased(KoalitionsZielI18n)
         return (
@@ -465,7 +473,7 @@ async def fetch_koalitions_ziele(db: AsyncSession, locale: str) -> list[dict]:
 async def fetch_events(
     db: AsyncSession, locale: str, event_type: str | None = None
 ) -> list[dict]:
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(EventI18n)
         i18n_f = aliased(EventI18n)
         stmt = (
@@ -628,7 +636,7 @@ async def fetch_events(
 
 
 async def fetch_bundesrat(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(BundesratFraktionI18n)
         i18n_f = aliased(BundesratFraktionI18n)
         return (
@@ -768,7 +776,7 @@ async def fetch_bundeslaender(db: AsyncSession, locale: str = "de") -> list[dict
 async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
     """Lädt alle EU-Events mit Choices für die gegebene Locale."""
 
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(EuEventI18n)
         i18n_f = aliased(EuEventI18n)
         return (
@@ -848,7 +856,7 @@ async def fetch_eu_events(db: AsyncSession, locale: str) -> list[dict]:
 
 
 async def fetch_milieus(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(MilieuI18n)
         i18n_f = aliased(MilieuI18n)
         return (
@@ -889,7 +897,7 @@ async def fetch_milieus(db: AsyncSession, locale: str) -> list[dict]:
 
 
 async def fetch_politikfelder(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(PolitikfeldI18n)
         i18n_f = aliased(PolitikfeldI18n)
         return (
@@ -927,7 +935,7 @@ async def fetch_politikfelder(db: AsyncSession, locale: str) -> list[dict]:
 
 
 async def fetch_verbaende(db: AsyncSession, locale: str) -> list[dict]:
-    def build_stmt(loc: str, fb: str) -> Select[Any]:
+    def build_stmt(loc: str, fb: str) -> AnySelect:
         i18n_p = aliased(VerbandI18n)
         i18n_f = aliased(VerbandI18n)
         return (
