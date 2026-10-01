@@ -77,6 +77,8 @@ export interface SimResult {
    * einbringen wollte und es danach noch im Entwurf lag (Deadlock-Indikator).
    */
   einbringenHaengerMax: number;
+  /** #483: Auflösung von Partner-Widerstand (Trotzdem / Koalitionsrunde / verschoben) */
+  partnerEntscheidungen?: PartnerEntscheidungen;
 }
 
 export interface AggregatedResult {
@@ -115,34 +117,60 @@ const DEFAULT_AUSRICHTUNG = { wirtschaft: -20, gesellschaft: -40, staat: -15 };
 
 /** Unter dieser Partnerbeziehung wählt die Sim Event-Optionen partnerfreundlich. */
 const PARTNER_KRITISCH = 30;
-/** Unter dieser Partnerbeziehung räumt die Sim Partner-Widerstand per Koalitionsrunde aus. */
-const PARTNER_ANGESPANNT = 50;
+/**
+ * #483: Ab dieser Partnerbeziehung nimmt die Sim bei Widerstand den Malus („Trotzdem“, −15)
+ * in Kauf, wenn das PK für die Koalitionsrunde nicht reicht; darunter verschiebt sie das Gesetz.
+ */
+const PARTNER_BELASTBAR = 65;
+
+/** #483: Wie die Sim Partner-Widerstand aufgelöst hat (Zähler je Lauf). */
+export interface PartnerEntscheidungen {
+  /** Malus in Kauf genommen (Hinweis −5 oder Widerstand −15) */
+  trotzdem: number;
+  /** Koalitionsrunde: 15 PK, Beziehung +8, Gesetz ohne Malus (Widerstand oder Veto) */
+  runde: number;
+  /** Gesetz zurückgestellt (PK reicht nicht, Beziehung zu angespannt für den Malus) */
+  verschoben: number;
+}
 
 /**
- * Löst pendingPartnerWiderstand in der Simulation automatisch auf (ohne UI).
- * Veto: Koalitionsrunde (bringt direkt ein). Widerstand: Koalitionsrunde, wenn die Beziehung
- * angespannt ist und das PK reicht, sonst „Trotzdem“. Hinweis: „Trotzdem“.
- * Reicht das PK beim Veto nicht, bricht die Sim ab („Später“ im Modal).
+ * Löst pendingPartnerWiderstand in der Simulation automatisch auf (ohne UI) — wie eine
+ * umsichtige Spielerin im Modal:
+ * - Hinweis: „Trotzdem“ (−5, die Koalitionsrunde ist dafür nicht vorgesehen).
+ * - Widerstand/Veto: Koalitionsrunde, wenn das PK reicht (+8 statt −15).
+ * - Widerstand ohne PK für die Runde: „Trotzdem“ nur bei belastbarer Beziehung, sonst
+ *   verschieben. Veto ohne PK: verschieben („Später“).
+ * #483: Bisher wählte die Sim bei Widerstand „Trotzdem“, solange die Beziehung ≥ 50 war —
+ * auf Stufe 3 (nur Widerstand) kostete jedes betroffene Gesetz −15, auf Stufe 4 erzwang das
+ * Veto die günstige Runde. Stufe 3 war dadurch für dieselbe Strategie schwerer als Stufe 4.
  */
 function autoResolvePartnerWiderstand(
   state: GameState,
   content: ContentBundle,
   complexity: number,
+  stats: PartnerEntscheidungen,
 ): GameState {
   const pending = state.pendingPartnerWiderstand;
   if (!pending) return state;
   const input = { ausrichtung: DEFAULT_AUSRICHTUNG, complexity, content };
 
-  const runde =
-    pending.intensitaet === 'veto' ||
-    (pending.intensitaet === 'widerstand' &&
-      (state.koalitionspartner?.beziehung ?? 100) < PARTNER_ANGESPANNT &&
-      state.pk >= 15 + einbringenPkKosten(state, pending.lawId, DEFAULT_AUSRICHTUNG, complexity));
-  if (runde) {
+  if (pending.intensitaet === 'hinweis') {
+    stats.trotzdem++;
+    return partnerWiderstandTrotzdemCommand(state, input).state;
+  }
+  const rundeLeistbar =
+    state.pk >= 15 + einbringenPkKosten(state, pending.lawId, DEFAULT_AUSRICHTUNG, complexity);
+  if (rundeLeistbar) {
+    stats.runde++;
     const { state: s } = partnerWiderstandKoalitionsverhandlungCommand(state, input);
     return { ...s, pendingPartnerWiderstand: undefined };
   }
-  return partnerWiderstandTrotzdemCommand(state, input).state;
+  if (pending.intensitaet === 'widerstand' && (state.koalitionspartner?.beziehung ?? 100) >= PARTNER_BELASTBAR) {
+    stats.trotzdem++;
+    return partnerWiderstandTrotzdemCommand(state, input).state;
+  }
+  stats.verschoben++;
+  return { ...state, pendingPartnerWiderstand: undefined };
 }
 
 /** Reihenfolge, in der die Sim Gegenfinanzierungen wählt: erst die ohne Nebenwirkungen. */
@@ -205,6 +233,7 @@ function applyAction(
   action: StrategyAction,
   content: ContentBundle,
   complexity: number,
+  stats: PartnerEntscheidungen,
 ): GameState {
   switch (action.typ) {
     case 'einbringen': {
@@ -223,7 +252,7 @@ function applyAction(
       for (let i = 0; i < 4 && (s.pendingGegenfinanzierung || s.pendingPartnerWiderstand); i++) {
         s = s.pendingGegenfinanzierung
           ? autoResolveGegenfinanzierung(s, content, complexity)
-          : autoResolvePartnerWiderstand(s, content, complexity);
+          : autoResolvePartnerWiderstand(s, content, complexity, stats);
       }
       return { ...s, pendingGegenfinanzierung: undefined, pendingPartnerWiderstand: undefined };
     }
@@ -343,6 +372,7 @@ export function runSingleSim(
     }
 
     let pkKnappeMonate = 0;
+    const partnerEntscheidungen: PartnerEntscheidungen = { trotzdem: 0, runde: 0, verschoben: 0 };
     let pkRegenSumme = 0;
     let engineErrors = 0;
     const engineErrorDetails: string[] = [];
@@ -371,7 +401,7 @@ export function runSingleSim(
 
       // Aktionen sequenziell anwenden (jede prüft ihre eigene PK-Affordability)
       for (const a of actions) {
-        state = applyAction(state, a, content, complexity);
+        state = applyAction(state, a, content, complexity, partnerEntscheidungen);
       }
 
       if (versuch && leistbar && state.gesetze.find(g => g.id === versuch.gesetzId)?.status === 'entwurf') {
@@ -435,6 +465,7 @@ export function runSingleSim(
       pkRegenSumme,
       zfEnde: state.kpi.zf,
       einbringenHaengerMax,
+      partnerEntscheidungen,
     };
   } catch (e) {
     return {
