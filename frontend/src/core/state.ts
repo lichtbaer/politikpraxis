@@ -183,7 +183,13 @@ export function createInitialState(
   const hasPoolChars = relevanteChars.some((c) => c.pool_partei && !c.ist_kanzler);
   let activeChars: typeof relevanteChars;
   if (hasPoolChars) {
-    const config = bildeKabinett(parteiId, partnerParteiId, complexity);
+    // #481: Ressorts ohne Pool-Minister überspringen, damit die Kabinettsgröße der Stufe erreicht wird
+    const config = bildeKabinett(
+      parteiId,
+      partnerParteiId,
+      complexity,
+      (partei, ressort) => waehleMinisterAusPool(relevanteChars, partei, ressort) != null,
+    );
     const usedIds = new Set<string>();
     const selected: typeof relevanteChars = [];
     selected.push(kanzlerSynthetic);

@@ -20,7 +20,7 @@ Zusätzlich filtern **Content-Felder** wie `min_complexity` (Gesetze, Events, Mi
 
 - Bundestag inkl. **Eingebracht-Phase** (Ausschuss): festes Einbringungs-Lag von 1 Monat; danach automatische Abstimmung im Tick (mit Fraktionsdisziplin, falls Feature aktiv — ab Stufe 2 ohnehin Kabinett-Fokus)
 - **Kein Bundesrat-Tab** (`bundesrat_sichtbar` ab Stufe 2). Gesetze mit Länderbezug (`land`-Tag): bei Ja im Bundestag **direkter Beschluss** ohne BR-Phase
-- **Kabinett:** 2 Personen — Spieler/in als Kanzler/in (synthetisch) plus ein Minister aus dem **Parteipool** (`bildeKabinett` in `frontend/src/core/kabinett.ts`)
+- **Kabinett:** 2 Personen — Spieler/in als Kanzler/in (synthetisch) plus ein Minister aus dem **Parteipool**, das erste Präferenz-Ressort der Partei (`bildeKabinett` in `frontend/src/core/kabinett.ts`; Kanzler- und Stufe-1-Minister-Chars haben seit Migration 073 `min_complexity = 1`, #481)
 - Gesetze in der Agenda: nur Entwürfe mit `min_complexity ≤ 1` (Filter in `AgendaView`)
 - **Keine** Char-Ultimatums, **kein** Koalitionsstabilitäts-Meter, **kein** Koalitionspartner (`char_ultimatums`, `coalition_stability`, `koalitionspartner` ab Stufe 2)
 - **Keine** Vorstufen-Buttons für Kommunal/Land auf Entwürfen (`kommunal_pilot` / `laender_pilot` ab Stufe 2); EU-Panel für Routen entsprechend eingeschränkt
@@ -81,7 +81,7 @@ Zusätzlich filtern **Content-Felder** wie `min_complexity` (Gesetze, Events, Mi
 | Bundestag inkl. Eingebracht-Phase | ✓ | ✓ | ✓ | ✓ |
 | Bundesrat-Tab | — | ✓ (einfacher) | ✓ (voll) | ✓ |
 | Ausweichrouten / EU-Ebene (UI) | eingeschränkt | ✓ | ✓ | ✓ |
-| Kabinettgröße (typisch) | 2 | 5 | 7 | 8 |
+| Kabinettgröße inkl. Kanzler/in (`KABINETT_GROESSE`) | 2 | 5 | bis 7 | bis 8 |
 | Koalitionspartner & -stabilität | — | ✓ | ✓ | ✓ |
 | Char-Ultimatums | — | ✓ | ✓ | ✓ |
 | Lobbying / Trade-off BR | — | — | ✓ | ✓ |
