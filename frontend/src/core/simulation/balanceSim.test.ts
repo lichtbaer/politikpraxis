@@ -22,6 +22,8 @@ import { monteCarlo } from './balanceSim';
 import { alleStrategien } from './strategien';
 import { SIM_CONTENT, SIM_CONTENT_WITH_UNLOCK_EVENTS } from './testContent';
 import { echterContent } from './echterContent';
+import { createInitialState } from '../state';
+import { berechneOptionen, brauchtGegenfinanzierung } from '../systems/economics/gegenfinanzierung';
 
 const N = 200;
 const COMPLEXITY = 4;
@@ -277,8 +279,11 @@ describe('Score-Dimensionen', () => {
     expect(aktiv.agendaPunkte.median).toBeGreaterThan(passiv.agendaPunkte.median + 20);
   }, 30_000);
 
-  it('Spieler-Agenda gesetzt: pk_horten schneidet mit gesetzter Agenda schlechter ab als ohne (der bisherige Default 55 kaschierte reine Passivität)', () => {
-    const ohneAgenda = monteCarlo(SIM_CONTENT, strategien['pk_horten'], N, COMPLEXITY);
+  // Seit #267 zählt jedes Agendaziel gleich (vorher Spieler- und Koalitionsziele 50/50):
+  // Ohne Spieler-Agenda bleiben nur die (für pk_horten roten) Koalitionsziele, der Vergleich
+  // „mit vs. ohne“ sagt daher nichts mehr aus. Geprüft wird die eigentliche Absicht:
+  // reine Passivität liegt mit gesetzter Agenda unter dem neutralen Default 55.
+  it('Spieler-Agenda gesetzt: pk_horten liegt unter dem neutralen Agenda-Default (55)', () => {
     const mitAgenda = monteCarlo(
       SIM_CONTENT,
       strategien['pk_horten'],
@@ -286,7 +291,7 @@ describe('Score-Dimensionen', () => {
       COMPLEXITY,
       ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'],
     );
-    expect(mitAgenda.agendaPunkte.median).toBeLessThan(ohneAgenda.agendaPunkte.median);
+    expect(mitAgenda.agendaPunkte.median).toBeLessThan(55);
   }, 30_000);
 
   it('Gesamtübersicht aller Strategien: Score-Dimensionen (console.table)', () => {
@@ -396,7 +401,8 @@ describe('Ressourcen-Balance', () => {
 describe('Echter Content (DB-Snapshot)', () => {
   const strategien = alleStrategien();
   const N_ECHT = 40;
-  const AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte'];
+  // Wie im Report; runSingleSim kürzt je Stufe auf die Onboarding-Anzahl.
+  const AGENDA = ['ag_gesetz_breit_regieren', 'ag_milieu_mitte', 'ag_gesetz_klimawende'];
 
   it('Snapshot liefert den vollen Content — nicht das 19-Gesetze-Fixture', () => {
     const content = echterContent();
@@ -419,14 +425,24 @@ describe('Echter Content (DB-Snapshot)', () => {
     expect(fortsetzungen.filter(id => !ids.has(id))).toEqual([]);
   });
 
+  // Hänger = eine Strategie will Monat für Monat dasselbe Gesetz einbringen, und es bleibt
+  // im Entwurf (gesperrt, unfinanzierbar, Modal nie aufgelöst). Damit misst die Sim nicht
+  // mehr die Spielweise, sondern den eigenen Deadlock.
+  const MAX_HAENGER_MONATE = 6;
+
   for (const complexity of [1, 4]) {
-    it(`Stufe ${complexity}: keine Crashes, keine Engine-Fehler (alle Strategien)`, () => {
+    it(`Stufe ${complexity}: keine Crashes, keine Engine-Fehler, keine Einbringen-Hänger (alle Strategien)`, () => {
       for (const [name, strategy] of Object.entries(strategien)) {
         const result = monteCarlo(echterContent(), strategy, 10, complexity, AGENDA);
         if (result.crashes > 0 || result.engineErrors > 0) {
           throw new Error(
             `${name} (Stufe ${complexity}): ${result.crashes} Crashes, ${result.engineErrors} Engine-Fehler – ` +
             (result.engineErrorDetails ?? []).slice(0, 3).join('; '),
+          );
+        }
+        if (result.einbringenHaengerMax > MAX_HAENGER_MONATE) {
+          throw new Error(
+            `${name} (Stufe ${complexity}): hängt ${result.einbringenHaengerMax} Monate am selben Gesetz`,
           );
         }
       }
@@ -438,6 +454,54 @@ describe('Echter Content (DB-Snapshot)', () => {
     const passiv = monteCarlo(echterContent(), strategien['pk_horten'], N_ECHT, 4, AGENDA);
     expect(muster.gewinnRate).toBeGreaterThan(passiv.gewinnRate);
   }, 120_000);
+
+  // #267: Zielbänder. Toleranzen decken das Monte-Carlo-Rauschen ab (SE bei N=150 ≈ 4 Pp.).
+  describe('Zielbänder (#267)', () => {
+    const rate = (name: string, stufe: number, n: number) =>
+      monteCarlo(echterContent(), strategien[name], n, stufe, AGENDA).gewinnRate;
+
+    it('Stufe 1: Nichtstun verliert, Zufall gewinnt höchstens rund die Hälfte, gutes Spiel meist', () => {
+      const n = 150;
+      expect(rate('pk_horten', 1, n)).toBeLessThanOrEqual(0.1);
+      expect(rate('nur_sparen', 1, n)).toBeLessThanOrEqual(0.1);
+      const zufall = rate('random', 1, n);
+      expect(zufall).toBeLessThanOrEqual(0.6);
+      const allrounder = rate('allrounder', 1, n);
+      expect(allrounder).toBeGreaterThanOrEqual(0.6);
+      expect(allrounder).toBeGreaterThan(zufall + 0.2);
+      expect(rate('musterschueler', 1, n)).toBeGreaterThanOrEqual(0.45);
+    }, 180_000);
+
+    it('Stufe 2–4: Nichtstun verliert immer, gutes Spiel gewinnt mindestens 60 %', () => {
+      for (const stufe of [2, 3, 4]) {
+        expect(rate('pk_horten', stufe, 40)).toBe(0);
+        for (const gut of ['musterschueler', 'koalitionsmanager']) {
+          const r = rate(gut, stufe, 60);
+          if (r < 0.6) throw new Error(`${gut} auf Stufe ${stufe}: ${(r * 100).toFixed(0)} % < 60 %`);
+        }
+      }
+    }, 300_000);
+
+    it('Stufe 3 → 4: keine Strategie springt um mehr als 40 Pp.', () => {
+      for (const name of ['musterschueler', 'koalitionsmanager', 'allrounder', 'bundesrat_profi', 'stapler']) {
+        const r3 = rate(name, 3, 60);
+        const r4 = rate(name, 4, 60);
+        if (Math.abs(r3 - r4) > 0.4) {
+          throw new Error(`${name}: Stufe 3 ${(r3 * 100).toFixed(0)} % vs. Stufe 4 ${(r4 * 100).toFixed(0)} %`);
+        }
+      }
+    }, 300_000);
+  });
+
+  it('Jedes Gesetz mit Gegenfinanzierungspflicht bekommt zum Start eine verfügbare Option', () => {
+    const content = echterContent();
+    const state = createInitialState(content, 2, { wirtschaft: -20, gesellschaft: -40, staat: -15 });
+    const ohneOption = content.laws
+      .filter(g => brauchtGegenfinanzierung(g))
+      .filter(g => !berechneOptionen(state, g, content, 2).some(o => o.verfuegbar))
+      .map(g => g.id);
+    expect(ohneOption).toEqual([]);
+  });
 
   it('Jedes gesperrte Gesetz hat im Zufalls-Pool ein Event, das es freischaltet', () => {
     const content = echterContent();

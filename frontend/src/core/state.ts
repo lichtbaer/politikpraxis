@@ -470,6 +470,34 @@ function clampRecord0_100(rec: Record<string, number> | null | undefined): Recor
   return out;
 }
 
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const VERMITTLUNG_AUSGAENGE = new Set<string>(['erfolg', 'kompromiss', 'scheitern']);
+
+/** vermittlungAktiv: Gesetz-ID → Frist-Monat (endliche Zahl, auf Spielmonate begrenzt) */
+function sanitizeVermittlungAktiv(raw: unknown): Record<string, number> | undefined {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (UNSAFE_KEYS.has(k) || typeof v !== 'number' || !Number.isFinite(v)) continue;
+    out[k] = clamp(Math.round(v), 1, 60);
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
+/** vermittlungAusgang: nur gültige Ausgänge für Gesetze mit laufendem Verfahren */
+function sanitizeVermittlungAusgang(
+  raw: unknown,
+  aktiv: Record<string, number>,
+): NonNullable<GameState['vermittlungAusgang']> | undefined {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const out: NonNullable<GameState['vermittlungAusgang']> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (UNSAFE_KEYS.has(k) || !Object.hasOwn(aktiv, k) || typeof v !== 'string' || !VERMITTLUNG_AUSGAENGE.has(v)) continue;
+    out[k] = v as 'erfolg' | 'kompromiss' | 'scheitern';
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 /**
  * Validiert und sanitized GameState beim Laden aus localStorage.
  * Schützt vor Manipulation: clampt numerische Werte, validiert Enums, begrenzt Arrays,
@@ -631,6 +659,19 @@ export function validateGameState(raw: unknown): GameState {
     'spielziel',
     'media',
     'gesetzeSeitLetzterPflege',
+    // Laufende Verfahren und Fristen: gingen beim Laden bisher verloren (Verfahren
+    // hing danach dauerhaft bzw. war ohne Folgen beendet).
+    'normenkontrollVerfahren',
+    'verfassungsgerichtAktiv', 'verfassungsgerichtVerfahrenBisMonat', 'verfassungsgerichtPolitikfeldIds', 'verfassungsgerichtPausiert',
+    'sachverstaendigenrat', 'halbzeitBilanz',
+    // Einmal-Flags und Cooldowns: ohne Persistenz per Neuladen zurücksetzbar
+    'vertrauensfrageGestellt', 'misstrauensvotumAbgewendet', 'letzteRegierungserklaerungMonat', 'letzteFraktionssitzungMonat',
+    'extremismusWarnung', 'bverfgVorwarnung',
+    'charGespraechCooldowns', 'eventCooldowns', 'steuerquoteAktionJahr',
+    // Haushalt: Konjunktur-Lag beschlossener Gesetze und Gegenfinanzierungs-Kopplungen
+    'gesetzBeschlossenMonat', 'konjunkturBereitsAngewendet', 'gekoppelteGesetze',
+    // Verläufe (Wahlkampf, SVR-Gutachten, dynamische Events, Agenda-Tracking, Charts)
+    'approvalHistory', 'kpiHistory', 'haushaltSaldoHistory',
   ] as const;
   for (const key of optionalKeys) {
     const v = get(key, undefined);
@@ -656,6 +697,19 @@ export function validateGameState(raw: unknown): GameState {
   const ka = sanitizeAgendaIds(get('koalitionsAgenda', undefined));
   if (sa) (validated as GameState).spielerAgenda = sa;
   if (ka) (validated as GameState).koalitionsAgenda = ka;
+
+  // Komplexitätsstufe des Spielstands (steuert u. a. migrateGameState, Bundesrat-Gewichtung,
+  // Misstrauensvotum) — fehlte sie, galt nach dem Laden stets Stufe 4.
+  const complexityRaw = Number(get('complexity', undefined));
+  if (Number.isFinite(complexityRaw)) validated.complexity = clamp(Math.round(complexityRaw), 1, 4);
+
+  // Laufender Vermittlungsausschuss (Frist-Monat + vorab gewürfelter Ausgang je Gesetz-ID)
+  const vermittlungAktiv = sanitizeVermittlungAktiv(get('vermittlungAktiv', undefined));
+  if (vermittlungAktiv) {
+    validated.vermittlungAktiv = vermittlungAktiv;
+    const vermittlungAusgang = sanitizeVermittlungAusgang(get('vermittlungAusgang', undefined), vermittlungAktiv);
+    if (vermittlungAusgang) validated.vermittlungAusgang = vermittlungAusgang;
+  }
 
   // #244: Content-Version des Spielstands — nur kurze Strings übernehmen
   // (Hex-Hash oder 'offline'), alles andere gilt als „unbekannt“.
@@ -732,6 +786,21 @@ export function migrateGameState(state: GameState): GameState {
       result = {
         ...result,
         spielerPartei: { id: sdp.id, kuerzel: sdp.kuerzel, farbe: sdp.farbe, name: sdp.name },
+      };
+    }
+  }
+  // Grüne: Schlüsselthemen sind Politikfelder statt der Gesetz-IDs 'ee'/'bp' — erfüllte
+  // Themen alter Spielstände übertragen.
+  if (result.koalitionspartner?.id === 'gp' || (result.koalitionspartner?.id as string) === 'gruene') {
+    const alt: Record<string, string> = { ee: 'umwelt_energie', bp: 'bildung_forschung' };
+    const erfuellt = result.koalitionspartner!.schluesselthemenErfuellt ?? [];
+    if (erfuellt.some((t) => t in alt)) {
+      result = {
+        ...result,
+        koalitionspartner: {
+          ...result.koalitionspartner!,
+          schluesselthemenErfuellt: [...new Set(erfuellt.map((t) => alt[t] ?? t))],
+        },
       };
     }
   }

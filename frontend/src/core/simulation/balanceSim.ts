@@ -8,9 +8,13 @@ import { lobbying, fraktionssitzung } from '../systems/parliament/parliament';
 import { koalitionsrunde, prioritaetsgespraech } from '../systems/koalition';
 import {
   einbringenCommand,
+  einbringenPkKosten,
+  gegenfinanzierungAuswaehlenCommand,
   partnerWiderstandTrotzdemCommand,
   partnerWiderstandKoalitionsverhandlungCommand,
 } from '../commands/einbringen';
+import { berechneOptionen, type GegenfinanzierungsOption } from '../systems/economics/gegenfinanzierung';
+import { spielerAgendaZielAnzahl } from '../onboardingAgenda';
 import { pressemitteilung } from '../systems/medien/medienAktionen';
 import { medienkampagne } from '../systems/medien/media';
 import { kabinettsgespraech } from '../systems/kabinett/characters';
@@ -60,6 +64,11 @@ export interface SimResult {
   pkRegenSumme: number;
   /** Zufriedenheits-KPI am Legislaturende (Spiral-Indikator) */
   zfEnde: number;
+  /**
+   * Längste Folge von Monaten, in denen die Strategie dasselbe Gesetz mit ausreichend PK
+   * einbringen wollte und es danach noch im Entwurf lag (Deadlock-Indikator).
+   */
+  einbringenHaengerMax: number;
 }
 
 export interface AggregatedResult {
@@ -83,6 +92,10 @@ export interface AggregatedResult {
   pkKnappeMonate: { median: number };
   pkRegenSumme: { median: number };
   zfEnde: { median: number };
+  /** Beschlossene Gesetze am Legislaturende (Median, nicht-gecrashte Runs) */
+  gesetze: { median: number };
+  /** Längster Einbringen-Hänger über alle Runs (Monate) */
+  einbringenHaengerMax: number;
   /** Verlustgrund-Verteilung über alle Niederlagen (häufigster + Zählung) */
   verlustGrund: {
     haeufigster: VerlustGrund | null;
@@ -94,29 +107,90 @@ type VerlustGrund = NonNullable<SimResult['verlustGrund']>;
 
 const DEFAULT_AUSRICHTUNG = { wirtschaft: -20, gesellschaft: -40, staat: -15 };
 
-/** Löst pendingPartnerWiderstand in der Simulation automatisch auf (ohne UI). */
+/** Unter dieser Partnerbeziehung wählt die Sim Event-Optionen partnerfreundlich. */
+const PARTNER_KRITISCH = 30;
+/** Unter dieser Partnerbeziehung räumt die Sim Partner-Widerstand per Koalitionsrunde aus. */
+const PARTNER_ANGESPANNT = 50;
+
+/**
+ * Löst pendingPartnerWiderstand in der Simulation automatisch auf (ohne UI).
+ * Veto: Koalitionsrunde (bringt direkt ein). Widerstand: Koalitionsrunde, wenn die Beziehung
+ * angespannt ist und das PK reicht, sonst „Trotzdem“. Hinweis: „Trotzdem“.
+ * Reicht das PK beim Veto nicht, bricht die Sim ab („Später“ im Modal).
+ */
 function autoResolvePartnerWiderstand(
   state: GameState,
   content: ContentBundle,
   complexity: number,
 ): GameState {
-  if (!state.pendingPartnerWiderstand) return state;
-  const { intensitaet } = state.pendingPartnerWiderstand;
+  const pending = state.pendingPartnerWiderstand;
+  if (!pending) return state;
+  const input = { ausrichtung: DEFAULT_AUSRICHTUNG, complexity, content };
 
-  if (intensitaet === 'veto') {
-    const { state: s } = partnerWiderstandKoalitionsverhandlungCommand(state, {
+  const runde =
+    pending.intensitaet === 'veto' ||
+    (pending.intensitaet === 'widerstand' &&
+      (state.koalitionspartner?.beziehung ?? 100) < PARTNER_ANGESPANNT &&
+      state.pk >= 15 + einbringenPkKosten(state, pending.lawId, DEFAULT_AUSRICHTUNG, complexity));
+  if (runde) {
+    const { state: s } = partnerWiderstandKoalitionsverhandlungCommand(state, input);
+    return { ...s, pendingPartnerWiderstand: undefined };
+  }
+  return partnerWiderstandTrotzdemCommand(state, input).state;
+}
+
+/** Reihenfolge, in der die Sim Gegenfinanzierungen wählt: erst die ohne Nebenwirkungen. */
+const GF_PRAEFERENZ: GegenfinanzierungsOption['key'][] = [
+  'ueberschuss',
+  'schulden',
+  'ministerium_kuerzen',
+  'steuergesetz',
+];
+
+/**
+ * Löst pendingGegenfinanzierung automatisch auf: erste verfügbare Option nach
+ * GF_PRAEFERENZ, bei Ressortkürzung das kleinste ausreichende Ressort, bei Steuergesetzen
+ * alle angebotenen. Ohne verfügbare Option bricht die Sim ab (Modal schließen) —
+ * sonst bliebe der pending-State stehen und das Gesetz wäre für die Sim gesperrt.
+ */
+function autoResolveGegenfinanzierung(
+  state: GameState,
+  content: ContentBundle,
+  complexity: number,
+): GameState {
+  const pending = state.pendingGegenfinanzierung;
+  if (!pending) return state;
+  const law = state.gesetze.find(g => g.id === pending.gesetzId);
+  if (!law) return { ...state, pendingGegenfinanzierung: undefined };
+
+  const optionen = berechneOptionen(state, law, content, complexity).filter(o => o.verfuegbar);
+  for (const key of GF_PRAEFERENZ) {
+    const option = optionen.find(o => o.key === key);
+    if (!option) continue;
+    let subOption: string | undefined;
+    if (key === 'ministerium_kuerzen') {
+      const ressorts = (option.suboptionen ?? [])
+        .filter((o): o is { ressort: string; kosten_einsparung?: number } => typeof o.ressort === 'string')
+        .sort((a, b) => (a.kosten_einsparung ?? 0) - (b.kosten_einsparung ?? 0));
+      subOption = ressorts[0]?.ressort;
+    } else if (key === 'steuergesetz') {
+      subOption = (option.suboptionen ?? [])
+        .map(o => ('gesetzId' in o ? o.gesetzId : undefined))
+        .filter((id): id is string => typeof id === 'string')
+        .join(',');
+    }
+    if ((key === 'ministerium_kuerzen' || key === 'steuergesetz') && !subOption) continue;
+    const { state: s } = gegenfinanzierungAuswaehlenCommand(state, {
+      gesetzId: pending.gesetzId,
+      option,
+      subOption,
+      ausrichtung: DEFAULT_AUSRICHTUNG,
       complexity,
       content,
     });
     return s;
   }
-
-  const { state: s } = partnerWiderstandTrotzdemCommand(state, {
-    ausrichtung: DEFAULT_AUSRICHTUNG,
-    complexity,
-    content,
-  });
-  return s;
+  return { ...state, pendingGegenfinanzierung: undefined };
 }
 
 /** Wendet eine Strategie-Aktion auf den GameState an */
@@ -129,13 +203,23 @@ function applyAction(
   switch (action.typ) {
     case 'einbringen': {
       const { gesetzId } = action;
+      // Reicht das PK nicht, ist der Button im Spiel gesperrt — kein Modal, keine Gegenfinanzierung.
+      if (state.pk < einbringenPkKosten(state, gesetzId, DEFAULT_AUSRICHTUNG, complexity)) return state;
       const { state: s1 } = einbringenCommand(state, {
         lawId: gesetzId,
         ausrichtung: DEFAULT_AUSRICHTUNG,
         complexity,
         content,
       });
-      return autoResolvePartnerWiderstand(s1, content, complexity);
+      // Modals in der Reihenfolge abarbeiten, in der die Engine sie öffnet
+      // (Gegenfinanzierung ↔ Partner-Widerstand können einander nachziehen).
+      let s = s1;
+      for (let i = 0; i < 4 && (s.pendingGegenfinanzierung || s.pendingPartnerWiderstand); i++) {
+        s = s.pendingGegenfinanzierung
+          ? autoResolveGegenfinanzierung(s, content, complexity)
+          : autoResolvePartnerWiderstand(s, content, complexity);
+      }
+      return { ...s, pendingGegenfinanzierung: undefined, pendingPartnerWiderstand: undefined };
     }
     case 'lobbying':
       return lobbying(state, action.gesetzId);
@@ -193,10 +277,15 @@ function autoResolveEvent(state: GameState, complexity: number, content: Content
     return resolveEvent(state, event, cheapest, resolveOpts);
   }
 
-  // Bevorzuge 'safe' Optionen, dann 'primary', dann 'danger'
+  // Bevorzuge 'safe' Optionen, dann 'primary', dann 'danger'. Steht die Partnerbeziehung
+  // kurz vor dem Bruch, zählt zuerst, was ihr hilft — ein Spieler sieht die Warnung und
+  // wählt nicht stur die sichere Option, die den Partner weiter verärgert.
+  const partnerKritisch = (state.koalitionspartner?.beziehung ?? 100) < PARTNER_KRITISCH;
+  const partnerEffekt = (c: (typeof affordableChoices)[number]) =>
+    partnerKritisch ? (c.koalitionspartnerBeziehung ?? 0) : 0;
   const prioritized = [...affordableChoices].sort((a, b) => {
     const prio = { safe: 0, primary: 1, danger: 2 };
-    return (prio[a.type] ?? 1) - (prio[b.type] ?? 1);
+    return partnerEffekt(b) - partnerEffekt(a) || (prio[a.type] ?? 1) - (prio[b.type] ?? 1);
   });
 
   return resolveEvent(state, event, prioritized[0], resolveOpts);
@@ -219,14 +308,22 @@ export function runSingleSim(
     // SMA-269: Spieler-Agenda setzen (die UI tut dies im Onboarding via setSpielerAgendaIds;
     // die Sim ruft den Store nicht auf, daher hier direkt am State — sonst bleibt die
     // Agenda-Säule des Spielziels konstant beim Default-Wert, egal welche Strategie spielt).
-    if (spielerAgendaIds && spielerAgendaIds.length > 0) {
-      state = { ...state, spielerAgenda: [...spielerAgendaIds] };
+    // Wie im Onboarding: so viele Ziele, wie die Stufe verlangt (Stufe 1: keine).
+    const agenda = (spielerAgendaIds ?? []).slice(
+      0,
+      spielerAgendaZielAnzahl(complexity, spielerAgendaIds?.length ?? 0),
+    );
+    if (agenda.length > 0) {
+      state = { ...state, spielerAgenda: agenda };
     }
 
     let pkKnappeMonate = 0;
     let pkRegenSumme = 0;
     let engineErrors = 0;
     const engineErrorDetails: string[] = [];
+    let haengerId: string | null = null;
+    let haengerStreak = 0;
+    let einbringenHaengerMax = 0;
 
     for (let _month = 1; _month <= LEGISLATUR_MONATE; _month++) {
       // Wenn ein Event aktiv ist, zuerst auflösen
@@ -239,9 +336,26 @@ export function runSingleSim(
       const action = strategy(state, content, complexity);
       const actions = Array.isArray(action) ? action : [action];
 
+      // Hänger zählt nur, wenn das PK gereicht hätte — Warten aufs PK ist Spiel, kein Deadlock.
+      const versuch = actions.find(
+        (a): a is Extract<StrategyAction, { typ: 'einbringen' }> => a.typ === 'einbringen',
+      );
+      const leistbar =
+        versuch != null &&
+        state.pk >= einbringenPkKosten(state, versuch.gesetzId, DEFAULT_AUSRICHTUNG, complexity);
+
       // Aktionen sequenziell anwenden (jede prüft ihre eigene PK-Affordability)
       for (const a of actions) {
         state = applyAction(state, a, content, complexity);
+      }
+
+      if (versuch && leistbar && state.gesetze.find(g => g.id === versuch.gesetzId)?.status === 'entwurf') {
+        haengerStreak = versuch.gesetzId === haengerId ? haengerStreak + 1 : 1;
+        haengerId = versuch.gesetzId;
+        einbringenHaengerMax = Math.max(einbringenHaengerMax, haengerStreak);
+      } else {
+        haengerId = null;
+        haengerStreak = 0;
       }
 
       // Ressourcen-Metrik: zustimmungsabhängiger Regen dieses Monats (gleiche Formel wie tick)
@@ -283,7 +397,8 @@ export function runSingleSim(
         verlustGrund = 'koalitionsbruch';
       } else if ((state.lowApprovalMonths ?? 0) >= 6) {
         verlustGrund = 'misstrauensvotum';
-      } else if (state.spielziel && state.spielziel.gesamtpunkte < 40) {
+      } else if (state.spielziel) {
+        // Legislatur regulär beendet, aber verfehlt (Schwelle der Stufe oder kein Gesetz)
         verlustGrund = 'punkte';
       } else {
         verlustGrund = 'unbekannt';
@@ -311,6 +426,7 @@ export function runSingleSim(
       pkKnappeMonate,
       pkRegenSumme,
       zfEnde: state.kpi.zf,
+      einbringenHaengerMax,
     };
   } catch (e) {
     return {
@@ -327,6 +443,7 @@ export function runSingleSim(
       pkKnappeMonate: 0,
       pkRegenSumme: 0,
       zfEnde: 0,
+      einbringenHaengerMax: 0,
     };
   }
 }
@@ -350,6 +467,7 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
   const pkKnappArr = valid.map(e => e.pkKnappeMonate).sort((a, b) => a - b);
   const pkRegenArr = valid.map(e => e.pkRegenSumme).sort((a, b) => a - b);
   const zfEndeArr = valid.map(e => e.zfEnde).sort((a, b) => a - b);
+  const gesetzeArr = valid.map(e => e.gesetze).sort((a, b) => a - b);
   const wahlUeberHuerdeMit = valid.filter(e => e.wahlUeberHuerde === true).length;
 
   // Verlustgrund-Verteilung über alle Niederlagen (gecrashte Runs ausgenommen)
@@ -378,6 +496,7 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
   if (pkKnappArr.length === 0) pkKnappArr.push(0);
   if (pkRegenArr.length === 0) pkRegenArr.push(0);
   if (zfEndeArr.length === 0) zfEndeArr.push(0);
+  if (gesetzeArr.length === 0) gesetzeArr.push(0);
 
   const median = (arr: number[]) => {
     const mid = Math.floor(arr.length / 2);
@@ -420,6 +539,8 @@ export function aggregiere(ergebnisse: SimResult[]): AggregatedResult {
     pkKnappeMonate: { median: median(pkKnappArr) },
     pkRegenSumme: { median: median(pkRegenArr) },
     zfEnde: { median: median(zfEndeArr) },
+    gesetze: { median: median(gesetzeArr) },
+    einbringenHaengerMax: ergebnisse.reduce((m, e) => Math.max(m, e.einbringenHaengerMax), 0),
     verlustGrund: { haeufigster: verlustHaeufigster, counts: verlustCounts },
   };
 }

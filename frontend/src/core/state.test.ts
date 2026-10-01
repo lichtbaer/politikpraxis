@@ -167,6 +167,73 @@ describe('validateGameState', () => {
     expect(validated.media?.klima).toBe(72);
     expect(validated.media?.klimaHistory).toEqual([72]);
   });
+
+  describe('laufender Vermittlungsausschuss', () => {
+    const base = () => JSON.parse(JSON.stringify(createInitialState(DEFAULT_CONTENT, 4))) as Record<string, unknown>;
+
+    it('übernimmt vermittlungAktiv und vermittlungAusgang', () => {
+      const validated = validateGameState({
+        ...base(),
+        vermittlungAktiv: { ee: 14 },
+        vermittlungAusgang: { ee: 'erfolg' },
+      });
+      expect(validated.vermittlungAktiv).toEqual({ ee: 14 });
+      expect(validated.vermittlungAusgang).toEqual({ ee: 'erfolg' });
+    });
+
+    it('verwirft ungültige Einträge (keine Zahl, unbekannter Ausgang, Ausgang ohne laufendes Verfahren)', () => {
+      const validated = validateGameState({
+        ...base(),
+        vermittlungAktiv: { ee: 14, kaputt: 'x', unendlich: Infinity },
+        vermittlungAusgang: { ee: 'hack', verwaist: 'erfolg' },
+      });
+      expect(validated.vermittlungAktiv).toEqual({ ee: 14 });
+      expect(validated.vermittlungAusgang).toBeUndefined();
+    });
+
+    it('lässt die Felder weg, wenn kein Verfahren läuft', () => {
+      const validated = validateGameState({ ...base(), vermittlungAusgang: { ee: 'erfolg' } });
+      expect(validated.vermittlungAktiv).toBeUndefined();
+      expect(validated.vermittlungAusgang).toBeUndefined();
+    });
+  });
+
+  it('übernimmt die Komplexitätsstufe (auf 1–4 begrenzt)', () => {
+    const raw = JSON.parse(JSON.stringify(createInitialState(DEFAULT_CONTENT, 2))) as Record<string, unknown>;
+    expect(validateGameState(raw).complexity).toBe(2);
+    expect(validateGameState({ ...raw, complexity: 99 }).complexity).toBe(4);
+  });
+
+  it('erhält von Engine-Systemen geschriebenen Spielfortschritt über JSON-Roundtrip', () => {
+    const progress: Partial<GameState> = {
+      normenkontrollVerfahren: [{ gesetzId: 'ee', klagemonat: 10, urteilMonat: 16 }],
+      verfassungsgerichtAktiv: true,
+      verfassungsgerichtVerfahrenBisMonat: 18,
+      verfassungsgerichtPolitikfeldIds: ['wirtschaft_finanzen'],
+      verfassungsgerichtPausiert: false,
+      sachverstaendigenrat: { naechstesGutachtenMonat: 22, letztesErgebnis: 'B', letzterMonat: 10 },
+      vertrauensfrageGestellt: true,
+      misstrauensvotumAbgewendet: true,
+      letzteRegierungserklaerungMonat: 9,
+      letzteFraktionssitzungMonat: 11,
+      extremismusWarnung: true,
+      bverfgVorwarnung: true,
+      charGespraechCooldowns: { fm: 14 },
+      eventCooldowns: { streik: 20 },
+      steuerquoteAktionJahr: 1,
+      gesetzBeschlossenMonat: { ee: 8 },
+      konjunkturBereitsAngewendet: { ee: true },
+      gekoppelteGesetze: { ee: ['steuer_a'] },
+      approvalHistory: [50, 51],
+      kpiHistory: { al: [5, 5.1], hh: [0, 0], gi: [30, 30], zf: [50, 51] },
+      haushaltSaldoHistory: [-2, -3],
+    };
+    const raw = JSON.parse(JSON.stringify({ ...createInitialState(DEFAULT_CONTENT, 4), ...progress }));
+    const validated = validateGameState(raw);
+    for (const [key, value] of Object.entries(progress)) {
+      expect(validated[key as keyof GameState], key).toEqual(value);
+    }
+  });
 });
 
 describe('createInitialState', () => {
@@ -210,6 +277,15 @@ describe('createInitialState', () => {
 });
 
 describe('migrateGameState', () => {
+  it('überträgt erfüllte Grünen-Schlüsselthemen von Gesetz-IDs auf Politikfelder', () => {
+    const base = createInitialState(DEFAULT_CONTENT, 2);
+    const migrated = migrateGameState({
+      ...base,
+      koalitionspartner: { id: 'gp', beziehung: 50, koalitionsvertragScore: 0, schluesselthemenErfuellt: ['ee', 'bp'] },
+    });
+    expect(migrated.koalitionspartner?.schluesselthemenErfuellt).toEqual(['umwelt_energie', 'bildung_forschung']);
+  });
+
   const baseState = createInitialState(DEFAULT_CONTENT, 4);
 
   it('befüllt media aus flachen Feldern wenn nicht vorhanden', () => {

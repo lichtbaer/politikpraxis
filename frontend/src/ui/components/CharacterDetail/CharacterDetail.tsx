@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../../store/gameStore';
 import { useUIStore } from '../../../store/uiStore';
 import { featureActive } from '../../../core/systems/features';
+import { resolveCharRelationships } from '../../../core/systems/kabinett/characters';
 import { MOOD_ICONS } from '../../icons';
 import { DotRating } from '../DotRating/DotRating';
 import { Modal } from '../Modal/Modal';
@@ -20,6 +21,8 @@ export function CharacterDetail() {
   const moodText = t(`game:mood.${moodIdx}`);
   const MoodIcon = MOOD_ICONS[moodIdx];
   const nearUltimatum = character.mood <= character.ultimatum.moodThresh + 1;
+  // Rollen-Ziele ('wm', 'kanzler', …) auf die amtierenden Kabinettsmitglieder auflösen
+  const relationships = resolveCharRelationships(state.chars, character);
 
   return (
     <Modal
@@ -75,17 +78,16 @@ export function CharacterDetail() {
           </div>
         )}
 
-        {character.relationships && character.relationships.length > 0 && (
+        {relationships.length > 0 && (
           <div className={styles.relationships}>
             <span className={styles.relationshipsTitle}>
               {t('game:kabinett.beziehungen.title', 'Beziehungen im Kabinett')}
             </span>
-            {character.relationships.map((rel) => {
-              const target = state.chars.find((c) => c.id === rel.target);
-              const targetName = target?.name || t(`game:chars.${rel.target}.name`);
+            {relationships.map(({ rel, target }) => {
+              const targetName = target.name || t(`game:chars.${target.id}.name`);
               return (
                 <span
-                  key={rel.target}
+                  key={target.id}
                   className={
                     rel.type === 'verbuendet' ? styles.relationshipAlly : styles.relationshipRival
                   }

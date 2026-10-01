@@ -26,7 +26,7 @@ npm run check:api-types # Fail if the generated API types drift from the backend
 ### Backend (run from `backend/`)
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt               # App + Test-Dependencies (pytest, httpx)
 alembic upgrade head                              # Apply DB migrations
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000  # Dev server
 python -m pytest --tb=short                       # Run tests
@@ -140,7 +140,6 @@ mkdocs build          # Static build to site/
 | `deploy.yml` | After a green `lint.yml` run on main | npm build, then SSH deploy via `scripts/deploy.sh` (health gate + rollback) |
 | `balance-check.yml` | Changes to content/core/scripts/workflow | Monte Carlo simulation (`npm run test:balance`, N=200) + balance report artifact |
 | `docs.yml` | Push to main, PRs | `mkdocs build --strict`, deploy to GitHub Pages on push |
-| `docs.yml` | Push to main | MkDocs build and deploy |
 
 ## Environment Variables
 
@@ -205,7 +204,7 @@ Wenn aus einem GitHub-Issue heraus gearbeitet wird, gilt dieses Standardvorgehen
 
 - `GET /api/health` — Health check
 - `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` — Auth
-- `GET/POST/PUT/DELETE /api/saves/{id}` — Game saves (JWT)
+- `GET /api/saves`, `GET/POST/DELETE /api/saves/{slot}` — Game saves (JWT, slot 1–3; POST creates or overwrites)
 - `GET /api/content/game?locale=de` — Full game content bundle
 - `GET /api/content/{chars,gesetze,events,bundesrat,milieus,politikfelder,verbaende}` — Individual content
 - `POST /api/analytics/batch` — Analytics events

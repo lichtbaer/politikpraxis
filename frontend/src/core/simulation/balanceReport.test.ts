@@ -17,6 +17,7 @@ function simResult(overrides: Partial<SimResult>): SimResult {
     pkKnappeMonate: 0,
     pkRegenSumme: 0,
     zfEnde: 50,
+    einbringenHaengerMax: 0,
     ...overrides,
   };
 }

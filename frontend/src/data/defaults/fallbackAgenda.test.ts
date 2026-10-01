@@ -21,7 +21,7 @@ describe('Offline-Fallback: Agendaziele', () => {
   it.each(STUFEN)('Stufe %i bietet genug Ziele, um das Onboarding abzuschließen', (complexity) => {
     const pool = poolFuerStufe(complexity);
     const gefordert = spielerAgendaZielAnzahl(complexity, pool.length);
-    const sollOhneDeckel = complexity === 2 ? 2 : complexity >= 3 ? 3 : 0;
+    const sollOhneDeckel = complexity <= 2 ? 2 : 3; // #267: auch Stufe 1 hat eine Agenda
 
     // Der Deckel ist die Notbremse — der Content soll die Vorgabe von sich aus erfüllen.
     expect(pool.length).toBeGreaterThanOrEqual(sollOhneDeckel);

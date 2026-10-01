@@ -1953,7 +1953,9 @@
     "skandal_intro": "A political scandal has reached the government. How do you respond?",
     "wahlkampf_beginn": "The campaign begins. 6 months until the election — time for speeches, coalition actions and media offensives.",
     "kabinettText_one": "Your cabinet. {{count}} personality, {{count}} portfolio.",
-    "kabinettText_other": "Your cabinet. {{count}} personalities, {{count}} portfolios."
+    "kabinettText_other": "Your cabinet. {{count}} personalities, {{count}} portfolios.",
+    "agendaPflichtHinweis": "At this level you win by reaching all chosen goals before the election — track them in the agenda on the left.",
+    "agendaSubtitleOhneKoalition": "Set your priorities for this term."
   },
   "gameSetup": {
     "title": "Game Start",
@@ -2281,7 +2283,9 @@
     "nochmalPartei": "Play again as {{partei}}",
     "save": "Save summary",
     "commGewinnrate": "Community win rate",
-    "commWahl": "Community avg. forecast"
+    "commWahl": "Community avg. forecast",
+    "legislaturErfolgNeinOhneGesetz": "Without a single law passed, no term counts as successful.",
+    "legislaturErfolgNeinAgenda": "At this level, the term only counts as a success if all your agenda goals are met — achieved: {{erfuellt}} of {{gesamt}}."
   },
   "charDetail": {
     "close": "Close",
@@ -2655,7 +2659,7 @@
     "losgehts": "Let's go!",
     "ziel": {
       "title": "Your goal: re-election",
-      "text": "You lead the federal government through 48 months. On the left you see your election forecast — it influences your election bonus (0–4 points). Victory is decided by the three-pillar score: legislative balance (30%), agenda (35%), and historical verdict of passed laws (35%), plus election bonus — ≥ 40 out of 100 points in total."
+      "text": "You lead the federal government through 48 months. On the left you see your election forecast — it influences your election bonus (0–4 points). Victory is decided by the three-pillar score: legislative balance (30%), agenda (35%), and historical verdict of passed laws (35%), plus election bonus — ≥ 40 out of 100 points in total. At the entry level, you also need to reach all of your agenda goals."
     },
     "gesetze": {
       "title": "Introducing laws",

@@ -16,14 +16,13 @@ function ampelClass(a: AgendaAmpel): string {
 
 export function AgendaSidebar() {
   const { t } = useTranslation('game');
-  const complexity = useGameStore((s) => s.complexity);
   const phase = useGameStore((s) => s.phase);
   const state = useGameStore((s) => s.state);
   const content = useGameStore((s) => s.content);
 
   const rows = useMemo(() => buildAgendaSidebarRows(state, content), [state, content]);
 
-  if (complexity < 2 || phase !== 'playing' || rows.length === 0) {
+  if (phase !== 'playing' || rows.length === 0) {
     return null;
   }
 

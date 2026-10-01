@@ -1,6 +1,6 @@
 # Sicherheits-Review — politikpraxis / Bundesrepublik
 
-**Datum:** April 2026  
+**Datum:** April 2026 (Status der Empfehlungen aktualisiert September 2026)  
 **Fokus:** Datenspeicherung, API-Sicherheit, Dependency-Vulnerabilities, GameState-Manipulation
 
 ---
@@ -23,9 +23,9 @@ cd backend && pip install pip-audit && pip-audit -r requirements.txt
 
 **Hinweis:** In CI wird `pip-audit -r backend/requirements.txt` ausgeführt (siehe `.github/workflows/lint.yml`).
 
-**Backend requirements.txt:** Die Hauptpakete (cryptography==46.0.5, FastAPI, SQLAlchemy, etc.) sind auf aktuelle Versionen gepinnt. Ein System-Scan (ohne Projekt-venv) zeigte CVEs in System-Paketen (ansible, jinja2, pip, etc.), die nicht Teil der Backend-Dependencies sind.
+**Backend requirements.txt:** Alle Pakete (inkl. transitiver) sind exakt gepinnt; Ausnahme ist `pydantic_core`, das `pydantic` selbst exakt pinnt. Updates kommen gruppiert über Dependabot (`.github/dependabot.yml`). Ein System-Scan (ohne Projekt-venv) zeigte CVEs in System-Paketen (ansible, jinja2, pip, etc.), die nicht Teil der Backend-Dependencies sind.
 
-**Empfehlung:** pip-audit regelmäßig in CI ausführen; bei neuen CVEs die betroffenen Pakete in requirements.txt aktualisieren.
+**Umgesetzt:** `pip-audit` läuft in CI (`lint.yml`, Job Backend) und blockiert den Deploy bei Findings.
 
 ---
 
@@ -130,7 +130,7 @@ git log --all -p | grep -i "password\|secret\|api_key\|token"
 - `.env` ist nicht in der Git-History (nur `.env.example` mit Platzhaltern)
 - Gefundene Treffer: Dokumentation (SECRET_KEY, ADMIN_PASSWORD als Platzhalter), Test-Setup (`admin_password` für Tests), package-lock (js-tokens als Paketname) — alles unkritisch
 
-**Hinweis:** `.env` sollte explizit in `.gitignore` stehen (zusätzlich zu Team-Regeln/Pre-Commit-Checks), um versehentliche Commits zu vermeiden.
+**Umgesetzt:** `.env` und `.env.*` stehen in `.gitignore`; `gitleaks` scannt in CI jeden Push/PR (`lint.yml`).
 
 ---
 
@@ -139,7 +139,7 @@ git log --all -p | grep -i "password\|secret\|api_key\|token"
 | Kriterium | Status |
 |-----------|--------|
 | npm audit — keine high/critical ungepacht | ✅ |
-| pip-audit — keine high/critical in Projekt-Dependencies | ✅ (empfohlen: CI-Integration) |
+| pip-audit — keine high/critical in Projekt-Dependencies | ✅ (in CI) |
 | Admin-API-Credentials aus Env-Variablen | ✅ |
 | locale-Parameter validiert | ✅ |
 | GameState-Validierung beim localStorage-Load | ✅ (implementiert) |
@@ -151,9 +151,10 @@ git log --all -p | grep -i "password\|secret\|api_key\|token"
 
 ---
 
-## 10. Offene Empfehlungen
+## 10. Empfehlungen — Status
 
-1. **Rate-Limiting** für Admin-API (z.B. slowapi)
-2. **Dependency-Audits** regelmäßig prüfen und Findings zeitnah triagieren (CI enthält `npm audit`, `pip-audit`, `bandit`)
-3. **`.env`** explizit in `.gitignore` aufnehmen, falls noch nicht vorhanden
+1. ~~**Rate-Limiting** für Admin-API~~ — erledigt: geteiltes Limit 30/min pro IP für alle Admin-Endpunkte, Zähler in Postgres (worker-übergreifend, #231; `admin_rate_limit` in `routes/admin.py`)
+2. ~~**Dependency-Audits** in CI~~ — erledigt: `npm audit`, `pip-audit`, `bandit`, `gitleaks`, Trivy-Image-Scan in `lint.yml`; der Deploy läuft nur nach grünem Lint-Workflow. Offen bleibt die laufende Triage neuer Findings.
+3. ~~**`.env`** in `.gitignore`~~ — erledigt (`.env`, `.env.*`)
 4. ~~**CSP-Header** in nginx setzen~~ — erledigt (SMA-314)
+5. **Offen:** CI-Actions und das gitleaks-Image auf feste Versionen/SHAs pinnen (#262)

@@ -69,27 +69,29 @@ export function PartnerWiderstandModal({
           <button type="button" className={styles.btn} onClick={onAbbrechen}>
             {t('game:ui.cancel', 'Abbrechen')}
           </button>
-          {intensitaet === 'veto' ? (
-            <>
-              <button type="button" className={styles.btn} onClick={onAnpassen}>
-                {t('game:partnerWiderstand.anpassen', 'Später / Agenda')}
-              </button>
-              <button
-                type="button"
-                className={styles.btnPrimary}
-                onClick={onKoalitionsverhandlung}
-                disabled={!pkOk}
-                title={!pkOk ? t('game:partnerWiderstand.pkZuWenig') : undefined}
-              >
-                {t('game:partnerWiderstand.koalitionsverhandlung', 'Koalitionsrunde (15 PK)')}
-              </button>
-            </>
-          ) : (
+          {intensitaet === 'veto' && (
+            <button type="button" className={styles.btn} onClick={onAnpassen}>
+              {t('game:partnerWiderstand.anpassen', 'Später / Agenda')}
+            </button>
+          )}
+          {intensitaet !== 'veto' && (
             <button type="button" className={styles.btnDanger} onClick={onTrotzdem}>
               {t('game:partnerWiderstand.trotzdem', {
                 malus: Math.abs(koalitionsMalus),
                 defaultValue: `Trotzdem einbringen (−${Math.abs(koalitionsMalus)} Koalition)`,
               })}
+            </button>
+          )}
+          {/* Widerstand und Veto: Koalitionsrunde räumt den Konflikt aus (Veto: einziger Weg) */}
+          {intensitaet !== 'hinweis' && (
+            <button
+              type="button"
+              className={styles.btnPrimary}
+              onClick={onKoalitionsverhandlung}
+              disabled={!pkOk}
+              title={!pkOk ? t('game:partnerWiderstand.pkZuWenig') : undefined}
+            >
+              {t('game:partnerWiderstand.koalitionsverhandlung', 'Koalitionsrunde (15 PK)')}
             </button>
           )}
         </div>

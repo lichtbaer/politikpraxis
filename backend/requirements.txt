@@ -1,3 +1,5 @@
+# pydantic_core ist bewusst nicht gepinnt: pydantic pinnt es selbst exakt (pydantic 2.13.5 →
+# pydantic-core==2.46.5). Ein eigener Pin ließ Dependabot es an pydantic vorbei bumpen (#470).
 aiofiles==25.1.0
 alembic==1.19.1
 annotated-doc==0.0.5
@@ -21,7 +23,6 @@ psycopg2-binary==2.9.12
 pycparser==3.0
 pydantic==2.13.5
 pydantic-settings==2.15.0
-pydantic_core==2.46.5
 python-dotenv==1.2.3
 PyJWT==2.15.0
 python-json-logger==4.2.0

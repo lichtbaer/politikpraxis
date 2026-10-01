@@ -66,8 +66,12 @@ schnell); Block G prüft die Grundlagen auf echtem Content.
 
 - **Ausgabe** (Default): `docs/entwicklung/balance-report.md` — eine Tabelle je
   Komplexitätsstufe mit Gewinnrate, Wahlhürden-Rate, Wahlprognose (Median/p10/p90),
-  Score-Dimensionen (Gesamt/Bilanz/Agenda/Urteil), Haushaltssaldo, PK-Ende, Monaten
-  mit PK < 10, häufigstem Verlustgrund sowie Crash-/Engine-Error-Count.
+  beschlossenen Gesetzen (Median), Score-Dimensionen (Gesamt/Bilanz/Agenda/Urteil),
+  Haushaltssaldo, PK-Ende, Monaten mit PK < 10, häufigstem Verlustgrund, längstem
+  Einbringen-Hänger sowie Crash-/Engine-Error-Count.
+- **Spieler-Agenda:** Der Report übergibt drei Ziele; `runSingleSim` kürzt sie wie das
+  Onboarding auf `spielerAgendaZielAnzahl(complexity)` (Stufe 1: keine, Stufe 2: zwei,
+  ab Stufe 3: drei).
 - **Reproduzierbarkeit:** Der Generator ersetzt `Math.random` durch einen seedbaren
   Mulberry32-PRNG. Gleicher `--seed` ⇒ identischer Report. N und Seed stehen im
   Report-Kopf.
@@ -82,8 +86,12 @@ schnell); Block G prüft die Grundlagen auf echtem Content.
 1. **Strategie-Funktion in `strategien.ts` definieren:**
 
    ```typescript
-   export function strategieMeineStrategie(state: GameState): StrategyAction {
-     const gesetze = verfuegbareGesetze(state);
+   export function strategieMeineStrategie(
+     state: GameState,
+     content: ContentBundle,
+     complexity: number,
+   ): StrategyAction {
+     const gesetze = verfuegbareGesetze(state, content, complexity);
      if (gesetze.length > 0 && state.pk >= 15) {
        const best = [...gesetze].sort((a, b) => (b.effekte.zf ?? 0) - (a.effekte.zf ?? 0));
        return { typ: 'einbringen', gesetzId: best[0].id };
@@ -104,6 +112,22 @@ schnell); Block G prüft die Grundlagen auf echtem Content.
    ```
 
 3. **Tests erneut ausführen** — die neue Strategie wird automatisch mit simuliert.
+
+`verfuegbareGesetze` liefert nur Gesetze, die die Engine auch einbringen lässt
+(`requires`/`excludes`, Verfassungsgericht-Sperre, mindestens eine verfügbare
+Gegenfinanzierung). Sonst wählt eine Strategie jeden Monat dasselbe gesperrte Gesetz —
+Block G prüft deshalb, dass keine Strategie länger als 6 Monate an einem Gesetz hängt.
+
+### Modals in der Simulation
+
+Wo das Spiel ein Modal öffnet, entscheidet die Sim wie ein Spieler:
+
+| Modal | Entscheidung der Sim |
+|-------|----------------------|
+| Gegenfinanzierung | erste verfügbare Option in der Reihenfolge Überschuss → Schulden → Ressortkürzung (kleinstes ausreichendes Ressort) → Steuergesetze; ohne Option: abbrechen |
+| Partner-Widerstand / Hinweis | „Trotzdem einbringen“ |
+| Partner-Veto | Koalitionsrunde (15 PK), danach sofort einbringen; ohne PK: „Später“ |
+| Event | günstigste leistbare Option, `safe` vor `primary` vor `danger`; bei Partnerbeziehung < 30 zuerst die Option mit dem besten `koalitionspartnerBeziehung` |
 
 ---
 
