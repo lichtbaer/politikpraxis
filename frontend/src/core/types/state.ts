@@ -243,6 +243,13 @@ export interface GameState {
 
   /** Seed für den deterministischen PRNG (Mulberry32). Einmalig bei Spielstart gesetzt. */
   rngSeed: number;
+  /**
+   * #244: Content-Version (`GET /api/content/version`), mit der das Spiel begonnen
+   * wurde — `'offline'` beim gebündelten Fallback-Content. Einmalig bei Spielstart
+   * gesetzt; weicht sie beim Laden vom aktuellen Content ab, warnt das Spiel.
+   * Fehlt bei älteren Spielständen.
+   */
+  contentVersion?: string;
 
   gameOver: boolean;
   won: boolean;

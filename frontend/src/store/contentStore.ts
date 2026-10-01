@@ -5,6 +5,7 @@ import { apiFetch } from '../services/api';
 import type {
   AgendaZielApi,
   CharApi,
+  ContentVersionApi,
   GesetzApi,
   EventApi,
   EuEventApi,
@@ -542,6 +543,12 @@ export interface ContentStore {
   loaded: boolean;
   /** true wenn das Backend nicht erreichbar war und der gebündelte Fallback-Content läuft */
   offline: boolean;
+  /**
+   * #244: Version des geladenen Contents (`GET /content/version`). `null` wenn der
+   * Endpoint nicht antwortete, `'offline'` beim gebündelten Fallback-Content.
+   * Wird bei Spielstart in den GameState übernommen (Spielstand-Kompatibilität).
+   */
+  contentVersion: string | null;
   error: string | null;
   load: (locale: string) => Promise<void>;
 }
@@ -712,7 +719,33 @@ export interface ContentApiAntworten {
 }
 
 /** Daten-Teil des Stores (ohne Ladezustand und Aktionen). */
-export type ContentDaten = Omit<ContentStore, 'load' | 'loading' | 'loaded' | 'offline' | 'error'>;
+export type ContentDaten = Omit<
+  ContentStore,
+  'load' | 'loading' | 'loaded' | 'offline' | 'error' | 'contentVersion'
+>;
+
+/** #244: Content-Version des gebündelten Offline-Fallbacks. */
+export const OFFLINE_CONTENT_VERSION = 'offline';
+
+/**
+ * #244: Wurde ein Spielstand mit anderem Content gespielt als dem aktuell geladenen?
+ * Nur echte Versionen werden verglichen — fehlt eine Seite (alter Spielstand ohne
+ * Feld, Endpoint nicht erreichbar) oder läuft der Offline-Fallback, gibt es keine
+ * belastbare Aussage und damit keine Warnung.
+ */
+export function istContentVersionAbweichend(
+  gespeichert: string | null | undefined,
+  aktuell: string | null | undefined,
+): boolean {
+  if (!gespeichert || !aktuell) return false;
+  if (gespeichert === OFFLINE_CONTENT_VERSION || aktuell === OFFLINE_CONTENT_VERSION) return false;
+  return gespeichert !== aktuell;
+}
+
+function contentVersionAusAntwort(res: ContentVersionApi | null): string | null {
+  const v = res?.content_version;
+  return typeof v === 'string' && v.length > 0 ? v : null;
+}
 
 /** Startwerte vor dem ersten Laden — Felder, die `load` nicht setzt, behalten sie. */
 export const INITIAL_CONTENT_DATEN: ContentDaten = {
@@ -748,6 +781,7 @@ export const useContentStore = create<ContentStore>((set) => ({
   loading: false,
   loaded: false,
   offline: false,
+  contentVersion: null,
   error: null,
 
   load: async (locale: string) => {
@@ -767,6 +801,7 @@ export const useContentStore = create<ContentStore>((set) => ({
         agendaZieleRaw,
         koalitionsZieleRaw,
         euEventsRaw,
+        contentVersionRaw,
       ] =
         await Promise.all([
           // Kritische Endpoints: einzeln catchen, damit „Backend komplett weg“
@@ -784,6 +819,10 @@ export const useContentStore = create<ContentStore>((set) => ({
           apiFetch<AgendaZielApi[]>(`/content/agenda-ziele?locale=${locale}`).catch(() => []),
           apiFetch<KoalitionsZielApi[]>(`/content/koalitions-ziele?locale=${locale}`).catch(() => []),
           apiFetch<EuEventApi[]>(`/content/eu-events?locale=${locale}`).catch(() => []),
+          // #244: Nicht kritisch — ohne Version läuft das Spiel normal, nur die
+          // Kompatibilitätswarnung beim Laden von Spielständen entfällt. Bewusst
+          // ohne locale: die Version ist sprachunabhängig (Sprachwechsel ≠ anderer Content).
+          apiFetch<ContentVersionApi>('/content/version').catch(() => null),
         ]);
 
       if (chars == null && gesetze == null && eventsAll == null && bundesratFraktionen == null) {
@@ -814,6 +853,7 @@ export const useContentStore = create<ContentStore>((set) => ({
           loading: false,
           loaded: true,
           offline: true,
+          contentVersion: OFFLINE_CONTENT_VERSION,
           error: null,
         });
         return;
@@ -839,6 +879,7 @@ export const useContentStore = create<ContentStore>((set) => ({
           koalitionsZiele: koalitionsZieleRaw ?? [],
           euEvents: euEventsRaw ?? [],
         }),
+        contentVersion: contentVersionAusAntwort(contentVersionRaw),
         loading: false,
         loaded: true,
         error: null,

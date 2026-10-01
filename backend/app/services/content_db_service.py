@@ -1219,6 +1219,80 @@ def _hash_content(content: dict[str, Any]) -> str:
     return digest[:16]
 
 
+# --- Content-Version für Spielstände (#244) ---
+
+# Die Content-Version wird bewusst immer über dieselbe Locale berechnet. Ein
+# Spielstand, der auf Deutsch gespeichert und auf Englisch geladen wird (oder
+# umgekehrt), läuft mit identischem engine-relevantem Content (Effekte, Kosten,
+# Schwellen, Choices, …) — eine sprachabhängige Version würde dort fälschlich
+# „anderer Content“ melden. "de" ist die Basis-Locale (Fallback aller anderen),
+# enthält also immer jeden Datensatz.
+CONTENT_VERSION_LOCALE = "de"
+
+
+def _canonicalize(value: Any) -> Any:
+    """Bringt Content in eine reihenfolge-unabhängige Form für den Hash.
+
+    Die Fetcher liefern Zeilen teils ohne ORDER BY (Postgres darf die Reihenfolge
+    z.B. nach VACUUM/UPDATE ändern). Listen von Objekten werden deshalb nach
+    `id` bzw. `key` sortiert (Gleichstand: kanonisches JSON), damit derselbe
+    DB-Inhalt immer denselben Hash ergibt. Skalarlisten (Tags, Länder, …)
+    behalten ihre gespeicherte Reihenfolge. Dict-Keys sortiert `_hash_content`
+    über `sort_keys`.
+    """
+    if isinstance(value, dict):
+        return {k: _canonicalize(v) for k, v in value.items()}
+    if isinstance(value, list):
+        items = [_canonicalize(v) for v in value]
+        if items and all(isinstance(v, dict) for v in items):
+
+            def sort_key(d: dict[str, Any]) -> tuple[str, str]:
+                ident = d.get("id", d.get("key", ""))
+                return (
+                    str(ident),
+                    json.dumps(d, sort_keys=True, default=str),
+                )
+
+            return sorted(items, key=sort_key)
+        return items
+    return value
+
+
+async def get_content_version(db: AsyncSession) -> str:
+    """Stabiler, locale-unabhängiger Hash über den Content, den das Frontend lädt.
+
+    Nutzt dieselben (gecachten) Fetcher wie die einzelnen /api/content/*-Routen
+    — also genau die Felder, die `contentStore.load` verarbeitet. Ändert eine
+    Migration Content-Daten, ändert sich die Version; das Frontend speichert sie
+    im Spielstand und warnt beim Laden eines Standes mit abweichender Version.
+    Zur Wahl der festen Locale siehe CONTENT_VERSION_LOCALE.
+    """
+    loc = CONTENT_VERSION_LOCALE
+    cache_key = ("content_version", loc)
+    cached = _get_cached(cache_key)
+    if cached is not None:
+        return str(cached)
+
+    content: dict[str, Any] = {
+        "chars": await fetch_chars(db, loc),
+        "gesetze": await fetch_gesetze(db, loc),
+        "events": await fetch_events(db, loc),
+        "bundesrat": await fetch_bundesrat(db, loc),
+        "milieus": await fetch_milieus(db, loc),
+        "politikfelder": await fetch_politikfelder(db, loc),
+        "verbaende": await fetch_verbaende(db, loc),
+        "gesetz_relationen": await fetch_gesetz_relationen(db, loc),
+        "medien_akteure": await fetch_medien_akteure(db, loc),
+        "bundeslaender": await fetch_bundeslaender(db, loc),
+        "agenda_ziele": await fetch_agenda_ziele(db, loc),
+        "koalitions_ziele": await fetch_koalitions_ziele(db, loc),
+        "eu_events": await fetch_eu_events(db, loc),
+    }
+    version = _hash_content(_canonicalize(content))
+    _set_cached(cache_key, version)
+    return version
+
+
 async def _get_choice_event_mapping(db: AsyncSession) -> dict[int, str]:
     """Map choice_id -> event_id from event_choices."""
     rows = await db.execute(text("SELECT id, event_id FROM event_choices ORDER BY id"))

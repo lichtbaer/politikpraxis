@@ -879,6 +879,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/content/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Content Version
+         * @description GET /api/content/version — Version des engine-relevanten Contents (#244).
+         *
+         *     Bewusst ohne `locale`: Der Hash wird immer über dieselbe Basis-Locale
+         *     berechnet, damit ein Spielstand beim Sprachwechsel nicht als „anderer
+         *     Content“ gilt (siehe CONTENT_VERSION_LOCALE im Content-Service).
+         */
+        get: operations["content_version_api_content_version_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/game/{save_id}/agenda": {
         parameters: {
             query?: never;
@@ -1625,6 +1649,20 @@ export interface components {
             scenarios: {
                 [key: string]: unknown;
             }[];
+        };
+        /**
+         * ContentVersionResponse
+         * @description #244: Locale-unabhängige Version des engine-relevanten Spielinhalts.
+         *
+         *     Das Frontend speichert den Wert im Spielstand und warnt beim Laden, wenn der
+         *     Spielstand mit einem anderen Content-Stand gespielt wurde.
+         */
+        ContentVersionResponse: {
+            /**
+             * Content Version
+             * @description Kurzer Hex-Hash über den Content, den das Frontend lädt (chars, gesetze, events inkl. Choices, bundesrat, milieus, …). Unabhängig von der angefragten Sprache.
+             */
+            content_version: string;
         };
         /**
          * EffekteSchema
@@ -4568,6 +4606,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    content_version_api_content_version_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContentVersionResponse"];
                 };
             };
         };

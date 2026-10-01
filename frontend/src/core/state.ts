@@ -728,6 +728,13 @@ export function validateGameState(raw: unknown): GameState {
     if (vermittlungAnrufer) validated.vermittlungAnrufer = vermittlungAnrufer;
   }
 
+  // #244: Content-Version des Spielstands — nur kurze Strings übernehmen
+  // (Hex-Hash oder 'offline'), alles andere gilt als „unbekannt“.
+  const contentVersion = get('contentVersion', undefined);
+  if (typeof contentVersion === 'string' && contentVersion.length > 0 && contentVersion.length <= 64) {
+    validated.contentVersion = contentVersion;
+  }
+
   return validated as GameState;
 }
 
