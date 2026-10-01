@@ -69,9 +69,10 @@ schnell); Block G prüft die Grundlagen auf echtem Content.
   beschlossenen Gesetzen (Median), Score-Dimensionen (Gesamt/Bilanz/Agenda/Urteil),
   Haushaltssaldo, PK-Ende, Monaten mit PK < 10, häufigstem Verlustgrund, längstem
   Einbringen-Hänger sowie Crash-/Engine-Error-Count.
-- **Spieler-Agenda:** Der Report übergibt drei Ziele; `runSingleSim` kürzt sie wie das
-  Onboarding auf `spielerAgendaZielAnzahl(complexity)` (Stufe 1: keine, Stufe 2: zwei,
-  ab Stufe 3: drei).
+- **Spieler-Agenda:** Der Report übergibt eine Wunschliste von drei Zielen. `runSingleSim`
+  behält davon wie das Onboarding nur die auf der Stufe für die Partei wählbaren
+  (`waehlbareSpielerAgendaZiele`) und kürzt auf `spielerAgendaZielAnzahl(complexity)`
+  (Stufe 1–2: zwei, ab Stufe 3: drei). Auf Stufe 1 fällt damit das Milieuziel weg (#475).
 - **Reproduzierbarkeit:** Der Generator ersetzt `Math.random` durch einen seedbaren
   Mulberry32-PRNG. Gleicher `--seed` ⇒ identischer Report. N und Seed stehen im
   Report-Kopf.

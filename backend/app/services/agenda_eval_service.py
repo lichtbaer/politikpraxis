@@ -89,6 +89,37 @@ def _milieu_min_legislatur(gs: dict[str, Any], milieu_id: str) -> float:
     return _milieu_aktuell(gs, milieu_id)
 
 
+def _verband_aktuell(gs: dict[str, Any], verband_id: str) -> float:
+    vb = gs.get("verbandsBeziehungen")
+    return _num(vb.get(verband_id)) if isinstance(vb, dict) else 0.0
+
+
+def _startwert(gs: dict[str, Any], art: str, key: str, fallback: float) -> float:
+    """#475: Wert bei Spielbeginn (``agendaStartwerte``); fehlt er, gilt ``fallback``."""
+    sw = gs.get("agendaStartwerte")
+    if isinstance(sw, dict):
+        werte = sw.get(art)
+        if isinstance(werte, dict) and key in werte:
+            return _num(werte.get(key), fallback)
+    return fallback
+
+
+def steigern_ziel_werte(
+    gs: dict[str, Any], typ: str, param: dict[str, Any]
+) -> tuple[float, float] | None:
+    """#475: (aktueller Wert, Zielwert = Start + min_delta) für „… steigern“-Ziele."""
+    delta = _num(param.get("min_delta"))
+    if typ == "milieu_zustimmung_steigern":
+        mid = _str(param.get("milieu_id"))
+        current = _milieu_aktuell(gs, mid)
+        return current, _startwert(gs, "milieus", mid, current) + delta
+    if typ == "verband_beziehung_steigern":
+        vid = _str(param.get("verband_id"))
+        current = _verband_aktuell(gs, vid)
+        return current, _startwert(gs, "verbaende", vid, current) + delta
+    return None
+
+
 def _count_medien_monate_ueber_schwelle(gs: dict[str, Any], schwelle: float) -> int:
     hist = gs.get("medienKlimaHistory")
     if not isinstance(hist, list):
@@ -175,6 +206,9 @@ def evaluate_spieler_ziel(gs: dict[str, Any], z: dict[str, Any]) -> bool:
     p = z.get("bedingung_param")
     param: dict[str, Any] = p if isinstance(p, dict) else {}
 
+    steigern = steigern_ziel_werte(gs, typ, param)
+    if steigern is not None:
+        return steigern[0] >= steigern[1]
     if typ == "gesetz_anzahl_beschlossen":
         target = max(0, round(_num(param.get("min_beschlossen"))))
         return _count_beschlossen_gesamt(gs) >= target
@@ -228,6 +262,9 @@ def evaluate_koalitions_ziel(gs: dict[str, Any], z: dict[str, Any]) -> bool:
     param: dict[str, Any] = p if isinstance(p, dict) else {}
     partner = _str(z.get("partner_profil"))
 
+    steigern = steigern_ziel_werte(gs, typ, param)
+    if steigern is not None:
+        return steigern[0] >= steigern[1]
     if typ == "gesetz_politikfeld":
         pf = _str(param.get("politikfeld_id"))
         target = max(0, round(_num(param.get("min_beschlossen"))))

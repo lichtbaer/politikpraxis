@@ -21,7 +21,7 @@ import {
   getKoalitionspartner,
 } from '../../core/systems/koalition';
 import { getKoalitionsStanz, gruppiereNachKoalitionsStanz } from '../../core/gesetzAgenda';
-import { spielerAgendaZielAnzahl } from '../../core/onboardingAgenda';
+import { spielerAgendaZielAnzahl, waehlbareSpielerAgendaZiele } from '../../core/onboardingAgenda';
 import { agendaPflicht } from '../../core/spielziel';
 import { IdeologieSlider } from '../components/IdeologieSlider/IdeologieSlider';
 import { ALLE_PARTEIEN, buildKoalitionspartnerContent } from '../../data/defaults/koalitionspartner';
@@ -177,14 +177,7 @@ export function WahlnachtOnboarding() {
   const parteiIdFilter = state.spielerPartei?.id ?? selectedPartei;
 
   const zielPoolNachKategorie = useMemo(() => {
-    const alle = content.agendaZiele ?? [];
-    const filtered = alle.filter((z) => {
-      if (z.min_complexity > complexity) return false;
-      if (z.partei_filter && z.partei_filter.length > 0 && parteiIdFilter) {
-        if (!z.partei_filter.includes(parteiIdFilter)) return false;
-      }
-      return true;
-    });
+    const filtered = waehlbareSpielerAgendaZiele(content, complexity, parteiIdFilter);
     const byKat = new Map<string, AgendaZielContent[]>();
     for (const z of filtered) {
       const arr = byKat.get(z.kategorie) ?? [];
@@ -192,7 +185,7 @@ export function WahlnachtOnboarding() {
       byKat.set(z.kategorie, arr);
     }
     return byKat;
-  }, [content.agendaZiele, complexity, parteiIdFilter]);
+  }, [content, complexity, parteiIdFilter]);
 
   /** Wie viele eigene Ziele die Stufe verlangt — gedeckelt auf den verfügbaren Pool. */
   const verfuegbareZiele = useMemo(

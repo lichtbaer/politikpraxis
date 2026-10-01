@@ -5,6 +5,7 @@ from app.services.agenda_eval_service import (
     evaluate_koalitions_ziel,
     evaluate_spieler_ziel,
 )
+from app.services.spielende_service import _koalitions_ziel_ampel, _spieler_ziel_ampel
 
 
 def test_evaluate_spieler_gesetz_politikfeld():
@@ -113,3 +114,54 @@ def test_koalitionsbeziehung_min():
         "bedingung_param": {"min_beziehung": 50},
     }
     assert evaluate_koalitions_ziel(gs, z) is True
+
+
+# #475: „… steigern“-Ziele messen gegen Startwert + min_delta
+
+
+def _milieu_steigern(delta: float = 10) -> dict:
+    return {
+        "id": "ag_milieu_mitte",
+        "bedingung_typ": "milieu_zustimmung_steigern",
+        "bedingung_param": {"milieu_id": "soziale_mitte", "min_delta": delta},
+    }
+
+
+def _verband_steigern(delta: float = 10) -> dict:
+    return {
+        "id": "kz_gp_uvb",
+        "partner_profil": "gp",
+        "bedingung_typ": "verband_beziehung_steigern",
+        "bedingung_param": {"verband_id": "uvb", "min_delta": delta},
+    }
+
+
+def test_milieu_steigern_gegen_startwert():
+    gs = {
+        "milieuZustimmung": {"soziale_mitte": 60},
+        "agendaStartwerte": {"milieus": {"soziale_mitte": 52}, "verbaende": {}},
+    }
+    assert evaluate_spieler_ziel(gs, _milieu_steigern(8)) is True
+    assert evaluate_spieler_ziel(gs, _milieu_steigern(10)) is False
+    # 60 < 62, aber innerhalb der Gelb-Marge (2)
+    assert _spieler_ziel_ampel(gs, _milieu_steigern(10)) == "yellow"
+    assert _spieler_ziel_ampel(gs, _milieu_steigern(8)) == "green"
+
+
+def test_verband_steigern_koalition_gegen_startwert():
+    gs = {
+        "verbandsBeziehungen": {"uvb": 72},
+        "agendaStartwerte": {"milieus": {}, "verbaende": {"uvb": 60}},
+    }
+    assert evaluate_koalitions_ziel(gs, _verband_steigern(10)) is True
+    assert _koalitions_ziel_ampel(gs, _verband_steigern(10)) == "green"
+    gs["verbandsBeziehungen"] = {"uvb": 55}
+    assert evaluate_koalitions_ziel(gs, _verband_steigern(10)) is False
+    assert _koalitions_ziel_ampel(gs, _verband_steigern(10)) == "red"
+
+
+def test_steigern_ohne_startwert_nutzt_aktuellen_wert():
+    # Alte Spielstände ohne agendaStartwerte: Start = aktueller Wert → Delta 0
+    gs = {"milieuZustimmung": {"soziale_mitte": 70}}
+    assert evaluate_spieler_ziel(gs, _milieu_steigern(10)) is False
+    assert evaluate_spieler_ziel(gs, _milieu_steigern(0)) is True

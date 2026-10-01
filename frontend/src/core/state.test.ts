@@ -222,6 +222,21 @@ describe('validateGameState', () => {
     });
   });
 
+  it('behält die Startwerte der Agenda-Ziele und verwirft ungültige Werte (#475)', () => {
+    const state = createInitialState(DEFAULT_CONTENT, 4);
+    expect(state.agendaStartwerte?.verbaende).toEqual(state.verbandsBeziehungen);
+    const geladen = validateGameState(JSON.parse(JSON.stringify(state)));
+    expect(geladen.agendaStartwerte).toEqual(state.agendaStartwerte);
+
+    const raw = JSON.parse(JSON.stringify(state)) as Record<string, unknown>;
+    const kaputt = validateGameState({
+      ...raw,
+      agendaStartwerte: { milieus: { soziale_mitte: 140, x: 'a' }, verbaende: 'kaputt' },
+    });
+    expect(kaputt.agendaStartwerte).toEqual({ milieus: { soziale_mitte: 100 }, verbaende: {} });
+    expect(validateGameState({ ...raw, agendaStartwerte: [1, 2] }).agendaStartwerte).toBeUndefined();
+  });
+
   it('übernimmt die Komplexitätsstufe (auf 1–4 begrenzt)', () => {
     const raw = JSON.parse(JSON.stringify(createInitialState(DEFAULT_CONTENT, 2))) as Record<string, unknown>;
     expect(validateGameState(raw).complexity).toBe(2);
@@ -301,6 +316,16 @@ describe('createInitialState', () => {
 });
 
 describe('migrateGameState', () => {
+  it('ergänzt fehlende Agenda-Startwerte aus dem Stand beim Laden (#475)', () => {
+    const { agendaStartwerte: _ohne, ...alt } = createInitialState(DEFAULT_CONTENT, 3);
+    const migrated = migrateGameState({
+      ...alt,
+      milieuZustimmung: { soziale_mitte: 61 },
+      verbandsBeziehungen: { gbd: 70 },
+    } as GameState);
+    expect(migrated.agendaStartwerte).toEqual({ milieus: { soziale_mitte: 61 }, verbaende: { gbd: 70 } });
+  });
+
   it('überträgt erfüllte Grünen-Schlüsselthemen von Gesetz-IDs auf Politikfelder', () => {
     const base = createInitialState(DEFAULT_CONTENT, 2);
     const migrated = migrateGameState({
