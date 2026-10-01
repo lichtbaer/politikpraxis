@@ -49,6 +49,12 @@ function watchErrors(page, sink) {
 /** Chrome-Elemente, die nie ein Onboarding-Schritt sind. */
 const NOISE = /Erneut verbinden|Reconnect|^EN$|^DE$|Anmelden|Sign in|Feedback/i;
 const WEITER = /Weiter|Continue|bestätigen|confirm|Regierung|Start|Los geht/i;
+/**
+ * Rückwärts-Navigation — nie als Ersatz-Klick wählen. Sonst führt ein Klick, der noch auf dem
+ * Setup-Screen landet, zurück ins Hauptmenü, und die Schleife pendelt bis zum Abbruch zwischen
+ * „Credits“ und „Zurück“ (CI-Fehlschlag auf main, Oktober 2026).
+ */
+const ZURUECK = /^(Zurück|Back|Credits)$/i;
 
 /** Sichtbare, aktivierbare Buttons mit ihrem Text. */
 async function enabledButtons(page) {
@@ -65,12 +71,19 @@ async function reachBoard(page, stufeLabel) {
   await page.getByRole('button', { name: /Neues Spiel|New game/i }).click();
   await page.waitForTimeout(800);
   await page.getByText(stufeLabel, { exact: false }).first().click().catch(() => {});
-  await page.getByRole('button', { name: /Kandidatur annehmen|Accept/i }).click();
+  const annehmen = page.getByRole('button', { name: /Kandidatur annehmen|Accept/i });
+  await annehmen.click();
+  // Erst weiter, wenn der Setup-Screen weg ist: Liest die Schleife ihn noch, findet sie dort kein
+  // „Weiter“ und klickt ersatzweise den letzten Button.
+  await annehmen.waitFor({ state: 'detached', timeout: 15_000 }).catch(() => {});
 
   for (let step = 0; step < 24; step++) {
     const body = await page.innerText('body');
     if (ERROR_SCREEN.test(body)) return { reached: false, reason: 'ErrorScreen im Onboarding' };
     if (/Ereignisprotokoll|Event log/i.test(body)) return { reached: true };
+    if (await page.getByRole('button', { name: /Neues Spiel|New game/i }).isVisible().catch(() => false)) {
+      return { reached: false, reason: `in Schritt ${step + 1} zurück im Hauptmenü` };
+    }
 
     let buttons = await enabledButtons(page);
 
@@ -87,7 +100,11 @@ async function reachBoard(page, stufeLabel) {
     if (buttons.length === 0) {
       return { reached: false, reason: `keine aktive Option in Schritt ${step + 1}` };
     }
-    const next = buttons.find((b) => WEITER.test(b.text)) ?? buttons[buttons.length - 1];
+    const vorwaerts = buttons.filter((b) => !ZURUECK.test(b.text));
+    if (vorwaerts.length === 0) {
+      return { reached: false, reason: `nur Rückwärts-Navigation in Schritt ${step + 1}` };
+    }
+    const next = vorwaerts.find((b) => WEITER.test(b.text)) ?? vorwaerts[vorwaerts.length - 1];
     await next.locator.click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(450);
   }
