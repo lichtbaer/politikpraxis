@@ -22,6 +22,12 @@
 #     gebumpt (#447/#448) passen Runner und Coverage-Provider nicht zusammen.
 #   - eslint-Majors werden ignoriert, bis eslint-plugin-jsx-a11y ESLint 10
 #     unterstützt (#446 scheitert daran).
+#
+# Labels (Oktober 2026): Eigene Labels legt Dependabot nicht an — `dependencies`,
+# `backend`, `frontend` und `docker` gab es im Repo nicht, jeder PR bekam eine
+# Warnung und kein Label. Ohne `labels:` setzt Dependabot seine Standard-Labels
+# (`dependencies` + Ecosystem, z. B. `python`, `javascript`, `docker`) und legt sie
+# selbst an. GitHub Actions behält das vorhandene Label `ci`.
 version: 2
 updates:
   - package-ecosystem: "pip"
@@ -29,9 +35,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "backend"
     groups:
       backend-minor-patch:
         applies-to: version-updates
@@ -49,9 +52,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "frontend"
     ignore:
       # Bis eslint-plugin-jsx-a11y ESLint 10 unterstützt (Peer-Dependency <= 9)
       - dependency-name: "eslint"
@@ -83,7 +83,6 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     labels:
-      - "dependencies"
       - "ci"
     groups:
       github-actions:
@@ -97,9 +96,6 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "docker"
     ignore:
       # Python-Minor/Major wird bewusst manuell gezogen: Version muss synchron
       # mit pyproject.toml (requires-python/ruff/mypy) und lint.yml bleiben.
@@ -111,6 +107,3 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "docker"
