@@ -81,15 +81,22 @@ def _ensure_alembic_version_column_length(connection) -> None:
         return
 
 
+def _sync_url(url: str) -> str:
+    """Alembic läuft synchron über psycopg2: Treiber explizit setzen.
+
+    asyncpg-URLs (App) werden umgeschrieben. Auch ein nacktes ``postgresql://`` bekommt
+    den Treiber — SQLAlchemy 2.1 wählt dafür sonst psycopg (v3), das nicht installiert ist.
+    """
+    for prefix in ("postgresql+asyncpg://", "postgresql://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg2://" + url[len(prefix) :]
+    return url
+
+
 def get_url() -> str:
     """DB-URL aus Umgebung (Docker) oder aus alembic.ini (lokal). Sync-URL für Alembic."""
-    url = os.environ.get("DATABASE_URL")
-    if url:
-        # Alembic nutzt synchronen Treiber (psycopg2); asyncpg-URL umschreiben
-        if url.startswith("postgresql+asyncpg://"):
-            url = url.replace("postgresql+asyncpg://", "postgresql://", 1)
-        return url
-    return config.get_main_option("sqlalchemy.url", "")
+    url = os.environ.get("DATABASE_URL") or config.get_main_option("sqlalchemy.url", "")
+    return _sync_url(url)
 
 
 def run_migrations_offline() -> None:
